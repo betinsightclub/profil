@@ -4,29 +4,88 @@
   <meta charset="UTF-8">
   <title>BetInsight Profil</title>
 </head>
+
 <body style="background:#001b24;color:white;font-family:Arial,sans-serif;text-align:center;padding:50px;">
 
-  <h1>BetInsight Profil wird geladen...</h1>
-  <p>Bitte einen Moment warten.</p>
+  <h1>👤 Mein BetInsight Profil</h1>
+
+  <div style="margin-top:40px;font-size:34px;">
+    Aktuelle Units:
+    <span id="units" style="font-size:60px;font-weight:bold;color:white;">0</span>
+  </div>
+
+  <div style="margin-top:30px;font-size:20px;">
+    <strong>E-Mail:</strong>
+    <span id="email">Lade...</span>
+  </div>
+
+  <div id="message" style="margin-top:25px;color:#ffcc00;font-size:16px;">
+    Kontostand wird geladen...
+  </div>
+
+  <button onclick="loadUnits()" style="margin-top:30px;padding:14px 24px;border:none;border-radius:6px;background:#007bff;color:white;font-size:16px;cursor:pointer;">
+    🔄 Kontostand aktualisieren
+  </button>
 
   <script>
+    const PROFILE_WEBHOOK_URL = "https://hook.eu1.make.com/ohd8r7mg5kft0gybdxoqpxjtvuf3fy9q";
+
     function getTokenFromUrl() {
       const params = new URLSearchParams(window.location.search);
       return params.get("token");
     }
 
-    const token = getTokenFromUrl();
+    function setUnitColor(units) {
+      const unitsElement = document.getElementById("units");
 
-    if (token) {
-      localStorage.setItem("betinsight_token", token);
-
-      window.location.href = "https://betinsight.systeme.io/school/course/mitglieder/lecture/10113642";
-    } else {
-      document.body.innerHTML = `
-        <h1>Kein Zugangscode gefunden</h1>
-        <p>Bitte öffne deinen persönlichen BetInsight-Profil-Link.</p>
-      `;
+      if (units === 0) {
+        unitsElement.style.color = "red";
+      } else if (units < 10) {
+        unitsElement.style.color = "orange";
+      } else {
+        unitsElement.style.color = "lime";
+      }
     }
+
+    function loadUnits() {
+      const token = getTokenFromUrl();
+
+      if (!token) {
+        document.getElementById("units").innerText = "0";
+        document.getElementById("email").innerText = "Kein Zugangscode";
+        document.getElementById("message").innerText = "Bitte öffne deinen persönlichen BetInsight-Profil-Link.";
+        setUnitColor(0);
+        return;
+      }
+
+      document.getElementById("message").innerText = "Kontostand wird geladen...";
+
+      fetch(PROFILE_WEBHOOK_URL + "?token=" + encodeURIComponent(token))
+        .then(response => response.json())
+        .then(data => {
+          if (!data || data.found === false) {
+            document.getElementById("units").innerText = "0";
+            document.getElementById("email").innerText = "Nicht gefunden";
+            document.getElementById("message").innerText = "Zugangscode wurde nicht gefunden.";
+            setUnitColor(0);
+            return;
+          }
+
+          const units = parseInt(data.units) || 0;
+
+          document.getElementById("units").innerText = units;
+          document.getElementById("email").innerText = data.email || "Keine E-Mail gefunden";
+          document.getElementById("message").innerText = "Aktualisiert.";
+          setUnitColor(units);
+        })
+        .catch(error => {
+          document.getElementById("units").innerText = "Fehler";
+          document.getElementById("email").innerText = "Fehler";
+          document.getElementById("message").innerText = "Kontostand konnte nicht geladen werden.";
+        });
+    }
+
+    loadUnits();
   </script>
 
 </body>
