@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>BetInsight Profil</title>
+</head>
+<body style="background:#001b24;color:white;font-family:Arial,sans-serif;text-align:center;padding:50px;">
+
+  <h1>BetInsight Profil wird geladen...</h1>
+  <p>Bitte einen Moment warten.</p>
+
+  <script>
+    function getTokenFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("token");
+    }
+
+    const token = getTokenFromUrl();
+
+    if (token) {
+      localStorage.setItem("betinsight_token", token);
+
+      window.location.href = "https://betinsight.systeme.io/school/course/mitglieder/lecture/10113642";
+    } else {
+      document.body.innerHTML = `
+        <h1>Kein Zugangscode gefunden</h1>
+        <p>Bitte öffne deinen persönlichen BetInsight-Profil-Link.</p>
+      `;
+    }
+  </script>
+
+</body>
+</html>
