@@ -32,13 +32,13 @@
       <span id="email">Lade...</span>
     </div>
 
-    <div id="message" style="color:#ffcc00;font-size:16px;margin-bottom:30px;">
+    <div id="message" style="color:#ffcc00;font-size:16px;margin-bottom:25px;">
       Kontostand wird geladen...
     </div>
 
     <button
       onclick="loadUnits()"
-      style="padding:15px 30px;border:none;border-radius:8px;background:#007bff;color:white;font-size:18px;cursor:pointer;margin-bottom:20px;"
+      style="padding:15px 30px;border:none;border-radius:8px;background:#007bff;color:white;font-size:18px;cursor:pointer;margin-bottom:18px;"
     >
       🔄 Kontostand aktualisieren
     </button>
@@ -61,7 +61,11 @@
       ⬅ Zurück zum Backoffice
     </button>
 
-    <div style="margin-top:70px;color:rgba(255,255,255,0.45);font-size:14px;">
+    <div id="debug" style="margin-top:35px;color:rgba(255,255,255,0.35);font-size:13px;">
+      Debug: wird geladen...
+    </div>
+
+    <div style="margin-top:45px;color:rgba(255,255,255,0.45);font-size:14px;">
       © 2026 BetInsight Club
     </div>
 
@@ -81,7 +85,7 @@
     }
 
     function saveToken(token) {
-      if (token) {
+      if (token && token.trim() !== "") {
         localStorage.setItem(TOKEN_STORAGE_KEY, token);
       }
     }
@@ -89,12 +93,16 @@
     function getActiveToken() {
       const tokenFromUrl = getTokenFromUrl();
 
-      if (tokenFromUrl) {
+      if (tokenFromUrl && tokenFromUrl.trim() !== "") {
         saveToken(tokenFromUrl);
         return tokenFromUrl;
       }
 
       return getSavedToken();
+    }
+
+    function setDebug(text) {
+      document.getElementById("debug").innerText = "Debug: " + text;
     }
 
     function setUnitColor(units) {
@@ -110,7 +118,15 @@
     }
 
     function loadUnits() {
+      const tokenFromUrl = getTokenFromUrl();
+      const savedToken = getSavedToken();
       const token = getActiveToken();
+
+      setDebug(
+        "URL-Token: " + (tokenFromUrl || "leer") +
+        " | Speicher-Token: " + (savedToken || "leer") +
+        " | aktiver Token: " + (token || "leer")
+      );
 
       if (!token) {
         document.getElementById("units").innerText = "0";
@@ -143,6 +159,12 @@
           document.getElementById("message").innerText = "Aktualisiert.";
 
           setUnitColor(units);
+
+          setDebug(
+            "Token aktiv: " + token +
+            " | API email: " + (data.email || "leer") +
+            " | API units: " + (data.units ?? "leer")
+          );
         })
         .catch(error => {
           console.error(error);
@@ -151,6 +173,8 @@
           document.getElementById("email").innerText = "Fehler";
           document.getElementById("message").innerText =
             "Kontostand konnte nicht geladen werden.";
+
+          setDebug("Fehler beim Laden: " + error.message);
         });
     }
 
@@ -162,6 +186,8 @@
       document.getElementById("message").innerText =
         "Zugangscode wurde auf diesem Gerät gelöscht.";
       setUnitColor(0);
+
+      setDebug("Token gelöscht.");
     }
 
     loadUnits();
