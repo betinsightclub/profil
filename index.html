@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -50,7 +49,7 @@
       onclick="window.location.href='https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726'"
       style="padding:15px 32px;border:none;border-radius:8px;background:#5f7488;color:white;font-size:18px;cursor:pointer;"
     >
-      ⬅ Zurück zum Dashboard
+      ⬅ Zurück zum Backoffice
     </button>
 
     <div style="margin-top:70px;color:rgba(255,255,255,0.45);font-size:14px;">
@@ -60,9 +59,7 @@
   </div>
 
   <script>
-
-    const PROFILE_WEBHOOK_URL =
-      "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
+    const PROFILE_WEBHOOK_URL = "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
 
     function getTokenFromUrl() {
       const params = new URLSearchParams(window.location.search);
@@ -93,13 +90,11 @@
         return;
       }
 
-      document.getElementById("message").innerText =
-        "Kontostand wird geladen...";
+      document.getElementById("message").innerText = "Kontostand wird geladen...";
 
       fetch(PROFILE_WEBHOOK_URL + "?token=" + encodeURIComponent(token))
         .then(response => response.json())
         .then(data => {
-
           if (!data || data.found === false) {
             document.getElementById("units").innerText = "0";
             document.getElementById("email").innerText = "Nicht gefunden";
@@ -114,9 +109,7 @@
           document.getElementById("units").innerText = units;
           document.getElementById("email").innerText =
             data.email || "Keine E-Mail gefunden";
-
-          document.getElementById("message").innerText =
-            "Aktualisiert.";
+          document.getElementById("message").innerText = "Aktualisiert.";
 
           setUnitColor(units);
         })
@@ -125,16 +118,13 @@
 
           document.getElementById("units").innerText = "Fehler";
           document.getElementById("email").innerText = "Fehler";
-
           document.getElementById("message").innerText =
             "Kontostand konnte nicht geladen werden.";
         });
     }
 
     loadUnits();
-
   </script>
 
 </body>
 </html>
-```
