@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BetInsight Units kaufen</title>
+</head>
+
+<body style="margin:0;background:#001b24;color:white;font-family:Arial,sans-serif;text-align:center;min-height:100vh;">
+
+  <div style="max-width:700px;margin:0 auto;padding:80px 20px;">
+
+    <img
+      src="../logo_betisight.club.png"
+      alt="BetInsight Club"
+      style="width:180px;max-width:80%;height:auto;margin-bottom:40px;"
+    >
+
+    <h1>Units kaufen</h1>
+
+    <div id="message" style="color:#ffcc00;font-size:18px;margin-top:30px;">
+      Deine registrierte E-Mail wird geladen...
+    </div>
+
+    <div id="email" style="font-size:20px;font-weight:bold;color:#00ccff;margin-top:20px;">
+      Bitte warten...
+    </div>
+
+  </div>
+
+  <script>
+    const TOKEN_STORAGE_KEY = "betinsight_profile_token";
+    const PROFILE_WEBHOOK_URL = "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
+    const KASSE_URL = "https://betinsight.systeme.io/school/course/mitglieder/lecture/10169349";
+
+    function start() {
+      const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+
+      if (!token) {
+        document.getElementById("message").innerText =
+          "Kein Profil-Zugang erkannt. Bitte öffne zuerst einmal dein Profil.";
+        document.getElementById("email").innerText = "";
+        return;
+      }
+
+      fetch(PROFILE_WEBHOOK_URL + "?token=" + encodeURIComponent(token))
+        .then(response => response.json())
+        .then(data => {
+          const email = data.email || "";
+
+          if (!email) {
+            document.getElementById("message").innerText =
+              "Keine registrierte E-Mail gefunden.";
+            document.getElementById("email").innerText = "";
+            return;
+          }
+
+          document.getElementById("email").innerText = email;
+          document.getElementById("message").innerText =
+            "Weiterleitung zur Kasse...";
+
+          window.location.href =
+            KASSE_URL + "?email=" + encodeURIComponent(email);
+        })
+        .catch(error => {
+          document.getElementById("message").innerText =
+            "Fehler beim Laden der E-Mail.";
+          document.getElementById("email").innerText = "";
+        });
+    }
+
+    start();
+  </script>
+
+</body>
+</html>
