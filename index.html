@@ -11,7 +11,7 @@
   <div style="max-width:760px;margin:0 auto;padding:45px 20px;">
 
     <img
-      src="logo_betisight.club.png.png"
+      src="logo_betisight.club.png"
       alt="BetInsight Club"
       style="width:170px;max-width:70%;height:auto;margin-bottom:35px;"
     >
@@ -61,7 +61,7 @@
       ⬅ Zurück zum Backoffice
     </button>
 
-    <div id="debug" style="margin-top:35px;color:rgba(255,255,255,0.35);font-size:13px;">
+    <div id="debug" style="margin-top:35px;color:rgba(255,255,255,0.35);font-size:13px;line-height:1.5;">
       Debug: wird geladen...
     </div>
 
@@ -117,53 +117,86 @@
       }
     }
 
+    function showNoToken() {
+      document.getElementById("units").innerText = "0";
+      document.getElementById("email").innerText = "Kein Zugangscode";
+      document.getElementById("message").innerText =
+        "Bitte öffne einmal deinen persönlichen BetInsight-Profil-Link.";
+      setUnitColor(0);
+    }
+
     function loadUnits() {
       const tokenFromUrl = getTokenFromUrl();
-      const savedToken = getSavedToken();
+      const savedTokenBefore = getSavedToken();
       const token = getActiveToken();
 
       setDebug(
         "URL-Token: " + (tokenFromUrl || "leer") +
-        " | Speicher-Token: " + (savedToken || "leer") +
+        " | Speicher-Token: " + (savedTokenBefore || "leer") +
         " | aktiver Token: " + (token || "leer")
       );
 
       if (!token) {
-        document.getElementById("units").innerText = "0";
-        document.getElementById("email").innerText = "Kein Zugangscode";
-        document.getElementById("message").innerText =
-          "Bitte öffne einmal deinen persönlichen BetInsight-Profil-Link.";
-        setUnitColor(0);
+        showNoToken();
         return;
       }
 
       document.getElementById("message").innerText = "Kontostand wird geladen...";
 
-      fetch(PROFILE_WEBHOOK_URL + "?token=" + encodeURIComponent(token))
-        .then(response => response.json())
-        .then(data => {
+      const requestUrl =
+        PROFILE_WEBHOOK_URL +
+        "?token=" +
+        encodeURIComponent(token) +
+        "&cachebuster=" +
+        Date.now();
+
+      fetch(requestUrl)
+        .then(response => response.text())
+        .then(text => {
+          setDebug("Rohe API-Antwort: " + text);
+
+          let data;
+
+          try {
+            data = JSON.parse(text);
+          } catch (error) {
+            document.getElementById("units").innerText = "Fehler";
+            document.getElementById("email").innerText = "JSON Fehler";
+            document.getElementById("message").innerText =
+              "Die Antwort von Make ist kein gültiges JSON.";
+            setUnitColor(0);
+            setDebug("JSON Fehler. Rohe Antwort: " + text);
+            return;
+          }
+
           if (!data || data.found === false) {
             document.getElementById("units").innerText = "0";
             document.getElementById("email").innerText = "Nicht gefunden";
             document.getElementById("message").innerText =
               "Zugangscode wurde nicht gefunden.";
             setUnitColor(0);
+            setDebug("Nicht gefunden. API: " + JSON.stringify(data));
             return;
           }
 
-          const units = parseInt(data.units) || 0;
+          const email = data.email || data.Email || data.mail || "";
+          const unitsRaw = data.units ?? data.Units ?? data.unit ?? data.Unit ?? 0;
+          const returnedToken = data.token || data.Token || token;
+
+          const units = parseInt(unitsRaw) || 0;
 
           document.getElementById("units").innerText = units;
           document.getElementById("email").innerText =
-            data.email || "Keine E-Mail gefunden";
+            email || "Keine E-Mail gefunden";
           document.getElementById("message").innerText = "Aktualisiert.";
 
           setUnitColor(units);
 
           setDebug(
             "Token aktiv: " + token +
-            " | API email: " + (data.email || "leer") +
-            " | API units: " + (data.units ?? "leer")
+            " | API Token: " + returnedToken +
+            " | API E-Mail: " + (email || "leer") +
+            " | API Units: " + unitsRaw
           );
         })
         .catch(error => {
@@ -174,7 +207,7 @@
           document.getElementById("message").innerText =
             "Kontostand konnte nicht geladen werden.";
 
-          setDebug("Fehler beim Laden: " + error.message);
+          setDebug("Fetch Fehler: " + error.message);
         });
     }
 
