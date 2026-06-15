@@ -38,9 +38,18 @@
 
     <button
       onclick="loadUnits()"
-      style="padding:15px 30px;border:none;border-radius:8px;background:#007bff;color:white;font-size:18px;cursor:pointer;margin-bottom:45px;"
+      style="padding:15px 30px;border:none;border-radius:8px;background:#007bff;color:white;font-size:18px;cursor:pointer;margin-bottom:20px;"
     >
       🔄 Kontostand aktualisieren
+    </button>
+
+    <br>
+
+    <button
+      onclick="forgetToken()"
+      style="padding:10px 22px;border:none;border-radius:8px;background:#7a2e2e;color:white;font-size:14px;cursor:pointer;margin-bottom:45px;"
+    >
+      Zugangscode auf diesem Gerät löschen
     </button>
 
     <hr style="border:0;border-top:1px solid rgba(255,255,255,0.25);margin:10px auto 35px auto;max-width:620px;">
@@ -60,10 +69,32 @@
 
   <script>
     const PROFILE_WEBHOOK_URL = "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
+    const TOKEN_STORAGE_KEY = "betinsight_profile_token";
 
     function getTokenFromUrl() {
       const params = new URLSearchParams(window.location.search);
       return params.get("token");
+    }
+
+    function getSavedToken() {
+      return localStorage.getItem(TOKEN_STORAGE_KEY);
+    }
+
+    function saveToken(token) {
+      if (token) {
+        localStorage.setItem(TOKEN_STORAGE_KEY, token);
+      }
+    }
+
+    function getActiveToken() {
+      const tokenFromUrl = getTokenFromUrl();
+
+      if (tokenFromUrl) {
+        saveToken(tokenFromUrl);
+        return tokenFromUrl;
+      }
+
+      return getSavedToken();
     }
 
     function setUnitColor(units) {
@@ -79,13 +110,13 @@
     }
 
     function loadUnits() {
-      const token = getTokenFromUrl();
+      const token = getActiveToken();
 
       if (!token) {
         document.getElementById("units").innerText = "0";
         document.getElementById("email").innerText = "Kein Zugangscode";
         document.getElementById("message").innerText =
-          "Bitte öffne deinen persönlichen BetInsight-Profil-Link.";
+          "Bitte öffne einmal deinen persönlichen BetInsight-Profil-Link.";
         setUnitColor(0);
         return;
       }
@@ -121,6 +152,16 @@
           document.getElementById("message").innerText =
             "Kontostand konnte nicht geladen werden.";
         });
+    }
+
+    function forgetToken() {
+      localStorage.removeItem(TOKEN_STORAGE_KEY);
+
+      document.getElementById("units").innerText = "0";
+      document.getElementById("email").innerText = "Kein Zugangscode";
+      document.getElementById("message").innerText =
+        "Zugangscode wurde auf diesem Gerät gelöscht.";
+      setUnitColor(0);
     }
 
     loadUnits();
