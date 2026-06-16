@@ -20,15 +20,20 @@
 
       <h2>Units kaufen</h2>
 
-      <p>Deine E-Mail wird automatisch geladen. Bitte wähle dein Paket.</p>
+      <p>
+        Deine E-Mail wird automatisch geladen. Bitte prüfe sie vor dem Kauf und wähle dein Paket.
+      </p>
 
       <input
         id="buyerEmail"
         type="email"
-        placeholder="E-Mail wird geladen..."
-        readonly
+        placeholder="deine registrierte E-Mail"
         style="width:100%;padding:14px;font-size:16px;margin:15px 0;box-sizing:border-box;background:white;color:black;border:2px solid #008cff;border-radius:8px;"
       >
+
+      <div id="emailStatus" style="font-size:13px;color:#ffcc00;margin-bottom:12px;line-height:1.5;">
+        E-Mail wird geladen...
+      </div>
 
       <select
         id="packageSelect"
@@ -64,8 +69,13 @@
         Weiter zur Zahlung
       </button>
 
-      <p id="message" style="font-size:13px;line-height:1.5;margin-top:18px;color:#ffcc00;">
-        E-Mail wird geladen...
+      <p style="font-size:13px;line-height:1.5;margin-top:18px;color:#ffcc00;">
+        Bitte prüfe die E-Mail vor dem Kauf. Die Units werden genau dieser E-Mail gutgeschrieben.
+      </p>
+
+      <p style="font-size:12px;line-height:1.5;margin-top:10px;color:#c9d6df;">
+        Wenn du mehrere Accounts betreust, kontrolliere bitte besonders sorgfältig,
+        dass hier die richtige registrierte E-Mail steht.
       </p>
 
       <p style="font-size:12px;line-height:1.5;margin-top:10px;color:#c9d6df;">
@@ -126,21 +136,30 @@
     function getActiveToken() {
       const tokenFromUrl = getTokenFromUrl();
 
-      if (tokenFromUrl) {
-        localStorage.setItem(TOKEN_STORAGE_KEY, tokenFromUrl);
-        return tokenFromUrl;
+      if (tokenFromUrl && tokenFromUrl.trim() !== "") {
+        localStorage.setItem(TOKEN_STORAGE_KEY, tokenFromUrl.trim());
+        return tokenFromUrl.trim();
       }
 
       return localStorage.getItem(TOKEN_STORAGE_KEY);
     }
 
+    function setEmailStatus(text, color) {
+      const status = document.getElementById("emailStatus");
+      status.innerText = text;
+      status.style.color = color || "#ffcc00";
+    }
+
     function loadEmail() {
       const token = getActiveToken();
+      const emailInput = document.getElementById("buyerEmail");
 
       if (!token) {
-        document.getElementById("buyerEmail").value = "";
-        document.getElementById("message").innerText =
-          "Kein Zugangscode gefunden. Bitte öffne zuerst dein BetInsight-Profil.";
+        emailInput.value = "";
+        setEmailStatus(
+          "Keine automatische E-Mail erkannt. Bitte trage deine registrierte E-Mail manuell ein.",
+          "#ffcc00"
+        );
         return;
       }
 
@@ -148,23 +167,30 @@
         .then(response => response.json())
         .then(data => {
           if (!data || data.found === false || !data.email) {
-            document.getElementById("buyerEmail").value = "";
-            document.getElementById("message").innerText =
-              "E-Mail konnte nicht geladen werden. Bitte Profil prüfen.";
+            emailInput.value = "";
+            setEmailStatus(
+              "E-Mail konnte nicht automatisch geladen werden. Bitte trage sie manuell ein.",
+              "#ffcc00"
+            );
             return;
           }
 
           const email = data.email.trim().toLowerCase();
 
-          document.getElementById("buyerEmail").value = email;
+          emailInput.value = email;
           localStorage.setItem("betinsight_email", email);
-          document.getElementById("message").innerText =
-            "E-Mail erkannt: " + email;
+
+          setEmailStatus(
+            "✓ E-Mail automatisch erkannt. Bitte vor dem Kauf prüfen.",
+            "#00ff99"
+          );
         })
         .catch(error => {
-          document.getElementById("buyerEmail").value = "";
-          document.getElementById("message").innerText =
-            "Fehler beim Laden der E-Mail.";
+          emailInput.value = "";
+          setEmailStatus(
+            "Fehler beim Laden der E-Mail. Bitte trage sie manuell ein.",
+            "#ffcc00"
+          );
         });
     }
 
@@ -186,7 +212,7 @@
       const paket = document.getElementById("packageSelect").value;
 
       if (!email) {
-        alert("Keine E-Mail gefunden. Bitte öffne zuerst dein Profil.");
+        alert("Bitte registrierte E-Mail eingeben oder prüfen.");
         return;
       }
 
@@ -194,6 +220,8 @@
         alert("Bitte Paket auswählen.");
         return;
       }
+
+      localStorage.setItem("betinsight_email", email);
 
       const paymentUrl =
         PAYMENT_WEBHOOK_URL
