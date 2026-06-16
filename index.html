@@ -32,7 +32,7 @@
       <span id="email">Lade...</span>
     </div>
 
-    <div id="message" style="color:#ffcc00;font-size:16px;margin-bottom:25px;">
+    <div id="message" style="color:#ffcc00;font-size:16px;margin-bottom:30px;">
       Kontostand wird geladen...
     </div>
 
@@ -41,6 +41,15 @@
       style="padding:15px 30px;border:none;border-radius:8px;background:#007bff;color:white;font-size:18px;cursor:pointer;margin-bottom:18px;"
     >
       🔄 Kontostand aktualisieren
+    </button>
+
+    <br>
+
+    <button
+      onclick="goBuyUnits()"
+      style="padding:15px 30px;border:none;border-radius:8px;background:#00a86b;color:white;font-size:18px;cursor:pointer;margin-bottom:18px;"
+    >
+      💎 Units kaufen
     </button>
 
     <br>
@@ -61,9 +70,7 @@
       ⬅ Zurück zum Backoffice
     </button>
 
-    <div id="debug" style="margin-top:35px;color:rgba(255,255,255,0.35);font-size:13px;line-height:1.5;">
-      Debug: wird geladen...
-    </div>
+    <div id="debug" style="margin-top:35px;color:rgba(255,255,255,0.35);font-size:12px;"></div>
 
     <div style="margin-top:45px;color:rgba(255,255,255,0.45);font-size:14px;">
       © 2026 BetInsight Club
@@ -86,7 +93,7 @@
 
     function saveToken(token) {
       if (token && token.trim() !== "") {
-        localStorage.setItem(TOKEN_STORAGE_KEY, token);
+        localStorage.setItem(TOKEN_STORAGE_KEY, token.trim());
       }
     }
 
@@ -95,14 +102,10 @@
 
       if (tokenFromUrl && tokenFromUrl.trim() !== "") {
         saveToken(tokenFromUrl);
-        return tokenFromUrl;
+        return tokenFromUrl.trim();
       }
 
       return getSavedToken();
-    }
-
-    function setDebug(text) {
-      document.getElementById("debug").innerText = "Debug: " + text;
     }
 
     function setUnitColor(units) {
@@ -117,86 +120,52 @@
       }
     }
 
-    function showNoToken() {
-      document.getElementById("units").innerText = "0";
-      document.getElementById("email").innerText = "Kein Zugangscode";
-      document.getElementById("message").innerText =
-        "Bitte öffne einmal deinen persönlichen BetInsight-Profil-Link.";
-      setUnitColor(0);
+    function setDebug(text) {
+      document.getElementById("debug").innerText = text;
     }
 
     function loadUnits() {
-      const tokenFromUrl = getTokenFromUrl();
-      const savedTokenBefore = getSavedToken();
       const token = getActiveToken();
 
-      setDebug(
-        "URL-Token: " + (tokenFromUrl || "leer") +
-        " | Speicher-Token: " + (savedTokenBefore || "leer") +
-        " | aktiver Token: " + (token || "leer")
-      );
-
       if (!token) {
-        showNoToken();
+        document.getElementById("units").innerText = "0";
+        document.getElementById("email").innerText = "Kein Zugangscode";
+        document.getElementById("message").innerText =
+          "Bitte öffne einmal deinen persönlichen BetInsight-Profil-Link.";
+        setUnitColor(0);
+        setDebug("Debug: Kein Token aktiv.");
         return;
       }
 
       document.getElementById("message").innerText = "Kontostand wird geladen...";
 
-      const requestUrl =
-        PROFILE_WEBHOOK_URL +
-        "?token=" +
-        encodeURIComponent(token) +
-        "&cachebuster=" +
-        Date.now();
-
-      fetch(requestUrl)
-        .then(response => response.text())
-        .then(text => {
-          setDebug("Rohe API-Antwort: " + text);
-
-          let data;
-
-          try {
-            data = JSON.parse(text);
-          } catch (error) {
-            document.getElementById("units").innerText = "Fehler";
-            document.getElementById("email").innerText = "JSON Fehler";
-            document.getElementById("message").innerText =
-              "Die Antwort von Make ist kein gültiges JSON.";
-            setUnitColor(0);
-            setDebug("JSON Fehler. Rohe Antwort: " + text);
-            return;
-          }
-
+      fetch(PROFILE_WEBHOOK_URL + "?token=" + encodeURIComponent(token))
+        .then(response => response.json())
+        .then(data => {
           if (!data || data.found === false) {
             document.getElementById("units").innerText = "0";
             document.getElementById("email").innerText = "Nicht gefunden";
             document.getElementById("message").innerText =
               "Zugangscode wurde nicht gefunden.";
             setUnitColor(0);
-            setDebug("Nicht gefunden. API: " + JSON.stringify(data));
+            setDebug("Debug: Token aktiv: " + token + " | API: nicht gefunden");
             return;
           }
 
-          const email = data.email || data.Email || data.mail || "";
-          const unitsRaw = data.units ?? data.Units ?? data.unit ?? data.Unit ?? 0;
-          const returnedToken = data.token || data.Token || token;
-
-          const units = parseInt(unitsRaw) || 0;
+          const units = parseInt(data.units) || 0;
 
           document.getElementById("units").innerText = units;
           document.getElementById("email").innerText =
-            email || "Keine E-Mail gefunden";
+            data.email || "Keine E-Mail gefunden";
           document.getElementById("message").innerText = "Aktualisiert.";
 
           setUnitColor(units);
 
           setDebug(
-            "Token aktiv: " + token +
-            " | API Token: " + returnedToken +
-            " | API E-Mail: " + (email || "leer") +
-            " | API Units: " + unitsRaw
+            "Debug: Token aktiv: " + token +
+            " | API Token: " + (data.token || "leer") +
+            " | API E-Mail: " + (data.email || "leer") +
+            " | API Units: " + (data.units || "0")
           );
         })
         .catch(error => {
@@ -206,21 +175,32 @@
           document.getElementById("email").innerText = "Fehler";
           document.getElementById("message").innerText =
             "Kontostand konnte nicht geladen werden.";
-
-          setDebug("Fetch Fehler: " + error.message);
+          setDebug("Debug: Fehler beim Laden.");
         });
+    }
+
+    function goBuyUnits() {
+      const token = getActiveToken();
+
+      if (!token) {
+        alert("Kein Zugangscode gefunden. Bitte öffne zuerst deinen persönlichen Profil-Link.");
+        return;
+      }
+
+      window.location.href =
+        "https://betinsightclub.github.io/profil/kaufen/?token=" + encodeURIComponent(token);
     }
 
     function forgetToken() {
       localStorage.removeItem(TOKEN_STORAGE_KEY);
+      localStorage.removeItem("betinsight_email");
 
       document.getElementById("units").innerText = "0";
       document.getElementById("email").innerText = "Kein Zugangscode";
       document.getElementById("message").innerText =
         "Zugangscode wurde auf diesem Gerät gelöscht.";
       setUnitColor(0);
-
-      setDebug("Token gelöscht.");
+      setDebug("Debug: Zugangscode gelöscht.");
     }
 
     loadUnits();
