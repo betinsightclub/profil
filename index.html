@@ -38,11 +38,23 @@
       >
 
       <button
+        onclick="openSystemeProfile()"
+        style="width:100%;padding:13px;font-size:16px;background:#5f7488;color:white;border:0;border-radius:8px;cursor:pointer;margin-bottom:12px;"
+      >
+        👤 Meine systeme.io E-Mail prüfen
+      </button>
+
+      <button
         onclick="requestProfileLink()"
         style="width:100%;padding:14px;font-size:18px;background:#00a86b;color:white;border:0;border-radius:8px;cursor:pointer;"
       >
         🔗 Profil-Link anfordern
       </button>
+
+      <p style="font-size:13px;line-height:1.5;margin-top:14px;color:#ffcc00;">
+        Die systeme.io Profilseite öffnet sich in einem neuen Fenster. Dort siehst du deine registrierte E-Mail.
+        Trage diese E-Mail hier ein und fordere deinen Profil-Link an.
+      </p>
 
       <div id="requestMessage" style="margin-top:16px;color:#ffcc00;font-size:15px;line-height:1.5;"></div>
     </div>
@@ -189,6 +201,10 @@
     function showProfileBox() {
       document.getElementById("requestBox").style.display = "none";
       document.getElementById("profileBox").style.display = "block";
+    }
+
+    function openSystemeProfile() {
+      window.open("https://betinsight.systeme.io/profile/user-settings", "_blank");
     }
 
     function buildProfileLink(token) {
