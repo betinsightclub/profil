@@ -82,6 +82,24 @@
     const PROFILE_WEBHOOK_URL = "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
     const TOKEN_STORAGE_KEY = "betinsight_profile_token";
 
+    function normalizeToken(token) {
+      if (!token) {
+        return "";
+      }
+
+      const cleanedToken = token.trim();
+
+      if (cleanedToken === "") {
+        return "";
+      }
+
+      if (cleanedToken.startsWith("BI-")) {
+        return cleanedToken;
+      }
+
+      return "BI-" + cleanedToken;
+    }
+
     function getTokenFromUrl() {
       const params = new URLSearchParams(window.location.search);
       return params.get("token");
@@ -92,8 +110,10 @@
     }
 
     function saveToken(token) {
-      if (token && token.trim() !== "") {
-        localStorage.setItem(TOKEN_STORAGE_KEY, token.trim());
+      const normalizedToken = normalizeToken(token);
+
+      if (normalizedToken !== "") {
+        localStorage.setItem(TOKEN_STORAGE_KEY, normalizedToken);
       }
     }
 
@@ -101,11 +121,12 @@
       const tokenFromUrl = getTokenFromUrl();
 
       if (tokenFromUrl && tokenFromUrl.trim() !== "") {
-        saveToken(tokenFromUrl);
-        return tokenFromUrl.trim();
+        const normalizedToken = normalizeToken(tokenFromUrl);
+        saveToken(normalizedToken);
+        return normalizedToken;
       }
 
-      return getSavedToken();
+      return normalizeToken(getSavedToken());
     }
 
     function setUnitColor(units) {
@@ -142,21 +163,20 @@
       fetch(PROFILE_WEBHOOK_URL + "?token=" + encodeURIComponent(token))
         .then(response => response.json())
         .then(data => {
-          if (!data || data.found === false) {
+          if (!data || data.found === false || !data.email) {
             document.getElementById("units").innerText = "0";
             document.getElementById("email").innerText = "Nicht gefunden";
             document.getElementById("message").innerText =
               "Zugangscode wurde nicht gefunden.";
             setUnitColor(0);
-            setDebug("Debug: Token aktiv: " + token + " | API: nicht gefunden");
+            setDebug("Debug: Token aktiv: " + token + " | API: nicht gefunden oder leer");
             return;
           }
 
           const units = parseInt(data.units) || 0;
 
           document.getElementById("units").innerText = units;
-          document.getElementById("email").innerText =
-            data.email || "Keine E-Mail gefunden";
+          document.getElementById("email").innerText = data.email;
           document.getElementById("message").innerText = "Aktualisiert.";
 
           setUnitColor(units);
