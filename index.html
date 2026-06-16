@@ -18,72 +18,101 @@
 
     <div style="font-size:48px;margin-bottom:15px;">👤</div>
 
-    <h1 style="font-size:34px;margin:0 0 45px 0;">
+    <h1 style="font-size:34px;margin:0 0 35px 0;">
       Mein BetInsight Profil
     </h1>
 
-    <div style="font-size:34px;margin-bottom:28px;">
-      Aktuelle Units:
-      <span id="units" style="font-size:62px;font-weight:bold;color:white;">0</span>
-    </div>
+    <div id="requestBox" style="display:none;max-width:620px;margin:0 auto 30px auto;background:#04263a;padding:26px;border-radius:14px;">
+      <h2 style="margin-top:0;color:#00ff99;">Profil-Link anfordern</h2>
 
-    <div style="font-size:20px;margin-bottom:22px;">
-      <strong>E-Mail:</strong>
-      <span id="email">Lade...</span>
-    </div>
-
-    <div style="max-width:620px;margin:0 auto 26px auto;background:#04263a;padding:22px;border-radius:14px;">
-      <div style="font-size:18px;font-weight:bold;margin-bottom:10px;color:#00ff99;">
-        Dein persönlicher Profil-Link
-      </div>
-
-      <p style="font-size:14px;line-height:1.5;color:#c9d6df;margin:0 0 14px 0;">
-        Speichere diesen Link. Darüber kommst du immer direkt zu deinem eigenen BetInsight-Profil.
+      <p style="font-size:15px;line-height:1.6;color:#c9d6df;">
+        Damit wir dein persönliches Profil laden können, gib bitte deine registrierte E-Mail ein.
+        Wir senden dir dann deinen persönlichen BetInsight Profil-Link.
       </p>
 
       <input
-        id="profileLink"
-        readonly
-        value=""
-        style="width:100%;padding:12px;font-size:14px;box-sizing:border-box;background:white;color:black;border:2px solid #008cff;border-radius:8px;text-align:center;"
+        id="requestEmail"
+        type="email"
+        placeholder="deine registrierte E-Mail"
+        style="width:100%;padding:14px;font-size:16px;margin:15px 0;box-sizing:border-box;background:white;color:black;border:2px solid #008cff;border-radius:8px;"
       >
 
       <button
-        onclick="copyProfileLink()"
-        style="margin-top:12px;padding:12px 22px;border:none;border-radius:8px;background:#5f7488;color:white;font-size:15px;cursor:pointer;"
+        onclick="requestProfileLink()"
+        style="width:100%;padding:14px;font-size:18px;background:#00a86b;color:white;border:0;border-radius:8px;cursor:pointer;"
       >
-        🔗 Profil-Link kopieren
+        🔗 Profil-Link anfordern
       </button>
+
+      <div id="requestMessage" style="margin-top:16px;color:#ffcc00;font-size:15px;line-height:1.5;"></div>
     </div>
 
-    <div id="message" style="color:#ffcc00;font-size:16px;margin-bottom:30px;">
-      Kontostand wird geladen...
+    <div id="profileBox" style="display:none;">
+
+      <div style="font-size:34px;margin-bottom:28px;">
+        Aktuelle Units:
+        <span id="units" style="font-size:62px;font-weight:bold;color:white;">0</span>
+      </div>
+
+      <div style="font-size:20px;margin-bottom:22px;">
+        <strong>E-Mail:</strong>
+        <span id="email">Lade...</span>
+      </div>
+
+      <div style="max-width:620px;margin:0 auto 26px auto;background:#04263a;padding:22px;border-radius:14px;">
+        <div style="font-size:18px;font-weight:bold;margin-bottom:10px;color:#00ff99;">
+          Dein persönlicher Profil-Link
+        </div>
+
+        <p style="font-size:14px;line-height:1.5;color:#c9d6df;margin:0 0 14px 0;">
+          Speichere diesen Link. Darüber kommst du immer direkt zu deinem eigenen BetInsight-Profil.
+        </p>
+
+        <input
+          id="profileLink"
+          readonly
+          value=""
+          style="width:100%;padding:12px;font-size:14px;box-sizing:border-box;background:white;color:black;border:2px solid #008cff;border-radius:8px;text-align:center;"
+        >
+
+        <button
+          onclick="copyProfileLink()"
+          style="margin-top:12px;padding:12px 22px;border:none;border-radius:8px;background:#5f7488;color:white;font-size:15px;cursor:pointer;"
+        >
+          🔗 Profil-Link kopieren
+        </button>
+      </div>
+
+      <div id="message" style="color:#ffcc00;font-size:16px;margin-bottom:30px;">
+        Kontostand wird geladen...
+      </div>
+
+      <button
+        onclick="loadUnits()"
+        style="padding:15px 30px;border:none;border-radius:8px;background:#007bff;color:white;font-size:18px;cursor:pointer;margin-bottom:18px;"
+      >
+        🔄 Kontostand aktualisieren
+      </button>
+
+      <br>
+
+      <button
+        onclick="goBuyUnits()"
+        style="padding:15px 30px;border:none;border-radius:8px;background:#00a86b;color:white;font-size:18px;cursor:pointer;margin-bottom:18px;"
+      >
+        💎 Units kaufen
+      </button>
+
+      <br>
+
+      <button
+        onclick="forgetToken()"
+        style="padding:10px 22px;border:none;border-radius:8px;background:#7a2e2e;color:white;font-size:14px;cursor:pointer;margin-bottom:45px;"
+      >
+        Zugangscode auf diesem Gerät löschen
+      </button>
+
     </div>
-
-    <button
-      onclick="loadUnits()"
-      style="padding:15px 30px;border:none;border-radius:8px;background:#007bff;color:white;font-size:18px;cursor:pointer;margin-bottom:18px;"
-    >
-      🔄 Kontostand aktualisieren
-    </button>
-
-    <br>
-
-    <button
-      onclick="goBuyUnits()"
-      style="padding:15px 30px;border:none;border-radius:8px;background:#00a86b;color:white;font-size:18px;cursor:pointer;margin-bottom:18px;"
-    >
-      💎 Units kaufen
-    </button>
-
-    <br>
-
-    <button
-      onclick="forgetToken()"
-      style="padding:10px 22px;border:none;border-radius:8px;background:#7a2e2e;color:white;font-size:14px;cursor:pointer;margin-bottom:45px;"
-    >
-      Zugangscode auf diesem Gerät löschen
-    </button>
 
     <hr style="border:0;border-top:1px solid rgba(255,255,255,0.25);margin:10px auto 35px auto;max-width:620px;">
 
@@ -104,25 +133,8 @@
 
   <script>
     const PROFILE_WEBHOOK_URL = "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
+    const REQUEST_LINK_WEBHOOK_URL = "https://hook.eu1.make.com/me8q6ptfnno6qfji4s6348rw6f47i3t5";
     const TOKEN_STORAGE_KEY = "betinsight_profile_token";
-
-    function normalizeToken(token) {
-      if (!token) {
-        return "";
-      }
-
-      const cleanedToken = token.trim();
-
-      if (cleanedToken === "") {
-        return "";
-      }
-
-      if (cleanedToken.startsWith("BI-")) {
-        return cleanedToken;
-      }
-
-      return "BI-" + cleanedToken;
-    }
 
     function getTokenFromUrl() {
       const params = new URLSearchParams(window.location.search);
@@ -134,10 +146,8 @@
     }
 
     function saveToken(token) {
-      const normalizedToken = normalizeToken(token);
-
-      if (normalizedToken !== "") {
-        localStorage.setItem(TOKEN_STORAGE_KEY, normalizedToken);
+      if (token && token.trim() !== "") {
+        localStorage.setItem(TOKEN_STORAGE_KEY, token.trim());
       }
     }
 
@@ -145,36 +155,59 @@
       const tokenFromUrl = getTokenFromUrl();
 
       if (tokenFromUrl && tokenFromUrl.trim() !== "") {
-        const normalizedToken = normalizeToken(tokenFromUrl);
-        saveToken(normalizedToken);
-        return normalizedToken;
+        saveToken(tokenFromUrl.trim());
+        return tokenFromUrl.trim();
       }
 
-      return normalizeToken(getSavedToken());
+      return getSavedToken();
+    }
+
+    function buildTokenVariants(token) {
+      if (!token) {
+        return [];
+      }
+
+      const cleanedToken = token.trim();
+
+      if (cleanedToken === "") {
+        return [];
+      }
+
+      if (cleanedToken.startsWith("BI-")) {
+        return [cleanedToken, cleanedToken.replace("BI-", "")];
+      }
+
+      return [cleanedToken, "BI-" + cleanedToken];
+    }
+
+    function showRequestBox() {
+      document.getElementById("requestBox").style.display = "block";
+      document.getElementById("profileBox").style.display = "none";
+      setDebug("Debug: Kein Token vorhanden. Profil-Link muss angefordert werden.");
+    }
+
+    function showProfileBox() {
+      document.getElementById("requestBox").style.display = "none";
+      document.getElementById("profileBox").style.display = "block";
     }
 
     function buildProfileLink(token) {
-      const normalizedToken = normalizeToken(token);
-
-      if (normalizedToken === "") {
+      if (!token || token.trim() === "") {
         return "";
       }
 
-      return "https://betinsightclub.github.io/profil/?token=" + encodeURIComponent(normalizedToken);
+      return "https://betinsightclub.github.io/profil/?token=" + encodeURIComponent(token.trim());
     }
 
     function updateProfileLink(token) {
-      const profileLinkInput = document.getElementById("profileLink");
-      const profileLink = buildProfileLink(token);
-
-      profileLinkInput.value = profileLink;
+      document.getElementById("profileLink").value = buildProfileLink(token);
     }
 
     function copyProfileLink() {
       const profileLinkInput = document.getElementById("profileLink");
 
       if (!profileLinkInput.value) {
-        alert("Noch kein Profil-Link vorhanden. Bitte öffne zuerst deinen persönlichen Profil-Link.");
+        alert("Noch kein Profil-Link vorhanden.");
         return;
       }
 
@@ -206,47 +239,48 @@
       document.getElementById("debug").innerText = text;
     }
 
-    function loadUnits() {
-      const token = getActiveToken();
+    function setRequestMessage(text, color) {
+      const message = document.getElementById("requestMessage");
+      message.innerText = text;
+      message.style.color = color || "#ffcc00";
+    }
 
-      updateProfileLink(token);
-
-      if (!token) {
+    function fetchProfileByToken(tokenVariants, index) {
+      if (index >= tokenVariants.length) {
         document.getElementById("units").innerText = "0";
-        document.getElementById("email").innerText = "Kein Zugangscode";
+        document.getElementById("email").innerText = "Nicht gefunden";
         document.getElementById("message").innerText =
-          "Bitte öffne einmal deinen persönlichen BetInsight-Profil-Link.";
+          "Zugangscode wurde nicht gefunden. Bitte fordere deinen Profil-Link erneut an.";
         setUnitColor(0);
-        setDebug("Debug: Kein Token aktiv.");
+        setDebug("Debug: Kein Token-Treffer.");
         return;
       }
 
-      document.getElementById("message").innerText = "Kontostand wird geladen...";
+      const tokenToTry = tokenVariants[index];
 
-      fetch(PROFILE_WEBHOOK_URL + "?token=" + encodeURIComponent(token))
+      fetch(PROFILE_WEBHOOK_URL + "?token=" + encodeURIComponent(tokenToTry))
         .then(response => response.json())
         .then(data => {
           if (!data || data.found === false || !data.email) {
-            document.getElementById("units").innerText = "0";
-            document.getElementById("email").innerText = "Nicht gefunden";
-            document.getElementById("message").innerText =
-              "Zugangscode wurde nicht gefunden.";
-            setUnitColor(0);
-            setDebug("Debug: Token aktiv: " + token + " | API: nicht gefunden oder leer");
+            fetchProfileByToken(tokenVariants, index + 1);
             return;
           }
 
+          const finalToken = data.token || tokenToTry;
           const units = parseInt(data.units) || 0;
+
+          saveToken(finalToken);
+          showProfileBox();
 
           document.getElementById("units").innerText = units;
           document.getElementById("email").innerText = data.email;
           document.getElementById("message").innerText = "Aktualisiert.";
 
           setUnitColor(units);
-          updateProfileLink(data.token || token);
+          updateProfileLink(finalToken);
 
           setDebug(
-            "Debug: Token aktiv: " + token +
+            "Debug: Token aktiv: " + finalToken +
             " | API Token: " + (data.token || "leer") +
             " | API E-Mail: " + (data.email || "leer") +
             " | API Units: " + (data.units || "0")
@@ -254,12 +288,55 @@
         })
         .catch(error => {
           console.error(error);
+          fetchProfileByToken(tokenVariants, index + 1);
+        });
+    }
 
-          document.getElementById("units").innerText = "Fehler";
-          document.getElementById("email").innerText = "Fehler";
-          document.getElementById("message").innerText =
-            "Kontostand konnte nicht geladen werden.";
-          setDebug("Debug: Fehler beim Laden.");
+    function loadUnits() {
+      const token = getActiveToken();
+
+      if (!token) {
+        showRequestBox();
+        return;
+      }
+
+      showProfileBox();
+
+      document.getElementById("message").innerText = "Kontostand wird geladen...";
+      document.getElementById("email").innerText = "Lade...";
+      document.getElementById("units").innerText = "0";
+
+      const tokenVariants = buildTokenVariants(token);
+      fetchProfileByToken(tokenVariants, 0);
+    }
+
+    function requestProfileLink() {
+      const email = document.getElementById("requestEmail").value.trim().toLowerCase();
+
+      if (!email) {
+        alert("Bitte deine registrierte E-Mail eingeben.");
+        return;
+      }
+
+      setRequestMessage("Profil-Link wird angefordert...", "#ffcc00");
+
+      fetch(REQUEST_LINK_WEBHOOK_URL + "?email=" + encodeURIComponent(email))
+        .then(response => response.text())
+        .then(text => {
+          setRequestMessage(
+            "Profil-Link wurde verschickt. Bitte prüfe dein E-Mail-Postfach.",
+            "#00ff99"
+          );
+          alert("Profil-Link wurde verschickt. Bitte prüfe dein E-Mail-Postfach.");
+          setDebug("Debug: Profil-Link angefordert für: " + email + " | Antwort: " + text);
+        })
+        .catch(error => {
+          console.error(error);
+          setRequestMessage(
+            "Fehler beim Anfordern. Bitte versuche es erneut.",
+            "#ff4444"
+          );
+          setDebug("Debug: Fehler beim Profil-Link anfordern.");
         });
     }
 
@@ -267,7 +344,8 @@
       const token = getActiveToken();
 
       if (!token) {
-        alert("Kein Zugangscode gefunden. Bitte öffne zuerst deinen persönlichen Profil-Link.");
+        alert("Kein Zugangscode gefunden. Bitte fordere zuerst deinen Profil-Link an.");
+        showRequestBox();
         return;
       }
 
@@ -285,6 +363,7 @@
         "Zugangscode wurde auf diesem Gerät gelöscht.";
       document.getElementById("profileLink").value = "";
       setUnitColor(0);
+      showRequestBox();
       setDebug("Debug: Zugangscode gelöscht.");
     }
 
