@@ -18,7 +18,7 @@
 
     <div style="font-size:48px;margin-bottom:15px;">👤</div>
 
-    <h1 style="font-size:34px;margin:0 0 55px 0;">
+    <h1 style="font-size:34px;margin:0 0 45px 0;">
       Mein BetInsight Profil
     </h1>
 
@@ -30,6 +30,30 @@
     <div style="font-size:20px;margin-bottom:22px;">
       <strong>E-Mail:</strong>
       <span id="email">Lade...</span>
+    </div>
+
+    <div style="max-width:620px;margin:0 auto 26px auto;background:#04263a;padding:22px;border-radius:14px;">
+      <div style="font-size:18px;font-weight:bold;margin-bottom:10px;color:#00ff99;">
+        Dein persönlicher Profil-Link
+      </div>
+
+      <p style="font-size:14px;line-height:1.5;color:#c9d6df;margin:0 0 14px 0;">
+        Speichere diesen Link. Darüber kommst du immer direkt zu deinem eigenen BetInsight-Profil.
+      </p>
+
+      <input
+        id="profileLink"
+        readonly
+        value=""
+        style="width:100%;padding:12px;font-size:14px;box-sizing:border-box;background:white;color:black;border:2px solid #008cff;border-radius:8px;text-align:center;"
+      >
+
+      <button
+        onclick="copyProfileLink()"
+        style="margin-top:12px;padding:12px 22px;border:none;border-radius:8px;background:#5f7488;color:white;font-size:15px;cursor:pointer;"
+      >
+        🔗 Profil-Link kopieren
+      </button>
     </div>
 
     <div id="message" style="color:#ffcc00;font-size:16px;margin-bottom:30px;">
@@ -129,6 +153,43 @@
       return normalizeToken(getSavedToken());
     }
 
+    function buildProfileLink(token) {
+      const normalizedToken = normalizeToken(token);
+
+      if (normalizedToken === "") {
+        return "";
+      }
+
+      return "https://betinsightclub.github.io/profil/?token=" + encodeURIComponent(normalizedToken);
+    }
+
+    function updateProfileLink(token) {
+      const profileLinkInput = document.getElementById("profileLink");
+      const profileLink = buildProfileLink(token);
+
+      profileLinkInput.value = profileLink;
+    }
+
+    function copyProfileLink() {
+      const profileLinkInput = document.getElementById("profileLink");
+
+      if (!profileLinkInput.value) {
+        alert("Noch kein Profil-Link vorhanden. Bitte öffne zuerst deinen persönlichen Profil-Link.");
+        return;
+      }
+
+      profileLinkInput.select();
+      profileLinkInput.setSelectionRange(0, 99999);
+
+      navigator.clipboard.writeText(profileLinkInput.value)
+        .then(() => {
+          alert("Profil-Link wurde kopiert.");
+        })
+        .catch(() => {
+          alert("Kopieren nicht möglich. Bitte markiere den Link manuell.");
+        });
+    }
+
     function setUnitColor(units) {
       const unitsElement = document.getElementById("units");
 
@@ -147,6 +208,8 @@
 
     function loadUnits() {
       const token = getActiveToken();
+
+      updateProfileLink(token);
 
       if (!token) {
         document.getElementById("units").innerText = "0";
@@ -180,6 +243,7 @@
           document.getElementById("message").innerText = "Aktualisiert.";
 
           setUnitColor(units);
+          updateProfileLink(data.token || token);
 
           setDebug(
             "Debug: Token aktiv: " + token +
@@ -219,6 +283,7 @@
       document.getElementById("email").innerText = "Kein Zugangscode";
       document.getElementById("message").innerText =
         "Zugangscode wurde auf diesem Gerät gelöscht.";
+      document.getElementById("profileLink").value = "";
       setUnitColor(0);
       setDebug("Debug: Zugangscode gelöscht.");
     }
