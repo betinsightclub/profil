@@ -89,6 +89,8 @@
         </a>
       </p>
 
+      <div id="debug" style="margin-top:18px;color:rgba(255,255,255,0.35);font-size:12px;"></div>
+
     </div>
 
     <br><br>
@@ -150,6 +152,10 @@
       status.style.color = color || "#ffcc00";
     }
 
+    function setDebug(text) {
+      document.getElementById("debug").innerText = text;
+    }
+
     function loadEmail() {
       const token = getActiveToken();
       const emailInput = document.getElementById("buyerEmail");
@@ -160,6 +166,7 @@
           "Keine automatische E-Mail erkannt. Bitte trage deine registrierte E-Mail manuell ein.",
           "#ffcc00"
         );
+        setDebug("Debug: Kein Token aktiv.");
         return;
       }
 
@@ -172,6 +179,7 @@
               "E-Mail konnte nicht automatisch geladen werden. Bitte trage sie manuell ein.",
               "#ffcc00"
             );
+            setDebug("Debug: Token aktiv: " + token + " | API: keine E-Mail gefunden");
             return;
           }
 
@@ -184,13 +192,22 @@
             "✓ E-Mail automatisch erkannt. Bitte vor dem Kauf prüfen.",
             "#00ff99"
           );
+
+          setDebug(
+            "Debug: Token aktiv: " + token +
+            " | API Token: " + (data.token || "leer") +
+            " | API E-Mail: " + (data.email || "leer")
+          );
         })
         .catch(error => {
+          console.error(error);
+
           emailInput.value = "";
           setEmailStatus(
             "Fehler beim Laden der E-Mail. Bitte trage sie manuell ein.",
             "#ffcc00"
           );
+          setDebug("Debug: Fehler beim Laden.");
         });
     }
 
