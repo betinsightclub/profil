@@ -130,6 +130,24 @@
       wm_boost: {name:"WM Boost", units:"400 Units", preis:"299 €"}
     };
 
+    function normalizeToken(token) {
+      if (!token) {
+        return "";
+      }
+
+      const cleanedToken = token.trim();
+
+      if (cleanedToken === "") {
+        return "";
+      }
+
+      if (cleanedToken.startsWith("BI-")) {
+        return cleanedToken;
+      }
+
+      return "BI-" + cleanedToken;
+    }
+
     function getTokenFromUrl() {
       const params = new URLSearchParams(window.location.search);
       return params.get("token");
@@ -139,11 +157,12 @@
       const tokenFromUrl = getTokenFromUrl();
 
       if (tokenFromUrl && tokenFromUrl.trim() !== "") {
-        localStorage.setItem(TOKEN_STORAGE_KEY, tokenFromUrl.trim());
-        return tokenFromUrl.trim();
+        const normalizedToken = normalizeToken(tokenFromUrl);
+        localStorage.setItem(TOKEN_STORAGE_KEY, normalizedToken);
+        return normalizedToken;
       }
 
-      return localStorage.getItem(TOKEN_STORAGE_KEY);
+      return normalizeToken(localStorage.getItem(TOKEN_STORAGE_KEY));
     }
 
     function setEmailStatus(text, color) {
