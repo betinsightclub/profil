@@ -343,10 +343,14 @@
         .then(response => response.text())
         .then(text => {
           setRequestMessage(
-            "Profil-Link wurde verschickt. Bitte prüfe dein E-Mail-Postfach.",
+            "✅ Profil-Link wurde verschickt.\n\nÖffne jetzt dein E-Mail-Postfach und klicke auf den Profil-Link in der E-Mail.\n\nDanach wird dein persönliches BetInsight-Profil automatisch geöffnet.\n\nAb dem nächsten Besuch kannst du dein Profil direkt über „👤 Mein Profil“ aufrufen.",
             "#00ff99"
           );
-          alert("Profil-Link wurde verschickt. Bitte prüfe dein E-Mail-Postfach.");
+
+          alert(
+            "Profil-Link wurde verschickt.\n\nÖffne jetzt dein E-Mail-Postfach und klicke auf den Profil-Link in der E-Mail.\n\nDanach wird dein persönliches BetInsight-Profil automatisch geöffnet."
+          );
+
           setDebug("Debug: Profil-Link angefordert für: " + email + " | Antwort: " + text);
         })
         .catch(error => {
