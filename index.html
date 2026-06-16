@@ -26,14 +26,14 @@
       <h2 style="margin-top:0;color:#00ff99;">Profil-Link anfordern</h2>
 
       <p style="font-size:15px;line-height:1.6;color:#c9d6df;">
-        Damit wir dein persönliches Profil laden können, gib bitte deine registrierte E-Mail ein.
+        Damit wir dein persönliches Profil laden können, gib bitte deine registrierte BetInsight E-Mail ein.
         Wir senden dir dann deinen persönlichen BetInsight Profil-Link.
       </p>
 
       <input
         id="requestEmail"
         type="email"
-        placeholder="deine registrierte E-Mail"
+        placeholder="deine registrierte BetInsight E-Mail"
         style="width:100%;padding:14px;font-size:16px;margin:15px 0;box-sizing:border-box;background:white;color:black;border:2px solid #008cff;border-radius:8px;"
       >
 
@@ -41,7 +41,7 @@
         onclick="openSystemeProfile()"
         style="width:100%;padding:13px;font-size:16px;background:#5f7488;color:white;border:0;border-radius:8px;cursor:pointer;margin-bottom:12px;"
       >
-        👤 Meine systeme.io E-Mail prüfen
+        👤 Registrierte BetInsight E-Mail prüfen
       </button>
 
       <button
@@ -52,7 +52,7 @@
       </button>
 
       <p style="font-size:13px;line-height:1.5;margin-top:14px;color:#ffcc00;">
-        Die systeme.io Profilseite öffnet sich in einem neuen Fenster. Dort siehst du deine registrierte E-Mail.
+        Die Profilseite öffnet sich in einem neuen Fenster. Dort siehst du deine registrierte BetInsight E-Mail.
         Trage diese E-Mail hier ein und fordere deinen Profil-Link an.
       </p>
 
@@ -330,7 +330,7 @@
       const email = document.getElementById("requestEmail").value.trim().toLowerCase();
 
       if (!email) {
-        alert("Bitte deine registrierte E-Mail eingeben.");
+        alert("Bitte deine registrierte BetInsight E-Mail eingeben.");
         return;
       }
 
