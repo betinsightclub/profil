@@ -1,17 +1,267 @@
-[
-  {
-    "tipp_id": "Tipp 16",
-    "spiel": "Japan vs Frankreich",
-    "markt": "sieg Frankreich",
-    "tipp": "1x2",
-    "quote": "1.55",
-    "preis_units": 3,
-    "status": "done",
-    "ersteller": "Luciano",
-    "datum": "01.07.2026",
-    "analyse": "Testanalyse für Japan gegen Frankreich.",
-    "liga": "WM 2026",
-    "uhrzeit": "21:00",
-    "startzeit": "01.07.2026 21:00:00"
-  }
-]
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BetInsight Tipps</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #061d2a;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 35px 18px;
+    }
+
+    .logo {
+      width: 170px;
+      max-width: 70%;
+      height: auto;
+      margin-bottom: 30px;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 10px 0 8px;
+      font-size: 32px;
+    }
+
+    .subtitle {
+      color: #b9d8e8;
+      margin-bottom: 28px;
+    }
+
+    .top-card {
+      background: #0b3347;
+      border: 1px solid rgba(0, 218, 255, 0.25);
+      border-radius: 18px;
+      padding: 22px;
+      margin-bottom: 28px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .load-btn {
+      background: #16a8f5;
+      color: white;
+      border: none;
+      border-radius: 999px;
+      padding: 13px 28px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .load-btn:hover {
+      background: #0797df;
+    }
+
+    .status {
+      margin-top: 16px;
+      color: #b9d8e8;
+      font-size: 14px;
+    }
+
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 22px;
+      margin-top: 25px;
+    }
+
+    .tip-card {
+      background: #0d4056;
+      border: 1px solid rgba(0, 218, 255, 0.35);
+      border-radius: 18px;
+      padding: 24px;
+      text-align: left;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+    }
+
+    .tip-title {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 14px;
+      color: #ffffff;
+    }
+
+    .tip-meta {
+      display: grid;
+      gap: 8px;
+      color: #d8eef8;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    .price {
+      margin: 16px 0;
+      padding: 12px;
+      border-top: 1px solid #00d8ff;
+      border-bottom: 1px solid #00d8ff;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .locked {
+      color: #ffcc66;
+      font-size: 14px;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .analysis {
+      background: rgba(0, 0, 0, 0.18);
+      border-radius: 12px;
+      padding: 14px;
+      color: #e8f7ff;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-top: 12px;
+    }
+
+    .unlock-btn {
+      width: 100%;
+      background: #16a8f5;
+      color: white;
+      border: none;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-size: 15px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .unlock-btn:hover {
+      background: #0797df;
+    }
+
+    .empty {
+      color: #b9d8e8;
+      margin-top: 30px;
+    }
+
+    .error {
+      color: #ff8f8f;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <img
+      src="../logo_betisight.club.png"
+      alt="BetInsight Club"
+      class="logo"
+    >
+
+    <h1>🔥 BetInsight Tipps</h1>
+    <p class="subtitle">Aktuelle Tipps direkt aus deiner BetInsight-Datenquelle.</p>
+
+    <div class="top-card">
+      <button class="load-btn" onclick="loadTips()">🔥 Neue Tipps laden</button>
+      <div id="status" class="status">Bereit. Klicke auf „Neue Tipps laden“.</div>
+    </div>
+
+    <div id="tips" class="tips-grid"></div>
+
+  </div>
+
+  <script>
+    const tipsContainer = document.getElementById("tips");
+    const statusBox = document.getElementById("status");
+
+    function parseGermanDate(dateString) {
+      if (!dateString) return 0;
+
+      const parts = dateString.trim().split(" ");
+      const datePart = parts[0];
+      const timePart = parts[1] || "00:00:00";
+
+      const datePieces = datePart.split(".");
+      if (datePieces.length !== 3) return 0;
+
+      const day = datePieces[0];
+      const month = datePieces[1];
+      const year = datePieces[2];
+
+      return new Date(`${year}-${month}-${day}T${timePart}`).getTime();
+    }
+
+    async function loadTips() {
+      tipsContainer.innerHTML = "";
+      statusBox.textContent = "Tipps werden geladen ...";
+
+      try {
+        const response = await fetch("../tipps.json?cache=" + Date.now());
+
+        if (!response.ok) {
+          throw new Error("tipps.json konnte nicht geladen werden.");
+        }
+
+        let tips = await response.json();
+
+        if (!Array.isArray(tips) || tips.length === 0) {
+          statusBox.textContent = "Keine Tipps gefunden.";
+          tipsContainer.innerHTML = '<div class="empty">Aktuell sind keine Tipps verfügbar.</div>';
+          return;
+        }
+
+        tips = tips
+          .filter(tip => String(tip.status || "").toLowerCase() === "done")
+          .sort((a, b) => parseGermanDate(b.startzeit) - parseGermanDate(a.startzeit));
+
+        statusBox.textContent = tips.length + " Tipp(s) gefunden.";
+
+        tipsContainer.innerHTML = tips.map(tip => `
+          <div class="tip-card">
+            <div class="tip-title">${escapeHtml(tip.spiel || "Unbekanntes Spiel")}</div>
+
+            <div class="tip-meta">
+              <div>🏆 Liga: ${escapeHtml(tip.liga || "-")}</div>
+              <div>📊 Markt: ${escapeHtml(tip.markt || "-")}</div>
+              <div>🎯 Tipp: ${escapeHtml(tip.tipp || "-")}</div>
+              <div>📈 Quote: ${escapeHtml(tip.quote || "-")}</div>
+              <div>📅 Datum: ${escapeHtml(tip.datum || "-")}</div>
+              <div>⏰ Uhrzeit: ${escapeHtml(tip.uhrzeit || "-")}</div>
+            </div>
+
+            <div class="price">💎 ${escapeHtml(String(tip.preis_units || "0"))} Units</div>
+
+            <div class="locked">🔒 Analyse später nach Freischaltung sichtbar</div>
+
+            <button class="unlock-btn" onclick="alert('Freischaltung wird im nächsten Schritt eingebaut.')">
+              Freischalten
+            </button>
+          </div>
+        `).join("");
+
+      } catch (error) {
+        statusBox.textContent = "Fehler beim Laden.";
+        tipsContainer.innerHTML = '<div class="error">Die Tipps konnten nicht geladen werden.</div>';
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+  </script>
+</body>
+</html>
