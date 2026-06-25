@@ -234,6 +234,22 @@
 
     .preview strong { color: #ffffff; }
 
+    .success-box {
+      margin-top: 22px;
+      padding: 20px;
+      border-radius: 18px;
+      background: rgba(125, 255, 178, 0.12);
+      border: 1px solid rgba(125, 255, 178, 0.35);
+      color: #dfffee;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .success-box strong {
+      color: #ffffff;
+      font-size: 19px;
+    }
+
     .version {
       margin-top: 18px;
       color: #6f9cad;
@@ -269,7 +285,7 @@
       <button id="loginButton" class="btn" onclick="loginAdmin()">Anmelden</button>
 
       <div id="loginMessage" class="message"></div>
-      <div class="version">BetInsight Admin Center · Version 1.3</div>
+      <div class="version">BetInsight Admin Center · Version 1.4</div>
     </div>
 
     <div id="dashboardArea" class="hidden">
@@ -289,13 +305,13 @@
           <div class="dashboard-tile">
             <div class="tile-icon">➕</div>
             <div class="tile-title">Neuer Tipp</div>
-            <div class="tile-text">Tipp über die Maske eintragen und an Make senden.</div>
+            <div class="tile-text">Tipp über die Maske eintragen und als Entwurf speichern.</div>
           </div>
 
           <div class="dashboard-tile">
             <div class="tile-icon">📋</div>
             <div class="tile-title">Tipps verwalten</div>
-            <div class="tile-text">Verwaltung, Entwürfe und letzte Tipps werden später ergänzt.</div>
+            <div class="tile-text">Entwürfe, aktive Tipps und Bearbeitung werden später ergänzt.</div>
           </div>
 
           <div class="dashboard-tile">
@@ -306,8 +322,8 @@
         </div>
 
         <div class="notice">
-          <strong>Aktueller Stand:</strong><br>
-          Die Admin-Seite sendet neue Tipps jetzt an Make. Make schreibt sie danach in TIPPS_ENTWURF.
+          <strong>Wichtig:</strong><br>
+          Spieldatum und Anpfiff beziehen sich auf das echte Spiel. Die Speicherzeit wird automatisch vom System gesetzt.
         </div>
       </div>
 
@@ -355,13 +371,15 @@
           </div>
 
           <div class="form-group">
-            <label for="datum">Datum *</label>
-            <input id="datum" type="date">
+            <label for="spielDatum">Spieldatum *</label>
+            <input id="spielDatum" type="date">
+            <div class="hint">Datum, an dem das Spiel stattfindet.</div>
           </div>
 
           <div class="form-group">
-            <label for="uhrzeit">Uhrzeit *</label>
-            <input id="uhrzeit" type="time">
+            <label for="anpfiff">Anpfiff *</label>
+            <input id="anpfiff" type="time">
+            <div class="hint">Startzeit des Spiels, nicht die Speicherzeit.</div>
           </div>
 
           <div class="form-group full">
@@ -377,8 +395,9 @@
 
         <div id="formMessage" class="message"></div>
         <div id="previewBox" class="preview hidden"></div>
+        <div id="successBox" class="success-box hidden"></div>
 
-        <div class="version">BetInsight Admin Center · Version 1.3</div>
+        <div class="version">BetInsight Admin Center · Version 1.4</div>
       </div>
     </div>
   </div>
@@ -407,6 +426,7 @@
     const adminName = document.getElementById("adminName");
     const formMessage = document.getElementById("formMessage");
     const previewBox = document.getElementById("previewBox");
+    const successBox = document.getElementById("successBox");
     const saveButton = document.getElementById("saveButton");
 
     function normalizeCode(code) {
@@ -564,8 +584,8 @@
         { id: "tipp", label: "Tipp" },
         { id: "quote", label: "Quote" },
         { id: "preisUnits", label: "Preis in Units" },
-        { id: "datum", label: "Datum" },
-        { id: "uhrzeit", label: "Uhrzeit" },
+        { id: "spielDatum", label: "Spieldatum" },
+        { id: "anpfiff", label: "Anpfiff" },
         { id: "analyse", label: "Analyse" }
       ];
 
@@ -589,10 +609,6 @@
       const parts = dateValue.split("-");
       if (parts.length !== 3) return dateValue;
       return parts[2] + "." + parts[1] + "." + parts[0];
-    }
-
-    function createStartzeit(dateValue, timeValue) {
-      return formatDateGerman(dateValue) + " " + timeValue + ":00";
     }
 
     function createTippId(adminNameValue) {
@@ -628,9 +644,8 @@
         preis_units: Number(getValue("preisUnits")),
         status: "entwurf",
         ersteller: admin ? admin.name : "Unbekannt",
-        datum: formatDateGerman(getValue("datum")),
-        uhrzeit: getValue("uhrzeit"),
-        startzeit: createStartzeit(getValue("datum"), getValue("uhrzeit")),
+        spiel_datum: formatDateGerman(getValue("spielDatum")),
+        anpfiff: getValue("anpfiff"),
         analyse: getValue("analyse"),
         erstellt_am: createCreatedAt()
       };
@@ -640,7 +655,9 @@
       formMessage.textContent = "";
       formMessage.classList.remove("error-message", "success-message");
       previewBox.classList.add("hidden");
+      successBox.classList.add("hidden");
       previewBox.textContent = "";
+      successBox.textContent = "";
 
       const validationError = validateTipForm();
 
@@ -663,9 +680,8 @@
         "Preis: " + escapeHtml(String(tip.preis_units)) + " Units<br>" +
         "Status: " + escapeHtml(tip.status) + "<br>" +
         "Ersteller: " + escapeHtml(tip.ersteller) + "<br>" +
-        "Datum: " + escapeHtml(tip.datum) + "<br>" +
-        "Uhrzeit: " + escapeHtml(tip.uhrzeit) + "<br>" +
-        "Startzeit: " + escapeHtml(tip.startzeit) + "<br>" +
+        "Spieldatum: " + escapeHtml(tip.spiel_datum) + "<br>" +
+        "Anpfiff: " + escapeHtml(tip.anpfiff) + "<br>" +
         "Erstellt am: " + escapeHtml(tip.erstellt_am) + "<br><br>" +
         "<strong>Analyse:</strong><br>" +
         escapeHtml(tip.analyse);
@@ -692,9 +708,7 @@
       try {
         const response = await fetch(MAKE_WEBHOOK_URL, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(tip)
         });
 
@@ -702,9 +716,18 @@
           throw new Error("Make hat nicht erfolgreich geantwortet.");
         }
 
-        formMessage.classList.add("success-message");
-        formMessage.textContent = "✅ Tipp erfolgreich als Entwurf gespeichert.";
         resetTipForm(false);
+
+        successBox.innerHTML =
+          "<strong>✅ Tipp erfolgreich gespeichert</strong><br><br>" +
+          "Der Tipp wurde als <strong>Entwurf</strong> gespeichert.<br>" +
+          "Tipp-ID:<br><strong>" + escapeHtml(tip.tipp_id) + "</strong><br><br>" +
+          "Status: <strong>ENTWURF</strong>";
+
+        successBox.classList.remove("hidden");
+
+        formMessage.classList.add("success-message");
+        formMessage.textContent = "Gespeichert. Du kannst jetzt einen weiteren Tipp erfassen.";
 
       } catch (error) {
         formMessage.classList.add("error-message");
@@ -723,8 +746,8 @@
       document.getElementById("tipp").value = "";
       document.getElementById("quote").value = "";
       document.getElementById("preisUnits").value = "";
-      document.getElementById("datum").value = "";
-      document.getElementById("uhrzeit").value = "";
+      document.getElementById("spielDatum").value = "";
+      document.getElementById("anpfiff").value = "";
       document.getElementById("analyse").value = "";
 
       previewBox.classList.add("hidden");
@@ -733,6 +756,8 @@
       if (clearMessage) {
         formMessage.textContent = "";
         formMessage.classList.remove("error-message", "success-message");
+        successBox.classList.add("hidden");
+        successBox.textContent = "";
       }
     }
 
