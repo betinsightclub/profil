@@ -51,11 +51,6 @@
       font-size: 30px;
     }
 
-    h2 {
-      margin: 0 0 12px;
-      font-size: 24px;
-    }
-
     .subtitle {
       color: #b9d8e8;
       line-height: 1.5;
@@ -89,6 +84,11 @@
       box-shadow: 0 0 0 3px rgba(22, 168, 245, 0.16);
     }
 
+    input:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
     .btn {
       width: 100%;
       border: none;
@@ -106,6 +106,11 @@
       background: #0797df;
     }
 
+    .btn:disabled {
+      background: #426273;
+      cursor: not-allowed;
+    }
+
     .btn-secondary {
       background: transparent;
       border: 1px solid rgba(0, 218, 255, 0.4);
@@ -121,6 +126,11 @@
       font-size: 14px;
       color: #ffcc66;
       min-height: 20px;
+      line-height: 1.4;
+    }
+
+    .error-message {
+      color: #ff8f8f;
     }
 
     .hidden {
@@ -193,6 +203,12 @@
       text-align: left;
     }
 
+    .version {
+      margin-top: 18px;
+      color: #6f9cad;
+      font-size: 12px;
+    }
+
     @media (max-width: 600px) {
       body {
         padding: 22px 12px;
@@ -226,7 +242,7 @@
     <div id="loginArea" class="card login-card">
       <h1>🔐 BetInsight Admin</h1>
       <p class="subtitle">
-        Bitte gib deinen persönlichen Admin-Code ein.
+        Bitte melde dich mit deinem Admin-Code an.
       </p>
 
       <label for="adminCode">Admin-Code</label>
@@ -237,9 +253,10 @@
         autocomplete="off"
       >
 
-      <button class="btn" onclick="loginAdmin()">Anmelden</button>
+      <button id="loginButton" class="btn" onclick="loginAdmin()">Anmelden</button>
 
       <div id="loginMessage" class="message"></div>
+      <div class="version">BetInsight Admin Center · Version 1.1</div>
     </div>
 
     <div id="dashboardArea" class="hidden">
@@ -285,8 +302,10 @@
 
         <div class="notice">
           <strong>Aktueller Stand:</strong><br>
-          Der Admin-Login funktioniert lokal im Browser. Die Tipp-Eingabemaske und die Make-Anbindung bauen wir im nächsten Schritt ein.
+          Admin-Login, gespeicherte Anmeldung und Sperre nach 3 Fehlversuchen sind aktiv. Die Tipp-Eingabemaske bauen wir im nächsten Schritt ein.
         </div>
+
+        <div class="version">BetInsight Admin Center · Version 1.1</div>
       </div>
     </div>
 
@@ -309,10 +328,16 @@
     };
 
     const STORAGE_KEY = "betinsight_admin_login";
+    const FAILED_KEY = "betinsight_admin_failed_attempts";
+    const LOCK_KEY = "betinsight_admin_locked_until";
+
+    const MAX_FAILED_ATTEMPTS = 3;
+    const LOCK_TIME_MINUTES = 5;
 
     const loginArea = document.getElementById("loginArea");
     const dashboardArea = document.getElementById("dashboardArea");
     const adminCodeInput = document.getElementById("adminCode");
+    const loginButton = document.getElementById("loginButton");
     const loginMessage = document.getElementById("loginMessage");
     const adminName = document.getElementById("adminName");
 
@@ -320,21 +345,116 @@
       return String(code || "").trim().toUpperCase();
     }
 
-    function loginAdmin() {
-      const code = normalizeCode(adminCodeInput.value);
+    function getFailedAttempts() {
+      return Number(localStorage.getItem(FAILED_KEY) || "0");
+    }
 
-      if (!code) {
-        loginMessage.textContent = "Bitte Admin-Code eingeben.";
+    function setFailedAttempts(count) {
+      localStorage.setItem(FAILED_KEY, String(count));
+    }
+
+    function clearFailedAttempts() {
+      localStorage.removeItem(FAILED_KEY);
+      localStorage.removeItem(LOCK_KEY);
+    }
+
+    function getLockedUntil() {
+      return Number(localStorage.getItem(LOCK_KEY) || "0");
+    }
+
+    function isLocked() {
+      const lockedUntil = getLockedUntil();
+      return lockedUntil && Date.now() < lockedUntil;
+    }
+
+    function getRemainingLockSeconds() {
+      const lockedUntil = getLockedUntil();
+      const remaining = Math.ceil((lockedUntil - Date.now()) / 1000);
+      return Math.max(0, remaining);
+    }
+
+    function formatRemainingTime(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const restSeconds = seconds % 60;
+
+      if (minutes <= 0) {
+        return restSeconds + " Sekunden";
+      }
+
+      return minutes + " Minuten und " + restSeconds + " Sekunden";
+    }
+
+    function lockLogin() {
+      const lockedUntil = Date.now() + LOCK_TIME_MINUTES * 60 * 1000;
+      localStorage.setItem(LOCK_KEY, String(lockedUntil));
+      updateLockState();
+    }
+
+    function updateLockState() {
+      if (!isLocked()) {
+        adminCodeInput.disabled = false;
+        loginButton.disabled = false;
+
+        if (getLockedUntil()) {
+          clearFailedAttempts();
+          loginMessage.textContent = "";
+          loginMessage.classList.remove("error-message");
+        }
+
         return;
       }
 
-      if (!ADMINS[code]) {
-        loginMessage.textContent = "Admin-Code nicht erkannt.";
-        adminCodeInput.value = "";
+      const remainingSeconds = getRemainingLockSeconds();
+
+      adminCodeInput.disabled = true;
+      loginButton.disabled = true;
+      loginMessage.classList.add("error-message");
+      loginMessage.textContent =
+        "Zu viele ungültige Anmeldeversuche. Bitte versuche es in " +
+        formatRemainingTime(remainingSeconds) +
+        " erneut.";
+    }
+
+    function loginAdmin() {
+      updateLockState();
+
+      if (isLocked()) {
+        return;
+      }
+
+      const code = normalizeCode(adminCodeInput.value);
+
+      if (!code) {
+        loginMessage.classList.remove("error-message");
+        loginMessage.textContent = "Bitte Admin-Code eingeben.";
         adminCodeInput.focus();
         return;
       }
 
+      if (!ADMINS[code]) {
+        const failedAttempts = getFailedAttempts() + 1;
+        setFailedAttempts(failedAttempts);
+
+        adminCodeInput.value = "";
+
+        if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
+          lockLogin();
+          return;
+        }
+
+        const remainingAttempts = MAX_FAILED_ATTEMPTS - failedAttempts;
+
+        loginMessage.classList.add("error-message");
+        loginMessage.textContent =
+          "Admin-Code nicht erkannt. Verbleibende Versuche: " +
+          remainingAttempts +
+          ".";
+
+        adminCodeInput.focus();
+        return;
+      }
+
+      clearFailedAttempts();
       localStorage.setItem(STORAGE_KEY, code);
       showDashboard(code);
     }
@@ -352,13 +472,18 @@
       loginArea.classList.add("hidden");
       dashboardArea.classList.remove("hidden");
       loginMessage.textContent = "";
+      loginMessage.classList.remove("error-message");
       adminCodeInput.value = "";
     }
 
     function showLogin() {
       dashboardArea.classList.add("hidden");
       loginArea.classList.remove("hidden");
-      adminCodeInput.focus();
+      updateLockState();
+
+      if (!isLocked()) {
+        adminCodeInput.focus();
+      }
     }
 
     function logoutAdmin() {
@@ -380,6 +505,8 @@
       } else {
         showLogin();
       }
+
+      setInterval(updateLockState, 1000);
     });
   </script>
 </body>
