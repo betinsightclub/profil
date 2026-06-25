@@ -20,7 +20,7 @@
     }
 
     .page {
-      max-width: 980px;
+      max-width: 1050px;
       margin: 0 auto;
       text-align: center;
     }
@@ -51,6 +51,11 @@
       font-size: 30px;
     }
 
+    h2 {
+      margin: 0 0 18px;
+      font-size: 24px;
+    }
+
     .subtitle {
       color: #b9d8e8;
       line-height: 1.5;
@@ -65,21 +70,29 @@
       font-weight: bold;
     }
 
-    input {
+    input,
+    select,
+    textarea {
       width: 100%;
       padding: 14px 15px;
       border-radius: 12px;
       border: 1px solid rgba(0, 218, 255, 0.35);
       background: #061d2a;
       color: #ffffff;
-      font-size: 17px;
+      font-size: 16px;
       outline: none;
-      text-align: center;
-      letter-spacing: 1px;
-      text-transform: uppercase;
+      font-family: Arial, sans-serif;
     }
 
-    input:focus {
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
       border-color: #16a8f5;
       box-shadow: 0 0 0 3px rgba(22, 168, 245, 0.16);
     }
@@ -87,6 +100,12 @@
     input:disabled {
       opacity: 0.55;
       cursor: not-allowed;
+    }
+
+    .admin-code-input {
+      text-align: center;
+      letter-spacing: 1px;
+      text-transform: uppercase;
     }
 
     .btn {
@@ -131,6 +150,10 @@
 
     .error-message {
       color: #ff8f8f;
+    }
+
+    .success-message {
+      color: #7dffb2;
     }
 
     .hidden {
@@ -203,13 +226,51 @@
       text-align: left;
     }
 
+    .form-card {
+      text-align: left;
+      margin-top: 22px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .form-group.full {
+      grid-column: 1 / -1;
+    }
+
+    .hint {
+      color: #83b7ca;
+      font-size: 13px;
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    .preview {
+      margin-top: 22px;
+      padding: 18px;
+      border-radius: 16px;
+      background: rgba(6, 29, 42, 0.85);
+      border: 1px solid rgba(0, 218, 255, 0.22);
+      line-height: 1.6;
+      color: #d8eef8;
+      white-space: pre-wrap;
+    }
+
+    .preview strong {
+      color: #ffffff;
+    }
+
     .version {
       margin-top: 18px;
       color: #6f9cad;
       font-size: 12px;
+      text-align: center;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 700px) {
       body {
         padding: 22px 12px;
       }
@@ -225,6 +286,10 @@
       .dashboard-header {
         text-align: center;
         justify-content: center;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -248,6 +313,7 @@
       <label for="adminCode">Admin-Code</label>
       <input
         id="adminCode"
+        class="admin-code-input"
         type="text"
         placeholder="Bitte Admin-Code eingeben"
         autocomplete="off"
@@ -256,7 +322,7 @@
       <button id="loginButton" class="btn" onclick="loginAdmin()">Anmelden</button>
 
       <div id="loginMessage" class="message"></div>
-      <div class="version">BetInsight Admin Center · Version 1.1</div>
+      <div class="version">BetInsight Admin Center · Version 1.2</div>
     </div>
 
     <div id="dashboardArea" class="hidden">
@@ -279,7 +345,7 @@
             <div class="tile-icon">➕</div>
             <div class="tile-title">Neuer Tipp</div>
             <div class="tile-text">
-              Hier wird im nächsten Schritt die Eingabemaske für neue Tipps eingebaut.
+              Tipp über die Maske eintragen und vor dem Speichern prüfen.
             </div>
           </div>
 
@@ -287,7 +353,7 @@
             <div class="tile-icon">📋</div>
             <div class="tile-title">Tipps verwalten</div>
             <div class="tile-text">
-              Später siehst du hier Entwürfe, aktive Tipps und bereits veröffentlichte Tipps.
+              Verwaltung, Entwürfe und letzte Tipps werden später ergänzt.
             </div>
           </div>
 
@@ -302,10 +368,77 @@
 
         <div class="notice">
           <strong>Aktueller Stand:</strong><br>
-          Admin-Login, gespeicherte Anmeldung und Sperre nach 3 Fehlversuchen sind aktiv. Die Tipp-Eingabemaske bauen wir im nächsten Schritt ein.
+          Die Eingabemaske prüft Pflichtfelder und erstellt eine Vorschau. Der Versand an Make wird im nächsten Schritt eingebaut.
+        </div>
+      </div>
+
+      <div class="card form-card">
+        <h2>➕ Neuen Tipp erfassen</h2>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="spiel">Spiel *</label>
+            <input id="spiel" type="text" placeholder="z.B. Japan vs Frankreich">
+          </div>
+
+          <div class="form-group">
+            <label for="liga">Liga / Wettbewerb *</label>
+            <input id="liga" type="text" placeholder="z.B. WM 2026">
+          </div>
+
+          <div class="form-group">
+            <label for="markt">Markt *</label>
+            <select id="markt">
+              <option value="">Bitte auswählen</option>
+              <option value="1X2">1X2</option>
+              <option value="Über 2,5">Über 2,5</option>
+              <option value="Unter 2,5">Unter 2,5</option>
+              <option value="Beide treffen">Beide treffen</option>
+              <option value="Handicap">Handicap</option>
+              <option value="Doppelte Chance">Doppelte Chance</option>
+              <option value="Eigener Markt">Eigener Markt</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="tipp">Tipp *</label>
+            <input id="tipp" type="text" placeholder="z.B. Frankreich gewinnt">
+          </div>
+
+          <div class="form-group">
+            <label for="quote">Quote *</label>
+            <input id="quote" type="number" step="0.01" min="1" placeholder="z.B. 1.85">
+          </div>
+
+          <div class="form-group">
+            <label for="preisUnits">Preis in Units *</label>
+            <input id="preisUnits" type="number" step="1" min="1" placeholder="z.B. 3">
+          </div>
+
+          <div class="form-group">
+            <label for="datum">Datum *</label>
+            <input id="datum" type="date">
+          </div>
+
+          <div class="form-group">
+            <label for="uhrzeit">Uhrzeit *</label>
+            <input id="uhrzeit" type="time">
+          </div>
+
+          <div class="form-group full">
+            <label for="analyse">Analyse *</label>
+            <textarea id="analyse" placeholder="Hier die vollständige Analyse eintragen..."></textarea>
+            <div class="hint">Die Analyse wird später erst nach Freischaltung sichtbar.</div>
+          </div>
         </div>
 
-        <div class="version">BetInsight Admin Center · Version 1.1</div>
+        <button class="btn" onclick="prepareTipPreview()">Vorschau prüfen</button>
+        <button class="btn btn-secondary" onclick="resetTipForm()">Maske leeren</button>
+
+        <div id="formMessage" class="message"></div>
+        <div id="previewBox" class="preview hidden"></div>
+
+        <div class="version">BetInsight Admin Center · Version 1.2</div>
       </div>
     </div>
 
@@ -340,6 +473,9 @@
     const loginButton = document.getElementById("loginButton");
     const loginMessage = document.getElementById("loginMessage");
     const adminName = document.getElementById("adminName");
+
+    const formMessage = document.getElementById("formMessage");
+    const previewBox = document.getElementById("previewBox");
 
     function normalizeCode(code) {
       return String(code || "").trim().toUpperCase();
@@ -489,6 +625,161 @@
     function logoutAdmin() {
       localStorage.removeItem(STORAGE_KEY);
       showLogin();
+    }
+
+    function getCurrentAdmin() {
+      const code = localStorage.getItem(STORAGE_KEY);
+      return ADMINS[code] || null;
+    }
+
+    function getValue(id) {
+      return String(document.getElementById(id).value || "").trim();
+    }
+
+    function validateTipForm() {
+      const requiredFields = [
+        { id: "spiel", label: "Spiel" },
+        { id: "liga", label: "Liga / Wettbewerb" },
+        { id: "markt", label: "Markt" },
+        { id: "tipp", label: "Tipp" },
+        { id: "quote", label: "Quote" },
+        { id: "preisUnits", label: "Preis in Units" },
+        { id: "datum", label: "Datum" },
+        { id: "uhrzeit", label: "Uhrzeit" },
+        { id: "analyse", label: "Analyse" }
+      ];
+
+      for (const field of requiredFields) {
+        if (!getValue(field.id)) {
+          return "Bitte Feld ausfüllen: " + field.label;
+        }
+      }
+
+      const quote = Number(getValue("quote"));
+      if (!quote || quote < 1) {
+        return "Bitte eine gültige Quote eintragen.";
+      }
+
+      const preisUnits = Number(getValue("preisUnits"));
+      if (!Number.isInteger(preisUnits) || preisUnits < 1) {
+        return "Bitte einen gültigen Unit-Preis eintragen.";
+      }
+
+      return "";
+    }
+
+    function formatDateGerman(dateValue) {
+      if (!dateValue) return "";
+
+      const parts = dateValue.split("-");
+      if (parts.length !== 3) return dateValue;
+
+      return parts[2] + "." + parts[1] + "." + parts[0];
+    }
+
+    function createStartzeit(dateValue, timeValue) {
+      return formatDateGerman(dateValue) + " " + timeValue + ":00";
+    }
+
+    function createTippId(adminNameValue) {
+      const now = new Date();
+      const stamp =
+        now.getFullYear().toString() +
+        String(now.getMonth() + 1).padStart(2, "0") +
+        String(now.getDate()).padStart(2, "0") +
+        "-" +
+        String(now.getHours()).padStart(2, "0") +
+        String(now.getMinutes()).padStart(2, "0") +
+        String(now.getSeconds()).padStart(2, "0");
+
+      const shortAdmin = String(adminNameValue || "ADM").substring(0, 3).toUpperCase();
+
+      return "BI-" + stamp + "-" + shortAdmin;
+    }
+
+    function collectTipData() {
+      const admin = getCurrentAdmin();
+
+      return {
+        tipp_id: createTippId(admin ? admin.name : "Admin"),
+        spiel: getValue("spiel"),
+        liga: getValue("liga"),
+        markt: getValue("markt"),
+        tipp: getValue("tipp"),
+        quote: getValue("quote"),
+        preis_units: Number(getValue("preisUnits")),
+        datum: formatDateGerman(getValue("datum")),
+        uhrzeit: getValue("uhrzeit"),
+        startzeit: createStartzeit(getValue("datum"), getValue("uhrzeit")),
+        analyse: getValue("analyse"),
+        status: "entwurf",
+        ersteller: admin ? admin.name : "Unbekannt"
+      };
+    }
+
+    function prepareTipPreview() {
+      formMessage.textContent = "";
+      formMessage.classList.remove("error-message", "success-message");
+      previewBox.classList.add("hidden");
+      previewBox.textContent = "";
+
+      const validationError = validateTipForm();
+
+      if (validationError) {
+        formMessage.classList.add("error-message");
+        formMessage.textContent = validationError;
+        return;
+      }
+
+      const tip = collectTipData();
+
+      previewBox.innerHTML =
+        "<strong>Vorschau:</strong><br><br>" +
+        "Tipp-ID: " + escapeHtml(tip.tipp_id) + "<br>" +
+        "Spiel: " + escapeHtml(tip.spiel) + "<br>" +
+        "Liga: " + escapeHtml(tip.liga) + "<br>" +
+        "Markt: " + escapeHtml(tip.markt) + "<br>" +
+        "Tipp: " + escapeHtml(tip.tipp) + "<br>" +
+        "Quote: " + escapeHtml(tip.quote) + "<br>" +
+        "Preis: " + escapeHtml(String(tip.preis_units)) + " Units<br>" +
+        "Datum: " + escapeHtml(tip.datum) + "<br>" +
+        "Uhrzeit: " + escapeHtml(tip.uhrzeit) + "<br>" +
+        "Startzeit: " + escapeHtml(tip.startzeit) + "<br>" +
+        "Status: " + escapeHtml(tip.status) + "<br>" +
+        "Ersteller: " + escapeHtml(tip.ersteller) + "<br><br>" +
+        "<strong>Analyse:</strong><br>" +
+        escapeHtml(tip.analyse);
+
+      previewBox.classList.remove("hidden");
+
+      formMessage.classList.add("success-message");
+      formMessage.textContent = "Vorschau erstellt. Im nächsten Schritt verbinden wir diese Maske mit Make.";
+    }
+
+    function resetTipForm() {
+      document.getElementById("spiel").value = "";
+      document.getElementById("liga").value = "";
+      document.getElementById("markt").value = "";
+      document.getElementById("tipp").value = "";
+      document.getElementById("quote").value = "";
+      document.getElementById("preisUnits").value = "";
+      document.getElementById("datum").value = "";
+      document.getElementById("uhrzeit").value = "";
+      document.getElementById("analyse").value = "";
+
+      formMessage.textContent = "";
+      formMessage.classList.remove("error-message", "success-message");
+      previewBox.classList.add("hidden");
+      previewBox.textContent = "";
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
     }
 
     adminCodeInput.addEventListener("keydown", function(event) {
