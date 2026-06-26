@@ -4,19 +4,250 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BetInsight Tipps</title>
+
+<style>
+  body {
+    margin: 0;
+    background: #071d2b;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+
+  .page {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 35px 18px 60px;
+  }
+
+  .logo {
+    width: 170px;
+    max-width: 70%;
+    height: auto;
+    margin-bottom: 25px;
+  }
+
+  h1 {
+    margin: 10px 0 8px;
+    font-size: 30px;
+  }
+
+  .subtitle {
+    color: #b8d7e8;
+    margin-bottom: 35px;
+  }
+
+  .status {
+    color: #8fd3ff;
+    margin: 25px 0;
+  }
+
+  .tips-grid {
+    display: grid;
+    gap: 26px;
+  }
+
+  .tip-card {
+    background: #0f4152;
+    border: 1px solid rgba(35, 190, 255, 0.35);
+    border-radius: 18px;
+    padding: 26px 22px;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+  }
+
+  .tip-card h2 {
+    margin: 0 0 18px;
+    font-size: 26px;
+  }
+
+  .tip-meta {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 18px;
+    color: #d6edf7;
+    font-size: 15px;
+    border-bottom: 2px solid #18bdf5;
+    padding-bottom: 18px;
+    margin-bottom: 18px;
+  }
+
+  .locked {
+    color: #9fb8c5;
+    font-size: 14px;
+    margin: 12px 0;
+  }
+
+  .price {
+    font-size: 22px;
+    margin: 14px 0;
+  }
+
+  .btn {
+    display: inline-block;
+    background: linear-gradient(90deg, #16a8ff, #00c8ff);
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 12px;
+    padding: 13px 34px;
+    font-size: 16px;
+    cursor: pointer;
+    min-width: 220px;
+    box-shadow: 0 8px 18px rgba(0, 174, 255, 0.25);
+  }
+
+  .btn:hover {
+    opacity: 0.9;
+  }
+
+  .small-note {
+    color: #b8d7e8;
+    font-size: 13px;
+    margin-top: 12px;
+  }
+
+  .empty {
+    background: #0f3040;
+    border-radius: 16px;
+    padding: 28px;
+    color: #c9e8f5;
+  }
+
+  .error {
+    background: #3d1e25;
+    color: #ffd7d7;
+    border: 1px solid #ff6b6b;
+    border-radius: 14px;
+    padding: 20px;
+  }
+</style>
 </head>
 
-<body style="background:#071d2b;color:white;text-align:center;padding:40px;font-family:Arial,sans-serif;">
+<body>
+  <div class="page">
+    <img
+      src="../logo_betisight.club.png"
+      alt="BetInsight Club"
+      class="logo"
+    >
 
-<img
-  src="../logo_betisight.club.png"
-  alt="BetInsight Club"
-  style="width:170px;max-width:70%;height:auto;margin-bottom:35px;"
->
+    <h1>🔥 Neue BetInsight Tipps</h1>
+    <p class="subtitle">Hier siehst du alle aktuell veröffentlichten Tipps als Vorschau.</p>
 
-<h1>🔥 BetInsight Tipps</h1>
+    <div id="status" class="status">Tipps werden geladen...</div>
+    <div id="tips" class="tips-grid"></div>
+  </div>
 
-<p>Die neue Tippseite wurde erfolgreich erstellt.</p>
+<script>
+const TIPPS_WEBHOOK = "https://hook.eu1.make.com/36gm8kvlfcb7jwae8ypxe8oripquonq5";
+
+function safeText(value, fallback = "-") {
+  if (value === null || value === undefined || value === "") return fallback;
+  return String(value);
+}
+
+function formatDate(value) {
+  if (!value) return "-";
+
+  const date = new Date(value);
+  if (!isNaN(date.getTime())) {
+    return date.toLocaleDateString("de-DE");
+  }
+
+  return value;
+}
+
+function createTipCard(tipp) {
+  const card = document.createElement("div");
+  card.className = "tip-card";
+
+  const tippId = safeText(tipp.tipp_id, "");
+  const spiel = safeText(tipp.spiel);
+  const liga = safeText(tipp.liga);
+  const markt = safeText(tipp.markt);
+  const quote = safeText(tipp.quote);
+  const preisUnits = safeText(tipp.preis_units);
+  const spielDatum = formatDate(tipp.spiel_datum);
+  const anpfiff = safeText(tipp.anpfiff);
+
+  card.innerHTML = `
+    <h2>${spiel}</h2>
+
+    <div class="tip-meta">
+      <span>🏆 ${liga}</span>
+      <span>📅 ${spielDatum}</span>
+      <span>⏰ ${anpfiff}</span>
+      <span>📊 ${markt}</span>
+      <span>📈 ${quote}</span>
+    </div>
+
+    <div class="locked">🔒 Tipp und Analyse sind erst nach Freischaltung sichtbar.</div>
+
+    <div class="price">💎 ${preisUnits} Units</div>
+
+    <button class="btn" onclick="freischalten('${tippId}')">
+      Freischalten
+    </button>
+
+    <div class="small-note">
+      Nicht genug Units? Dann kaufe neue Units im Kassenbereich.
+    </div>
+  `;
+
+  return card;
+}
+
+async function loadTipps() {
+  const statusBox = document.getElementById("status");
+  const tipsBox = document.getElementById("tips");
+
+  try {
+    const response = await fetch(TIPPS_WEBHOOK, {
+      method: "GET",
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error("Webhook konnte nicht geladen werden.");
+    }
+
+    const tipps = await response.json();
+
+    statusBox.style.display = "none";
+    tipsBox.innerHTML = "";
+
+    if (!Array.isArray(tipps) || tipps.length === 0) {
+      tipsBox.innerHTML = `
+        <div class="empty">
+          Aktuell sind keine neuen Tipps verfügbar.
+        </div>
+      `;
+      return;
+    }
+
+    tipps.forEach(tipp => {
+      tipsBox.appendChild(createTipCard(tipp));
+    });
+
+  } catch (error) {
+    statusBox.style.display = "none";
+    tipsBox.innerHTML = `
+      <div class="error">
+        Die Tipps konnten gerade nicht geladen werden.<br>
+        Bitte später erneut versuchen.
+      </div>
+    `;
+    console.error(error);
+  }
+}
+
+function freischalten(tippId) {
+  alert("Freischaltung kommt im nächsten Schritt. Tipp-ID: " + tippId);
+}
+
+loadTipps();
+</script>
 
 </body>
 </html>
