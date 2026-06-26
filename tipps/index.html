@@ -12,33 +12,60 @@
 
   body {
     margin: 0;
-    background: #071d2b;
+    background:
+      radial-gradient(circle at top, rgba(0, 200, 255, 0.10), transparent 35%),
+      linear-gradient(180deg, #061923 0%, #071d2b 45%, #04131c 100%);
     color: white;
     font-family: Arial, sans-serif;
     text-align: center;
   }
 
   .page {
-    max-width: 1050px;
+    max-width: 1100px;
     margin: 0 auto;
-    padding: 35px 18px 70px;
+    padding: 28px 18px 70px;
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 22px;
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(15, 65, 82, 0.9);
+    color: #d9f5ff;
+    border: 1px solid rgba(35, 190, 255, 0.45);
+    border-radius: 12px;
+    padding: 11px 18px;
+    text-decoration: none;
+    font-size: 14px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.22);
+  }
+
+  .back-btn:hover {
+    background: rgba(22, 168, 255, 0.22);
   }
 
   .logo {
-    width: 150px;
+    width: 155px;
     max-width: 70%;
     height: auto;
-    margin-bottom: 28px;
+    margin: 8px 0 28px;
   }
 
   h1 {
     margin: 8px 0 8px;
-    font-size: 32px;
+    font-size: 34px;
+    letter-spacing: 0.2px;
   }
 
   .subtitle {
     color: #b8d7e8;
-    margin-bottom: 34px;
+    margin-bottom: 38px;
     font-size: 16px;
   }
 
@@ -49,23 +76,52 @@
 
   .tips-grid {
     display: grid;
-    gap: 28px;
+    gap: 30px;
   }
 
   .tip-card {
-    background: linear-gradient(180deg, #0b3344, #0d4658);
-    border: 1px solid rgba(35, 190, 255, 0.45);
-    border-radius: 20px;
-    padding: 32px 26px;
-    box-shadow: 0 16px 35px rgba(0,0,0,0.35);
-    max-width: 760px;
+    position: relative;
+    overflow: hidden;
+    background:
+      linear-gradient(180deg, rgba(16, 72, 91, 0.98), rgba(9, 51, 68, 0.98));
+    border: 1px solid rgba(35, 190, 255, 0.48);
+    border-radius: 24px;
+    padding: 34px 28px;
+    box-shadow:
+      0 18px 42px rgba(0,0,0,0.38),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+    max-width: 790px;
     width: 100%;
     margin: 0 auto;
   }
 
+  .tip-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, rgba(0, 200, 255, 0.16), transparent 35%);
+    pointer-events: none;
+  }
+
+  .tip-inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(0, 200, 255, 0.14);
+    border: 1px solid rgba(0, 200, 255, 0.35);
+    color: #bff3ff;
+    border-radius: 999px;
+    padding: 6px 13px;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+
   .tip-card h2 {
     margin: 0 0 22px;
-    font-size: 30px;
+    font-size: 31px;
     line-height: 1.25;
   }
 
@@ -73,23 +129,31 @@
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 16px 22px;
+    gap: 14px 18px;
     color: #e4f7ff;
     font-size: 15px;
+    border-top: 1px solid rgba(255,255,255,0.08);
     border-bottom: 2px solid #19c8f5;
-    padding-bottom: 20px;
+    padding: 18px 0;
     margin-bottom: 20px;
+  }
+
+  .meta-item {
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    padding: 7px 10px;
   }
 
   .locked {
     color: #a9c9d8;
     font-size: 14px;
-    margin: 15px 0;
+    margin: 16px 0;
   }
 
   .price {
-    font-size: 24px;
-    margin: 16px 0 20px;
+    font-size: 26px;
+    margin: 17px 0 22px;
+    font-weight: bold;
   }
 
   .btn {
@@ -98,27 +162,28 @@
     color: white;
     text-decoration: none;
     border: none;
-    border-radius: 13px;
-    padding: 14px 42px;
+    border-radius: 14px;
+    padding: 15px 44px;
     font-size: 16px;
     cursor: pointer;
-    min-width: 240px;
-    box-shadow: 0 10px 22px rgba(0, 174, 255, 0.28);
+    min-width: 245px;
+    box-shadow: 0 12px 28px rgba(0, 174, 255, 0.32);
   }
 
   .btn:hover {
-    opacity: 0.92;
+    opacity: 0.93;
+    transform: translateY(-1px);
   }
 
   .small-note {
     color: #b8d7e8;
     font-size: 13px;
-    margin-top: 14px;
+    margin-top: 15px;
   }
 
   .empty,
   .error {
-    max-width: 760px;
+    max-width: 790px;
     margin: 0 auto;
     border-radius: 18px;
     padding: 24px;
@@ -139,15 +204,19 @@
 
   @media (max-width: 600px) {
     .page {
-      padding: 25px 14px 50px;
+      padding: 22px 14px 50px;
+    }
+
+    .topbar {
+      justify-content: center;
     }
 
     h1 {
-      font-size: 26px;
+      font-size: 27px;
     }
 
     .tip-card {
-      padding: 26px 18px;
+      padding: 28px 18px;
     }
 
     .tip-card h2 {
@@ -164,6 +233,13 @@
 
 <body>
   <div class="page">
+
+    <div class="topbar">
+      <a class="back-btn" href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9732838">
+        ⬅ Zurück zum Mitgliederbereich
+      </a>
+    </div>
+
     <img src="../logo_betisight.club.png" alt="BetInsight Club" class="logo">
 
     <h1>🔥 Neue BetInsight Tipps</h1>
@@ -221,26 +297,30 @@ function createTipCard(tipp) {
   const anpfiff = safeText(tipp.anpfiff);
 
   card.innerHTML = `
-    <h2>${spiel}</h2>
+    <div class="tip-inner">
+      <div class="badge">🔒 Premium-Vorschau</div>
 
-    <div class="tip-meta">
-      <span>🏆 ${liga}</span>
-      <span>📅 ${spielDatum}</span>
-      <span>⏰ ${anpfiff}</span>
-      <span>📊 ${markt}</span>
-      <span>📈 ${quote}</span>
-    </div>
+      <h2>${spiel}</h2>
 
-    <div class="locked">🔒 Tipp und Analyse sind erst nach Freischaltung sichtbar.</div>
+      <div class="tip-meta">
+        <span class="meta-item">🏆 ${liga}</span>
+        <span class="meta-item">📅 ${spielDatum}</span>
+        <span class="meta-item">⏰ ${anpfiff}</span>
+        <span class="meta-item">📊 ${markt}</span>
+        <span class="meta-item">📈 Quote ${quote}</span>
+      </div>
 
-    <div class="price">💎 ${preisUnits} Units</div>
+      <div class="locked">Tipp und Analyse sind erst nach erfolgreicher Freischaltung sichtbar.</div>
 
-    <button class="btn" onclick="freischalten('${tippId}')">
-      Freischalten
-    </button>
+      <div class="price">💎 ${preisUnits} Units</div>
 
-    <div class="small-note">
-      Die vollständige Analyse wird erst nach erfolgreicher Freischaltung angezeigt.
+      <button class="btn" onclick="freischalten('${tippId}')">
+        Freischalten
+      </button>
+
+      <div class="small-note">
+        Die vollständige Analyse wird nur für diesen Benutzer nach Freischaltung angezeigt.
+      </div>
     </div>
   `;
 
