@@ -6,6 +6,10 @@
 <title>BetInsight Tipps</title>
 
 <style>
+  * {
+    box-sizing: border-box;
+  }
+
   body {
     margin: 0;
     background: #071d2b;
@@ -15,26 +19,27 @@
   }
 
   .page {
-    max-width: 980px;
+    max-width: 1050px;
     margin: 0 auto;
-    padding: 35px 18px 60px;
+    padding: 35px 18px 70px;
   }
 
   .logo {
-    width: 170px;
+    width: 150px;
     max-width: 70%;
     height: auto;
-    margin-bottom: 25px;
+    margin-bottom: 28px;
   }
 
   h1 {
-    margin: 10px 0 8px;
-    font-size: 30px;
+    margin: 8px 0 8px;
+    font-size: 32px;
   }
 
   .subtitle {
     color: #b8d7e8;
-    margin-bottom: 35px;
+    margin-bottom: 34px;
+    font-size: 16px;
   }
 
   .status {
@@ -44,43 +49,47 @@
 
   .tips-grid {
     display: grid;
-    gap: 26px;
+    gap: 28px;
   }
 
   .tip-card {
-    background: #0f4152;
-    border: 1px solid rgba(35, 190, 255, 0.35);
-    border-radius: 18px;
-    padding: 26px 22px;
-    box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+    background: linear-gradient(180deg, #0b3344, #0d4658);
+    border: 1px solid rgba(35, 190, 255, 0.45);
+    border-radius: 20px;
+    padding: 32px 26px;
+    box-shadow: 0 16px 35px rgba(0,0,0,0.35);
+    max-width: 760px;
+    width: 100%;
+    margin: 0 auto;
   }
 
   .tip-card h2 {
-    margin: 0 0 18px;
-    font-size: 26px;
+    margin: 0 0 22px;
+    font-size: 30px;
+    line-height: 1.25;
   }
 
   .tip-meta {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 18px;
-    color: #d6edf7;
+    gap: 16px 22px;
+    color: #e4f7ff;
     font-size: 15px;
-    border-bottom: 2px solid #18bdf5;
-    padding-bottom: 18px;
-    margin-bottom: 18px;
+    border-bottom: 2px solid #19c8f5;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
   }
 
   .locked {
-    color: #9fb8c5;
+    color: #a9c9d8;
     font-size: 14px;
-    margin: 12px 0;
+    margin: 15px 0;
   }
 
   .price {
-    font-size: 22px;
-    margin: 14px 0;
+    font-size: 24px;
+    margin: 16px 0 20px;
   }
 
   .btn {
@@ -89,26 +98,66 @@
     color: white;
     text-decoration: none;
     border: none;
-    border-radius: 12px;
-    padding: 13px 34px;
+    border-radius: 13px;
+    padding: 14px 42px;
     font-size: 16px;
     cursor: pointer;
-    min-width: 220px;
-    box-shadow: 0 8px 18px rgba(0, 174, 255, 0.25);
+    min-width: 240px;
+    box-shadow: 0 10px 22px rgba(0, 174, 255, 0.28);
   }
 
   .btn:hover {
-    opacity: 0.9;
+    opacity: 0.92;
+  }
+
+  .small-note {
+    color: #b8d7e8;
+    font-size: 13px;
+    margin-top: 14px;
+  }
+
+  .empty,
+  .error {
+    max-width: 760px;
+    margin: 0 auto;
+    border-radius: 18px;
+    padding: 24px;
+  }
+
+  .empty {
+    background: #0f3040;
+    color: #c9e8f5;
   }
 
   .error {
     background: #3d1e25;
     color: #ffd7d7;
     border: 1px solid #ff6b6b;
-    border-radius: 14px;
-    padding: 20px;
     white-space: pre-wrap;
     text-align: left;
+  }
+
+  @media (max-width: 600px) {
+    .page {
+      padding: 25px 14px 50px;
+    }
+
+    h1 {
+      font-size: 26px;
+    }
+
+    .tip-card {
+      padding: 26px 18px;
+    }
+
+    .tip-card h2 {
+      font-size: 24px;
+    }
+
+    .btn {
+      width: 100%;
+      min-width: unset;
+    }
   }
 </style>
 </head>
@@ -144,9 +193,7 @@ function formatDate(value) {
 }
 
 function parseWebhookJson(rawText) {
-  let cleaned = String(rawText)
-    .replace(/^\uFEFF/, "")
-    .trim();
+  let cleaned = String(rawText).replace(/^\uFEFF/, "").trim();
 
   const firstBracket = cleaned.indexOf("[");
   const lastBracket = cleaned.lastIndexOf("]");
@@ -191,6 +238,10 @@ function createTipCard(tipp) {
     <button class="btn" onclick="freischalten('${tippId}')">
       Freischalten
     </button>
+
+    <div class="small-note">
+      Die vollständige Analyse wird erst nach erfolgreicher Freischaltung angezeigt.
+    </div>
   `;
 
   return card;
@@ -218,7 +269,7 @@ async function loadTipps() {
     tipsBox.innerHTML = "";
 
     if (!Array.isArray(tipps) || tipps.length === 0) {
-      tipsBox.innerHTML = `<div class="tip-card">Aktuell sind keine neuen Tipps verfügbar.</div>`;
+      tipsBox.innerHTML = `<div class="empty">Aktuell sind keine neuen Tipps verfügbar.</div>`;
       return;
     }
 
