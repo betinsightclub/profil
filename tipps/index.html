@@ -97,6 +97,10 @@
     box-shadow: 0 8px 18px rgba(0, 174, 255, 0.25);
   }
 
+  .btn:hover {
+    opacity: 0.9;
+  }
+
   .error {
     background: #3d1e25;
     color: #ffd7d7;
@@ -130,9 +134,30 @@ function safeText(value, fallback = "-") {
 
 function formatDate(value) {
   if (!value) return "-";
+
   const date = new Date(value);
-  if (!isNaN(date.getTime())) return date.toLocaleDateString("de-DE");
+  if (!isNaN(date.getTime())) {
+    return date.toLocaleDateString("de-DE");
+  }
+
   return value;
+}
+
+function parseWebhookJson(rawText) {
+  let cleaned = String(rawText)
+    .replace(/^\uFEFF/, "")
+    .trim();
+
+  const firstBracket = cleaned.indexOf("[");
+  const lastBracket = cleaned.lastIndexOf("]");
+
+  if (firstBracket === -1 || lastBracket === -1 || lastBracket <= firstBracket) {
+    throw new Error("Keine gültige JSON-Liste gefunden.\n\nAntwort vom Webhook:\n" + rawText);
+  }
+
+  cleaned = cleaned.substring(firstBracket, lastBracket + 1).trim();
+
+  return JSON.parse(cleaned);
 }
 
 function createTipCard(tipp) {
@@ -150,6 +175,7 @@ function createTipCard(tipp) {
 
   card.innerHTML = `
     <h2>${spiel}</h2>
+
     <div class="tip-meta">
       <span>🏆 ${liga}</span>
       <span>📅 ${spielDatum}</span>
@@ -157,9 +183,14 @@ function createTipCard(tipp) {
       <span>📊 ${markt}</span>
       <span>📈 ${quote}</span>
     </div>
+
     <div class="locked">🔒 Tipp und Analyse sind erst nach Freischaltung sichtbar.</div>
+
     <div class="price">💎 ${preisUnits} Units</div>
-    <button class="btn" onclick="freischalten('${tippId}')">Freischalten</button>
+
+    <button class="btn" onclick="freischalten('${tippId}')">
+      Freischalten
+    </button>
   `;
 
   return card;
@@ -181,12 +212,7 @@ async function loadTipps() {
       throw new Error("HTTP Fehler: " + response.status + "\n\nAntwort:\n" + rawText);
     }
 
-    let tipps;
-    try {
-      tipps = JSON.parse(rawText);
-    } catch (jsonError) {
-      throw new Error("JSON konnte nicht gelesen werden.\n\nAntwort vom Webhook:\n" + rawText);
-    }
+    const tipps = parseWebhookJson(rawText);
 
     statusBox.style.display = "none";
     tipsBox.innerHTML = "";
