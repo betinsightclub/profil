@@ -170,9 +170,16 @@
 
   .unlock-message {
     margin-top: 18px;
-    color: #8fffd2;
     font-size: 15px;
     font-weight: 700;
+  }
+
+  .unlock-message.success {
+    color: #8fffd2;
+  }
+
+  .unlock-message.info {
+    color: #ffb347;
   }
 
   .unlock-box {
@@ -472,12 +479,16 @@ Benötigt: ${escapeHtml(data.required)}
     }
 
     if (data.status === "success" || data.status === "already_unlocked") {
-      const message = data.status === "already_unlocked"
+      const isAlreadyUnlocked = data.status === "already_unlocked";
+
+      const message = isAlreadyUnlocked
         ? "Dieser Tipp war bereits für dich freigeschaltet."
         : "Freischaltung erfolgreich.";
 
+      const messageClass = isAlreadyUnlocked ? "info" : "success";
+
       resultBox.innerHTML = `
-        <div class="unlock-message">${escapeHtml(message)}</div>
+        <div class="unlock-message ${messageClass}">${escapeHtml(message)}</div>
 
         <div class="unlock-box">
           <h3>✅ Freigeschalteter Tipp</h3>
