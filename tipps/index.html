@@ -6,9 +6,7 @@
 <title>BetInsight Tipps</title>
 
 <style>
-  * {
-    box-sizing: border-box;
-  }
+  * { box-sizing: border-box; }
 
   body {
     margin: 0;
@@ -176,10 +174,51 @@
     transform: translateY(-1px);
   }
 
+  .btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .buy-btn {
+    margin-top: 14px;
+    background: linear-gradient(90deg, #00a86b, #00d084);
+  }
+
   .small-note {
     color: #b8d7e8;
     font-size: 13px;
     margin-top: 15px;
+  }
+
+  .message {
+    margin-top: 18px;
+    color: #b8d7e8;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .message.error-message {
+    color: #ffd7d7;
+  }
+
+  .analysis-box {
+    margin-top: 24px;
+    text-align: left;
+    background: rgba(0,0,0,0.22);
+    border: 1px solid rgba(0,200,255,0.35);
+    border-radius: 16px;
+    padding: 22px;
+    color: #e9f8ff;
+    line-height: 1.6;
+  }
+
+  .analysis-box h3 {
+    margin: 0 0 12px;
+    color: #ffffff;
+  }
+
+  .analysis-box p {
+    margin: 8px 0;
   }
 
   .empty,
@@ -255,10 +294,33 @@
 
 <script>
 const TIPPS_WEBHOOK = "https://hook.eu1.make.com/36gm8kvlfcb7jwae8ypxe8oripquonq5";
+const FREISCHALTEN_WEBHOOK = "https://hook.eu1.make.com/k1qn9hlfqd7yhz55vwiotkojgpuqzxug";
+const KAUFEN_URL = "https://betinsightclub.github.io/profil/kaufen/";
+
+function getToken() {
+  const params = new URLSearchParams(window.location.search);
+  const tokenFromUrl = params.get("token");
+
+  if (tokenFromUrl && tokenFromUrl.trim() !== "") {
+    localStorage.setItem("betinsight_profile_token", tokenFromUrl.trim());
+    return tokenFromUrl.trim();
+  }
+
+  return localStorage.getItem("betinsight_profile_token") || "";
+}
 
 function safeText(value, fallback = "-") {
   if (value === null || value === undefined || value === "") return fallback;
   return String(value);
+}
+
+function escapeHtml(value) {
+  return safeText(value, "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 function formatDate(value) {
@@ -272,7 +334,7 @@ function formatDate(value) {
   return value;
 }
 
-function parseWebhookJson(rawText) {
+function parseWebhookArray(rawText) {
   let cleaned = String(rawText).replace(/^\uFEFF/, "").trim();
 
   const firstBracket = cleaned.indexOf("[");
@@ -283,7 +345,20 @@ function parseWebhookJson(rawText) {
   }
 
   cleaned = cleaned.substring(firstBracket, lastBracket + 1).trim();
+  return JSON.parse(cleaned);
+}
 
+function parseWebhookObject(rawText) {
+  let cleaned = String(rawText).replace(/^\uFEFF/, "").trim();
+
+  const firstBrace = cleaned.indexOf("{");
+  const lastBrace = cleaned.lastIndexOf("}");
+
+  if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) {
+    throw new Error("Keine gültige JSON-Antwort gefunden.\n\nAntwort vom Webhook:\n" + rawText);
+  }
+
+  cleaned = cleaned.substring(firstBrace, lastBrace + 1).trim();
   return JSON.parse(cleaned);
 }
 
@@ -304,29 +379,37 @@ function createTipCard(tipp) {
     <div class="tip-inner">
       <div class="badge">🔒 Premium-Vorschau</div>
 
-      <h2>${spiel}</h2>
+      <h2>${escapeHtml(spiel)}</h2>
 
       <div class="tip-meta">
-        <span class="meta-item">🏆 ${liga}</span>
-        <span class="meta-item">📅 ${spielDatum}</span>
-        <span class="meta-item">⏰ ${anpfiff}</span>
-        <span class="meta-item">📊 ${markt}</span>
-        <span class="meta-item">📈 Quote ${quote}</span>
+        <span class="meta-item">🏆 ${escapeHtml(liga)}</span>
+        <span class="meta-item">📅 ${escapeHtml(spielDatum)}</span>
+        <span class="meta-item">⏰ ${escapeHtml(anpfiff)}</span>
+        <span class="meta-item">📊 ${escapeHtml(markt)}</span>
+        <span class="meta-item">📈 Quote ${escapeHtml(quote)}</span>
       </div>
 
       <div class="locked">Tipp und Analyse sind erst nach erfolgreicher Freischaltung sichtbar.</div>
 
-      <div class="price">💎 ${preisUnits} Units</div>
+      <div class="price">💎 ${escapeHtml(preisUnits)} Units</div>
 
-      <button class="btn" onclick="freischalten('${tippId}')">
+      <button class="btn" type="button">
         Freischalten
       </button>
 
       <div class="small-note">
         Die vollständige Analyse wird nur für diesen Benutzer nach Freischaltung angezeigt.
       </div>
+
+      <div class="message"></div>
+      <div class="analysis-result"></div>
     </div>
   `;
+
+  const button = card.querySelector(".btn");
+  button.addEventListener("click", function() {
+    freischalten(tippId, card, button);
+  });
 
   return card;
 }
@@ -347,7 +430,7 @@ async function loadTipps() {
       throw new Error("HTTP Fehler: " + response.status + "\n\nAntwort:\n" + rawText);
     }
 
-    const tipps = parseWebhookJson(rawText);
+    const tipps = parseWebhookArray(rawText);
 
     statusBox.style.display = "none";
     tipsBox.innerHTML = "";
@@ -367,15 +450,111 @@ async function loadTipps() {
       <div class="error">
 Fehler beim Laden der Tipps:
 
-${error.message}
+${escapeHtml(error.message)}
       </div>
     `;
     console.error(error);
   }
 }
 
-function freischalten(tippId) {
-  alert("Freischaltung kommt im nächsten Schritt. Tipp-ID: " + tippId);
+async function freischalten(tippId, card, button) {
+  const token = getToken();
+  const messageBox = card.querySelector(".message");
+  const resultBox = card.querySelector(".analysis-result");
+
+  messageBox.className = "message";
+  messageBox.innerHTML = "";
+  resultBox.innerHTML = "";
+
+  if (!token) {
+    messageBox.className = "message error-message";
+    messageBox.innerHTML = "Kein Benutzer-Token gefunden. Bitte öffne diese Seite über deinen persönlichen Profil-Link.";
+    return;
+  }
+
+  if (!tippId) {
+    messageBox.className = "message error-message";
+    messageBox.innerHTML = "Keine Tipp-ID gefunden.";
+    return;
+  }
+
+  button.disabled = true;
+  button.innerText = "Wird freigeschaltet...";
+
+  try {
+    const url =
+      FREISCHALTEN_WEBHOOK +
+      "?token=" + encodeURIComponent(token) +
+      "&tipp_id=" + encodeURIComponent(tippId) +
+      "&cachebuster=" + Date.now();
+
+    const response = await fetch(url, {
+      method: "GET",
+      cache: "no-store"
+    });
+
+    const rawText = await response.text();
+
+    if (!response.ok) {
+      throw new Error("HTTP Fehler: " + response.status + "\n\nAntwort:\n" + rawText);
+    }
+
+    const data = parseWebhookObject(rawText);
+
+    if (data.status === "not_enough_units") {
+      messageBox.className = "message error-message";
+      messageBox.innerHTML =
+        "Nicht genug Units.<br>" +
+        "Aktuell: <strong>" + escapeHtml(data.units) + "</strong> Units<br>" +
+        "Benötigt: <strong>" + escapeHtml(data.required) + "</strong> Units<br><br>" +
+        '<a class="btn buy-btn" href="' + KAUFEN_URL + '?token=' + encodeURIComponent(token) + '">💎 Units kaufen</a>';
+
+      button.disabled = false;
+      button.innerText = "Freischalten";
+      return;
+    }
+
+    if (data.status === "success" || data.status === "already_unlocked") {
+      button.style.display = "none";
+
+      messageBox.className = "message";
+      messageBox.innerHTML =
+        data.status === "already_unlocked"
+          ? "Dieser Tipp war bereits für dich freigeschaltet."
+          : "Freischaltung erfolgreich.";
+
+      resultBox.innerHTML = `
+        <div class="analysis-box">
+          <h3>✅ Freigeschalteter Tipp</h3>
+          <p><strong>Spiel:</strong> ${escapeHtml(data.spiel)}</p>
+          <p><strong>Tipp:</strong> ${escapeHtml(data.tipp)}</p>
+          <p><strong>Quote:</strong> ${escapeHtml(data.quote)}</p>
+          <p><strong>Ersteller:</strong> ${escapeHtml(data.ersteller)}</p>
+          <p><strong>Verbleibende Units:</strong> ${escapeHtml(data.units)}</p>
+          <hr style="border:0;border-top:1px solid rgba(255,255,255,0.18);margin:16px 0;">
+          <p><strong>Analyse:</strong></p>
+          <p>${escapeHtml(data.analyse).replaceAll("\n", "<br>")}</p>
+        </div>
+      `;
+
+      return;
+    }
+
+    messageBox.className = "message error-message";
+    messageBox.innerHTML = "Unbekannte Antwort vom Server:<br>" + escapeHtml(JSON.stringify(data));
+
+    button.disabled = false;
+    button.innerText = "Freischalten";
+
+  } catch (error) {
+    messageBox.className = "message error-message";
+    messageBox.innerHTML = "Fehler bei der Freischaltung:<br>" + escapeHtml(error.message);
+
+    button.disabled = false;
+    button.innerText = "Freischalten";
+
+    console.error(error);
+  }
 }
 
 loadTipps();
