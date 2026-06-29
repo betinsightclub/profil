@@ -1,397 +1,537 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BetInsight Profil</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BetInsight Tipps</title>
+
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at top, rgba(0, 200, 255, 0.10), transparent 35%),
+      linear-gradient(180deg, #061923 0%, #071d2b 45%, #04131c 100%);
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+
+  .floating-back-btn {
+    position: fixed;
+    left: 18px;
+    bottom: 18px;
+    z-index: 9999;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(90deg, #16a8ff, #00c8ff);
+    color: #ffffff;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 999px;
+    padding: 13px 20px;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 700;
+    box-shadow: 0 12px 30px rgba(0, 174, 255, 0.35);
+  }
+
+  .page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 35px 18px 90px;
+  }
+
+  .logo {
+    width: 155px;
+    max-width: 70%;
+    height: auto;
+    margin: 8px 0 28px;
+  }
+
+  h1 {
+    margin: 8px 0 8px;
+    font-size: 34px;
+  }
+
+  .subtitle {
+    color: #b8d7e8;
+    margin-bottom: 38px;
+    font-size: 16px;
+  }
+
+  .status {
+    color: #8fd3ff;
+    margin: 25px 0;
+  }
+
+  .tips-grid {
+    display: grid;
+    gap: 30px;
+  }
+
+  .tip-card {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, rgba(16, 72, 91, 0.98), rgba(9, 51, 68, 0.98));
+    border: 1px solid rgba(35, 190, 255, 0.48);
+    border-radius: 24px;
+    padding: 34px 28px;
+    box-shadow: 0 18px 42px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.06);
+    max-width: 790px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .tip-inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(0, 200, 255, 0.14);
+    border: 1px solid rgba(0, 200, 255, 0.35);
+    color: #bff3ff;
+    border-radius: 999px;
+    padding: 6px 13px;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+
+  .tip-card h2 {
+    margin: 0 0 22px;
+    font-size: 31px;
+    line-height: 1.25;
+  }
+
+  .tip-meta {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 14px 18px;
+    color: #e4f7ff;
+    font-size: 15px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 2px solid #19c8f5;
+    padding: 18px 0;
+    margin-bottom: 20px;
+  }
+
+  .meta-item {
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    padding: 7px 10px;
+  }
+
+  .locked {
+    color: #a9c9d8;
+    font-size: 14px;
+    margin: 16px 0;
+  }
+
+  .price {
+    font-size: 26px;
+    margin: 17px 0 22px;
+    font-weight: bold;
+  }
+
+  .btn {
+    display: inline-block;
+    background: linear-gradient(90deg, #16a8ff, #00c8ff);
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 14px;
+    padding: 15px 44px;
+    font-size: 16px;
+    cursor: pointer;
+    min-width: 245px;
+    box-shadow: 0 12px 28px rgba(0, 174, 255, 0.32);
+  }
+
+  .btn:hover {
+    opacity: 0.93;
+    transform: translateY(-1px);
+  }
+
+  .btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .buy-btn {
+    margin-top: 12px;
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+  }
+
+  .small-note {
+    color: #b8d7e8;
+    font-size: 13px;
+    margin-top: 15px;
+  }
+
+  .message {
+    margin-top: 16px;
+    color: #b8d7e8;
+    font-size: 14px;
+  }
+
+  .error-message {
+    margin-top: 16px;
+    color: #ffd7d7;
+    font-size: 14px;
+  }
+
+  .result-box {
+    margin-top: 22px;
+    background: rgba(0,0,0,0.22);
+    border: 1px solid rgba(0,200,255,0.25);
+    border-radius: 16px;
+    padding: 18px;
+    text-align: left;
+    color: #e9faff;
+    line-height: 1.55;
+  }
+
+  .result-box strong {
+    color: #ffffff;
+  }
+
+  .empty,
+  .error {
+    max-width: 790px;
+    margin: 0 auto;
+    border-radius: 18px;
+    padding: 24px;
+  }
+
+  .empty {
+    background: #0f3040;
+    color: #c9e8f5;
+  }
+
+  .error {
+    background: #3d1e25;
+    color: #ffd7d7;
+    border: 1px solid #ff6b6b;
+    white-space: pre-wrap;
+    text-align: left;
+  }
+
+  @media (max-width: 600px) {
+    .floating-back-btn {
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      width: auto;
+      padding: 14px 18px;
+      font-size: 15px;
+    }
+
+    .page {
+      padding: 28px 14px 95px;
+    }
+
+    h1 {
+      font-size: 27px;
+    }
+
+    .tip-card {
+      padding: 28px 18px;
+    }
+
+    .tip-card h2 {
+      font-size: 24px;
+    }
+
+    .btn {
+      width: 100%;
+      min-width: unset;
+    }
+  }
+</style>
 </head>
 
-<body style="margin:0;background:#001b24;color:white;font-family:Arial,sans-serif;text-align:center;min-height:100vh;">
+<body>
 
-  <div style="max-width:760px;margin:0 auto;padding:45px 20px;">
+<a class="floating-back-btn" href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9732838">
+  ⬅ Mitgliederbereich
+</a>
 
-    <img
-      src="logo_betisight.club.png"
-      alt="BetInsight Club"
-      style="width:170px;max-width:70%;height:auto;margin-bottom:35px;"
-    >
+<div class="page">
+  <img src="../logo_betisight.club.png" alt="BetInsight Club" class="logo">
 
-    <div style="font-size:48px;margin-bottom:15px;">👤</div>
+  <h1>🔥 Neue BetInsight Tipps</h1>
+  <p class="subtitle">Hier siehst du alle aktuell veröffentlichten Tipps als Vorschau.</p>
 
-    <h1 style="font-size:34px;margin:0 0 35px 0;">
-      Mein BetInsight Profil
-    </h1>
+  <div id="status" class="status">Tipps werden geladen...</div>
+  <div id="tips" class="tips-grid"></div>
+</div>
 
-    <div id="requestBox" style="display:none;max-width:620px;margin:0 auto 30px auto;background:#04263a;padding:26px;border-radius:14px;">
-      <h2 style="margin-top:0;color:#00ff99;">Profil-Link anfordern</h2>
+<script>
+const TIPPS_WEBHOOK = "https://hook.eu1.make.com/36gm8kvlfcb7jwae8ypxe8oripquonq5";
+const FREISCHALTEN_WEBHOOK = "https://hook.eu1.make.com/k1qn9hlfqd7yhz55vwiotkojgpuqzxug";
+const KAUFEN_URL = "https://betinsightclub.github.io/profil/kaufen/";
 
-      <p style="font-size:15px;line-height:1.6;color:#c9d6df;">
-        Damit wir dein persönliches Profil laden können, gib bitte deine registrierte BetInsight E-Mail ein.
-        Wir senden dir dann deinen persönlichen BetInsight Profil-Link.
-      </p>
+function getToken() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("token") || localStorage.getItem("betinsight_token") || "";
+}
 
-      <input
-        id="requestEmail"
-        type="email"
-        placeholder="deine registrierte BetInsight E-Mail"
-        style="width:100%;padding:14px;font-size:16px;margin:15px 0;box-sizing:border-box;background:white;color:black;border:2px solid #008cff;border-radius:8px;"
-      >
+function saveTokenIfPresent() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("token");
+  if (token) localStorage.setItem("betinsight_token", token);
+}
 
-      <button
-        onclick="openSystemeProfile()"
-        style="width:100%;padding:14px;font-size:17px;background:#5f7488;color:white;border:0;border-radius:8px;cursor:pointer;margin-bottom:12px;"
-      >
-        👤 Registrierte BetInsight E-Mail prüfen
+function safeText(value, fallback = "-") {
+  if (value === null || value === undefined || value === "") return fallback;
+  return String(value);
+}
+
+function escapeHtml(value) {
+  return safeText(value, "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function formatDate(value) {
+  if (!value) return "-";
+
+  const date = new Date(value);
+  if (!isNaN(date.getTime())) {
+    return date.toLocaleDateString("de-DE");
+  }
+
+  return value;
+}
+
+function parseJsonArray(rawText) {
+  let cleaned = String(rawText).replace(/^\uFEFF/, "").trim();
+
+  const firstBracket = cleaned.indexOf("[");
+  const lastBracket = cleaned.lastIndexOf("]");
+
+  if (firstBracket === -1 || lastBracket === -1 || lastBracket <= firstBracket) {
+    throw new Error("Keine gültige JSON-Liste gefunden.\n\nAntwort vom Webhook:\n" + rawText);
+  }
+
+  cleaned = cleaned.substring(firstBracket, lastBracket + 1).trim();
+  return JSON.parse(cleaned);
+}
+
+function parseJsonObject(rawText) {
+  let cleaned = String(rawText).replace(/^\uFEFF/, "").trim();
+
+  const firstBrace = cleaned.indexOf("{");
+  const lastBrace = cleaned.lastIndexOf("}");
+
+  if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) {
+    throw new Error("Keine gültige JSON-Antwort gefunden.\n\nAntwort vom Webhook:\n" + rawText);
+  }
+
+  cleaned = cleaned.substring(firstBrace, lastBrace + 1).trim();
+  return JSON.parse(cleaned);
+}
+
+function createTipCard(tipp) {
+  const card = document.createElement("div");
+  card.className = "tip-card";
+
+  const tippId = safeText(tipp.tipp_id, "");
+  const spiel = safeText(tipp.spiel);
+  const liga = safeText(tipp.liga);
+  const markt = safeText(tipp.markt);
+  const quote = safeText(tipp.quote);
+  const preisUnits = safeText(tipp.preis_units);
+  const spielDatum = formatDate(tipp.spiel_datum);
+  const anpfiff = safeText(tipp.anpfiff);
+  const ersteller = safeText(tipp.ersteller, "");
+
+  card.innerHTML = `
+    <div class="tip-inner">
+      <div class="badge">🔒 Premium-Vorschau</div>
+
+      <h2>${escapeHtml(spiel)}</h2>
+
+      <div class="tip-meta">
+        <span class="meta-item">🏆 ${escapeHtml(liga)}</span>
+        <span class="meta-item">📅 ${escapeHtml(spielDatum)}</span>
+        <span class="meta-item">⏰ ${escapeHtml(anpfiff)}</span>
+        <span class="meta-item">📊 ${escapeHtml(markt)}</span>
+        <span class="meta-item">📈 Quote ${escapeHtml(quote)}</span>
+        ${ersteller ? `<span class="meta-item">👤 ${escapeHtml(ersteller)}</span>` : ""}
+      </div>
+
+      <div class="locked">Tipp und Analyse sind erst nach erfolgreicher Freischaltung sichtbar.</div>
+
+      <div class="price">💎 ${escapeHtml(preisUnits)} Units</div>
+
+      <button class="btn" data-tipp-id="${escapeHtml(tippId)}">
+        Freischalten
       </button>
 
-      <button
-        onclick="requestProfileLink()"
-        style="width:100%;padding:14px;font-size:17px;background:#00a86b;color:white;border:0;border-radius:8px;cursor:pointer;"
-      >
-        🔗 Profil-Link anfordern
-      </button>
+      <div class="small-note">
+        Die vollständige Analyse wird nur für diesen Benutzer nach Freischaltung angezeigt.
+      </div>
 
-      <p style="font-size:13px;line-height:1.5;margin-top:14px;color:#ffcc00;">
-        Die Profilseite öffnet sich in einem neuen Fenster. Dort siehst du deine registrierte BetInsight E-Mail.
-        Trage diese E-Mail hier ein und fordere deinen Profil-Link an.
-      </p>
-
-      <div id="requestMessage" style="margin-top:16px;color:#ffcc00;font-size:15px;line-height:1.5;"></div>
+      <div class="message" data-message></div>
+      <div data-result></div>
     </div>
+  `;
 
-    <div id="profileBox" style="display:none;">
+  const button = card.querySelector("button");
+  button.addEventListener("click", () => freischalten(tippId, card, button));
 
-      <div style="font-size:34px;margin-bottom:18px;">
-        Aktuelle Units:
-        <span id="units" style="font-size:62px;font-weight:bold;color:white;">0</span>
+  return card;
+}
+
+async function loadTipps() {
+  const statusBox = document.getElementById("status");
+  const tipsBox = document.getElementById("tips");
+
+  try {
+    const response = await fetch(TIPPS_WEBHOOK + "?cachebuster=" + Date.now(), {
+      method: "GET",
+      cache: "no-store"
+    });
+
+    const rawText = await response.text();
+
+    if (!response.ok) {
+      throw new Error("HTTP Fehler: " + response.status + "\n\nAntwort:\n" + rawText);
+    }
+
+    const tipps = parseJsonArray(rawText);
+
+    statusBox.style.display = "none";
+    tipsBox.innerHTML = "";
+
+    if (!Array.isArray(tipps) || tipps.length === 0) {
+      tipsBox.innerHTML = `<div class="empty">Aktuell sind keine neuen Tipps verfügbar.</div>`;
+      return;
+    }
+
+    tipps.forEach(tipp => {
+      tipsBox.appendChild(createTipCard(tipp));
+    });
+
+  } catch (error) {
+    statusBox.style.display = "none";
+    tipsBox.innerHTML = `
+      <div class="error">
+Fehler beim Laden der Tipps:
+
+${escapeHtml(error.message)}
       </div>
+    `;
+    console.error(error);
+  }
+}
 
-      <div style="font-size:20px;margin-bottom:26px;">
-        <strong>E-Mail:</strong>
-        <span id="email">Lade...</span>
-      </div>
+async function freischalten(tippId, card, button) {
+  const token = getToken();
+  const messageBox = card.querySelector("[data-message]");
+  const resultBox = card.querySelector("[data-result]");
 
-      <div style="max-width:620px;margin:0 auto 26px auto;background:#04263a;padding:22px;border-radius:14px;">
-        <div style="font-size:18px;font-weight:bold;margin-bottom:10px;color:#00ff99;">
-          Dein persönlicher Profil-Link
+  messageBox.className = "message";
+  resultBox.innerHTML = "";
+
+  if (!token) {
+    messageBox.className = "error-message";
+    messageBox.textContent = "Kein Benutzer-Token gefunden. Bitte öffne diese Seite über deinen persönlichen Profil-Link.";
+    return;
+  }
+
+  if (!tippId) {
+    messageBox.className = "error-message";
+    messageBox.textContent = "Keine Tipp-ID gefunden.";
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Wird freigeschaltet...";
+  messageBox.textContent = "";
+
+  try {
+    const url =
+      FREISCHALTEN_WEBHOOK +
+      "?token=" + encodeURIComponent(token) +
+      "&tipp_id=" + encodeURIComponent(tippId) +
+      "&cachebuster=" + Date.now();
+
+    const response = await fetch(url, {
+      method: "GET",
+      cache: "no-store"
+    });
+
+    const rawText = await response.text();
+
+    if (!response.ok) {
+      throw new Error("HTTP Fehler: " + response.status + "\n\nAntwort:\n" + rawText);
+    }
+
+    const data = parseJsonObject(rawText);
+
+    if (data.status === "not_enough_units") {
+      const kaufenLink = KAUFEN_URL + "?token=" + encodeURIComponent(token);
+
+      messageBox.className = "error-message";
+      messageBox.innerHTML =
+        "Nicht genug Units.<br>" +
+        "Du hast aktuell <strong>" + escapeHtml(data.units) + "</strong> Units.<br>" +
+        "Benötigt werden <strong>" + escapeHtml(data.required) + "</strong> Units.<br><br>" +
+        `<a class="btn buy-btn" href="${kaufenLink}">💎 Units kaufen</a>`;
+
+      button.disabled = false;
+      button.textContent = "Freischalten";
+      return;
+    }
+
+    if (data.status === "success" || data.status === "already_unlocked") {
+      button.style.display = "none";
+
+      messageBox.className = "message";
+      messageBox.textContent = data.status === "already_unlocked"
+        ? "Dieser Tipp war bereits für dich freigeschaltet."
+        : "Freischaltung erfolgreich.";
+
+      resultBox.innerHTML = `
+        <div class="result-box">
+          <p><strong>Tipp:</strong> ${escapeHtml(data.tipp)}</p>
+          <p><strong>Quote:</strong> ${escapeHtml(data.quote)}</p>
+          <p><strong>Analyse:</strong><br>${escapeHtml(data.analyse).replaceAll("\n", "<br>")}</p>
+          <p><strong>Verbleibende Units:</strong> ${escapeHtml(data.units)}</p>
         </div>
-
-        <p style="font-size:14px;line-height:1.5;color:#c9d6df;margin:0 0 14px 0;">
-          Speichere diesen Link. Darüber kommst du immer direkt zu deinem eigenen BetInsight-Profil.
-        </p>
-
-        <input
-          id="profileLink"
-          readonly
-          value=""
-          style="width:100%;padding:12px;font-size:14px;box-sizing:border-box;background:white;color:black;border:2px solid #008cff;border-radius:8px;text-align:center;"
-        >
-
-        <button
-          onclick="copyProfileLink()"
-          style="width:100%;max-width:360px;margin-top:12px;padding:14px;border:none;border-radius:8px;background:#5f7488;color:white;font-size:16px;cursor:pointer;"
-        >
-          🔗 Profil-Link kopieren
-        </button>
-      </div>
-
-      <div id="message" style="color:#ffcc00;font-size:16px;margin-bottom:24px;">
-        Kontostand wird geladen...
-      </div>
-
-      <div style="max-width:360px;margin:0 auto 16px auto;">
-        <button
-          onclick="loadUnits()"
-          style="width:100%;padding:15px;border:none;border-radius:8px;background:#007bff;color:white;font-size:17px;cursor:pointer;margin-bottom:12px;"
-        >
-          🔄 Kontostand aktualisieren
-        </button>
-
-        <button
-          onclick="goBuyUnits()"
-          style="width:100%;padding:15px;border:none;border-radius:8px;background:#00a86b;color:white;font-size:17px;cursor:pointer;margin-bottom:18px;"
-        >
-          💎 Units kaufen
-        </button>
-
-        <div style="font-size:13px;line-height:1.5;color:#ffcc00;margin:0 0 10px 0;">
-          Zugangscode nur löschen, wenn die angezeigte E-Mail nicht stimmt
-          oder du dieses Gerät mit einer anderen Person teilst.
-        </div>
-
-        <button
-          onclick="forgetToken()"
-          style="width:100%;padding:13px;border:none;border-radius:8px;background:#7a2e2e;color:white;font-size:15px;cursor:pointer;"
-        >
-          Zugangscode auf diesem Gerät löschen
-        </button>
-      </div>
-
-    </div>
-
-    <hr style="border:0;border-top:1px solid rgba(255,255,255,0.25);margin:35px auto 35px auto;max-width:620px;">
-
-    <button
-      onclick="window.location.href='https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726'"
-      style="width:100%;max-width:360px;padding:15px;border:none;border-radius:8px;background:#5f7488;color:white;font-size:17px;cursor:pointer;"
-    >
-      ⬅ Zurück zum Backoffice
-    </button>
-
-    <div id="debug" style="margin-top:35px;color:rgba(255,255,255,0.35);font-size:12px;"></div>
-
-    <div style="margin-top:45px;color:rgba(255,255,255,0.45);font-size:14px;">
-      © 2026 BetInsight Club
-    </div>
-
-  </div>
-
-  <script>
-    const PROFILE_WEBHOOK_URL = "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
-    const REQUEST_LINK_WEBHOOK_URL = "https://hook.eu1.make.com/me8q6ptfnno6qfji4s6348rw6f47i3t5";
-    const TOKEN_STORAGE_KEY = "betinsight_profile_token";
-
-    function getTokenFromUrl() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get("token");
+      `;
+      return;
     }
 
-    function getSavedToken() {
-      return localStorage.getItem(TOKEN_STORAGE_KEY);
-    }
+    messageBox.className = "error-message";
+    messageBox.textContent = "Unbekannte Antwort vom Server: " + JSON.stringify(data);
 
-    function saveToken(token) {
-      if (token && token.trim() !== "") {
-        localStorage.setItem(TOKEN_STORAGE_KEY, token.trim());
-      }
-    }
+    button.disabled = false;
+    button.textContent = "Freischalten";
 
-    function getActiveToken() {
-      const tokenFromUrl = getTokenFromUrl();
+  } catch (error) {
+    messageBox.className = "error-message";
+    messageBox.textContent = "Fehler bei der Freischaltung: " + error.message;
+    console.error(error);
 
-      if (tokenFromUrl && tokenFromUrl.trim() !== "") {
-        saveToken(tokenFromUrl.trim());
-        return tokenFromUrl.trim();
-      }
+    button.disabled = false;
+    button.textContent = "Freischalten";
+  }
+}
 
-      return getSavedToken();
-    }
-
-    function buildTokenVariants(token) {
-      if (!token) {
-        return [];
-      }
-
-      const cleanedToken = token.trim();
-
-      if (cleanedToken === "") {
-        return [];
-      }
-
-      if (cleanedToken.startsWith("BI-")) {
-        return [cleanedToken, cleanedToken.replace("BI-", "")];
-      }
-
-      return [cleanedToken, "BI-" + cleanedToken];
-    }
-
-    function showRequestBox() {
-      document.getElementById("requestBox").style.display = "block";
-      document.getElementById("profileBox").style.display = "none";
-      setDebug("Debug: Kein Token vorhanden. Profil-Link muss angefordert werden.");
-    }
-
-    function showProfileBox() {
-      document.getElementById("requestBox").style.display = "none";
-      document.getElementById("profileBox").style.display = "block";
-    }
-
-    function openSystemeProfile() {
-      window.open("https://betinsight.systeme.io/profile/user-settings", "_blank");
-    }
-
-    function buildProfileLink(token) {
-      if (!token || token.trim() === "") {
-        return "";
-      }
-
-      return "https://betinsightclub.github.io/profil/?token=" + encodeURIComponent(token.trim());
-    }
-
-    function updateProfileLink(token) {
-      document.getElementById("profileLink").value = buildProfileLink(token);
-    }
-
-    function copyProfileLink() {
-      const profileLinkInput = document.getElementById("profileLink");
-
-      if (!profileLinkInput.value) {
-        alert("Noch kein Profil-Link vorhanden.");
-        return;
-      }
-
-      profileLinkInput.select();
-      profileLinkInput.setSelectionRange(0, 99999);
-
-      navigator.clipboard.writeText(profileLinkInput.value)
-        .then(() => {
-          alert("Profil-Link wurde kopiert.");
-        })
-        .catch(() => {
-          alert("Kopieren nicht möglich. Bitte markiere den Link manuell.");
-        });
-    }
-
-    function setUnitColor(units) {
-      const unitsElement = document.getElementById("units");
-
-      if (units === 0) {
-        unitsElement.style.color = "red";
-      } else if (units < 10) {
-        unitsElement.style.color = "orange";
-      } else {
-        unitsElement.style.color = "lime";
-      }
-    }
-
-    function setDebug(text) {
-      document.getElementById("debug").innerText = text;
-    }
-
-    function setRequestMessage(text, color) {
-      const message = document.getElementById("requestMessage");
-      message.innerText = text;
-      message.style.color = color || "#ffcc00";
-    }
-
-    function fetchProfileByToken(tokenVariants, index) {
-      if (index >= tokenVariants.length) {
-        document.getElementById("units").innerText = "0";
-        document.getElementById("email").innerText = "Nicht gefunden";
-        document.getElementById("message").innerText =
-          "Zugangscode wurde nicht gefunden. Bitte fordere deinen Profil-Link erneut an.";
-        setUnitColor(0);
-        setDebug("Debug: Kein Token-Treffer.");
-        return;
-      }
-
-      const tokenToTry = tokenVariants[index];
-
-      fetch(PROFILE_WEBHOOK_URL + "?token=" + encodeURIComponent(tokenToTry))
-        .then(response => response.json())
-        .then(data => {
-          if (!data || data.found === false || !data.email) {
-            fetchProfileByToken(tokenVariants, index + 1);
-            return;
-          }
-
-          const finalToken = data.token || tokenToTry;
-          const units = parseInt(data.units) || 0;
-
-          saveToken(finalToken);
-          showProfileBox();
-
-          document.getElementById("units").innerText = units;
-          document.getElementById("email").innerText = data.email;
-          document.getElementById("message").innerText = "Aktualisiert.";
-
-          setUnitColor(units);
-          updateProfileLink(finalToken);
-
-          setDebug(
-            "Debug: Token aktiv: " + finalToken +
-            " | API Token: " + (data.token || "leer") +
-            " | API E-Mail: " + (data.email || "leer") +
-            " | API Units: " + (data.units || "0")
-          );
-        })
-        .catch(error => {
-          console.error(error);
-          fetchProfileByToken(tokenVariants, index + 1);
-        });
-    }
-
-    function loadUnits() {
-      const token = getActiveToken();
-
-      if (!token) {
-        showRequestBox();
-        return;
-      }
-
-      showProfileBox();
-
-      document.getElementById("message").innerText = "Kontostand wird geladen...";
-      document.getElementById("email").innerText = "Lade...";
-      document.getElementById("units").innerText = "0";
-
-      const tokenVariants = buildTokenVariants(token);
-      fetchProfileByToken(tokenVariants, 0);
-    }
-
-    function requestProfileLink() {
-      const email = document.getElementById("requestEmail").value.trim().toLowerCase();
-
-      if (!email) {
-        alert("Bitte deine registrierte BetInsight E-Mail eingeben.");
-        return;
-      }
-
-      setRequestMessage("Profil-Link wird angefordert...", "#ffcc00");
-
-      fetch(REQUEST_LINK_WEBHOOK_URL + "?email=" + encodeURIComponent(email))
-        .then(response => response.text())
-        .then(text => {
-          setRequestMessage(
-            "✅ Profil-Link wurde verschickt.\n\nÖffne jetzt dein E-Mail-Postfach und klicke auf den Profil-Link in der E-Mail.\n\nDanach wird dein persönliches BetInsight-Profil automatisch geöffnet.\n\nAb dem nächsten Besuch kannst du dein Profil direkt über „👤 Mein Profil“ aufrufen.",
-            "#00ff99"
-          );
-
-          alert(
-            "Profil-Link wurde verschickt.\n\nÖffne jetzt dein E-Mail-Postfach und klicke auf den Profil-Link in der E-Mail.\n\nDanach wird dein persönliches BetInsight-Profil automatisch geöffnet."
-          );
-
-          setDebug("Debug: Profil-Link angefordert für: " + email + " | Antwort: " + text);
-        })
-        .catch(error => {
-          console.error(error);
-          setRequestMessage(
-            "Fehler beim Anfordern. Bitte versuche es erneut.",
-            "#ff4444"
-          );
-          setDebug("Debug: Fehler beim Profil-Link anfordern.");
-        });
-    }
-
-    function goBuyUnits() {
-      const token = getActiveToken();
-
-      if (!token) {
-        alert("Kein Zugangscode gefunden. Bitte fordere zuerst deinen Profil-Link an.");
-        showRequestBox();
-        return;
-      }
-
-      window.location.href =
-        "https://betinsightclub.github.io/profil/kaufen/?token=" + encodeURIComponent(token);
-    }
-
-    function forgetToken() {
-      localStorage.removeItem(TOKEN_STORAGE_KEY);
-      localStorage.removeItem("betinsight_email");
-
-      document.getElementById("units").innerText = "0";
-      document.getElementById("email").innerText = "Kein Zugangscode";
-      document.getElementById("message").innerText =
-        "Zugangscode wurde auf diesem Gerät gelöscht.";
-      document.getElementById("profileLink").value = "";
-      setUnitColor(0);
-      showRequestBox();
-      setDebug("Debug: Zugangscode gelöscht.");
-    }
-
-    loadUnits();
-  </script>
+saveTokenIfPresent();
+loadTipps();
+</script>
 
 </body>
 </html>
