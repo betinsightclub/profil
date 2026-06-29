@@ -38,11 +38,6 @@
     box-shadow: 0 12px 30px rgba(0, 174, 255, 0.35);
   }
 
-  .floating-back-btn:hover {
-    opacity: 0.93;
-    transform: translateY(-1px);
-  }
-
   .page {
     max-width: 1100px;
     margin: 0 auto;
@@ -59,7 +54,6 @@
   h1 {
     margin: 8px 0 8px;
     font-size: 34px;
-    letter-spacing: 0.2px;
   }
 
   .subtitle {
@@ -159,7 +153,6 @@
     display: inline-block;
     background: linear-gradient(90deg, #16a8ff, #00c8ff);
     color: white;
-    text-decoration: none;
     border: none;
     border-radius: 14px;
     padding: 15px 44px;
@@ -169,56 +162,42 @@
     box-shadow: 0 12px 28px rgba(0, 174, 255, 0.32);
   }
 
-  .btn:hover {
-    opacity: 0.93;
-    transform: translateY(-1px);
-  }
-
-  .btn:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-  }
-
-  .buy-btn {
-    margin-top: 14px;
-    background: linear-gradient(90deg, #00a86b, #00d084);
-  }
-
   .small-note {
     color: #b8d7e8;
     font-size: 13px;
     margin-top: 15px;
   }
 
-  .message {
+  .unlock-message {
     margin-top: 18px;
-    color: #b8d7e8;
+    color: #8fffd2;
     font-size: 15px;
-    line-height: 1.5;
+    font-weight: 700;
   }
 
-  .message.error-message {
-    color: #ffd7d7;
-  }
-
-  .analysis-box {
+  .unlock-box {
     margin-top: 24px;
-    text-align: left;
-    background: rgba(0,0,0,0.22);
-    border: 1px solid rgba(0,200,255,0.35);
+    background: rgba(0,0,0,0.18);
+    border: 1px solid rgba(35, 190, 255, 0.45);
     border-radius: 16px;
     padding: 22px;
-    color: #e9f8ff;
-    line-height: 1.6;
+    text-align: left;
   }
 
-  .analysis-box h3 {
-    margin: 0 0 12px;
-    color: #ffffff;
+  .unlock-box h3 {
+    margin-top: 0;
+    font-size: 21px;
   }
 
-  .analysis-box p {
-    margin: 8px 0;
+  .unlock-box p {
+    line-height: 1.55;
+  }
+
+  .analysis-text {
+    border-top: 1px solid rgba(255,255,255,0.14);
+    margin-top: 18px;
+    padding-top: 18px;
+    white-space: pre-wrap;
   }
 
   .empty,
@@ -248,8 +227,6 @@
       right: 12px;
       bottom: 12px;
       width: auto;
-      padding: 14px 18px;
-      font-size: 15px;
     }
 
     .page {
@@ -278,35 +255,27 @@
 
 <body>
 
-  <a class="floating-back-btn" href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9732838">
-    ⬅ Mitgliederbereich
-  </a>
+<a class="floating-back-btn" href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9732838">
+  ⬅ Mitgliederbereich
+</a>
 
-  <div class="page">
-    <img src="../logo_betisight.club.png" alt="BetInsight Club" class="logo">
+<div class="page">
+  <img src="../logo_betisight.club.png" alt="BetInsight Club" class="logo">
 
-    <h1>🔥 Neue BetInsight Tipps</h1>
-    <p class="subtitle">Hier siehst du alle aktuell veröffentlichten Tipps als Vorschau.</p>
+  <h1>🔥 Neue BetInsight Tipps</h1>
+  <p class="subtitle">Hier siehst du alle aktuell veröffentlichten Tipps als Vorschau.</p>
 
-    <div id="status" class="status">Tipps werden geladen...</div>
-    <div id="tips" class="tips-grid"></div>
-  </div>
+  <div id="status" class="status">Tipps werden geladen...</div>
+  <div id="tips" class="tips-grid"></div>
+</div>
 
 <script>
 const TIPPS_WEBHOOK = "https://hook.eu1.make.com/36gm8kvlfcb7jwae8ypxe8oripquonq5";
 const FREISCHALTEN_WEBHOOK = "https://hook.eu1.make.com/k1qn9hlfqd7yhz55vwiotkojgpuqzxug";
-const KAUFEN_URL = "https://betinsightclub.github.io/profil/kaufen/";
 
 function getToken() {
   const params = new URLSearchParams(window.location.search);
-  const tokenFromUrl = params.get("token");
-
-  if (tokenFromUrl && tokenFromUrl.trim() !== "") {
-    localStorage.setItem("betinsight_profile_token", tokenFromUrl.trim());
-    return tokenFromUrl.trim();
-  }
-
-  return localStorage.getItem("betinsight_profile_token") || "";
+  return params.get("token") || "";
 }
 
 function safeText(value, fallback = "-") {
@@ -334,31 +303,16 @@ function formatDate(value) {
   return value;
 }
 
-function parseWebhookArray(rawText) {
+function parseWebhookJson(rawText) {
   let cleaned = String(rawText).replace(/^\uFEFF/, "").trim();
 
   const firstBracket = cleaned.indexOf("[");
   const lastBracket = cleaned.lastIndexOf("]");
 
-  if (firstBracket === -1 || lastBracket === -1 || lastBracket <= firstBracket) {
-    throw new Error("Keine gültige JSON-Liste gefunden.\n\nAntwort vom Webhook:\n" + rawText);
+  if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
+    cleaned = cleaned.substring(firstBracket, lastBracket + 1).trim();
   }
 
-  cleaned = cleaned.substring(firstBracket, lastBracket + 1).trim();
-  return JSON.parse(cleaned);
-}
-
-function parseWebhookObject(rawText) {
-  let cleaned = String(rawText).replace(/^\uFEFF/, "").trim();
-
-  const firstBrace = cleaned.indexOf("{");
-  const lastBrace = cleaned.lastIndexOf("}");
-
-  if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) {
-    throw new Error("Keine gültige JSON-Antwort gefunden.\n\nAntwort vom Webhook:\n" + rawText);
-  }
-
-  cleaned = cleaned.substring(firstBrace, lastBrace + 1).trim();
   return JSON.parse(cleaned);
 }
 
@@ -401,13 +355,12 @@ function createTipCard(tipp) {
         Die vollständige Analyse wird nur für diesen Benutzer nach Freischaltung angezeigt.
       </div>
 
-      <div class="message"></div>
-      <div class="analysis-result"></div>
+      <div class="unlock-result"></div>
     </div>
   `;
 
   const button = card.querySelector(".btn");
-  button.addEventListener("click", function() {
+  button.addEventListener("click", function () {
     freischalten(tippId, card, button);
   });
 
@@ -430,7 +383,7 @@ async function loadTipps() {
       throw new Error("HTTP Fehler: " + response.status + "\n\nAntwort:\n" + rawText);
     }
 
-    const tipps = parseWebhookArray(rawText);
+    const tipps = parseWebhookJson(rawText);
 
     statusBox.style.display = "none";
     tipsBox.innerHTML = "";
@@ -459,27 +412,32 @@ ${escapeHtml(error.message)}
 
 async function freischalten(tippId, card, button) {
   const token = getToken();
-  const messageBox = card.querySelector(".message");
-  const resultBox = card.querySelector(".analysis-result");
+  const resultBox = card.querySelector(".unlock-result");
 
-  messageBox.className = "message";
-  messageBox.innerHTML = "";
   resultBox.innerHTML = "";
 
   if (!token) {
-    messageBox.className = "message error-message";
-    messageBox.innerHTML = "Kein Benutzer-Token gefunden. Bitte öffne diese Seite über deinen persönlichen Profil-Link.";
+    resultBox.innerHTML = `
+      <div class="error">
+Kein Token gefunden.
+
+Bitte öffne die Seite über deinen persönlichen Profil-Link.
+      </div>
+    `;
     return;
   }
 
   if (!tippId) {
-    messageBox.className = "message error-message";
-    messageBox.innerHTML = "Keine Tipp-ID gefunden.";
+    resultBox.innerHTML = `
+      <div class="error">
+Keine Tipp-ID gefunden.
+      </div>
+    `;
     return;
   }
 
   button.disabled = true;
-  button.innerText = "Wird freigeschaltet...";
+  button.textContent = "Wird freigeschaltet...";
 
   try {
     const url =
@@ -499,61 +457,67 @@ async function freischalten(tippId, card, button) {
       throw new Error("HTTP Fehler: " + response.status + "\n\nAntwort:\n" + rawText);
     }
 
-    const data = parseWebhookObject(rawText);
+    const data = JSON.parse(rawText.trim());
 
     if (data.status === "not_enough_units") {
-      messageBox.className = "message error-message";
-      messageBox.innerHTML =
-        "Nicht genug Units.<br>" +
-        "Aktuell: <strong>" + escapeHtml(data.units) + "</strong> Units<br>" +
-        "Benötigt: <strong>" + escapeHtml(data.required) + "</strong> Units<br><br>" +
-        '<a class="btn buy-btn" href="' + KAUFEN_URL + '?token=' + encodeURIComponent(token) + '">💎 Units kaufen</a>';
+      resultBox.innerHTML = `
+        <div class="error">
+Nicht genug Units.
 
-      button.disabled = false;
-      button.innerText = "Freischalten";
+Aktuelle Units: ${escapeHtml(data.units)}
+Benötigt: ${escapeHtml(data.required)}
+        </div>
+      `;
       return;
     }
 
     if (data.status === "success" || data.status === "already_unlocked") {
-      button.style.display = "none";
-
-      messageBox.className = "message";
-      messageBox.innerHTML =
-        data.status === "already_unlocked"
-          ? "Dieser Tipp war bereits für dich freigeschaltet."
-          : "Freischaltung erfolgreich.";
+      const message = data.status === "already_unlocked"
+        ? "Dieser Tipp war bereits für dich freigeschaltet."
+        : "Freischaltung erfolgreich.";
 
       resultBox.innerHTML = `
-        <div class="analysis-box">
+        <div class="unlock-message">${escapeHtml(message)}</div>
+
+        <div class="unlock-box">
           <h3>✅ Freigeschalteter Tipp</h3>
+
           <p><strong>Spiel:</strong> ${escapeHtml(data.spiel)}</p>
           <p><strong>Tipp:</strong> ${escapeHtml(data.tipp)}</p>
           <p><strong>Quote:</strong> ${escapeHtml(data.quote)}</p>
           <p><strong>Ersteller:</strong> ${escapeHtml(data.ersteller)}</p>
           <p><strong>Verbleibende Units:</strong> ${escapeHtml(data.units)}</p>
-          <hr style="border:0;border-top:1px solid rgba(255,255,255,0.18);margin:16px 0;">
-          <p><strong>Analyse:</strong></p>
-          <p>${escapeHtml(data.analyse).replaceAll("\n", "<br>")}</p>
+
+          <div class="analysis-text">
+            <strong>Analyse:</strong><br><br>${escapeHtml(data.analyse)}
+          </div>
         </div>
       `;
 
       return;
     }
 
-    messageBox.className = "message error-message";
-    messageBox.innerHTML = "Unbekannte Antwort vom Server:<br>" + escapeHtml(JSON.stringify(data));
+    resultBox.innerHTML = `
+      <div class="error">
+Unbekannte Antwort vom Server:
 
-    button.disabled = false;
-    button.innerText = "Freischalten";
+${escapeHtml(rawText)}
+      </div>
+    `;
 
   } catch (error) {
-    messageBox.className = "message error-message";
-    messageBox.innerHTML = "Fehler bei der Freischaltung:<br>" + escapeHtml(error.message);
+    resultBox.innerHTML = `
+      <div class="error">
+Fehler beim Freischalten:
 
-    button.disabled = false;
-    button.innerText = "Freischalten";
-
+${escapeHtml(error.message)}
+      </div>
+    `;
     console.error(error);
+
+  } finally {
+    button.disabled = false;
+    button.textContent = "Freischalten";
   }
 }
 
