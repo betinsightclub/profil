@@ -238,6 +238,27 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function formatFreischaltDatum(value) {
+  if (!value) return "-";
+
+  const d = new Date(value);
+
+  if (isNaN(d.getTime())) {
+    return escapeHtml(value);
+  }
+
+  const datum =
+    String(d.getDate()).padStart(2, "0") + "." +
+    String(d.getMonth() + 1).padStart(2, "0") + "." +
+    d.getFullYear();
+
+  const uhrzeit =
+    String(d.getHours()).padStart(2, "0") + ":" +
+    String(d.getMinutes()).padStart(2, "0");
+
+  return datum + "<br>" + uhrzeit + " Uhr";
+}
+
 function parseWebhookJson(rawText) {
   let cleaned = String(rawText).replace(/^\uFEFF/, "").trim();
 
@@ -302,7 +323,7 @@ function createTipCard(tipp) {
       <p class="detail-row"><strong>Tipp:</strong> ${escapeHtml(tipp.tipp)}</p>
       <p class="detail-row"><strong>Preis:</strong> ${escapeHtml(tipp.preis_units)} Units</p>
       <p class="detail-row"><strong>Ersteller:</strong> ${escapeHtml(tipp.ersteller)}</p>
-      <p class="detail-row"><strong>Freigeschaltet am:</strong> ${escapeHtml(tipp.datum)}</p>
+      <p class="detail-row"><strong>Freigeschaltet am:</strong><br>${formatFreischaltDatum(tipp.datum)}</p>
 
       <div class="analysis-text">
         <strong>Analyse:</strong><br><br>${escapeHtml(tipp.analyse)}
