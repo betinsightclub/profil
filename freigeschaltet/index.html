@@ -39,7 +39,7 @@
   }
 
   .page {
-    max-width: 1100px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 35px 18px 90px;
   }
@@ -48,7 +48,7 @@
     width: 155px;
     max-width: 70%;
     height: auto;
-    margin: 8px 0 28px;
+    margin: 8px 0 24px;
   }
 
   h1 {
@@ -58,7 +58,7 @@
 
   .subtitle {
     color: #b8d7e8;
-    margin-bottom: 38px;
+    margin-bottom: 34px;
     font-size: 16px;
   }
 
@@ -69,7 +69,9 @@
 
   .tips-grid {
     display: grid;
-    gap: 30px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    align-items: start;
   }
 
   .tip-card {
@@ -78,14 +80,12 @@
     background:
       linear-gradient(180deg, rgba(16, 72, 91, 0.98), rgba(9, 51, 68, 0.98));
     border: 1px solid rgba(35, 190, 255, 0.48);
-    border-radius: 24px;
-    padding: 34px 28px;
+    border-radius: 18px;
+    padding: 20px 18px;
     box-shadow:
-      0 18px 42px rgba(0,0,0,0.38),
+      0 14px 32px rgba(0,0,0,0.34),
       inset 0 1px 0 rgba(255,255,255,0.06);
-    max-width: 790px;
     width: 100%;
-    margin: 0 auto;
     text-align: left;
   }
 
@@ -93,7 +93,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at top right, rgba(0, 200, 255, 0.16), transparent 35%);
+    background: radial-gradient(circle at top right, rgba(0, 200, 255, 0.13), transparent 35%);
     pointer-events: none;
   }
 
@@ -108,14 +108,20 @@
     border: 1px solid rgba(0, 255, 180, 0.35);
     color: #bfffe8;
     border-radius: 999px;
-    padding: 6px 13px;
-    font-size: 13px;
-    margin-bottom: 16px;
+    padding: 5px 10px;
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+
+  .missing-badge {
+    background: rgba(255, 179, 71, 0.14);
+    border-color: rgba(255, 179, 71, 0.45);
+    color: #ffd08a;
   }
 
   .tip-card h2 {
-    margin: 0 0 22px;
-    font-size: 31px;
+    margin: 0 0 16px;
+    font-size: 21px;
     line-height: 1.25;
     text-align: center;
   }
@@ -124,32 +130,50 @@
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 14px 18px;
+    gap: 8px;
     color: #e4f7ff;
-    font-size: 15px;
+    font-size: 12px;
     border-top: 1px solid rgba(255,255,255,0.08);
     border-bottom: 2px solid #19c8f5;
-    padding: 18px 0;
-    margin-bottom: 22px;
+    padding: 12px 0;
+    margin-bottom: 16px;
   }
 
   .meta-item {
     background: rgba(255,255,255,0.04);
-    border-radius: 10px;
-    padding: 7px 10px;
+    border-radius: 9px;
+    padding: 6px 8px;
   }
 
   .detail-row {
-    margin: 10px 0;
-    line-height: 1.55;
+    margin: 8px 0;
+    line-height: 1.45;
+    font-size: 14px;
+  }
+
+  details {
+    margin-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.14);
+    padding-top: 14px;
+  }
+
+  summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: #8fffd2;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
   }
 
   .analysis-text {
-    border-top: 1px solid rgba(255,255,255,0.14);
-    margin-top: 20px;
-    padding-top: 20px;
+    margin-top: 14px;
     white-space: pre-wrap;
-    line-height: 1.65;
+    line-height: 1.6;
+    font-size: 14px;
+    color: #e8f8ff;
   }
 
   .empty,
@@ -173,6 +197,18 @@
     text-align: left;
   }
 
+  @media (max-width: 1100px) {
+    .tips-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 820px) {
+    .tips-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
   @media (max-width: 600px) {
     .floating-back-btn {
       left: 12px;
@@ -189,12 +225,8 @@
       font-size: 27px;
     }
 
-    .tip-card {
-      padding: 28px 18px;
-    }
-
-    .tip-card h2 {
-      font-size: 24px;
+    .tips-grid {
+      grid-template-columns: 1fr;
     }
   }
 </style>
@@ -306,11 +338,16 @@ function createTipCard(tipp) {
   const card = document.createElement("div");
   card.className = "tip-card";
 
+  const hasFullData = Boolean(tipp.spiel || tipp.tipp || tipp.analyse);
+  const title = tipp.spiel || "Alter freigeschalteter Tipp";
+  const badgeClass = hasFullData ? "badge" : "badge missing-badge";
+  const badgeText = hasFullData ? "✅ Freigeschaltet" : "⚠️ Details fehlen";
+
   card.innerHTML = `
     <div class="tip-inner">
-      <div class="badge">✅ Freigeschaltet</div>
+      <div class="${badgeClass}">${badgeText}</div>
 
-      <h2>${escapeHtml(tipp.spiel)}</h2>
+      <h2>${escapeHtml(title)}</h2>
 
       <div class="tip-meta">
         <span class="meta-item">🏆 ${escapeHtml(tipp.liga)}</span>
@@ -325,9 +362,12 @@ function createTipCard(tipp) {
       <p class="detail-row"><strong>Ersteller:</strong> ${escapeHtml(tipp.ersteller)}</p>
       <p class="detail-row"><strong>Freigeschaltet am:</strong><br>${formatFreischaltDatum(tipp.datum)}</p>
 
-      <div class="analysis-text">
-        <strong>Analyse:</strong><br><br>${escapeHtml(tipp.analyse)}
-      </div>
+      <details>
+        <summary>Analyse anzeigen</summary>
+        <div class="analysis-text">
+${escapeHtml(tipp.analyse || "Für diesen älteren Eintrag wurden noch keine Detaildaten gespeichert.")}
+        </div>
+      </details>
     </div>
   `;
 
@@ -384,17 +424,7 @@ Bitte öffne diese Seite über deinen persönlichen BetInsight-Link.
 
     const tipps = rawTipps
       .map(normalizeTip)
-      .filter(tipp => tipp.spiel || tipp.tipp || tipp.analyse)
       .sort((a, b) => parseDateForSorting(b.datum) - parseDateForSorting(a.datum));
-
-    if (tipps.length === 0) {
-      tipsBox.innerHTML = `
-        <div class="empty">
-          Du hast bisher noch keine vollständig gespeicherten Tipps freigeschaltet.
-        </div>
-      `;
-      return;
-    }
 
     tipps.forEach(tipp => {
       tipsBox.appendChild(createTipCard(tipp));
