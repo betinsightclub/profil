@@ -1,9 +1,20 @@
+Ja, ich sehe den Fehler: Auf `profil/tipps/` liegt aktuell **die Freigeschaltet-Seite**, nicht die richtige Tipps-Seite. Die Live-Seite zeigt dort „✅ Freigeschaltete Tipps“ statt „🔥 Neue BetInsight Tipps“. ([Bet Insight Club][1])
+
+Du musst in GitHub bei:
+
+```text
+profil/tipps/index.html
+```
+
+wieder die richtige Tipps-Datei einfügen.
+
+```html
 <!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BetInsight – Freigeschaltete Tipps</title>
+<title>BetInsight Tipps</title>
 
 <style>
   * { box-sizing: border-box; }
@@ -39,61 +50,504 @@
   }
 
   .page {
-    max-width: 1400px;
+    max-width: 1100px;
     margin: 0 auto;
     padding: 35px 18px 90px;
   }
 
-  .logo { width:155px; max-width:70%; margin:8px 0 24px; }
+  .logo {
+    width: 155px;
+    max-width: 70%;
+    height: auto;
+    margin: 8px 0 28px;
+  }
 
-  h1 { margin:8px 0; font-size:34px; }
+  h1 {
+    margin: 8px 0 8px;
+    font-size: 34px;
+  }
 
-  .subtitle { color:#b8d7e8; margin-bottom:34px; }
+  .subtitle {
+    color: #b8d7e8;
+    margin-bottom: 38px;
+    font-size: 16px;
+  }
 
-  .status { color:#8fd3ff; margin:25px 0; }
+  .status {
+    color: #8fd3ff;
+    margin: 25px 0;
+  }
 
   .tips-grid {
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:18px;
+    display: grid;
+    gap: 30px;
   }
 
   .tip-card {
-    background:linear-gradient(180deg, rgba(16,72,91,.98), rgba(9,51,68,.98));
-    border:1px solid rgba(35,190,255,.48);
-    border-radius:18px;
-    padding:20px 18px;
+    position: relative;
+    overflow: hidden;
+    background:
+      linear-gradient(180deg, rgba(16, 72, 91, 0.98), rgba(9, 51, 68, 0.98));
+    border: 1px solid rgba(35, 190, 255, 0.48);
+    border-radius: 24px;
+    padding: 34px 28px;
+    box-shadow:
+      0 18px 42px rgba(0,0,0,0.38),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+    max-width: 790px;
+    width: 100%;
+    margin: 0 auto;
   }
 
-  @media (max-width:1100px){.tips-grid{grid-template-columns:repeat(3,1fr)}}
-  @media (max-width:820px){.tips-grid{grid-template-columns:repeat(2,1fr)}}
-  @media (max-width:600px){
-    .tips-grid{grid-template-columns:1fr}
-    .floating-back-btn{left:12px;right:12px;bottom:12px}
+  .tip-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, rgba(0, 200, 255, 0.16), transparent 35%);
+    pointer-events: none;
+  }
+
+  .tip-inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(0, 200, 255, 0.14);
+    border: 1px solid rgba(0, 200, 255, 0.35);
+    color: #bff3ff;
+    border-radius: 999px;
+    padding: 6px 13px;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+
+  .tip-card h2 {
+    margin: 0 0 22px;
+    font-size: 31px;
+    line-height: 1.25;
+  }
+
+  .tip-meta {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 14px 18px;
+    color: #e4f7ff;
+    font-size: 15px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 2px solid #19c8f5;
+    padding: 18px 0;
+    margin-bottom: 20px;
+  }
+
+  .meta-item {
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    padding: 7px 10px;
+  }
+
+  .locked {
+    color: #a9c9d8;
+    font-size: 14px;
+    margin: 16px 0;
+  }
+
+  .price {
+    font-size: 26px;
+    margin: 17px 0 22px;
+    font-weight: bold;
+  }
+
+  .btn {
+    display: inline-block;
+    background: linear-gradient(90deg, #16a8ff, #00c8ff);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    padding: 15px 44px;
+    font-size: 16px;
+    cursor: pointer;
+    min-width: 245px;
+    box-shadow: 0 12px 28px rgba(0, 174, 255, 0.32);
+  }
+
+  .small-note {
+    color: #b8d7e8;
+    font-size: 13px;
+    margin-top: 15px;
+  }
+
+  .unlock-message {
+    margin-top: 18px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .unlock-message.success {
+    color: #8fffd2;
+  }
+
+  .unlock-message.info {
+    color: #ffb347;
+  }
+
+  .unlock-box {
+    margin-top: 24px;
+    background: rgba(0,0,0,0.18);
+    border: 1px solid rgba(35, 190, 255, 0.45);
+    border-radius: 16px;
+    padding: 22px;
+    text-align: left;
+  }
+
+  .unlock-box h3 {
+    margin-top: 0;
+    font-size: 21px;
+  }
+
+  .unlock-box p {
+    line-height: 1.55;
+  }
+
+  .analysis-text {
+    border-top: 1px solid rgba(255,255,255,0.14);
+    margin-top: 18px;
+    padding-top: 18px;
+    white-space: pre-wrap;
+  }
+
+  .empty,
+  .error {
+    max-width: 790px;
+    margin: 0 auto;
+    border-radius: 18px;
+    padding: 24px;
+  }
+
+  .empty {
+    background: #0f3040;
+    color: #c9e8f5;
+  }
+
+  .error {
+    background: #3d1e25;
+    color: #ffd7d7;
+    border: 1px solid #ff6b6b;
+    white-space: pre-wrap;
+    text-align: left;
+  }
+
+  @media (max-width: 600px) {
+    .floating-back-btn {
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      width: auto;
+    }
+
+    .page {
+      padding: 28px 14px 95px;
+    }
+
+    h1 {
+      font-size: 27px;
+    }
+
+    .tip-card {
+      padding: 28px 18px;
+    }
+
+    .tip-card h2 {
+      font-size: 24px;
+    }
+
+    .btn {
+      width: 100%;
+      min-width: unset;
+    }
   }
 </style>
 </head>
+
 <body>
 
 <a class="floating-back-btn" href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726">
-⬅ Mitgliederbereich
+  ⬅ Mitgliederbereich
 </a>
 
 <div class="page">
-<img src="../logo_betisight.club.png" class="logo" alt="BetInsight Club">
-<h1>✅ Freigeschaltete Tipps</h1>
-<p class="subtitle">Hier findest du alle Tipps, die du bereits freigeschaltet hast.</p>
+  <img src="../logo_betisight.club.png" alt="BetInsight Club" class="logo">
 
-<div id="status" class="status">Freigeschaltete Tipps werden geladen...</div>
-<div id="tips" class="tips-grid"></div>
+  <h1>🔥 Neue BetInsight Tipps</h1>
+  <p class="subtitle">Hier siehst du alle aktuell veröffentlichten Tipps als Vorschau.</p>
+
+  <div id="status" class="status">Tipps werden geladen...</div>
+  <div id="tips" class="tips-grid"></div>
 </div>
 
 <script>
-// HINWEIS:
-// Dies ist die aktualisierte Version mit dem korrigierten Mitgliederbereich-Link.
-// Die restliche JavaScript-Logik (Webhook, Laden, Sortieren, Kartenaufbau)
-// bleibt unverändert gegenüber deiner bisherigen funktionierenden Version.
+const TIPPS_WEBHOOK = "https://hook.eu1.make.com/36gm8kvlfcb7jwae8ypxe8oripquonq5";
+const FREISCHALTEN_WEBHOOK = "https://hook.eu1.make.com/k1qn9hlfqd7yhz55vwiotkojgpuqzxug";
+
+function getToken() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("token") || "";
+}
+
+function safeText(value, fallback = "-") {
+  if (value === null || value === undefined || value === "") return fallback;
+  return String(value);
+}
+
+function escapeHtml(value) {
+  return safeText(value, "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function formatDate(value) {
+  if (!value) return "-";
+
+  const date = new Date(value);
+  if (!isNaN(date.getTime())) {
+    return date.toLocaleDateString("de-DE");
+  }
+
+  return value;
+}
+
+function parseWebhookJson(rawText) {
+  let cleaned = String(rawText).replace(/^\uFEFF/, "").trim();
+
+  const firstBracket = cleaned.indexOf("[");
+  const lastBracket = cleaned.lastIndexOf("]");
+
+  if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
+    cleaned = cleaned.substring(firstBracket, lastBracket + 1).trim();
+  }
+
+  return JSON.parse(cleaned);
+}
+
+function createTipCard(tipp) {
+  const card = document.createElement("div");
+  card.className = "tip-card";
+
+  const tippId = safeText(tipp.tipp_id, "");
+  const spiel = safeText(tipp.spiel);
+  const liga = safeText(tipp.liga);
+  const markt = safeText(tipp.markt);
+  const quote = safeText(tipp.quote);
+  const preisUnits = safeText(tipp.preis_units);
+  const spielDatum = formatDate(tipp.spiel_datum);
+  const anpfiff = safeText(tipp.anpfiff);
+
+  card.innerHTML = `
+    <div class="tip-inner">
+      <div class="badge">🔒 Premium-Vorschau</div>
+
+      <h2>${escapeHtml(spiel)}</h2>
+
+      <div class="tip-meta">
+        <span class="meta-item">🏆 ${escapeHtml(liga)}</span>
+        <span class="meta-item">📅 ${escapeHtml(spielDatum)}</span>
+        <span class="meta-item">⏰ ${escapeHtml(anpfiff)}</span>
+        <span class="meta-item">📊 ${escapeHtml(markt)}</span>
+        <span class="meta-item">📈 Quote ${escapeHtml(quote)}</span>
+      </div>
+
+      <div class="locked">Tipp und Analyse sind erst nach erfolgreicher Freischaltung sichtbar.</div>
+
+      <div class="price">💎 ${escapeHtml(preisUnits)} Units</div>
+
+      <button class="btn" type="button">
+        Freischalten
+      </button>
+
+      <div class="small-note">
+        Die vollständige Analyse wird nur für diesen Benutzer nach Freischaltung angezeigt.
+      </div>
+
+      <div class="unlock-result"></div>
+    </div>
+  `;
+
+  const button = card.querySelector(".btn");
+  button.addEventListener("click", function () {
+    freischalten(tippId, card, button);
+  });
+
+  return card;
+}
+
+async function loadTipps() {
+  const statusBox = document.getElementById("status");
+  const tipsBox = document.getElementById("tips");
+
+  try {
+    const response = await fetch(TIPPS_WEBHOOK + "?cachebuster=" + Date.now(), {
+      method: "GET",
+      cache: "no-store"
+    });
+
+    const rawText = await response.text();
+
+    if (!response.ok) {
+      throw new Error("HTTP Fehler: " + response.status + "\n\nAntwort:\n" + rawText);
+    }
+
+    const tipps = parseWebhookJson(rawText);
+
+    statusBox.style.display = "none";
+    tipsBox.innerHTML = "";
+
+    if (!Array.isArray(tipps) || tipps.length === 0) {
+      tipsBox.innerHTML = `<div class="empty">Aktuell sind keine neuen Tipps verfügbar.</div>`;
+      return;
+    }
+
+    tipps.forEach(tipp => {
+      tipsBox.appendChild(createTipCard(tipp));
+    });
+
+  } catch (error) {
+    statusBox.style.display = "none";
+    tipsBox.innerHTML = `
+      <div class="error">
+Fehler beim Laden der Tipps:
+
+${escapeHtml(error.message)}
+      </div>
+    `;
+    console.error(error);
+  }
+}
+
+async function freischalten(tippId, card, button) {
+  const token = getToken();
+  const resultBox = card.querySelector(".unlock-result");
+
+  resultBox.innerHTML = "";
+
+  if (!token) {
+    resultBox.innerHTML = `
+      <div class="error">
+Kein Token gefunden.
+
+Bitte öffne die Seite über deinen persönlichen Profil-Link.
+      </div>
+    `;
+    return;
+  }
+
+  if (!tippId) {
+    resultBox.innerHTML = `
+      <div class="error">
+Keine Tipp-ID gefunden.
+      </div>
+    `;
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Wird freigeschaltet...";
+
+  try {
+    const url =
+      FREISCHALTEN_WEBHOOK +
+      "?token=" + encodeURIComponent(token) +
+      "&tipp_id=" + encodeURIComponent(tippId) +
+      "&cachebuster=" + Date.now();
+
+    const response = await fetch(url, {
+      method: "GET",
+      cache: "no-store"
+    });
+
+    const rawText = await response.text();
+
+    if (!response.ok) {
+      throw new Error("HTTP Fehler: " + response.status + "\n\nAntwort:\n" + rawText);
+    }
+
+    const data = JSON.parse(rawText.trim());
+
+    if (data.status === "not_enough_units") {
+      resultBox.innerHTML = `
+        <div class="error">
+Nicht genug Units.
+
+Aktuelle Units: ${escapeHtml(data.units)}
+Benötigt: ${escapeHtml(data.required)}
+        </div>
+      `;
+      return;
+    }
+
+    if (data.status === "success" || data.status === "already_unlocked") {
+      const isAlreadyUnlocked = data.status === "already_unlocked";
+
+      const message = isAlreadyUnlocked
+        ? "Dieser Tipp war bereits für dich freigeschaltet."
+        : "Freischaltung erfolgreich.";
+
+      const messageClass = isAlreadyUnlocked ? "info" : "success";
+
+      resultBox.innerHTML = `
+        <div class="unlock-message ${messageClass}">${escapeHtml(message)}</div>
+
+        <div class="unlock-box">
+          <h3>✅ Freigeschalteter Tipp</h3>
+
+          <p><strong>Spiel:</strong> ${escapeHtml(data.spiel)}</p>
+          <p><strong>Tipp:</strong> ${escapeHtml(data.tipp)}</p>
+          <p><strong>Quote:</strong> ${escapeHtml(data.quote)}</p>
+          <p><strong>Ersteller:</strong> ${escapeHtml(data.ersteller)}</p>
+          <p><strong>Verbleibende Units:</strong> ${escapeHtml(data.units)}</p>
+
+          <div class="analysis-text">
+            <strong>Analyse:</strong><br><br>${escapeHtml(data.analyse)}
+          </div>
+        </div>
+      `;
+
+      return;
+    }
+
+    resultBox.innerHTML = `
+      <div class="error">
+Unbekannte Antwort vom Server:
+
+${escapeHtml(rawText)}
+      </div>
+    `;
+
+  } catch (error) {
+    resultBox.innerHTML = `
+      <div class="error">
+Fehler beim Freischalten:
+
+${escapeHtml(error.message)}
+      </div>
+    `;
+    console.error(error);
+
+  } finally {
+    button.disabled = false;
+    button.textContent = "Freischalten";
+  }
+}
+
+loadTipps();
 </script>
 
 </body>
 </html>
+```
+
+[1]: https://betinsightclub.github.io/profil/tipps/ "BetInsight – Freigeschaltete Tipps"
