@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BetInsight Referral</title>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const ref = params.get("ref");
+
+      if (ref && ref.trim() !== "") {
+        const cleanRef = encodeURIComponent(ref.trim());
+        window.location.replace(
+          "https://betinsight.systeme.io/registrierung?ref=" + cleanRef
+        );
+      }
+    })();
+  </script>
+</head>
+
+<body style="font-family: Arial, sans-serif; background:#0f172a; color:white; text-align:center; padding:40px;">
+  <h1>BetInsight</h1>
+  <p>Du wirst zur Registrierung weitergeleitet...</p>
+
+  <p id="no-ref" style="display:none; color:#fca5a5;">
+    Kein Referral-Code gefunden.
+  </p>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+
+    if (!ref || ref.trim() === "") {
+      document.getElementById("no-ref").style.display = "block";
+    }
+  </script>
+</body>
+</html>
