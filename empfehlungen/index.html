@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>BetInsight Empfehlungen</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+background:#07131d;
+color:white;
+padding:40px;
+}
+
+.container{
+max-width:1100px;
+margin:auto;
+}
+
+h1{
+font-size:38px;
+margin-bottom:10px;
+color:#2aa9ff;
+}
+
+.subtitle{
+color:#c7d2da;
+margin-bottom:40px;
+}
+
+.card{
+background:#0d1d28;
+padding:25px;
+border-radius:16px;
+margin-bottom:25px;
+box-shadow:0 0 20px rgba(0,0,0,.25);
+}
+
+.card h2{
+margin-bottom:20px;
+color:#20d5b3;
+}
+
+.linkbox{
+background:#061018;
+padding:18px;
+border-radius:12px;
+word-break:break-all;
+margin-bottom:20px;
+}
+
+button{
+background:#20d5b3;
+border:none;
+padding:14px 30px;
+font-size:16px;
+border-radius:10px;
+cursor:pointer;
+font-weight:bold;
+}
+
+button:hover{
+background:#17b89a;
+}
+
+.stats{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:20px;
+}
+
+.stat{
+background:#0d1d28;
+padding:25px;
+border-radius:15px;
+text-align:center;
+}
+
+.value{
+font-size:42px;
+font-weight:bold;
+color:#20d5b3;
+margin-bottom:10px;
+}
+
+.label{
+font-size:15px;
+color:#d3d3d3;
+}
+
+.footer{
+margin-top:40px;
+text-align:center;
+color:#8ca2af;
+font-size:14px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🔗 Empfehlungsbereich</h1>
+
+<p class="subtitle">
+Hier findest du deinen persönlichen Empfehlungslink und deine Teamstatistik.
+</p>
+
+<div class="card">
+
+<h2>Mein Empfehlungslink</h2>
+
+<div class="linkbox" id="meinLink">
+
+Wird geladen...
+
+</div>
+
+<button onclick="linkKopieren()">
+
+Link kopieren
+
+</button>
+
+</div>
+
+<div class="stats">
+
+<div class="stat">
+
+<div class="value" id="direkt">
+
+0
+
+</div>
+
+<div class="label">
+
+Direkte Partner
+
+</div>
+
+</div>
+
+<div class="stat">
+
+<div class="value" id="ebene2">
+
+0
+
+</div>
+
+<div class="label">
+
+Ebene 2
+
+</div>
+
+</div>
+
+<div class="stat">
+
+<div class="value" id="ebene3">
+
+0
+
+</div>
+
+<div class="label">
+
+Ebene 3
+
+</div>
+
+</div>
+
+<div class="stat">
+
+<div class="value" id="units">
+
+0
+
+</div>
+
+<div class="label">
+
+Referral Units
+
+</div>
+
+</div>
+
+<div class="stat">
+
+<div class="value" id="gesamt">
+
+0
+
+</div>
+
+<div class="label">
+
+Gesamt Referral
+
+</div>
+
+</div>
+
+</div>
+
+<div class="footer">
+
+BetInsight Empfehlungscenter
+
+</div>
+
+</div>
+
+<script>
+
+// Nur Platzhalter.
+// Im nächsten Schritt werden diese Daten aus Make geladen.
+
+document.getElementById("meinLink").innerHTML=
+"Dein persönlicher Empfehlungslink erscheint hier.";
+
+function linkKopieren(){
+
+navigator.clipboard.writeText(
+document.getElementById("meinLink").innerText
+);
+
+alert("Link kopiert.");
+
+}
+
+</script>
+
+</body>
+</html>
