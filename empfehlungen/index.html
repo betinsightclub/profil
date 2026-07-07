@@ -3,11 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>BetInsight Empfehlungen</title>
 
 <style>
-
 *{
 margin:0;
 padding:0;
@@ -24,6 +22,17 @@ padding:40px;
 .container{
 max-width:1100px;
 margin:auto;
+}
+
+.logo{
+font-size:34px;
+font-weight:bold;
+margin-bottom:30px;
+color:white;
+}
+
+.logo span{
+color:#0b82ff;
 }
 
 h1{
@@ -103,14 +112,14 @@ text-align:center;
 color:#8ca2af;
 font-size:14px;
 }
-
 </style>
-
 </head>
 
 <body>
 
 <div class="container">
+
+<div class="logo">Bet<span>Insight</span></div>
 
 <h1>🔗 Empfehlungsbereich</h1>
 
@@ -123,129 +132,55 @@ Hier findest du deinen persönlichen Empfehlungslink und deine Teamstatistik.
 <h2>Mein Empfehlungslink</h2>
 
 <div class="linkbox" id="meinLink">
-
-Wird geladen...
-
+Dein persönlicher Empfehlungslink erscheint hier.
 </div>
 
-<button onclick="linkKopieren()">
-
-Link kopieren
-
-</button>
+<button onclick="linkKopieren()">Link kopieren</button>
 
 </div>
 
 <div class="stats">
 
 <div class="stat">
-
-<div class="value" id="direkt">
-
-0
-
-</div>
-
-<div class="label">
-
-Direkte Partner
-
-</div>
-
+<div class="value" id="direkt">0</div>
+<div class="label">Direkte Partner</div>
 </div>
 
 <div class="stat">
-
-<div class="value" id="ebene2">
-
-0
-
-</div>
-
-<div class="label">
-
-Ebene 2
-
-</div>
-
+<div class="value" id="ebene2">0</div>
+<div class="label">Ebene 2</div>
 </div>
 
 <div class="stat">
-
-<div class="value" id="ebene3">
-
-0
-
-</div>
-
-<div class="label">
-
-Ebene 3
-
-</div>
-
+<div class="value" id="ebene3">0</div>
+<div class="label">Ebene 3</div>
 </div>
 
 <div class="stat">
-
-<div class="value" id="units">
-
-0
-
-</div>
-
-<div class="label">
-
-Referral Units
-
-</div>
-
+<div class="value" id="units">0</div>
+<div class="label">Referral Units</div>
 </div>
 
 <div class="stat">
-
-<div class="value" id="gesamt">
-
-0
-
-</div>
-
-<div class="label">
-
-Gesamt Referral
-
-</div>
-
+<div class="value" id="gesamt">0</div>
+<div class="label">Gesamt Referral</div>
 </div>
 
 </div>
 
 <div class="footer">
-
 BetInsight Empfehlungscenter
-
 </div>
 
 </div>
 
 <script>
-
-// Nur Platzhalter.
-// Im nächsten Schritt werden diese Daten aus Make geladen.
-
-document.getElementById("meinLink").innerHTML=
-"Dein persönlicher Empfehlungslink erscheint hier.";
-
 function linkKopieren(){
-
 navigator.clipboard.writeText(
 document.getElementById("meinLink").innerText
 );
-
 alert("Link kopiert.");
-
 }
-
 </script>
 
 </body>
