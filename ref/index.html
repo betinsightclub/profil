@@ -1,164 +1,44 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BetInsight Empfehlung</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #020b12;
-      color: white;
-    }
-    .wrap {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
-    .card {
-      background: #071c22;
-      border: 1px solid #0b8f6a;
-      border-radius: 18px;
-      padding: 28px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.35);
-    }
-    h1 {
-      color: #0b82ff;
-      margin-top: 0;
-    }
-    .muted {
-      color: #b8c7cc;
-    }
-    input {
-      width: 100%;
-      padding: 14px;
-      border-radius: 10px;
-      border: none;
-      margin: 14px 0;
-      font-size: 16px;
-    }
-    button {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 10px;
-      background: #00c896;
-      color: white;
-      font-size: 17px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .box {
-      background: #021116;
-      border-radius: 12px;
-      padding: 16px;
-      margin-top: 18px;
-      word-break: break-all;
-    }
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 14px;
-      margin-top: 22px;
-    }
-    .stat {
-      background: #021116;
-      padding: 18px;
-      border-radius: 12px;
-      text-align: center;
-    }
-    .stat strong {
-      display: block;
-      font-size: 26px;
-      color: #00c896;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BetInsight Referral</title>
+
+    <script>
+        (function () {
+            const params = new URLSearchParams(window.location.search);
+            const ref = params.get("ref");
+
+            if (ref && ref.trim() !== "") {
+                const cleanRef = encodeURIComponent(ref.trim());
+
+                window.location.replace(
+                    "https://betinsight.systeme.io/registrierung?ref=" + cleanRef
+                );
+            }
+        })();
+    </script>
 </head>
-<body>
-  <div class="wrap">
-    <div class="card">
-      <h1>Empfehlungsbereich</h1>
-      <p class="muted">Gib deine registrierte E-Mail ein. Danach zeigen wir dir deinen persönlichen Empfehlungslink.</p>
 
-      <input id="email" type="email" placeholder="Deine E-Mail-Adresse" />
-      <button onclick="loadData()">Daten anzeigen</button>
+<body style="font-family:Arial,sans-serif;background:#0f172a;color:white;text-align:center;padding:40px;">
 
-      <div id="result" style="display:none;">
-        <div class="box">
-          <strong>Dein Empfehlungslink:</strong><br />
-          <span id="refLink"></span>
-        </div>
+<h1>BetInsight</h1>
 
-        <button style="margin-top:12px;" onclick="copyLink()">Link kopieren</button>
+<p>Du wirst zur Registrierung weitergeleitet...</p>
 
-        <div class="stats">
-          <div class="stat">
-            <strong id="directCount">0</strong>
-            Direkte Empfehlungen
-          </div>
-          <div class="stat">
-            <strong id="refUnits">0</strong>
-            Ref-Units
-          </div>
-          <div class="stat">
-            <strong id="refTotal">0</strong>
-            Gesamt
-          </div>
-        </div>
-      </div>
+<p id="no-ref" style="display:none;color:#fca5a5;">
+    Kein Referral-Code gefunden.
+</p>
 
-      <p id="msg" class="muted"></p>
-    </div>
-  </div>
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
 
-  <script>
-    const WEBHOOK_URL = "";
-
-    async function loadData() {
-      const email = document.getElementById("email").value.trim();
-      const msg = document.getElementById("msg");
-
-      if (!email) {
-        msg.textContent = "Bitte E-Mail-Adresse eingeben.";
-        return;
-      }
-
-      msg.textContent = "Daten werden geladen...";
-
-      if (!WEBHOOK_URL) {
-        document.getElementById("refLink").textContent =
-          "Webhook fehlt noch. Nächster Schritt: Make-Szenario für Ref-Dashboard erstellen.";
-        document.getElementById("result").style.display = "block";
-        msg.textContent = "";
-        return;
-      }
-
-      try {
-        const res = await fetch(WEBHOOK_URL + "?email=" + encodeURIComponent(email));
-        const data = await res.json();
-
-        if (!data.found) {
-          msg.textContent = "E-Mail wurde nicht gefunden.";
-          return;
-        }
-
-        document.getElementById("refLink").textContent = data.ref_link || "";
-        document.getElementById("directCount").textContent = data.direct_count || 0;
-        document.getElementById("refUnits").textContent = data.ref_units || 0;
-        document.getElementById("refTotal").textContent = data.referral_gesamt || 0;
-        document.getElementById("result").style.display = "block";
-        msg.textContent = "";
-      } catch (e) {
-        msg.textContent = "Fehler beim Laden der Daten.";
-      }
+    if (!ref || ref.trim() === "") {
+        document.getElementById("no-ref").style.display = "block";
     }
+</script>
 
-    function copyLink() {
-      const link = document.getElementById("refLink").textContent;
-      navigator.clipboard.writeText(link);
-      document.getElementById("msg").textContent = "Link kopiert.";
-    }
-  </script>
 </body>
 </html>
