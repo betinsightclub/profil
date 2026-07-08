@@ -106,6 +106,10 @@ button, .btn-link {
   background: #08a86f;
 }
 
+.btn-orange {
+  background: #d88916;
+}
+
 .btn-gray {
   background: #657f91;
 }
@@ -136,6 +140,10 @@ button, .btn-link {
 .label {
   font-size: 15px;
   color: #d3eef8;
+}
+
+.stat-action {
+  margin-top: 18px;
 }
 
 .message {
@@ -189,7 +197,7 @@ button, .btn-link {
   <h1>🔗 Empfehlungscenter</h1>
 
   <p class="subtitle">
-    Hier findest du deinen persönlichen Empfehlungslink und später deine vollständige Team- und Referral-Statistik.
+    Hier findest du deinen persönlichen Empfehlungslink, deine Teamstatistik und später deine Referral-Units.
   </p>
 
   <div class="card">
@@ -227,21 +235,33 @@ button, .btn-link {
     <div class="stat">
       <div class="value" id="units">0</div>
       <div class="label">Referral Units</div>
+
+      <div class="stat-action">
+        <button class="btn-green" onclick="referralUnitsUebernehmen()">
+          ⭐ Referral Units übernehmen
+        </button>
+      </div>
     </div>
 
     <div class="stat">
       <div class="value" id="gesamt">0</div>
       <div class="label">Gesamt Referral</div>
+
+      <div class="stat-action">
+        <button class="btn-orange" onclick="auszahlungBeantragen()">
+          💰 Auszahlung beantragen
+        </button>
+      </div>
     </div>
 
   </div>
 
   <div class="card">
-    <h2>Statistik kommt als Nächstes</h2>
+    <h2>Nächster Ausbauschritt</h2>
     <p>
       Im nächsten Schritt verbinden wir diese Seite mit Make und Google Sheets.
-      Dann werden dein persönlicher Empfehlungslink, direkte Partner, Ebene 2, Ebene 3
-      und Referral-Units automatisch geladen.
+      Dann werden dein persönlicher Empfehlungslink, direkte Partner, Ebene 2,
+      Ebene 3 und Referral-Units automatisch geladen.
     </p>
   </div>
 
@@ -270,6 +290,16 @@ function linkKopieren() {
 
   navigator.clipboard.writeText(link);
   document.getElementById("message").innerText = "Empfehlungslink wurde kopiert.";
+}
+
+function referralUnitsUebernehmen() {
+  document.getElementById("message").innerText =
+    "Diese Funktion wird im nächsten Schritt mit Make verbunden.";
+}
+
+function auszahlungBeantragen() {
+  document.getElementById("message").innerText =
+    "Die Auszahlung wird später über den Mitgliederbereich vorbereitet.";
 }
 
 function goBackoffice() {
