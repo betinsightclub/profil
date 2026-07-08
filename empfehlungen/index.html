@@ -98,10 +98,6 @@ button, .btn-link {
   text-decoration: none;
 }
 
-.btn-blue {
-  background: linear-gradient(90deg, #168aff, #00b8ff);
-}
-
 .btn-green {
   background: #08a86f;
 }
@@ -142,8 +138,15 @@ button, .btn-link {
   color: #d3eef8;
 }
 
-.stat-action {
-  margin-top: 18px;
+.stat-actions {
+  margin-top: 16px;
+}
+
+.stat-actions button {
+  max-width: 100%;
+  padding: 12px 10px;
+  font-size: 14px;
+  margin: 5px auto;
 }
 
 .message {
@@ -236,9 +239,13 @@ button, .btn-link {
       <div class="value" id="units">0</div>
       <div class="label">Referral Units</div>
 
-      <div class="stat-action">
-        <button class="btn-green" onclick="referralUnitsUebernehmen()">
-          ⭐ Referral Units übernehmen
+      <div class="stat-actions">
+        <button class="btn-green" onclick="referralUnitsAufsKonto()">
+          ⭐ Units aufs Konto buchen
+        </button>
+
+        <button class="btn-orange" onclick="auszahlungBeantragen()">
+          💰 Auszahlung beantragen
         </button>
       </div>
     </div>
@@ -246,12 +253,6 @@ button, .btn-link {
     <div class="stat">
       <div class="value" id="gesamt">0</div>
       <div class="label">Gesamt Referral</div>
-
-      <div class="stat-action">
-        <button class="btn-orange" onclick="auszahlungBeantragen()">
-          💰 Auszahlung beantragen
-        </button>
-      </div>
     </div>
 
   </div>
@@ -292,14 +293,14 @@ function linkKopieren() {
   document.getElementById("message").innerText = "Empfehlungslink wurde kopiert.";
 }
 
-function referralUnitsUebernehmen() {
+function referralUnitsAufsKonto() {
   document.getElementById("message").innerText =
-    "Diese Funktion wird im nächsten Schritt mit Make verbunden.";
+    "Diese Funktion wird im nächsten Schritt mit Make verbunden. Danach kannst du Referral Units auf dein normales Unit-Konto buchen.";
 }
 
 function auszahlungBeantragen() {
   document.getElementById("message").innerText =
-    "Die Auszahlung wird später über den Mitgliederbereich vorbereitet.";
+    "Die Auszahlung wird später über einen eigenen Auszahlungsbereich vorbereitet.";
 }
 
 function goBackoffice() {
