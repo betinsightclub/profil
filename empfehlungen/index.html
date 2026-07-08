@@ -6,9 +6,7 @@
 <title>BetInsight Empfehlungen</title>
 
 <style>
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -83,7 +81,7 @@ h1 {
   margin: 14px 0 18px;
 }
 
-button, .btn-link {
+button {
   width: 100%;
   max-width: 360px;
   display: inline-block;
@@ -95,20 +93,11 @@ button, .btn-link {
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
-  text-decoration: none;
 }
 
-.btn-green {
-  background: #08a86f;
-}
-
-.btn-orange {
-  background: #d88916;
-}
-
-.btn-gray {
-  background: #657f91;
-}
+.btn-green { background: #08a86f; }
+.btn-orange { background: #d88916; }
+.btn-gray { background: #657f91; }
 
 .stats {
   display: grid;
@@ -168,25 +157,10 @@ button, .btn-link {
   font-size: 14px;
 }
 
-.debug {
-  margin-top: 30px;
-  color: rgba(255,255,255,0.35);
-  font-size: 12px;
-  word-break: break-word;
-}
-
 @media (max-width: 600px) {
-  .page {
-    padding: 30px 14px 85px;
-  }
-
-  h1 {
-    font-size: 28px;
-  }
-
-  .value {
-    font-size: 36px;
-  }
+  .page { padding: 30px 14px 85px; }
+  h1 { font-size: 28px; }
+  .value { font-size: 36px; }
 }
 </style>
 </head>
@@ -200,7 +174,7 @@ button, .btn-link {
   <h1>🔗 Empfehlungscenter</h1>
 
   <p class="subtitle">
-    Hier findest du deinen persönlichen Empfehlungslink, deine Teamstatistik und später deine Referral-Units.
+    Hier findest du deinen persönlichen Empfehlungslink, deine Teamstatistik und deine Referral-Units.
   </p>
 
   <div class="card">
@@ -212,7 +186,7 @@ button, .btn-link {
     </p>
 
     <div class="linkbox" id="meinLink">
-      Dein persönlicher Empfehlungslink erscheint hier, sobald die Seite mit Make verbunden ist.
+      Daten werden geladen...
     </div>
 
     <button class="btn-green" onclick="linkKopieren()">🔗 Link kopieren</button>
@@ -258,11 +232,9 @@ button, .btn-link {
   </div>
 
   <div class="card">
-    <h2>Nächster Ausbauschritt</h2>
-    <p>
-      Im nächsten Schritt verbinden wir diese Seite mit Make und Google Sheets.
-      Dann werden dein persönlicher Empfehlungslink, direkte Partner, Ebene 2,
-      Ebene 3 und Referral-Units automatisch geladen.
+    <h2>Status</h2>
+    <p id="statusText">
+      Verbindung zum Empfehlungscenter wird geprüft...
     </p>
   </div>
 
@@ -271,7 +243,6 @@ button, .btn-link {
   <button class="btn-gray" onclick="goBackoffice()">⬅ Zurück zum Mitgliederbereich</button>
 
   <div id="message" class="message"></div>
-  <div id="debug" class="debug"></div>
 
   <div class="footer">
     © 2026 BetInsight Club
@@ -280,10 +251,55 @@ button, .btn-link {
 </div>
 
 <script>
+const EMPFEHLUNGEN_WEBHOOK_URL = "https://hook.eu1.make.com/j883clzukqghxg9iiq91wxetue9wgoul";
+
+async function ladeEmpfehlungsdaten() {
+  const params = new URLSearchParams(window.location.search);
+  const dashboardId = params.get("id");
+
+  if (!dashboardId || dashboardId.trim() === "") {
+    document.getElementById("statusText").innerText =
+      "Kein Empfehlungszugang gefunden. Bitte öffne diese Seite über deinen persönlichen Empfehlungslink.";
+    document.getElementById("meinLink").innerText =
+      "Kein persönlicher Empfehlungslink geladen.";
+    return;
+  }
+
+  try {
+    const url = EMPFEHLUNGEN_WEBHOOK_URL + "?id=" + encodeURIComponent(dashboardId.trim());
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (!data || !data.ref_link) {
+      document.getElementById("statusText").innerText =
+        "Keine passenden Empfehlungsdaten gefunden.";
+      document.getElementById("meinLink").innerText =
+        "Kein persönlicher Empfehlungslink gefunden.";
+      return;
+    }
+
+    document.getElementById("meinLink").innerText = data.ref_link || "";
+    document.getElementById("direkt").innerText = data.direkte || "0";
+    document.getElementById("ebene2").innerText = data.ebene2 || "0";
+    document.getElementById("ebene3").innerText = data.ebene3 || "0";
+    document.getElementById("units").innerText = data.units || "0";
+    document.getElementById("gesamt").innerText = data.gesamt || "0";
+
+    document.getElementById("statusText").innerText =
+      "Deine Empfehlungsdaten wurden erfolgreich geladen.";
+
+  } catch (error) {
+    document.getElementById("statusText").innerText =
+      "Die Daten konnten noch nicht geladen werden. Bitte später erneut testen.";
+    document.getElementById("meinLink").innerText =
+      "Verbindung zu Make noch nicht verfügbar.";
+  }
+}
+
 function linkKopieren() {
   const link = document.getElementById("meinLink").innerText.trim();
 
-  if (!link || link.includes("erscheint hier")) {
+  if (!link || link.includes("geladen") || link.includes("gefunden") || link.includes("Make")) {
     document.getElementById("message").innerText =
       "Noch kein persönlicher Empfehlungslink geladen.";
     return;
@@ -307,6 +323,8 @@ function goBackoffice() {
   window.location.href =
     "https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726";
 }
+
+ladeEmpfehlungsdaten();
 </script>
 
 </body>
