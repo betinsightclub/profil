@@ -169,7 +169,12 @@ button {
 
 <div class="page">
 
-  <img src="../logo_betisight.club.png" alt="BetInsight Club" class="logo" onerror="this.style.display='none'">
+  <img
+    src="../logo_betisight.club.png"
+    alt="BetInsight Club"
+    class="logo"
+    onerror="this.style.display='none'"
+  >
 
   <h1>🔗 Empfehlungscenter</h1>
 
@@ -189,7 +194,9 @@ button {
       Daten werden geladen...
     </div>
 
-    <button class="btn-green" onclick="linkKopieren()">🔗 Link kopieren</button>
+    <button class="btn-green" onclick="linkKopieren()">
+      🔗 Link kopieren
+    </button>
   </div>
 
   <div class="stats">
@@ -240,7 +247,9 @@ button {
 
   <div class="divider"></div>
 
-  <button class="btn-gray" onclick="goBackoffice()">⬅ Zurück zum Mitgliederbereich</button>
+  <button class="btn-gray" onclick="goBackoffice()">
+    ⬅ Zurück zum Mitgliederbereich
+  </button>
 
   <div id="message" class="message"></div>
 
@@ -251,7 +260,19 @@ button {
 </div>
 
 <script>
-const EMPFEHLUNGEN_WEBHOOK_URL = "https://hook.eu1.make.com/j883clzukqghxg9iiq91wxetue9wgoul";
+const EMPFEHLUNGEN_WEBHOOK_URL =
+  "https://hook.eu1.make.com/j883clzukqghxg9iiq91wxetue9wgoul";
+
+function zeigeZahl(elementId, wert) {
+  const element = document.getElementById(elementId);
+
+  if (wert === undefined || wert === null || wert === "") {
+    element.innerText = "0";
+    return;
+  }
+
+  element.innerText = String(wert);
+}
 
 async function ladeEmpfehlungsdaten() {
   const params = new URLSearchParams(window.location.search);
@@ -259,54 +280,112 @@ async function ladeEmpfehlungsdaten() {
 
   if (!dashboardId || dashboardId.trim() === "") {
     document.getElementById("statusText").innerText =
-      "Kein Empfehlungszugang gefunden. Bitte öffne diese Seite über deinen persönlichen Empfehlungslink.";
+      "Kein Empfehlungszugang gefunden. Bitte öffne diese Seite über deinen persönlichen Empfehlungscenter-Link.";
+
     document.getElementById("meinLink").innerText =
       "Kein persönlicher Empfehlungslink geladen.";
+
     return;
   }
 
   try {
-    const url = EMPFEHLUNGEN_WEBHOOK_URL + "?id=" + encodeURIComponent(dashboardId.trim());
-    const response = await fetch(url);
-    const data = await response.json();
+    const url =
+      EMPFEHLUNGEN_WEBHOOK_URL +
+      "?id=" +
+      encodeURIComponent(dashboardId.trim());
 
-    if (!data || !data.ref_link) {
-      document.getElementById("statusText").innerText =
-        "Keine passenden Empfehlungsdaten gefunden.";
-      document.getElementById("meinLink").innerText =
-        "Kein persönlicher Empfehlungslink gefunden.";
-      return;
+    const response = await fetch(url, {
+      method: "GET",
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error("HTTP-Fehler: " + response.status);
     }
 
-    document.getElementById("meinLink").innerText = data.ref_link || "";
-    document.getElementById("direkt").innerText = data.direkte || "0";
-    document.getElementById("ebene2").innerText = data.ebene2 || "0";
-    document.getElementById("ebene3").innerText = data.ebene3 || "0";
-    document.getElementById("units").innerText = data.units || "0";
-    document.getElementById("gesamt").innerText = data.gesamt || "0";
+    const data = await response.json();
 
-    document.getElementById("statusText").innerText =
-      "Deine Empfehlungsdaten wurden erfolgreich geladen.";
+    if (!data || typeof data !== "object") {
+      throw new Error("Keine gültigen Daten erhalten.");
+    }
+
+    /*
+      Empfehlungslink verwenden:
+      1. Zuerst ref_link aus Make.
+      2. Falls ref_link leer ist, Link aus ref_code erzeugen.
+    */
+    let empfehlungsLink = "";
+
+    if (data.ref_link && String(data.ref_link).trim() !== "") {
+      empfehlungsLink = String(data.ref_link).trim();
+    } else if (data.ref_code && String(data.ref_code).trim() !== "") {
+      empfehlungsLink =
+        "https://betinsightclub.github.io/profil/ref/?ref=" +
+        encodeURIComponent(String(data.ref_code).trim());
+    }
+
+    if (empfehlungsLink) {
+      document.getElementById("meinLink").innerText = empfehlungsLink;
+    } else {
+      document.getElementById("meinLink").innerText =
+        "Kein persönlicher Empfehlungslink gefunden.";
+    }
+
+    /*
+      Statistik immer anzeigen.
+      Sie wird nicht mehr davon abhängig gemacht,
+      ob ref_link vorhanden ist.
+    */
+    zeigeZahl("direkt", data.direkte);
+    zeigeZahl("ebene2", data.ebene2);
+    zeigeZahl("ebene3", data.ebene3);
+    zeigeZahl("units", data.units);
+    zeigeZahl("gesamt", data.gesamt);
+
+    if (empfehlungsLink) {
+      document.getElementById("statusText").innerText =
+        "Deine Empfehlungsdaten wurden erfolgreich geladen.";
+    } else {
+      document.getElementById("statusText").innerText =
+        "Die Teamstatistik wurde geladen. Der persönliche Empfehlungslink fehlt noch im Datensatz.";
+    }
 
   } catch (error) {
+    console.error("Fehler beim Laden der Empfehlungsdaten:", error);
+
     document.getElementById("statusText").innerText =
-      "Die Daten konnten noch nicht geladen werden. Bitte später erneut testen.";
+      "Die Daten konnten nicht geladen werden. Bitte prüfe die Make-Verbindung.";
+
     document.getElementById("meinLink").innerText =
-      "Verbindung zu Make noch nicht verfügbar.";
+      "Verbindung zu Make nicht verfügbar.";
   }
 }
 
-function linkKopieren() {
+async function linkKopieren() {
   const link = document.getElementById("meinLink").innerText.trim();
 
-  if (!link || link.includes("geladen") || link.includes("gefunden") || link.includes("Make")) {
+  if (
+    !link ||
+    link.includes("geladen") ||
+    link.includes("gefunden") ||
+    link.includes("verfügbar") ||
+    link.includes("fehlt")
+  ) {
     document.getElementById("message").innerText =
-      "Noch kein persönlicher Empfehlungslink geladen.";
+      "Noch kein persönlicher Empfehlungslink verfügbar.";
+
     return;
   }
 
-  navigator.clipboard.writeText(link);
-  document.getElementById("message").innerText = "Empfehlungslink wurde kopiert.";
+  try {
+    await navigator.clipboard.writeText(link);
+
+    document.getElementById("message").innerText =
+      "Empfehlungslink wurde kopiert.";
+  } catch (error) {
+    document.getElementById("message").innerText =
+      "Der Link konnte nicht automatisch kopiert werden.";
+  }
 }
 
 function referralUnitsAufsKonto() {
