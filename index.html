@@ -173,65 +173,156 @@ button, .btn-link {
 
 <div class="page">
 
-  <img src="logo_betisight.club.png" alt="BetInsight Club" class="logo" onerror="this.style.display='none'">
+  <img
+    src="logo_betisight.club.png"
+    alt="BetInsight Club"
+    class="logo"
+    onerror="this.style.display='none'"
+  >
 
   <div class="avatar">👤</div>
   <h1>Mein BetInsight Profil</h1>
 
   <div id="profileBox" class="profile-box">
+
     <div class="units-line">
       Aktuelle Units: <span id="units">0</span>
     </div>
 
     <div class="email">
-      <strong>E-Mail:</strong> <span id="email">Lade...</span>
+      <strong>E-Mail:</strong>
+      <span id="email">Lade...</span>
     </div>
 
     <div class="card">
       <h2>Dein persönlicher Profil-Link</h2>
-      <p>Speichere diesen Link. Darüber kommst du immer direkt zu deinem eigenen BetInsight-Profil.</p>
+
+      <p>
+        Speichere diesen Link. Darüber kommst du immer direkt zu deinem
+        eigenen BetInsight-Profil.
+      </p>
+
       <input id="profileLink" type="text" readonly>
-      <button class="btn-gray" onclick="copyProfileLink()">🔗 Profil-Link kopieren</button>
+
+      <button class="btn-gray" onclick="copyProfileLink()">
+        🔗 Profil-Link kopieren
+      </button>
     </div>
 
-    <div id="message" class="message">Kontostand wird geladen...</div>
+    <div id="message" class="message">
+      Kontostand wird geladen...
+    </div>
 
     <div class="actions">
-      <button class="btn-blue" onclick="loadUnits()">🔄 Kontostand aktualisieren</button>
-      <button class="btn-blue" onclick="goTipps()">🔥 Neue Tipps</button>
-      <button class="btn-green" onclick="goFreigeschaltet()">✅ Freigeschaltet</button>
-      <button class="btn-green" onclick="goBuyUnits()">💎 Units kaufen</button>
+
+      <button class="btn-blue" onclick="loadUnits()">
+        🔄 Kontostand aktualisieren
+      </button>
+
+      <button class="btn-blue" onclick="goTipps()">
+        🔥 Neue Tipps
+      </button>
+
+      <button class="btn-green" onclick="goFreigeschaltet()">
+        ✅ Freigeschaltet
+      </button>
+
+      <button class="btn-green" onclick="goBuyUnits()">
+        💎 Units kaufen
+      </button>
 
       <div class="small-warning">
-        Zugangscode nur löschen, wenn die angezeigte E-Mail nicht stimmt oder du dieses Gerät mit einer anderen Person teilst.
+        Zugangscode nur löschen, wenn die angezeigte E-Mail nicht stimmt
+        oder du dieses Gerät mit einer anderen Person teilst.
       </div>
 
-      <button class="btn-red" onclick="forgetToken()">Zugangscode auf diesem Gerät löschen</button>
+      <button class="btn-red" onclick="forgetToken()">
+        Zugangscode auf diesem Gerät löschen
+      </button>
+
     </div>
   </div>
 
   <div id="requestBox" class="request-box">
+
     <div class="card">
       <h2>Profil-Link anfordern</h2>
-      <p>Gib deine registrierte BetInsight E-Mail ein. Wir senden dir deinen persönlichen Profil-Link erneut zu.</p>
-      <input id="requestEmail" type="email" placeholder="Deine E-Mail-Adresse">
-      <button class="btn-blue" onclick="requestProfileLink()">📩 Profil-Link anfordern</button>
+
+      <p>
+        Gib deine registrierte BetInsight E-Mail ein.
+        Wir senden dir deinen persönlichen Profil-Link erneut zu.
+      </p>
+
+      <input
+        id="requestEmail"
+        type="email"
+        placeholder="Deine E-Mail-Adresse"
+      >
+
+      <button class="btn-blue" onclick="requestProfileLink()">
+        📩 Profil-Link anfordern
+      </button>
+
+      <p style="margin-top:18px;">
+        Du bist dir nicht sicher, welche E-Mail-Adresse registriert ist?
+      </p>
+
+      <a
+        class="btn-link btn-gray"
+        href="https://betinsight.systeme.io/profile/user-settings"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        🔎 Registrierte E-Mail nachsehen
+      </a>
+
       <div id="requestMessage" class="message"></div>
     </div>
+
+    <div class="card">
+      <h2>Erhaltenen Profil-Link eintragen</h2>
+
+      <p>
+        Kopiere den vollständigen Profil-Link aus deiner E-Mail und füge ihn
+        hier ein. Du kannst alternativ auch nur deinen Zugangscode eintragen.
+      </p>
+
+      <input
+        id="receivedProfileLink"
+        type="text"
+        placeholder="https://betinsightclub.github.io/profil/?token=..."
+      >
+
+      <button class="btn-green" onclick="openReceivedProfileLink()">
+        🔓 Profil öffnen
+      </button>
+
+      <div id="receivedLinkMessage" class="message"></div>
+    </div>
+
   </div>
 
   <div class="divider"></div>
 
-  <button class="btn-gray" onclick="goBackoffice()">⬅ Zurück zum Mitgliederbereich</button>
+  <button class="btn-gray" onclick="goBackoffice()">
+    ⬅ Zurück zum Mitgliederbereich
+  </button>
 
   <div id="debug" class="debug"></div>
-  <div class="footer">© 2026 BetInsight Club</div>
+
+  <div class="footer">
+    © 2026 BetInsight Club
+  </div>
 
 </div>
 
 <script>
-const PROFILE_WEBHOOK_URL = "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
-const REQUEST_LINK_WEBHOOK_URL = "https://hook.eu1.make.com/me8q6ptfnno6qfji4s6348rw6f47i3t5";
+const PROFILE_WEBHOOK_URL =
+  "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
+
+const REQUEST_LINK_WEBHOOK_URL =
+  "https://hook.eu1.make.com/me8q6ptfnno6qfji4s6348rw6f47i3t5";
+
 const TOKEN_STORAGE_KEY = "betinsight_profile_token";
 
 function getTokenFromUrl() {
@@ -251,22 +342,37 @@ function saveToken(token) {
 
 function getActiveToken() {
   const tokenFromUrl = getTokenFromUrl();
+
   if (tokenFromUrl && tokenFromUrl.trim() !== "") {
     saveToken(tokenFromUrl);
     return tokenFromUrl.trim();
   }
+
   return getSavedToken();
 }
 
 function buildTokenVariants(token) {
-  if (!token) return [];
+  if (!token) {
+    return [];
+  }
 
   const clean = String(token).trim();
   const variants = [clean];
 
   if (clean.startsWith("BI-")) {
-    variants.push(clean.replace("BI-", ""));
+    const numberPart = clean.substring(3);
+
+    variants.push(numberPart);
+    variants.push("BI" + numberPart);
+
+  } else if (clean.startsWith("BI")) {
+    const numberPart = clean.substring(2);
+
+    variants.push(numberPart);
+    variants.push("BI-" + numberPart);
+
   } else {
+    variants.push("BI" + clean);
     variants.push("BI-" + clean);
   }
 
@@ -288,8 +394,10 @@ function setUnitColor(units) {
 
   if (units === 0) {
     unitsElement.style.color = "red";
+
   } else if (units < 10) {
     unitsElement.style.color = "orange";
+
   } else {
     unitsElement.style.color = "lime";
   }
@@ -301,39 +409,122 @@ function setDebug(text) {
 
 function setRequestMessage(text, color) {
   const message = document.getElementById("requestMessage");
+
   message.innerText = text;
   message.style.color = color || "#ffcc00";
 }
 
+function setReceivedLinkMessage(text, color) {
+  const message = document.getElementById("receivedLinkMessage");
+
+  message.innerText = text;
+  message.style.color = color || "#ffcc00";
+}
+
+function extractTokenFromInput(value) {
+  const clean = String(value || "").trim();
+
+  if (!clean) {
+    return "";
+  }
+
+  try {
+    const url = new URL(clean);
+    const tokenFromUrl = url.searchParams.get("token");
+
+    if (tokenFromUrl && tokenFromUrl.trim() !== "") {
+      return tokenFromUrl.trim();
+    }
+
+  } catch (error) {
+    // Die Eingabe ist kein vollständiger Link.
+    // Sie wird anschließend als Zugangscode behandelt.
+  }
+
+  if (clean.includes("token=")) {
+    const tokenPart = clean
+      .split("token=")[1]
+      .split("&")[0];
+
+    return decodeURIComponent(tokenPart).trim();
+  }
+
+  return clean;
+}
+
+function openReceivedProfileLink() {
+  const input =
+    document.getElementById("receivedProfileLink").value;
+
+  const token = extractTokenFromInput(input);
+
+  if (!token) {
+    setReceivedLinkMessage(
+      "Bitte den vollständigen Profil-Link aus der E-Mail oder deinen Zugangscode eintragen.",
+      "#ff4444"
+    );
+
+    return;
+  }
+
+  saveToken(token);
+
+  setReceivedLinkMessage(
+    "Profil wird geöffnet...",
+    "#00ff99"
+  );
+
+  const targetUrl =
+    "https://betinsightclub.github.io/profil/?token=" +
+    encodeURIComponent(token);
+
+  window.location.href = targetUrl;
+}
+
 function updateProfileLink(token) {
-  const link = "https://betinsightclub.github.io/profil/?token=" + encodeURIComponent(token);
+  const link =
+    "https://betinsightclub.github.io/profil/?token=" +
+    encodeURIComponent(token);
+
   document.getElementById("profileLink").value = link;
 }
 
 function copyProfileLink() {
   const input = document.getElementById("profileLink");
+
   input.select();
   input.setSelectionRange(0, 99999);
+
   navigator.clipboard.writeText(input.value);
-  document.getElementById("message").innerText = "Profil-Link wurde kopiert.";
+
+  document.getElementById("message").innerText =
+    "Profil-Link wurde kopiert.";
 }
 
 function fetchProfileByToken(tokenVariants, index) {
   if (index >= tokenVariants.length) {
     document.getElementById("units").innerText = "0";
     document.getElementById("email").innerText = "Nicht gefunden";
+
     document.getElementById("message").innerText =
       "Zugangscode wurde nicht gefunden. Bitte fordere deinen Profil-Link erneut an.";
+
     setUnitColor(0);
     showRequestBox();
     setDebug("Debug: Kein Token-Treffer.");
+
     return;
   }
 
   const tokenToTry = tokenVariants[index];
 
-  fetch(PROFILE_WEBHOOK_URL + "?token=" + encodeURIComponent(tokenToTry))
+  fetch(
+    PROFILE_WEBHOOK_URL +
+    "?token=" +
+    encodeURIComponent(tokenToTry)
+  )
     .then(response => response.json())
+
     .then(data => {
       if (!data || data.found === false || !data.email) {
         fetchProfileByToken(tokenVariants, index + 1);
@@ -360,6 +551,7 @@ function fetchProfileByToken(tokenVariants, index) {
         " | API Units: " + (data.units || "0")
       );
     })
+
     .catch(error => {
       console.error(error);
       fetchProfileByToken(tokenVariants, index + 1);
@@ -377,42 +569,79 @@ function loadUnits() {
 
   showProfileBox();
 
-  document.getElementById("message").innerText = "Kontostand wird geladen.";
-  document.getElementById("email").innerText = "Lade.";
-  document.getElementById("units").innerText = "0";
+  document.getElementById("message").innerText =
+    "Kontostand wird geladen.";
+
+  document.getElementById("email").innerText =
+    "Lade.";
+
+  document.getElementById("units").innerText =
+    "0";
 
   const tokenVariants = buildTokenVariants(token);
+
   fetchProfileByToken(tokenVariants, 0);
 }
 
 function requestProfileLink() {
-  const email = document.getElementById("requestEmail").value.trim().toLowerCase();
+  const email =
+    document
+      .getElementById("requestEmail")
+      .value
+      .trim()
+      .toLowerCase();
 
   if (!email) {
-    alert("Bitte deine registrierte BetInsight E-Mail eingeben.");
+    alert(
+      "Bitte deine registrierte BetInsight E-Mail eingeben."
+    );
+
     return;
   }
 
-  setRequestMessage("Profil-Link wird angefordert...", "#ffcc00");
+  setRequestMessage(
+    "Profil-Link wird angefordert...",
+    "#ffcc00"
+  );
 
-  fetch(REQUEST_LINK_WEBHOOK_URL + "?email=" + encodeURIComponent(email))
+  fetch(
+    REQUEST_LINK_WEBHOOK_URL +
+    "?email=" +
+    encodeURIComponent(email)
+  )
     .then(response => response.text())
+
     .then(text => {
       setRequestMessage(
-        "✅ Profil-Link wurde verschickt.\n\nÖffne jetzt dein E-Mail-Postfach und klicke auf den Profil-Link in der E-Mail.",
+        "✅ Profil-Link wurde verschickt.\n\n" +
+        "Öffne jetzt dein E-Mail-Postfach, kopiere den Profil-Link und füge ihn unten ein.",
         "#00ff99"
       );
 
       alert(
-        "Profil-Link wurde verschickt.\n\nÖffne jetzt dein E-Mail-Postfach und klicke auf den Profil-Link in der E-Mail."
+        "Profil-Link wurde verschickt.\n\n" +
+        "Öffne jetzt dein E-Mail-Postfach, kopiere den Profil-Link und füge ihn unten ein."
       );
 
-      setDebug("Debug: Profil-Link angefordert für: " + email + " | Antwort: " + text);
+      setDebug(
+        "Debug: Profil-Link angefordert für: " +
+        email +
+        " | Antwort: " +
+        text
+      );
     })
+
     .catch(error => {
       console.error(error);
-      setRequestMessage("Fehler beim Anfordern. Bitte versuche es erneut.", "#ff4444");
-      setDebug("Debug: Fehler beim Profil-Link anfordern.");
+
+      setRequestMessage(
+        "Fehler beim Anfordern. Bitte versuche es erneut.",
+        "#ff4444"
+      );
+
+      setDebug(
+        "Debug: Fehler beim Profil-Link anfordern."
+      );
     });
 }
 
@@ -420,39 +649,51 @@ function goBuyUnits() {
   const token = getActiveToken();
 
   if (!token) {
-    alert("Kein Zugangscode gefunden. Bitte fordere zuerst deinen Profil-Link an.");
+    alert(
+      "Kein Zugangscode gefunden. Bitte fordere zuerst deinen Profil-Link an."
+    );
+
     showRequestBox();
     return;
   }
 
   window.location.href =
-    "https://betinsightclub.github.io/profil/kaufen/?token=" + encodeURIComponent(token);
+    "https://betinsightclub.github.io/profil/kaufen/?token=" +
+    encodeURIComponent(token);
 }
 
 function goTipps() {
   const token = getActiveToken();
 
   if (!token) {
-    alert("Kein Zugangscode gefunden. Bitte fordere zuerst deinen Profil-Link an.");
+    alert(
+      "Kein Zugangscode gefunden. Bitte fordere zuerst deinen Profil-Link an."
+    );
+
     showRequestBox();
     return;
   }
 
   window.location.href =
-    "https://betinsightclub.github.io/profil/tipps/?token=" + encodeURIComponent(token);
+    "https://betinsightclub.github.io/profil/tipps/?token=" +
+    encodeURIComponent(token);
 }
 
 function goFreigeschaltet() {
   const token = getActiveToken();
 
   if (!token) {
-    alert("Kein Zugangscode gefunden. Bitte fordere zuerst deinen Profil-Link an.");
+    alert(
+      "Kein Zugangscode gefunden. Bitte fordere zuerst deinen Profil-Link an."
+    );
+
     showRequestBox();
     return;
   }
 
   window.location.href =
-    "https://betinsightclub.github.io/profil/freigeschaltet/?token=" + encodeURIComponent(token);
+    "https://betinsightclub.github.io/profil/freigeschaltet/?token=" +
+    encodeURIComponent(token);
 }
 
 function goBackoffice() {
@@ -465,14 +706,21 @@ function forgetToken() {
   localStorage.removeItem("betinsight_email");
 
   document.getElementById("units").innerText = "0";
-  document.getElementById("email").innerText = "Kein Zugangscode";
+
+  document.getElementById("email").innerText =
+    "Kein Zugangscode";
+
   document.getElementById("message").innerText =
     "Zugangscode wurde auf diesem Gerät gelöscht.";
+
   document.getElementById("profileLink").value = "";
 
   setUnitColor(0);
   showRequestBox();
-  setDebug("Debug: Zugangscode gelöscht.");
+
+  setDebug(
+    "Debug: Zugangscode gelöscht."
+  );
 }
 
 loadUnits();
