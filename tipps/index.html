@@ -6,13 +6,24 @@
 <title>BetInsight Tipps</title>
 
 <style>
-  * { box-sizing: border-box; }
+  * {
+    box-sizing: border-box;
+  }
 
   body {
     margin: 0;
     background:
-      radial-gradient(circle at top, rgba(0, 200, 255, 0.10), transparent 35%),
-      linear-gradient(180deg, #061923 0%, #071d2b 45%, #04131c 100%);
+      radial-gradient(
+        circle at top,
+        rgba(0, 200, 255, 0.10),
+        transparent 35%
+      ),
+      linear-gradient(
+        180deg,
+        #061923 0%,
+        #071d2b 45%,
+        #04131c 100%
+      );
     color: white;
     font-family: Arial, sans-serif;
     text-align: center;
@@ -76,7 +87,11 @@
     position: relative;
     overflow: hidden;
     background:
-      linear-gradient(180deg, rgba(16, 72, 91, 0.98), rgba(9, 51, 68, 0.98));
+      linear-gradient(
+        180deg,
+        rgba(16, 72, 91, 0.98),
+        rgba(9, 51, 68, 0.98)
+      );
     border: 1px solid rgba(35, 190, 255, 0.48);
     border-radius: 24px;
     padding: 34px 28px;
@@ -92,7 +107,12 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at top right, rgba(0, 200, 255, 0.16), transparent 35%);
+    background:
+      radial-gradient(
+        circle at top right,
+        rgba(0, 200, 255, 0.16),
+        transparent 35%
+      );
     pointer-events: none;
   }
 
@@ -160,6 +180,11 @@
     cursor: pointer;
     min-width: 245px;
     box-shadow: 0 12px 28px rgba(0, 174, 255, 0.32);
+  }
+
+  .btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
   }
 
   .small-note {
@@ -262,31 +287,90 @@
 
 <body>
 
-<a class="floating-back-btn" href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726">
+<a
+  class="floating-back-btn"
+  href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726"
+>
   ⬅ Mitgliederbereich
 </a>
 
 <div class="page">
-  <img src="../logo_betisight.club.png" alt="BetInsight Club" class="logo">
+
+  <img
+    src="../logo_betisight.club.png"
+    alt="BetInsight Club"
+    class="logo"
+  >
 
   <h1>🔥 Neue BetInsight Tipps</h1>
-  <p class="subtitle">Hier siehst du alle aktuell veröffentlichten Tipps als Vorschau.</p>
 
-  <div id="status" class="status">Tipps werden geladen...</div>
+  <p class="subtitle">
+    Hier siehst du alle aktuell veröffentlichten Tipps als Vorschau.
+  </p>
+
+  <div id="status" class="status">
+    Tipps werden geladen...
+  </div>
+
   <div id="tips" class="tips-grid"></div>
+
 </div>
 
 <script>
-const TIPPS_WEBHOOK = "https://hook.eu1.make.com/36gm8kvlfcb7jwae8ypxe8oripquonq5";
-const FREISCHALTEN_WEBHOOK = "https://hook.eu1.make.com/k1qn9hlfqd7yhz55vwiotkojgpuqzxug";
+const TIPPS_WEBHOOK =
+  "https://hook.eu1.make.com/36gm8kvlfcb7jwae8ypxe8oripquonq5";
+
+const FREISCHALTEN_WEBHOOK =
+  "https://hook.eu1.make.com/k1qn9hlfqd7yhz55vwiotkojgpuqzxug";
+
+const TOKEN_STORAGE_KEY = "betinsight_profile_token";
+
+function normalizeToken(value) {
+  let token = String(value || "").trim();
+
+  if (!token) {
+    return "";
+  }
+
+  if (token.startsWith("BI-")) {
+    token = "BI" + token.substring(3);
+  } else if (!token.startsWith("BI")) {
+    token = "BI" + token;
+  }
+
+  return token;
+}
 
 function getToken() {
   const params = new URLSearchParams(window.location.search);
-  return params.get("token") || "";
+  const tokenFromUrl = params.get("token");
+
+  if (tokenFromUrl && tokenFromUrl.trim() !== "") {
+    const normalizedToken = normalizeToken(tokenFromUrl);
+
+    localStorage.setItem(
+      TOKEN_STORAGE_KEY,
+      normalizedToken
+    );
+
+    return normalizedToken;
+  }
+
+  const savedToken =
+    localStorage.getItem(TOKEN_STORAGE_KEY);
+
+  return normalizeToken(savedToken);
 }
 
 function safeText(value, fallback = "-") {
-  if (value === null || value === undefined || value === "") return fallback;
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return fallback;
+  }
+
   return String(value);
 }
 
@@ -300,9 +384,12 @@ function escapeHtml(value) {
 }
 
 function formatDate(value) {
-  if (!value) return "-";
+  if (!value) {
+    return "-";
+  }
 
   const date = new Date(value);
+
   if (!isNaN(date.getTime())) {
     return date.toLocaleDateString("de-DE");
   }
@@ -311,101 +398,223 @@ function formatDate(value) {
 }
 
 function parseWebhookJson(rawText) {
-  let cleaned = String(rawText).replace(/^\uFEFF/, "").trim();
+  let cleaned =
+    String(rawText)
+      .replace(/^\uFEFF/, "")
+      .trim();
 
   const firstBracket = cleaned.indexOf("[");
   const lastBracket = cleaned.lastIndexOf("]");
 
-  if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
-    cleaned = cleaned.substring(firstBracket, lastBracket + 1).trim();
+  if (
+    firstBracket !== -1 &&
+    lastBracket !== -1 &&
+    lastBracket > firstBracket
+  ) {
+    cleaned =
+      cleaned
+        .substring(firstBracket, lastBracket + 1)
+        .trim();
   }
 
   return JSON.parse(cleaned);
+}
+
+function parseUnlockResponse(rawText) {
+  const cleaned =
+    String(rawText)
+      .replace(/^\uFEFF/, "")
+      .trim();
+
+  if (!cleaned) {
+    throw new Error(
+      "Der Server hat keine Antwort zurückgegeben."
+    );
+  }
+
+  if (
+    cleaned === "Accepted" ||
+    cleaned.startsWith("Accepted")
+  ) {
+    throw new Error(
+      "Make hat nur „Accepted“ zurückgegeben. " +
+      "Das Szenario wurde nicht bis zu einer JSON-Antwort ausgeführt."
+    );
+  }
+
+  try {
+    return JSON.parse(cleaned);
+  } catch (error) {
+    throw new Error(
+      "Die Serverantwort ist kein gültiges JSON.\n\n" +
+      "Antwort:\n" +
+      cleaned
+    );
+  }
 }
 
 function createTipCard(tipp) {
   const card = document.createElement("div");
   card.className = "tip-card";
 
-  const tippId = safeText(tipp.tipp_id, "");
-  const spiel = safeText(tipp.spiel);
-  const liga = safeText(tipp.liga);
-  const markt = safeText(tipp.markt);
-  const quote = safeText(tipp.quote);
-  const preisUnits = safeText(tipp.preis_units);
-  const spielDatum = formatDate(tipp.spiel_datum);
-  const anpfiff = safeText(tipp.anpfiff);
+  const tippId =
+    safeText(tipp.tipp_id, "");
+
+  const spiel =
+    safeText(tipp.spiel);
+
+  const liga =
+    safeText(tipp.liga);
+
+  const markt =
+    safeText(tipp.markt);
+
+  const quote =
+    safeText(tipp.quote);
+
+  const preisUnits =
+    safeText(tipp.preis_units);
+
+  const spielDatum =
+    formatDate(tipp.spiel_datum);
+
+  const anpfiff =
+    safeText(tipp.anpfiff);
 
   card.innerHTML = `
     <div class="tip-inner">
-      <div class="badge">🔒 Premium-Vorschau</div>
 
-      <h2>${escapeHtml(spiel)}</h2>
-
-      <div class="tip-meta">
-        <span class="meta-item">🏆 ${escapeHtml(liga)}</span>
-        <span class="meta-item">📅 ${escapeHtml(spielDatum)}</span>
-        <span class="meta-item">⏰ ${escapeHtml(anpfiff)}</span>
-        <span class="meta-item">📊 ${escapeHtml(markt)}</span>
-        <span class="meta-item">📈 Quote ${escapeHtml(quote)}</span>
+      <div class="badge">
+        🔒 Premium-Vorschau
       </div>
 
-      <div class="locked">Tipp und Analyse sind erst nach erfolgreicher Freischaltung sichtbar.</div>
+      <h2>
+        ${escapeHtml(spiel)}
+      </h2>
 
-      <div class="price">💎 ${escapeHtml(preisUnits)} Units</div>
+      <div class="tip-meta">
+
+        <span class="meta-item">
+          🏆 ${escapeHtml(liga)}
+        </span>
+
+        <span class="meta-item">
+          📅 ${escapeHtml(spielDatum)}
+        </span>
+
+        <span class="meta-item">
+          ⏰ ${escapeHtml(anpfiff)}
+        </span>
+
+        <span class="meta-item">
+          📊 ${escapeHtml(markt)}
+        </span>
+
+        <span class="meta-item">
+          📈 Quote ${escapeHtml(quote)}
+        </span>
+
+      </div>
+
+      <div class="locked">
+        Tipp und Analyse sind erst nach erfolgreicher
+        Freischaltung sichtbar.
+      </div>
+
+      <div class="price">
+        💎 ${escapeHtml(preisUnits)} Units
+      </div>
 
       <button class="btn" type="button">
         Freischalten
       </button>
 
       <div class="small-note">
-        Die vollständige Analyse wird nur für diesen Benutzer nach Freischaltung angezeigt.
+        Die vollständige Analyse wird nur für diesen Benutzer
+        nach Freischaltung angezeigt.
       </div>
 
       <div class="unlock-result"></div>
+
     </div>
   `;
 
-  const button = card.querySelector(".btn");
-  button.addEventListener("click", function () {
-    freischalten(tippId, card, button);
-  });
+  const button =
+    card.querySelector(".btn");
+
+  button.addEventListener(
+    "click",
+    function () {
+      freischalten(
+        tippId,
+        card,
+        button
+      );
+    }
+  );
 
   return card;
 }
 
 async function loadTipps() {
-  const statusBox = document.getElementById("status");
-  const tipsBox = document.getElementById("tips");
+  const statusBox =
+    document.getElementById("status");
+
+  const tipsBox =
+    document.getElementById("tips");
 
   try {
-    const response = await fetch(TIPPS_WEBHOOK + "?cachebuster=" + Date.now(), {
-      method: "GET",
-      cache: "no-store"
-    });
+    const response =
+      await fetch(
+        TIPPS_WEBHOOK +
+        "?cachebuster=" +
+        Date.now(),
+        {
+          method: "GET",
+          cache: "no-store"
+        }
+      );
 
-    const rawText = await response.text();
+    const rawText =
+      await response.text();
 
     if (!response.ok) {
-      throw new Error("HTTP Fehler: " + response.status + "\n\nAntwort:\n" + rawText);
+      throw new Error(
+        "HTTP Fehler: " +
+        response.status +
+        "\n\nAntwort:\n" +
+        rawText
+      );
     }
 
-    const tipps = parseWebhookJson(rawText);
+    const tipps =
+      parseWebhookJson(rawText);
 
     statusBox.style.display = "none";
     tipsBox.innerHTML = "";
 
-    if (!Array.isArray(tipps) || tipps.length === 0) {
-      tipsBox.innerHTML = `<div class="empty">Aktuell sind keine neuen Tipps verfügbar.</div>`;
+    if (
+      !Array.isArray(tipps) ||
+      tipps.length === 0
+    ) {
+      tipsBox.innerHTML = `
+        <div class="empty">
+          Aktuell sind keine neuen Tipps verfügbar.
+        </div>
+      `;
+
       return;
     }
 
     tipps.forEach(tipp => {
-      tipsBox.appendChild(createTipCard(tipp));
+      tipsBox.appendChild(
+        createTipCard(tipp)
+      );
     });
 
   } catch (error) {
     statusBox.style.display = "none";
+
     tipsBox.innerHTML = `
       <div class="error">
 Fehler beim Laden der Tipps:
@@ -413,24 +622,33 @@ Fehler beim Laden der Tipps:
 ${escapeHtml(error.message)}
       </div>
     `;
+
     console.error(error);
   }
 }
 
-async function freischalten(tippId, card, button) {
-  const token = getToken();
-  const resultBox = card.querySelector(".unlock-result");
+async function freischalten(
+  tippId,
+  card,
+  button
+) {
+  const token =
+    getToken();
+
+  const resultBox =
+    card.querySelector(".unlock-result");
 
   resultBox.innerHTML = "";
 
   if (!token) {
     resultBox.innerHTML = `
       <div class="error">
-Kein Token gefunden.
+Kein Zugangscode gefunden.
 
 Bitte öffne die Seite über deinen persönlichen Profil-Link.
       </div>
     `;
+
     return;
   }
 
@@ -440,33 +658,52 @@ Bitte öffne die Seite über deinen persönlichen Profil-Link.
 Keine Tipp-ID gefunden.
       </div>
     `;
+
     return;
   }
 
   button.disabled = true;
-  button.textContent = "Wird freigeschaltet...";
+  button.textContent =
+    "Wird freigeschaltet...";
 
   try {
     const url =
       FREISCHALTEN_WEBHOOK +
-      "?token=" + encodeURIComponent(token) +
-      "&tipp_id=" + encodeURIComponent(tippId) +
-      "&cachebuster=" + Date.now();
+      "?token=" +
+      encodeURIComponent(token) +
+      "&tipp_id=" +
+      encodeURIComponent(tippId) +
+      "&cachebuster=" +
+      Date.now();
 
-    const response = await fetch(url, {
-      method: "GET",
-      cache: "no-store"
-    });
+    const response =
+      await fetch(
+        url,
+        {
+          method: "GET",
+          cache: "no-store"
+        }
+      );
 
-    const rawText = await response.text();
+    const rawText =
+      await response.text();
 
     if (!response.ok) {
-      throw new Error("HTTP Fehler: " + response.status + "\n\nAntwort:\n" + rawText);
+      throw new Error(
+        "HTTP Fehler: " +
+        response.status +
+        "\n\nAntwort:\n" +
+        rawText
+      );
     }
 
-    const data = JSON.parse(rawText.trim());
+    const data =
+      parseUnlockResponse(rawText);
 
-    if (data.status === "not_enough_units") {
+    if (
+      data.status ===
+      "not_enough_units"
+    ) {
       resultBox.innerHTML = `
         <div class="error">
 Nicht genug Units.
@@ -475,33 +712,70 @@ Aktuelle Units: ${escapeHtml(data.units)}
 Benötigt: ${escapeHtml(data.required)}
         </div>
       `;
+
       return;
     }
 
-    if (data.status === "success" || data.status === "already_unlocked") {
-      const isAlreadyUnlocked = data.status === "already_unlocked";
+    if (
+      data.status === "success" ||
+      data.status === "already_unlocked"
+    ) {
+      const isAlreadyUnlocked =
+        data.status ===
+        "already_unlocked";
 
-      const message = isAlreadyUnlocked
-        ? "Dieser Tipp war bereits für dich freigeschaltet."
-        : "Freischaltung erfolgreich.";
+      const message =
+        isAlreadyUnlocked
+          ? "Dieser Tipp war bereits für dich freigeschaltet."
+          : "Freischaltung erfolgreich.";
 
-      const messageClass = isAlreadyUnlocked ? "info" : "success";
+      const messageClass =
+        isAlreadyUnlocked
+          ? "info"
+          : "success";
 
       resultBox.innerHTML = `
-        <div class="unlock-message ${messageClass}">${escapeHtml(message)}</div>
+        <div class="unlock-message ${messageClass}">
+          ${escapeHtml(message)}
+        </div>
 
         <div class="unlock-box">
-          <h3>✅ Freigeschalteter Tipp</h3>
 
-          <p><strong>Spiel:</strong> ${escapeHtml(data.spiel)}</p>
-          <p><strong>Tipp:</strong> ${escapeHtml(data.tipp)}</p>
-          <p><strong>Quote:</strong> ${escapeHtml(data.quote)}</p>
-          <p><strong>Ersteller:</strong> ${escapeHtml(data.ersteller)}</p>
-          <p><strong>Verbleibende Units:</strong> ${escapeHtml(data.units)}</p>
+          <h3>
+            ✅ Freigeschalteter Tipp
+          </h3>
+
+          <p>
+            <strong>Spiel:</strong>
+            ${escapeHtml(data.spiel)}
+          </p>
+
+          <p>
+            <strong>Tipp:</strong>
+            ${escapeHtml(data.tipp)}
+          </p>
+
+          <p>
+            <strong>Quote:</strong>
+            ${escapeHtml(data.quote)}
+          </p>
+
+          <p>
+            <strong>Ersteller:</strong>
+            ${escapeHtml(data.ersteller)}
+          </p>
+
+          <p>
+            <strong>Verbleibende Units:</strong>
+            ${escapeHtml(data.units)}
+          </p>
 
           <div class="analysis-text">
-            <strong>Analyse:</strong><br><br>${escapeHtml(data.analyse)}
+            <strong>Analyse:</strong>
+            <br><br>
+            ${escapeHtml(data.analyse)}
           </div>
+
         </div>
       `;
 
@@ -524,11 +798,13 @@ Fehler beim Freischalten:
 ${escapeHtml(error.message)}
       </div>
     `;
+
     console.error(error);
 
   } finally {
     button.disabled = false;
-    button.textContent = "Freischalten";
+    button.textContent =
+      "Freischalten";
   }
 }
 
