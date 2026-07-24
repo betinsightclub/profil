@@ -3,318 +3,933 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>BetInsight Profil</title>
 
 <style>
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --background-dark: #04131c;
+  --background-middle: #071d2b;
+  --background-top: #061923;
+
+  --panel: rgba(5, 59, 82, 0.78);
+  --panel-light: rgba(7, 78, 105, 0.72);
+
+  --border: rgba(35, 190, 255, 0.36);
+  --border-strong: rgba(35, 190, 255, 0.60);
+
+  --blue: #159cff;
+  --cyan: #00c8ff;
+  --green: #08ae78;
+  --orange: #d88916;
+  --red: #a93d3d;
+  --gray: #657f91;
+
+  --text: #ffffff;
+  --text-soft: #ccefff;
+  --text-muted: #9fc5d8;
+  --warning: #ffcc00;
+}
+
+html {
+  min-height: 100%;
+}
 
 body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(circle at top, rgba(0, 200, 255, 0.10), transparent 35%),
-    linear-gradient(180deg, #061923 0%, #071d2b 45%, #04131c 100%);
-  color: white;
-  font-family: Arial, sans-serif;
-  text-align: center;
+    radial-gradient(
+      circle at top,
+      rgba(0, 200, 255, 0.12),
+      transparent 34%
+    ),
+    linear-gradient(
+      180deg,
+      var(--background-top) 0%,
+      var(--background-middle) 48%,
+      var(--background-dark) 100%
+    );
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
 }
 
+button,
+input,
+a {
+  font-family: inherit;
+}
+
+button {
+  border: none;
+}
+
+/* Schwebender Zurück-Button */
+
+.floating-back-button {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  z-index: 10000;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 48px;
+  padding: 12px 20px;
+
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #168aff,
+      #00b8ff
+    );
+
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 12px 30px rgba(0, 174, 255, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20);
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.floating-back-button:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 16px 34px rgba(0, 174, 255, 0.44),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20);
+}
+
+/* Hauptseite */
+
 .page {
-  max-width: 920px;
+  width: 100%;
+  max-width: 1120px;
   margin: 0 auto;
-  padding: 45px 18px 90px;
+  padding: 24px 22px 88px;
+}
+
+/* Kopfbereich */
+
+.profile-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 20px;
+
+  width: 100%;
+  margin-bottom: 22px;
+  padding: 15px 20px;
+
+  background: rgba(3, 39, 55, 0.62);
+  border: 1px solid rgba(35, 190, 255, 0.22);
+  border-radius: 18px;
+
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
 }
 
 .logo {
-  width: 155px;
-  max-width: 70%;
+  width: 118px;
+  max-width: 100%;
   height: auto;
-  margin: 0 0 26px;
+  display: block;
+}
+
+.profile-title-area {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
 }
 
 .avatar {
-  font-size: 58px;
-  color: #159cff;
-  margin-bottom: 10px;
+  flex: 0 0 auto;
+  font-size: 44px;
+  line-height: 1;
+  color: var(--blue);
+}
+
+.title-text {
+  min-width: 0;
 }
 
 h1 {
-  margin: 0 0 28px;
-  font-size: 32px;
+  margin: 0;
+  font-size: 27px;
+  line-height: 1.2;
 }
 
-.units-line {
-  font-size: 32px;
-  margin: 18px 0;
+.header-subtitle {
+  margin: 5px 0 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.header-units {
+  min-width: 174px;
+  padding: 10px 16px;
+  text-align: center;
+
+  background: rgba(0, 0, 0, 0.20);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 14px;
+}
+
+.header-units-label {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--text-soft);
+  font-size: 13px;
 }
 
 #units {
-  font-size: 54px;
+  display: block;
+  font-size: 36px;
+  line-height: 1;
   font-weight: 800;
   color: lime;
 }
 
-.email {
-  font-size: 18px;
-  margin: 12px 0 26px;
-}
+/* Sichtbare Bereiche */
 
-.card {
-  background: rgba(0, 80, 115, 0.45);
-  border: 1px solid rgba(35, 190, 255, 0.35);
-  border-radius: 16px;
-  padding: 24px;
-  max-width: 620px;
-  margin: 24px auto;
-  box-shadow: 0 16px 36px rgba(0,0,0,0.28);
-}
-
-.card h2 {
-  color: #00ffb3;
-  font-size: 18px;
-  margin: 0 0 14px;
-}
-
-.card p {
-  color: #ccefff;
-  font-size: 14px;
-  line-height: 1.55;
-}
-
-input {
-  width: 100%;
-  max-width: 540px;
-  padding: 14px;
-  border-radius: 8px;
-  border: 2px solid #159cff;
-  font-size: 15px;
-  text-align: center;
-  margin: 10px 0;
-}
-
-button, .btn-link {
-  width: 100%;
-  max-width: 360px;
-  display: inline-block;
-  border: none;
-  border-radius: 8px;
-  padding: 15px 18px;
-  margin: 7px auto;
-  color: white;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.btn-blue { background: linear-gradient(90deg, #168aff, #00b8ff); }
-.btn-green { background: #08a86f; }
-.btn-orange { background: #d88916; }
-.btn-red { background: #963232; }
-.btn-gray { background: #657f91; }
-
-.message {
-  color: #ffcc00;
-  margin: 18px 0;
-  white-space: pre-wrap;
-}
-
-.actions {
-  max-width: 390px;
-  margin: 20px auto;
-}
-
-.divider {
-  height: 1px;
-  background: rgba(255,255,255,0.22);
-  max-width: 620px;
-  margin: 34px auto;
-}
-
-.request-box {
-  display: none;
-}
-
+.request-box,
 .profile-box {
   display: none;
 }
 
+/* Profilansicht */
+
+.profile-dashboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+  gap: 22px;
+  align-items: stretch;
+}
+
+.dashboard-column {
+  min-width: 0;
+}
+
+.panel {
+  height: 100%;
+  padding: 22px;
+
+  background:
+    linear-gradient(
+      180deg,
+      var(--panel-light),
+      var(--panel)
+    );
+
+  border: 1px solid var(--border);
+  border-radius: 18px;
+
+  box-shadow:
+    0 16px 36px rgba(0, 0, 0, 0.27),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.panel-title {
+  margin: 0 0 8px;
+  color: #00ffb3;
+  font-size: 19px;
+}
+
+.panel-description {
+  margin: 0 0 17px;
+  color: var(--text-soft);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.account-data {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.data-row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  align-items: center;
+  gap: 12px;
+
+  padding: 11px 13px;
+
+  background: rgba(0, 0, 0, 0.17);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+}
+
+.data-label {
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.data-value {
+  min-width: 0;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.profile-link-group {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+input {
+  width: 100%;
+  min-height: 47px;
+  padding: 12px 14px;
+
+  border: 2px solid var(--blue);
+  border-radius: 10px;
+
+  background: #ffffff;
+  color: #17242c;
+
+  font-size: 14px;
+  text-align: center;
+
+  outline: none;
+}
+
+input:focus {
+  border-color: var(--cyan);
+
+  box-shadow:
+    0 0 0 3px rgba(0, 200, 255, 0.16);
+}
+
+.profile-link-group input {
+  min-width: 0;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 11px;
+}
+
+button,
+.btn-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  width: 100%;
+  min-height: 47px;
+  padding: 12px 14px;
+
+  border-radius: 10px;
+
+  color: #ffffff;
+  text-decoration: none;
+  text-align: center;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    filter 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+button:hover,
+.btn-link:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.07);
+}
+
+.btn-blue {
+  background:
+    linear-gradient(
+      90deg,
+      #168aff,
+      #00b8ff
+    );
+
+  box-shadow: 0 9px 20px rgba(0, 174, 255, 0.22);
+}
+
+.btn-green {
+  background:
+    linear-gradient(
+      90deg,
+      #079e6b,
+      #08b77d
+    );
+
+  box-shadow: 0 9px 20px rgba(8, 174, 120, 0.20);
+}
+
+.btn-orange {
+  background: var(--orange);
+}
+
+.btn-red {
+  background:
+    linear-gradient(
+      90deg,
+      #963232,
+      #b44747
+    );
+}
+
+.btn-gray {
+  background:
+    linear-gradient(
+      90deg,
+      #5e788a,
+      #738fa1
+    );
+}
+
+.copy-button {
+  width: auto;
+  min-width: 168px;
+  white-space: nowrap;
+}
+
+.message {
+  min-height: 20px;
+  margin: 13px 0 0;
+
+  color: var(--warning);
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+  white-space: pre-wrap;
+}
+
+.security-area {
+  margin-top: 17px;
+  padding-top: 16px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
 .small-warning {
-  max-width: 390px;
-  margin: 12px auto;
-  color: #ffcc00;
+  margin: 0 0 10px;
+
+  color: var(--warning);
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.delete-button {
+  max-width: 100%;
+}
+
+/* Profil-Link anfordern */
+
+.request-header {
+  max-width: 780px;
+  margin: 0 auto 20px;
+  text-align: center;
+}
+
+.request-header h2 {
+  margin: 0 0 8px;
+  font-size: 27px;
+}
+
+.request-header p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.request-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  align-items: stretch;
+}
+
+.request-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.request-panel input {
+  margin-top: auto;
+  margin-bottom: 11px;
+}
+
+.request-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.request-help {
+  margin: 15px 0 8px;
+  color: var(--text-muted);
   font-size: 13px;
   line-height: 1.45;
 }
 
-.debug {
-  margin-top: 35px;
-  color: rgba(255,255,255,0.35);
-  font-size: 12px;
-  word-break: break-word;
-}
+/* Footer */
 
 .footer {
-  margin-top: 45px;
-  color: rgba(255,255,255,0.45);
-  font-size: 14px;
+  margin-top: 24px;
+  color: rgba(255, 255, 255, 0.40);
+  font-size: 12px;
+  text-align: center;
 }
 
+/*
+  Debug bleibt technisch im HTML vorhanden,
+  wird aber Kunden nicht angezeigt.
+*/
+.debug {
+  display: none;
+}
+
+/* Tablet */
+
+@media (max-width: 850px) {
+  .profile-header {
+    grid-template-columns: auto 1fr;
+  }
+
+  .header-units {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+
+    min-width: 0;
+  }
+
+  .header-units-label {
+    margin: 0;
+  }
+
+  #units {
+    font-size: 32px;
+  }
+
+  .profile-dashboard,
+  .request-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .panel {
+    height: auto;
+  }
+}
+
+/* Smartphone */
+
 @media (max-width: 600px) {
-  .page { padding: 30px 14px 85px; }
-  h1 { font-size: 27px; }
-  .units-line { font-size: 25px; }
-  #units { font-size: 46px; }
+  .page {
+    padding: 12px 12px 88px;
+  }
+
+  .profile-header {
+    display: block;
+    padding: 15px;
+    text-align: center;
+  }
+
+  .logo {
+    width: 102px;
+    margin: 0 auto 12px;
+  }
+
+  .profile-title-area {
+    display: block;
+  }
+
+  .avatar {
+    margin-bottom: 7px;
+    font-size: 39px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  .header-subtitle {
+    font-size: 13px;
+  }
+
+  .header-units {
+    margin-top: 14px;
+  }
+
+  .profile-dashboard,
+  .request-grid {
+    gap: 15px;
+  }
+
+  .panel {
+    padding: 18px 15px;
+    border-radius: 15px;
+  }
+
+  .data-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    text-align: left;
+  }
+
+  .profile-link-group {
+    grid-template-columns: 1fr;
+  }
+
+  .copy-button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .action-grid {
+    grid-template-columns: 1fr;
+  }
+
+  button,
+  .btn-link {
+    min-height: 49px;
+  }
+
+  .floating-back-button {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+
+    width: auto;
+    min-height: 50px;
+  }
+
+  .request-header h2 {
+    font-size: 24px;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<div class="page">
+<button
+  class="floating-back-button"
+  type="button"
+  onclick="goBackoffice()"
+>
+  ⬅ Mitgliederbereich
+</button>
 
-  <img
-    src="logo_betisight.club.png"
-    alt="BetInsight Club"
-    class="logo"
-    onerror="this.style.display='none'"
-  >
+<main class="page">
 
-  <div class="avatar">👤</div>
-  <h1>Mein BetInsight Profil</h1>
+  <header class="profile-header">
 
-  <div id="profileBox" class="profile-box">
+    <img
+      src="logo_betisight.club.png"
+      alt="BetInsight Club"
+      class="logo"
+      onerror="this.style.display='none'"
+    >
 
-    <div class="units-line">
-      Aktuelle Units: <span id="units">0</span>
-    </div>
+    <div class="profile-title-area">
 
-    <div class="email">
-      <strong>E-Mail:</strong>
-      <span id="email">Lade...</span>
-    </div>
+      <div class="avatar">👤</div>
 
-    <div class="card">
-      <h2>Dein persönlicher Profil-Link</h2>
+      <div class="title-text">
+        <h1>Mein BetInsight Profil</h1>
 
-      <p>
-        Speichere diesen Link. Darüber kommst du immer direkt zu deinem
-        eigenen BetInsight-Profil.
-      </p>
-
-      <input id="profileLink" type="text" readonly>
-
-      <button class="btn-gray" onclick="copyProfileLink()">
-        🔗 Profil-Link kopieren
-      </button>
-    </div>
-
-    <div id="message" class="message">
-      Kontostand wird geladen...
-    </div>
-
-    <div class="actions">
-
-      <button class="btn-blue" onclick="loadUnits()">
-        🔄 Kontostand aktualisieren
-      </button>
-
-      <button class="btn-blue" onclick="goTipps()">
-        🔥 Neue Tipps
-      </button>
-
-      <button class="btn-green" onclick="goFreigeschaltet()">
-        ✅ Freigeschaltet
-      </button>
-
-      <button class="btn-green" onclick="goBuyUnits()">
-        💎 Units kaufen
-      </button>
-
-      <div class="small-warning">
-        Zugangscode nur löschen, wenn die angezeigte E-Mail nicht stimmt
-        oder du dieses Gerät mit einer anderen Person teilst.
+        <p class="header-subtitle">
+          Kontostand, Tipps und persönlicher Profilzugang
+        </p>
       </div>
 
-      <button class="btn-red" onclick="forgetToken()">
-        Zugangscode auf diesem Gerät löschen
-      </button>
+    </div>
+
+    <div id="headerUnitsBox" class="header-units">
+
+      <span class="header-units-label">
+        Aktuelle Units
+      </span>
+
+      <span id="units">0</span>
 
     </div>
-  </div>
 
-  <div id="requestBox" class="request-box">
+  </header>
 
-    <div class="card">
-      <h2>Profil-Link anfordern</h2>
+  <section id="profileBox" class="profile-box">
+
+    <div class="profile-dashboard">
+
+      <div class="dashboard-column">
+
+        <section class="panel">
+
+          <h2 class="panel-title">
+            Persönlicher Profilzugang
+          </h2>
+
+          <p class="panel-description">
+            Speichere deinen persönlichen Profil-Link. Darüber kommst du
+            direkt zu deinem BetInsight-Profil.
+          </p>
+
+          <div class="account-data">
+
+            <div class="data-row">
+
+              <span class="data-label">
+                E-Mail
+              </span>
+
+              <span id="email" class="data-value">
+                Lade...
+              </span>
+
+            </div>
+
+            <div class="data-row">
+
+              <span class="data-label">
+                Status
+              </span>
+
+              <span class="data-value">
+                Profilzugang aktiv
+              </span>
+
+            </div>
+
+          </div>
+
+          <div class="profile-link-group">
+
+            <input
+              id="profileLink"
+              type="text"
+              aria-label="Persönlicher Profil-Link"
+              readonly
+            >
+
+            <button
+              class="btn-gray copy-button"
+              type="button"
+              onclick="copyProfileLink()"
+            >
+              🔗 Link kopieren
+            </button>
+
+          </div>
+
+          <div id="message" class="message">
+            Kontostand wird geladen...
+          </div>
+
+        </section>
+
+      </div>
+
+      <div class="dashboard-column">
+
+        <section class="panel">
+
+          <h2 class="panel-title">
+            Dein BetInsight Bereich
+          </h2>
+
+          <p class="panel-description">
+            Öffne deine Tipps, Freischaltungen oder den Kaufbereich.
+          </p>
+
+          <div class="action-grid">
+
+            <button
+              class="btn-blue"
+              type="button"
+              onclick="loadUnits()"
+            >
+              🔄 Aktualisieren
+            </button>
+
+            <button
+              class="btn-blue"
+              type="button"
+              onclick="goTipps()"
+            >
+              🔥 Neue Tipps
+            </button>
+
+            <button
+              class="btn-green"
+              type="button"
+              onclick="goFreigeschaltet()"
+            >
+              ✅ Freigeschaltet
+            </button>
+
+            <button
+              class="btn-green"
+              type="button"
+              onclick="goBuyUnits()"
+            >
+              💎 Units kaufen
+            </button>
+
+          </div>
+
+          <div class="security-area">
+
+            <p class="small-warning">
+              Zugangscode nur löschen, wenn die angezeigte E-Mail nicht
+              stimmt oder du dieses Gerät mit einer anderen Person teilst.
+            </p>
+
+            <button
+              class="btn-red delete-button"
+              type="button"
+              onclick="forgetToken()"
+            >
+              Zugangscode auf diesem Gerät löschen
+            </button>
+
+          </div>
+
+        </section>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <section id="requestBox" class="request-box">
+
+    <div class="request-header">
+
+      <h2>Persönliches Profil öffnen</h2>
 
       <p>
-        Gib deine registrierte BetInsight E-Mail ein.
-        Wir senden dir deinen persönlichen Profil-Link erneut zu.
+        Fordere deinen Profil-Link per E-Mail an oder trage einen bereits
+        erhaltenen Link direkt ein.
       </p>
 
-      <input
-        id="requestEmail"
-        type="email"
-        placeholder="Deine E-Mail-Adresse"
-      >
-
-      <button class="btn-blue" onclick="requestProfileLink()">
-        📩 Profil-Link anfordern
-      </button>
-
-      <p style="margin-top:18px;">
-        Du bist dir nicht sicher, welche E-Mail-Adresse registriert ist?
-      </p>
-
-      <a
-        class="btn-link btn-gray"
-        href="https://betinsight.systeme.io/profile/user-settings"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        🔎 Registrierte E-Mail nachsehen
-      </a>
-
-      <div id="requestMessage" class="message"></div>
     </div>
 
-    <div class="card">
-      <h2>Erhaltenen Profil-Link eintragen</h2>
+    <div class="request-grid">
 
-      <p>
-        Kopiere den vollständigen Profil-Link aus deiner E-Mail und füge ihn
-        hier ein. Du kannst alternativ auch nur deinen Zugangscode eintragen.
-      </p>
+      <section class="panel request-panel">
 
-      <input
-        id="receivedProfileLink"
-        type="text"
-        placeholder="https://betinsightclub.github.io/profil/?token=..."
-      >
+        <h2 class="panel-title">
+          Profil-Link anfordern
+        </h2>
 
-      <button class="btn-green" onclick="openReceivedProfileLink()">
-        🔓 Profil öffnen
-      </button>
+        <p class="panel-description">
+          Gib deine registrierte BetInsight E-Mail-Adresse ein. Wir senden
+          dir deinen persönlichen Profil-Link erneut zu.
+        </p>
 
-      <div id="receivedLinkMessage" class="message"></div>
+        <input
+          id="requestEmail"
+          type="email"
+          placeholder="Deine E-Mail-Adresse"
+          autocomplete="email"
+        >
+
+        <div class="request-actions">
+
+          <button
+            class="btn-blue"
+            type="button"
+            onclick="requestProfileLink()"
+          >
+            📩 Profil-Link anfordern
+          </button>
+
+          <a
+            class="btn-link btn-gray"
+            href="https://betinsight.systeme.io/profile/user-settings"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            🔎 Registrierte E-Mail nachsehen
+          </a>
+
+        </div>
+
+        <div id="requestMessage" class="message"></div>
+
+      </section>
+
+      <section class="panel request-panel">
+
+        <h2 class="panel-title">
+          Erhaltenen Profil-Link eintragen
+        </h2>
+
+        <p class="panel-description">
+          Kopiere den vollständigen Profil-Link aus deiner E-Mail und füge
+          ihn hier ein. Alternativ kannst du nur deinen Zugangscode eintragen.
+        </p>
+
+        <input
+          id="receivedProfileLink"
+          type="text"
+          placeholder="Profil-Link oder Zugangscode"
+          autocomplete="off"
+        >
+
+        <button
+          class="btn-green"
+          type="button"
+          onclick="openReceivedProfileLink()"
+        >
+          🔓 Persönliches Profil öffnen
+        </button>
+
+        <div id="receivedLinkMessage" class="message"></div>
+
+      </section>
+
     </div>
 
-  </div>
-
-  <div class="divider"></div>
-
-  <button class="btn-gray" onclick="goBackoffice()">
-    ⬅ Zurück zum Mitgliederbereich
-  </button>
+  </section>
 
   <div id="debug" class="debug"></div>
 
-  <div class="footer">
+  <footer class="footer">
     © 2026 BetInsight Club
-  </div>
+  </footer>
 
-</div>
+</main>
 
 <script>
 const PROFILE_WEBHOOK_URL =
@@ -382,11 +997,13 @@ function buildTokenVariants(token) {
 function showProfileBox() {
   document.getElementById("profileBox").style.display = "block";
   document.getElementById("requestBox").style.display = "none";
+  document.getElementById("headerUnitsBox").style.display = "";
 }
 
 function showRequestBox() {
   document.getElementById("profileBox").style.display = "none";
   document.getElementById("requestBox").style.display = "block";
+  document.getElementById("headerUnitsBox").style.display = "none";
 }
 
 function setUnitColor(units) {
@@ -437,8 +1054,10 @@ function extractTokenFromInput(value) {
     }
 
   } catch (error) {
-    // Die Eingabe ist kein vollständiger Link.
-    // Sie wird anschließend als Zugangscode behandelt.
+    /*
+      Die Eingabe ist kein vollständiger Link.
+      Sie wird anschließend als Zugangscode behandelt.
+    */
   }
 
   if (clean.includes("token=")) {
@@ -491,14 +1110,29 @@ function updateProfileLink(token) {
 
 function copyProfileLink() {
   const input = document.getElementById("profileLink");
+  const message = document.getElementById("message");
 
   input.select();
   input.setSelectionRange(0, 99999);
 
-  navigator.clipboard.writeText(input.value);
+  if (
+    navigator.clipboard &&
+    typeof navigator.clipboard.writeText === "function"
+  ) {
+    navigator.clipboard
+      .writeText(input.value)
+      .then(() => {
+        message.innerText = "Profil-Link wurde kopiert.";
+      })
+      .catch(() => {
+        document.execCommand("copy");
+        message.innerText = "Profil-Link wurde kopiert.";
+      });
 
-  document.getElementById("message").innerText =
-    "Profil-Link wurde kopiert.";
+  } else {
+    document.execCommand("copy");
+    message.innerText = "Profil-Link wurde kopiert.";
+  }
 }
 
 function fetchProfileByToken(tokenVariants, index) {
@@ -532,14 +1166,16 @@ function fetchProfileByToken(tokenVariants, index) {
       }
 
       const finalToken = data.token || tokenToTry;
-      const units = parseInt(data.units) || 0;
+      const units = parseInt(data.units, 10) || 0;
 
       saveToken(finalToken);
       showProfileBox();
 
       document.getElementById("units").innerText = units;
       document.getElementById("email").innerText = data.email;
-      document.getElementById("message").innerText = "Aktualisiert.";
+
+      document.getElementById("message").innerText =
+        "Kontostand wurde aktualisiert.";
 
       setUnitColor(units);
       updateProfileLink(finalToken);
@@ -570,10 +1206,10 @@ function loadUnits() {
   showProfileBox();
 
   document.getElementById("message").innerText =
-    "Kontostand wird geladen.";
+    "Kontostand wird geladen...";
 
   document.getElementById("email").innerText =
-    "Lade.";
+    "Lade...";
 
   document.getElementById("units").innerText =
     "0";
@@ -614,13 +1250,13 @@ function requestProfileLink() {
     .then(text => {
       setRequestMessage(
         "✅ Profil-Link wurde verschickt.\n\n" +
-        "Öffne jetzt dein E-Mail-Postfach, kopiere den Profil-Link und füge ihn unten ein.",
+        "Öffne jetzt dein E-Mail-Postfach, kopiere den Profil-Link und füge ihn im rechten Feld ein.",
         "#00ff99"
       );
 
       alert(
         "Profil-Link wurde verschickt.\n\n" +
-        "Öffne jetzt dein E-Mail-Postfach, kopiere den Profil-Link und füge ihn unten ein."
+        "Öffne jetzt dein E-Mail-Postfach, kopiere den Profil-Link und füge ihn auf dieser Seite ein."
       );
 
       setDebug(
