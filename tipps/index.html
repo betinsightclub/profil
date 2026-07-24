@@ -717,6 +717,32 @@ Benötigt: ${escapeHtml(data.required)}
     }
 
     if (
+      data.status ===
+      "units_source_missing"
+    ) {
+      const serverMessage =
+        safeText(
+          data.message,
+          "Der Unit-Bestand ist vorhanden, aber keiner aktiven Kaufbuchung zugeordnet."
+        );
+
+      resultBox.innerHTML = `
+        <div class="error">
+Die Units können aktuell nicht eindeutig zugeordnet werden.
+
+Aktuelle Units: ${escapeHtml(data.units)}
+Benötigt: ${escapeHtml(data.required)}
+
+${escapeHtml(serverMessage)}
+
+Bitte wende dich an den BetInsight-Support, damit der Unit-Bestand geprüft wird.
+        </div>
+      `;
+
+      return;
+    }
+
+    if (
       data.status === "success" ||
       data.status === "already_unlocked"
     ) {
