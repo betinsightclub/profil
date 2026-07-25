@@ -76,6 +76,9 @@ button {
   bottom: 18px;
   z-index: 10000;
 
+  width: auto;
+  max-width: 310px;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -305,6 +308,12 @@ h1 {
   flex: 1 1 auto;
 }
 
+#betInsightId {
+  color: #00ffb3;
+  font-size: 18px;
+  letter-spacing: 0.5px;
+}
+
 .inline-copy-button {
   flex: 0 0 auto;
   width: auto;
@@ -360,6 +369,68 @@ body.privacy-active .profile-link-group {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 10px;
   align-items: center;
+}
+
+.secure-access-box {
+  display: grid;
+  gap: 10px;
+  margin-top: 4px;
+  padding: 14px;
+
+  background: rgba(0, 0, 0, 0.17);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+}
+
+.secure-access-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.secure-access-title {
+  color: var(--text-soft);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.secure-access-status {
+  color: #00ffb3;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.masked-token {
+  padding: 11px 13px;
+
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9px;
+
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+.secure-access-note {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.resend-link-button {
+  min-height: 43px;
+}
+
+body.privacy-active .masked-token {
+  filter: blur(7px);
+  user-select: none;
+  pointer-events: none;
 }
 
 input {
@@ -596,7 +667,7 @@ button:hover,
 
 .referral-stat {
   min-width: 0;
-  padding: 16px 10px;
+  padding: 13px 8px;
   background: rgba(0, 0, 0, 0.18);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
@@ -606,7 +677,7 @@ button:hover,
 .referral-value {
   margin-bottom: 6px;
   color: #00ffb3;
-  font-size: 30px;
+  font-size: 27px;
   line-height: 1;
   font-weight: 800;
 }
@@ -784,11 +855,12 @@ body.privacy-active .referral-private {
 
   .floating-back-button {
     left: 12px;
-    right: 12px;
+    right: auto;
     bottom: 12px;
 
     width: auto;
-    min-height: 50px;
+    max-width: calc(100vw - 24px);
+    min-height: 48px;
   }
 
   .request-header h2 {
@@ -858,8 +930,8 @@ body.privacy-active .referral-private {
           </h2>
 
           <p class="panel-description">
-            Speichere deinen persönlichen Profil-Link. Darüber kommst du
-            direkt zu deinem BetInsight-Profil.
+            Dein persönlicher Zugang wird sicher auf diesem Gerät
+            gespeichert. Der geheime Profil-Link wird nicht offen angezeigt.
           </p>
 
           <div class="account-data">
@@ -914,21 +986,37 @@ body.privacy-active .referral-private {
 
           </div>
 
-          <div class="profile-link-group">
+          <div class="secure-access-box">
 
-            <input
-              id="profileLink"
-              type="text"
-              aria-label="Persönlicher Profil-Link"
-              readonly
-            >
+            <div class="secure-access-head">
+
+              <span class="secure-access-title">
+                Persönlicher Zugang
+              </span>
+
+              <span class="secure-access-status">
+                ✅ Auf diesem Gerät gespeichert
+              </span>
+
+            </div>
+
+            <div id="maskedToken" class="masked-token private-value">
+              Wird geladen...
+            </div>
+
+            <p class="secure-access-note">
+              Dein vollständiger Zugangscode und dein persönlicher Profil-Link
+              werden aus Sicherheitsgründen nicht angezeigt und können hier
+              nicht kopiert werden.
+            </p>
 
             <button
-              class="btn-gray copy-button"
+              id="resendProfileButton"
+              class="btn-gray resend-link-button"
               type="button"
-              onclick="copyProfileLink()"
+              onclick="requestCurrentProfileLink()"
             >
-              🔗 Link kopieren
+              📩 Profil-Link erneut per E-Mail senden
             </button>
 
           </div>
@@ -1046,11 +1134,21 @@ body.privacy-active .referral-private {
 
       <div class="referral-actions">
 
-        <button class="btn-green" type="button" onclick="copyReferralLink()">
+        <button
+          id="copyReferralButton"
+          class="btn-green"
+          type="button"
+          onclick="copyReferralLink()"
+        >
           🔗 Empfehlungslink kopieren
         </button>
 
-        <button class="btn-blue" type="button" onclick="loadReferralData()">
+        <button
+          id="refreshReferralButton"
+          class="btn-blue"
+          type="button"
+          onclick="loadReferralData(true)"
+        >
           🔄 Empfehlungsdaten aktualisieren
         </button>
 
@@ -1226,6 +1324,78 @@ let currentProfileData = {
   refLink: ""
 };
 
+function maskAccessToken(token) {
+  const clean = String(token || "").trim();
+
+  if (!clean) {
+    return "Nicht verfügbar";
+  }
+
+  if (clean.length <= 8) {
+    return clean.substring(0, 2) + "••••" + clean.slice(-2);
+  }
+
+  return clean.substring(0, 4) + "••••" + clean.slice(-4);
+}
+
+function setMaskedToken(token) {
+  const element = document.getElementById("maskedToken");
+
+  if (!element) {
+    return;
+  }
+
+  element.innerText = maskAccessToken(token);
+}
+
+async function requestCurrentProfileLink() {
+  const email = String(currentProfileData.email || "").trim().toLowerCase();
+  const button = document.getElementById("resendProfileButton");
+  const message = document.getElementById("message");
+
+  if (!email) {
+    message.innerText =
+      "Die registrierte E-Mail-Adresse ist noch nicht geladen.";
+    return;
+  }
+
+  const oldText = button.innerText;
+  button.disabled = true;
+  button.innerText = "⏳ Profil-Link wird gesendet...";
+
+  try {
+    const response = await fetch(
+      REQUEST_LINK_WEBHOOK_URL +
+      "?email=" +
+      encodeURIComponent(email),
+      {
+        method: "GET",
+        cache: "no-store"
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("HTTP-Fehler: " + response.status);
+    }
+
+    button.innerText = "✅ Profil-Link wurde gesendet";
+    message.innerText =
+      "Der persönliche Profil-Link wurde erneut an deine registrierte E-Mail-Adresse gesendet.";
+
+  } catch (error) {
+    console.error(error);
+    button.innerText = "❌ Versand fehlgeschlagen";
+    message.innerText =
+      "Der Profil-Link konnte nicht gesendet werden. Bitte versuche es erneut.";
+
+  } finally {
+    window.setTimeout(() => {
+      button.disabled = false;
+      button.innerText = oldText;
+    }, 2500);
+  }
+}
+
 function setBetInsightId(refCode) {
   const idElement = document.getElementById("betInsightId");
   const cleanRefCode = String(refCode || "").trim();
@@ -1345,13 +1515,22 @@ function buildReferralLink(data) {
   );
 }
 
-async function loadReferralData() {
+async function loadReferralData(showButtonFeedback = false) {
   const section = document.getElementById("referralSection");
   const status = document.getElementById("referralStatus");
   const linkBox = document.getElementById("referralLink");
+  const refreshButton =
+    document.getElementById("refreshReferralButton");
+  const oldRefreshText =
+    refreshButton ? refreshButton.innerText : "";
 
   if (!section || !status || !linkBox) {
     return;
+  }
+
+  if (showButtonFeedback && refreshButton) {
+    refreshButton.disabled = true;
+    refreshButton.innerText = "⏳ Daten werden geladen...";
   }
 
   section.style.display = "block";
@@ -1372,6 +1551,16 @@ async function loadReferralData() {
     setReferralNumber("referralLevel3", 0);
     setReferralNumber("referralUnits", 0);
     setReferralNumber("referralTotal", 0);
+
+    if (showButtonFeedback && refreshButton) {
+      refreshButton.innerText = "⚠️ Zugang noch nicht geladen";
+
+      window.setTimeout(() => {
+        refreshButton.disabled = false;
+        refreshButton.innerText = oldRefreshText;
+      }, 2200);
+    }
+
     return;
   }
 
@@ -1413,6 +1602,15 @@ async function loadReferralData() {
     status.innerText =
       "Deine Empfehlungsdaten wurden erfolgreich geladen.";
 
+    if (showButtonFeedback && refreshButton) {
+      refreshButton.innerText = "✅ Daten aktualisiert";
+
+      window.setTimeout(() => {
+        refreshButton.disabled = false;
+        refreshButton.innerText = oldRefreshText;
+      }, 2200);
+    }
+
   } catch (error) {
     console.error("Fehler beim Laden der Empfehlungsdaten:", error);
 
@@ -1422,6 +1620,15 @@ async function loadReferralData() {
 
     status.innerText =
       "Die Empfehlungsdaten konnten nicht geladen werden. Bitte prüfe die Make-Verbindung.";
+
+    if (showButtonFeedback && refreshButton) {
+      refreshButton.innerText = "❌ Aktualisierung fehlgeschlagen";
+
+      window.setTimeout(() => {
+        refreshButton.disabled = false;
+        refreshButton.innerText = oldRefreshText;
+      }, 2500);
+    }
   }
 }
 
@@ -1431,6 +1638,8 @@ async function copyReferralLink() {
   ).trim();
 
   const status = document.getElementById("referralStatus");
+  const button = document.getElementById("copyReferralButton");
+  const oldText = button ? button.innerText : "";
 
   if (
     !link ||
@@ -1441,15 +1650,39 @@ async function copyReferralLink() {
   ) {
     status.innerText =
       "Noch kein persönlicher Empfehlungslink verfügbar.";
+
+    if (button) {
+      button.innerText = "⚠️ Link noch nicht verfügbar";
+
+      window.setTimeout(() => {
+        button.innerText = oldText;
+      }, 2200);
+    }
+
     return;
   }
 
   try {
     await navigator.clipboard.writeText(link);
     status.innerText = "Empfehlungslink wurde kopiert.";
+
+    if (button) {
+      button.innerText = "✅ Link kopiert";
+    }
+
   } catch (error) {
     copyTextFallback(link);
     status.innerText = "Empfehlungslink wurde kopiert.";
+
+    if (button) {
+      button.innerText = "✅ Link kopiert";
+    }
+  }
+
+  if (button) {
+    window.setTimeout(() => {
+      button.innerText = oldText;
+    }, 2200);
   }
 }
 
@@ -1626,38 +1859,11 @@ function openReceivedProfileLink() {
 }
 
 function updateProfileLink(token) {
-  const link =
-    "https://betinsightclub.github.io/profil/?token=" +
-    encodeURIComponent(token);
-
-  document.getElementById("profileLink").value = link;
-}
-
-function copyProfileLink() {
-  const input = document.getElementById("profileLink");
-  const message = document.getElementById("message");
-
-  input.select();
-  input.setSelectionRange(0, 99999);
-
-  if (
-    navigator.clipboard &&
-    typeof navigator.clipboard.writeText === "function"
-  ) {
-    navigator.clipboard
-      .writeText(input.value)
-      .then(() => {
-        message.innerText = "Profil-Link wurde kopiert.";
-      })
-      .catch(() => {
-        document.execCommand("copy");
-        message.innerText = "Profil-Link wurde kopiert.";
-      });
-
-  } else {
-    document.execCommand("copy");
-    message.innerText = "Profil-Link wurde kopiert.";
-  }
+  /*
+    Der persönliche Profil-Link wird aus Sicherheitsgründen
+    nicht mehr sichtbar im Kundenprofil ausgegeben.
+  */
+  setMaskedToken(token);
 }
 
 function fetchProfileByToken(tokenVariants, index) {
@@ -1665,6 +1871,7 @@ function fetchProfileByToken(tokenVariants, index) {
     document.getElementById("units").innerText = "0";
     document.getElementById("email").innerText = "Nicht gefunden";
     setBetInsightId("");
+    setMaskedToken("");
 
     document.getElementById("message").innerText =
       "Zugangscode wurde nicht gefunden. Bitte fordere deinen Profil-Link erneut an.";
@@ -1713,6 +1920,7 @@ function fetchProfileByToken(tokenVariants, index) {
       document.getElementById("units").innerText = units;
       document.getElementById("email").innerText = data.email;
       setBetInsightId(refCode);
+      setMaskedToken(finalToken);
 
       document.getElementById("message").innerText =
         "Kontostand wurde aktualisiert.";
@@ -1755,6 +1963,7 @@ function loadUnits() {
     "Lade...";
 
   setBetInsightId("Lade...");
+  setMaskedToken("Lade...");
 
   document.getElementById("units").innerText =
     "0";
@@ -1894,8 +2103,8 @@ function forgetToken() {
   document.getElementById("message").innerText =
     "Zugangscode wurde auf diesem Gerät gelöscht.";
 
-  document.getElementById("profileLink").value = "";
   setBetInsightId("");
+  setMaskedToken("");
 
   currentProfileData = {
     email: "",
