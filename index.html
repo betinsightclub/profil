@@ -560,6 +560,94 @@ button:hover,
   line-height: 1.45;
 }
 
+
+/* Empfehlungscenter im Kundenprofil */
+
+.referral-section { margin-top: 22px; }
+.referral-panel { height: auto; }
+
+.referral-linkbox {
+  width: 100%;
+  min-height: 52px;
+  padding: 15px;
+  margin: 15px 0 12px;
+  background: rgba(0, 0, 0, 0.24);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1.45;
+  word-break: break-all;
+}
+
+.referral-actions,
+.referral-unit-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 11px;
+}
+
+.referral-stats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.referral-stat {
+  min-width: 0;
+  padding: 16px 10px;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.referral-value {
+  margin-bottom: 6px;
+  color: #00ffb3;
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.referral-label {
+  color: var(--text-soft);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.referral-status {
+  margin: 16px 0 0;
+  color: var(--warning);
+  font-size: 13px;
+  line-height: 1.45;
+  text-align: center;
+  white-space: pre-wrap;
+}
+
+.referral-unit-actions { margin-top: 14px; }
+
+body.privacy-active .referral-private {
+  filter: blur(7px);
+  user-select: none;
+  pointer-events: none;
+}
+
+@media (max-width: 900px) {
+  .referral-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .referral-actions,
+  .referral-unit-actions,
+  .referral-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Footer */
 
 .footer {
@@ -941,6 +1029,82 @@ button:hover,
 
   </section>
 
+  <section id="referralSection" class="referral-section" style="display:none;">
+
+    <section class="panel referral-panel">
+
+      <h2 class="panel-title">🔗 Mein Empfehlungscenter</h2>
+
+      <p class="panel-description">
+        Hier findest du deinen persönlichen Empfehlungslink,
+        deine Teamstatistik und deine Referral-Units.
+      </p>
+
+      <div id="referralLink" class="referral-linkbox referral-private">
+        Empfehlungsdaten werden geladen...
+      </div>
+
+      <div class="referral-actions">
+
+        <button class="btn-green" type="button" onclick="copyReferralLink()">
+          🔗 Empfehlungslink kopieren
+        </button>
+
+        <button class="btn-blue" type="button" onclick="loadReferralData()">
+          🔄 Empfehlungsdaten aktualisieren
+        </button>
+
+      </div>
+
+      <div class="referral-stats">
+
+        <div class="referral-stat">
+          <div id="referralDirect" class="referral-value referral-private">0</div>
+          <div class="referral-label">Direkte Partner</div>
+        </div>
+
+        <div class="referral-stat">
+          <div id="referralLevel2" class="referral-value referral-private">0</div>
+          <div class="referral-label">Ebene 2</div>
+        </div>
+
+        <div class="referral-stat">
+          <div id="referralLevel3" class="referral-value referral-private">0</div>
+          <div class="referral-label">Ebene 3</div>
+        </div>
+
+        <div class="referral-stat">
+          <div id="referralUnits" class="referral-value referral-private">0</div>
+          <div class="referral-label">Referral Units</div>
+        </div>
+
+        <div class="referral-stat">
+          <div id="referralTotal" class="referral-value referral-private">0</div>
+          <div class="referral-label">Gesamt Referral</div>
+        </div>
+
+      </div>
+
+      <div class="referral-unit-actions">
+
+        <button class="btn-green" type="button" onclick="referralUnitsToAccount()">
+          ⭐ Units aufs Konto buchen
+        </button>
+
+        <button class="btn-orange" type="button" onclick="requestReferralPayout()">
+          💰 Auszahlung vorbereiten
+        </button>
+
+      </div>
+
+      <div id="referralStatus" class="referral-status">
+        Verbindung zum Empfehlungscenter wird vorbereitet...
+      </div>
+
+    </section>
+
+  </section>
+
   <section id="requestBox" class="request-box">
 
     <div class="request-header">
@@ -1048,13 +1212,18 @@ const PROFILE_WEBHOOK_URL =
 const REQUEST_LINK_WEBHOOK_URL =
   "https://hook.eu1.make.com/me8q6ptfnno6qfji4s6348rw6f47i3t5";
 
+const EMPFEHLUNGEN_WEBHOOK_URL =
+  "https://hook.eu1.make.com/j883clzukqghxg9iiq91wxetue9wgoul";
+
 const TOKEN_STORAGE_KEY = "betinsight_profile_token";
 
 let privacyModeActive = false;
 let currentProfileData = {
   email: "",
   units: 0,
-  refCode: ""
+  refCode: "",
+  dashboardToken: "",
+  refLink: ""
 };
 
 function setBetInsightId(refCode) {
@@ -1136,6 +1305,164 @@ function togglePrivacyMode() {
   }
 }
 
+
+function setReferralNumber(elementId, value) {
+  const element = document.getElementById(elementId);
+
+  if (!element) {
+    return;
+  }
+
+  if (value === undefined || value === null || value === "") {
+    element.innerText = "0";
+    return;
+  }
+
+  element.innerText = String(value);
+}
+
+function buildReferralLink(data) {
+  if (data && data.ref_link && String(data.ref_link).trim() !== "") {
+    return String(data.ref_link).trim();
+  }
+
+  if (currentProfileData.refLink) {
+    return String(currentProfileData.refLink).trim();
+  }
+
+  const refCode =
+    data && data.ref_code
+      ? String(data.ref_code).trim()
+      : String(currentProfileData.refCode || "").trim();
+
+  if (!refCode) {
+    return "";
+  }
+
+  return (
+    "https://betinsightclub.github.io/profil/ref/?ref=" +
+    encodeURIComponent(refCode)
+  );
+}
+
+async function loadReferralData() {
+  const section = document.getElementById("referralSection");
+  const status = document.getElementById("referralStatus");
+  const linkBox = document.getElementById("referralLink");
+
+  if (!section || !status || !linkBox) {
+    return;
+  }
+
+  section.style.display = "block";
+
+  const dashboardToken =
+    String(currentProfileData.dashboardToken || "").trim();
+
+  if (!dashboardToken) {
+    linkBox.innerText =
+      buildReferralLink({}) ||
+      "Persönlicher Empfehlungslink wird noch vorbereitet.";
+
+    status.innerText =
+      "Für die Teamstatistik muss Make noch den dashboard_token an das Profil übergeben.";
+
+    setReferralNumber("referralDirect", 0);
+    setReferralNumber("referralLevel2", 0);
+    setReferralNumber("referralLevel3", 0);
+    setReferralNumber("referralUnits", 0);
+    setReferralNumber("referralTotal", 0);
+    return;
+  }
+
+  status.innerText = "Empfehlungsdaten werden geladen...";
+
+  try {
+    const url =
+      EMPFEHLUNGEN_WEBHOOK_URL +
+      "?id=" +
+      encodeURIComponent(dashboardToken);
+
+    const response = await fetch(url, {
+      method: "GET",
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error("HTTP-Fehler: " + response.status);
+    }
+
+    const data = await response.json();
+
+    if (!data || typeof data !== "object") {
+      throw new Error("Keine gültigen Empfehlungsdaten erhalten.");
+    }
+
+    const referralLink = buildReferralLink(data);
+
+    linkBox.innerText =
+      referralLink ||
+      "Kein persönlicher Empfehlungslink gefunden.";
+
+    setReferralNumber("referralDirect", data.direkte);
+    setReferralNumber("referralLevel2", data.ebene2);
+    setReferralNumber("referralLevel3", data.ebene3);
+    setReferralNumber("referralUnits", data.units);
+    setReferralNumber("referralTotal", data.gesamt);
+
+    status.innerText =
+      "Deine Empfehlungsdaten wurden erfolgreich geladen.";
+
+  } catch (error) {
+    console.error("Fehler beim Laden der Empfehlungsdaten:", error);
+
+    linkBox.innerText =
+      buildReferralLink({}) ||
+      "Empfehlungslink derzeit nicht verfügbar.";
+
+    status.innerText =
+      "Die Empfehlungsdaten konnten nicht geladen werden. Bitte prüfe die Make-Verbindung.";
+  }
+}
+
+async function copyReferralLink() {
+  const link = String(
+    document.getElementById("referralLink").innerText || ""
+  ).trim();
+
+  const status = document.getElementById("referralStatus");
+
+  if (
+    !link ||
+    link.includes("vorbereitet") ||
+    link.includes("nicht verfügbar") ||
+    link.includes("nicht gefunden") ||
+    link.includes("geladen")
+  ) {
+    status.innerText =
+      "Noch kein persönlicher Empfehlungslink verfügbar.";
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(link);
+    status.innerText = "Empfehlungslink wurde kopiert.";
+  } catch (error) {
+    copyTextFallback(link);
+    status.innerText = "Empfehlungslink wurde kopiert.";
+  }
+}
+
+function referralUnitsToAccount() {
+  document.getElementById("referralStatus").innerText =
+    "Diese Funktion wird später mit dem Referral-Ledger in Make verbunden.";
+}
+
+function requestReferralPayout() {
+  document.getElementById("referralStatus").innerText =
+    "Die Auszahlung wird später über den getrennten Auszahlungsbereich vorbereitet.";
+}
+
 function getTokenFromUrl() {
   const params = new URLSearchParams(window.location.search);
   return params.get("token");
@@ -1194,12 +1521,14 @@ function showProfileBox() {
   document.getElementById("profileBox").style.display = "block";
   document.getElementById("requestBox").style.display = "none";
   document.getElementById("headerUnitsBox").style.display = "";
+  document.getElementById("referralSection").style.display = "block";
 }
 
 function showRequestBox() {
   document.getElementById("profileBox").style.display = "none";
   document.getElementById("requestBox").style.display = "block";
   document.getElementById("headerUnitsBox").style.display = "none";
+  document.getElementById("referralSection").style.display = "none";
 }
 
 function setUnitColor(units) {
@@ -1365,11 +1694,17 @@ function fetchProfileByToken(tokenVariants, index) {
       const finalToken = data.token || tokenToTry;
       const units = parseInt(data.units, 10) || 0;
       const refCode = String(data.ref_code || "").trim();
+      const dashboardToken =
+        String(data.dashboard_token || "").trim();
+      const refLink =
+        String(data.ref_link || "").trim();
 
       currentProfileData = {
         email: data.email || "",
         units: units,
-        refCode: refCode
+        refCode: refCode,
+        dashboardToken: dashboardToken,
+        refLink: refLink
       };
 
       saveToken(finalToken);
@@ -1384,13 +1719,15 @@ function fetchProfileByToken(tokenVariants, index) {
 
       setUnitColor(units);
       updateProfileLink(finalToken);
+      loadReferralData();
 
       setDebug(
         "Debug: Token aktiv: " + finalToken +
         " | API Token: " + (data.token || "leer") +
         " | API E-Mail: " + (data.email || "leer") +
         " | API Units: " + (data.units || "0") +
-        " | API Ref-Code: " + (data.ref_code || "leer")
+        " | API Ref-Code: " + (data.ref_code || "leer") +
+        " | API Dashboard-Token: " + (data.dashboard_token || "leer")
       );
     })
 
@@ -1559,6 +1896,22 @@ function forgetToken() {
 
   document.getElementById("profileLink").value = "";
   setBetInsightId("");
+
+  currentProfileData = {
+    email: "",
+    units: 0,
+    refCode: "",
+    dashboardToken: "",
+    refLink: ""
+  };
+
+  document.getElementById("referralLink").innerText =
+    "Empfehlungsdaten werden geladen...";
+  setReferralNumber("referralDirect", 0);
+  setReferralNumber("referralLevel2", 0);
+  setReferralNumber("referralLevel3", 0);
+  setReferralNumber("referralUnits", 0);
+  setReferralNumber("referralTotal", 0);
 
   privacyModeActive = false;
   document.body.classList.remove("privacy-active");
