@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>BetInsight Profil</title>
+<title>BetInsight Profil & Empfehlungscenter</title>
 
 <style>
 * {
@@ -350,18 +350,48 @@ h1 {
     opacity 0.18s ease;
 }
 
-body.privacy-active .private-value {
-  filter: blur(7px);
+/* Privatsphäre wirkt nur auf wirklich sensible Zeilen.
+   Empfehlungslink, Partnerzahlen, Referral-Werte und Units bleiben sichtbar. */
+.profile-private-hidden {
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-private-hidden::after {
+  content: "E-Mail geschützt";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: inherit;
+  background: rgba(0, 0, 0, 0.96);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  border-radius: inherit;
+  user-select: none;
+}
+
+.access-private-hidden {
+  color: transparent !important;
+  text-shadow: none !important;
   user-select: none;
   pointer-events: none;
 }
 
-body.privacy-active #units.private-value {
-  filter: blur(9px);
+.access-private-hidden::selection {
+  background: transparent;
 }
 
-body.privacy-active .profile-link-group {
-  display: none;
+.privacy-status {
+  min-height: 18px;
+  margin: 0 0 14px;
+  color: #00ffb3;
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: center;
 }
 
 .profile-link-group {
@@ -699,11 +729,6 @@ button:hover,
 
 .referral-unit-actions { margin-top: 14px; }
 
-body.privacy-active .referral-private {
-  filter: blur(7px);
-  user-select: none;
-  pointer-events: none;
-}
 
 @media (max-width: 900px) {
   .referral-stats {
@@ -911,7 +936,7 @@ body.privacy-active .referral-private {
         Aktuelle Units
       </span>
 
-      <span id="units" class="private-value">0</span>
+      <span id="units">0</span>
 
     </div>
 
@@ -932,6 +957,25 @@ body.privacy-active .referral-private {
           <p class="panel-description">
             Dein persönlicher Zugang wird sicher auf diesem Gerät
             gespeichert. Der geheime Profil-Link wird nicht offen angezeigt.
+          </p>
+
+          <button
+            id="privacyButton"
+            class="btn-gray privacy-button"
+            type="button"
+            onclick="togglePrivacyMode()"
+          >
+            🔒 Privatsphäre aktivieren
+          </button>
+
+          <p id="privacyStatus" class="privacy-status">
+            E-Mail und persönlicher Zugang sind sichtbar.
+          </p>
+
+          <p class="privacy-note">
+            Bei aktivierter Privatsphäre werden nur die E-Mail-Adresse und
+            der persönliche Zugang vollständig unleserlich. BetInsight-ID,
+            Units, Empfehlungslink und Netzwerkzahlen bleiben sichtbar.
           </p>
 
           <div class="account-data">
@@ -960,13 +1004,13 @@ body.privacy-active .referral-private {
 
             </div>
 
-            <div class="data-row">
+            <div id="emailDataRow" class="data-row">
 
               <span class="data-label">
                 E-Mail
               </span>
 
-              <span id="email" class="data-value private-value">
+              <span id="email" class="data-value">
                 Lade...
               </span>
 
@@ -1000,7 +1044,7 @@ body.privacy-active .referral-private {
 
             </div>
 
-            <div id="maskedToken" class="masked-token private-value">
+            <div id="maskedToken" class="masked-token">
               Wird geladen...
             </div>
 
@@ -1039,21 +1083,6 @@ body.privacy-active .referral-private {
 
           <p class="panel-description">
             Öffne deine Tipps, Freischaltungen oder den Kaufbereich.
-          </p>
-
-          <button
-            id="privacyButton"
-            class="btn-gray privacy-button"
-            type="button"
-            onclick="togglePrivacyMode()"
-          >
-            🔒 Privatsphäre-Modus aktivieren
-          </button>
-
-          <p class="privacy-note">
-            Blendet die E-Mail, den Unit-Bestand und den persönlichen
-            Profil-Link für Screenshots oder Übertragungen aus.
-            Deine BetInsight-ID bleibt sichtbar.
           </p>
 
           <div class="action-grid">
@@ -1173,12 +1202,12 @@ body.privacy-active .referral-private {
 
         <div class="referral-stat">
           <div id="referralUnits" class="referral-value referral-private">0</div>
-          <div class="referral-label">Referral Units</div>
+          <div class="referral-label">Freigegebene Referral Units</div>
         </div>
 
         <div class="referral-stat">
           <div id="referralTotal" class="referral-value referral-private">0</div>
-          <div class="referral-label">Gesamt Referral</div>
+          <div class="referral-label">Gesamtes Netzwerk</div>
         </div>
 
       </div>
@@ -1345,6 +1374,13 @@ function setMaskedToken(token) {
     return;
   }
 
+  if (privacyModeActive) {
+    element.classList.add("access-private-hidden");
+    element.innerText = "Persönlicher Zugang geschützt";
+    return;
+  }
+
+  element.classList.remove("access-private-hidden");
   element.innerText = maskAccessToken(token);
 }
 
@@ -1449,29 +1485,51 @@ function copyTextFallback(text) {
 function togglePrivacyMode() {
   privacyModeActive = !privacyModeActive;
 
-  document.body.classList.toggle(
-    "privacy-active",
-    privacyModeActive
-  );
-
+  const emailRow = document.getElementById("emailDataRow");
+  const maskedToken = document.getElementById("maskedToken");
   const button = document.getElementById("privacyButton");
+  const status = document.getElementById("privacyStatus");
   const message = document.getElementById("message");
 
   if (privacyModeActive) {
-    button.innerText = "🔓 Daten wieder anzeigen";
+    if (emailRow) {
+      emailRow.classList.add("profile-private-hidden");
+    }
+
+    if (maskedToken) {
+      maskedToken.classList.add("access-private-hidden");
+      maskedToken.innerText = "Persönlicher Zugang geschützt";
+    }
+
+    button.innerText = "🔓 Privatsphäre deaktivieren";
     button.classList.remove("btn-gray");
     button.classList.add("btn-green");
 
+    status.innerText =
+      "🔒 Privatsphäre aktiv – E-Mail und persönlicher Zugang sind geschützt.";
+
     message.innerText =
-      "Privatsphäre-Modus ist aktiv. Persönliche Daten und Beträge sind ausgeblendet.";
+      "Privatsphäre ist aktiv. Nur sensible Profildaten wurden ausgeblendet.";
 
   } else {
-    button.innerText = "🔒 Privatsphäre-Modus aktivieren";
+    if (emailRow) {
+      emailRow.classList.remove("profile-private-hidden");
+    }
+
+    if (maskedToken) {
+      maskedToken.classList.remove("access-private-hidden");
+      setMaskedToken(getActiveToken());
+    }
+
+    button.innerText = "🔒 Privatsphäre aktivieren";
     button.classList.remove("btn-green");
     button.classList.add("btn-gray");
 
+    status.innerText =
+      "E-Mail und persönlicher Zugang sind sichtbar.";
+
     message.innerText =
-      "Privatsphäre-Modus wurde beendet.";
+      "Privatsphäre wurde deaktiviert.";
   }
 }
 
@@ -2123,14 +2181,29 @@ function forgetToken() {
   setReferralNumber("referralTotal", 0);
 
   privacyModeActive = false;
-  document.body.classList.remove("privacy-active");
 
+  const emailRow = document.getElementById("emailDataRow");
+  const maskedToken = document.getElementById("maskedToken");
   const privacyButton = document.getElementById("privacyButton");
+  const privacyStatus = document.getElementById("privacyStatus");
+
+  if (emailRow) {
+    emailRow.classList.remove("profile-private-hidden");
+  }
+
+  if (maskedToken) {
+    maskedToken.classList.remove("access-private-hidden");
+  }
 
   if (privacyButton) {
-    privacyButton.innerText = "🔒 Privatsphäre-Modus aktivieren";
+    privacyButton.innerText = "🔒 Privatsphäre aktivieren";
     privacyButton.classList.remove("btn-green");
     privacyButton.classList.add("btn-gray");
+  }
+
+  if (privacyStatus) {
+    privacyStatus.innerText =
+      "E-Mail und persönlicher Zugang sind sichtbar.";
   }
 
   setUnitColor(0);
