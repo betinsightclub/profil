@@ -12,27 +12,29 @@
 }
 
 :root {
-  --background-dark: #04131c;
-  --background-middle: #071d2b;
-  --background-top: #061923;
+  --bg-1: #061923;
+  --bg-2: #071d2b;
+  --bg-3: #04131c;
 
-  --panel: rgba(5, 59, 82, 0.78);
-  --panel-light: rgba(7, 78, 105, 0.72);
+  --panel: rgba(11, 37, 53, 0.96);
+  --panel-soft: rgba(15, 45, 63, 0.94);
+  --panel-deep: rgba(7, 29, 42, 0.98);
 
-  --border: rgba(35, 190, 255, 0.36);
-  --border-strong: rgba(35, 190, 255, 0.60);
-
-  --blue: #159cff;
-  --cyan: #00c8ff;
-  --green: #08ae78;
-  --orange: #d88916;
-  --red: #a93d3d;
-  --gray: #657f91;
+  --border: rgba(80, 168, 214, 0.24);
+  --border-strong: rgba(0, 217, 166, 0.40);
 
   --text: #ffffff;
-  --text-soft: #ccefff;
-  --text-muted: #9fc5d8;
-  --warning: #ffcc00;
+  --text-soft: #c9e6f4;
+  --text-muted: #84a9bc;
+
+  --blue: #1d9bf0;
+  --cyan: #16c7f3;
+  --green: #11d6a0;
+  --green-dark: #08aa7e;
+  --orange: #f1a313;
+  --red: #c94a4a;
+  --gray: #72899a;
+  --yellow: #ffcf33;
 }
 
 html {
@@ -42,20 +44,11 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background:
-    radial-gradient(
-      circle at top,
-      rgba(0, 200, 255, 0.12),
-      transparent 34%
-    ),
-    linear-gradient(
-      180deg,
-      var(--background-top) 0%,
-      var(--background-middle) 48%,
-      var(--background-dark) 100%
-    );
   color: var(--text);
   font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(circle at top, rgba(0, 200, 255, 0.11), transparent 34%),
+    linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
 }
 
 button,
@@ -65,19 +58,21 @@ a {
 }
 
 button {
-  border: none;
+  border: 0;
 }
 
-/* Schwebender Zurück-Button */
+.page {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 24px 22px 100px;
+}
 
 .floating-back-button {
   position: fixed;
   left: 18px;
   bottom: 18px;
   z-index: 10000;
-
-  width: auto;
-  max-width: 310px;
 
   display: inline-flex;
   align-items: center;
@@ -86,67 +81,45 @@ button {
 
   min-height: 48px;
   padding: 12px 20px;
-
-  border: 1px solid rgba(255, 255, 255, 0.20);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 999px;
 
-  background:
-    linear-gradient(
-      90deg,
-      #168aff,
-      #00b8ff
-    );
-
+  background: linear-gradient(90deg, #168aff, #00b8ff);
   color: #ffffff;
-  text-decoration: none;
   font-size: 15px;
-  font-weight: 700;
-
+  font-weight: 800;
   cursor: pointer;
 
   box-shadow:
     0 12px 30px rgba(0, 174, 255, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.20);
 
-  transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
 .floating-back-button:hover {
   transform: translateY(-2px);
-
   box-shadow:
     0 16px 34px rgba(0, 174, 255, 0.44),
     inset 0 1px 0 rgba(255, 255, 255, 0.20);
 }
 
-/* Hauptseite */
+/* Kopf */
 
-.page {
-  width: 100%;
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 24px 22px 88px;
-}
-
-/* Kopfbereich */
-
-.profile-header {
+.dashboard-header {
   display: grid;
   grid-template-columns: auto 1fr auto;
+  gap: 18px;
   align-items: center;
-  gap: 20px;
 
-  width: 100%;
-  margin-bottom: 22px;
-  padding: 15px 20px;
+  margin-bottom: 20px;
+  padding: 18px 20px;
 
-  background: rgba(3, 39, 55, 0.62);
-  border: 1px solid rgba(35, 190, 255, 0.22);
+  background: rgba(8, 31, 45, 0.92);
+  border: 1px solid var(--border);
   border-radius: 18px;
 
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
 }
 
 .logo {
@@ -156,125 +129,156 @@ button {
   display: block;
 }
 
-.profile-title-area {
+.header-main {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 13px;
   min-width: 0;
 }
 
-.avatar {
-  flex: 0 0 auto;
-  font-size: 44px;
+.header-icon {
+  font-size: 42px;
   line-height: 1;
-  color: var(--blue);
 }
 
-.title-text {
-  min-width: 0;
-}
-
-h1 {
+.header-copy h1 {
   margin: 0;
-  font-size: 27px;
-  line-height: 1.2;
+  font-size: 28px;
+  line-height: 1.15;
 }
 
-.header-subtitle {
+.header-copy p {
   margin: 5px 0 0;
   color: var(--text-muted);
   font-size: 14px;
 }
 
-.header-units {
-  min-width: 174px;
-  padding: 10px 16px;
-  text-align: center;
-
-  background: rgba(0, 0, 0, 0.20);
+.header-balance {
+  min-width: 165px;
+  padding: 11px 16px;
   border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: 14px;
+  background: rgba(0, 0, 0, 0.22);
+  text-align: center;
 }
 
-.header-units-label {
+.header-balance-label {
   display: block;
-  margin-bottom: 2px;
   color: var(--text-soft);
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 #units {
   display: block;
+  margin-top: 3px;
   font-size: 36px;
   line-height: 1;
-  font-weight: 800;
+  font-weight: 900;
   color: lime;
 }
 
-/* Sichtbare Bereiche */
+/* Allgemeine Panels */
 
-.request-box,
-.profile-box {
-  display: none;
+.panel {
+  background: linear-gradient(180deg, var(--panel-soft), var(--panel));
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow:
+    0 16px 36px rgba(0, 0, 0, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  overflow: hidden;
 }
 
-/* Profilansicht */
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 
-.profile-dashboard {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
-  gap: 22px;
-  align-items: stretch;
+  padding: 15px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.dashboard-column {
+.panel-head-copy {
   min-width: 0;
 }
 
-.panel {
-  height: 100%;
-  padding: 22px;
-
-  background:
-    linear-gradient(
-      180deg,
-      var(--panel-light),
-      var(--panel)
-    );
-
-  border: 1px solid var(--border);
-  border-radius: 18px;
-
-  box-shadow:
-    0 16px 36px rgba(0, 0, 0, 0.27),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-
 .panel-title {
-  margin: 0 0 8px;
-  color: #00ffb3;
-  font-size: 19px;
+  margin: 0;
+  color: #ffffff;
+  font-size: 18px;
+  line-height: 1.25;
 }
 
-.panel-description {
-  margin: 0 0 17px;
-  color: var(--text-soft);
-  font-size: 14px;
-  line-height: 1.5;
+.panel-title-accent {
+  color: var(--green);
+}
+
+.panel-subtitle {
+  margin: 3px 0 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.panel-body {
+  padding: 18px;
+}
+
+.privacy-toggle {
+  flex: 0 0 auto;
+  width: auto;
+  min-height: 36px;
+  padding: 8px 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 10px;
+
+  background: rgba(0, 0, 0, 0.18);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.privacy-toggle.active {
+  border-color: rgba(17, 214, 160, 0.42);
+  background: rgba(17, 214, 160, 0.13);
+  color: var(--green);
+}
+
+/* Profilbereich */
+
+.profile-box,
+.request-box {
+  display: none;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(340px, 0.92fr);
+  gap: 20px;
+  align-items: stretch;
+  margin-bottom: 20px;
+}
+
+.profile-grid > .panel {
+  min-height: 100%;
 }
 
 .account-data {
   display: grid;
-  gap: 12px;
-  margin-bottom: 18px;
+  gap: 10px;
 }
 
 .data-row {
   display: grid;
-  grid-template-columns: 110px 1fr;
-  align-items: center;
+  grid-template-columns: 120px minmax(0, 1fr);
   gap: 12px;
+  align-items: center;
 
+  min-height: 48px;
   padding: 11px 13px;
 
   background: rgba(0, 0, 0, 0.17);
@@ -285,126 +289,45 @@ h1 {
 .data-label {
   color: var(--text-muted);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .data-value {
   min-width: 0;
   color: #ffffff;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 800;
   overflow-wrap: anywhere;
 }
 
-.id-value-group {
+.id-line {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  min-width: 0;
-}
-
-.id-value-group .data-value {
-  flex: 1 1 auto;
 }
 
 #betInsightId {
-  color: #00ffb3;
+  color: var(--green);
   font-size: 18px;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
 }
 
 .inline-copy-button {
   flex: 0 0 auto;
   width: auto;
-  min-width: 112px;
-  min-height: 36px;
+  min-height: 34px;
   padding: 8px 11px;
   border-radius: 8px;
-  background:
-    linear-gradient(
-      90deg,
-      #5e788a,
-      #738fa1
-    );
+  background: linear-gradient(90deg, #627f92, #7894a6);
   color: #ffffff;
   font-size: 12px;
-  font-weight: 700;
-}
-
-.privacy-button {
-  margin-bottom: 11px;
-}
-
-.privacy-note {
-  margin: 0 0 14px;
-  color: var(--text-muted);
-  font-size: 12px;
-  line-height: 1.45;
-  text-align: center;
-}
-
-.private-value {
-  transition:
-    filter 0.18s ease,
-    opacity 0.18s ease;
-}
-
-/* Privatsphäre wirkt nur auf wirklich sensible Zeilen.
-   Empfehlungslink, Partnerzahlen, Referral-Werte und Units bleiben sichtbar. */
-.profile-private-hidden {
-  position: relative;
-  overflow: hidden;
-}
-
-.profile-private-hidden::after {
-  content: "E-Mail geschützt";
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: inherit;
-  background: rgba(0, 0, 0, 0.96);
-  color: #ffffff;
-  font-size: 13px;
   font-weight: 800;
-  letter-spacing: 0.3px;
-  border-radius: inherit;
-  user-select: none;
+  cursor: pointer;
 }
 
-.access-private-hidden {
-  color: transparent !important;
-  text-shadow: none !important;
-  user-select: none;
-  pointer-events: none;
-}
-
-.access-private-hidden::selection {
-  background: transparent;
-}
-
-.privacy-status {
-  min-height: 18px;
-  margin: 0 0 14px;
-  color: #00ffb3;
-  font-size: 12px;
-  line-height: 1.45;
-  text-align: center;
-}
-
-.profile-link-group {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px;
-  align-items: center;
-}
-
-.secure-access-box {
-  display: grid;
-  gap: 10px;
-  margin-top: 4px;
+.secure-access {
+  margin-top: 12px;
   padding: 14px;
 
   background: rgba(0, 0, 0, 0.17);
@@ -417,84 +340,174 @@ h1 {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  margin-bottom: 10px;
 }
 
 .secure-access-title {
   color: var(--text-soft);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .secure-access-status {
-  color: #00ffb3;
-  font-size: 13px;
-  font-weight: 800;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .masked-token {
   padding: 11px 13px;
-
-  background: rgba(0, 0, 0, 0.22);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 9px;
-
+  background: rgba(0, 0, 0, 0.24);
   color: #ffffff;
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 1px;
   text-align: center;
 }
 
 .secure-access-note {
-  margin: 0;
+  margin: 10px 0 0;
   color: var(--text-muted);
   font-size: 12px;
   line-height: 1.45;
   text-align: center;
 }
 
-.resend-link-button {
-  min-height: 43px;
+.privacy-note {
+  margin: 12px 0 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
-body.privacy-active .masked-token {
-  filter: blur(7px);
+.message {
+  min-height: 19px;
+  margin: 12px 0 0;
+  color: var(--yellow);
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: center;
+  white-space: pre-wrap;
+}
+
+/* Datenschutz nur auf sensiblen Zeilen */
+
+.private-row-hidden {
+  position: relative;
+  overflow: hidden;
+}
+
+.private-row-hidden::after {
+  content: "E-Mail geschützt";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+
+  padding: 11px 13px;
+  border-radius: inherit;
+
+  background: rgba(4, 20, 29, 0.98);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+}
+
+.private-token-hidden {
+  color: transparent !important;
+  text-shadow: none !important;
   user-select: none;
   pointer-events: none;
+  position: relative;
 }
 
-input {
-  width: 100%;
-  min-height: 47px;
-  padding: 12px 14px;
+.private-token-hidden::after {
+  content: "Persönlicher Zugang geschützt";
+  position: absolute;
+  inset: 0;
 
-  border: 2px solid var(--blue);
-  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  background: #ffffff;
-  color: #17242c;
-
-  font-size: 14px;
-  text-align: center;
-
-  outline: none;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0;
 }
 
-input:focus {
-  border-color: var(--cyan);
-
-  box-shadow:
-    0 0 0 3px rgba(0, 200, 255, 0.16);
+.private-value-hidden {
+  color: transparent !important;
+  text-shadow: none !important;
+  user-select: none;
+  pointer-events: none;
+  position: relative;
 }
 
-.profile-link-group input {
-  min-width: 0;
+.private-value-hidden::after {
+  content: "Geschützt";
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 900;
 }
 
-.action-grid {
+/* Kontostand und Aktionen */
+
+.account-summary {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.account-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 11px;
+}
+
+.account-stat {
+  min-height: 105px;
+  padding: 14px;
+
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 13px;
+}
+
+.account-stat-label {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.account-stat-value {
+  margin-top: 9px;
+  font-size: 29px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.value-blue { color: #3ca8ff; }
+.value-green { color: var(--green); }
+.value-orange { color: var(--orange); }
+.value-cyan { color: var(--cyan); }
+
+.account-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
 button,
@@ -505,24 +518,18 @@ button,
   gap: 7px;
 
   width: 100%;
-  min-height: 47px;
-  padding: 12px 14px;
+  min-height: 46px;
+  padding: 11px 13px;
 
   border-radius: 10px;
-
   color: #ffffff;
   text-decoration: none;
   text-align: center;
-
-  font-size: 14px;
-  font-weight: 700;
-
+  font-size: 13px;
+  font-weight: 800;
   cursor: pointer;
 
-  transition:
-    transform 0.16s ease,
-    filter 0.16s ease,
-    box-shadow 0.16s ease;
+  transition: transform 0.16s ease, filter 0.16s ease;
 }
 
 button:hover,
@@ -532,84 +539,256 @@ button:hover,
 }
 
 .btn-blue {
-  background:
-    linear-gradient(
-      90deg,
-      #168aff,
-      #00b8ff
-    );
-
-  box-shadow: 0 9px 20px rgba(0, 174, 255, 0.22);
+  background: linear-gradient(90deg, #168aff, #00b8ff);
 }
 
 .btn-green {
-  background:
-    linear-gradient(
-      90deg,
-      #079e6b,
-      #08b77d
-    );
-
-  box-shadow: 0 9px 20px rgba(8, 174, 120, 0.20);
+  background: linear-gradient(90deg, #08aa7e, #13c792);
 }
 
 .btn-orange {
-  background: var(--orange);
+  background: linear-gradient(90deg, #df8e0c, #f2a514);
 }
 
 .btn-red {
-  background:
-    linear-gradient(
-      90deg,
-      #963232,
-      #b44747
-    );
+  background: linear-gradient(90deg, #a83b3b, #c94a4a);
 }
 
 .btn-gray {
-  background:
-    linear-gradient(
-      90deg,
-      #5e788a,
-      #738fa1
-    );
+  background: linear-gradient(90deg, #627f92, #7894a6);
 }
 
-.copy-button {
-  width: auto;
-  min-width: 168px;
-  white-space: nowrap;
-}
-
-.message {
-  min-height: 20px;
-  margin: 13px 0 0;
-
-  color: var(--warning);
-  font-size: 13px;
-  line-height: 1.4;
-  text-align: center;
-  white-space: pre-wrap;
-}
-
-.security-area {
-  margin-top: 17px;
-  padding-top: 16px;
-
-  border-top: 1px solid rgba(255, 255, 255, 0.14);
+.security-box {
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
 }
 
 .small-warning {
   margin: 0 0 10px;
-
-  color: var(--warning);
-  font-size: 12px;
+  color: var(--yellow);
+  font-size: 11px;
   line-height: 1.45;
   text-align: center;
 }
 
-.delete-button {
-  max-width: 100%;
+/* Empfehlungscenter */
+
+.referral-section {
+  display: none;
+}
+
+.referral-overview {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.referral-stat {
+  min-height: 108px;
+  padding: 14px;
+
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 13px;
+}
+
+.referral-stat-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.referral-stat-value {
+  margin-top: 10px;
+  color: #ffffff;
+  font-size: 29px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.referral-stat-note {
+  margin-top: 6px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.referral-link-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  margin-top: 13px;
+}
+
+.referral-linkbox {
+  min-height: 48px;
+  padding: 13px 14px;
+
+  background: rgba(0, 0, 0, 0.24);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 10px;
+
+  color: #ffffff;
+  font-size: 13px;
+  line-height: 1.45;
+  word-break: break-all;
+}
+
+.referral-link-row button {
+  width: auto;
+  min-width: 150px;
+}
+
+/* Struktur und Umsätze */
+
+.structure-panel {
+  margin-top: 20px;
+}
+
+.level-list {
+  display: grid;
+  gap: 12px;
+}
+
+.level-card {
+  border: 1px solid rgba(17, 214, 160, 0.26);
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(6, 31, 44, 0.76);
+}
+
+.level-head {
+  display: grid;
+  grid-template-columns: auto minmax(180px, 1.2fr) repeat(4, minmax(90px, 0.7fr)) auto;
+  gap: 14px;
+  align-items: center;
+
+  padding: 13px 14px;
+  cursor: pointer;
+}
+
+.level-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+
+  background: rgba(17, 214, 160, 0.12);
+  border: 1px solid rgba(17, 214, 160, 0.30);
+  color: var(--green);
+  font-weight: 900;
+}
+
+.level-name {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.level-metric {
+  min-width: 0;
+}
+
+.level-metric-label {
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.level-metric-value {
+  margin-top: 4px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.level-arrow {
+  color: #ffffff;
+  font-size: 18px;
+  transition: transform 0.2s ease;
+}
+
+.level-card.open .level-arrow {
+  transform: rotate(180deg);
+}
+
+.level-body {
+  display: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.level-card.open .level-body {
+  display: block;
+}
+
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.network-table {
+  width: 100%;
+  min-width: 880px;
+  border-collapse: collapse;
+}
+
+.network-table th,
+.network-table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  text-align: left;
+}
+
+.network-table th {
+  background: rgba(0, 0, 0, 0.18);
+  color: var(--text-muted);
+  font-size: 10px;
+  letter-spacing: 0.35px;
+  text-transform: uppercase;
+}
+
+.network-table td {
+  color: #ffffff;
+  font-size: 12px;
+}
+
+.network-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.partner-id {
+  color: #3ca8ff;
+  font-weight: 900;
+}
+
+.empty-row {
+  padding: 18px !important;
+  color: var(--text-muted) !important;
+  text-align: center !important;
+}
+
+.referral-footer-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.referral-status {
+  min-height: 19px;
+  margin: 12px 0 0;
+  color: var(--yellow);
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: center;
+  white-space: pre-wrap;
 }
 
 /* Profil-Link anfordern */
@@ -635,116 +814,32 @@ button:hover,
 .request-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 22px;
-  align-items: stretch;
+  gap: 20px;
 }
 
-.request-panel {
-  display: flex;
-  flex-direction: column;
+input {
+  width: 100%;
+  min-height: 47px;
+  padding: 12px 14px;
+
+  border: 2px solid var(--blue);
+  border-radius: 10px;
+
+  background: #ffffff;
+  color: #17242c;
+  font-size: 14px;
+  text-align: center;
+  outline: none;
 }
 
 .request-panel input {
-  margin-top: auto;
-  margin-bottom: 11px;
+  margin: 10px 0;
 }
 
 .request-actions {
   display: grid;
   gap: 10px;
 }
-
-.request-help {
-  margin: 15px 0 8px;
-  color: var(--text-muted);
-  font-size: 13px;
-  line-height: 1.45;
-}
-
-
-/* Empfehlungscenter im Kundenprofil */
-
-.referral-section { margin-top: 22px; }
-.referral-panel { height: auto; }
-
-.referral-linkbox {
-  width: 100%;
-  min-height: 52px;
-  padding: 15px;
-  margin: 15px 0 12px;
-  background: rgba(0, 0, 0, 0.24);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  color: #ffffff;
-  font-size: 14px;
-  line-height: 1.45;
-  word-break: break-all;
-}
-
-.referral-actions,
-.referral-unit-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 11px;
-}
-
-.referral-stats {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 18px;
-}
-
-.referral-stat {
-  min-width: 0;
-  padding: 13px 8px;
-  background: rgba(0, 0, 0, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  text-align: center;
-}
-
-.referral-value {
-  margin-bottom: 6px;
-  color: #00ffb3;
-  font-size: 27px;
-  line-height: 1;
-  font-weight: 800;
-}
-
-.referral-label {
-  color: var(--text-soft);
-  font-size: 12px;
-  line-height: 1.35;
-}
-
-.referral-status {
-  margin: 16px 0 0;
-  color: var(--warning);
-  font-size: 13px;
-  line-height: 1.45;
-  text-align: center;
-  white-space: pre-wrap;
-}
-
-.referral-unit-actions { margin-top: 14px; }
-
-
-@media (max-width: 900px) {
-  .referral-stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 600px) {
-  .referral-actions,
-  .referral-unit-actions,
-  .referral-stats {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Footer */
 
 .footer {
   margin-top: 24px;
@@ -753,105 +848,93 @@ button:hover,
   text-align: center;
 }
 
-/*
-  Debug bleibt technisch im HTML vorhanden,
-  wird aber Kunden nicht angezeigt.
-*/
 .debug {
   display: none;
 }
 
-/* Tablet */
+@media (max-width: 980px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
 
-@media (max-width: 850px) {
-  .profile-header {
+  .referral-overview {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .level-head {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .level-metric {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .dashboard-header {
     grid-template-columns: auto 1fr;
   }
 
-  .header-units {
+  .header-balance {
     grid-column: 1 / -1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-
-    min-width: 0;
   }
 
-  .header-units-label {
-    margin: 0;
-  }
-
-  #units {
-    font-size: 32px;
-  }
-
-  .profile-dashboard,
   .request-grid {
     grid-template-columns: 1fr;
   }
 
-  .panel {
-    height: auto;
+  .referral-footer-actions {
+    grid-template-columns: 1fr;
   }
 }
 
-/* Smartphone */
-
 @media (max-width: 600px) {
   .page {
-    padding: 12px 12px 88px;
+    padding: 12px 12px 92px;
   }
 
-  .profile-header {
+  .dashboard-header {
     display: block;
     padding: 15px;
     text-align: center;
   }
 
   .logo {
-    width: 102px;
-    margin: 0 auto 12px;
+    width: 100px;
+    margin: 0 auto 11px;
   }
 
-  .profile-title-area {
+  .header-main {
     display: block;
   }
 
-  .avatar {
-    margin-bottom: 7px;
-    font-size: 39px;
+  .header-icon {
+    margin-bottom: 6px;
+    font-size: 36px;
   }
 
-  h1 {
+  .header-copy h1 {
     font-size: 24px;
   }
 
-  .header-subtitle {
-    font-size: 13px;
+  .header-balance {
+    margin-top: 13px;
   }
 
-  .header-units {
-    margin-top: 14px;
+  .panel-head {
+    align-items: flex-start;
   }
 
-  .profile-dashboard,
-  .request-grid {
-    gap: 15px;
-  }
-
-  .panel {
-    padding: 18px 15px;
-    border-radius: 15px;
+  .panel-body {
+    padding: 15px;
   }
 
   .data-row {
     grid-template-columns: 1fr;
     gap: 4px;
-    text-align: left;
   }
 
-  .id-value-group {
+  .id-line {
     align-items: stretch;
     flex-direction: column;
   }
@@ -860,36 +943,24 @@ button:hover,
     width: 100%;
   }
 
-  .profile-link-group {
+  .account-stat-grid,
+  .account-actions,
+  .referral-overview {
     grid-template-columns: 1fr;
   }
 
-  .copy-button {
+  .referral-link-row {
+    grid-template-columns: 1fr;
+  }
+
+  .referral-link-row button {
     width: 100%;
-    min-width: 0;
-  }
-
-  .action-grid {
-    grid-template-columns: 1fr;
-  }
-
-  button,
-  .btn-link {
-    min-height: 49px;
   }
 
   .floating-back-button {
     left: 12px;
-    right: auto;
     bottom: 12px;
-
-    width: auto;
     max-width: calc(100vw - 24px);
-    min-height: 48px;
-  }
-
-  .request-header h2 {
-    font-size: 24px;
   }
 }
 </style>
@@ -907,7 +978,7 @@ button:hover,
 
 <main class="page">
 
-  <header class="profile-header">
+  <header class="dashboard-header">
 
     <img
       src="logo_betisight.club.png"
@@ -916,81 +987,57 @@ button:hover,
       onerror="this.style.display='none'"
     >
 
-    <div class="profile-title-area">
+    <div class="header-main">
+      <div class="header-icon">👤</div>
 
-      <div class="avatar">👤</div>
-
-      <div class="title-text">
+      <div class="header-copy">
         <h1>Mein BetInsight Profil</h1>
-
-        <p class="header-subtitle">
-          Kontostand, Tipps und persönlicher Profilzugang
-        </p>
+        <p>Kontostand, Tipps, Empfehlungen und persönlicher Profilzugang</p>
       </div>
-
     </div>
 
-    <div id="headerUnitsBox" class="header-units">
-
-      <span class="header-units-label">
-        Aktuelle Units
-      </span>
-
+    <div id="headerUnitsBox" class="header-balance">
+      <span class="header-balance-label">Aktuelle Units</span>
       <span id="units">0</span>
-
     </div>
 
   </header>
 
   <section id="profileBox" class="profile-box">
 
-    <div class="profile-dashboard">
+    <div class="profile-grid">
 
-      <div class="dashboard-column">
+      <section class="panel">
 
-        <section class="panel">
-
-          <h2 class="panel-title">
-            Persönlicher Profilzugang
-          </h2>
-
-          <p class="panel-description">
-            Dein persönlicher Zugang wird sicher auf diesem Gerät
-            gespeichert. Der geheime Profil-Link wird nicht offen angezeigt.
-          </p>
+        <div class="panel-head">
+          <div class="panel-head-copy">
+            <h2 class="panel-title">
+              🔒 <span class="panel-title-accent">Persönlicher Profilzugang</span>
+            </h2>
+            <p class="panel-subtitle">
+              Deine persönlichen Daten und dein sicher gespeicherter Zugang.
+            </p>
+          </div>
 
           <button
-            id="privacyButton"
-            class="btn-gray privacy-button"
+            id="profilePrivacyButton"
+            class="privacy-toggle"
             type="button"
-            onclick="togglePrivacyMode()"
+            onclick="toggleProfilePrivacy()"
           >
-            🔒 Privatsphäre aktivieren
+            ◉ Schützen
           </button>
+        </div>
 
-          <p id="privacyStatus" class="privacy-status">
-            E-Mail und persönlicher Zugang sind sichtbar.
-          </p>
-
-          <p class="privacy-note">
-            Bei aktivierter Privatsphäre werden nur die E-Mail-Adresse und
-            der persönliche Zugang vollständig unleserlich. BetInsight-ID,
-            Units, Empfehlungslink und Netzwerkzahlen bleiben sichtbar.
-          </p>
+        <div class="panel-body">
 
           <div class="account-data">
 
             <div class="data-row">
+              <span class="data-label">BetInsight-ID</span>
 
-              <span class="data-label">
-                BetInsight-ID
-              </span>
-
-              <div class="id-value-group">
-
-                <span id="betInsightId" class="data-value">
-                  Lade...
-                </span>
+              <div class="id-line">
+                <span id="betInsightId" class="data-value">Lade...</span>
 
                 <button
                   class="inline-copy-button"
@@ -999,49 +1046,26 @@ button:hover,
                 >
                   📋 ID kopieren
                 </button>
-
               </div>
-
             </div>
 
             <div id="emailDataRow" class="data-row">
-
-              <span class="data-label">
-                E-Mail
-              </span>
-
-              <span id="email" class="data-value">
-                Lade...
-              </span>
-
+              <span class="data-label">E-Mail</span>
+              <span id="email" class="data-value">Lade...</span>
             </div>
 
             <div class="data-row">
-
-              <span class="data-label">
-                Status
-              </span>
-
-              <span class="data-value">
-                Profilzugang aktiv
-              </span>
-
+              <span class="data-label">Status</span>
+              <span class="data-value">Profilzugang aktiv</span>
             </div>
 
           </div>
 
-          <div class="secure-access-box">
+          <div class="secure-access">
 
             <div class="secure-access-head">
-
-              <span class="secure-access-title">
-                Persönlicher Zugang
-              </span>
-
-              <span class="secure-access-status">
-                ✅ Auf diesem Gerät gespeichert
-              </span>
-
+              <span class="secure-access-title">Persönlicher Zugang</span>
+              <span class="secure-access-status">✅ Auf diesem Gerät gespeichert</span>
             </div>
 
             <div id="maskedToken" class="masked-token">
@@ -1049,87 +1073,113 @@ button:hover,
             </div>
 
             <p class="secure-access-note">
-              Dein vollständiger Zugangscode und dein persönlicher Profil-Link
-              werden aus Sicherheitsgründen nicht angezeigt und können hier
+              Der vollständige Zugangscode wird nicht angezeigt und kann hier
               nicht kopiert werden.
             </p>
 
             <button
               id="resendProfileButton"
-              class="btn-gray resend-link-button"
+              class="btn-gray"
               type="button"
               onclick="requestCurrentProfileLink()"
+              style="margin-top:10px;"
             >
               📩 Profil-Link erneut per E-Mail senden
             </button>
 
           </div>
 
+          <p class="privacy-note">
+            Die Privatsphäre blendet nur die E-Mail-Adresse und den persönlichen
+            Zugang vollständig aus. BetInsight-ID, Units, Empfehlungslink und
+            Netzwerkzahlen bleiben sichtbar.
+          </p>
+
           <div id="message" class="message">
             Kontostand wird geladen...
           </div>
 
-        </section>
+        </div>
 
-      </div>
+      </section>
 
-      <div class="dashboard-column">
+      <section class="panel">
 
-        <section class="panel">
+        <div class="panel-head">
+          <div class="panel-head-copy">
+            <h2 class="panel-title">
+              📊 <span class="panel-title-accent">Kontostand & Aktivitäten</span>
+            </h2>
+            <p class="panel-subtitle">
+              Wichtige Kontowerte und direkte Zugänge im Überblick.
+            </p>
+          </div>
 
-          <h2 class="panel-title">
-            Dein BetInsight Bereich
-          </h2>
+          <button
+            id="accountPrivacyButton"
+            class="privacy-toggle"
+            type="button"
+            onclick="toggleAccountPrivacy()"
+          >
+            ◉ Schützen
+          </button>
+        </div>
 
-          <p class="panel-description">
-            Öffne deine Tipps, Freischaltungen oder den Kaufbereich.
-          </p>
+        <div class="panel-body account-summary">
 
-          <div class="action-grid">
+          <div class="account-stat-grid">
 
-            <button
-              class="btn-blue"
-              type="button"
-              onclick="loadUnits()"
-            >
+            <div class="account-stat">
+              <div class="account-stat-label">Aktuelle Units</div>
+              <div id="accountUnits" class="account-stat-value value-orange account-private-value">0</div>
+            </div>
+
+            <div class="account-stat">
+              <div class="account-stat-label">Freigeschaltete Tipps</div>
+              <div id="unlockedTips" class="account-stat-value value-green account-private-value">0</div>
+            </div>
+
+            <div class="account-stat">
+              <div class="account-stat-label">Geschenk-Units verfügbar</div>
+              <div id="giftUnits" class="account-stat-value value-cyan account-private-value">0</div>
+            </div>
+
+            <div class="account-stat">
+              <div class="account-stat-label">Profilstatus</div>
+              <div class="account-stat-value value-blue" style="font-size:18px;">Aktiv</div>
+            </div>
+
+          </div>
+
+          <div class="account-actions">
+
+            <button class="btn-blue" type="button" onclick="loadUnits()">
               🔄 Aktualisieren
             </button>
 
-            <button
-              class="btn-blue"
-              type="button"
-              onclick="goTipps()"
-            >
+            <button class="btn-blue" type="button" onclick="goTipps()">
               🔥 Neue Tipps
             </button>
 
-            <button
-              class="btn-green"
-              type="button"
-              onclick="goFreigeschaltet()"
-            >
+            <button class="btn-green" type="button" onclick="goFreigeschaltet()">
               ✅ Freigeschaltet
             </button>
 
-            <button
-              class="btn-green"
-              type="button"
-              onclick="goBuyUnits()"
-            >
+            <button class="btn-green" type="button" onclick="goBuyUnits()">
               💎 Units kaufen
             </button>
 
           </div>
 
-          <div class="security-area">
+          <div class="security-box">
 
             <p class="small-warning">
-              Zugangscode nur löschen, wenn die angezeigte E-Mail nicht
-              stimmt oder du dieses Gerät mit einer anderen Person teilst.
+              Zugangscode nur löschen, wenn die angezeigte E-Mail nicht stimmt
+              oder dieses Gerät mit einer anderen Person geteilt wird.
             </p>
 
             <button
-              class="btn-red delete-button"
+              class="btn-red"
               type="button"
               onclick="forgetToken()"
             >
@@ -1138,94 +1188,288 @@ button:hover,
 
           </div>
 
-        </section>
+        </div>
 
-      </div>
+      </section>
 
     </div>
 
   </section>
 
-  <section id="referralSection" class="referral-section" style="display:none;">
+  <section id="referralSection" class="referral-section">
 
-    <section class="panel referral-panel">
+    <section class="panel">
 
-      <h2 class="panel-title">🔗 Mein Empfehlungscenter</h2>
-
-      <p class="panel-description">
-        Hier findest du deinen persönlichen Empfehlungslink,
-        deine Teamstatistik und deine Referral-Units.
-      </p>
-
-      <div id="referralLink" class="referral-linkbox referral-private">
-        Empfehlungsdaten werden geladen...
-      </div>
-
-      <div class="referral-actions">
-
-        <button
-          id="copyReferralButton"
-          class="btn-green"
-          type="button"
-          onclick="copyReferralLink()"
-        >
-          🔗 Empfehlungslink kopieren
-        </button>
+      <div class="panel-head">
+        <div class="panel-head-copy">
+          <h2 class="panel-title">
+            🔗 <span class="panel-title-accent">Persönliche Übersicht</span>
+          </h2>
+          <p class="panel-subtitle">
+            Dein Netzwerk, deine Referral-Units und dein persönlicher Empfehlungslink.
+          </p>
+        </div>
 
         <button
           id="refreshReferralButton"
-          class="btn-blue"
+          class="privacy-toggle"
           type="button"
           onclick="loadReferralData(true)"
         >
-          🔄 Empfehlungsdaten aktualisieren
+          ↻ Aktualisieren
         </button>
+      </div>
+
+      <div class="panel-body">
+
+        <div class="referral-overview">
+
+          <div class="referral-stat">
+            <div class="referral-stat-label">♙ Ebene 1 – direkt</div>
+            <div id="referralDirect" class="referral-stat-value">0</div>
+            <div class="referral-stat-note">direkte Partner</div>
+          </div>
+
+          <div class="referral-stat">
+            <div class="referral-stat-label">↑ Erwartete Referral Units</div>
+            <div id="referralExpected" class="referral-stat-value">0</div>
+            <div class="referral-stat-note">noch nicht freigegeben</div>
+          </div>
+
+          <div class="referral-stat">
+            <div class="referral-stat-label">✓ Freigegebene Units</div>
+            <div id="referralReleased" class="referral-stat-value">0</div>
+            <div class="referral-stat-note">zur Umbuchung verfügbar</div>
+          </div>
+
+          <div class="referral-stat">
+            <div class="referral-stat-label">⌁ Gesamtes Netzwerk</div>
+            <div id="referralTotal" class="referral-stat-value">0</div>
+            <div class="referral-stat-note">Ebene 1 bis 3</div>
+          </div>
+
+        </div>
+
+        <div class="referral-link-row">
+          <div id="referralLink" class="referral-linkbox">
+            Empfehlungsdaten werden geladen...
+          </div>
+
+          <button
+            id="copyReferralButton"
+            class="btn-green"
+            type="button"
+            onclick="copyReferralLink()"
+          >
+            📋 Link kopieren
+          </button>
+        </div>
 
       </div>
 
-      <div class="referral-stats">
+    </section>
 
-        <div class="referral-stat">
-          <div id="referralDirect" class="referral-value referral-private">0</div>
-          <div class="referral-label">Direkte Partner</div>
+    <section class="panel structure-panel">
+
+      <div class="panel-head">
+        <div class="panel-head-copy">
+          <h2 class="panel-title">
+            📈 <span class="panel-title-accent">Struktur und Umsätze</span>
+          </h2>
+          <p class="panel-subtitle">
+            Reale Werte aus Make und Google Sheets. Nicht vorhandene Werte bleiben 0.
+          </p>
         </div>
-
-        <div class="referral-stat">
-          <div id="referralLevel2" class="referral-value referral-private">0</div>
-          <div class="referral-label">Ebene 2</div>
-        </div>
-
-        <div class="referral-stat">
-          <div id="referralLevel3" class="referral-value referral-private">0</div>
-          <div class="referral-label">Ebene 3</div>
-        </div>
-
-        <div class="referral-stat">
-          <div id="referralUnits" class="referral-value referral-private">0</div>
-          <div class="referral-label">Freigegebene Referral Units</div>
-        </div>
-
-        <div class="referral-stat">
-          <div id="referralTotal" class="referral-value referral-private">0</div>
-          <div class="referral-label">Gesamtes Netzwerk</div>
-        </div>
-
       </div>
 
-      <div class="referral-unit-actions">
+      <div class="panel-body">
 
-        <button class="btn-green" type="button" onclick="referralUnitsToAccount()">
-          ⭐ Units aufs Konto buchen
-        </button>
+        <div class="level-list">
 
-        <button class="btn-orange" type="button" onclick="requestReferralPayout()">
-          💰 Auszahlung vorbereiten
-        </button>
+          <article id="levelCard1" class="level-card open">
 
-      </div>
+            <div class="level-head" onclick="toggleLevel(1)">
+              <div class="level-number">1</div>
+              <div class="level-name">Ebene 1 – direkte Partner</div>
 
-      <div id="referralStatus" class="referral-status">
-        Verbindung zum Empfehlungscenter wird vorbereitet...
+              <div class="level-metric">
+                <div class="level-metric-label">Partner</div>
+                <div id="level1Partners" class="level-metric-value">0</div>
+              </div>
+
+              <div class="level-metric">
+                <div class="level-metric-label">Gekauft</div>
+                <div id="level1Purchased" class="level-metric-value">0 Units</div>
+              </div>
+
+              <div class="level-metric">
+                <div class="level-metric-label">Erwartet</div>
+                <div id="level1Expected" class="level-metric-value">0</div>
+              </div>
+
+              <div class="level-metric">
+                <div class="level-metric-label">Freigegeben</div>
+                <div id="level1Released" class="level-metric-value">0</div>
+              </div>
+
+              <div class="level-arrow">⌃</div>
+            </div>
+
+            <div class="level-body">
+              <div class="table-wrap">
+                <table class="network-table">
+                  <thead>
+                    <tr>
+                      <th>BI-Nummer</th>
+                      <th>Sponsor</th>
+                      <th>Gekaufte Units</th>
+                      <th>Verbrauchte Kauf-Units</th>
+                      <th>Erwartete Referral Units</th>
+                      <th>Freigegebene Referral Units</th>
+                    </tr>
+                  </thead>
+
+                  <tbody id="level1TableBody">
+                    <tr>
+                      <td colspan="6" class="empty-row">Noch keine Daten vorhanden.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </article>
+
+          <article id="levelCard2" class="level-card">
+
+            <div class="level-head" onclick="toggleLevel(2)">
+              <div class="level-number">2</div>
+              <div class="level-name">Ebene 2</div>
+
+              <div class="level-metric">
+                <div class="level-metric-label">Partner</div>
+                <div id="level2Partners" class="level-metric-value">0</div>
+              </div>
+
+              <div class="level-metric">
+                <div class="level-metric-label">Gekauft</div>
+                <div id="level2Purchased" class="level-metric-value">0 Units</div>
+              </div>
+
+              <div class="level-metric">
+                <div class="level-metric-label">Erwartet</div>
+                <div id="level2Expected" class="level-metric-value">0</div>
+              </div>
+
+              <div class="level-metric">
+                <div class="level-metric-label">Freigegeben</div>
+                <div id="level2Released" class="level-metric-value">0</div>
+              </div>
+
+              <div class="level-arrow">⌃</div>
+            </div>
+
+            <div class="level-body">
+              <div class="table-wrap">
+                <table class="network-table">
+                  <thead>
+                    <tr>
+                      <th>BI-Nummer</th>
+                      <th>Sponsor</th>
+                      <th>Gekaufte Units</th>
+                      <th>Verbrauchte Kauf-Units</th>
+                      <th>Erwartete Referral Units</th>
+                      <th>Freigegebene Referral Units</th>
+                    </tr>
+                  </thead>
+
+                  <tbody id="level2TableBody">
+                    <tr>
+                      <td colspan="6" class="empty-row">Noch keine Daten vorhanden.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </article>
+
+          <article id="levelCard3" class="level-card">
+
+            <div class="level-head" onclick="toggleLevel(3)">
+              <div class="level-number">3</div>
+              <div class="level-name">Ebene 3</div>
+
+              <div class="level-metric">
+                <div class="level-metric-label">Partner</div>
+                <div id="level3Partners" class="level-metric-value">0</div>
+              </div>
+
+              <div class="level-metric">
+                <div class="level-metric-label">Gekauft</div>
+                <div id="level3Purchased" class="level-metric-value">0 Units</div>
+              </div>
+
+              <div class="level-metric">
+                <div class="level-metric-label">Erwartet</div>
+                <div id="level3Expected" class="level-metric-value">0</div>
+              </div>
+
+              <div class="level-metric">
+                <div class="level-metric-label">Freigegeben</div>
+                <div id="level3Released" class="level-metric-value">0</div>
+              </div>
+
+              <div class="level-arrow">⌃</div>
+            </div>
+
+            <div class="level-body">
+              <div class="table-wrap">
+                <table class="network-table">
+                  <thead>
+                    <tr>
+                      <th>BI-Nummer</th>
+                      <th>Sponsor</th>
+                      <th>Gekaufte Units</th>
+                      <th>Verbrauchte Kauf-Units</th>
+                      <th>Erwartete Referral Units</th>
+                      <th>Freigegebene Referral Units</th>
+                    </tr>
+                  </thead>
+
+                  <tbody id="level3TableBody">
+                    <tr>
+                      <td colspan="6" class="empty-row">Noch keine Daten vorhanden.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </article>
+
+        </div>
+
+        <div class="referral-footer-actions">
+
+          <button class="btn-green" type="button" onclick="referralUnitsToAccount()">
+            ⭐ Units aufs Konto buchen
+          </button>
+
+          <button class="btn-orange" type="button" onclick="requestReferralPayout()">
+            💰 Auszahlung vorbereiten
+          </button>
+
+          <button class="btn-blue" type="button" onclick="loadReferralData(true)">
+            🔄 Netzwerkdaten aktualisieren
+          </button>
+
+        </div>
+
+        <div id="referralStatus" class="referral-status">
+          Verbindung zum Empfehlungscenter wird vorbereitet...
+        </div>
+
       </div>
 
     </section>
@@ -1235,89 +1479,72 @@ button:hover,
   <section id="requestBox" class="request-box">
 
     <div class="request-header">
-
       <h2>Persönliches Profil öffnen</h2>
-
       <p>
         Fordere deinen Profil-Link per E-Mail an oder trage einen bereits
         erhaltenen Link direkt ein.
       </p>
-
     </div>
 
     <div class="request-grid">
 
       <section class="panel request-panel">
-
-        <h2 class="panel-title">
-          Profil-Link anfordern
-        </h2>
-
-        <p class="panel-description">
-          Gib deine registrierte BetInsight E-Mail-Adresse ein. Wir senden
-          dir deinen persönlichen Profil-Link erneut zu.
-        </p>
-
-        <input
-          id="requestEmail"
-          type="email"
-          placeholder="Deine E-Mail-Adresse"
-          autocomplete="email"
-        >
-
-        <div class="request-actions">
-
-          <button
-            class="btn-blue"
-            type="button"
-            onclick="requestProfileLink()"
-          >
-            📩 Profil-Link anfordern
-          </button>
-
-          <a
-            class="btn-link btn-gray"
-            href="https://betinsight.systeme.io/profile/user-settings"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            🔎 Registrierte E-Mail nachsehen
-          </a>
-
+        <div class="panel-head">
+          <div class="panel-head-copy">
+            <h2 class="panel-title panel-title-accent">Profil-Link anfordern</h2>
+            <p class="panel-subtitle">Registrierte E-Mail-Adresse eintragen.</p>
+          </div>
         </div>
 
-        <div id="requestMessage" class="message"></div>
+        <div class="panel-body">
+          <input
+            id="requestEmail"
+            type="email"
+            placeholder="Deine E-Mail-Adresse"
+            autocomplete="email"
+          >
 
+          <div class="request-actions">
+            <button class="btn-blue" type="button" onclick="requestProfileLink()">
+              📩 Profil-Link anfordern
+            </button>
+
+            <a
+              class="btn-link btn-gray"
+              href="https://betinsight.systeme.io/profile/user-settings"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              🔎 Registrierte E-Mail nachsehen
+            </a>
+          </div>
+
+          <div id="requestMessage" class="message"></div>
+        </div>
       </section>
 
       <section class="panel request-panel">
+        <div class="panel-head">
+          <div class="panel-head-copy">
+            <h2 class="panel-title panel-title-accent">Profil-Link eintragen</h2>
+            <p class="panel-subtitle">Link oder Zugangscode aus deiner E-Mail verwenden.</p>
+          </div>
+        </div>
 
-        <h2 class="panel-title">
-          Erhaltenen Profil-Link eintragen
-        </h2>
+        <div class="panel-body">
+          <input
+            id="receivedProfileLink"
+            type="text"
+            placeholder="Profil-Link oder Zugangscode"
+            autocomplete="off"
+          >
 
-        <p class="panel-description">
-          Kopiere den vollständigen Profil-Link aus deiner E-Mail und füge
-          ihn hier ein. Alternativ kannst du nur deinen Zugangscode eintragen.
-        </p>
+          <button class="btn-green" type="button" onclick="openReceivedProfileLink()">
+            🔓 Persönliches Profil öffnen
+          </button>
 
-        <input
-          id="receivedProfileLink"
-          type="text"
-          placeholder="Profil-Link oder Zugangscode"
-          autocomplete="off"
-        >
-
-        <button
-          class="btn-green"
-          type="button"
-          onclick="openReceivedProfileLink()"
-        >
-          🔓 Persönliches Profil öffnen
-        </button>
-
-        <div id="receivedLinkMessage" class="message"></div>
-
+          <div id="receivedLinkMessage" class="message"></div>
+        </div>
       </section>
 
     </div>
@@ -1344,14 +1571,53 @@ const EMPFEHLUNGEN_WEBHOOK_URL =
 
 const TOKEN_STORAGE_KEY = "betinsight_profile_token";
 
-let privacyModeActive = false;
+let profilePrivacyActive = false;
+let accountPrivacyActive = false;
+
 let currentProfileData = {
   email: "",
   units: 0,
   refCode: "",
   dashboardToken: "",
-  refLink: ""
+  refLink: "",
+  giftUnits: 0,
+  unlockedTips: 0
 };
+
+function safeNumber(value) {
+  if (value === undefined || value === null || value === "") {
+    return 0;
+  }
+
+  const normalized = String(value).replace(",", ".");
+  const parsed = Number(normalized);
+
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function formatNumber(value) {
+  const number = safeNumber(value);
+
+  return new Intl.NumberFormat("de-DE", {
+    maximumFractionDigits: 2
+  }).format(number);
+}
+
+function firstDefined(object, keys, fallback = 0) {
+  for (const key of keys) {
+    if (
+      object &&
+      Object.prototype.hasOwnProperty.call(object, key) &&
+      object[key] !== undefined &&
+      object[key] !== null &&
+      object[key] !== ""
+    ) {
+      return object[key];
+    }
+  }
+
+  return fallback;
+}
 
 function maskAccessToken(token) {
   const clean = String(token || "").trim();
@@ -1374,14 +1640,52 @@ function setMaskedToken(token) {
     return;
   }
 
-  if (privacyModeActive) {
-    element.classList.add("access-private-hidden");
+  if (profilePrivacyActive) {
+    element.classList.add("private-token-hidden");
     element.innerText = "Persönlicher Zugang geschützt";
     return;
   }
 
-  element.classList.remove("access-private-hidden");
+  element.classList.remove("private-token-hidden");
   element.innerText = maskAccessToken(token);
+}
+
+function toggleProfilePrivacy() {
+  profilePrivacyActive = !profilePrivacyActive;
+
+  const emailRow = document.getElementById("emailDataRow");
+  const tokenBox = document.getElementById("maskedToken");
+  const button = document.getElementById("profilePrivacyButton");
+  const message = document.getElementById("message");
+
+  emailRow.classList.toggle("private-row-hidden", profilePrivacyActive);
+  tokenBox.classList.toggle("private-token-hidden", profilePrivacyActive);
+  button.classList.toggle("active", profilePrivacyActive);
+
+  if (profilePrivacyActive) {
+    button.innerText = "◉ Geschützt";
+    tokenBox.innerText = "Persönlicher Zugang geschützt";
+    message.innerText =
+      "Privatsphäre aktiv: E-Mail und persönlicher Zugang sind geschützt.";
+  } else {
+    button.innerText = "◉ Schützen";
+    setMaskedToken(getActiveToken());
+    message.innerText = "Privatsphäre wurde deaktiviert.";
+  }
+}
+
+function toggleAccountPrivacy() {
+  accountPrivacyActive = !accountPrivacyActive;
+
+  const button = document.getElementById("accountPrivacyButton");
+  const values = document.querySelectorAll(".account-private-value");
+
+  values.forEach(element => {
+    element.classList.toggle("private-value-hidden", accountPrivacyActive);
+  });
+
+  button.classList.toggle("active", accountPrivacyActive);
+  button.innerText = accountPrivacyActive ? "◉ Geschützt" : "◉ Schützen";
 }
 
 async function requestCurrentProfileLink() {
@@ -1401,9 +1705,7 @@ async function requestCurrentProfileLink() {
 
   try {
     const response = await fetch(
-      REQUEST_LINK_WEBHOOK_URL +
-      "?email=" +
-      encodeURIComponent(email),
+      REQUEST_LINK_WEBHOOK_URL + "?email=" + encodeURIComponent(email),
       {
         method: "GET",
         cache: "no-store"
@@ -1433,40 +1735,30 @@ async function requestCurrentProfileLink() {
 }
 
 function setBetInsightId(refCode) {
-  const idElement = document.getElementById("betInsightId");
   const cleanRefCode = String(refCode || "").trim();
-
-  idElement.innerText = cleanRefCode || "Nicht verfügbar";
+  document.getElementById("betInsightId").innerText =
+    cleanRefCode || "Nicht verfügbar";
 }
 
 function copyBetInsightId() {
-  const idElement = document.getElementById("betInsightId");
+  const refCode = String(
+    document.getElementById("betInsightId").innerText || ""
+  ).trim();
+
   const message = document.getElementById("message");
-  const refCode = String(idElement.innerText || "").trim();
 
   if (!refCode || refCode === "Lade..." || refCode === "Nicht verfügbar") {
     message.innerText = "BetInsight-ID ist noch nicht verfügbar.";
     return;
   }
 
-  if (
-    navigator.clipboard &&
-    typeof navigator.clipboard.writeText === "function"
-  ) {
-    navigator.clipboard
-      .writeText(refCode)
-      .then(() => {
-        message.innerText = "BetInsight-ID wurde kopiert.";
-      })
-      .catch(() => {
-        copyTextFallback(refCode);
-        message.innerText = "BetInsight-ID wurde kopiert.";
-      });
-
-  } else {
-    copyTextFallback(refCode);
-    message.innerText = "BetInsight-ID wurde kopiert.";
-  }
+  copyText(refCode)
+    .then(() => {
+      message.innerText = "BetInsight-ID wurde kopiert.";
+    })
+    .catch(() => {
+      message.innerText = "BetInsight-ID konnte nicht kopiert werden.";
+    });
 }
 
 function copyTextFallback(text) {
@@ -1482,71 +1774,16 @@ function copyTextFallback(text) {
   document.body.removeChild(temporaryInput);
 }
 
-function togglePrivacyMode() {
-  privacyModeActive = !privacyModeActive;
-
-  const emailRow = document.getElementById("emailDataRow");
-  const maskedToken = document.getElementById("maskedToken");
-  const button = document.getElementById("privacyButton");
-  const status = document.getElementById("privacyStatus");
-  const message = document.getElementById("message");
-
-  if (privacyModeActive) {
-    if (emailRow) {
-      emailRow.classList.add("profile-private-hidden");
-    }
-
-    if (maskedToken) {
-      maskedToken.classList.add("access-private-hidden");
-      maskedToken.innerText = "Persönlicher Zugang geschützt";
-    }
-
-    button.innerText = "🔓 Privatsphäre deaktivieren";
-    button.classList.remove("btn-gray");
-    button.classList.add("btn-green");
-
-    status.innerText =
-      "🔒 Privatsphäre aktiv – E-Mail und persönlicher Zugang sind geschützt.";
-
-    message.innerText =
-      "Privatsphäre ist aktiv. Nur sensible Profildaten wurden ausgeblendet.";
-
-  } else {
-    if (emailRow) {
-      emailRow.classList.remove("profile-private-hidden");
-    }
-
-    if (maskedToken) {
-      maskedToken.classList.remove("access-private-hidden");
-      setMaskedToken(getActiveToken());
-    }
-
-    button.innerText = "🔒 Privatsphäre aktivieren";
-    button.classList.remove("btn-green");
-    button.classList.add("btn-gray");
-
-    status.innerText =
-      "E-Mail und persönlicher Zugang sind sichtbar.";
-
-    message.innerText =
-      "Privatsphäre wurde deaktiviert.";
-  }
-}
-
-
-function setReferralNumber(elementId, value) {
-  const element = document.getElementById(elementId);
-
-  if (!element) {
+async function copyText(text) {
+  if (
+    navigator.clipboard &&
+    typeof navigator.clipboard.writeText === "function"
+  ) {
+    await navigator.clipboard.writeText(text);
     return;
   }
 
-  if (value === undefined || value === null || value === "") {
-    element.innerText = "0";
-    return;
-  }
-
-  element.innerText = String(value);
+  copyTextFallback(text);
 }
 
 function buildReferralLink(data) {
@@ -1568,33 +1805,200 @@ function buildReferralLink(data) {
   }
 
   return (
-    "https://betinsightclub.github.io/profil/ref/?ref=" +
+    "https://betinsightclub.github.io/ref/?ref=" +
     encodeURIComponent(refCode)
   );
 }
 
-async function loadReferralData(showButtonFeedback = false) {
-  const section = document.getElementById("referralSection");
-  const status = document.getElementById("referralStatus");
-  const linkBox = document.getElementById("referralLink");
-  const refreshButton =
-    document.getElementById("refreshReferralButton");
-  const oldRefreshText =
-    refreshButton ? refreshButton.innerText : "";
+function toggleLevel(level) {
+  const card = document.getElementById("levelCard" + level);
 
-  if (!section || !status || !linkBox) {
+  if (card) {
+    card.classList.toggle("open");
+  }
+}
+
+function normalizePartnerArray(data, level) {
+  const possibleKeys = [
+    "level" + level,
+    "ebene" + level,
+    "level_" + level,
+    "ebene_" + level,
+    "partners_level" + level,
+    "partner_ebene" + level
+  ];
+
+  for (const key of possibleKeys) {
+    if (Array.isArray(data && data[key])) {
+      return data[key];
+    }
+  }
+
+  if (data && data.levels && Array.isArray(data.levels[level])) {
+    return data.levels[level];
+  }
+
+  if (data && data.ebenen && Array.isArray(data.ebenen[level])) {
+    return data.ebenen[level];
+  }
+
+  return [];
+}
+
+function partnerValue(partner, keys, fallback = 0) {
+  return firstDefined(partner, keys, fallback);
+}
+
+function renderLevelTable(level, partners) {
+  const body = document.getElementById("level" + level + "TableBody");
+
+  if (!body) {
     return;
   }
 
-  if (showButtonFeedback && refreshButton) {
-    refreshButton.disabled = true;
-    refreshButton.innerText = "⏳ Daten werden geladen...";
+  if (!Array.isArray(partners) || partners.length === 0) {
+    body.innerHTML =
+      '<tr><td colspan="6" class="empty-row">Noch keine Daten vorhanden.</td></tr>';
+    return;
   }
 
-  section.style.display = "block";
+  body.innerHTML = partners.map(partner => {
+    const biNumber = String(
+      partnerValue(partner, ["bi_nummer", "bi_number", "ref_code", "user_id"], "-")
+    );
+
+    const sponsor = String(
+      partnerValue(partner, ["sponsor", "sponsor_ref", "sponsor_code"], "-")
+    );
+
+    const purchased = formatNumber(
+      partnerValue(partner, ["gekaufte_units", "purchased_units", "gekauft"], 0)
+    );
+
+    const consumed = formatNumber(
+      partnerValue(partner, ["verbrauchte_kauf_units", "consumed_units", "verbraucht"], 0)
+    );
+
+    const expected = formatNumber(
+      partnerValue(partner, ["erwartete_referral_units", "expected_units", "erwartet"], 0)
+    );
+
+    const released = formatNumber(
+      partnerValue(partner, ["freigegebene_referral_units", "released_units", "freigegeben"], 0)
+    );
+
+    return `
+      <tr>
+        <td class="partner-id">${escapeHtml(biNumber)}</td>
+        <td>${escapeHtml(sponsor)}</td>
+        <td>${purchased}</td>
+        <td>${consumed}</td>
+        <td>${expected}</td>
+        <td>${released}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function setLevelSummary(level, data, partners) {
+  const partnerCount = safeNumber(
+    firstDefined(
+      data,
+      [
+        "ebene" + level,
+        "level" + level + "_partners",
+        "level" + level + "_count",
+        "partner_ebene" + level
+      ],
+      partners.length
+    )
+  );
+
+  const purchased = safeNumber(
+    firstDefined(
+      data,
+      [
+        "ebene" + level + "_gekauft",
+        "level" + level + "_purchased",
+        "gekauft_ebene" + level
+      ],
+      partners.reduce((sum, item) => {
+        return sum + safeNumber(
+          partnerValue(item, ["gekaufte_units", "purchased_units", "gekauft"], 0)
+        );
+      }, 0)
+    )
+  );
+
+  const expected = safeNumber(
+    firstDefined(
+      data,
+      [
+        "ebene" + level + "_erwartet",
+        "level" + level + "_expected",
+        "erwartet_ebene" + level
+      ],
+      partners.reduce((sum, item) => {
+        return sum + safeNumber(
+          partnerValue(item, ["erwartete_referral_units", "expected_units", "erwartet"], 0)
+        );
+      }, 0)
+    )
+  );
+
+  const released = safeNumber(
+    firstDefined(
+      data,
+      [
+        "ebene" + level + "_freigegeben",
+        "level" + level + "_released",
+        "freigegeben_ebene" + level
+      ],
+      partners.reduce((sum, item) => {
+        return sum + safeNumber(
+          partnerValue(item, ["freigegebene_referral_units", "released_units", "freigegeben"], 0)
+        );
+      }, 0)
+    )
+  );
+
+  document.getElementById("level" + level + "Partners").innerText =
+    formatNumber(partnerCount);
+
+  document.getElementById("level" + level + "Purchased").innerText =
+    formatNumber(purchased) + " Units";
+
+  document.getElementById("level" + level + "Expected").innerText =
+    formatNumber(expected);
+
+  document.getElementById("level" + level + "Released").innerText =
+    formatNumber(released);
+}
+
+async function loadReferralData(showButtonFeedback = false) {
+  const status = document.getElementById("referralStatus");
+  const linkBox = document.getElementById("referralLink");
+  const refreshButton = document.getElementById("refreshReferralButton");
+  const oldText = refreshButton ? refreshButton.innerText : "";
 
   const dashboardToken =
     String(currentProfileData.dashboardToken || "").trim();
+
+  document.getElementById("referralSection").style.display = "block";
+
+  if (showButtonFeedback && refreshButton) {
+    refreshButton.disabled = true;
+    refreshButton.innerText = "⏳ Lädt...";
+  }
 
   if (!dashboardToken) {
     linkBox.innerText =
@@ -1602,20 +2006,16 @@ async function loadReferralData(showButtonFeedback = false) {
       "Persönlicher Empfehlungslink wird noch vorbereitet.";
 
     status.innerText =
-      "Für die Teamstatistik muss Make noch den dashboard_token an das Profil übergeben.";
+      "Der dashboard_token wurde vom Profil-Webhook noch nicht geliefert.";
 
-    setReferralNumber("referralDirect", 0);
-    setReferralNumber("referralLevel2", 0);
-    setReferralNumber("referralLevel3", 0);
-    setReferralNumber("referralUnits", 0);
-    setReferralNumber("referralTotal", 0);
+    resetReferralValues();
 
     if (showButtonFeedback && refreshButton) {
-      refreshButton.innerText = "⚠️ Zugang noch nicht geladen";
+      refreshButton.innerText = "⚠️ Nicht verfügbar";
 
       window.setTimeout(() => {
         refreshButton.disabled = false;
-        refreshButton.innerText = oldRefreshText;
+        refreshButton.innerText = oldText;
       }, 2200);
     }
 
@@ -1625,15 +2025,15 @@ async function loadReferralData(showButtonFeedback = false) {
   status.innerText = "Empfehlungsdaten werden geladen...";
 
   try {
-    const url =
+    const response = await fetch(
       EMPFEHLUNGEN_WEBHOOK_URL +
       "?id=" +
-      encodeURIComponent(dashboardToken);
-
-    const response = await fetch(url, {
-      method: "GET",
-      cache: "no-store"
-    });
+      encodeURIComponent(dashboardToken),
+      {
+        method: "GET",
+        cache: "no-store"
+      }
+    );
 
     if (!response.ok) {
       throw new Error("HTTP-Fehler: " + response.status);
@@ -1648,24 +2048,60 @@ async function loadReferralData(showButtonFeedback = false) {
     const referralLink = buildReferralLink(data);
 
     linkBox.innerText =
-      referralLink ||
-      "Kein persönlicher Empfehlungslink gefunden.";
+      referralLink || "Kein persönlicher Empfehlungslink gefunden.";
 
-    setReferralNumber("referralDirect", data.direkte);
-    setReferralNumber("referralLevel2", data.ebene2);
-    setReferralNumber("referralLevel3", data.ebene3);
-    setReferralNumber("referralUnits", data.units);
-    setReferralNumber("referralTotal", data.gesamt);
+    const direct = safeNumber(
+      firstDefined(data, ["direkte", "direct", "level1_count", "ebene1"], 0)
+    );
+
+    const level2 = safeNumber(
+      firstDefined(data, ["ebene2", "level2", "level2_count"], 0)
+    );
+
+    const level3 = safeNumber(
+      firstDefined(data, ["ebene3", "level3", "level3_count"], 0)
+    );
+
+    const expected = safeNumber(
+      firstDefined(
+        data,
+        ["erwartete_units", "expected_units", "expected", "units_erwartet"],
+        0
+      )
+    );
+
+    const released = safeNumber(
+      firstDefined(
+        data,
+        ["freigegebene_units", "released_units", "units", "available_units"],
+        0
+      )
+    );
+
+    const networkTotal = safeNumber(
+      firstDefined(data, ["gesamt", "total", "network_total"], direct + level2 + level3)
+    );
+
+    document.getElementById("referralDirect").innerText = formatNumber(direct);
+    document.getElementById("referralExpected").innerText = formatNumber(expected);
+    document.getElementById("referralReleased").innerText = formatNumber(released);
+    document.getElementById("referralTotal").innerText = formatNumber(networkTotal);
+
+    for (let level = 1; level <= 3; level += 1) {
+      const partners = normalizePartnerArray(data, level);
+      setLevelSummary(level, data, partners);
+      renderLevelTable(level, partners);
+    }
 
     status.innerText =
       "Deine Empfehlungsdaten wurden erfolgreich geladen.";
 
     if (showButtonFeedback && refreshButton) {
-      refreshButton.innerText = "✅ Daten aktualisiert";
+      refreshButton.innerText = "✅ Aktualisiert";
 
       window.setTimeout(() => {
         refreshButton.disabled = false;
-        refreshButton.innerText = oldRefreshText;
+        refreshButton.innerText = oldText;
       }, 2200);
     }
 
@@ -1679,14 +2115,31 @@ async function loadReferralData(showButtonFeedback = false) {
     status.innerText =
       "Die Empfehlungsdaten konnten nicht geladen werden. Bitte prüfe die Make-Verbindung.";
 
+    resetReferralValues();
+
     if (showButtonFeedback && refreshButton) {
-      refreshButton.innerText = "❌ Aktualisierung fehlgeschlagen";
+      refreshButton.innerText = "❌ Fehler";
 
       window.setTimeout(() => {
         refreshButton.disabled = false;
-        refreshButton.innerText = oldRefreshText;
+        refreshButton.innerText = oldText;
       }, 2500);
     }
+  }
+}
+
+function resetReferralValues() {
+  document.getElementById("referralDirect").innerText = "0";
+  document.getElementById("referralExpected").innerText = "0";
+  document.getElementById("referralReleased").innerText = "0";
+  document.getElementById("referralTotal").innerText = "0";
+
+  for (let level = 1; level <= 3; level += 1) {
+    document.getElementById("level" + level + "Partners").innerText = "0";
+    document.getElementById("level" + level + "Purchased").innerText = "0 Units";
+    document.getElementById("level" + level + "Expected").innerText = "0";
+    document.getElementById("level" + level + "Released").innerText = "0";
+    renderLevelTable(level, []);
   }
 }
 
@@ -1697,7 +2150,7 @@ async function copyReferralLink() {
 
   const status = document.getElementById("referralStatus");
   const button = document.getElementById("copyReferralButton");
-  const oldText = button ? button.innerText : "";
+  const oldText = button.innerText;
 
   if (
     !link ||
@@ -1706,42 +2159,22 @@ async function copyReferralLink() {
     link.includes("nicht gefunden") ||
     link.includes("geladen")
   ) {
-    status.innerText =
-      "Noch kein persönlicher Empfehlungslink verfügbar.";
-
-    if (button) {
-      button.innerText = "⚠️ Link noch nicht verfügbar";
-
-      window.setTimeout(() => {
-        button.innerText = oldText;
-      }, 2200);
-    }
-
+    status.innerText = "Noch kein persönlicher Empfehlungslink verfügbar.";
     return;
   }
 
   try {
-    await navigator.clipboard.writeText(link);
+    await copyText(link);
     status.innerText = "Empfehlungslink wurde kopiert.";
-
-    if (button) {
-      button.innerText = "✅ Link kopiert";
-    }
-
+    button.innerText = "✅ Link kopiert";
   } catch (error) {
-    copyTextFallback(link);
-    status.innerText = "Empfehlungslink wurde kopiert.";
-
-    if (button) {
-      button.innerText = "✅ Link kopiert";
-    }
+    status.innerText = "Empfehlungslink konnte nicht kopiert werden.";
+    button.innerText = "❌ Fehler";
   }
 
-  if (button) {
-    window.setTimeout(() => {
-      button.innerText = oldText;
-    }, 2200);
-  }
+  window.setTimeout(() => {
+    button.innerText = oldText;
+  }, 2200);
 }
 
 function referralUnitsToAccount() {
@@ -1790,13 +2223,11 @@ function buildTokenVariants(token) {
 
   if (clean.startsWith("BI-")) {
     const numberPart = clean.substring(3);
-
     variants.push(numberPart);
     variants.push("BI" + numberPart);
 
   } else if (clean.startsWith("BI")) {
     const numberPart = clean.substring(2);
-
     variants.push(numberPart);
     variants.push("BI-" + numberPart);
 
@@ -1824,15 +2255,20 @@ function showRequestBox() {
 
 function setUnitColor(units) {
   const unitsElement = document.getElementById("units");
+  const accountUnits = document.getElementById("accountUnits");
+
+  let color = "lime";
 
   if (units === 0) {
-    unitsElement.style.color = "red";
-
+    color = "red";
   } else if (units < 10) {
-    unitsElement.style.color = "orange";
+    color = "orange";
+  }
 
-  } else {
-    unitsElement.style.color = "lime";
+  unitsElement.style.color = color;
+
+  if (accountUnits) {
+    accountUnits.style.color = color;
   }
 }
 
@@ -1842,14 +2278,12 @@ function setDebug(text) {
 
 function setRequestMessage(text, color) {
   const message = document.getElementById("requestMessage");
-
   message.innerText = text;
   message.style.color = color || "#ffcc00";
 }
 
 function setReceivedLinkMessage(text, color) {
   const message = document.getElementById("receivedLinkMessage");
-
   message.innerText = text;
   message.style.color = color || "#ffcc00";
 }
@@ -1870,17 +2304,11 @@ function extractTokenFromInput(value) {
     }
 
   } catch (error) {
-    /*
-      Die Eingabe ist kein vollständiger Link.
-      Sie wird anschließend als Zugangscode behandelt.
-    */
+    /* Eingabe ist kein vollständiger Link. */
   }
 
   if (clean.includes("token=")) {
-    const tokenPart = clean
-      .split("token=")[1]
-      .split("&")[0];
-
+    const tokenPart = clean.split("token=")[1].split("&")[0];
     return decodeURIComponent(tokenPart).trim();
   }
 
@@ -1888,45 +2316,30 @@ function extractTokenFromInput(value) {
 }
 
 function openReceivedProfileLink() {
-  const input =
-    document.getElementById("receivedProfileLink").value;
-
+  const input = document.getElementById("receivedProfileLink").value;
   const token = extractTokenFromInput(input);
 
   if (!token) {
     setReceivedLinkMessage(
-      "Bitte den vollständigen Profil-Link aus der E-Mail oder deinen Zugangscode eintragen.",
+      "Bitte den vollständigen Profil-Link oder deinen Zugangscode eintragen.",
       "#ff4444"
     );
-
     return;
   }
 
   saveToken(token);
 
-  setReceivedLinkMessage(
-    "Profil wird geöffnet...",
-    "#00ff99"
-  );
+  setReceivedLinkMessage("Profil wird geöffnet...", "#00ff99");
 
-  const targetUrl =
+  window.location.href =
     "https://betinsightclub.github.io/profil/?token=" +
     encodeURIComponent(token);
-
-  window.location.href = targetUrl;
-}
-
-function updateProfileLink(token) {
-  /*
-    Der persönliche Profil-Link wird aus Sicherheitsgründen
-    nicht mehr sichtbar im Kundenprofil ausgegeben.
-  */
-  setMaskedToken(token);
 }
 
 function fetchProfileByToken(tokenVariants, index) {
   if (index >= tokenVariants.length) {
     document.getElementById("units").innerText = "0";
+    document.getElementById("accountUnits").innerText = "0";
     document.getElementById("email").innerText = "Nicht gefunden";
     setBetInsightId("");
     setMaskedToken("");
@@ -1937,7 +2350,6 @@ function fetchProfileByToken(tokenVariants, index) {
     setUnitColor(0);
     showRequestBox();
     setDebug("Debug: Kein Token-Treffer.");
-
     return;
   }
 
@@ -1946,10 +2358,12 @@ function fetchProfileByToken(tokenVariants, index) {
   fetch(
     PROFILE_WEBHOOK_URL +
     "?token=" +
-    encodeURIComponent(tokenToTry)
+    encodeURIComponent(tokenToTry),
+    {
+      cache: "no-store"
+    }
   )
     .then(response => response.json())
-
     .then(data => {
       if (!data || data.found === false || !data.email) {
         fetchProfileByToken(tokenVariants, index + 1);
@@ -1957,46 +2371,63 @@ function fetchProfileByToken(tokenVariants, index) {
       }
 
       const finalToken = data.token || tokenToTry;
-      const units = parseInt(data.units, 10) || 0;
+      const units = safeNumber(data.units);
       const refCode = String(data.ref_code || "").trim();
-      const dashboardToken =
-        String(data.dashboard_token || "").trim();
-      const refLink =
-        String(data.ref_link || "").trim();
+      const dashboardToken = String(data.dashboard_token || "").trim();
+      const refLink = String(data.ref_link || "").trim();
+
+      const giftUnits = safeNumber(
+        firstDefined(
+          data,
+          ["geschenk_units_rest", "gift_units", "gift_units_remaining"],
+          0
+        )
+      );
+
+      const unlockedTips = safeNumber(
+        firstDefined(
+          data,
+          ["freigeschaltete_tipps", "unlocked_tips", "unlock_count"],
+          0
+        )
+      );
 
       currentProfileData = {
         email: data.email || "",
         units: units,
         refCode: refCode,
         dashboardToken: dashboardToken,
-        refLink: refLink
+        refLink: refLink,
+        giftUnits: giftUnits,
+        unlockedTips: unlockedTips
       };
 
       saveToken(finalToken);
       showProfileBox();
 
-      document.getElementById("units").innerText = units;
+      document.getElementById("units").innerText = formatNumber(units);
+      document.getElementById("accountUnits").innerText = formatNumber(units);
+      document.getElementById("giftUnits").innerText = formatNumber(giftUnits);
+      document.getElementById("unlockedTips").innerText = formatNumber(unlockedTips);
       document.getElementById("email").innerText = data.email;
+
       setBetInsightId(refCode);
       setMaskedToken(finalToken);
+      setUnitColor(units);
 
       document.getElementById("message").innerText =
         "Kontostand wurde aktualisiert.";
 
-      setUnitColor(units);
-      updateProfileLink(finalToken);
       loadReferralData();
 
       setDebug(
         "Debug: Token aktiv: " + finalToken +
-        " | API Token: " + (data.token || "leer") +
         " | API E-Mail: " + (data.email || "leer") +
         " | API Units: " + (data.units || "0") +
         " | API Ref-Code: " + (data.ref_code || "leer") +
         " | API Dashboard-Token: " + (data.dashboard_token || "leer")
       );
     })
-
     .catch(error => {
       console.error(error);
       fetchProfileByToken(tokenVariants, index + 1);
@@ -2017,18 +2448,16 @@ function loadUnits() {
   document.getElementById("message").innerText =
     "Kontostand wird geladen...";
 
-  document.getElementById("email").innerText =
-    "Lade...";
-
+  document.getElementById("email").innerText = "Lade...";
   setBetInsightId("Lade...");
   setMaskedToken("Lade...");
 
-  document.getElementById("units").innerText =
-    "0";
+  document.getElementById("units").innerText = "0";
+  document.getElementById("accountUnits").innerText = "0";
+  document.getElementById("giftUnits").innerText = "0";
+  document.getElementById("unlockedTips").innerText = "0";
 
-  const tokenVariants = buildTokenVariants(token);
-
-  fetchProfileByToken(tokenVariants, 0);
+  fetchProfileByToken(buildTokenVariants(token), 0);
 }
 
 function requestProfileLink() {
@@ -2040,17 +2469,11 @@ function requestProfileLink() {
       .toLowerCase();
 
   if (!email) {
-    alert(
-      "Bitte deine registrierte BetInsight E-Mail eingeben."
-    );
-
+    alert("Bitte deine registrierte BetInsight E-Mail eingeben.");
     return;
   }
 
-  setRequestMessage(
-    "Profil-Link wird angefordert...",
-    "#ffcc00"
-  );
+  setRequestMessage("Profil-Link wird angefordert...", "#ffcc00");
 
   fetch(
     REQUEST_LINK_WEBHOOK_URL +
@@ -2058,17 +2481,10 @@ function requestProfileLink() {
     encodeURIComponent(email)
   )
     .then(response => response.text())
-
     .then(text => {
       setRequestMessage(
-        "✅ Profil-Link wurde verschickt.\n\n" +
-        "Öffne jetzt dein E-Mail-Postfach, kopiere den Profil-Link und füge ihn im rechten Feld ein.",
+        "✅ Profil-Link wurde verschickt. Öffne dein E-Mail-Postfach und verwende den erhaltenen Link.",
         "#00ff99"
-      );
-
-      alert(
-        "Profil-Link wurde verschickt.\n\n" +
-        "Öffne jetzt dein E-Mail-Postfach, kopiere den Profil-Link und füge ihn auf dieser Seite ein."
       );
 
       setDebug(
@@ -2078,17 +2494,12 @@ function requestProfileLink() {
         text
       );
     })
-
     .catch(error => {
       console.error(error);
 
       setRequestMessage(
         "Fehler beim Anfordern. Bitte versuche es erneut.",
         "#ff4444"
-      );
-
-      setDebug(
-        "Debug: Fehler beim Profil-Link anfordern."
       );
     });
 }
@@ -2097,10 +2508,7 @@ function goBuyUnits() {
   const token = getActiveToken();
 
   if (!token) {
-    alert(
-      "Kein Zugangscode gefunden. Bitte fordere zuerst deinen Profil-Link an."
-    );
-
+    alert("Kein Zugangscode gefunden.");
     showRequestBox();
     return;
   }
@@ -2114,10 +2522,7 @@ function goTipps() {
   const token = getActiveToken();
 
   if (!token) {
-    alert(
-      "Kein Zugangscode gefunden. Bitte fordere zuerst deinen Profil-Link an."
-    );
-
+    alert("Kein Zugangscode gefunden.");
     showRequestBox();
     return;
   }
@@ -2131,10 +2536,7 @@ function goFreigeschaltet() {
   const token = getActiveToken();
 
   if (!token) {
-    alert(
-      "Kein Zugangscode gefunden. Bitte fordere zuerst deinen Profil-Link an."
-    );
-
+    alert("Kein Zugangscode gefunden.");
     showRequestBox();
     return;
   }
@@ -2153,65 +2555,45 @@ function forgetToken() {
   localStorage.removeItem(TOKEN_STORAGE_KEY);
   localStorage.removeItem("betinsight_email");
 
+  profilePrivacyActive = false;
+  accountPrivacyActive = false;
+
+  document.getElementById("emailDataRow").classList.remove("private-row-hidden");
+  document.getElementById("maskedToken").classList.remove("private-token-hidden");
+
+  document.querySelectorAll(".account-private-value").forEach(element => {
+    element.classList.remove("private-value-hidden");
+  });
+
+  document.getElementById("profilePrivacyButton").classList.remove("active");
+  document.getElementById("profilePrivacyButton").innerText = "◉ Schützen";
+
+  document.getElementById("accountPrivacyButton").classList.remove("active");
+  document.getElementById("accountPrivacyButton").innerText = "◉ Schützen";
+
   document.getElementById("units").innerText = "0";
-
-  document.getElementById("email").innerText =
-    "Kein Zugangscode";
-
-  document.getElementById("message").innerText =
-    "Zugangscode wurde auf diesem Gerät gelöscht.";
+  document.getElementById("accountUnits").innerText = "0";
+  document.getElementById("giftUnits").innerText = "0";
+  document.getElementById("unlockedTips").innerText = "0";
+  document.getElementById("email").innerText = "Kein Zugangscode";
 
   setBetInsightId("");
   setMaskedToken("");
+  resetReferralValues();
 
   currentProfileData = {
     email: "",
     units: 0,
     refCode: "",
     dashboardToken: "",
-    refLink: ""
+    refLink: "",
+    giftUnits: 0,
+    unlockedTips: 0
   };
-
-  document.getElementById("referralLink").innerText =
-    "Empfehlungsdaten werden geladen...";
-  setReferralNumber("referralDirect", 0);
-  setReferralNumber("referralLevel2", 0);
-  setReferralNumber("referralLevel3", 0);
-  setReferralNumber("referralUnits", 0);
-  setReferralNumber("referralTotal", 0);
-
-  privacyModeActive = false;
-
-  const emailRow = document.getElementById("emailDataRow");
-  const maskedToken = document.getElementById("maskedToken");
-  const privacyButton = document.getElementById("privacyButton");
-  const privacyStatus = document.getElementById("privacyStatus");
-
-  if (emailRow) {
-    emailRow.classList.remove("profile-private-hidden");
-  }
-
-  if (maskedToken) {
-    maskedToken.classList.remove("access-private-hidden");
-  }
-
-  if (privacyButton) {
-    privacyButton.innerText = "🔒 Privatsphäre aktivieren";
-    privacyButton.classList.remove("btn-green");
-    privacyButton.classList.add("btn-gray");
-  }
-
-  if (privacyStatus) {
-    privacyStatus.innerText =
-      "E-Mail und persönlicher Zugang sind sichtbar.";
-  }
 
   setUnitColor(0);
   showRequestBox();
-
-  setDebug(
-    "Debug: Zugangscode gelöscht."
-  );
+  setDebug("Debug: Zugangscode gelöscht.");
 }
 
 loadUnits();
