@@ -1,410 +1,893 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BetInsight Empfehlungen</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <title>BetInsight – Empfehlungscenter</title>
+  <style>
+    :root {
+      --bg: #071019;
+      --panel: #0d1a26;
+      --panel-2: #122433;
+      --line: rgba(255,255,255,.10);
+      --text: #f4f8fb;
+      --muted: #91a6b7;
+      --accent: #25e6a7;
+      --accent-2: #59a8ff;
+      --warning: #ffc857;
+      --danger: #ff6b7d;
+      --shadow: 0 18px 55px rgba(0,0,0,.30);
+      --radius: 20px;
+    }
 
-<style>
-* { box-sizing: border-box; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(37,230,167,.10), transparent 32%),
+        radial-gradient(circle at 100% 10%, rgba(89,168,255,.10), transparent 30%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  background:
-    radial-gradient(circle at top, rgba(0, 200, 255, 0.10), transparent 35%),
-    linear-gradient(180deg, #061923 0%, #071d2b 45%, #04131c 100%);
-  color: white;
-  font-family: Arial, sans-serif;
-  text-align: center;
-}
+    button, input { font: inherit; }
+    button { cursor: pointer; }
 
-.page {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 45px 18px 90px;
-}
+    .page {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 28px 0 60px;
+    }
 
-.logo {
-  width: 155px;
-  max-width: 70%;
-  height: auto;
-  margin: 0 0 26px;
-}
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
 
-h1 {
-  margin: 0 0 12px;
-  font-size: 34px;
-  color: #2aa9ff;
-}
+    .brand {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
 
-.subtitle {
-  color: #ccefff;
-  font-size: 16px;
-  line-height: 1.55;
-  margin: 0 auto 34px;
-  max-width: 720px;
-}
+    .brand-mark {
+      width: 50px;
+      height: 50px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      background: linear-gradient(145deg, rgba(37,230,167,.22), rgba(89,168,255,.16));
+      border: 1px solid rgba(37,230,167,.28);
+      box-shadow: var(--shadow);
+    }
 
-.card {
-  background: rgba(0, 80, 115, 0.45);
-  border: 1px solid rgba(35, 190, 255, 0.35);
-  border-radius: 16px;
-  padding: 24px;
-  max-width: 760px;
-  margin: 24px auto;
-  box-shadow: 0 16px 36px rgba(0,0,0,0.28);
-}
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(1.45rem, 3vw, 2.15rem);
+      letter-spacing: -.03em;
+    }
 
-.card h2 {
-  color: #00ffb3;
-  font-size: 20px;
-  margin: 0 0 14px;
-}
+    .brand p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: .95rem;
+    }
 
-.card p {
-  color: #ccefff;
-  font-size: 14px;
-  line-height: 1.55;
-  margin-bottom: 18px;
-}
+    .top-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
 
-.linkbox {
-  width: 100%;
-  background: rgba(0,0,0,0.28);
-  border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 10px;
-  padding: 16px;
-  color: #ffffff;
-  font-size: 15px;
-  word-break: break-all;
-  margin: 14px 0 18px;
-}
+    .btn {
+      border: 1px solid var(--line);
+      color: var(--text);
+      background: rgba(255,255,255,.045);
+      border-radius: 12px;
+      padding: 10px 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
 
-button {
-  width: 100%;
-  max-width: 360px;
-  display: inline-block;
-  border: none;
-  border-radius: 8px;
-  padding: 15px 18px;
-  margin: 7px auto;
-  color: white;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-}
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(37,230,167,.42);
+      background: rgba(37,230,167,.08);
+    }
 
-.btn-green { background: #08a86f; }
-.btn-orange { background: #d88916; }
-.btn-gray { background: #657f91; }
+    .btn.primary {
+      background: linear-gradient(135deg, var(--accent), #18bfa7);
+      color: #032019;
+      border-color: transparent;
+      font-weight: 800;
+    }
 
-.stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 18px;
-  max-width: 920px;
-  margin: 28px auto;
-}
+    .btn.small {
+      padding: 8px 10px;
+      min-height: 36px;
+      font-size: .88rem;
+    }
 
-.stat {
-  background: rgba(0, 80, 115, 0.45);
-  border: 1px solid rgba(35, 190, 255, 0.25);
-  border-radius: 16px;
-  padding: 24px 14px;
-  box-shadow: 0 16px 36px rgba(0,0,0,0.22);
-}
+    .icon {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.9;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
 
-.value {
-  font-size: 42px;
-  font-weight: 800;
-  color: #00ffb3;
-  margin-bottom: 8px;
-}
+    .panel {
+      position: relative;
+      background: linear-gradient(160deg, rgba(18,36,51,.98), rgba(9,23,34,.98));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
 
-.label {
-  font-size: 15px;
-  color: #d3eef8;
-}
+    .panel-head {
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      border-bottom: 1px solid var(--line);
+    }
 
-.stat-actions {
-  margin-top: 16px;
-}
+    .panel-title {
+      display: flex;
+      gap: 11px;
+      align-items: center;
+    }
 
-.stat-actions button {
-  max-width: 100%;
-  padding: 12px 10px;
-  font-size: 14px;
-  margin: 5px auto;
-}
+    .panel-title h2 {
+      margin: 0;
+      font-size: 1.05rem;
+    }
 
-.message {
-  color: #ffcc00;
-  margin: 18px 0;
-  white-space: pre-wrap;
-}
+    .panel-title p {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: .84rem;
+    }
 
-.divider {
-  height: 1px;
-  background: rgba(255,255,255,0.22);
-  max-width: 760px;
-  margin: 34px auto;
-}
+    .panel-body { padding: 20px; }
 
-.footer {
-  margin-top: 45px;
-  color: rgba(255,255,255,0.45);
-  font-size: 14px;
-}
+    .privacy-btn {
+      white-space: nowrap;
+    }
 
-@media (max-width: 600px) {
-  .page { padding: 30px 14px 85px; }
-  h1 { font-size: 28px; }
-  .value { font-size: 36px; }
-}
-</style>
+    .private-zone {
+      position: relative;
+      transition: filter .2s ease;
+    }
+
+    .private-zone.is-private .private-content {
+      filter: blur(8px);
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .privacy-cover {
+      display: none;
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border-radius: 16px;
+      background: rgba(5,14,22,.62);
+      backdrop-filter: blur(2px);
+    }
+
+    .private-zone.is-private .privacy-cover { display: flex; }
+
+    .privacy-cover-inner {
+      width: min(390px, calc(100% - 30px));
+      padding: 22px;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 16px;
+      background: rgba(10,25,37,.94);
+      box-shadow: var(--shadow);
+    }
+
+    .privacy-cover-inner strong {
+      display: block;
+      font-size: 1.08rem;
+      margin: 10px 0 5px;
+    }
+
+    .privacy-cover-inner span {
+      color: var(--muted);
+      font-size: .88rem;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .metric {
+      padding: 17px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.035);
+      border: 1px solid var(--line);
+      min-height: 112px;
+    }
+
+    .metric-label {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--muted);
+      font-size: .83rem;
+      margin-bottom: 12px;
+    }
+
+    .metric-value {
+      font-size: clamp(1.35rem, 3vw, 2rem);
+      font-weight: 850;
+      letter-spacing: -.03em;
+    }
+
+    .metric-note {
+      color: var(--muted);
+      font-size: .78rem;
+      margin-top: 5px;
+    }
+
+    .ref-box {
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: rgba(0,0,0,.19);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px;
+    }
+
+    .ref-box input {
+      flex: 1;
+      min-width: 0;
+      color: var(--text);
+      background: transparent;
+      border: 0;
+      outline: 0;
+      padding: 8px;
+    }
+
+    .levels {
+      display: grid;
+      gap: 13px;
+    }
+
+    details.level {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,.027);
+      overflow: hidden;
+    }
+
+    details.level[open] {
+      border-color: rgba(37,230,167,.25);
+    }
+
+    summary {
+      list-style: none;
+      padding: 16px;
+      cursor: pointer;
+      display: grid;
+      grid-template-columns: minmax(155px, 1.25fr) repeat(4, minmax(105px, .75fr)) 28px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+
+    .level-name {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-weight: 800;
+    }
+
+    .level-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: var(--accent);
+      background: rgba(37,230,167,.09);
+      border: 1px solid rgba(37,230,167,.20);
+    }
+
+    .sum-item span {
+      display: block;
+      color: var(--muted);
+      font-size: .72rem;
+      margin-bottom: 3px;
+    }
+
+    .sum-item strong { font-size: .95rem; }
+
+    .chevron {
+      transition: transform .2s ease;
+    }
+
+    details[open] .chevron { transform: rotate(180deg); }
+
+    .table-wrap {
+      border-top: 1px solid var(--line);
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 830px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 13px 15px;
+      border-bottom: 1px solid rgba(255,255,255,.065);
+      font-size: .87rem;
+      white-space: nowrap;
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 650;
+      font-size: .76rem;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      background: rgba(0,0,0,.14);
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .bi-code {
+      font-weight: 800;
+      color: var(--accent-2);
+    }
+
+    .empty {
+      padding: 22px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .status {
+      padding: 11px 14px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      font-size: .88rem;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.035);
+      color: var(--muted);
+    }
+
+    .status.error {
+      color: #ffd7dc;
+      border-color: rgba(255,107,125,.32);
+      background: rgba(255,107,125,.09);
+    }
+
+    .status.success {
+      color: #cffff0;
+      border-color: rgba(37,230,167,.30);
+      background: rgba(37,230,167,.08);
+    }
+
+    .footer-actions {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 20;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: #102536;
+      border: 1px solid rgba(37,230,167,.30);
+      box-shadow: var(--shadow);
+      transform: translateY(30px);
+      opacity: 0;
+      pointer-events: none;
+      transition: .22s ease;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    @media (max-width: 900px) {
+      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      summary {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+      .level-name { grid-column: 1 / -1; }
+      .chevron { position: absolute; right: 20px; }
+    }
+
+    @media (max-width: 620px) {
+      .page { width: min(100% - 18px, 1180px); padding-top: 15px; }
+      .header { flex-direction: column; }
+      .top-actions { width: 100%; justify-content: stretch; }
+      .top-actions .btn { flex: 1; }
+      .summary-grid { grid-template-columns: 1fr; }
+      .panel-head { align-items: flex-start; }
+      .privacy-btn .privacy-label { display: none; }
+      summary { grid-template-columns: 1fr 1fr; }
+      .sum-item:last-of-type { display: none; }
+      .ref-box { flex-direction: column; align-items: stretch; }
+    }
+  </style>
 </head>
-
 <body>
+  <main class="page">
+    <header class="header">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg class="icon" viewBox="0 0 24 24" style="width:26px;height:26px">
+            <path d="M4 18V9"></path><path d="M10 18V5"></path><path d="M16 18v-7"></path><path d="M22 18V3"></path>
+          </svg>
+        </div>
+        <div>
+          <h1>Empfehlungscenter</h1>
+          <p>Deine Ebenen, Käufe und freigegebenen Referral Units</p>
+        </div>
+      </div>
 
-<div class="page">
-
-  <img
-    src="../logo_betisight.club.png"
-    alt="BetInsight Club"
-    class="logo"
-    onerror="this.style.display='none'"
-  >
-
-  <h1>🔗 Empfehlungscenter</h1>
-
-  <p class="subtitle">
-    Hier findest du deinen persönlichen Empfehlungslink, deine Teamstatistik und deine Referral-Units.
-  </p>
-
-  <div class="card">
-    <h2>Mein Empfehlungslink</h2>
-
-    <p>
-      Teile diesen Link mit neuen Mitgliedern. Sobald sich jemand über deinen Link registriert,
-      wird er automatisch deiner Empfehlungsstruktur zugeordnet.
-    </p>
-
-    <div class="linkbox" id="meinLink">
-      Daten werden geladen...
-    </div>
-
-    <button class="btn-green" onclick="linkKopieren()">
-      🔗 Link kopieren
-    </button>
-  </div>
-
-  <div class="stats">
-
-    <div class="stat">
-      <div class="value" id="direkt">0</div>
-      <div class="label">Direkte Partner</div>
-    </div>
-
-    <div class="stat">
-      <div class="value" id="ebene2">0</div>
-      <div class="label">Ebene 2</div>
-    </div>
-
-    <div class="stat">
-      <div class="value" id="ebene3">0</div>
-      <div class="label">Ebene 3</div>
-    </div>
-
-    <div class="stat">
-      <div class="value" id="units">0</div>
-      <div class="label">Referral Units</div>
-
-      <div class="stat-actions">
-        <button class="btn-green" onclick="referralUnitsAufsKonto()">
-          ⭐ Units aufs Konto buchen
+      <div class="top-actions">
+        <button class="btn" id="reloadBtn" type="button">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.34 5.66"></path><path d="M20 4v7h-7"></path></svg>
+          Aktualisieren
         </button>
+        <a class="btn" href="https://betinsight.systeme.io/" rel="noopener">
+          <svg class="icon" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"></path></svg>
+          Mitgliederbereich
+        </a>
+      </div>
+    </header>
 
-        <button class="btn-orange" onclick="auszahlungBeantragen()">
-          💰 Auszahlung beantragen
+    <div id="status" class="status">Daten werden vorbereitet …</div>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">
+          <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <div>
+            <h2>Persönliche Übersicht</h2>
+            <p>Dieser Bereich ist beim Öffnen automatisch geschützt.</p>
+          </div>
+        </div>
+        <button class="btn small privacy-btn" id="topPrivacyBtn" type="button" aria-pressed="true">
+          <svg class="icon lock-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <span class="privacy-label">Anzeigen</span>
         </button>
       </div>
+
+      <div class="panel-body">
+        <div class="private-zone is-private" id="topPrivateZone">
+          <div class="private-content">
+            <div class="summary-grid">
+              <article class="metric">
+                <div class="metric-label">
+                  <svg class="icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path></svg>
+                  Ebene 1 – direkt
+                </div>
+                <div class="metric-value" id="directCount">0</div>
+                <div class="metric-note">direkte Partner</div>
+              </article>
+
+              <article class="metric">
+                <div class="metric-label">
+                  <svg class="icon" viewBox="0 0 24 24"><path d="M12 2v20"></path><path d="m17 7-5-5-5 5"></path></svg>
+                  Erwartete Referral Units
+                </div>
+                <div class="metric-value" id="expectedTotal">0</div>
+                <div class="metric-note">noch nicht freigegeben</div>
+              </article>
+
+              <article class="metric">
+                <div class="metric-label">
+                  <svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg>
+                  Freigegebene Units
+                </div>
+                <div class="metric-value" id="releasedTotal">0</div>
+                <div class="metric-note">zur Umbuchung verfügbar</div>
+              </article>
+
+              <article class="metric">
+                <div class="metric-label">
+                  <svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"></path><path d="m7 15 4-4 3 3 5-6"></path></svg>
+                  Gekaufte Units
+                </div>
+                <div class="metric-value" id="purchasedTotal">0</div>
+                <div class="metric-note">Ebene 1 bis 3</div>
+              </article>
+            </div>
+
+            <div class="ref-box">
+              <input id="refLink" type="text" value="" readonly aria-label="Persönlicher Empfehlungslink">
+              <button class="btn primary" id="copyBtn" type="button">
+                <svg class="icon" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                Link kopieren
+              </button>
+            </div>
+          </div>
+
+          <div class="privacy-cover">
+            <div class="privacy-cover-inner">
+              <svg class="icon" viewBox="0 0 24 24" style="width:32px;height:32px;margin:auto;color:var(--accent)">
+                <rect x="3" y="11" width="18" height="10" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              <strong>Persönliche Werte geschützt</strong>
+              <span>Nutze oben rechts den Datenschutz-Button, um die Übersicht anzuzeigen.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"></path><path d="M7 16v-4"></path><path d="M12 16V8"></path><path d="M17 16v-7"></path></svg>
+          <div>
+            <h2>Struktur und Umsätze</h2>
+            <p>Standardmäßig sichtbar. Kann bei Bedarf separat geschützt werden.</p>
+          </div>
+        </div>
+        <button class="btn small privacy-btn" id="bottomPrivacyBtn" type="button" aria-pressed="false">
+          <svg class="icon eye-icon" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          <span class="privacy-label">Schützen</span>
+        </button>
+      </div>
+
+      <div class="panel-body">
+        <div class="private-zone" id="bottomPrivateZone">
+          <div class="private-content">
+            <div class="levels" id="levelsContainer"></div>
+          </div>
+
+          <div class="privacy-cover">
+            <div class="privacy-cover-inner">
+              <svg class="icon" viewBox="0 0 24 24" style="width:32px;height:32px;margin:auto;color:var(--accent)">
+                <rect x="3" y="11" width="18" height="10" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              <strong>Strukturansicht geschützt</strong>
+              <span>Der Nutzer kann diesen Bereich freiwillig schützen oder sichtbar lassen.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer-actions">
+      <button class="btn" type="button" id="transferBtn">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12 3v18"></path><path d="m7 8 5-5 5 5"></path><path d="m7 16 5 5 5-5"></path></svg>
+        Units aufs Konto buchen
+      </button>
+      <button class="btn" type="button" id="exchangeBtn">
+        <svg class="icon" viewBox="0 0 24 24"><path d="m16 3 4 4-4 4"></path><path d="M4 7h16"></path><path d="m8 21-4-4 4-4"></path><path d="M20 17H4"></path></svg>
+        Zur Wechselbörse
+      </button>
     </div>
+  </main>
 
-    <div class="stat">
-      <div class="value" id="gesamt">0</div>
-      <div class="label">Gesamt Referral</div>
-    </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  </div>
+  <script>
+    "use strict";
 
-  <div class="card">
-    <h2>Status</h2>
-    <p id="statusText">
-      Verbindung zum Empfehlungscenter wird geprüft...
-    </p>
-  </div>
+    /*
+      WICHTIG:
+      Sobald der neue Make-Webhook für Partnerlisten und Umsätze fertig ist,
+      hier die URL einsetzen. Solange das Feld leer bleibt, zeigt die Datei
+      bewusst Vorschau-Daten für das neue Design.
+    */
+    const API_URL = "";
 
-  <div class="divider"></div>
+    const params = new URLSearchParams(window.location.search);
+    const dashboardId = params.get("id") || "";
 
-  <button class="btn-gray" onclick="goBackoffice()">
-    ⬅ Zurück zum Mitgliederbereich
-  </button>
+    const demoData = {
+      ref_code: "BI260000005",
+      ref_link: "https://betinsightclub.github.io/profil/ref/?ref=BI260000005",
+      ref_erwartet: 28.4,
+      ref_verfuegbar: 8.7,
+      levels: [
+        {
+          level: 1,
+          label: "Ebene 1 – direkte Partner",
+          partner_count: 2,
+          purchased_units: 350,
+          expected_units: 17.5,
+          released_units: 5.5,
+          partners: [
+            { bi_number: "BI260000006", sponsor: "BI260000005", purchased_units: 240, consumed_units: 80, expected_units: 12, released_units: 4 },
+            { bi_number: "BI260000007", sponsor: "BI260000005", purchased_units: 110, consumed_units: 30, expected_units: 5.5, released_units: 1.5 }
+          ]
+        },
+        {
+          level: 2,
+          label: "Ebene 2",
+          partner_count: 2,
+          purchased_units: 370,
+          expected_units: 7.4,
+          released_units: 2.4,
+          partners: [
+            { bi_number: "BI260000011", sponsor: "BI260000006", purchased_units: 130, consumed_units: 40, expected_units: 2.6, released_units: 0.8 },
+            { bi_number: "BI260000012", sponsor: "BI260000007", purchased_units: 240, consumed_units: 80, expected_units: 4.8, released_units: 1.6 }
+          ]
+        },
+        {
+          level: 3,
+          label: "Ebene 3",
+          partner_count: 1,
+          purchased_units: 350,
+          expected_units: 3.5,
+          released_units: 0.8,
+          partners: [
+            { bi_number: "BI260000018", sponsor: "BI260000011", purchased_units: 350, consumed_units: 80, expected_units: 3.5, released_units: 0.8 }
+          ]
+        }
+      ]
+    };
 
-  <div id="message" class="message"></div>
-
-  <div class="footer">
-    © 2026 BetInsight Club
-  </div>
-
-</div>
-
-<script>
-const EMPFEHLUNGEN_WEBHOOK_URL =
-  "https://hook.eu1.make.com/j883clzukqghxg9iiq91wxetue9wgoul";
-
-function zeigeZahl(elementId, wert) {
-  const element = document.getElementById(elementId);
-
-  if (wert === undefined || wert === null || wert === "") {
-    element.innerText = "0";
-    return;
-  }
-
-  element.innerText = String(wert);
-}
-
-async function ladeEmpfehlungsdaten() {
-  const params = new URLSearchParams(window.location.search);
-  const dashboardId = params.get("id");
-
-  if (!dashboardId || dashboardId.trim() === "") {
-    document.getElementById("statusText").innerText =
-      "Kein Empfehlungszugang gefunden. Bitte öffne diese Seite über deinen persönlichen Empfehlungscenter-Link.";
-
-    document.getElementById("meinLink").innerText =
-      "Kein persönlicher Empfehlungslink geladen.";
-
-    return;
-  }
-
-  try {
-    const url =
-      EMPFEHLUNGEN_WEBHOOK_URL +
-      "?id=" +
-      encodeURIComponent(dashboardId.trim());
-
-    const response = await fetch(url, {
-      method: "GET",
-      cache: "no-store"
+    const numberFormat = new Intl.NumberFormat("de-DE", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
     });
 
-    if (!response.ok) {
-      throw new Error("HTTP-Fehler: " + response.status);
+    const statusEl = document.getElementById("status");
+    const toastEl = document.getElementById("toast");
+
+    function formatNumber(value) {
+      const parsed = Number(value);
+      return numberFormat.format(Number.isFinite(parsed) ? parsed : 0);
     }
 
-    const data = await response.json();
-
-    if (!data || typeof data !== "object") {
-      throw new Error("Keine gültigen Daten erhalten.");
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
     }
 
-    /*
-      Empfehlungslink verwenden:
-      1. Zuerst ref_link aus Make.
-      2. Falls ref_link leer ist, Link aus ref_code erzeugen.
-    */
-    let empfehlungsLink = "";
-
-    if (data.ref_link && String(data.ref_link).trim() !== "") {
-      empfehlungsLink = String(data.ref_link).trim();
-    } else if (data.ref_code && String(data.ref_code).trim() !== "") {
-      empfehlungsLink =
-        "https://betinsightclub.github.io/profil/ref/?ref=" +
-        encodeURIComponent(String(data.ref_code).trim());
+    function showToast(message) {
+      toastEl.textContent = message;
+      toastEl.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toastEl.classList.remove("show"), 2200);
     }
 
-    if (empfehlungsLink) {
-      document.getElementById("meinLink").innerText = empfehlungsLink;
-    } else {
-      document.getElementById("meinLink").innerText =
-        "Kein persönlicher Empfehlungslink gefunden.";
+    function setStatus(message, type = "") {
+      statusEl.textContent = message;
+      statusEl.className = "status" + (type ? " " + type : "");
     }
 
-    /*
-      Statistik immer anzeigen.
-      Sie wird nicht mehr davon abhängig gemacht,
-      ob ref_link vorhanden ist.
-    */
-    zeigeZahl("direkt", data.direkte);
-    zeigeZahl("ebene2", data.ebene2);
-    zeigeZahl("ebene3", data.ebene3);
-    zeigeZahl("units", data.units);
-    zeigeZahl("gesamt", data.gesamt);
+    function normalizeData(raw) {
+      if (Array.isArray(raw.levels)) return raw;
 
-    if (empfehlungsLink) {
-      document.getElementById("statusText").innerText =
-        "Deine Empfehlungsdaten wurden erfolgreich geladen.";
-    } else {
-      document.getElementById("statusText").innerText =
-        "Die Teamstatistik wurde geladen. Der persönliche Empfehlungslink fehlt noch im Datensatz.";
+      return {
+        ref_code: raw.ref_code || "",
+        ref_link: raw.ref_link || "",
+        ref_erwartet: raw.ref_erwartet ?? raw.expected_units ?? 0,
+        ref_verfuegbar: raw.ref_verfuegbar ?? raw.released_units ?? raw.units ?? 0,
+        levels: [
+          {
+            level: 1,
+            label: "Ebene 1 – direkte Partner",
+            partner_count: Number(raw.direkte ?? raw.direkt_partner ?? 0),
+            purchased_units: Number(raw.ebene1_gekauft ?? 0),
+            expected_units: Number(raw.ebene1_erwartet ?? 0),
+            released_units: Number(raw.ebene1_frei ?? 0),
+            partners: Array.isArray(raw.ebene1_partner) ? raw.ebene1_partner : []
+          },
+          {
+            level: 2,
+            label: "Ebene 2",
+            partner_count: Number(raw.ebene2 ?? 0),
+            purchased_units: Number(raw.ebene2_gekauft ?? 0),
+            expected_units: Number(raw.ebene2_erwartet ?? 0),
+            released_units: Number(raw.ebene2_frei ?? 0),
+            partners: Array.isArray(raw.ebene2_partner) ? raw.ebene2_partner : []
+          },
+          {
+            level: 3,
+            label: "Ebene 3",
+            partner_count: Number(raw.ebene3 ?? 0),
+            purchased_units: Number(raw.ebene3_gekauft ?? 0),
+            expected_units: Number(raw.ebene3_erwartet ?? 0),
+            released_units: Number(raw.ebene3_frei ?? 0),
+            partners: Array.isArray(raw.ebene3_partner) ? raw.ebene3_partner : []
+          }
+        ]
+      };
     }
 
-  } catch (error) {
-    console.error("Fehler beim Laden der Empfehlungsdaten:", error);
+    function render(data) {
+      const levels = Array.isArray(data.levels) ? data.levels : [];
+      const purchasedTotal = levels.reduce((sum, row) => sum + Number(row.purchased_units || 0), 0);
+      const expectedTotal = Number(data.ref_erwartet ?? levels.reduce((sum, row) => sum + Number(row.expected_units || 0), 0));
+      const releasedTotal = Number(data.ref_verfuegbar ?? levels.reduce((sum, row) => sum + Number(row.released_units || 0), 0));
 
-    document.getElementById("statusText").innerText =
-      "Die Daten konnten nicht geladen werden. Bitte prüfe die Make-Verbindung.";
+      document.getElementById("directCount").textContent = formatNumber(levels[0]?.partner_count || 0);
+      document.getElementById("expectedTotal").textContent = formatNumber(expectedTotal);
+      document.getElementById("releasedTotal").textContent = formatNumber(releasedTotal);
+      document.getElementById("purchasedTotal").textContent = formatNumber(purchasedTotal);
+      document.getElementById("refLink").value = data.ref_link || (
+        data.ref_code ? "https://betinsightclub.github.io/profil/ref/?ref=" + encodeURIComponent(data.ref_code) : ""
+      );
 
-    document.getElementById("meinLink").innerText =
-      "Verbindung zu Make nicht verfügbar.";
-  }
-}
+      const container = document.getElementById("levelsContainer");
+      container.innerHTML = levels.map((level, index) => {
+        const partners = Array.isArray(level.partners) ? level.partners : [];
+        const rows = partners.length
+          ? partners.map(partner => `
+              <tr>
+                <td class="bi-code">${escapeHtml(partner.bi_number || partner.ref_code || "—")}</td>
+                <td>${escapeHtml(partner.sponsor || partner.sponsor_ref_code || "—")}</td>
+                <td>${formatNumber(partner.purchased_units)}</td>
+                <td>${formatNumber(partner.consumed_units)}</td>
+                <td>${formatNumber(partner.expected_units)}</td>
+                <td>${formatNumber(partner.released_units)}</td>
+              </tr>
+            `).join("")
+          : `<tr><td colspan="6" class="empty">Für diese Ebene liegen noch keine Partnerdetails vor.</td></tr>`;
 
-async function linkKopieren() {
-  const link = document.getElementById("meinLink").innerText.trim();
+        return `
+          <details class="level" ${index === 0 ? "open" : ""}>
+            <summary>
+              <div class="level-name">
+                <div class="level-badge">${escapeHtml(level.level || index + 1)}</div>
+                <div>${escapeHtml(level.label || "Ebene " + (index + 1))}</div>
+              </div>
+              <div class="sum-item"><span>Partner</span><strong>${formatNumber(level.partner_count)}</strong></div>
+              <div class="sum-item"><span>Gekauft</span><strong>${formatNumber(level.purchased_units)} Units</strong></div>
+              <div class="sum-item"><span>Erwartet</span><strong>${formatNumber(level.expected_units)}</strong></div>
+              <div class="sum-item"><span>Freigegeben</span><strong>${formatNumber(level.released_units)}</strong></div>
+              <svg class="icon chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg>
+            </summary>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>BI-Nummer</th>
+                    <th>Sponsor</th>
+                    <th>Gekaufte Units</th>
+                    <th>Verbrauchte Kauf-Units</th>
+                    <th>Erwartete Referral Units</th>
+                    <th>Freigegebene Referral Units</th>
+                  </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </div>
+          </details>
+        `;
+      }).join("");
+    }
 
-  if (
-    !link ||
-    link.includes("geladen") ||
-    link.includes("gefunden") ||
-    link.includes("verfügbar") ||
-    link.includes("fehlt")
-  ) {
-    document.getElementById("message").innerText =
-      "Noch kein persönlicher Empfehlungslink verfügbar.";
+    function privacyIcon(isPrivate) {
+      return isPrivate
+        ? `<svg class="icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`
+        : `<svg class="icon" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+    }
 
-    return;
-  }
+    function configurePrivacy(buttonId, zoneId, startsPrivate) {
+      const button = document.getElementById(buttonId);
+      const zone = document.getElementById(zoneId);
+      let isPrivate = startsPrivate;
 
-  try {
-    await navigator.clipboard.writeText(link);
+      function update() {
+        zone.classList.toggle("is-private", isPrivate);
+        button.setAttribute("aria-pressed", String(isPrivate));
+        button.innerHTML = privacyIcon(isPrivate) +
+          `<span class="privacy-label">${isPrivate ? "Anzeigen" : "Schützen"}</span>`;
+      }
 
-    document.getElementById("message").innerText =
-      "Empfehlungslink wurde kopiert.";
-  } catch (error) {
-    document.getElementById("message").innerText =
-      "Der Link konnte nicht automatisch kopiert werden.";
-  }
-}
+      button.addEventListener("click", () => {
+        isPrivate = !isPrivate;
+        update();
+      });
 
-function referralUnitsAufsKonto() {
-  document.getElementById("message").innerText =
-    "Diese Funktion wird im nächsten Schritt mit Make verbunden. Danach kannst du Referral Units auf dein normales Unit-Konto buchen.";
-}
+      update();
+    }
 
-function auszahlungBeantragen() {
-  document.getElementById("message").innerText =
-    "Die Auszahlung wird später über einen eigenen Auszahlungsbereich vorbereitet.";
-}
+    async function loadData() {
+      if (!API_URL) {
+        render(demoData);
+        setStatus("Design-Vorschau aktiv. Der neue Make-Webhook für Partnerlisten und Umsätze wird danach verbunden.", "success");
+        return;
+      }
 
-function goBackoffice() {
-  window.location.href =
-    "https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726";
-}
+      if (!dashboardId) {
+        setStatus("Der persönliche Dashboard-Code fehlt im Link.", "error");
+        return;
+      }
 
-ladeEmpfehlungsdaten();
-</script>
+      try {
+        setStatus("Empfehlungsdaten werden geladen …");
+        const separator = API_URL.includes("?") ? "&" : "?";
+        const response = await fetch(API_URL + separator + "id=" + encodeURIComponent(dashboardId), {
+          method: "GET",
+          cache: "no-store"
+        });
 
+        if (!response.ok) throw new Error("HTTP " + response.status);
+
+        const raw = await response.json();
+        render(normalizeData(raw));
+        setStatus("Daten wurden erfolgreich geladen.", "success");
+      } catch (error) {
+        console.error(error);
+        render(demoData);
+        setStatus("Der Make-Webhook konnte nicht geladen werden. Deshalb wird die Design-Vorschau gezeigt.", "error");
+      }
+    }
+
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      const input = document.getElementById("refLink");
+      if (!input.value) {
+        showToast("Noch kein Empfehlungslink vorhanden.");
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(input.value);
+        showToast("Empfehlungslink kopiert.");
+      } catch {
+        input.select();
+        document.execCommand("copy");
+        showToast("Empfehlungslink kopiert.");
+      }
+    });
+
+    document.getElementById("reloadBtn").addEventListener("click", loadData);
+
+    document.getElementById("transferBtn").addEventListener("click", () => {
+      showToast("Die Umbuchungsfunktion wird nach der FIFO- und Referral-Logik verbunden.");
+    });
+
+    document.getElementById("exchangeBtn").addEventListener("click", () => {
+      showToast("Die Wechselbörse wird in einem späteren Schritt verbunden.");
+    });
+
+    configurePrivacy("topPrivacyBtn", "topPrivateZone", true);
+    configurePrivacy("bottomPrivacyBtn", "bottomPrivateZone", false);
+    loadData();
+  </script>
 </body>
 </html>
