@@ -1214,7 +1214,7 @@ input {
           id="refreshReferralButton"
           class="privacy-toggle"
           type="button"
-          onclick="loadReferralData(true)"
+          onclick="refreshNetworkData(true)"
         >
           ↻ Aktualisieren
         </button>
@@ -1460,7 +1460,7 @@ input {
             💰 Auszahlung vorbereiten
           </button>
 
-          <button class="btn-blue" type="button" onclick="loadReferralData(true)">
+          <button class="btn-blue" type="button" onclick="refreshNetworkData(true)">
             🔄 Netzwerkdaten aktualisieren
           </button>
 
@@ -1568,6 +1568,9 @@ const REQUEST_LINK_WEBHOOK_URL =
 
 const EMPFEHLUNGEN_WEBHOOK_URL =
   "https://hook.eu1.make.com/j883clzukqghxg9iiq91wxetue9wgoul";
+
+const STRUCTURE_WEBHOOK_URL =
+  "https://hook.eu1.make.com/p8a6a45lxx958ak5e6aqc4gk3e1suair";
 
 const TOKEN_STORAGE_KEY = "betinsight_profile_token";
 
@@ -1829,8 +1832,26 @@ function normalizePartnerArray(data, level) {
   ];
 
   for (const key of possibleKeys) {
-    if (Array.isArray(data && data[key])) {
-      return data[key];
+    const value = data ? data[key] : null;
+
+    if (Array.isArray(value)) {
+      return value;
+    }
+
+    if (typeof value === "string" && value.trim() !== "") {
+      try {
+        const parsed = JSON.parse(value);
+
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
+      } catch (error) {
+        /* Kein JSON-String. */
+      }
+    }
+
+    if (value && typeof value === "object" && Array.isArray(value.array)) {
+      return value.array;
     }
   }
 
@@ -1864,11 +1885,11 @@ function renderLevelTable(level, partners) {
 
   body.innerHTML = partners.map(partner => {
     const biNumber = String(
-      partnerValue(partner, ["bi_nummer", "bi_number", "ref_code", "user_id"], "-")
+      partnerValue(partner, ["bi_nummer", "bi_number", "ref_code", "user_id", "7", "6"], "-")
     );
 
     const sponsor = String(
-      partnerValue(partner, ["sponsor", "sponsor_ref", "sponsor_code"], "-")
+      partnerValue(partner, ["sponsor", "sponsor_ref", "sponsor_code", "sponsor_ref_code", "8", "9"], "-")
     );
 
     const purchased = formatNumber(
@@ -1985,6 +2006,7 @@ function setLevelSummary(level, data, partners) {
 }
 
 async function loadReferralData(showButtonFeedback = false) {
+  showButtonFeedback = false;
   const status = document.getElementById("referralStatus");
   const linkBox = document.getElementById("referralLink");
   const refreshButton = document.getElementById("refreshReferralButton");
@@ -2087,12 +2109,6 @@ async function loadReferralData(showButtonFeedback = false) {
     document.getElementById("referralReleased").innerText = formatNumber(released);
     document.getElementById("referralTotal").innerText = formatNumber(networkTotal);
 
-    for (let level = 1; level <= 3; level += 1) {
-      const partners = normalizePartnerArray(data, level);
-      setLevelSummary(level, data, partners);
-      renderLevelTable(level, partners);
-    }
-
     status.innerText =
       "Deine Empfehlungsdaten wurden erfolgreich geladen.";
 
@@ -2133,13 +2149,98 @@ function resetReferralValues() {
   document.getElementById("referralExpected").innerText = "0";
   document.getElementById("referralReleased").innerText = "0";
   document.getElementById("referralTotal").innerText = "0";
+}
 
+function resetStructureValues() {
   for (let level = 1; level <= 3; level += 1) {
     document.getElementById("level" + level + "Partners").innerText = "0";
     document.getElementById("level" + level + "Purchased").innerText = "0 Units";
     document.getElementById("level" + level + "Expected").innerText = "0";
     document.getElementById("level" + level + "Released").innerText = "0";
     renderLevelTable(level, []);
+  }
+}
+
+async function loadStructureData(showButtonFeedback = false) {
+  const status = document.getElementById("referralStatus");
+  const dashboardToken =
+    String(currentProfileData.dashboardToken || "").trim();
+
+  if (!dashboardToken) {
+    resetStructureValues();
+    status.innerText =
+      "Die Strukturdetails können noch nicht geladen werden: dashboard_token fehlt.";
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      STRUCTURE_WEBHOOK_URL +
+      "?token=" +
+      encodeURIComponent(dashboardToken),
+      {
+        method: "GET",
+        cache: "no-store"
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("HTTP-Fehler: " + response.status);
+    }
+
+    const data = await response.json();
+
+    if (!data || typeof data !== "object") {
+      throw new Error("Keine gültigen Strukturdaten erhalten.");
+    }
+
+    for (let level = 1; level <= 3; level += 1) {
+      const partners = normalizePartnerArray(data, level);
+      setLevelSummary(level, data, partners);
+      renderLevelTable(level, partners);
+    }
+
+    const directCount = safeNumber(
+      firstDefined(data, ["direkte", "level1_count", "ebene1_count"], 0)
+    );
+
+    if (directCount > 0) {
+      document.getElementById("level1Partners").innerText =
+        formatNumber(directCount);
+    }
+
+    status.innerText =
+      "Empfehlungsübersicht und Strukturdetails wurden erfolgreich geladen.";
+
+  } catch (error) {
+    console.error("Fehler beim Laden der Strukturdetails:", error);
+    resetStructureValues();
+    status.innerText =
+      "Die Strukturdetails konnten nicht geladen werden. Bitte prüfe Dashboard Profil V3 in Make.";
+  }
+}
+
+async function refreshNetworkData(showButtonFeedback = false) {
+  const refreshButton = document.getElementById("refreshReferralButton");
+  const oldText = refreshButton ? refreshButton.innerText : "";
+
+  if (showButtonFeedback && refreshButton) {
+    refreshButton.disabled = true;
+    refreshButton.innerText = "⏳ Lädt...";
+  }
+
+  await Promise.allSettled([
+    loadReferralData(false),
+    loadStructureData(false)
+  ]);
+
+  if (showButtonFeedback && refreshButton) {
+    refreshButton.innerText = "✅ Aktualisiert";
+
+    window.setTimeout(() => {
+      refreshButton.disabled = false;
+      refreshButton.innerText = oldText;
+    }, 2200);
   }
 }
 
@@ -2418,7 +2519,7 @@ function fetchProfileByToken(tokenVariants, index) {
       document.getElementById("message").innerText =
         "Kontostand wurde aktualisiert.";
 
-      loadReferralData();
+      refreshNetworkData();
 
       setDebug(
         "Debug: Token aktiv: " + finalToken +
@@ -2580,6 +2681,7 @@ function forgetToken() {
   setBetInsightId("");
   setMaskedToken("");
   resetReferralValues();
+  resetStructureValues();
 
   currentProfileData = {
     email: "",
