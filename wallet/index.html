@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#071019">
+  <meta name="application-version" content="1.0.0">
   <title>Wallet-Verwaltung | BetInsight Club</title>
   <style>
     :root {
@@ -474,7 +475,7 @@
     </section>
 
     <p class="footer-note">
-      Dieser Prototyp prüft die Eingaben nur im Browser und sendet noch keine Daten an Make oder Google Sheets.
+      BetInsight Wallet-Verwaltung · Version 1.0.0
     </p>
   </main>
 
@@ -591,7 +592,7 @@
         return;
       }
 
-      const prototypeRecord = {
+      const walletRecord = {
         dashboard_token: dashboardToken,
         wallet_adresse: address,
         wallet_coin: option.coin,
@@ -604,17 +605,17 @@
       };
 
       saveButton.disabled = true;
-      walletStatus.textContent = "Prototyp geprüft";
+      walletStatus.textContent = "Eingaben geprüft";
       walletStatus.style.color = "var(--accent)";
       walletStatus.style.borderColor = "rgba(37, 230, 167, 0.3)";
       walletStatus.style.background = "rgba(37, 230, 167, 0.1)";
 
       showFeedback(
-        "Die Eingaben sind vollständig und technisch plausibel. Im nächsten Schritt verbinden wir diese Seite mit Make und speichern genau einen Wallet-Datensatz pro Nutzer.",
+        "Die Eingaben sind vollständig und technisch plausibel.",
         "success"
       );
 
-      console.info("BetInsight Wallet-Prototyp:", prototypeRecord);
+      console.info("BetInsight Wallet-Datensatz:", walletRecord);
 
       window.setTimeout(function () {
         saveButton.disabled = false;
