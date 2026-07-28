@@ -473,7 +473,7 @@ button {
 
 .account-stat-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 11px;
 }
 
@@ -502,6 +502,7 @@ button {
 .value-blue { color: #3ca8ff; }
 .value-green { color: var(--green); }
 .value-orange { color: var(--orange); }
+.value-cyan { color: var(--cyan); }
 
 .account-actions {
   display: grid;
@@ -856,9 +857,6 @@ input {
     grid-template-columns: 1fr;
   }
 
-  .account-stat-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
 
   .referral-overview {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1143,6 +1141,11 @@ input {
             </div>
 
             <div class="account-stat">
+              <div class="account-stat-label">Verbrauchte Units</div>
+              <div id="consumedUnits" class="account-stat-value value-cyan account-private-value">–</div>
+            </div>
+
+            <div class="account-stat">
               <div class="account-stat-label">Profilstatus</div>
               <div class="account-stat-value value-blue" style="font-size:18px;">Aktiv</div>
             </div>
@@ -1214,7 +1217,7 @@ input {
           type="button"
           onclick="refreshNetworkData(true)"
         >
-          ↻ Aktualisieren
+          ↻ Netzwerkdaten laden
         </button>
       </div>
 
@@ -1223,9 +1226,23 @@ input {
         <div class="referral-overview">
 
           <div class="referral-stat">
-            <div class="referral-stat-label">♙ Ebene 1 – direkt</div>
-            <div id="referralDirect" class="referral-stat-value">0</div>
-            <div class="referral-stat-note">direkte Partner</div>
+            <div class="referral-stat-label">👥 Netzwerk</div>
+
+            <div style="margin-top:10px;font-size:15px;line-height:1.9;">
+              <div>Ebene 1: <strong id="networkLevel1">–</strong></div>
+              <div>Ebene 2: <strong id="networkLevel2">–</strong></div>
+              <div>Ebene 3: <strong id="networkLevel3">–</strong></div>
+            </div>
+
+            <button
+              id="networkLoadButton"
+              class="btn-blue"
+              type="button"
+              style="margin-top:12px;min-height:38px;"
+              onclick="refreshNetworkData(true)"
+            >
+              🔄 Netzwerk laden
+            </button>
           </div>
 
           <div class="referral-stat">
@@ -1459,7 +1476,7 @@ input {
           </button>
 
           <button class="btn-blue" type="button" onclick="refreshNetworkData(true)">
-            🔄 Netzwerkdaten aktualisieren
+            🔄 Netzwerkdaten laden
           </button>
 
         </div>
@@ -1581,6 +1598,7 @@ let currentProfileData = {
   refCode: "",
   dashboardToken: "",
   refLink: "",
+  consumedUnits: null,
   unlockedTips: 0
 };
 
@@ -1617,6 +1635,14 @@ function firstDefined(object, keys, fallback = 0) {
   }
 
   return fallback;
+}
+
+function formatOptionalNumber(value) {
+  if (value === undefined || value === null || value === "") {
+    return "–";
+  }
+
+  return formatNumber(value);
 }
 
 function maskAccessToken(token) {
@@ -2002,8 +2028,24 @@ function setLevelSummary(level, data, partners) {
     formatNumber(released);
 }
 
+function prepareNetworkSection() {
+  const linkBox = document.getElementById("referralLink");
+  const status = document.getElementById("referralStatus");
+
+  document.getElementById("referralSection").style.display = "block";
+
+  linkBox.innerText =
+    buildReferralLink({}) ||
+    "Persönlicher Empfehlungslink wird noch vorbereitet.";
+
+  resetReferralValues();
+  resetStructureValues();
+
+  status.innerText =
+    "Netzwerkdaten werden erst geladen, wenn du auf „Netzwerkdaten laden“ klickst.";
+}
+
 async function loadReferralData(showButtonFeedback = false) {
-  showButtonFeedback = false;
   const status = document.getElementById("referralStatus");
   const linkBox = document.getElementById("referralLink");
   const refreshButton = document.getElementById("refreshReferralButton");
@@ -2101,7 +2143,9 @@ async function loadReferralData(showButtonFeedback = false) {
       firstDefined(data, ["gesamt", "total", "network_total"], direct + level2 + level3)
     );
 
-    document.getElementById("referralDirect").innerText = formatNumber(direct);
+    document.getElementById("networkLevel1").innerText = formatNumber(direct);
+    document.getElementById("networkLevel2").innerText = formatNumber(level2);
+    document.getElementById("networkLevel3").innerText = formatNumber(level3);
     document.getElementById("referralExpected").innerText = formatNumber(expected);
     document.getElementById("referralReleased").innerText = formatNumber(released);
     document.getElementById("referralTotal").innerText = formatNumber(networkTotal);
@@ -2111,6 +2155,8 @@ async function loadReferralData(showButtonFeedback = false) {
 
     if (showButtonFeedback && refreshButton) {
       refreshButton.innerText = "✅ Aktualisiert";
+    const nbtn=document.getElementById("networkLoadButton");
+    if(nbtn){nbtn.innerText="✅ Aktualisiert";}
 
       window.setTimeout(() => {
         refreshButton.disabled = false;
@@ -2132,6 +2178,8 @@ async function loadReferralData(showButtonFeedback = false) {
 
     if (showButtonFeedback && refreshButton) {
       refreshButton.innerText = "❌ Fehler";
+      const nbtn=document.getElementById("networkLoadButton");
+      if(nbtn){nbtn.innerText="❌ Fehler";}
 
       window.setTimeout(() => {
         refreshButton.disabled = false;
@@ -2142,7 +2190,9 @@ async function loadReferralData(showButtonFeedback = false) {
 }
 
 function resetReferralValues() {
-  document.getElementById("referralDirect").innerText = "0";
+  document.getElementById("networkLevel1").innerText = "–";
+  document.getElementById("networkLevel2").innerText = "–";
+  document.getElementById("networkLevel3").innerText = "–";
   document.getElementById("referralExpected").innerText = "0";
   document.getElementById("referralReleased").innerText = "0";
   document.getElementById("referralTotal").innerText = "0";
@@ -2233,6 +2283,8 @@ async function refreshNetworkData(showButtonFeedback = false) {
 
   if (showButtonFeedback && refreshButton) {
     refreshButton.innerText = "✅ Aktualisiert";
+    const nbtn=document.getElementById("networkLoadButton");
+    if(nbtn){nbtn.innerText="✅ Aktualisiert";}
 
     window.setTimeout(() => {
       refreshButton.disabled = false;
@@ -2482,6 +2534,12 @@ function fetchProfileByToken(tokenVariants, index) {
         )
       );
 
+      const consumedUnitsRaw = firstDefined(
+        data,
+        ["verbrauchte_units", "consumed_units", "used_units"],
+        null
+      );
+
       const unlockedTips = safeNumber(
         firstDefined(
           data,
@@ -2496,6 +2554,7 @@ function fetchProfileByToken(tokenVariants, index) {
         refCode: refCode,
         dashboardToken: dashboardToken,
         refLink: refLink,
+        consumedUnits: consumedUnitsRaw,
         unlockedTips: unlockedTips
       };
 
@@ -2504,6 +2563,8 @@ function fetchProfileByToken(tokenVariants, index) {
 
       document.getElementById("units").innerText = formatNumber(units);
       document.getElementById("accountUnits").innerText = formatNumber(units);
+      document.getElementById("consumedUnits").innerText =
+        formatOptionalNumber(consumedUnitsRaw);
       document.getElementById("unlockedTips").innerText = formatNumber(unlockedTips);
       document.getElementById("email").innerText = data.email;
 
@@ -2514,7 +2575,7 @@ function fetchProfileByToken(tokenVariants, index) {
       document.getElementById("message").innerText =
         "Kontostand wurde aktualisiert.";
 
-      refreshNetworkData();
+      prepareNetworkSection();
 
       setDebug(
         "Debug: Token aktiv: " + finalToken +
@@ -2550,6 +2611,7 @@ function loadUnits() {
 
   document.getElementById("units").innerText = "0";
   document.getElementById("accountUnits").innerText = "0";
+  document.getElementById("consumedUnits").innerText = "–";
   document.getElementById("unlockedTips").innerText = "0";
 
   fetchProfileByToken(buildTokenVariants(token), 0);
@@ -2668,6 +2730,7 @@ function forgetToken() {
 
   document.getElementById("units").innerText = "0";
   document.getElementById("accountUnits").innerText = "0";
+  document.getElementById("consumedUnits").innerText = "–";
   document.getElementById("unlockedTips").innerText = "0";
   document.getElementById("email").innerText = "Kein Zugangscode";
 
