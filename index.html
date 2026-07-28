@@ -473,7 +473,7 @@ button {
 
 .account-stat-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 11px;
 }
 
@@ -502,7 +502,6 @@ button {
 .value-blue { color: #3ca8ff; }
 .value-green { color: var(--green); }
 .value-orange { color: var(--orange); }
-.value-cyan { color: var(--cyan); }
 
 .account-actions {
   display: grid;
@@ -857,6 +856,10 @@ input {
     grid-template-columns: 1fr;
   }
 
+  .account-stat-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .referral-overview {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1137,11 +1140,6 @@ input {
             <div class="account-stat">
               <div class="account-stat-label">Freigeschaltete Tipps</div>
               <div id="unlockedTips" class="account-stat-value value-green account-private-value">0</div>
-            </div>
-
-            <div class="account-stat">
-              <div class="account-stat-label">Geschenk-Units verfügbar</div>
-              <div id="giftUnits" class="account-stat-value value-cyan account-private-value">0</div>
             </div>
 
             <div class="account-stat">
@@ -1583,7 +1581,6 @@ let currentProfileData = {
   refCode: "",
   dashboardToken: "",
   refLink: "",
-  giftUnits: 0,
   unlockedTips: 0
 };
 
@@ -2499,7 +2496,6 @@ function fetchProfileByToken(tokenVariants, index) {
         refCode: refCode,
         dashboardToken: dashboardToken,
         refLink: refLink,
-        giftUnits: giftUnits,
         unlockedTips: unlockedTips
       };
 
@@ -2508,7 +2504,6 @@ function fetchProfileByToken(tokenVariants, index) {
 
       document.getElementById("units").innerText = formatNumber(units);
       document.getElementById("accountUnits").innerText = formatNumber(units);
-      document.getElementById("giftUnits").innerText = formatNumber(giftUnits);
       document.getElementById("unlockedTips").innerText = formatNumber(unlockedTips);
       document.getElementById("email").innerText = data.email;
 
@@ -2555,7 +2550,6 @@ function loadUnits() {
 
   document.getElementById("units").innerText = "0";
   document.getElementById("accountUnits").innerText = "0";
-  document.getElementById("giftUnits").innerText = "0";
   document.getElementById("unlockedTips").innerText = "0";
 
   fetchProfileByToken(buildTokenVariants(token), 0);
@@ -2674,7 +2668,6 @@ function forgetToken() {
 
   document.getElementById("units").innerText = "0";
   document.getElementById("accountUnits").innerText = "0";
-  document.getElementById("giftUnits").innerText = "0";
   document.getElementById("unlockedTips").innerText = "0";
   document.getElementById("email").innerText = "Kein Zugangscode";
 
@@ -2689,8 +2682,7 @@ function forgetToken() {
     refCode: "",
     dashboardToken: "",
     refLink: "",
-    giftUnits: 0,
-    unlockedTips: 0
+      unlockedTips: 0
   };
 
   setUnitColor(0);
