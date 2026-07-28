@@ -1,4 +1,12 @@
 <!DOCTYPE html>
+<!--
+BetInsight Tipps
+Version: 2026.07.28-01
+Letzte Änderung:
+- Profil-Token wird nicht mehr automatisch mit "BI" ergänzt
+- Freischalten-Webhook erhält jetzt den unveränderten Token aus der URL
+-->
+
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -326,19 +334,7 @@ const FREISCHALTEN_WEBHOOK =
 const TOKEN_STORAGE_KEY = "betinsight_profile_token";
 
 function normalizeToken(value) {
-  let token = String(value || "").trim();
-
-  if (!token) {
-    return "";
-  }
-
-  if (token.startsWith("BI-")) {
-    token = "BI" + token.substring(3);
-  } else if (!token.startsWith("BI")) {
-    token = "BI" + token;
-  }
-
-  return token;
+  return String(value || "").trim();
 }
 
 function getToken() {
