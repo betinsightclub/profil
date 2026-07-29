@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#071019">
-  <meta name="application-version" content="1.0.0">
+  <meta name="application-version" content="1.1.0">
   <title>Wallet-Verwaltung | BetInsight Club</title>
   <style>
     :root {
@@ -475,12 +475,14 @@
     </section>
 
     <p class="footer-note">
-      BetInsight Wallet-Verwaltung · Version 1.0.0
+      BetInsight Wallet-Verwaltung · Version 1.1.0
     </p>
   </main>
 
   <script>
     "use strict";
+
+    const WALLET_WEBHOOK_URL = "https://hook.eu1.make.com/dj729m8ah6sxsy8yh38wwmf1kyn89tye";
 
     const walletOptions = {
       USDT_TRC20: {
@@ -562,12 +564,20 @@
       clearFeedback();
     });
 
-    form.addEventListener("submit", function (event) {
+    form.addEventListener("submit", async function (event) {
       event.preventDefault();
       clearFeedback();
 
       const option = selectedWallet();
       const address = walletAddress.value.trim();
+
+      if (!dashboardToken) {
+        showFeedback(
+          "Dein persönlicher dashboard_token fehlt. Öffne die Wallet-Verwaltung bitte über den Button in deinem BetInsight-Profil.",
+          "error"
+        );
+        return;
+      }
 
       if (!option) {
         showFeedback("Bitte wähle zuerst Kryptowährung und Netzwerk aus.", "error");
@@ -598,28 +608,53 @@
         wallet_coin: option.coin,
         wallet_netzwerk: option.network,
         wallet_standard: option.standard,
-        wallet_status: "ENTWURF",
+        wallet_status: "AUSSTEHEND",
         eigene_wallet_bestaetigt: "JA",
         netzwerk_bestaetigt: "JA",
         geaendert_am: new Date().toISOString()
       };
 
       saveButton.disabled = true;
-      walletStatus.textContent = "Eingaben geprüft";
-      walletStatus.style.color = "var(--accent)";
-      walletStatus.style.borderColor = "rgba(37, 230, 167, 0.3)";
-      walletStatus.style.background = "rgba(37, 230, 167, 0.1)";
+      saveButton.textContent = "Wallet wird übertragen …";
+      walletStatus.textContent = "Wird übertragen";
 
-      showFeedback(
-        "Die Eingaben sind vollständig und technisch plausibel.",
-        "success"
-      );
+      try {
+        const response = await fetch(WALLET_WEBHOOK_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(walletRecord)
+        });
 
-      console.info("BetInsight Wallet-Datensatz:", walletRecord);
+        if (!response.ok) {
+          throw new Error("HTTP " + response.status);
+        }
 
-      window.setTimeout(function () {
+        walletStatus.textContent = "Übertragen";
+        walletStatus.style.color = "var(--accent)";
+        walletStatus.style.borderColor = "rgba(37, 230, 167, 0.3)";
+        walletStatus.style.background = "rgba(37, 230, 167, 0.1)";
+
+        showFeedback(
+          "Deine Wallet-Daten wurden sicher an BetInsight übertragen.",
+          "success"
+        );
+      } catch (error) {
+        walletStatus.textContent = "Nicht übertragen";
+        walletStatus.style.color = "var(--danger)";
+        walletStatus.style.borderColor = "rgba(255, 107, 125, 0.3)";
+        walletStatus.style.background = "rgba(255, 107, 125, 0.1)";
+
+        showFeedback(
+          "Die Übertragung ist fehlgeschlagen. Bitte versuche es erneut.",
+          "error"
+        );
+        console.error("Wallet-Übertragung fehlgeschlagen:", error);
+      } finally {
         saveButton.disabled = false;
-      }, 1200);
+        saveButton.textContent = "Wallet sicher speichern";
+      }
     });
   </script>
 </body>
