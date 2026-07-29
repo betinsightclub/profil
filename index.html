@@ -1,4 +1,15 @@
 <!DOCTYPE html>
+<!--
+Projekt: BetInsight
+Datei: profil/index.html
+Version: 2026.07.29-01
+Änderungen:
+- Struktur und Umsätze verwenden jetzt ebenfalls den Empfehlungscenter-V5-Webhook
+- Alter Struktur-Webhook entfernt
+- Ebene 1, Ebene 2 und Ebene 3 werden aus partners_level1/2/3 geladen
+- Reale Make-Daten statt Musterdaten
+-->
+
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -1584,9 +1595,6 @@ const REQUEST_LINK_WEBHOOK_URL =
 const EMPFEHLUNGEN_WEBHOOK_URL =
   "https://hook.eu1.make.com/j883clzukqghxg9iiq91wxetue9wgoul";
 
-const STRUCTURE_WEBHOOK_URL =
-  "https://hook.eu1.make.com/p8a6a45lxx958ak5e6aqc4gk3e1suair";
-
 const TOKEN_STORAGE_KEY = "betinsight_profile_token";
 
 let profilePrivacyActive = false;
@@ -2222,8 +2230,8 @@ async function loadStructureData(showButtonFeedback = false) {
 
   try {
     const response = await fetch(
-      STRUCTURE_WEBHOOK_URL +
-      "?token=" +
+      EMPFEHLUNGEN_WEBHOOK_URL +
+      "?id=" +
       encodeURIComponent(dashboardToken),
       {
         method: "GET",
@@ -2247,15 +2255,6 @@ async function loadStructureData(showButtonFeedback = false) {
       renderLevelTable(level, partners);
     }
 
-    const directCount = safeNumber(
-      firstDefined(data, ["direkte", "level1_count", "ebene1_count"], 0)
-    );
-
-    if (directCount > 0) {
-      document.getElementById("level1Partners").innerText =
-        formatNumber(directCount);
-    }
-
     status.innerText =
       "Empfehlungsübersicht und Strukturdetails wurden erfolgreich geladen.";
 
@@ -2263,7 +2262,7 @@ async function loadStructureData(showButtonFeedback = false) {
     console.error("Fehler beim Laden der Strukturdetails:", error);
     resetStructureValues();
     status.innerText =
-      "Die Strukturdetails konnten nicht geladen werden. Bitte prüfe Dashboard Profil V3 in Make.";
+      "Die Strukturdetails konnten nicht geladen werden. Bitte prüfe BetInsight - Empfehlungscenter V5 - Transform JSON in Make.";
   }
 }
 
