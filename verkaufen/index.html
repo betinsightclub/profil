@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#071019">
+  <meta name="application-version" content="1.0.0">
+  <title>Units verkaufen | BetInsight Club</title>
+  <style>
+    :root {
+      --bg: #071019;
+      --panel: #0d1a26;
+      --panel-2: #122433;
+      --text: #f4f8fb;
+      --muted: #91a6b7;
+      --line: rgba(145, 166, 183, 0.18);
+      --accent: #25e6a7;
+      --accent-dark: #11bb83;
+      --blue: #59a8ff;
+      --warning: #ffc857;
+      --danger: #ff6b7d;
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      color-scheme: dark;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(37, 230, 167, 0.12), transparent 30rem),
+        radial-gradient(circle at 92% 12%, rgba(89, 168, 255, 0.12), transparent 30rem),
+        var(--bg);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .page {
+      width: min(100% - 32px, 920px);
+      margin: 0 auto;
+      padding: 34px 0 50px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .logo {
+      width: 170px;
+      max-width: 54vw;
+      height: auto;
+      display: block;
+    }
+
+    .back-link,
+    .wallet-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 16px;
+      color: var(--text);
+      text-decoration: none;
+      background: rgba(13, 26, 38, 0.82);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      transition: 160ms ease;
+    }
+
+    .back-link:hover,
+    .wallet-link:hover {
+      border-color: rgba(37, 230, 167, 0.55);
+      transform: translateY(-1px);
+    }
+
+    .hero {
+      margin-bottom: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 12px;
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 22px;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 6vw, 3.15rem);
+      line-height: 1.05;
+      letter-spacing: -0.045em;
+    }
+
+    .intro {
+      max-width: 720px;
+      margin: 15px 0 0;
+      color: var(--muted);
+      font-size: 1.02rem;
+      line-height: 1.65;
+    }
+
+    .notice,
+    .card,
+    .balance-card {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .notice {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px;
+      margin-bottom: 20px;
+      padding: 18px;
+      background: linear-gradient(135deg, rgba(255, 200, 87, 0.12), rgba(13, 26, 38, 0.92));
+      border-color: rgba(255, 200, 87, 0.26);
+    }
+
+    .notice-icon {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      color: #1d1706;
+      font-weight: 900;
+      background: var(--warning);
+      border-radius: 50%;
+    }
+
+    .notice strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .notice p {
+      margin: 0;
+      color: #cfdae2;
+      line-height: 1.55;
+    }
+
+    .balances {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .balance-card {
+      padding: 18px;
+      background: rgba(13, 26, 38, 0.9);
+      box-shadow: none;
+    }
+
+    .balance-label {
+      display: block;
+      min-height: 38px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    .balance-value {
+      display: block;
+      margin-top: 8px;
+      font-size: 1.65rem;
+      font-weight: 900;
+      letter-spacing: -0.035em;
+    }
+
+    .balance-card.sellable .balance-value {
+      color: var(--accent);
+    }
+
+    .balance-card.fee .balance-value {
+      color: var(--blue);
+    }
+
+    .card {
+      padding: clamp(20px, 5vw, 34px);
+      background: linear-gradient(155deg, rgba(18, 36, 51, 0.95), rgba(13, 26, 38, 0.98));
+    }
+
+    .card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    h2 {
+      margin: 0 0 6px;
+      font-size: 1.35rem;
+    }
+
+    .card-head p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .status {
+      flex: 0 0 auto;
+      padding: 7px 11px;
+      color: var(--warning);
+      font-size: 0.78rem;
+      font-weight: 800;
+      background: rgba(255, 200, 87, 0.1);
+      border: 1px solid rgba(255, 200, 87, 0.28);
+      border-radius: 999px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .field {
+      margin-bottom: 22px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 9px;
+      color: var(--text);
+      font-size: 0.93rem;
+      font-weight: 750;
+    }
+
+    select,
+    input[type="number"] {
+      width: 100%;
+      min-height: 54px;
+      padding: 0 15px;
+      color: var(--text);
+      outline: none;
+      background: rgba(7, 16, 25, 0.8);
+      border: 1px solid rgba(145, 166, 183, 0.25);
+      border-radius: 13px;
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    select:focus,
+    input[type="number"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(37, 230, 167, 0.1);
+    }
+
+    .help {
+      margin: 9px 0 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.55;
+    }
+
+    .summary {
+      margin: 4px 0 24px;
+      overflow: hidden;
+      background: rgba(7, 16, 25, 0.52);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+
+    .summary-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .summary-row:last-child {
+      border-bottom: 0;
+    }
+
+    .summary-row span {
+      color: var(--muted);
+    }
+
+    .summary-row strong {
+      text-align: right;
+    }
+
+    .summary-row.total {
+      background: rgba(37, 230, 167, 0.06);
+    }
+
+    .summary-row.total strong {
+      color: var(--accent);
+      font-size: 1.1rem;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .create-button {
+      min-height: 54px;
+      padding: 0 22px;
+      color: #04140f;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), #7af2c8);
+      border: 0;
+      border-radius: 13px;
+      box-shadow: 0 12px 28px rgba(37, 230, 167, 0.18);
+      cursor: pointer;
+      transition: transform 160ms ease, opacity 160ms ease;
+    }
+
+    .create-button:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .create-button:disabled {
+      opacity: 0.48;
+      cursor: not-allowed;
+    }
+
+    .wallet-link {
+      min-height: 54px;
+      font-weight: 750;
+    }
+
+    .feedback {
+      display: none;
+      margin-top: 18px;
+      padding: 14px 16px;
+      line-height: 1.5;
+      border-radius: 12px;
+    }
+
+    .feedback.show {
+      display: block;
+    }
+
+    .feedback.error {
+      color: #ffd9de;
+      background: rgba(255, 107, 125, 0.1);
+      border: 1px solid rgba(255, 107, 125, 0.3);
+    }
+
+    .feedback.info {
+      color: #dcecff;
+      background: rgba(89, 168, 255, 0.1);
+      border: 1px solid rgba(89, 168, 255, 0.3);
+    }
+
+    .rules {
+      margin: 20px 0 0;
+      padding: 0;
+      list-style: none;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.55;
+    }
+
+    .rules li {
+      position: relative;
+      margin-top: 7px;
+      padding-left: 20px;
+    }
+
+    .rules li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: 900;
+    }
+
+    .footer-note {
+      margin: 18px 0 0;
+      color: #728797;
+      font-size: 0.78rem;
+      line-height: 1.55;
+      text-align: center;
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100% - 22px, 920px);
+        padding-top: 20px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        margin-bottom: 32px;
+      }
+
+      .back-link {
+        padding: 0 12px;
+        font-size: 0.83rem;
+      }
+
+      .balances,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .balance-label {
+        min-height: auto;
+      }
+
+      .notice {
+        grid-template-columns: 1fr;
+      }
+
+      .notice-icon {
+        width: 32px;
+        height: 32px;
+      }
+
+      .card-head,
+      .actions {
+        grid-template-columns: 1fr;
+        display: grid;
+      }
+
+      .status {
+        width: max-content;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <img class="logo" src="../logo_betsight.club.png" alt="BetInsight Club">
+      <a class="back-link" id="backLink" href="../">← Zurück</a>
+    </header>
+
+    <section class="hero">
+      <p class="eyebrow">Wechselbörse</p>
+      <h1>Units verkaufen</h1>
+      <p class="intro">
+        Erstelle ein Verkaufsangebot für deine freigegebenen Referral Units. Den Preis bestimmst du selbst innerhalb des erlaubten Bereichs.
+      </p>
+    </section>
+
+    <aside class="notice" aria-label="Hinweis zur Auszahlung">
+      <span class="notice-icon">!</span>
+      <div>
+        <strong>Nur freigegebene Referral Units sind verkaufbar</strong>
+        <p>
+          Geschenk-Units und selbst gekaufte Units können nicht angeboten werden. Für jedes Verkaufsangebot werden zusätzlich 2 gebührenfähige Units benötigt.
+        </p>
+      </div>
+    </aside>
+
+    <section class="balances" aria-label="Verfügbare Guthaben">
+      <article class="balance-card sellable">
+        <span class="balance-label">Freigegebene Referral Units</span>
+        <strong class="balance-value" id="referralBalance">–</strong>
+      </article>
+      <article class="balance-card fee">
+        <span class="balance-label">Für Gebühren verwendbare Units</span>
+        <strong class="balance-value" id="feeBalance">–</strong>
+      </article>
+      <article class="balance-card">
+        <span class="balance-label">Angebotsgebühr</span>
+        <strong class="balance-value">2 Units</strong>
+      </article>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <h2>Neues Verkaufsangebot</h2>
+          <p>Wähle Menge und Preis pro Unit.</p>
+        </div>
+        <span class="status" id="offerStatus">Vorbereitung</span>
+      </div>
+
+      <form id="saleForm" novalidate>
+        <div class="form-grid">
+          <div class="field">
+            <label for="unitAmount">Anzahl Referral Units</label>
+            <input
+              id="unitAmount"
+              name="unit_amount"
+              type="number"
+              inputmode="numeric"
+              min="10"
+              max="100"
+              step="1"
+              value="10"
+              required
+            >
+            <p class="help">Mindestens 10 und höchstens 100 Units pro Angebot.</p>
+          </div>
+
+          <div class="field">
+            <label for="unitPrice">Preis pro Unit</label>
+            <select id="unitPrice" name="unit_price_eur" required>
+              <option value="0.80">0,80 €</option>
+              <option value="0.85">0,85 €</option>
+              <option value="0.90" selected>0,90 €</option>
+              <option value="0.95">0,95 €</option>
+              <option value="1.00">1,00 €</option>
+            </select>
+            <p class="help">Die Bezahlung wird später zum aktuellen Kurs in USDT umgerechnet.</p>
+          </div>
+        </div>
+
+        <div class="summary" aria-label="Zusammenfassung des Verkaufsangebots">
+          <div class="summary-row">
+            <span>Angebotene Menge</span>
+            <strong id="summaryAmount">10 Units</strong>
+          </div>
+          <div class="summary-row">
+            <span>Preis pro Unit</span>
+            <strong id="summaryPrice">0,90 €</strong>
+          </div>
+          <div class="summary-row total">
+            <span>Gesamtpreis</span>
+            <strong id="summaryTotal">9,00 €</strong>
+          </div>
+          <div class="summary-row">
+            <span>Zusätzliche Angebotsgebühr</span>
+            <strong>2 Units</strong>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="create-button" id="createButton" type="submit" disabled>
+            Verkaufsangebot erstellen
+          </button>
+          <a class="wallet-link" id="walletLink" href="../wallet/">Wallet ansehen / einrichten</a>
+        </div>
+
+        <div class="feedback show info" id="feedback" role="status" aria-live="polite">
+          Die Seite ist vorbereitet. Das endgültige Erstellen wird freigeschaltet, sobald die Kontoprüfung und der Make-Webhook verbunden sind.
+        </div>
+      </form>
+
+      <ul class="rules" aria-label="Regeln für Verkaufsangebote">
+        <li>Die Verkaufsmenge wird ausschließlich aus freigegebenen Referral Units reserviert.</li>
+        <li>Die 2 Units Gebühr dürfen aus gekauften oder verdienten Units stammen.</li>
+        <li>Geschenk-Units dürfen weder verkauft noch für die Gebühr verwendet werden.</li>
+        <li>Der endgültige USDT-Betrag wird beim Bezahlen nach aktuellem Wechselkurs berechnet.</li>
+      </ul>
+    </section>
+
+    <p class="footer-note">
+      BetInsight Wechselbörse · Verkaufsangebot Version 1.0.0
+    </p>
+  </main>
+
+  <script>
+    "use strict";
+
+    const MIN_SALE_UNITS = 10;
+    const MAX_SALE_UNITS = 100;
+    const OFFER_FEE_UNITS = 2;
+
+    const query = new URLSearchParams(window.location.search);
+    const dashboardToken = query.get("id") || query.get("token") || "";
+
+    const form = document.getElementById("saleForm");
+    const unitAmount = document.getElementById("unitAmount");
+    const unitPrice = document.getElementById("unitPrice");
+    const summaryAmount = document.getElementById("summaryAmount");
+    const summaryPrice = document.getElementById("summaryPrice");
+    const summaryTotal = document.getElementById("summaryTotal");
+    const feedback = document.getElementById("feedback");
+    const backLink = document.getElementById("backLink");
+    const walletLink = document.getElementById("walletLink");
+
+    function euro(value) {
+      return new Intl.NumberFormat("de-DE", {
+        style: "currency",
+        currency: "EUR",
+        minimumFractionDigits: 2
+      }).format(value);
+    }
+
+    function updateLinks() {
+      if (!dashboardToken) {
+        return;
+      }
+
+      const encodedToken = encodeURIComponent(dashboardToken);
+      backLink.href = "../auszahlung/?id=" + encodedToken;
+      walletLink.href = "../wallet/?id=" + encodedToken;
+    }
+
+    function updateSummary() {
+      const amount = Number.parseInt(unitAmount.value, 10) || 0;
+      const price = Number.parseFloat(unitPrice.value) || 0;
+
+      summaryAmount.textContent = amount + (amount === 1 ? " Unit" : " Units");
+      summaryPrice.textContent = euro(price);
+      summaryTotal.textContent = euro(amount * price);
+    }
+
+    function showFeedback(message, type) {
+      feedback.textContent = message;
+      feedback.className = "feedback show " + type;
+    }
+
+    unitAmount.addEventListener("input", updateSummary);
+    unitPrice.addEventListener("change", updateSummary);
+
+    unitAmount.addEventListener("blur", function () {
+      const amount = Number.parseInt(unitAmount.value, 10);
+
+      if (!Number.isInteger(amount) || amount < MIN_SALE_UNITS) {
+        unitAmount.value = String(MIN_SALE_UNITS);
+      } else if (amount > MAX_SALE_UNITS) {
+        unitAmount.value = String(MAX_SALE_UNITS);
+      }
+
+      updateSummary();
+    });
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      if (!dashboardToken) {
+        showFeedback(
+          "Dein persönlicher dashboard_token fehlt. Öffne diese Seite bitte über dein BetInsight-Profil.",
+          "error"
+        );
+        return;
+      }
+
+      const amount = Number.parseInt(unitAmount.value, 10);
+
+      if (!Number.isInteger(amount) || amount < MIN_SALE_UNITS || amount > MAX_SALE_UNITS) {
+        showFeedback("Bitte trage eine ganze Zahl zwischen 10 und 100 Units ein.", "error");
+        unitAmount.focus();
+        return;
+      }
+
+      showFeedback(
+        "Das Verkaufsangebot kann erst nach Verbindung der Kontoprüfung und des Make-Webhooks erstellt werden.",
+        "info"
+      );
+    });
+
+    updateLinks();
+    updateSummary();
+
+    if (!dashboardToken) {
+      showFeedback(
+        "Dein persönlicher dashboard_token fehlt. Öffne diese Seite später über dein BetInsight-Profil.",
+        "error"
+      );
+    }
+
+    /*
+      Nächste Backend-Stufe:
+      1. Kontostand per dashboard_token laden.
+      2. Verkaufbare Referral Units getrennt prüfen.
+      3. Für die Gebühr nur gekaufte oder verdiente Units zulassen.
+      4. Geschenk-Units vollständig ausschließen.
+      5. Eingerichtete Wallet prüfen.
+      6. Angebot serverseitig anlegen und Units atomar reservieren.
+
+      Erwartete Angebotsdaten:
+      {
+        dashboard_token,
+        menge_referral_units,
+        preis_pro_unit_eur,
+        gesamtpreis_eur,
+        gebuehr_units: OFFER_FEE_UNITS
+      }
+    */
+  </script>
+</body>
+</html>
