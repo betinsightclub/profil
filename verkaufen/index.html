@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#071019">
-  <meta name="application-version" content="1.0.0">
+  <meta name="application-version" content="1.1.0">
   <title>Units verkaufen | BetInsight Club</title>
   <style>
     :root {
@@ -460,7 +460,11 @@
 <body>
   <main class="page">
     <header class="topbar">
-      <img class="logo" src="../logo_betsight.club.png" alt="BetInsight Club">
+      <img
+        class="logo"
+        src="https://betinsightclub.github.io/profil/logo_betisight.club.png"
+        alt="BetInsight Club"
+      >
       <a class="back-link" id="backLink" href="../">← Zurück</a>
     </header>
 
@@ -477,7 +481,8 @@
       <div>
         <strong>Nur freigegebene Referral Units sind verkaufbar</strong>
         <p>
-          Geschenk-Units und selbst gekaufte Units können nicht angeboten werden. Für jedes Verkaufsangebot werden zusätzlich 2 gebührenfähige Units benötigt.
+          Geschenk-Units und selbst gekaufte Units können nicht angeboten werden.
+          Für jedes Verkaufsangebot wird eine feste Verkaufsgebühr in Units berechnet.
         </p>
       </div>
     </aside>
@@ -488,12 +493,12 @@
         <strong class="balance-value" id="referralBalance">–</strong>
       </article>
       <article class="balance-card fee">
-        <span class="balance-label">Für Gebühren verwendbare Units</span>
+        <span class="balance-label">Für die Verkaufsgebühr verwendbare Units</span>
         <strong class="balance-value" id="feeBalance">–</strong>
       </article>
       <article class="balance-card">
-        <span class="balance-label">Angebotsgebühr</span>
-        <strong class="balance-value">2 Units</strong>
+        <span class="balance-label">Verkaufsgebühr</span>
+        <strong class="balance-value" id="feeDisplay">1 Unit</strong>
       </article>
     </section>
 
@@ -510,18 +515,23 @@
         <div class="form-grid">
           <div class="field">
             <label for="unitAmount">Anzahl Referral Units</label>
-            <input
+            <select
               id="unitAmount"
               name="unit_amount"
-              type="number"
-              inputmode="numeric"
-              min="10"
-              max="100"
-              step="1"
-              value="10"
               required
             >
-            <p class="help">Mindestens 10 und höchstens 100 Units pro Angebot.</p>
+              <option value="10">10 Units</option>
+              <option value="20">20 Units</option>
+              <option value="30">30 Units</option>
+              <option value="40">40 Units</option>
+              <option value="50">50 Units</option>
+              <option value="60">60 Units</option>
+              <option value="70">70 Units</option>
+              <option value="80">80 Units</option>
+              <option value="90">90 Units</option>
+              <option value="100">100 Units</option>
+            </select>
+            <p class="help">Wähle eine feste Menge zwischen 10 und 100 Units.</p>
           </div>
 
           <div class="field">
@@ -551,8 +561,12 @@
             <strong id="summaryTotal">9,00 €</strong>
           </div>
           <div class="summary-row">
-            <span>Zusätzliche Angebotsgebühr</span>
-            <strong>2 Units</strong>
+            <span>Verkaufsgebühr</span>
+            <strong id="summaryFee">1 Unit</strong>
+          </div>
+          <div class="summary-row">
+            <span>Erforderlicher Unit-Bestand</span>
+            <strong id="summaryRequired">11 Units</strong>
           </div>
         </div>
 
@@ -570,14 +584,15 @@
 
       <ul class="rules" aria-label="Regeln für Verkaufsangebote">
         <li>Die Verkaufsmenge wird ausschließlich aus freigegebenen Referral Units reserviert.</li>
-        <li>Die 2 Units Gebühr dürfen aus gekauften oder verdienten Units stammen.</li>
-        <li>Geschenk-Units dürfen weder verkauft noch für die Gebühr verwendet werden.</li>
+        <li>Die Verkaufsgebühr wird zusätzlich zur Verkaufsmenge benötigt.</li>
+        <li>Die Verkaufsgebühr darf aus gekauften oder verdienten Units bezahlt werden.</li>
+        <li>Geschenk-Units dürfen weder verkauft noch für die Verkaufsgebühr verwendet werden.</li>
         <li>Der endgültige USDT-Betrag wird beim Bezahlen nach aktuellem Wechselkurs berechnet.</li>
       </ul>
     </section>
 
     <p class="footer-note">
-      BetInsight Wechselbörse · Verkaufsangebot Version 1.0.0
+      BetInsight Wechselbörse · Verkaufsangebot Version 1.1.0
     </p>
   </main>
 
@@ -586,7 +601,18 @@
 
     const MIN_SALE_UNITS = 10;
     const MAX_SALE_UNITS = 100;
-    const OFFER_FEE_UNITS = 2;
+    const OFFER_FEES = Object.freeze({
+      10: 1,
+      20: 1,
+      30: 2,
+      40: 2,
+      50: 3,
+      60: 3,
+      70: 4,
+      80: 4,
+      90: 5,
+      100: 5
+    });
 
     const query = new URLSearchParams(window.location.search);
     const dashboardToken = query.get("id") || query.get("token") || "";
@@ -597,6 +623,9 @@
     const summaryAmount = document.getElementById("summaryAmount");
     const summaryPrice = document.getElementById("summaryPrice");
     const summaryTotal = document.getElementById("summaryTotal");
+    const summaryFee = document.getElementById("summaryFee");
+    const summaryRequired = document.getElementById("summaryRequired");
+    const feeDisplay = document.getElementById("feeDisplay");
     const feedback = document.getElementById("feedback");
     const backLink = document.getElementById("backLink");
     const walletLink = document.getElementById("walletLink");
@@ -622,10 +651,15 @@
     function updateSummary() {
       const amount = Number.parseInt(unitAmount.value, 10) || 0;
       const price = Number.parseFloat(unitPrice.value) || 0;
+      const fee = OFFER_FEES[amount] || 0;
+      const required = amount + fee;
 
       summaryAmount.textContent = amount + (amount === 1 ? " Unit" : " Units");
       summaryPrice.textContent = euro(price);
       summaryTotal.textContent = euro(amount * price);
+      summaryFee.textContent = fee + (fee === 1 ? " Unit" : " Units");
+      summaryRequired.textContent = required + " Units";
+      feeDisplay.textContent = fee + (fee === 1 ? " Unit" : " Units");
     }
 
     function showFeedback(message, type) {
@@ -633,20 +667,8 @@
       feedback.className = "feedback show " + type;
     }
 
-    unitAmount.addEventListener("input", updateSummary);
+    unitAmount.addEventListener("change", updateSummary);
     unitPrice.addEventListener("change", updateSummary);
-
-    unitAmount.addEventListener("blur", function () {
-      const amount = Number.parseInt(unitAmount.value, 10);
-
-      if (!Number.isInteger(amount) || amount < MIN_SALE_UNITS) {
-        unitAmount.value = String(MIN_SALE_UNITS);
-      } else if (amount > MAX_SALE_UNITS) {
-        unitAmount.value = String(MAX_SALE_UNITS);
-      }
-
-      updateSummary();
-    });
 
     form.addEventListener("submit", function (event) {
       event.preventDefault();
@@ -661,8 +683,8 @@
 
       const amount = Number.parseInt(unitAmount.value, 10);
 
-      if (!Number.isInteger(amount) || amount < MIN_SALE_UNITS || amount > MAX_SALE_UNITS) {
-        showFeedback("Bitte trage eine ganze Zahl zwischen 10 und 100 Units ein.", "error");
+      if (!Object.prototype.hasOwnProperty.call(OFFER_FEES, amount)) {
+        showFeedback("Bitte wähle eine der vorgegebenen Verkaufsmengen.", "error");
         unitAmount.focus();
         return;
       }
@@ -698,7 +720,9 @@
         menge_referral_units,
         preis_pro_unit_eur,
         gesamtpreis_eur,
-        gebuehr_units: OFFER_FEE_UNITS
+        gebuehr_units: OFFER_FEES[menge_referral_units],
+        erforderlicher_unit_bestand:
+          menge_referral_units + OFFER_FEES[menge_referral_units]
       }
     */
   </script>
