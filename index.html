@@ -1156,7 +1156,7 @@ input {
             </div>
 
             <div class="account-stat">
-              <div class="account-stat-label">Verbleibende Kauf-Units</div>
+              <div class="account-stat-label">Verbleibende Verkaufs-Units</div>
               <div id="purchasedUnits" class="account-stat-value value-blue account-private-value">0</div>
             </div>
 
@@ -2721,7 +2721,7 @@ function fetchProfileByToken(tokenVariants, index) {
         formatNumber(totalAvailableUnits);
       document.getElementById("giftUnits").innerText = formatNumber(giftUnits);
       document.getElementById("purchasedUnits").innerText =
-        formatNumber(purchasedUnits);
+        formatNumber(earnedUnits);
       document.getElementById("consumedUnits").innerText =
         formatOptionalNumber(consumedUnitsRaw);
       document.getElementById("unlockedTips").innerText = formatNumber(unlockedTips);
