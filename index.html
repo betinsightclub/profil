@@ -2548,21 +2548,51 @@ function fetchProfileByToken(tokenVariants, index) {
       const dashboardToken = String(data.dashboard_token || "").trim();
       const refLink = String(data.ref_link || "").trim();
 
-      const giftUnits = safeNumber(
+      const giftUnitsFromApi = safeNumber(
         firstDefined(
           data,
-          ["geschenk_units_rest", "gift_units", "gift_units_remaining"],
+          [
+            "geschenk_units_rest",
+            "gift_units",
+            "gift_units_remaining",
+            "Units_Start",
+            "units_start"
+          ],
           0
         )
       );
 
-      const purchasedUnits = safeNumber(
+      const purchasedUnitsFromApi = safeNumber(
         firstDefined(
           data,
-          ["gekaufte_units_rest", "purchased_units", "purchased_units_remaining"],
+          [
+            "gekaufte_units_rest",
+            "purchased_units",
+            "purchased_units_remaining",
+            "units_gekauft"
+          ],
           0
         )
       );
+
+      /*
+       * Ältere Profil-Antworten enthalten nur den Gesamtbestand. In diesem
+       * Fall wird die Aufteilung aus dem Gesamtwert rekonstruiert: zuerst die
+       * 5 Geschenk-Units, der Rest sind gekaufte Units. Sobald Make beide
+       * Restbestände liefert, werden ausschließlich die echten API-Werte
+       * verwendet.
+       */
+      const apiSplitMatchesTotal =
+        giftUnitsFromApi + purchasedUnitsFromApi === units &&
+        (giftUnitsFromApi > 0 || purchasedUnitsFromApi > 0 || units === 0);
+
+      const giftUnits = apiSplitMatchesTotal
+        ? giftUnitsFromApi
+        : Math.min(giftUnitsFromApi > 0 ? giftUnitsFromApi : 5, units);
+
+      const purchasedUnits = apiSplitMatchesTotal
+        ? purchasedUnitsFromApi
+        : Math.max(0, units - giftUnits);
 
       const consumedUnitsRaw = firstDefined(
         data,
