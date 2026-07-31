@@ -165,7 +165,7 @@ button {
 }
 
 .header-balance {
-  min-width: 165px;
+  min-width: 285px;
   padding: 11px 16px;
   border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: 14px;
@@ -187,6 +187,47 @@ button {
   line-height: 1;
   font-weight: 900;
   color: lime;
+}
+
+.header-unit-breakdown {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.header-unit-part {
+  min-width: 0;
+}
+
+.header-unit-part-label {
+  display: block;
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.header-unit-part-value {
+  display: block;
+  margin-top: 3px;
+  color: #ffffff;
+  font-size: 15px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+#headerGiftUnits {
+  color: #36e69a;
+}
+
+#headerPurchasedUnits {
+  color: #52b7ff;
+}
+
+#headerEarnedUnits {
+  color: #ffca5c;
 }
 
 /* Allgemeine Panels */
@@ -1009,8 +1050,25 @@ input {
     </div>
 
     <div id="headerUnitsBox" class="header-balance">
-      <span class="header-balance-label">Aktuelle Units</span>
+      <span class="header-balance-label">Gesamte verfügbare Units</span>
       <span id="units">0</span>
+
+      <div class="header-unit-breakdown" aria-label="Aufschlüsselung der Units">
+        <div class="header-unit-part">
+          <span class="header-unit-part-label">Geschenkt</span>
+          <span id="headerGiftUnits" class="header-unit-part-value">0</span>
+        </div>
+
+        <div class="header-unit-part">
+          <span class="header-unit-part-label">Gekauft</span>
+          <span id="headerPurchasedUnits" class="header-unit-part-value">0</span>
+        </div>
+
+        <div class="header-unit-part">
+          <span class="header-unit-part-label">Verdient</span>
+          <span id="headerEarnedUnits" class="header-unit-part-value">0</span>
+        </div>
+      </div>
     </div>
 
   </header>
@@ -1944,11 +2002,33 @@ function renderLevelTable(level, partners) {
     );
 
     const expected = formatNumber(
-      partnerValue(partner, ["erwartete_referral_units", "expected_units", "erwartet"], 0)
+      partnerValue(
+        partner,
+        [
+          "erwartete_referral_units",
+          "ref_erwartet",
+          "expected_units",
+          "erwartet",
+          "ref_ebene_" + level,
+          "ref_level_" + level,
+          "referral_units_ebene_" + level
+        ],
+        0
+      )
     );
 
     const released = formatNumber(
-      partnerValue(partner, ["freigegebene_referral_units", "released_units", "freigegeben"], 0)
+      partnerValue(
+        partner,
+        [
+          "freigegebene_referral_units",
+          "ref_verfuegbar",
+          "released_units",
+          "available_units",
+          "freigegeben"
+        ],
+        0
+      )
     );
 
     return `
@@ -2013,7 +2093,19 @@ function setLevelSummary(level, data, partners) {
       ],
       partners.reduce((sum, item) => {
         return sum + safeNumber(
-          partnerValue(item, ["erwartete_referral_units", "expected_units", "erwartet"], 0)
+          partnerValue(
+            item,
+            [
+              "erwartete_referral_units",
+              "ref_erwartet",
+              "expected_units",
+              "erwartet",
+              "ref_ebene_" + level,
+              "ref_level_" + level,
+              "referral_units_ebene_" + level
+            ],
+            0
+          )
         );
       }, 0)
     )
@@ -2029,7 +2121,17 @@ function setLevelSummary(level, data, partners) {
       ],
       partners.reduce((sum, item) => {
         return sum + safeNumber(
-          partnerValue(item, ["freigegebene_referral_units", "released_units", "freigegeben"], 0)
+          partnerValue(
+            item,
+            [
+              "freigegebene_referral_units",
+              "ref_verfuegbar",
+              "released_units",
+              "available_units",
+              "freigegeben"
+            ],
+            0
+          )
         );
       }, 0)
     )
@@ -2511,6 +2613,9 @@ function openReceivedProfileLink() {
 function fetchProfileByToken(tokenVariants, index) {
   if (index >= tokenVariants.length) {
     document.getElementById("units").innerText = "0";
+    document.getElementById("headerGiftUnits").innerText = "0";
+    document.getElementById("headerPurchasedUnits").innerText = "0";
+    document.getElementById("headerEarnedUnits").innerText = "0";
     document.getElementById("accountUnits").innerText = "0";
     document.getElementById("email").innerText = "Nicht gefunden";
     setBetInsightId("");
@@ -2594,6 +2699,20 @@ function fetchProfileByToken(tokenVariants, index) {
         ? purchasedUnitsFromApi
         : Math.max(0, units - giftUnits);
 
+      const earnedUnits = safeNumber(
+        firstDefined(
+          data,
+          [
+            "ref_verfuegbar",
+            "freigegebene_referral_units",
+            "released_units",
+            "available_units"
+          ],
+          0
+        )
+      );
+      const totalAvailableUnits = giftUnits + purchasedUnits + earnedUnits;
+
       const consumedUnitsRaw = firstDefined(
         data,
         ["verbrauchte_units", "consumed_units", "used_units"],
@@ -2616,6 +2735,7 @@ function fetchProfileByToken(tokenVariants, index) {
         refLink: refLink,
         giftUnits: giftUnits,
         purchasedUnits: purchasedUnits,
+        earnedUnits: earnedUnits,
         consumedUnits: consumedUnitsRaw,
         unlockedTips: unlockedTips
       };
@@ -2623,11 +2743,18 @@ function fetchProfileByToken(tokenVariants, index) {
       saveToken(finalToken);
       showProfileBox();
 
-      document.getElementById("units").innerText = formatNumber(units);
+      document.getElementById("units").innerText =
+        formatNumber(totalAvailableUnits);
       document.getElementById("accountUnits").innerText = formatNumber(units);
       document.getElementById("giftUnits").innerText = formatNumber(giftUnits);
       document.getElementById("purchasedUnits").innerText =
         formatNumber(purchasedUnits);
+      document.getElementById("headerGiftUnits").innerText =
+        formatNumber(giftUnits);
+      document.getElementById("headerPurchasedUnits").innerText =
+        formatNumber(purchasedUnits);
+      document.getElementById("headerEarnedUnits").innerText =
+        formatNumber(earnedUnits);
       document.getElementById("consumedUnits").innerText =
         formatOptionalNumber(consumedUnitsRaw);
       document.getElementById("unlockedTips").innerText = formatNumber(unlockedTips);
@@ -2635,7 +2762,7 @@ function fetchProfileByToken(tokenVariants, index) {
 
       setBetInsightId(refCode);
       setMaskedToken(finalToken);
-      setUnitColor(units);
+      setUnitColor(totalAvailableUnits);
 
       document.getElementById("message").innerText =
         "Kontostand wurde aktualisiert.";
@@ -2675,6 +2802,9 @@ function loadUnits() {
   setMaskedToken("Lade...");
 
   document.getElementById("units").innerText = "0";
+  document.getElementById("headerGiftUnits").innerText = "0";
+  document.getElementById("headerPurchasedUnits").innerText = "0";
+  document.getElementById("headerEarnedUnits").innerText = "0";
   document.getElementById("accountUnits").innerText = "0";
   document.getElementById("giftUnits").innerText = "0";
   document.getElementById("purchasedUnits").innerText = "0";
@@ -2796,6 +2926,9 @@ function forgetToken() {
   document.getElementById("accountPrivacyButton").innerText = "◉ Schützen";
 
   document.getElementById("units").innerText = "0";
+  document.getElementById("headerGiftUnits").innerText = "0";
+  document.getElementById("headerPurchasedUnits").innerText = "0";
+  document.getElementById("headerEarnedUnits").innerText = "0";
   document.getElementById("accountUnits").innerText = "0";
   document.getElementById("giftUnits").innerText = "0";
   document.getElementById("purchasedUnits").innerText = "0";
