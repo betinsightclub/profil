@@ -2,12 +2,15 @@
 <!--
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.07.29-01
+Version: 2026.07.31-02
 Änderungen:
 - Struktur und Umsätze verwenden jetzt ebenfalls den Empfehlungscenter-V5-Webhook
 - Alter Struktur-Webhook entfernt
 - Ebene 1, Ebene 2 und Ebene 3 werden aus partners_level1/2/3 geladen
 - Reale Make-Daten statt Musterdaten
+- Obere Unit-Aufschlüsselung entfernt
+- Kontostandsbezeichnungen präzisiert
+- Wechselstuben-Button mit Token-Weitergabe ergänzt
 -->
 
 <html lang="de">
@@ -188,47 +191,6 @@ button {
   line-height: 1;
   font-weight: 900;
   color: lime;
-}
-
-.header-unit-breakdown {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 7px;
-  margin-top: 10px;
-  padding-top: 9px;
-  border-top: 1px solid rgba(255, 255, 255, 0.10);
-}
-
-.header-unit-part {
-  min-width: 0;
-}
-
-.header-unit-part-label {
-  display: block;
-  color: var(--text-muted);
-  font-size: 10px;
-  line-height: 1.2;
-}
-
-.header-unit-part-value {
-  display: block;
-  margin-top: 3px;
-  color: #ffffff;
-  font-size: 15px;
-  line-height: 1;
-  font-weight: 900;
-}
-
-#headerGiftUnits {
-  color: #36e69a;
-}
-
-#headerPurchasedUnits {
-  color: #52b7ff;
-}
-
-#headerEarnedUnits {
-  color: #ffca5c;
 }
 
 /* Allgemeine Panels */
@@ -1053,23 +1015,6 @@ input {
     <div id="headerUnitsBox" class="header-balance">
       <span class="header-balance-label">Gesamte verfügbare Units</span>
       <span id="units">0</span>
-
-      <div class="header-unit-breakdown" aria-label="Aufschlüsselung der Units">
-        <div class="header-unit-part">
-          <span class="header-unit-part-label">Geschenkt</span>
-          <span id="headerGiftUnits" class="header-unit-part-value">0</span>
-        </div>
-
-        <div class="header-unit-part">
-          <span class="header-unit-part-label">Gekauft</span>
-          <span id="headerPurchasedUnits" class="header-unit-part-value">0</span>
-        </div>
-
-        <div class="header-unit-part">
-          <span class="header-unit-part-label">Verdient</span>
-          <span id="headerEarnedUnits" class="header-unit-part-value">0</span>
-        </div>
-      </div>
     </div>
 
   </header>
@@ -1201,7 +1146,7 @@ input {
           <div class="account-stat-grid">
 
             <div class="account-stat">
-              <div class="account-stat-label">Aktuelle Units</div>
+              <div class="account-stat-label">Gesamte verfügbare Units</div>
               <div id="accountUnits" class="account-stat-value value-orange account-private-value">0</div>
             </div>
 
@@ -1211,7 +1156,7 @@ input {
             </div>
 
             <div class="account-stat">
-              <div class="account-stat-label">Gekaufte Units</div>
+              <div class="account-stat-label">Verbleibende Kauf-Units</div>
               <div id="purchasedUnits" class="account-stat-value value-blue account-private-value">0</div>
             </div>
 
@@ -1551,8 +1496,8 @@ input {
             ⭐ Units aufs Konto buchen
           </button>
 
-          <button class="btn-orange" type="button" onclick="requestReferralPayout()">
-            💰 Auszahlung vorbereiten
+          <button class="btn-orange" type="button" onclick="goUnitExchange()">
+            🔄 Zur Unit-Wechselstube
           </button>
 
           <button class="btn-blue" type="button" onclick="refreshNetworkData(true)">
@@ -2477,9 +2422,18 @@ function referralUnitsToAccount() {
     "Diese Funktion wird später mit dem Referral-Ledger in Make verbunden.";
 }
 
-function requestReferralPayout() {
-  document.getElementById("referralStatus").innerText =
-    "Die Auszahlung wird später über den getrennten Auszahlungsbereich vorbereitet.";
+function goUnitExchange() {
+  const token = getActiveToken();
+
+  if (!token) {
+    alert("Kein Zugangscode gefunden.");
+    showRequestBox();
+    return;
+  }
+
+  window.location.href =
+    "https://betinsightclub.github.io/profil/wechselboerse/?token=" +
+    encodeURIComponent(token);
 }
 
 function getTokenFromUrl() {
@@ -2634,9 +2588,6 @@ function openReceivedProfileLink() {
 function fetchProfileByToken(tokenVariants, index) {
   if (index >= tokenVariants.length) {
     document.getElementById("units").innerText = "0";
-    document.getElementById("headerGiftUnits").innerText = "0";
-    document.getElementById("headerPurchasedUnits").innerText = "0";
-    document.getElementById("headerEarnedUnits").innerText = "0";
     document.getElementById("accountUnits").innerText = "0";
     document.getElementById("email").innerText = "Nicht gefunden";
     setBetInsightId("");
@@ -2766,16 +2717,11 @@ function fetchProfileByToken(tokenVariants, index) {
 
       document.getElementById("units").innerText =
         formatNumber(totalAvailableUnits);
-      document.getElementById("accountUnits").innerText = formatNumber(units);
+      document.getElementById("accountUnits").innerText =
+        formatNumber(totalAvailableUnits);
       document.getElementById("giftUnits").innerText = formatNumber(giftUnits);
       document.getElementById("purchasedUnits").innerText =
         formatNumber(purchasedUnits);
-      document.getElementById("headerGiftUnits").innerText =
-        formatNumber(giftUnits);
-      document.getElementById("headerPurchasedUnits").innerText =
-        formatNumber(purchasedUnits);
-      document.getElementById("headerEarnedUnits").innerText =
-        formatNumber(earnedUnits);
       document.getElementById("consumedUnits").innerText =
         formatOptionalNumber(consumedUnitsRaw);
       document.getElementById("unlockedTips").innerText = formatNumber(unlockedTips);
@@ -2823,9 +2769,6 @@ function loadUnits() {
   setMaskedToken("Lade...");
 
   document.getElementById("units").innerText = "0";
-  document.getElementById("headerGiftUnits").innerText = "0";
-  document.getElementById("headerPurchasedUnits").innerText = "0";
-  document.getElementById("headerEarnedUnits").innerText = "0";
   document.getElementById("accountUnits").innerText = "0";
   document.getElementById("giftUnits").innerText = "0";
   document.getElementById("purchasedUnits").innerText = "0";
@@ -2947,9 +2890,6 @@ function forgetToken() {
   document.getElementById("accountPrivacyButton").innerText = "◉ Schützen";
 
   document.getElementById("units").innerText = "0";
-  document.getElementById("headerGiftUnits").innerText = "0";
-  document.getElementById("headerPurchasedUnits").innerText = "0";
-  document.getElementById("headerEarnedUnits").innerText = "0";
   document.getElementById("accountUnits").innerText = "0";
   document.getElementById("giftUnits").innerText = "0";
   document.getElementById("purchasedUnits").innerText = "0";
