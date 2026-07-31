@@ -1147,6 +1147,16 @@ input {
             </div>
 
             <div class="account-stat">
+              <div class="account-stat-label">Geschenk-Units</div>
+              <div id="giftUnits" class="account-stat-value value-green account-private-value">0</div>
+            </div>
+
+            <div class="account-stat">
+              <div class="account-stat-label">Gekaufte Units</div>
+              <div id="purchasedUnits" class="account-stat-value value-blue account-private-value">0</div>
+            </div>
+
+            <div class="account-stat">
               <div class="account-stat-label">Freigeschaltete Tipps</div>
               <div id="unlockedTips" class="account-stat-value value-green account-private-value">0</div>
             </div>
@@ -1606,6 +1616,8 @@ let currentProfileData = {
   refCode: "",
   dashboardToken: "",
   refLink: "",
+  giftUnits: 0,
+  purchasedUnits: 0,
   consumedUnits: null,
   unlockedTips: 0
 };
@@ -2134,7 +2146,13 @@ async function loadReferralData(showButtonFeedback = false) {
     const expected = safeNumber(
       firstDefined(
         data,
-        ["erwartete_units", "expected_units", "expected", "units_erwartet"],
+        [
+          "ref_erwartet",
+          "erwartete_units",
+          "expected_units",
+          "expected",
+          "units_erwartet"
+        ],
         0
       )
     );
@@ -2142,7 +2160,12 @@ async function loadReferralData(showButtonFeedback = false) {
     const released = safeNumber(
       firstDefined(
         data,
-        ["freigegebene_units", "released_units", "units", "available_units"],
+        [
+          "ref_verfuegbar",
+          "freigegebene_units",
+          "released_units",
+          "available_units"
+        ],
         0
       )
     );
@@ -2533,6 +2556,14 @@ function fetchProfileByToken(tokenVariants, index) {
         )
       );
 
+      const purchasedUnits = safeNumber(
+        firstDefined(
+          data,
+          ["gekaufte_units_rest", "purchased_units", "purchased_units_remaining"],
+          0
+        )
+      );
+
       const consumedUnitsRaw = firstDefined(
         data,
         ["verbrauchte_units", "consumed_units", "used_units"],
@@ -2553,6 +2584,8 @@ function fetchProfileByToken(tokenVariants, index) {
         refCode: refCode,
         dashboardToken: dashboardToken,
         refLink: refLink,
+        giftUnits: giftUnits,
+        purchasedUnits: purchasedUnits,
         consumedUnits: consumedUnitsRaw,
         unlockedTips: unlockedTips
       };
@@ -2562,6 +2595,9 @@ function fetchProfileByToken(tokenVariants, index) {
 
       document.getElementById("units").innerText = formatNumber(units);
       document.getElementById("accountUnits").innerText = formatNumber(units);
+      document.getElementById("giftUnits").innerText = formatNumber(giftUnits);
+      document.getElementById("purchasedUnits").innerText =
+        formatNumber(purchasedUnits);
       document.getElementById("consumedUnits").innerText =
         formatOptionalNumber(consumedUnitsRaw);
       document.getElementById("unlockedTips").innerText = formatNumber(unlockedTips);
@@ -2610,6 +2646,8 @@ function loadUnits() {
 
   document.getElementById("units").innerText = "0";
   document.getElementById("accountUnits").innerText = "0";
+  document.getElementById("giftUnits").innerText = "0";
+  document.getElementById("purchasedUnits").innerText = "0";
   document.getElementById("consumedUnits").innerText = "–";
   document.getElementById("unlockedTips").innerText = "0";
 
@@ -2729,6 +2767,8 @@ function forgetToken() {
 
   document.getElementById("units").innerText = "0";
   document.getElementById("accountUnits").innerText = "0";
+  document.getElementById("giftUnits").innerText = "0";
+  document.getElementById("purchasedUnits").innerText = "0";
   document.getElementById("consumedUnits").innerText = "–";
   document.getElementById("unlockedTips").innerText = "0";
   document.getElementById("email").innerText = "Kein Zugangscode";
@@ -2744,7 +2784,10 @@ function forgetToken() {
     refCode: "",
     dashboardToken: "",
     refLink: "",
-      unlockedTips: 0
+    giftUnits: 0,
+    purchasedUnits: 0,
+    consumedUnits: null,
+    unlockedTips: 0
   };
 
   setUnitColor(0);
