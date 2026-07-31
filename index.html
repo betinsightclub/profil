@@ -1946,6 +1946,10 @@ function normalizePartnerArray(data, level) {
         if (Array.isArray(parsed)) {
           return parsed;
         }
+
+        if (parsed && typeof parsed === "object" && Array.isArray(parsed.array)) {
+          return parsed.array;
+        }
       } catch (error) {
         /* Kein JSON-String. */
       }
@@ -1994,7 +1998,11 @@ function renderLevelTable(level, partners) {
     );
 
     const purchased = formatNumber(
-      partnerValue(partner, ["gekaufte_units", "purchased_units", "gekauft"], 0)
+      partnerValue(
+        partner,
+        ["gekaufte_units", "gekaufte_units_rest", "purchased_units", "gekauft", "35"],
+        0
+      )
     );
 
     const consumed = formatNumber(
@@ -2009,6 +2017,8 @@ function renderLevelTable(level, partners) {
           "ref_erwartet",
           "expected_units",
           "erwartet",
+          "ref_partner_erwartet_l" + level,
+          String(34 + level * 2),
           "ref_ebene_" + level,
           "ref_level_" + level,
           "referral_units_ebene_" + level
@@ -2025,6 +2035,8 @@ function renderLevelTable(level, partners) {
           "ref_verfuegbar",
           "released_units",
           "available_units",
+          "ref_partner_verfuegbar_l" + level,
+          String(35 + level * 2),
           "freigegeben"
         ],
         0
@@ -2077,7 +2089,11 @@ function setLevelSummary(level, data, partners) {
       ],
       partners.reduce((sum, item) => {
         return sum + safeNumber(
-          partnerValue(item, ["gekaufte_units", "purchased_units", "gekauft"], 0)
+          partnerValue(
+            item,
+            ["gekaufte_units", "gekaufte_units_rest", "purchased_units", "gekauft", "35"],
+            0
+          )
         );
       }, 0)
     )
@@ -2100,6 +2116,8 @@ function setLevelSummary(level, data, partners) {
               "ref_erwartet",
               "expected_units",
               "erwartet",
+              "ref_partner_erwartet_l" + level,
+              String(34 + level * 2),
               "ref_ebene_" + level,
               "ref_level_" + level,
               "referral_units_ebene_" + level
@@ -2128,6 +2146,8 @@ function setLevelSummary(level, data, partners) {
               "ref_verfuegbar",
               "released_units",
               "available_units",
+              "ref_partner_verfuegbar_l" + level,
+              String(35 + level * 2),
               "freigegeben"
             ],
             0
