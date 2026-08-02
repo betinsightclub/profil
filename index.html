@@ -2,8 +2,10 @@
 <!--
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.02-06
+Version: 2026.08.02-07
 Änderungen:
+- Die drei unteren Hauptbuttons haben auf Desktop, Tablet und Mobil dieselbe Höhe
+- Die kompaktere Höhe von „Netzwerkdaten laden“ gilt nur noch für den oberen Aktualisieren-Button
 - Referral-Zusammenfassung fachlich vereinheitlicht
 - "Ref-Units insgesamt" und "Davon noch nicht freigegeben" beziehen sich beide auf das gesamte Netzwerk der Ebenen 1-3
 - Personenanzahl und Ref-Unit-Werte werden nicht mehr miteinander verglichen
@@ -1479,6 +1481,12 @@ button:focus-visible,
   margin-top: 17px;
   padding-top: 17px;
   border-top: 1px solid rgba(255,255,255,0.065);
+}
+
+.referral-footer-actions button {
+  min-height: 52px !important;
+  margin-top: 0 !important;
+  padding: 13px 16px;
 }
 
 .footer {
