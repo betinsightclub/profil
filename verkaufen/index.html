@@ -1,11 +1,20 @@
 <!DOCTYPE html>
+<!--
+Projekt: BetInsight
+Datei: profil/verkaufen/index.html
+Version: 2026.08.02-02
+Änderungen:
+- Verkaufbarer Referral-Bestand wird erst beim Öffnen dieser Seite geladen
+- Für Verkaufsgebühren verwendbarer Bestand wird ohne Geschenk-Units berechnet
+- Navigation zurück zur Wechselstube mit Token-Weitergabe korrigiert
+-->
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#071019">
-  <meta name="application-version" content="1.1.0">
+  <meta name="application-version" content="1.2.0">
   <title>Units verkaufen | BetInsight Club</title>
   <style>
     :root {
@@ -466,7 +475,7 @@
         src="https://betinsightclub.github.io/profil/logo_betisight.club.png"
         alt="BetInsight Club"
       >
-      <a class="back-link" id="backLink" href="../">← Zurück</a>
+      <a class="back-link" id="backLink" href="../wechselboerse/">← Zur Wechselstube</a>
     </header>
 
     <section class="hero">
@@ -593,7 +602,7 @@
     </section>
 
     <p class="footer-note">
-      BetInsight Wechselbörse · Verkaufsangebot Version 1.1.0
+      BetInsight Wechselbörse · Verkaufsangebot Version 1.2.0
     </p>
   </main>
 
@@ -602,6 +611,9 @@
 
     const MIN_SALE_UNITS = 10;
     const MAX_SALE_UNITS = 100;
+    const PROFILE_WEBHOOK_URL =
+      "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
+    const TOKEN_STORAGE_KEY = "betinsight_profile_token";
     const OFFER_FEES = Object.freeze({
       10: 1,
       20: 1,
@@ -616,7 +628,14 @@
     });
 
     const query = new URLSearchParams(window.location.search);
-    const dashboardToken = query.get("id") || query.get("token") || "";
+    const tokenFromUrl = String(query.get("token") || query.get("id") || "").trim();
+
+    if (tokenFromUrl) {
+      localStorage.setItem(TOKEN_STORAGE_KEY, tokenFromUrl);
+    }
+
+    const dashboardToken =
+      tokenFromUrl || String(localStorage.getItem(TOKEN_STORAGE_KEY) || "").trim();
 
     const form = document.getElementById("saleForm");
     const unitAmount = document.getElementById("unitAmount");
@@ -630,6 +649,26 @@
     const feedback = document.getElementById("feedback");
     const backLink = document.getElementById("backLink");
     const walletLink = document.getElementById("walletLink");
+    const referralBalance = document.getElementById("referralBalance");
+    const feeBalance = document.getElementById("feeBalance");
+    const offerStatus = document.getElementById("offerStatus");
+
+    function safeNumber(value) {
+      if (value === undefined || value === null || value === "") {
+        return 0;
+      }
+
+      const normalized = String(value).replace(",", ".");
+      const parsed = Number(normalized);
+
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function units(value) {
+      return new Intl.NumberFormat("de-DE", {
+        maximumFractionDigits: 2
+      }).format(safeNumber(value));
+    }
 
     function euro(value) {
       return new Intl.NumberFormat("de-DE", {
@@ -645,8 +684,72 @@
       }
 
       const encodedToken = encodeURIComponent(dashboardToken);
-      backLink.href = "../auszahlung/?id=" + encodedToken;
-      walletLink.href = "../wallet/?id=" + encodedToken;
+      backLink.href = "../wechselboerse/?token=" + encodedToken;
+      walletLink.href = "../wallet/?token=" + encodedToken;
+    }
+
+    async function loadBalances() {
+      if (!dashboardToken) {
+        referralBalance.textContent = "–";
+        feeBalance.textContent = "–";
+        offerStatus.textContent = "Zugang fehlt";
+        showFeedback(
+          "Dein persönlicher Zugang fehlt. Öffne diese Seite bitte über die Unit-Wechselstube.",
+          "error"
+        );
+        return;
+      }
+
+      referralBalance.textContent = "Lade ...";
+      feeBalance.textContent = "Lade ...";
+      offerStatus.textContent = "Kontoprüfung";
+
+      try {
+        const response = await fetch(
+          PROFILE_WEBHOOK_URL + "?token=" + encodeURIComponent(dashboardToken),
+          { cache: "no-store" }
+        );
+
+        if (!response.ok) {
+          throw new Error("Kontostand konnte nicht geladen werden.");
+        }
+
+        const data = await response.json();
+
+        if (!data || data.found === false || !data.email) {
+          throw new Error("Profil wurde nicht gefunden.");
+        }
+
+        const sellableReferralUnits = safeNumber(data.ref_verfuegbar);
+        const purchasedUnits = safeNumber(data.gekaufte_units_rest);
+        const referralAccountUnits = safeNumber(data.ref_aufs_konto);
+
+        /*
+         * Verkaufbar ist ausschließlich L (ref_verfuegbar).
+         * Für die Gebühr sind Kauf-Units, Konto-Referral-Units und noch nicht
+         * angebotene Referral-Units zulässig. Geschenk-Units (AA) bleiben ausgeschlossen.
+         */
+        const feeEligibleUnits =
+          purchasedUnits + referralAccountUnits + sellableReferralUnits;
+
+        referralBalance.textContent = units(sellableReferralUnits);
+        feeBalance.textContent = units(feeEligibleUnits);
+        offerStatus.textContent = "Kontostand geladen";
+
+        showFeedback(
+          "Dein aktueller verkaufbarer Bestand wurde geladen. Das endgültige Erstellen des Angebots wird mit dem Reservierungs-Webhook freigeschaltet.",
+          "info"
+        );
+      } catch (error) {
+        console.error(error);
+        referralBalance.textContent = "–";
+        feeBalance.textContent = "–";
+        offerStatus.textContent = "Ladefehler";
+        showFeedback(
+          "Der Unit-Bestand konnte nicht geladen werden. Gehe bitte zurück zur Wechselstube und öffne „Units verkaufen“ erneut.",
+          "error"
+        );
+      }
     }
 
     function updateSummary() {
@@ -698,13 +801,7 @@
 
     updateLinks();
     updateSummary();
-
-    if (!dashboardToken) {
-      showFeedback(
-        "Dein persönlicher dashboard_token fehlt. Öffne diese Seite später über dein BetInsight-Profil.",
-        "error"
-      );
-    }
+    loadBalances();
 
     /*
       Nächste Backend-Stufe:
