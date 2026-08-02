@@ -2,13 +2,14 @@
 <!--
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.02-01
+Version: 2026.08.02-02
 Änderungen:
 - Struktur und Umsätze verwenden jetzt ebenfalls den Empfehlungscenter-V5-Webhook
 - Alter Struktur-Webhook entfernt
 - Ebene 1, Ebene 2 und Ebene 3 werden aus partners_level1/2/3 geladen
 - Reale Make-Daten statt Musterdaten
-- Obere Unit-Aufschlüsselung entfernt
+- Interne Unit-Aufschlüsselung auf dem Dashboard entfernt
+- Kontostand auf vier übersichtliche Anzeigefelder reduziert
 - Kontostandsbezeichnungen präzisiert
 - Wechselstuben-Button mit Token-Weitergabe ergänzt
 -->
@@ -1124,10 +1125,10 @@ input {
         <div class="panel-head">
           <div class="panel-head-copy">
             <h2 class="panel-title">
-              📊 <span class="panel-title-accent">Kontostand & Aktivitäten</span>
+              📊 <span class="panel-title-accent">Kontostand &amp; Aktivitäten</span>
             </h2>
             <p class="panel-subtitle">
-              Wichtige Kontowerte und direkte Zugänge im Überblick.
+              Deine wichtigsten Kontowerte auf einen Blick.
             </p>
           </div>
 
@@ -1146,18 +1147,8 @@ input {
           <div class="account-stat-grid">
 
             <div class="account-stat">
-              <div class="account-stat-label">Gesamte verfügbare Units</div>
+              <div class="account-stat-label">Verfügbare Units</div>
               <div id="accountUnits" class="account-stat-value value-orange account-private-value">0</div>
-            </div>
-
-            <div class="account-stat">
-              <div class="account-stat-label">Geschenk-Units</div>
-              <div id="giftUnits" class="account-stat-value value-green account-private-value">0</div>
-            </div>
-
-            <div class="account-stat">
-              <div class="account-stat-label">Verbleibende Verkaufs-Units</div>
-              <div id="purchasedUnits" class="account-stat-value value-blue account-private-value">0</div>
             </div>
 
             <div class="account-stat">
@@ -1620,8 +1611,6 @@ let currentProfileData = {
   refCode: "",
   dashboardToken: "",
   refLink: "",
-  giftUnits: 0,
-  purchasedUnits: 0,
   consumedUnits: null,
   unlockedTips: 0
 };
@@ -2625,16 +2614,11 @@ function fetchProfileByToken(tokenVariants, index) {
       const refLink = String(data.ref_link || "").trim();
 
       /*
-       * Einzige Bestandswahrheit:
-       * AA Geschenk-Units, AJ Kauf-Units, M Referral aufs Konto.
-       * AQ ist die daraus berechnete Summe der einsetzbaren Units.
-       * Spalte B und ref_verfuegbar (L) steuern diesen Kontostand nicht.
+       * AQ ist die einzige Anzeige-Wahrheit der Profilseite und enthält:
+       * Geschenk-, Kauf-, Konto-Referral- und verfügbare Referral-Units.
+       * Die interne Aufteilung wird erst in der Unit-Wechselstube angezeigt.
        */
-      const giftUnits = safeNumber(data.geschenk_units_rest);
-      const purchasedUnits = safeNumber(data.gekaufte_units_rest);
-      const referralAccountUnits = safeNumber(data.ref_aufs_konto);
       const totalAvailableUnits = safeNumber(data.einsetzbare_units);
-      const earnedUnits = safeNumber(data.ref_verfuegbar);
 
       const consumedUnitsRaw = firstDefined(
         data,
@@ -2656,9 +2640,6 @@ function fetchProfileByToken(tokenVariants, index) {
         refCode: refCode,
         dashboardToken: dashboardToken,
         refLink: refLink,
-        giftUnits: giftUnits,
-        purchasedUnits: purchasedUnits,
-        earnedUnits: earnedUnits,
         consumedUnits: consumedUnitsRaw,
         unlockedTips: unlockedTips
       };
@@ -2670,9 +2651,6 @@ function fetchProfileByToken(tokenVariants, index) {
         formatNumber(totalAvailableUnits);
       document.getElementById("accountUnits").innerText =
         formatNumber(totalAvailableUnits);
-      document.getElementById("giftUnits").innerText = formatNumber(giftUnits);
-      document.getElementById("purchasedUnits").innerText =
-        formatNumber(earnedUnits);
       document.getElementById("consumedUnits").innerText =
         formatOptionalNumber(consumedUnitsRaw);
       document.getElementById("unlockedTips").innerText = formatNumber(unlockedTips);
@@ -2721,8 +2699,6 @@ function loadUnits() {
 
   document.getElementById("units").innerText = "0";
   document.getElementById("accountUnits").innerText = "0";
-  document.getElementById("giftUnits").innerText = "0";
-  document.getElementById("purchasedUnits").innerText = "0";
   document.getElementById("consumedUnits").innerText = "–";
   document.getElementById("unlockedTips").innerText = "0";
 
@@ -2842,8 +2818,6 @@ function forgetToken() {
 
   document.getElementById("units").innerText = "0";
   document.getElementById("accountUnits").innerText = "0";
-  document.getElementById("giftUnits").innerText = "0";
-  document.getElementById("purchasedUnits").innerText = "0";
   document.getElementById("consumedUnits").innerText = "–";
   document.getElementById("unlockedTips").innerText = "0";
   document.getElementById("email").innerText = "Kein Zugangscode";
@@ -2859,8 +2833,6 @@ function forgetToken() {
     refCode: "",
     dashboardToken: "",
     refLink: "",
-    giftUnits: 0,
-    purchasedUnits: 0,
     consumedUnits: null,
     unlockedTips: 0
   };
