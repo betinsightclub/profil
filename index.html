@@ -2616,6 +2616,12 @@ function fetchProfileByToken(tokenVariants, index) {
        */
       const totalAvailableUnits = safeNumber(data.einsetzbare_units);
 
+      /*
+       * Verkaufbar ist ausschließlich der persönliche Referral-Bestand
+       * ref_verfuegbar (Spalte L) aus dem Profil-Webhook.
+       */
+      const earnedUnits = safeNumber(data.ref_verfuegbar);
+
       const consumedUnitsRaw = firstDefined(
         data,
         ["verbrauchte_units", "consumed_units", "used_units"],
