@@ -2,7 +2,7 @@
 <!--
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.07.31-02
+Version: 2026.08.02-01
 Änderungen:
 - Struktur und Umsätze verwenden jetzt ebenfalls den Empfehlungscenter-V5-Webhook
 - Alter Struktur-Webhook entfernt
@@ -2620,70 +2620,21 @@ function fetchProfileByToken(tokenVariants, index) {
       }
 
       const finalToken = data.token || tokenToTry;
-      const units = safeNumber(data.units);
       const refCode = String(data.ref_code || "").trim();
       const dashboardToken = String(data.dashboard_token || "").trim();
       const refLink = String(data.ref_link || "").trim();
 
-      const giftUnitsFromApi = safeNumber(
-        firstDefined(
-          data,
-          [
-            "geschenk_units_rest",
-            "gift_units",
-            "gift_units_remaining",
-            "Units_Start",
-            "units_start"
-          ],
-          0
-        )
-      );
-
-      const purchasedUnitsFromApi = safeNumber(
-        firstDefined(
-          data,
-          [
-            "gekaufte_units_rest",
-            "purchased_units",
-            "purchased_units_remaining",
-            "units_gekauft"
-          ],
-          0
-        )
-      );
-
       /*
-       * Ältere Profil-Antworten enthalten nur den Gesamtbestand. In diesem
-       * Fall wird die Aufteilung aus dem Gesamtwert rekonstruiert: zuerst die
-       * 5 Geschenk-Units, der Rest sind gekaufte Units. Sobald Make beide
-       * Restbestände liefert, werden ausschließlich die echten API-Werte
-       * verwendet.
+       * Einzige Bestandswahrheit:
+       * AA Geschenk-Units, AJ Kauf-Units, M Referral aufs Konto.
+       * AQ ist die daraus berechnete Summe der einsetzbaren Units.
+       * Spalte B und ref_verfuegbar (L) steuern diesen Kontostand nicht.
        */
-      const apiSplitMatchesTotal =
-        giftUnitsFromApi + purchasedUnitsFromApi === units &&
-        (giftUnitsFromApi > 0 || purchasedUnitsFromApi > 0 || units === 0);
-
-      const giftUnits = apiSplitMatchesTotal
-        ? giftUnitsFromApi
-        : Math.min(giftUnitsFromApi > 0 ? giftUnitsFromApi : 5, units);
-
-      const purchasedUnits = apiSplitMatchesTotal
-        ? purchasedUnitsFromApi
-        : Math.max(0, units - giftUnits);
-
-      const earnedUnits = safeNumber(
-        firstDefined(
-          data,
-          [
-            "ref_verfuegbar",
-            "freigegebene_referral_units",
-            "released_units",
-            "available_units"
-          ],
-          0
-        )
-      );
-      const totalAvailableUnits = giftUnits + purchasedUnits + earnedUnits;
+      const giftUnits = safeNumber(data.geschenk_units_rest);
+      const purchasedUnits = safeNumber(data.gekaufte_units_rest);
+      const referralAccountUnits = safeNumber(data.ref_aufs_konto);
+      const totalAvailableUnits = safeNumber(data.einsetzbare_units);
+      const earnedUnits = safeNumber(data.ref_verfuegbar);
 
       const consumedUnitsRaw = firstDefined(
         data,
@@ -2701,7 +2652,7 @@ function fetchProfileByToken(tokenVariants, index) {
 
       currentProfileData = {
         email: data.email || "",
-        units: units,
+        units: totalAvailableUnits,
         refCode: refCode,
         dashboardToken: dashboardToken,
         refLink: refLink,
@@ -2739,7 +2690,7 @@ function fetchProfileByToken(tokenVariants, index) {
       setDebug(
         "Debug: Token aktiv: " + finalToken +
         " | API E-Mail: " + (data.email || "leer") +
-        " | API Units: " + (data.units || "0") +
+        " | API Units: " + (data.einsetzbare_units || "0") +
         " | API Ref-Code: " + (data.ref_code || "leer") +
         " | API Dashboard-Token: " + (data.dashboard_token || "leer")
       );
