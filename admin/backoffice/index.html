@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#061d2a">
+  <title>BetInsight – Mein Backoffice</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg-top: #0b3b55;
+      --bg-middle: #061d2a;
+      --bg-bottom: #031018;
+      --panel: rgba(9, 45, 64, 0.96);
+      --panel-soft: rgba(6, 29, 42, 0.88);
+      --panel-deep: rgba(3, 19, 28, 0.95);
+      --border: rgba(0, 218, 255, 0.28);
+      --border-strong: rgba(0, 218, 255, 0.62);
+      --text: #ffffff;
+      --muted: #b9d8e8;
+      --blue: #16a8f5;
+      --blue-dark: #0879bb;
+      --green: #00d48a;
+      --green-dark: #079663;
+      --yellow: #ffda76;
+      --red: #ff7d86;
+      --shadow: 0 18px 48px rgba(0, 0, 0, 0.36);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 24px 14px 48px;
+      background:
+        radial-gradient(circle at top, var(--bg-top) 0%, var(--bg-middle) 44%, var(--bg-bottom) 100%);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    button,
+    input,
+    select,
+    textarea,
+    a {
+      font: inherit;
+    }
+
+    button,
+    a,
+    select {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+      padding: 18px 20px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .brand-wrap {
+      min-width: 0;
+    }
+
+    .eyebrow {
+      margin-bottom: 5px;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 6px;
+      font-size: clamp(27px, 4vw, 38px);
+      line-height: 1.1;
+    }
+
+    h2 {
+      margin-bottom: 8px;
+      font-size: clamp(22px, 3vw, 30px);
+    }
+
+    h3 {
+      margin-bottom: 8px;
+      font-size: 18px;
+    }
+
+    .admin-line,
+    .muted,
+    .help-text {
+      color: var(--muted);
+    }
+
+    .admin-name {
+      color: #ffffff;
+      font-weight: 900;
+    }
+
+    .role-badge {
+      display: inline-flex;
+      align-items: center;
+      margin-left: 7px;
+      padding: 4px 9px;
+      border: 1px solid rgba(0, 212, 138, 0.38);
+      border-radius: 999px;
+      background: rgba(0, 212, 138, 0.10);
+      color: #82f5c8;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .button,
+    .link-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 42px;
+      padding: 10px 14px;
+      border: 0;
+      border-radius: 11px;
+      cursor: pointer;
+      color: #ffffff;
+      font-weight: 800;
+      text-decoration: none;
+      transition:
+        transform 150ms ease,
+        filter 150ms ease,
+        border-color 150ms ease;
+    }
+
+    .button:hover,
+    .button:focus-visible,
+    .link-button:hover,
+    .link-button:focus-visible {
+      transform: translateY(-2px);
+      filter: brightness(1.06);
+      outline: none;
+    }
+
+    .button-primary {
+      background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+    }
+
+    .button-green {
+      background: linear-gradient(135deg, var(--green), var(--green-dark));
+    }
+
+    .button-neutral,
+    .link-button {
+      border: 1px solid rgba(185, 216, 232, 0.25);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .button-red {
+      background: linear-gradient(135deg, #e95e68, #9d2f39);
+    }
+
+    .button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+      transform: none;
+      filter: none;
+    }
+
+    .status-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+      padding: 12px 16px;
+      border: 1px solid rgba(255, 218, 118, 0.26);
+      border-radius: 14px;
+      background: rgba(255, 218, 118, 0.07);
+      color: #eedb97;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .status-dot {
+      width: 9px;
+      height: 9px;
+      display: inline-block;
+      margin-right: 7px;
+      border-radius: 50%;
+      background: var(--yellow);
+      box-shadow: 0 0 0 4px rgba(255, 218, 118, 0.10);
+      vertical-align: middle;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 9px;
+      overflow-x: auto;
+      margin-bottom: 18px;
+      padding: 7px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--panel-soft);
+      scrollbar-width: thin;
+    }
+
+    .tab-button {
+      flex: 0 0 auto;
+      min-height: 42px;
+      padding: 9px 15px;
+      border: 1px solid transparent;
+      border-radius: 11px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .tab-button[aria-selected="true"] {
+      border-color: rgba(0, 218, 255, 0.38);
+      background: linear-gradient(135deg, rgba(22, 168, 245, 0.22), rgba(8, 121, 187, 0.26));
+      color: #ffffff;
+    }
+
+    .panel {
+      display: none;
+      padding: 22px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .panel-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .panel-heading p {
+      max-width: 760px;
+      margin-bottom: 0;
+      line-height: 1.55;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .kpi-card,
+    .content-card,
+    .admin-card {
+      border: 1px solid rgba(0, 218, 255, 0.20);
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(13, 67, 92, 0.70), rgba(4, 26, 38, 0.92));
+    }
+
+    .kpi-card {
+      min-height: 132px;
+      padding: 18px;
+    }
+
+    .kpi-label {
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .kpi-value {
+      margin-bottom: 7px;
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 900;
+      word-break: break-word;
+    }
+
+    .kpi-note {
+      color: #86cde9;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .content-card,
+    .admin-card {
+      padding: 18px;
+    }
+
+    .content-card.full {
+      grid-column: 1 / -1;
+    }
+
+    .empty-state {
+      padding: 26px 18px;
+      border: 1px dashed rgba(185, 216, 232, 0.24);
+      border-radius: 13px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.55;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid rgba(185, 216, 232, 0.13);
+      border-radius: 13px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+      background: rgba(1, 12, 19, 0.28);
+    }
+
+    th,
+    td {
+      padding: 12px 13px;
+      border-bottom: 1px solid rgba(185, 216, 232, 0.10);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      color: #d5effa;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    td {
+      color: #e8f7fd;
+      font-size: 14px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(255, 218, 118, 0.12);
+      color: #ffe59b;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field {
+      text-align: left;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label,
+    .field-title {
+      display: block;
+      margin-bottom: 7px;
+      color: #d7eef8;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-height: 44px;
+      padding: 11px 12px;
+      border: 1px solid rgba(0, 218, 255, 0.30);
+      border-radius: 10px;
+      outline: none;
+      background: #061d2a;
+      color: #ffffff;
+    }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(22, 168, 245, 0.16);
+    }
+
+    .radio-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .radio-option {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 11px;
+      align-items: start;
+      padding: 13px;
+      border: 1px solid rgba(185, 216, 232, 0.17);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.035);
+      cursor: pointer;
+    }
+
+    .radio-option input {
+      width: 18px;
+      height: 18px;
+      min-height: 0;
+      margin-top: 2px;
+    }
+
+    .radio-title {
+      margin-bottom: 4px;
+      color: #ffffff;
+      font-weight: 900;
+    }
+
+    .radio-description {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .fee-box {
+      margin-top: 15px;
+      padding: 16px;
+      border: 1px solid rgba(0, 212, 138, 0.24);
+      border-radius: 13px;
+      background: rgba(0, 212, 138, 0.055);
+    }
+
+    .fee-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 15px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(185, 216, 232, 0.10);
+    }
+
+    .fee-row:last-child {
+      border-bottom: 0;
+    }
+
+    .fee-row strong {
+      color: #ffffff;
+    }
+
+    .fee-total {
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .tooltip-wrap {
+      position: relative;
+      display: inline-flex;
+      vertical-align: middle;
+    }
+
+    .tooltip-button {
+      width: 21px;
+      height: 21px;
+      display: inline-grid;
+      place-items: center;
+      margin-left: 5px;
+      padding: 0;
+      border: 1px solid rgba(255, 218, 118, 0.52);
+      border-radius: 50%;
+      background: rgba(255, 218, 118, 0.10);
+      color: var(--yellow);
+      cursor: help;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .tooltip {
+      position: absolute;
+      z-index: 20;
+      left: 50%;
+      bottom: calc(100% + 10px);
+      width: min(310px, 80vw);
+      padding: 12px 13px;
+      border: 1px solid rgba(255, 218, 118, 0.30);
+      border-radius: 11px;
+      background: #071821;
+      color: #f3e5aa;
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.42);
+      font-size: 12px;
+      line-height: 1.5;
+      text-align: left;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 5px);
+      transition: opacity 120ms ease, transform 120ms ease;
+    }
+
+    .tooltip-wrap:hover .tooltip,
+    .tooltip-wrap:focus-within .tooltip,
+    .tooltip-wrap.open .tooltip {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, 0);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .info-box,
+    .warning-box {
+      margin-top: 14px;
+      padding: 13px 15px;
+      border-radius: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .info-box {
+      border: 1px solid rgba(22, 168, 245, 0.24);
+      background: rgba(22, 168, 245, 0.07);
+      color: #bee7f9;
+    }
+
+    .warning-box {
+      border: 1px solid rgba(255, 218, 118, 0.26);
+      background: rgba(255, 218, 118, 0.07);
+      color: #eedb97;
+    }
+
+    .factor-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 11px;
+      margin-top: 14px;
+    }
+
+    .factor-item {
+      padding: 13px;
+      border: 1px solid rgba(185, 216, 232, 0.13);
+      border-radius: 11px;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .factor-label {
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .factor-value {
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .footer {
+      margin-top: 24px;
+      color: rgba(255, 255, 255, 0.46);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    @media (max-width: 900px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .section-grid,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field.full,
+      .content-card.full {
+        grid-column: auto;
+      }
+    }
+
+    @media (max-width: 620px) {
+      body {
+        padding: 14px 9px 36px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .top-actions {
+        width: 100%;
+        justify-content: stretch;
+      }
+
+      .top-actions .button,
+      .top-actions .link-button {
+        flex: 1 1 auto;
+      }
+
+      .status-strip,
+      .panel-heading {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        padding: 17px 13px;
+      }
+
+      .factor-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand-wrap">
+        <div class="eyebrow">BetInsight Control Center</div>
+        <h1>Mein Backoffice</h1>
+        <p class="admin-line">
+          Angemeldet als
+          <span id="adminName" class="admin-name">Admin</span>
+          <span id="roleBadge" class="role-badge">Admin</span>
+        </p>
+      </div>
+
+      <div class="top-actions">
+        <a class="link-button" href="https://betinsightclub.github.io/profil/admin/">
+          ← Admin Center
+        </a>
+        <button class="button button-red" type="button" id="logoutButton">
+          Abmelden
+        </button>
+      </div>
+    </header>
+
+    <div class="status-strip">
+      <div>
+        <span class="status-dot" aria-hidden="true"></span>
+        <strong>Vorbereitungsmodus:</strong>
+        Die Oberfläche ist vollständig angelegt. Live-Daten werden nach Anschluss des Make-Webhooks geladen.
+      </div>
+      <button class="button button-neutral" type="button" id="reloadButton">
+        Daten neu laden
+      </button>
+    </div>
+
+    <nav class="tabs" aria-label="Backoffice-Menü">
+      <button class="tab-button" type="button" data-tab="overview" aria-selected="true">
+        Übersicht
+      </button>
+      <button class="tab-button" type="button" data-tab="provisions" aria-selected="false">
+        Provisionen
+      </button>
+      <button class="tab-button" type="button" data-tab="payout" aria-selected="false">
+        Auszahlung
+      </button>
+      <button class="tab-button" type="button" data-tab="settings" aria-selected="false">
+        Einstellungen
+      </button>
+      <button class="tab-button hidden" type="button" data-tab="master" id="masterTabButton" aria-selected="false">
+        Masterbereich
+      </button>
+    </nav>
+
+    <section class="panel active" id="tab-overview" data-panel="overview">
+      <div class="panel-heading">
+        <div>
+          <h2>Übersicht</h2>
+          <p class="muted">
+            Deine wichtigsten Vergütungs- und Auszahlungswerte auf einen Blick.
+          </p>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <article class="kpi-card">
+          <div class="kpi-label">Verfügbares Guthaben</div>
+          <div class="kpi-value" id="availableBalance">0,00</div>
+          <div class="kpi-note">Nach Währung und Netzwerk getrennt</div>
+        </article>
+
+        <article class="kpi-card">
+          <div class="kpi-label">Reserviert</div>
+          <div class="kpi-value" id="reservedBalance">0,00</div>
+          <div class="kpi-note">Für bereits beantragte Auszahlungen</div>
+        </article>
+
+        <article class="kpi-card">
+          <div class="kpi-label">Aktueller Gesamtfaktor</div>
+          <div class="kpi-value" id="effectiveFactor">30 %</div>
+          <div class="kpi-note">Startphase: voller möglicher Adminanteil</div>
+        </article>
+
+        <article class="kpi-card">
+          <div class="kpi-label">Nächster Sammeltermin</div>
+          <div class="kpi-value" id="nextBatchDate">–</div>
+          <div class="kpi-note">Auszahlung am 5., 15. oder 25.</div>
+        </article>
+      </div>
+
+      <div class="section-grid">
+        <article class="content-card">
+          <h3>Vergütungsregel</h3>
+          <div class="factor-grid">
+            <div class="factor-item">
+              <div class="factor-label">Menge</div>
+              <div class="factor-value">100 %</div>
+            </div>
+            <div class="factor-item">
+              <div class="factor-label">Qualität</div>
+              <div class="factor-value">100 %</div>
+            </div>
+            <div class="factor-item">
+              <div class="factor-label">Gesamtanteil</div>
+              <div class="factor-value">30 %</div>
+            </div>
+          </div>
+          <div class="info-box">
+            Die Startphase ist aktuell auf den vollständigen 30-%-Anteil eingestellt.
+            Spätere Änderungen gelten nur für zukünftige Zeiträume.
+          </div>
+        </article>
+
+        <article class="content-card">
+          <h3>Auszahlungsstandard</h3>
+          <p class="muted" id="payoutPreferenceSummary">
+            Noch nicht gewählt.
+          </p>
+          <div class="button-row">
+            <button class="button button-neutral" type="button" data-open-tab="settings">
+              Einstellung öffnen
+            </button>
+          </div>
+        </article>
+
+        <article class="content-card full">
+          <h3>Letzte Aktivitäten</h3>
+          <div class="empty-state">
+            Noch keine Live-Daten vorhanden. Nach Anschluss des Make-Webhooks erscheinen hier
+            Provisionseingänge, Wallet-Änderungen und Auszahlungsanträge.
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel" id="tab-provisions" data-panel="provisions">
+      <div class="panel-heading">
+        <div>
+          <h2>Provisionen</h2>
+          <p class="muted">
+            Hier werden bestätigte Kundenzahlungen, Kostenabzüge, Firmenreserve und dein persönlicher Anteil angezeigt.
+          </p>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table aria-label="Provisionseingänge">
+          <thead>
+            <tr>
+              <th>Datum</th>
+              <th>Paket</th>
+              <th>Währung</th>
+              <th>Netto-Basis</th>
+              <th>Faktor</th>
+              <th>Deine Provision</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="provisionTableBody">
+            <tr>
+              <td colspan="7">
+                <div class="empty-state">
+                  Noch keine Provisionen geladen.
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="warning-box">
+        Berechnungsreihenfolge: Kundenzahlung minus tatsächliche Plisio-Eingangsgebühr
+        minus 5 % Firmenreserve ergibt die Netto-Berechnungsgrundlage.
+      </div>
+    </section>
+
+    <section class="panel" id="tab-payout" data-panel="payout">
+      <div class="panel-heading">
+        <div>
+          <h2>Auszahlung beantragen</h2>
+          <p class="muted">
+            Wähle Währung, Netzwerk, Betrag und Auszahlungsart. Die Gebühren werden erst nach Klick auf
+            „Gebühren berechnen“ abgefragt.
+          </p>
+        </div>
+      </div>
+
+      <div class="section-grid">
+        <article class="content-card">
+          <div class="form-grid">
+            <div class="field">
+              <label for="currencySelect">Währung</label>
+              <select id="currencySelect">
+                <option value="USDT">USDT</option>
+                <option value="USDC">USDC</option>
+                <option value="TRX">TRX</option>
+                <option value="BTC">BTC</option>
+                <option value="ETH">ETH</option>
+                <option value="BNB">BNB</option>
+                <option value="SOL">SOL</option>
+                <option value="TON">TON</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="networkSelect">Netzwerk</label>
+              <select id="networkSelect">
+                <option value="TRC20">TRC-20</option>
+                <option value="ERC20">ERC-20</option>
+                <option value="BEP20">BEP-20</option>
+                <option value="TRON">TRON</option>
+                <option value="BITCOIN">Bitcoin</option>
+                <option value="ETHEREUM">Ethereum</option>
+                <option value="SOLANA">Solana</option>
+                <option value="TON">TON</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="amountInput">Auszahlungsbetrag</label>
+              <input id="amountInput" type="number" min="0" step="0.00000001" placeholder="0,00">
+            </div>
+
+            <div class="field">
+              <label for="walletInput">Wallet-Adresse</label>
+              <input id="walletInput" type="text" autocomplete="off" placeholder="Wallet-Adresse eintragen">
+            </div>
+
+            <div class="field full">
+              <span class="field-title">Auszahlungsart</span>
+              <div class="radio-list">
+                <label class="radio-option">
+                  <input type="radio" name="payoutMode" value="instant" checked>
+                  <span>
+                    <span class="radio-title">Sofortauszahlung</span>
+                    <span class="radio-description">
+                      Nach Erreichen der Mindestauszahlung jederzeit möglich.
+                      Plisio-Gebühr und Netzwerkgebühr trägt der Admin.
+                    </span>
+                  </span>
+                </label>
+
+                <label class="radio-option">
+                  <input type="radio" name="payoutMode" value="batch">
+                  <span>
+                    <span class="radio-title">Sammelauszahlung am 5., 15. oder 25.</span>
+                    <span class="radio-description">
+                      BetInsight übernimmt die Plisio-Auszahlungsgebühr.
+                      Die tatsächliche Netzwerkgebühr trägt weiterhin der Admin.
+                    </span>
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button class="button button-primary" type="button" id="estimateButton">
+              Gebühren berechnen
+            </button>
+            <button class="button button-green" type="button" id="requestPayoutButton" disabled>
+              Auszahlung beantragen
+            </button>
+          </div>
+
+          <div id="payoutMessage" class="warning-box">
+            Der Make-Webhook ist noch nicht verbunden. Deshalb können noch keine echten Gebühren berechnet
+            und keine Auszahlung beantragt werden.
+          </div>
+        </article>
+
+        <article class="content-card">
+          <h3>Gebührenübersicht</h3>
+
+          <div class="fee-box">
+            <div class="fee-row">
+              <span>
+                Plisio-Gebühr
+                <span class="tooltip-wrap">
+                  <button class="tooltip-button" type="button" aria-label="Information zur Plisio-Gebühr">?</button>
+                  <span class="tooltip">
+                    Die Plisio-Servicegebühr wird je Währung, Netzwerk, Betrag und Auszahlungsweg aktuell berechnet.
+                    Bei Sofortauszahlung trägt sie der Admin. Bei Sammelauszahlung übernimmt BetInsight diese Gebühr.
+                  </span>
+                </span>
+              </span>
+              <strong id="plisioFee">–</strong>
+            </div>
+
+            <div class="fee-row">
+              <span>
+                Netzwerkgebühr
+                <span class="tooltip-wrap">
+                  <button class="tooltip-button" type="button" aria-label="Information zur Netzwerkgebühr">?</button>
+                  <span class="tooltip">
+                    Diese Gebühr entsteht im jeweiligen Blockchain-Netzwerk und kann sich bis zur Auszahlung verändern.
+                    Sie wird in beiden Auszahlungsarten vom Admin getragen.
+                  </span>
+                </span>
+              </span>
+              <strong id="networkFee">–</strong>
+            </div>
+
+            <div class="fee-row">
+              <span>Wer trägt die Plisio-Gebühr?</span>
+              <strong id="plisioFeePayer">Admin</strong>
+            </div>
+
+            <div class="fee-row">
+              <span>Wer trägt die Netzwerkgebühr?</span>
+              <strong>Admin</strong>
+            </div>
+
+            <div class="fee-row fee-total">
+              <span>Voraussichtlicher Empfang</span>
+              <strong id="netReceive">–</strong>
+            </div>
+          </div>
+
+          <div class="info-box">
+            Bei einer Sammelauszahlung ist die heutige Anzeige nur eine Schätzung.
+            Am tatsächlichen Auszahlungstag werden die Gebühren erneut abgefragt.
+          </div>
+        </article>
+      </div>
+
+      <div class="section-grid">
+        <article class="content-card full">
+          <h3>Auszahlungsverlauf</h3>
+          <div class="empty-state">
+            Noch keine Auszahlungsanträge geladen.
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel" id="tab-settings" data-panel="settings">
+      <div class="panel-heading">
+        <div>
+          <h2>Einstellungen</h2>
+          <p class="muted">
+            Lege deinen bevorzugten Auszahlungsstandard und deine Wallets fest.
+          </p>
+        </div>
+      </div>
+
+      <div class="section-grid">
+        <article class="content-card">
+          <h3>Bevorzugte Auszahlung</h3>
+
+          <div class="radio-list">
+            <label class="radio-option">
+              <input type="radio" name="defaultPayoutMode" value="instant">
+              <span>
+                <span class="radio-title">Sofortauszahlung</span>
+                <span class="radio-description">
+                  Plisio- und Netzwerkgebühr werden von deinem Guthaben abgezogen.
+                </span>
+              </span>
+            </label>
+
+            <label class="radio-option">
+              <input type="radio" name="defaultPayoutMode" value="batch">
+              <span>
+                <span class="radio-title">Sammelauszahlung</span>
+                <span class="radio-description">
+                  BetInsight trägt die Plisio-Gebühr. Du trägst die Netzwerkgebühr.
+                </span>
+              </span>
+            </label>
+          </div>
+
+          <div class="button-row">
+            <button class="button button-primary" type="button" id="savePreferenceButton">
+              Auswahl speichern
+            </button>
+          </div>
+
+          <div id="settingsMessage" class="info-box">
+            Die Auswahl wird vorläufig nur auf diesem Gerät gespeichert.
+            Nach Anschluss von Make wird sie zusätzlich im Sheet gespeichert.
+          </div>
+        </article>
+
+        <article class="content-card">
+          <h3>Wallet verwalten</h3>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="settingsCurrency">Währung</label>
+              <select id="settingsCurrency">
+                <option value="USDT">USDT</option>
+                <option value="USDC">USDC</option>
+                <option value="TRX">TRX</option>
+                <option value="BTC">BTC</option>
+                <option value="ETH">ETH</option>
+                <option value="BNB">BNB</option>
+                <option value="SOL">SOL</option>
+                <option value="TON">TON</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="settingsNetwork">Netzwerk</label>
+              <select id="settingsNetwork">
+                <option value="TRC20">TRC-20</option>
+                <option value="ERC20">ERC-20</option>
+                <option value="BEP20">BEP-20</option>
+                <option value="TRON">TRON</option>
+                <option value="BITCOIN">Bitcoin</option>
+                <option value="ETHEREUM">Ethereum</option>
+                <option value="SOLANA">Solana</option>
+                <option value="TON">TON</option>
+              </select>
+            </div>
+
+            <div class="field full">
+              <label for="settingsWallet">Wallet-Adresse</label>
+              <input id="settingsWallet" type="text" autocomplete="off" placeholder="Wallet-Adresse eintragen">
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button class="button button-primary" type="button" id="saveWalletButton">
+              Wallet speichern
+            </button>
+          </div>
+
+          <div class="warning-box">
+            Nach einer Wallet-Änderung gilt später eine Sicherheitswartezeit von 24 Stunden.
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel" id="tab-master" data-panel="master">
+      <div class="panel-heading">
+        <div>
+          <h2>Masterbereich</h2>
+          <p class="muted">
+            Dieser Bereich ist ausschließlich für Luciano sichtbar.
+          </p>
+        </div>
+      </div>
+
+      <div class="section-grid">
+        <article class="admin-card">
+          <h3>Martin</h3>
+          <p class="muted">ADM-002 · Startphase</p>
+          <div class="factor-grid">
+            <div class="factor-item">
+              <div class="factor-label">Menge</div>
+              <div class="factor-value">100 %</div>
+            </div>
+            <div class="factor-item">
+              <div class="factor-label">Qualität</div>
+              <div class="factor-value">100 %</div>
+            </div>
+            <div class="factor-item">
+              <div class="factor-label">Gesamt</div>
+              <div class="factor-value">30 %</div>
+            </div>
+          </div>
+          <div class="button-row">
+            <button class="button button-neutral" type="button" disabled>
+              Nach Make-Anschluss bearbeiten
+            </button>
+          </div>
+        </article>
+
+        <article class="admin-card">
+          <h3>Frank</h3>
+          <p class="muted">ADM-003 · Startphase</p>
+          <div class="factor-grid">
+            <div class="factor-item">
+              <div class="factor-label">Menge</div>
+              <div class="factor-value">100 %</div>
+            </div>
+            <div class="factor-item">
+              <div class="factor-label">Qualität</div>
+              <div class="factor-value">100 %</div>
+            </div>
+            <div class="factor-item">
+              <div class="factor-label">Gesamt</div>
+              <div class="factor-value">30 %</div>
+            </div>
+          </div>
+          <div class="button-row">
+            <button class="button button-neutral" type="button" disabled>
+              Nach Make-Anschluss bearbeiten
+            </button>
+          </div>
+        </article>
+
+        <article class="content-card full">
+          <h3>Master-Kennzahlen</h3>
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">Firmenreserve</div>
+              <div class="kpi-value">0,00</div>
+              <div class="kpi-note">5 % je bestätigtem Paketkauf</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Luciano-Anteil</div>
+              <div class="kpi-value">40 %</div>
+              <div class="kpi-note">Von der Netto-Berechnungsgrundlage</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Offene Auszahlungen</div>
+              <div class="kpi-value">0</div>
+              <div class="kpi-note">Noch keine Live-Daten</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Gesperrte Vorgänge</div>
+              <div class="kpi-value">0</div>
+              <div class="kpi-note">Noch keine Live-Daten</div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <footer class="footer">
+      © 2026 BetInsight Club · Admin Backoffice
+    </footer>
+  </main>
+
+  <script>
+    "use strict";
+
+    const ADMINS = {
+      "4837LUC": { name: "Luciano", role: "owner" },
+      "6152MAR": { name: "Martin", role: "tipster" },
+      "9084FRA": { name: "Frank", role: "tipster" }
+    };
+
+    const STORAGE_KEY = "betinsight_admin_login";
+    const PAYOUT_PREF_KEY = "betinsight_admin_payout_preference";
+
+    // Nach dem Import des Make-Blueprints wird hier die echte Webhook-Adresse eingetragen.
+    const API_URL = "";
+
+    const adminName = document.getElementById("adminName");
+    const roleBadge = document.getElementById("roleBadge");
+    const masterTabButton = document.getElementById("masterTabButton");
+    const reloadButton = document.getElementById("reloadButton");
+    const logoutButton = document.getElementById("logoutButton");
+    const estimateButton = document.getElementById("estimateButton");
+    const requestPayoutButton = document.getElementById("requestPayoutButton");
+    const payoutMessage = document.getElementById("payoutMessage");
+    const plisioFee = document.getElementById("plisioFee");
+    const networkFee = document.getElementById("networkFee");
+    const netReceive = document.getElementById("netReceive");
+    const plisioFeePayer = document.getElementById("plisioFeePayer");
+    const payoutPreferenceSummary = document.getElementById("payoutPreferenceSummary");
+    const savePreferenceButton = document.getElementById("savePreferenceButton");
+    const settingsMessage = document.getElementById("settingsMessage");
+    const saveWalletButton = document.getElementById("saveWalletButton");
+
+    function getSavedCode() {
+      return String(localStorage.getItem(STORAGE_KEY) || "").trim().toUpperCase();
+    }
+
+    function getCurrentAdmin() {
+      const code = getSavedCode();
+      return {
+        code,
+        admin: ADMINS[code] || null
+      };
+    }
+
+    function requireLogin() {
+      const current = getCurrentAdmin();
+
+      if (!current.admin) {
+        window.location.replace("https://betinsightclub.github.io/profil/admin/");
+        return null;
+      }
+
+      adminName.textContent = current.admin.name;
+      roleBadge.textContent = current.admin.role === "owner" ? "Master-Admin" : "Admin";
+
+      if (current.admin.role === "owner") {
+        masterTabButton.classList.remove("hidden");
+      }
+
+      return current;
+    }
+
+    function logout() {
+      localStorage.removeItem(STORAGE_KEY);
+      window.location.replace("https://betinsightclub.github.io/profil/admin/");
+    }
+
+    function activateTab(tabName) {
+      document.querySelectorAll(".tab-button").forEach(function (button) {
+        const active = button.dataset.tab === tabName;
+        button.setAttribute("aria-selected", active ? "true" : "false");
+      });
+
+      document.querySelectorAll("[data-panel]").forEach(function (panel) {
+        panel.classList.toggle("active", panel.dataset.panel === tabName);
+      });
+    }
+
+    function getNextBatchDate() {
+      const now = new Date();
+      const targetDays = [5, 15, 25];
+
+      for (let monthOffset = 0; monthOffset < 2; monthOffset += 1) {
+        const year = now.getFullYear();
+        const month = now.getMonth() + monthOffset;
+
+        for (const day of targetDays) {
+          const candidate = new Date(year, month, day, 12, 0, 0, 0);
+
+          if (candidate > now) {
+            return candidate;
+          }
+        }
+      }
+
+      return new Date(now.getFullYear(), now.getMonth() + 2, 5, 12, 0, 0, 0);
+    }
+
+    function formatGermanDate(date) {
+      return new Intl.DateTimeFormat("de-DE", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+      }).format(date);
+    }
+
+    function updateNextBatchDate() {
+      document.getElementById("nextBatchDate").textContent =
+        formatGermanDate(getNextBatchDate());
+    }
+
+    function updatePayoutModeDisplay() {
+      const selected = document.querySelector('input[name="payoutMode"]:checked');
+      const mode = selected ? selected.value : "instant";
+
+      plisioFeePayer.textContent = mode === "batch" ? "BetInsight" : "Admin";
+    }
+
+    function loadSavedPreference() {
+      const current = getCurrentAdmin();
+      const storageValue = current.code
+        ? localStorage.getItem(PAYOUT_PREF_KEY + "_" + current.code)
+        : null;
+
+      if (!storageValue) {
+        payoutPreferenceSummary.textContent = "Noch nicht gewählt.";
+        return;
+      }
+
+      const radio = document.querySelector(
+        'input[name="defaultPayoutMode"][value="' + storageValue + '"]'
+      );
+
+      if (radio) {
+        radio.checked = true;
+      }
+
+      payoutPreferenceSummary.textContent =
+        storageValue === "batch"
+          ? "Sammelauszahlung am 5., 15. oder 25."
+          : "Sofortauszahlung mit Gebührenabzug";
+    }
+
+    function savePreference() {
+      const current = getCurrentAdmin();
+      const selected = document.querySelector(
+        'input[name="defaultPayoutMode"]:checked'
+      );
+
+      if (!current.admin || !selected) {
+        settingsMessage.textContent = "Bitte zuerst eine Auszahlungsart auswählen.";
+        return;
+      }
+
+      localStorage.setItem(
+        PAYOUT_PREF_KEY + "_" + current.code,
+        selected.value
+      );
+
+      loadSavedPreference();
+      settingsMessage.textContent =
+        "Die Auswahl wurde auf diesem Gerät gespeichert. Nach Anschluss von Make wird sie zusätzlich im Sheet gespeichert.";
+    }
+
+    function showApiNotConnected() {
+      plisioFee.textContent = "–";
+      networkFee.textContent = "–";
+      netReceive.textContent = "–";
+      requestPayoutButton.disabled = true;
+
+      payoutMessage.textContent =
+        "Der Make-Webhook ist noch nicht verbunden. Nach dem Import des Blueprints und Eintragen der Webhook-Adresse kann diese Schaltfläche die aktuellen Plisio- und Netzwerkgebühren abfragen.";
+    }
+
+    async function loadBackofficeData() {
+      if (!API_URL) {
+        return;
+      }
+
+      const current = getCurrentAdmin();
+
+      if (!current.admin) {
+        return;
+      }
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            action: "load",
+            admin_code: current.code
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error("HTTP " + response.status);
+        }
+
+        const data = await response.json();
+
+        if (typeof data.available_balance !== "undefined") {
+          document.getElementById("availableBalance").textContent =
+            String(data.available_balance);
+        }
+
+        if (typeof data.reserved_balance !== "undefined") {
+          document.getElementById("reservedBalance").textContent =
+            String(data.reserved_balance);
+        }
+
+        if (typeof data.effective_factor_pct !== "undefined") {
+          document.getElementById("effectiveFactor").textContent =
+            String(data.effective_factor_pct) + " %";
+        }
+      } catch (error) {
+        console.error("Backoffice-Daten konnten nicht geladen werden:", error);
+      }
+    }
+
+    function saveWalletLocally() {
+      const currency = document.getElementById("settingsCurrency").value;
+      const network = document.getElementById("settingsNetwork").value;
+      const wallet = document.getElementById("settingsWallet").value.trim();
+
+      if (!wallet) {
+        window.alert("Bitte eine Wallet-Adresse eintragen.");
+        return;
+      }
+
+      window.alert(
+        "Wallet für " + currency + " / " + network +
+        " wurde vorläufig nur lokal erfasst. Die echte Speicherung folgt nach Make-Anschluss."
+      );
+    }
+
+    document.querySelectorAll(".tab-button").forEach(function (button) {
+      button.addEventListener("click", function () {
+        activateTab(button.dataset.tab);
+      });
+    });
+
+    document.querySelectorAll("[data-open-tab]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        activateTab(button.dataset.openTab);
+      });
+    });
+
+    document.querySelectorAll('input[name="payoutMode"]').forEach(function (radio) {
+      radio.addEventListener("change", updatePayoutModeDisplay);
+    });
+
+    document.querySelectorAll(".tooltip-button").forEach(function (button) {
+      button.addEventListener("click", function () {
+        const wrap = button.closest(".tooltip-wrap");
+        const wasOpen = wrap.classList.contains("open");
+
+        document.querySelectorAll(".tooltip-wrap.open").forEach(function (item) {
+          item.classList.remove("open");
+        });
+
+        if (!wasOpen) {
+          wrap.classList.add("open");
+        }
+      });
+    });
+
+    document.addEventListener("click", function (event) {
+      if (!event.target.closest(".tooltip-wrap")) {
+        document.querySelectorAll(".tooltip-wrap.open").forEach(function (item) {
+          item.classList.remove("open");
+        });
+      }
+    });
+
+    reloadButton.addEventListener("click", loadBackofficeData);
+    logoutButton.addEventListener("click", logout);
+    estimateButton.addEventListener("click", showApiNotConnected);
+    savePreferenceButton.addEventListener("click", savePreference);
+    saveWalletButton.addEventListener("click", saveWalletLocally);
+
+    const current = requireLogin();
+
+    if (current) {
+      updateNextBatchDate();
+      updatePayoutModeDisplay();
+      loadSavedPreference();
+      loadBackofficeData();
+    }
+  </script>
+</body>
+</html>
