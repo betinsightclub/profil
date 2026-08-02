@@ -1,7 +1,14 @@
 <!DOCTYPE html>
+<!--
+Projekt: BetInsight
+Datei auf GitHub: profil/admin/backoffice/index.html
+Version: 2026.08.03-01
+Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
+-->
 <html lang="de">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#061d2a">
   <title>BetInsight – Mein Backoffice</title>
@@ -77,6 +84,21 @@
       border-radius: 20px;
       background: var(--panel);
       box-shadow: var(--shadow);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .topbar-logo {
+      width: 118px;
+      max-width: 28vw;
+      height: auto;
+      display: block;
+      flex: 0 0 auto;
     }
 
     .brand-wrap {
@@ -646,6 +668,15 @@
         flex-direction: column;
       }
 
+      .brand-group {
+        width: 100%;
+        align-items: flex-start;
+      }
+
+      .topbar-logo {
+        width: 104px;
+      }
+
       .top-actions {
         width: 100%;
         justify-content: stretch;
@@ -675,6 +706,16 @@
       }
     }
 
+    @media (max-width: 430px) {
+      .brand-group {
+        flex-direction: column;
+      }
+
+      .topbar-logo {
+        width: 112px;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *,
       *::before,
@@ -688,14 +729,23 @@
 <body>
   <main class="app">
     <header class="topbar">
-      <div class="brand-wrap">
-        <div class="eyebrow">BetInsight Control Center</div>
-        <h1>Mein Backoffice</h1>
-        <p class="admin-line">
-          Angemeldet als
-          <span id="adminName" class="admin-name">Admin</span>
-          <span id="roleBadge" class="role-badge">Admin</span>
-        </p>
+      <div class="brand-group">
+        <img
+          src="/profil/logo_betisight.club.png"
+          alt="BetInsight Club"
+          class="topbar-logo"
+          onerror="this.style.display='none'"
+        >
+
+        <div class="brand-wrap">
+          <div class="eyebrow">BetInsight Control Center</div>
+          <h1>Mein Backoffice</h1>
+          <p class="admin-line">
+            Angemeldet als
+            <span id="adminName" class="admin-name">Admin</span>
+            <span id="roleBadge" class="role-badge">Admin</span>
+          </p>
+        </div>
       </div>
 
       <div class="top-actions">
@@ -709,10 +759,10 @@
     </header>
 
     <div class="status-strip">
-      <div>
+      <div id="apiStatusText">
         <span class="status-dot" aria-hidden="true"></span>
-        <strong>Vorbereitungsmodus:</strong>
-        Die Oberfläche ist vollständig angelegt. Live-Daten werden nach Anschluss des Make-Webhooks geladen.
+        <strong>Verbindung wird geprüft:</strong>
+        Die Backoffice-Daten werden über Make geladen.
       </div>
       <button class="button button-neutral" type="button" id="reloadButton">
         Daten neu laden
@@ -809,11 +859,25 @@
         </article>
 
         <article class="content-card full">
-          <h3>Letzte Aktivitäten</h3>
-          <div class="empty-state">
-            Noch keine Live-Daten vorhanden. Nach Anschluss des Make-Webhooks erscheinen hier
-            Provisionseingänge, Wallet-Änderungen und Auszahlungsanträge.
+          <h3>Guthaben nach Währung und Netzwerk</h3>
+          <div class="table-wrap">
+            <table aria-label="Guthaben nach Währung und Netzwerk">
+              <thead>
+                <tr>
+                  <th>Währung</th><th>Netzwerk</th><th>Verfügbar</th><th>Reserviert</th>
+                  <th>Mindestauszahlung</th><th>Wallet</th><th>Auszahlung möglich</th>
+                </tr>
+              </thead>
+              <tbody id="balanceTableBody">
+                <tr><td colspan="7"><div class="empty-state">Guthaben werden geladen.</div></td></tr>
+              </tbody>
+            </table>
           </div>
+        </article>
+
+        <article class="content-card full">
+          <h3>Letzte Aktivitäten</h3>
+          <div id="activitySummary" class="empty-state">Aktivitäten werden geladen.</div>
         </article>
       </div>
     </section>
@@ -949,8 +1013,8 @@
           </div>
 
           <div id="payoutMessage" class="warning-box">
-            Der Make-Webhook ist noch nicht verbunden. Deshalb können noch keine echten Gebühren berechnet
-            und keine Auszahlung beantragt werden.
+            Der Lade-Webhook ist verbunden. Gebührenberechnung und Auszahlungsantrag bleiben bis zu den
+            nächsten geschützten Make-Aktionen deaktiviert.
           </div>
         </article>
 
@@ -1012,8 +1076,18 @@
       <div class="section-grid">
         <article class="content-card full">
           <h3>Auszahlungsverlauf</h3>
-          <div class="empty-state">
-            Noch keine Auszahlungsanträge geladen.
+          <div class="table-wrap">
+            <table aria-label="Auszahlungsverlauf">
+              <thead>
+                <tr>
+                  <th>Beantragt</th><th>Art</th><th>Währung</th><th>Netzwerk</th><th>Brutto</th>
+                  <th>Netzwerkgebühr</th><th>Netto</th><th>Status</th><th>TXID</th>
+                </tr>
+              </thead>
+              <tbody id="payoutHistoryBody">
+                <tr><td colspan="9"><div class="empty-state">Auszahlungsverlauf wird geladen.</div></td></tr>
+              </tbody>
+            </table>
           </div>
         </article>
       </div>
@@ -1115,6 +1189,20 @@
             Nach einer Wallet-Änderung gilt später eine Sicherheitswartezeit von 24 Stunden.
           </div>
         </article>
+
+        <article class="content-card full">
+          <h3>Hinterlegte Wallets</h3>
+          <div class="table-wrap">
+            <table aria-label="Hinterlegte Wallets">
+              <thead>
+                <tr><th>Währung</th><th>Netzwerk</th><th>Wallet</th><th>Status</th><th>Geändert</th><th>Gesperrt bis</th></tr>
+              </thead>
+              <tbody id="walletTableBody">
+                <tr><td colspan="6"><div class="empty-state">Wallets werden geladen.</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -1182,23 +1270,23 @@
           <div class="kpi-grid">
             <div class="kpi-card">
               <div class="kpi-label">Firmenreserve</div>
-              <div class="kpi-value">0,00</div>
+              <div class="kpi-value" id="masterCompanyReserve">0,00</div>
               <div class="kpi-note">5 % je bestätigtem Paketkauf</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">Luciano-Anteil</div>
-              <div class="kpi-value">40 %</div>
+              <div class="kpi-value" id="masterLucianoShare">40 %</div>
               <div class="kpi-note">Von der Netto-Berechnungsgrundlage</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">Offene Auszahlungen</div>
-              <div class="kpi-value">0</div>
-              <div class="kpi-note">Noch keine Live-Daten</div>
+              <div class="kpi-value" id="masterOpenPayouts">0</div>
+              <div class="kpi-note">Offene Anträge</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">Gesperrte Vorgänge</div>
-              <div class="kpi-value">0</div>
-              <div class="kpi-note">Noch keine Live-Daten</div>
+              <div class="kpi-value" id="masterBlockedProcesses">0</div>
+              <div class="kpi-note">Gesperrte Vorgänge</div>
             </div>
           </div>
         </article>
@@ -1223,7 +1311,7 @@
     const PAYOUT_PREF_KEY = "betinsight_admin_payout_preference";
 
     // Nach dem Import des Make-Blueprints wird hier die echte Webhook-Adresse eingetragen.
-    const API_URL = "";
+    const API_URL = "https://hook.eu1.make.com/p4t9t3gvr77dowgvg14m1wuekxzfi3sx";
 
     const adminName = document.getElementById("adminName");
     const roleBadge = document.getElementById("roleBadge");
@@ -1241,6 +1329,12 @@
     const savePreferenceButton = document.getElementById("savePreferenceButton");
     const settingsMessage = document.getElementById("settingsMessage");
     const saveWalletButton = document.getElementById("saveWalletButton");
+    const apiStatusText = document.getElementById("apiStatusText");
+    const balanceTableBody = document.getElementById("balanceTableBody");
+    const provisionTableBody = document.getElementById("provisionTableBody");
+    const payoutHistoryBody = document.getElementById("payoutHistoryBody");
+    const walletTableBody = document.getElementById("walletTableBody");
+    const activitySummary = document.getElementById("activitySummary");
 
     function getSavedCode() {
       return String(localStorage.getItem(STORAGE_KEY) || "").trim().toUpperCase();
@@ -1381,54 +1475,194 @@
       requestPayoutButton.disabled = true;
 
       payoutMessage.textContent =
-        "Der Make-Webhook ist noch nicht verbunden. Nach dem Import des Blueprints und Eintragen der Webhook-Adresse kann diese Schaltfläche die aktuellen Plisio- und Netzwerkgebühren abfragen.";
+        "Der erste Make-Webhook lädt die Backoffice-Daten. Gebührenberechnung und Auszahlungsantrag folgen als geschützte Make-Aktionen.";
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function parseJsonValue(value, fallback) {
+      if (Array.isArray(value) || (value && typeof value === "object")) return value;
+      if (typeof value !== "string" || value.trim() === "") return fallback;
+      try { return JSON.parse(value); } catch (error) { return fallback; }
+    }
+
+    function num(value) {
+      const parsed = Number(String(value ?? 0).replace(",", "."));
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function formatNumber(value, digits = 2) {
+      return new Intl.NumberFormat("de-DE", {
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits
+      }).format(num(value));
+    }
+
+    function formatEuro(value) { return formatNumber(value, 2) + " €"; }
+
+    function label(value) {
+      return String(value || "offen").replaceAll("_", " ").replace(/\b\w/g, l => l.toUpperCase());
+    }
+
+    function preferenceMode(value) {
+      const v = String(value || "").toUpperCase();
+      if (v.includes("SAMMEL")) return "batch";
+      if (v.includes("SOFORT")) return "instant";
+      return "";
+    }
+
+    function renderBalances(items) {
+      if (!Array.isArray(items) || !items.length) {
+        balanceTableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state">Keine Guthaben vorhanden.</div></td></tr>';
+        return;
+      }
+      balanceTableBody.innerHTML = items.map(item => {
+        const possible = item.payout_possible === true || String(item.payout_possible).toLowerCase() === "true";
+        return `<tr>
+          <td>${escapeHtml(item.currency || "–")}</td>
+          <td>${escapeHtml(item.network || "–")}</td>
+          <td>${formatNumber(item.available, 8)}</td>
+          <td>${formatNumber(item.reserved, 8)}</td>
+          <td>${formatNumber(item.minimum, 8)}</td>
+          <td>${escapeHtml(label(item.wallet_status || "nicht hinterlegt"))}</td>
+          <td><span class="status-pill">${possible ? "Ja" : "Nein"}</span></td>
+        </tr>`;
+      }).join("");
+    }
+
+    function renderWallets(items) {
+      if (!Array.isArray(items) || !items.length) {
+        walletTableBody.innerHTML = '<tr><td colspan="6"><div class="empty-state">Keine Wallets hinterlegt.</div></td></tr>';
+        return;
+      }
+      walletTableBody.innerHTML = items.map(item => `<tr>
+        <td>${escapeHtml(item.currency || "–")}</td>
+        <td>${escapeHtml(item.network || "–")}</td>
+        <td>${escapeHtml(item.address_masked || "–")}</td>
+        <td><span class="status-pill">${escapeHtml(label(item.status))}</span></td>
+        <td>${escapeHtml(item.changed_at || "–")}</td>
+        <td>${escapeHtml(item.locked_until || "–")}</td>
+      </tr>`).join("");
+    }
+
+    function renderProvisions(items) {
+      if (!Array.isArray(items) || !items.length) {
+        provisionTableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state">Keine Provisionen vorhanden.</div></td></tr>';
+        return;
+      }
+      provisionTableBody.innerHTML = items.map(item => `<tr>
+        <td>${escapeHtml(item.date || "–")}</td>
+        <td>${escapeHtml(item.package || "–")}</td>
+        <td>${escapeHtml(item.payment_currency || "–")}</td>
+        <td>${formatEuro(item.net_basis_eur)}</td>
+        <td>${formatNumber(item.factor_pct, 0)} %</td>
+        <td>${formatEuro(item.commission_eur)}</td>
+        <td><span class="status-pill">${escapeHtml(label(item.status))}</span></td>
+      </tr>`).join("");
+    }
+
+    function renderPayouts(items) {
+      if (!Array.isArray(items) || !items.length) {
+        payoutHistoryBody.innerHTML = '<tr><td colspan="9"><div class="empty-state">Keine Auszahlungsanträge vorhanden.</div></td></tr>';
+        return;
+      }
+      payoutHistoryBody.innerHTML = items.map(item => {
+        const fee = item.network_fee ?? item.network_fee_estimate ?? 0;
+        const net = item.net_paid ?? (num(item.gross) - num(fee));
+        return `<tr>
+          <td>${escapeHtml(item.requested_at || "–")}</td>
+          <td>${escapeHtml(item.mode || "–")}</td>
+          <td>${escapeHtml(item.currency || "–")}</td>
+          <td>${escapeHtml(item.network || "–")}</td>
+          <td>${formatNumber(item.gross, 8)}</td>
+          <td>${formatNumber(fee, 8)}</td>
+          <td>${formatNumber(net, 8)}</td>
+          <td><span class="status-pill">${escapeHtml(label(item.status))}</span></td>
+          <td>${escapeHtml(item.tx_hash || "–")}</td>
+        </tr>`;
+      }).join("");
+    }
+
+    function applyData(data) {
+      if (!data || data.ok === false) throw new Error(data?.message || "Ungültige Antwort");
+
+      const role = String(data.role || "").toUpperCase();
+      const isMaster = role === "MASTER";
+      if (data.admin_name) adminName.textContent = data.admin_name;
+      roleBadge.textContent = isMaster ? "Master-Admin" : "Admin";
+      masterTabButton.classList.toggle("hidden", !isMaster);
+
+      document.getElementById("availableBalance").textContent = String(data.available_balance || "0,00");
+      document.getElementById("reservedBalance").textContent = String(data.reserved_balance || "0,00");
+      document.getElementById("effectiveFactor").textContent = String(data.effective_factor_pct ?? 0) + " %";
+      document.getElementById("nextBatchDate").textContent = String(data.next_batch_date || formatGermanDate(getNextBatchDate()));
+
+      const pref = preferenceMode(data.payout_preference);
+      if (pref) {
+        const radio = document.querySelector(`input[name="defaultPayoutMode"][value="${pref}"]`);
+        if (radio) radio.checked = true;
+        payoutPreferenceSummary.textContent = pref === "batch"
+          ? "Sammelauszahlung am 5., 15. oder 25."
+          : "Sofortauszahlung mit Gebührenabzug";
+      }
+
+      const balances = parseJsonValue(data.balances, []);
+      const wallets = parseJsonValue(data.wallets, []);
+      const provisions = parseJsonValue(data.provisions, []);
+      const payouts = parseJsonValue(data.payout_history, []);
+      const master = parseJsonValue(data.master, {});
+
+      renderBalances(balances);
+      renderWallets(wallets);
+      renderProvisions(provisions);
+      renderPayouts(payouts);
+
+      if (isMaster && master && typeof master === "object") {
+        document.getElementById("masterCompanyReserve").textContent = formatEuro(master.company_reserve_eur || 0);
+        document.getElementById("masterLucianoShare").textContent = formatEuro(master.luciano_share_eur || 0);
+        document.getElementById("masterOpenPayouts").textContent = String(master.open_payouts ?? 0);
+        document.getElementById("masterBlockedProcesses").textContent = String(master.blocked_processes ?? 0);
+      }
+
+      activitySummary.textContent = `Geladen: ${provisions.length} Provisionen, ${payouts.length} Auszahlungsvorgänge und ${wallets.length} Wallets.`;
+      const mode = String(data.data_mode || "").toUpperCase() === "MUSTER" ? "Musterdaten erfolgreich geladen" : "Backoffice-Daten geladen";
+      apiStatusText.innerHTML = '<span class="status-dot" aria-hidden="true"></span><strong>' +
+        escapeHtml(mode) + ':</strong> ' + escapeHtml(data.message || "Make-Verbindung aktiv.") +
+        (data.updated_at ? ' Stand: ' + escapeHtml(data.updated_at) + '.' : '');
     }
 
     async function loadBackofficeData() {
-      if (!API_URL) {
-        return;
-      }
-
       const current = getCurrentAdmin();
+      if (!current.admin) return;
 
-      if (!current.admin) {
-        return;
-      }
+      reloadButton.disabled = true;
+      reloadButton.textContent = "Daten werden geladen …";
+      apiStatusText.innerHTML = '<span class="status-dot" aria-hidden="true"></span><strong>Make wird abgefragt:</strong> Bitte kurz warten.';
 
       try {
-        const response = await fetch(API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            action: "load",
-            admin_code: current.code
-          })
-        });
+        const url = new URL(API_URL);
+        url.searchParams.set("action", "load");
+        url.searchParams.set("admin_code", current.code);
+        url.searchParams.set("request_id", crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
 
-        if (!response.ok) {
-          throw new Error("HTTP " + response.status);
-        }
-
-        const data = await response.json();
-
-        if (typeof data.available_balance !== "undefined") {
-          document.getElementById("availableBalance").textContent =
-            String(data.available_balance);
-        }
-
-        if (typeof data.reserved_balance !== "undefined") {
-          document.getElementById("reservedBalance").textContent =
-            String(data.reserved_balance);
-        }
-
-        if (typeof data.effective_factor_pct !== "undefined") {
-          document.getElementById("effectiveFactor").textContent =
-            String(data.effective_factor_pct) + " %";
-        }
+        const response = await fetch(url.toString(), { method: "GET", cache: "no-store" });
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        applyData(await response.json());
       } catch (error) {
-        console.error("Backoffice-Daten konnten nicht geladen werden:", error);
+        console.error(error);
+        apiStatusText.innerHTML = '<span class="status-dot" aria-hidden="true"></span><strong>Fehler:</strong> ' +
+          escapeHtml(error.message || "Daten konnten nicht geladen werden.");
+        activitySummary.textContent = "Die Verbindung zu Make konnte nicht hergestellt werden.";
+      } finally {
+        reloadButton.disabled = false;
+        reloadButton.textContent = "Daten neu laden";
       }
     }
 
