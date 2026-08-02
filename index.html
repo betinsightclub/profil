@@ -1268,9 +1268,9 @@ input {
           </div>
 
           <div class="referral-stat">
-            <div class="referral-stat-label">✓ Freigegebene Units</div>
+            <div class="referral-stat-label">✓ Verkaufbare Referral-Units</div>
             <div id="referralReleased" class="referral-stat-value">0</div>
-            <div class="referral-stat-note">zur Umbuchung verfügbar</div>
+            <div class="referral-stat-note">für den Verkauf freigegeben</div>
           </div>
 
           <div class="referral-stat">
@@ -1608,6 +1608,7 @@ let accountPrivacyActive = false;
 let currentProfileData = {
   email: "",
   units: 0,
+  sellableReferralUnits: 0,
   refCode: "",
   dashboardToken: "",
   refLink: "",
@@ -2214,18 +2215,13 @@ async function loadReferralData(showButtonFeedback = false) {
       )
     );
 
-    const released = safeNumber(
-      firstDefined(
-        data,
-        [
-          "ref_verfuegbar",
-          "freigegebene_units",
-          "released_units",
-          "available_units"
-        ],
-        0
-      )
-    );
+    /*
+     * Der Empfehlungscenter-Webhook liefert Netzwerkzeilen. Sein Feld
+     * ref_verfuegbar kann deshalb zum ersten geworbenen Nutzer gehören.
+     * Verkaufbar ist ausschließlich L des angemeldeten Profilinhabers,
+     * das bereits über den Profil-Webhook geladen wurde.
+     */
+    const released = safeNumber(currentProfileData.sellableReferralUnits);
 
     const networkTotal = safeNumber(
       firstDefined(data, ["gesamt", "total", "network_total"], direct + level2 + level3)
@@ -2637,6 +2633,7 @@ function fetchProfileByToken(tokenVariants, index) {
       currentProfileData = {
         email: data.email || "",
         units: totalAvailableUnits,
+        sellableReferralUnits: earnedUnits,
         refCode: refCode,
         dashboardToken: dashboardToken,
         refLink: refLink,
@@ -2830,6 +2827,7 @@ function forgetToken() {
   currentProfileData = {
     email: "",
     units: 0,
+    sellableReferralUnits: 0,
     refCode: "",
     dashboardToken: "",
     refLink: "",
