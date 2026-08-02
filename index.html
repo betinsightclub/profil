@@ -2,8 +2,12 @@
 <!--
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.02-02
+Version: 2026.08.02-04
 Änderungen:
+- Schutzfunktion für die persönliche Netzwerkübersicht wiederhergestellt
+- Netzwerk-Aktualisierung auf je einen Button oben und unten reduziert
+- Eigener verkaufbarer Referral-Bestand vollständig aus der Profilansicht entfernt
+- Verkaufbarer Bestand wird ausschließlich auf profil/verkaufen/index.html angezeigt
 - Struktur und Umsätze verwenden jetzt ebenfalls den Empfehlungscenter-V5-Webhook
 - Alter Struktur-Webhook entfernt
 - Ebene 1, Ebene 2 und Ebene 3 werden aus partners_level1/2/3 geladen
@@ -595,7 +599,7 @@ button:hover,
 
 .referral-overview {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -1228,12 +1232,12 @@ input {
         </div>
 
         <button
-          id="refreshReferralButton"
+          id="referralPrivacyButton"
           class="privacy-toggle"
           type="button"
-          onclick="refreshNetworkData(true)"
+          onclick="toggleReferralPrivacy()"
         >
-          ↻ Netzwerkdaten laden
+          ◉ Schützen
         </button>
       </div>
 
@@ -1252,10 +1256,10 @@ input {
 
             <button
               id="networkLoadButton"
-              class="btn-blue"
+              class="btn-blue network-refresh-button"
               type="button"
               style="margin-top:12px;min-height:38px;"
-              onclick="refreshNetworkData(true)"
+              onclick="refreshNetworkData(true, this)"
             >
               🔄 Netzwerk laden
             </button>
@@ -1265,12 +1269,6 @@ input {
             <div class="referral-stat-label">↑ Erwartete Referral Units</div>
             <div id="referralExpected" class="referral-stat-value">0</div>
             <div class="referral-stat-note">noch nicht freigegeben</div>
-          </div>
-
-          <div class="referral-stat">
-            <div class="referral-stat-label">✓ Verkaufbare Referral-Units</div>
-            <div id="referralReleased" class="referral-stat-value">0</div>
-            <div class="referral-stat-note">für den Verkauf freigegeben</div>
           </div>
 
           <div class="referral-stat">
@@ -1491,7 +1489,12 @@ input {
             🔄 Zur Unit-Wechselstube
           </button>
 
-          <button class="btn-blue" type="button" onclick="refreshNetworkData(true)">
+          <button
+            id="networkBottomLoadButton"
+            class="btn-blue network-refresh-button"
+            type="button"
+            onclick="refreshNetworkData(true, this)"
+          >
             🔄 Netzwerkdaten laden
           </button>
 
@@ -1604,11 +1607,11 @@ const TOKEN_STORAGE_KEY = "betinsight_profile_token";
 
 let profilePrivacyActive = false;
 let accountPrivacyActive = false;
+let referralPrivacyActive = false;
 
 let currentProfileData = {
   email: "",
   units: 0,
-  sellableReferralUnits: 0,
   refCode: "",
   dashboardToken: "",
   refLink: "",
@@ -1726,6 +1729,28 @@ function toggleAccountPrivacy() {
 
   button.classList.toggle("active", accountPrivacyActive);
   button.innerText = accountPrivacyActive ? "◉ Geschützt" : "◉ Schützen";
+}
+
+function toggleReferralPrivacy() {
+  referralPrivacyActive = !referralPrivacyActive;
+
+  const button = document.getElementById("referralPrivacyButton");
+  const values = document.querySelectorAll(
+    "#referralSection .referral-stat-value, " +
+    "#referralSection #networkLevel1, " +
+    "#referralSection #networkLevel2, " +
+    "#referralSection #networkLevel3, " +
+    "#referralSection .referral-linkbox, " +
+    "#referralSection .level-metric-value, " +
+    "#referralSection .level-body"
+  );
+
+  values.forEach(element => {
+    element.classList.toggle("private-value-hidden", referralPrivacyActive);
+  });
+
+  button.classList.toggle("active", referralPrivacyActive);
+  button.innerText = referralPrivacyActive ? "◉ Geschützt" : "◉ Schützen";
 }
 
 async function requestCurrentProfileLink() {
@@ -2123,11 +2148,9 @@ function prepareNetworkSection() {
     "Netzwerkdaten werden erst geladen, wenn du auf „Netzwerkdaten laden“ klickst.";
 }
 
-async function loadReferralData(showButtonFeedback = false) {
+async function loadReferralData() {
   const status = document.getElementById("referralStatus");
   const linkBox = document.getElementById("referralLink");
-  const refreshButton = document.getElementById("refreshReferralButton");
-  const oldText = refreshButton ? refreshButton.innerText : "";
 
   const dashboardToken =
     String(currentProfileData.dashboardToken || "").trim();
@@ -2215,14 +2238,6 @@ async function loadReferralData(showButtonFeedback = false) {
       )
     );
 
-    /*
-     * Der Empfehlungscenter-Webhook liefert Netzwerkzeilen. Sein Feld
-     * ref_verfuegbar kann deshalb zum ersten geworbenen Nutzer gehören.
-     * Verkaufbar ist ausschließlich L des angemeldeten Profilinhabers,
-     * das bereits über den Profil-Webhook geladen wurde.
-     */
-    const released = safeNumber(currentProfileData.sellableReferralUnits);
-
     const networkTotal = safeNumber(
       firstDefined(data, ["gesamt", "total", "network_total"], direct + level2 + level3)
     );
@@ -2231,22 +2246,10 @@ async function loadReferralData(showButtonFeedback = false) {
     document.getElementById("networkLevel2").innerText = formatNumber(level2);
     document.getElementById("networkLevel3").innerText = formatNumber(level3);
     document.getElementById("referralExpected").innerText = formatNumber(expected);
-    document.getElementById("referralReleased").innerText = formatNumber(released);
     document.getElementById("referralTotal").innerText = formatNumber(networkTotal);
 
     status.innerText =
       "Deine Empfehlungsdaten wurden erfolgreich geladen.";
-
-    if (showButtonFeedback && refreshButton) {
-      refreshButton.innerText = "✅ Aktualisiert";
-    const nbtn=document.getElementById("networkLoadButton");
-    if(nbtn){nbtn.innerText="✅ Aktualisiert";}
-
-      window.setTimeout(() => {
-        refreshButton.disabled = false;
-        refreshButton.innerText = oldText;
-      }, 2200);
-    }
 
   } catch (error) {
     console.error("Fehler beim Laden der Empfehlungsdaten:", error);
@@ -2260,16 +2263,6 @@ async function loadReferralData(showButtonFeedback = false) {
 
     resetReferralValues();
 
-    if (showButtonFeedback && refreshButton) {
-      refreshButton.innerText = "❌ Fehler";
-      const nbtn=document.getElementById("networkLoadButton");
-      if(nbtn){nbtn.innerText="❌ Fehler";}
-
-      window.setTimeout(() => {
-        refreshButton.disabled = false;
-        refreshButton.innerText = oldText;
-      }, 2500);
-    }
   }
 }
 
@@ -2278,7 +2271,6 @@ function resetReferralValues() {
   document.getElementById("networkLevel2").innerText = "–";
   document.getElementById("networkLevel3").innerText = "–";
   document.getElementById("referralExpected").innerText = "0";
-  document.getElementById("referralReleased").innerText = "0";
   document.getElementById("referralTotal").innerText = "0";
 }
 
@@ -2342,28 +2334,38 @@ async function loadStructureData(showButtonFeedback = false) {
   }
 }
 
-async function refreshNetworkData(showButtonFeedback = false) {
-  const refreshButton = document.getElementById("refreshReferralButton");
-  const oldText = refreshButton ? refreshButton.innerText : "";
+async function refreshNetworkData(showButtonFeedback = false, sourceButton = null) {
+  const refreshButtons = Array.from(
+    document.querySelectorAll(".network-refresh-button")
+  );
+  const buttonTexts = refreshButtons.map(button => button.innerText);
+  const activeButton = sourceButton || refreshButtons[0] || null;
 
-  if (showButtonFeedback && refreshButton) {
-    refreshButton.disabled = true;
-    refreshButton.innerText = "⏳ Lädt...";
+  if (showButtonFeedback) {
+    refreshButtons.forEach(button => {
+      button.disabled = true;
+    });
+
+    if (activeButton) {
+      activeButton.innerText = "⏳ Lädt...";
+    }
   }
 
   await Promise.allSettled([
-    loadReferralData(false),
+    loadReferralData(),
     loadStructureData(false)
   ]);
 
-  if (showButtonFeedback && refreshButton) {
-    refreshButton.innerText = "✅ Aktualisiert";
-    const nbtn=document.getElementById("networkLoadButton");
-    if(nbtn){nbtn.innerText="✅ Aktualisiert";}
+  if (showButtonFeedback) {
+    if (activeButton) {
+      activeButton.innerText = "✅ Aktualisiert";
+    }
 
     window.setTimeout(() => {
-      refreshButton.disabled = false;
-      refreshButton.innerText = oldText;
+      refreshButtons.forEach((button, index) => {
+        button.disabled = false;
+        button.innerText = buttonTexts[index];
+      });
     }, 2200);
   }
 }
@@ -2616,12 +2618,6 @@ function fetchProfileByToken(tokenVariants, index) {
        */
       const totalAvailableUnits = safeNumber(data.einsetzbare_units);
 
-      /*
-       * Verkaufbar ist ausschließlich der persönliche Referral-Bestand
-       * ref_verfuegbar (Spalte L) aus dem Profil-Webhook.
-       */
-      const earnedUnits = safeNumber(data.ref_verfuegbar);
-
       const consumedUnitsRaw = firstDefined(
         data,
         ["verbrauchte_units", "consumed_units", "used_units"],
@@ -2639,7 +2635,6 @@ function fetchProfileByToken(tokenVariants, index) {
       currentProfileData = {
         email: data.email || "",
         units: totalAvailableUnits,
-        sellableReferralUnits: earnedUnits,
         refCode: refCode,
         dashboardToken: dashboardToken,
         refLink: refLink,
@@ -2805,6 +2800,7 @@ function forgetToken() {
 
   profilePrivacyActive = false;
   accountPrivacyActive = false;
+  referralPrivacyActive = false;
 
   document.getElementById("emailDataRow").classList.remove("private-row-hidden");
   document.getElementById("maskedToken").classList.remove("private-token-hidden");
@@ -2818,6 +2814,13 @@ function forgetToken() {
 
   document.getElementById("accountPrivacyButton").classList.remove("active");
   document.getElementById("accountPrivacyButton").innerText = "◉ Schützen";
+
+  document.querySelectorAll("#referralSection .private-value-hidden").forEach(element => {
+    element.classList.remove("private-value-hidden");
+  });
+
+  document.getElementById("referralPrivacyButton").classList.remove("active");
+  document.getElementById("referralPrivacyButton").innerText = "◉ Schützen";
 
   document.getElementById("units").innerText = "0";
   document.getElementById("accountUnits").innerText = "0";
@@ -2833,7 +2836,6 @@ function forgetToken() {
   currentProfileData = {
     email: "",
     units: 0,
-    sellableReferralUnits: 0,
     refCode: "",
     dashboardToken: "",
     refLink: "",
