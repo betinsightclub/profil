@@ -2,7 +2,7 @@
 <!--
 Projekt: BetInsight
 Datei auf GitHub: profil/admin/backoffice/index.html
-Version: 2026.08.03-01
+Version: 2026.08.03-02 – Kosten und Affiliate
 Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
 -->
 <html lang="de">
@@ -723,6 +723,60 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
         transition: none !important;
       }
     }
+
+
+    .finance-rule-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .finance-rule-item {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.035);
+      text-align: center;
+    }
+
+    .finance-rule-item strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 1.6rem;
+      color: var(--gold);
+    }
+
+    .amount-positive { color: #63d58a !important; }
+    .amount-negative { color: #ff7373 !important; }
+    .amount-neutral { color: var(--text) !important; }
+
+    .cost-status-note {
+      margin-top: 12px;
+      font-size: 0.92rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .rule-list {
+      display: grid;
+      gap: 10px;
+      margin: 16px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .rule-list li {
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    @media (max-width: 760px) {
+      .finance-rule-grid { grid-template-columns: 1fr; }
+    }
+
   </style>
 </head>
 
@@ -775,6 +829,9 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
       </button>
       <button class="tab-button" type="button" data-tab="provisions" aria-selected="false">
         Provisionen
+      </button>
+      <button class="tab-button" type="button" data-tab="costs-affiliate" aria-selected="false">
+        Kosten &amp; Affiliate
       </button>
       <button class="tab-button" type="button" data-tab="payout" aria-selected="false">
         Auszahlung
@@ -887,7 +944,7 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
         <div>
           <h2>Provisionen</h2>
           <p class="muted">
-            Hier werden bestätigte Kundenzahlungen, Kostenabzüge, Firmenreserve und dein persönlicher Anteil angezeigt.
+            Hier werden bestätigte Kundenzahlungen, Betriebskosten-Vorauszahlung, Affiliate-Budget und dein persönlicher Anteil angezeigt.
           </p>
         </div>
       </div>
@@ -918,8 +975,123 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
       </div>
 
       <div class="warning-box">
-        Berechnungsreihenfolge: Kundenzahlung minus tatsächliche Plisio-Eingangsgebühr
-        minus 5 % Firmenreserve ergibt die Netto-Berechnungsgrundlage.
+        Berechnungsreihenfolge: Zahlung nach tatsächlicher Plisio-Eingangsgebühr
+        minus 2,5 % Betriebskosten-Vorauszahlung minus 10 % Affiliate-Budget ergibt die Vergütungsgrundlage.
+      </div>
+    </section>
+
+
+    <section class="panel" id="tab-costs-affiliate" data-panel="costs-affiliate">
+      <div class="panel-heading">
+        <div>
+          <h2>Betriebskosten &amp; Affiliate</h2>
+          <p class="muted">
+            Alle drei Admins sehen die 2,5-%-Vorauszahlung, die tatsächlichen gemeinsamen Kosten
+            und die 10-%-Affiliate-Aufteilung. Die derzeitigen Werte sind als Musterdaten gekennzeichnet.
+          </p>
+        </div>
+        <span class="status-pill" id="costMonthLabel">Monat wird geladen</span>
+      </div>
+
+      <div class="kpi-grid">
+        <article class="kpi-card">
+          <div class="kpi-label">Betriebskosten-Vorauszahlung</div>
+          <div class="kpi-value" id="costPrepaymentValue">0,00 €</div>
+          <div class="kpi-note">Vorläufig 2,5 % im laufenden Monat</div>
+        </article>
+        <article class="kpi-card">
+          <div class="kpi-label">Tatsächliche gemeinsame Kosten</div>
+          <div class="kpi-value" id="actualCostsValue">0,00 €</div>
+          <div class="kpi-note">Belegte und genehmigte Ist-Kosten</div>
+        </article>
+        <article class="kpi-card" id="costDifferenceCard">
+          <div class="kpi-label">Monatsdifferenz</div>
+          <div class="kpi-value amount-neutral" id="costDifferenceValue">0,00 €</div>
+          <div class="kpi-note">Im Folgemonat sichtbar und verrechnet</div>
+        </article>
+        <article class="kpi-card">
+          <div class="kpi-label">Dein Korrekturanteil</div>
+          <div class="kpi-value amount-neutral" id="costPersonalAdjustment">0,00 €</div>
+          <div class="kpi-note" id="costDistributionNote">Verteilung 40/30/30</div>
+        </article>
+      </div>
+
+      <div class="section-grid">
+        <article class="content-card full">
+          <h3>Tatsächliche Kosten und Herkunft</h3>
+          <p class="muted">
+            Persönliche Arbeits-, Lohn-, Steuer-, Personal- und Individualkosten gehören nicht in diese Tabelle.
+            Jeder trägt sie aus seinem eigenen Anteil.
+          </p>
+          <div class="table-wrap">
+            <table aria-label="Tatsächliche gemeinsame Betriebskosten">
+              <thead>
+                <tr>
+                  <th>Anbieter</th>
+                  <th>Kostenart</th>
+                  <th>Beschreibung</th>
+                  <th>Betrag</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="costItemsBody">
+                <tr><td colspan="5"><div class="empty-state">Kosten werden geladen.</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="cost-status-note" id="costStatusNote">
+            Nur genehmigte gemeinsame Kosten werden in der endgültigen Monatsabrechnung berücksichtigt.
+          </div>
+        </article>
+
+        <article class="content-card">
+          <h3>Affiliate-Budget 10 %</h3>
+          <p class="muted">
+            Das Budget wird getrennt von der Adminvergütung geführt. Fehlende Ebenen gehen in den BetInsight-Firmenpool.
+          </p>
+          <div class="finance-rule-grid">
+            <div class="finance-rule-item">Ebene 1<strong>6 %</strong></div>
+            <div class="finance-rule-item">Ebene 2<strong>3 %</strong></div>
+            <div class="finance-rule-item">Ebene 3<strong>1 %</strong></div>
+          </div>
+          <ul class="rule-list">
+            <li>Vorhandene Ebenen: zunächst reserviert</li>
+            <li>Freigabe: anteilig beim Verbrauch gekaufter Units</li>
+            <li>Start- und Geschenk-Units: keine Affiliate-Provision</li>
+          </ul>
+        </article>
+
+        <article class="content-card">
+          <h3>Affiliate-Übersicht</h3>
+          <div class="factor-grid">
+            <div class="factor-item">
+              <div class="factor-label">Reserviert</div>
+              <div class="factor-value" id="affiliateReserved">0,00 €</div>
+            </div>
+            <div class="factor-item">
+              <div class="factor-label">Freigegeben</div>
+              <div class="factor-value" id="affiliateReleased">0,00 €</div>
+            </div>
+            <div class="factor-item">
+              <div class="factor-label">Firmenpool</div>
+              <div class="factor-value" id="affiliateCompanyPool">0,00 €</div>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top: 16px;">
+            <strong>Dein persönliches Affiliate-Guthaben:</strong>
+            <span id="affiliatePersonalAvailable">0,00 €</span><br>
+            <strong>Zusätzlich erwartet:</strong>
+            <span id="affiliatePersonalExpected">0,00 €</span>
+          </div>
+        </article>
+
+        <article class="content-card full">
+          <h3>Monatliche Korrekturregel</h3>
+          <div class="info-box" id="financeRuleSummary">
+            Die 2,5-%-Vorauszahlung wird im Folgemonat den tatsächlichen gemeinsamen Kosten gegenübergestellt.
+            Plus und Minus werden im Schlüssel 40 % Luciano, 30 % Martin und 30 % Frank verteilt.
+          </div>
+        </article>
       </div>
     </section>
 
@@ -1335,6 +1507,20 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
     const payoutHistoryBody = document.getElementById("payoutHistoryBody");
     const walletTableBody = document.getElementById("walletTableBody");
     const activitySummary = document.getElementById("activitySummary");
+    const costMonthLabel = document.getElementById("costMonthLabel");
+    const costPrepaymentValue = document.getElementById("costPrepaymentValue");
+    const actualCostsValue = document.getElementById("actualCostsValue");
+    const costDifferenceValue = document.getElementById("costDifferenceValue");
+    const costPersonalAdjustment = document.getElementById("costPersonalAdjustment");
+    const costDistributionNote = document.getElementById("costDistributionNote");
+    const costItemsBody = document.getElementById("costItemsBody");
+    const costStatusNote = document.getElementById("costStatusNote");
+    const affiliateReserved = document.getElementById("affiliateReserved");
+    const affiliateReleased = document.getElementById("affiliateReleased");
+    const affiliateCompanyPool = document.getElementById("affiliateCompanyPool");
+    const affiliatePersonalAvailable = document.getElementById("affiliatePersonalAvailable");
+    const affiliatePersonalExpected = document.getElementById("affiliatePersonalExpected");
+    const financeRuleSummary = document.getElementById("financeRuleSummary");
 
     function getSavedCode() {
       return String(localStorage.getItem(STORAGE_KEY) || "").trim().toUpperCase();
@@ -1590,6 +1776,68 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
       }).join("");
     }
 
+
+    function setSignedAmount(element, value) {
+      const amount = num(value);
+      element.textContent = (amount > 0 ? "+" : "") + formatEuro(amount);
+      element.classList.remove("amount-positive", "amount-negative", "amount-neutral");
+      element.classList.add(amount > 0 ? "amount-positive" : amount < 0 ? "amount-negative" : "amount-neutral");
+    }
+
+    function renderCosts(summary, items, adjustment, rules) {
+      const safeSummary = summary && typeof summary === "object" ? summary : {};
+      const safeAdjustment = adjustment && typeof adjustment === "object" ? adjustment : {};
+      const safeRules = rules && typeof rules === "object" ? rules : {};
+
+      costMonthLabel.textContent = safeSummary.display_month || safeSummary.month || "Monat offen";
+      costPrepaymentValue.textContent = formatEuro(safeSummary.prepayment_eur || 0);
+      actualCostsValue.textContent = formatEuro(safeSummary.actual_costs_eur || 0);
+      setSignedAmount(costDifferenceValue, safeSummary.difference_eur || 0);
+      setSignedAmount(costPersonalAdjustment, safeAdjustment.personal_adjustment_eur || 0);
+
+      const distribution = safeSummary.distribution || "40/30/30";
+      costDistributionNote.textContent = "Persönlicher Anteil nach " + distribution;
+      costStatusNote.textContent = safeSummary.data_mode === "MUSTER"
+        ? "Musterdaten: Die aufgeführten Beträge sind noch keine endgültige Monatsabrechnung. Nur genehmigte Belege werden später als Ist-Kosten gewertet."
+        : "Nur genehmigte gemeinsame Kosten werden in der endgültigen Monatsabrechnung berücksichtigt.";
+
+      if (!Array.isArray(items) || !items.length) {
+        costItemsBody.innerHTML = '<tr><td colspan="5"><div class="empty-state">Noch keine Kostenpositionen vorhanden.</div></td></tr>';
+      } else {
+        costItemsBody.innerHTML = items.map(item => {
+          const amount = item.amount_eur === null || item.amount_eur === undefined
+            ? "noch offen"
+            : formatEuro(item.amount_eur);
+          return `<tr>
+            <td>${escapeHtml(item.provider || "–")}</td>
+            <td>${escapeHtml(label(item.category || "–"))}</td>
+            <td>${escapeHtml(item.description || "–")}</td>
+            <td>${escapeHtml(amount)}</td>
+            <td><span class="status-pill">${escapeHtml(label(item.status || "offen"))}</span></td>
+          </tr>`;
+        }).join("");
+      }
+
+      const split = safeRules.distribution || { luciano: 40, martin: 30, frank: 30 };
+      financeRuleSummary.innerHTML =
+        "Die Betriebskosten-Vorauszahlung beträgt <strong>" + formatNumber(safeRules.cost_prepayment_pct ?? 2.5, 1) +
+        " %</strong>. Die tatsächlichen gemeinsamen Kosten werden im Folgemonat abgerechnet. " +
+        "Positive und negative Differenzen werden mit <strong>" +
+        escapeHtml(String(split.luciano ?? 40)) + " % Luciano, " +
+        escapeHtml(String(split.martin ?? 30)) + " % Martin und " +
+        escapeHtml(String(split.frank ?? 30)) + " % Frank</strong> verteilt. " +
+        "Persönliche Lohn- und Individualkosten trägt jeder aus seinem eigenen Anteil.";
+    }
+
+    function renderAffiliate(summary) {
+      const safe = summary && typeof summary === "object" ? summary : {};
+      affiliateReserved.textContent = formatEuro(safe.reserved_eur || 0);
+      affiliateReleased.textContent = formatEuro(safe.released_eur || 0);
+      affiliateCompanyPool.textContent = formatEuro(safe.company_pool_eur || 0);
+      affiliatePersonalAvailable.textContent = formatEuro(safe.personal_affiliate_available_eur || 0);
+      affiliatePersonalExpected.textContent = formatEuro(safe.personal_affiliate_expected_eur || 0);
+    }
+
     function applyData(data) {
       if (!data || data.ok === false) throw new Error(data?.message || "Ungültige Antwort");
 
@@ -1618,11 +1866,18 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
       const provisions = parseJsonValue(data.provisions, []);
       const payouts = parseJsonValue(data.payout_history, []);
       const master = parseJsonValue(data.master, {});
+      const costsSummary = parseJsonValue(data.costs_summary, {});
+      const costsItems = parseJsonValue(data.costs_items, []);
+      const affiliateSummary = parseJsonValue(data.affiliate_summary, {});
+      const costAdjustment = parseJsonValue(data.cost_adjustment, {});
+      const financeRules = parseJsonValue(data.finance_rules, {});
 
       renderBalances(balances);
       renderWallets(wallets);
       renderProvisions(provisions);
       renderPayouts(payouts);
+      renderCosts(costsSummary, costsItems, costAdjustment, financeRules);
+      renderAffiliate(affiliateSummary);
 
       if (isMaster && master && typeof master === "object") {
         document.getElementById("masterCompanyReserve").textContent = formatEuro(master.company_reserve_eur || 0);
@@ -1631,7 +1886,7 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
         document.getElementById("masterBlockedProcesses").textContent = String(master.blocked_processes ?? 0);
       }
 
-      activitySummary.textContent = `Geladen: ${provisions.length} Provisionen, ${payouts.length} Auszahlungsvorgänge und ${wallets.length} Wallets.`;
+      activitySummary.textContent = `Geladen: ${provisions.length} Provisionen, ${payouts.length} Auszahlungsvorgänge, ${wallets.length} Wallets und ${costsItems.length} Kostenpositionen.`;
       const mode = String(data.data_mode || "").toUpperCase() === "MUSTER" ? "Musterdaten erfolgreich geladen" : "Backoffice-Daten geladen";
       apiStatusText.innerHTML = '<span class="status-dot" aria-hidden="true"></span><strong>' +
         escapeHtml(mode) + ':</strong> ' + escapeHtml(data.message || "Make-Verbindung aktiv.") +
@@ -1650,7 +1905,7 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
         const url = new URL(API_URL);
         url.searchParams.set("action", "load");
         url.searchParams.set("admin_code", current.code);
-        url.searchParams.set("request_id", crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
+        url.searchParams.set("request_id", (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") ? crypto.randomUUID() : String(Date.now()));
 
         const response = await fetch(url.toString(), { method: "GET", cache: "no-store" });
         if (!response.ok) throw new Error("HTTP " + response.status);
