@@ -2,8 +2,8 @@
 <!--
 Projekt: BetInsight
 Datei auf GitHub: profil/admin/backoffice/index.html
-Version: 2026.08.03-02 – Kosten und Affiliate
-Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
+Version: 2026.08.03-02
+Hinweis: Vollständige Backoffice-Seite mit Wallet-Vollanzeige, Sichtschutz und Auszahlungsart je Währung.
 -->
 <html lang="de">
 <head>
@@ -220,6 +220,205 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
       opacity: 0.55;
       transform: none;
       filter: none;
+    }
+
+    .privacy-toggle[aria-pressed="true"] {
+      border-color: rgba(255, 218, 118, 0.48);
+      background: rgba(255, 218, 118, 0.12);
+      color: #ffe59b;
+    }
+
+    .privacy-toggle[aria-pressed="false"] {
+      border-color: rgba(0, 212, 138, 0.42);
+      background: rgba(0, 212, 138, 0.11);
+      color: #91f5cf;
+    }
+
+    .privacy-sensitive {
+      transition: filter 160ms ease, opacity 160ms ease;
+    }
+
+    body.privacy-on .privacy-sensitive {
+      filter: blur(7px);
+      opacity: 0.72;
+      user-select: none;
+    }
+
+    .wallet-route-grid,
+    .payout-route-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .wallet-route-card,
+    .payout-route-card {
+      min-width: 0;
+      padding: 16px;
+      border: 1px solid rgba(185, 216, 232, 0.16);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .wallet-route-head,
+    .payout-route-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 13px;
+    }
+
+    .route-title {
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .route-network {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .wallet-address-label {
+      margin-bottom: 6px;
+      color: #9bcfe4;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .wallet-address-value {
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      padding: 11px 12px;
+      border: 1px solid rgba(0, 218, 255, 0.20);
+      border-radius: 10px;
+      background: rgba(1, 12, 19, 0.48);
+      color: #ffffff;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 13px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+      word-break: break-all;
+    }
+
+    .wallet-address-value.empty {
+      color: #86aebe;
+      font-family: Arial, Helvetica, sans-serif;
+      font-style: italic;
+    }
+
+    .route-meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 11px;
+    }
+
+    .route-meta-item {
+      padding: 9px 10px;
+      border-radius: 9px;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .route-meta-label {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .route-meta-value {
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .payout-balance-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 9px;
+      margin-bottom: 13px;
+    }
+
+    .payout-balance-item {
+      padding: 10px;
+      border: 1px solid rgba(185, 216, 232, 0.12);
+      border-radius: 10px;
+      background: rgba(1, 12, 19, 0.34);
+    }
+
+    .payout-balance-label {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .payout-balance-value {
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .payout-mode-stack {
+      display: grid;
+      gap: 9px;
+      margin-top: 13px;
+    }
+
+    .payout-mode-card {
+      padding: 12px;
+      border: 1px solid rgba(185, 216, 232, 0.15);
+      border-radius: 11px;
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .payout-mode-card.active {
+      border-color: rgba(0, 212, 138, 0.48);
+      background: rgba(0, 212, 138, 0.075);
+    }
+
+    .payout-mode-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 9px;
+      margin-bottom: 5px;
+      color: #ffffff;
+      font-weight: 900;
+    }
+
+    .payout-mode-description {
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.48;
+    }
+
+    .payout-mode-card .button {
+      width: 100%;
+    }
+
+    .privacy-note {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 218, 118, 0.24);
+      border-radius: 12px;
+      background: rgba(255, 218, 118, 0.06);
+      color: #eadcaa;
+      font-size: 13px;
+      line-height: 1.45;
     }
 
     .status-strip {
@@ -648,7 +847,9 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
       }
 
       .section-grid,
-      .form-grid {
+      .form-grid,
+      .wallet-route-grid,
+      .payout-route-grid {
         grid-template-columns: 1fr;
       }
 
@@ -701,8 +902,15 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
         padding: 17px 13px;
       }
 
-      .factor-grid {
+      .factor-grid,
+      .payout-balance-grid,
+      .route-meta {
         grid-template-columns: 1fr;
+      }
+
+      .privacy-note {
+        align-items: flex-start;
+        flex-direction: column;
       }
     }
 
@@ -723,64 +931,10 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
         transition: none !important;
       }
     }
-
-
-    .finance-rule-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 16px;
-    }
-
-    .finance-rule-item {
-      padding: 16px;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.035);
-      text-align: center;
-    }
-
-    .finance-rule-item strong {
-      display: block;
-      margin-top: 6px;
-      font-size: 1.6rem;
-      color: var(--gold);
-    }
-
-    .amount-positive { color: #63d58a !important; }
-    .amount-negative { color: #ff7373 !important; }
-    .amount-neutral { color: var(--text) !important; }
-
-    .cost-status-note {
-      margin-top: 12px;
-      font-size: 0.92rem;
-      color: var(--muted);
-      line-height: 1.55;
-    }
-
-    .rule-list {
-      display: grid;
-      gap: 10px;
-      margin: 16px 0 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .rule-list li {
-      padding: 12px 14px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    @media (max-width: 760px) {
-      .finance-rule-grid { grid-template-columns: 1fr; }
-    }
-
   </style>
 </head>
 
-<body>
+<body class="privacy-on">
   <main class="app">
     <header class="topbar">
       <div class="brand-group">
@@ -803,6 +957,15 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
       </div>
 
       <div class="top-actions">
+        <button
+          class="button button-neutral privacy-toggle"
+          type="button"
+          id="privacyToggleButton"
+          aria-pressed="true"
+          title="Wallet-Adressen und Beträge ein- oder ausblenden"
+        >
+          🔒 Schutz aktiv · Anzeigen
+        </button>
         <a class="link-button" href="https://betinsightclub.github.io/profil/admin/">
           ← Admin Center
         </a>
@@ -829,9 +992,6 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
       </button>
       <button class="tab-button" type="button" data-tab="provisions" aria-selected="false">
         Provisionen
-      </button>
-      <button class="tab-button" type="button" data-tab="costs-affiliate" aria-selected="false">
-        Kosten &amp; Affiliate
       </button>
       <button class="tab-button" type="button" data-tab="payout" aria-selected="false">
         Auszahlung
@@ -922,7 +1082,7 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
               <thead>
                 <tr>
                   <th>Währung</th><th>Netzwerk</th><th>Verfügbar</th><th>Reserviert</th>
-                  <th>Mindestauszahlung</th><th>Wallet</th><th>Auszahlung möglich</th>
+                  <th>Mindestauszahlung</th><th>Wallet-Adresse</th><th>Auszahlung möglich</th>
                 </tr>
               </thead>
               <tbody id="balanceTableBody">
@@ -944,7 +1104,7 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
         <div>
           <h2>Provisionen</h2>
           <p class="muted">
-            Hier werden bestätigte Kundenzahlungen, Betriebskosten-Vorauszahlung, Affiliate-Budget und dein persönlicher Anteil angezeigt.
+            Hier werden bestätigte Kundenzahlungen, Kostenabzüge, Firmenreserve und dein persönlicher Anteil angezeigt.
           </p>
         </div>
       </div>
@@ -975,274 +1135,41 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
       </div>
 
       <div class="warning-box">
-        Berechnungsreihenfolge: Zahlung nach tatsächlicher Plisio-Eingangsgebühr
-        minus 2,5 % Betriebskosten-Vorauszahlung minus 10 % Affiliate-Budget ergibt die Vergütungsgrundlage.
-      </div>
-    </section>
-
-
-    <section class="panel" id="tab-costs-affiliate" data-panel="costs-affiliate">
-      <div class="panel-heading">
-        <div>
-          <h2>Betriebskosten &amp; Affiliate</h2>
-          <p class="muted">
-            Alle drei Admins sehen die 2,5-%-Vorauszahlung, die tatsächlichen gemeinsamen Kosten
-            und die 10-%-Affiliate-Aufteilung. Die derzeitigen Werte sind als Musterdaten gekennzeichnet.
-          </p>
-        </div>
-        <span class="status-pill" id="costMonthLabel">Monat wird geladen</span>
-      </div>
-
-      <div class="kpi-grid">
-        <article class="kpi-card">
-          <div class="kpi-label">Betriebskosten-Vorauszahlung</div>
-          <div class="kpi-value" id="costPrepaymentValue">0,00 €</div>
-          <div class="kpi-note">Vorläufig 2,5 % im laufenden Monat</div>
-        </article>
-        <article class="kpi-card">
-          <div class="kpi-label">Tatsächliche gemeinsame Kosten</div>
-          <div class="kpi-value" id="actualCostsValue">0,00 €</div>
-          <div class="kpi-note">Belegte und genehmigte Ist-Kosten</div>
-        </article>
-        <article class="kpi-card" id="costDifferenceCard">
-          <div class="kpi-label">Monatsdifferenz</div>
-          <div class="kpi-value amount-neutral" id="costDifferenceValue">0,00 €</div>
-          <div class="kpi-note">Im Folgemonat sichtbar und verrechnet</div>
-        </article>
-        <article class="kpi-card">
-          <div class="kpi-label">Dein Korrekturanteil</div>
-          <div class="kpi-value amount-neutral" id="costPersonalAdjustment">0,00 €</div>
-          <div class="kpi-note" id="costDistributionNote">Verteilung 40/30/30</div>
-        </article>
-      </div>
-
-      <div class="section-grid">
-        <article class="content-card full">
-          <h3>Tatsächliche Kosten und Herkunft</h3>
-          <p class="muted">
-            Persönliche Arbeits-, Lohn-, Steuer-, Personal- und Individualkosten gehören nicht in diese Tabelle.
-            Jeder trägt sie aus seinem eigenen Anteil.
-          </p>
-          <div class="table-wrap">
-            <table aria-label="Tatsächliche gemeinsame Betriebskosten">
-              <thead>
-                <tr>
-                  <th>Anbieter</th>
-                  <th>Kostenart</th>
-                  <th>Beschreibung</th>
-                  <th>Betrag</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody id="costItemsBody">
-                <tr><td colspan="5"><div class="empty-state">Kosten werden geladen.</div></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="cost-status-note" id="costStatusNote">
-            Nur genehmigte gemeinsame Kosten werden in der endgültigen Monatsabrechnung berücksichtigt.
-          </div>
-        </article>
-
-        <article class="content-card">
-          <h3>Affiliate-Budget 10 %</h3>
-          <p class="muted">
-            Das Budget wird getrennt von der Adminvergütung geführt. Fehlende Ebenen gehen in den BetInsight-Firmenpool.
-          </p>
-          <div class="finance-rule-grid">
-            <div class="finance-rule-item">Ebene 1<strong>6 %</strong></div>
-            <div class="finance-rule-item">Ebene 2<strong>3 %</strong></div>
-            <div class="finance-rule-item">Ebene 3<strong>1 %</strong></div>
-          </div>
-          <ul class="rule-list">
-            <li>Vorhandene Ebenen: zunächst reserviert</li>
-            <li>Freigabe: anteilig beim Verbrauch gekaufter Units</li>
-            <li>Start- und Geschenk-Units: keine Affiliate-Provision</li>
-          </ul>
-        </article>
-
-        <article class="content-card">
-          <h3>Affiliate-Übersicht</h3>
-          <div class="factor-grid">
-            <div class="factor-item">
-              <div class="factor-label">Reserviert</div>
-              <div class="factor-value" id="affiliateReserved">0,00 €</div>
-            </div>
-            <div class="factor-item">
-              <div class="factor-label">Freigegeben</div>
-              <div class="factor-value" id="affiliateReleased">0,00 €</div>
-            </div>
-            <div class="factor-item">
-              <div class="factor-label">Firmenpool</div>
-              <div class="factor-value" id="affiliateCompanyPool">0,00 €</div>
-            </div>
-          </div>
-          <div class="info-box" style="margin-top: 16px;">
-            <strong>Dein persönliches Affiliate-Guthaben:</strong>
-            <span id="affiliatePersonalAvailable">0,00 €</span><br>
-            <strong>Zusätzlich erwartet:</strong>
-            <span id="affiliatePersonalExpected">0,00 €</span>
-          </div>
-        </article>
-
-        <article class="content-card full">
-          <h3>Monatliche Korrekturregel</h3>
-          <div class="info-box" id="financeRuleSummary">
-            Die 2,5-%-Vorauszahlung wird im Folgemonat den tatsächlichen gemeinsamen Kosten gegenübergestellt.
-            Plus und Minus werden im Schlüssel 40 % Luciano, 30 % Martin und 30 % Frank verteilt.
-          </div>
-        </article>
+        Berechnungsreihenfolge: Kundenzahlung minus tatsächliche Plisio-Eingangsgebühr
+        minus 2,5 % vorläufige Betriebskostenvorauszahlung ergibt die weitere Berechnungsgrundlage.
       </div>
     </section>
 
     <section class="panel" id="tab-payout" data-panel="payout">
       <div class="panel-heading">
         <div>
-          <h2>Auszahlung beantragen</h2>
+          <h2>Auszahlungen pro Währung</h2>
           <p class="muted">
-            Wähle Währung, Netzwerk, Betrag und Auszahlungsart. Die Gebühren werden erst nach Klick auf
-            „Gebühren berechnen“ abgefragt.
+            Für jede Währung und jedes Netzwerk werden Guthaben, vollständige Wallet-Adresse und die aktive
+            Auszahlungsart gemeinsam angezeigt.
           </p>
         </div>
       </div>
 
-      <div class="section-grid">
-        <article class="content-card">
-          <div class="form-grid">
-            <div class="field">
-              <label for="currencySelect">Währung</label>
-              <select id="currencySelect">
-                <option value="USDT">USDT</option>
-                <option value="USDC">USDC</option>
-                <option value="TRX">TRX</option>
-                <option value="BTC">BTC</option>
-                <option value="ETH">ETH</option>
-                <option value="BNB">BNB</option>
-                <option value="SOL">SOL</option>
-                <option value="TON">TON</option>
-              </select>
-            </div>
+      <div class="privacy-note">
+        <span>
+          Der Sichtschutz verwischt Wallet-Adressen und Beträge. Die Daten bleiben technisch geladen und werden
+          nach dem Ausschalten des Schutzes vollständig sichtbar.
+        </span>
+        <button class="button button-neutral privacy-toggle" type="button" data-privacy-toggle aria-pressed="true">
+          🔒 Schutz aktiv · Anzeigen
+        </button>
+      </div>
 
-            <div class="field">
-              <label for="networkSelect">Netzwerk</label>
-              <select id="networkSelect">
-                <option value="TRC20">TRC-20</option>
-                <option value="ERC20">ERC-20</option>
-                <option value="BEP20">BEP-20</option>
-                <option value="TRON">TRON</option>
-                <option value="BITCOIN">Bitcoin</option>
-                <option value="ETHEREUM">Ethereum</option>
-                <option value="SOLANA">Solana</option>
-                <option value="TON">TON</option>
-              </select>
-            </div>
+      <div id="payoutRouteGrid" class="payout-route-grid">
+        <div class="empty-state">Auszahlungsdaten werden geladen.</div>
+      </div>
 
-            <div class="field">
-              <label for="amountInput">Auszahlungsbetrag</label>
-              <input id="amountInput" type="number" min="0" step="0.00000001" placeholder="0,00">
-            </div>
-
-            <div class="field">
-              <label for="walletInput">Wallet-Adresse</label>
-              <input id="walletInput" type="text" autocomplete="off" placeholder="Wallet-Adresse eintragen">
-            </div>
-
-            <div class="field full">
-              <span class="field-title">Auszahlungsart</span>
-              <div class="radio-list">
-                <label class="radio-option">
-                  <input type="radio" name="payoutMode" value="instant" checked>
-                  <span>
-                    <span class="radio-title">Sofortauszahlung</span>
-                    <span class="radio-description">
-                      Nach Erreichen der Mindestauszahlung jederzeit möglich.
-                      Plisio-Gebühr und Netzwerkgebühr trägt der Admin.
-                    </span>
-                  </span>
-                </label>
-
-                <label class="radio-option">
-                  <input type="radio" name="payoutMode" value="batch">
-                  <span>
-                    <span class="radio-title">Sammelauszahlung am 5., 15. oder 25.</span>
-                    <span class="radio-description">
-                      BetInsight übernimmt die Plisio-Auszahlungsgebühr.
-                      Die tatsächliche Netzwerkgebühr trägt weiterhin der Admin.
-                    </span>
-                  </span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <div class="button-row">
-            <button class="button button-primary" type="button" id="estimateButton">
-              Gebühren berechnen
-            </button>
-            <button class="button button-green" type="button" id="requestPayoutButton" disabled>
-              Auszahlung beantragen
-            </button>
-          </div>
-
-          <div id="payoutMessage" class="warning-box">
-            Der Lade-Webhook ist verbunden. Gebührenberechnung und Auszahlungsantrag bleiben bis zu den
-            nächsten geschützten Make-Aktionen deaktiviert.
-          </div>
-        </article>
-
-        <article class="content-card">
-          <h3>Gebührenübersicht</h3>
-
-          <div class="fee-box">
-            <div class="fee-row">
-              <span>
-                Plisio-Gebühr
-                <span class="tooltip-wrap">
-                  <button class="tooltip-button" type="button" aria-label="Information zur Plisio-Gebühr">?</button>
-                  <span class="tooltip">
-                    Die Plisio-Servicegebühr wird je Währung, Netzwerk, Betrag und Auszahlungsweg aktuell berechnet.
-                    Bei Sofortauszahlung trägt sie der Admin. Bei Sammelauszahlung übernimmt BetInsight diese Gebühr.
-                  </span>
-                </span>
-              </span>
-              <strong id="plisioFee">–</strong>
-            </div>
-
-            <div class="fee-row">
-              <span>
-                Netzwerkgebühr
-                <span class="tooltip-wrap">
-                  <button class="tooltip-button" type="button" aria-label="Information zur Netzwerkgebühr">?</button>
-                  <span class="tooltip">
-                    Diese Gebühr entsteht im jeweiligen Blockchain-Netzwerk und kann sich bis zur Auszahlung verändern.
-                    Sie wird in beiden Auszahlungsarten vom Admin getragen.
-                  </span>
-                </span>
-              </span>
-              <strong id="networkFee">–</strong>
-            </div>
-
-            <div class="fee-row">
-              <span>Wer trägt die Plisio-Gebühr?</span>
-              <strong id="plisioFeePayer">Admin</strong>
-            </div>
-
-            <div class="fee-row">
-              <span>Wer trägt die Netzwerkgebühr?</span>
-              <strong>Admin</strong>
-            </div>
-
-            <div class="fee-row fee-total">
-              <span>Voraussichtlicher Empfang</span>
-              <strong id="netReceive">–</strong>
-            </div>
-          </div>
-
-          <div class="info-box">
-            Bei einer Sammelauszahlung ist die heutige Anzeige nur eine Schätzung.
-            Am tatsächlichen Auszahlungstag werden die Gebühren erneut abgefragt.
-          </div>
-        </article>
+      <div class="info-box">
+        <strong>Automatische Auszahlung:</strong> Sobald Mindestauszahlung, gültige Wallet und alle Sicherheitsprüfungen
+        erfüllt sind, wird die Auszahlung automatisch vorbereitet. Plisio- und Netzwerkgebühr trägt der Admin.<br><br>
+        <strong>Auszahlung am 5., 15. oder 25.:</strong> Der Betrag wird für den nächsten Sammeltermin vorgemerkt.
+        BetInsight übernimmt die Plisio-Servicegebühr; die Netzwerkgebühr trägt der Admin.
       </div>
 
       <div class="section-grid">
@@ -1268,86 +1195,61 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
     <section class="panel" id="tab-settings" data-panel="settings">
       <div class="panel-heading">
         <div>
-          <h2>Einstellungen</h2>
+          <h2>Wallets und Auszahlungsarten</h2>
           <p class="muted">
-            Lege deinen bevorzugten Auszahlungsstandard und deine Wallets fest.
+            Wallets werden je Währung und Netzwerk getrennt hinterlegt. Die vollständige Adresse steht direkt unter
+            dem jeweiligen Währungsfeld.
           </p>
         </div>
       </div>
 
+      <div class="privacy-note">
+        <span>
+          Der Sichtschutz gilt gleichzeitig für diese Wallet-Liste, die Guthabenübersicht und den Auszahlungsbereich.
+          Beim neuen Öffnen der Seite ist der Schutz standardmäßig aktiv.
+        </span>
+        <button class="button button-neutral privacy-toggle" type="button" data-privacy-toggle aria-pressed="true">
+          🔒 Schutz aktiv · Anzeigen
+        </button>
+      </div>
+
       <div class="section-grid">
         <article class="content-card">
-          <h3>Bevorzugte Auszahlung</h3>
-
-          <div class="radio-list">
-            <label class="radio-option">
-              <input type="radio" name="defaultPayoutMode" value="instant">
-              <span>
-                <span class="radio-title">Sofortauszahlung</span>
-                <span class="radio-description">
-                  Plisio- und Netzwerkgebühr werden von deinem Guthaben abgezogen.
-                </span>
-              </span>
-            </label>
-
-            <label class="radio-option">
-              <input type="radio" name="defaultPayoutMode" value="batch">
-              <span>
-                <span class="radio-title">Sammelauszahlung</span>
-                <span class="radio-description">
-                  BetInsight trägt die Plisio-Gebühr. Du trägst die Netzwerkgebühr.
-                </span>
-              </span>
-            </label>
-          </div>
-
-          <div class="button-row">
-            <button class="button button-primary" type="button" id="savePreferenceButton">
-              Auswahl speichern
-            </button>
-          </div>
-
-          <div id="settingsMessage" class="info-box">
-            Die Auswahl wird vorläufig nur auf diesem Gerät gespeichert.
-            Nach Anschluss von Make wird sie zusätzlich im Sheet gespeichert.
-          </div>
-        </article>
-
-        <article class="content-card">
-          <h3>Wallet verwalten</h3>
+          <h3>Wallet hinterlegen oder ändern</h3>
 
           <div class="form-grid">
             <div class="field">
               <label for="settingsCurrency">Währung</label>
               <select id="settingsCurrency">
-                <option value="USDT">USDT</option>
-                <option value="USDC">USDC</option>
-                <option value="TRX">TRX</option>
+                <option value="BNB">BNB</option>
                 <option value="BTC">BTC</option>
                 <option value="ETH">ETH</option>
-                <option value="BNB">BNB</option>
                 <option value="SOL">SOL</option>
                 <option value="TON">TON</option>
+                <option value="TRX">TRX</option>
+                <option value="USDC">USDC</option>
+                <option value="USDT">USDT</option>
               </select>
             </div>
 
             <div class="field">
               <label for="settingsNetwork">Netzwerk</label>
               <select id="settingsNetwork">
-                <option value="TRC20">TRC-20</option>
-                <option value="ERC20">ERC-20</option>
-                <option value="BEP20">BEP-20</option>
-                <option value="TRON">TRON</option>
+                <option value="BNB_CHAIN">BNB Chain</option>
                 <option value="BITCOIN">Bitcoin</option>
                 <option value="ETHEREUM">Ethereum</option>
                 <option value="SOLANA">Solana</option>
                 <option value="TON">TON</option>
+                <option value="TRON">TRON</option>
+                <option value="BEP20">BEP-20</option>
+                <option value="ERC20">ERC-20</option>
+                <option value="TRC20">TRC-20</option>
               </select>
             </div>
 
             <div class="field full">
               <label for="settingsWallet">Wallet-Adresse</label>
-              <input id="settingsWallet" type="text" autocomplete="off" placeholder="Wallet-Adresse eintragen">
+              <input id="settingsWallet" type="password" autocomplete="off" placeholder="Wallet-Adresse eintragen">
             </div>
           </div>
 
@@ -1357,22 +1259,28 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
             </button>
           </div>
 
-          <div class="warning-box">
-            Nach einer Wallet-Änderung gilt später eine Sicherheitswartezeit von 24 Stunden.
+          <div id="walletSaveMessage" class="warning-box">
+            Nach einer Wallet-Änderung gilt eine Sicherheitswartezeit von 24 Stunden. Die aktuelle Musterseite speichert
+            Änderungen zunächst lokal; die echte Speicherung erfolgt später über eine geschützte Make-Aktion.
+          </div>
+        </article>
+
+        <article class="content-card">
+          <h3>Auszahlungsart je Währung</h3>
+          <p class="muted">
+            Die Auszahlungsart wird nicht mehr einmal für das gesamte Konto gewählt, sondern getrennt für jede
+            Währung und jedes Netzwerk. Die Auswahl erfolgt direkt in der jeweiligen Auszahlungskarte.
+          </p>
+          <div class="info-box">
+            Es kann immer nur eine Auszahlungsart je Währung und Netzwerk aktiv sein: automatische Auszahlung
+            oder Sammelauszahlung am 5., 15. und 25.
           </div>
         </article>
 
         <article class="content-card full">
-          <h3>Hinterlegte Wallets</h3>
-          <div class="table-wrap">
-            <table aria-label="Hinterlegte Wallets">
-              <thead>
-                <tr><th>Währung</th><th>Netzwerk</th><th>Wallet</th><th>Status</th><th>Geändert</th><th>Gesperrt bis</th></tr>
-              </thead>
-              <tbody id="walletTableBody">
-                <tr><td colspan="6"><div class="empty-state">Wallets werden geladen.</div></td></tr>
-              </tbody>
-            </table>
+          <h3>Hinterlegte Wallets nach Währung</h3>
+          <div id="walletRouteGrid" class="wallet-route-grid">
+            <div class="empty-state">Wallets werden geladen.</div>
           </div>
         </article>
       </div>
@@ -1480,47 +1388,45 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
     };
 
     const STORAGE_KEY = "betinsight_admin_login";
-    const PAYOUT_PREF_KEY = "betinsight_admin_payout_preference";
+    const PRIVACY_KEY = "betinsight_admin_privacy_active";
+    const ROUTE_PREF_KEY = "betinsight_admin_route_payout_preference";
+    const LOCAL_WALLET_KEY = "betinsight_admin_local_wallets";
 
-    // Nach dem Import des Make-Blueprints wird hier die echte Webhook-Adresse eingetragen.
     const API_URL = "https://hook.eu1.make.com/p4t9t3gvr77dowgvg14m1wuekxzfi3sx";
+
+    const SUPPORTED_ROUTES = [
+      { currency: "BNB", network: "BNB_CHAIN", networkLabel: "BNB Chain" },
+      { currency: "BTC", network: "BITCOIN", networkLabel: "Bitcoin" },
+      { currency: "ETH", network: "ETHEREUM", networkLabel: "Ethereum" },
+      { currency: "SOL", network: "SOLANA", networkLabel: "Solana" },
+      { currency: "TON", network: "TON", networkLabel: "TON" },
+      { currency: "TRX", network: "TRON", networkLabel: "TRON" },
+      { currency: "USDC", network: "BEP20", networkLabel: "BEP-20" },
+      { currency: "USDT", network: "ERC20", networkLabel: "ERC-20" },
+      { currency: "USDT", network: "TON", networkLabel: "TON" },
+      { currency: "USDT", network: "TRC20", networkLabel: "TRC-20" }
+    ];
 
     const adminName = document.getElementById("adminName");
     const roleBadge = document.getElementById("roleBadge");
     const masterTabButton = document.getElementById("masterTabButton");
     const reloadButton = document.getElementById("reloadButton");
     const logoutButton = document.getElementById("logoutButton");
-    const estimateButton = document.getElementById("estimateButton");
-    const requestPayoutButton = document.getElementById("requestPayoutButton");
-    const payoutMessage = document.getElementById("payoutMessage");
-    const plisioFee = document.getElementById("plisioFee");
-    const networkFee = document.getElementById("networkFee");
-    const netReceive = document.getElementById("netReceive");
-    const plisioFeePayer = document.getElementById("plisioFeePayer");
-    const payoutPreferenceSummary = document.getElementById("payoutPreferenceSummary");
-    const savePreferenceButton = document.getElementById("savePreferenceButton");
-    const settingsMessage = document.getElementById("settingsMessage");
-    const saveWalletButton = document.getElementById("saveWalletButton");
+    const privacyToggleButton = document.getElementById("privacyToggleButton");
     const apiStatusText = document.getElementById("apiStatusText");
     const balanceTableBody = document.getElementById("balanceTableBody");
     const provisionTableBody = document.getElementById("provisionTableBody");
     const payoutHistoryBody = document.getElementById("payoutHistoryBody");
-    const walletTableBody = document.getElementById("walletTableBody");
+    const walletRouteGrid = document.getElementById("walletRouteGrid");
+    const payoutRouteGrid = document.getElementById("payoutRouteGrid");
     const activitySummary = document.getElementById("activitySummary");
-    const costMonthLabel = document.getElementById("costMonthLabel");
-    const costPrepaymentValue = document.getElementById("costPrepaymentValue");
-    const actualCostsValue = document.getElementById("actualCostsValue");
-    const costDifferenceValue = document.getElementById("costDifferenceValue");
-    const costPersonalAdjustment = document.getElementById("costPersonalAdjustment");
-    const costDistributionNote = document.getElementById("costDistributionNote");
-    const costItemsBody = document.getElementById("costItemsBody");
-    const costStatusNote = document.getElementById("costStatusNote");
-    const affiliateReserved = document.getElementById("affiliateReserved");
-    const affiliateReleased = document.getElementById("affiliateReleased");
-    const affiliateCompanyPool = document.getElementById("affiliateCompanyPool");
-    const affiliatePersonalAvailable = document.getElementById("affiliatePersonalAvailable");
-    const affiliatePersonalExpected = document.getElementById("affiliatePersonalExpected");
-    const financeRuleSummary = document.getElementById("financeRuleSummary");
+    const payoutPreferenceSummary = document.getElementById("payoutPreferenceSummary");
+    const saveWalletButton = document.getElementById("saveWalletButton");
+    const walletSaveMessage = document.getElementById("walletSaveMessage");
+    const settingsWallet = document.getElementById("settingsWallet");
+
+    let latestBalances = [];
+    let latestWallets = [];
 
     function getSavedCode() {
       return String(localStorage.getItem(STORAGE_KEY) || "").trim().toUpperCase();
@@ -1528,15 +1434,11 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
 
     function getCurrentAdmin() {
       const code = getSavedCode();
-      return {
-        code,
-        admin: ADMINS[code] || null
-      };
+      return { code, admin: ADMINS[code] || null };
     }
 
     function requireLogin() {
       const current = getCurrentAdmin();
-
       if (!current.admin) {
         window.location.replace("https://betinsightclub.github.io/profil/admin/");
         return null;
@@ -1544,16 +1446,13 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
 
       adminName.textContent = current.admin.name;
       roleBadge.textContent = current.admin.role === "owner" ? "Master-Admin" : "Admin";
-
-      if (current.admin.role === "owner") {
-        masterTabButton.classList.remove("hidden");
-      }
-
+      if (current.admin.role === "owner") masterTabButton.classList.remove("hidden");
       return current;
     }
 
     function logout() {
       localStorage.removeItem(STORAGE_KEY);
+      sessionStorage.removeItem(PRIVACY_KEY);
       window.location.replace("https://betinsightclub.github.io/profil/admin/");
     }
 
@@ -1562,7 +1461,6 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
         const active = button.dataset.tab === tabName;
         button.setAttribute("aria-selected", active ? "true" : "false");
       });
-
       document.querySelectorAll("[data-panel]").forEach(function (panel) {
         panel.classList.toggle("active", panel.dataset.panel === tabName);
       });
@@ -1571,20 +1469,14 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
     function getNextBatchDate() {
       const now = new Date();
       const targetDays = [5, 15, 25];
-
       for (let monthOffset = 0; monthOffset < 2; monthOffset += 1) {
         const year = now.getFullYear();
         const month = now.getMonth() + monthOffset;
-
         for (const day of targetDays) {
           const candidate = new Date(year, month, day, 12, 0, 0, 0);
-
-          if (candidate > now) {
-            return candidate;
-          }
+          if (candidate > now) return candidate;
         }
       }
-
       return new Date(now.getFullYear(), now.getMonth() + 2, 5, 12, 0, 0, 0);
     }
 
@@ -1597,71 +1489,7 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
     }
 
     function updateNextBatchDate() {
-      document.getElementById("nextBatchDate").textContent =
-        formatGermanDate(getNextBatchDate());
-    }
-
-    function updatePayoutModeDisplay() {
-      const selected = document.querySelector('input[name="payoutMode"]:checked');
-      const mode = selected ? selected.value : "instant";
-
-      plisioFeePayer.textContent = mode === "batch" ? "BetInsight" : "Admin";
-    }
-
-    function loadSavedPreference() {
-      const current = getCurrentAdmin();
-      const storageValue = current.code
-        ? localStorage.getItem(PAYOUT_PREF_KEY + "_" + current.code)
-        : null;
-
-      if (!storageValue) {
-        payoutPreferenceSummary.textContent = "Noch nicht gewählt.";
-        return;
-      }
-
-      const radio = document.querySelector(
-        'input[name="defaultPayoutMode"][value="' + storageValue + '"]'
-      );
-
-      if (radio) {
-        radio.checked = true;
-      }
-
-      payoutPreferenceSummary.textContent =
-        storageValue === "batch"
-          ? "Sammelauszahlung am 5., 15. oder 25."
-          : "Sofortauszahlung mit Gebührenabzug";
-    }
-
-    function savePreference() {
-      const current = getCurrentAdmin();
-      const selected = document.querySelector(
-        'input[name="defaultPayoutMode"]:checked'
-      );
-
-      if (!current.admin || !selected) {
-        settingsMessage.textContent = "Bitte zuerst eine Auszahlungsart auswählen.";
-        return;
-      }
-
-      localStorage.setItem(
-        PAYOUT_PREF_KEY + "_" + current.code,
-        selected.value
-      );
-
-      loadSavedPreference();
-      settingsMessage.textContent =
-        "Die Auswahl wurde auf diesem Gerät gespeichert. Nach Anschluss von Make wird sie zusätzlich im Sheet gespeichert.";
-    }
-
-    function showApiNotConnected() {
-      plisioFee.textContent = "–";
-      networkFee.textContent = "–";
-      netReceive.textContent = "–";
-      requestPayoutButton.disabled = true;
-
-      payoutMessage.textContent =
-        "Der erste Make-Webhook lädt die Backoffice-Daten. Gebührenberechnung und Auszahlungsantrag folgen als geschützte Make-Aktionen.";
+      document.getElementById("nextBatchDate").textContent = formatGermanDate(getNextBatchDate());
     }
 
     function escapeHtml(value) {
@@ -1691,51 +1519,252 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
       }).format(num(value));
     }
 
-    function formatEuro(value) { return formatNumber(value, 2) + " €"; }
-
-    function label(value) {
-      return String(value || "offen").replaceAll("_", " ").replace(/\b\w/g, l => l.toUpperCase());
+    function formatEuro(value) {
+      return formatNumber(value, 2) + " €";
     }
 
-    function preferenceMode(value) {
-      const v = String(value || "").toUpperCase();
-      if (v.includes("SAMMEL")) return "batch";
-      if (v.includes("SOFORT")) return "instant";
+    function label(value) {
+      return String(value || "offen")
+        .replaceAll("_", " ")
+        .replace(/\b\w/g, function (letter) { return letter.toUpperCase(); });
+    }
+
+    function normalizeNetwork(value) {
+      return String(value || "")
+        .trim()
+        .toUpperCase()
+        .replaceAll("-", "")
+        .replaceAll(" ", "")
+        .replace("BNBCHAIN", "BNB_CHAIN");
+    }
+
+    function routeKey(currency, network) {
+      return String(currency || "").toUpperCase() + "__" + normalizeNetwork(network);
+    }
+
+    function getWalletAddress(item) {
+      return String(
+        item?.address_full ||
+        item?.wallet_address ||
+        item?.address ||
+        item?.wallet ||
+        item?.address_masked ||
+        ""
+      ).trim();
+    }
+
+    function findWallet(items, route) {
+      return items.find(function (item) {
+        return routeKey(item.currency, item.network) === routeKey(route.currency, route.network);
+      }) || null;
+    }
+
+    function findBalance(items, route) {
+      return items.find(function (item) {
+        return routeKey(item.currency, item.network) === routeKey(route.currency, route.network);
+      }) || null;
+    }
+
+    function getLocalWallets() {
+      const current = getCurrentAdmin();
+      if (!current.code) return {};
+      try {
+        return JSON.parse(localStorage.getItem(LOCAL_WALLET_KEY + "_" + current.code) || "{}");
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function mergeWallets(apiWallets) {
+      const local = getLocalWallets();
+      const merged = Array.isArray(apiWallets) ? apiWallets.map(function (item) { return { ...item }; }) : [];
+
+      Object.values(local).forEach(function (localItem) {
+        const index = merged.findIndex(function (item) {
+          return routeKey(item.currency, item.network) === routeKey(localItem.currency, localItem.network);
+        });
+        if (index >= 0) merged[index] = { ...merged[index], ...localItem };
+        else merged.push(localItem);
+      });
+      return merged;
+    }
+
+    function getRoutePreferences() {
+      const current = getCurrentAdmin();
+      if (!current.code) return {};
+      try {
+        return JSON.parse(localStorage.getItem(ROUTE_PREF_KEY + "_" + current.code) || "{}");
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function saveRoutePreference(route, mode) {
+      const current = getCurrentAdmin();
+      if (!current.code) return;
+      const preferences = getRoutePreferences();
+      preferences[routeKey(route.currency, route.network)] = mode;
+      localStorage.setItem(ROUTE_PREF_KEY + "_" + current.code, JSON.stringify(preferences));
+      renderPayoutRoutes(latestBalances, latestWallets);
+    }
+
+    function getRoutePreference(route, balance, wallet) {
+      const local = getRoutePreferences()[routeKey(route.currency, route.network)];
+      if (local) return local;
+      const source = String(balance?.payout_mode || wallet?.payout_mode || "").toUpperCase();
+      if (source.includes("AUTO")) return "automatic";
+      if (source.includes("SAMMEL") || source.includes("5_15_25") || source.includes("BATCH")) return "batch";
       return "";
     }
 
-    function renderBalances(items) {
+    function applyPrivacyState(active) {
+      document.body.classList.toggle("privacy-on", active);
+      sessionStorage.setItem(PRIVACY_KEY, active ? "1" : "0");
+      document.querySelectorAll(".privacy-toggle").forEach(function (button) {
+        button.setAttribute("aria-pressed", active ? "true" : "false");
+        button.textContent = active ? "🔒 Schutz aktiv · Anzeigen" : "🔓 Schutz aus · Verbergen";
+      });
+      if (settingsWallet) settingsWallet.type = active ? "password" : "text";
+    }
+
+    function togglePrivacy() {
+      applyPrivacyState(!document.body.classList.contains("privacy-on"));
+    }
+
+    function initializePrivacy() {
+      const stored = sessionStorage.getItem(PRIVACY_KEY);
+      applyPrivacyState(stored === null ? true : stored === "1");
+    }
+
+    function renderBalances(items, wallets) {
       if (!Array.isArray(items) || !items.length) {
         balanceTableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state">Keine Guthaben vorhanden.</div></td></tr>';
         return;
       }
-      balanceTableBody.innerHTML = items.map(item => {
+
+      balanceTableBody.innerHTML = items.map(function (item) {
         const possible = item.payout_possible === true || String(item.payout_possible).toLowerCase() === "true";
+        const wallet = findWallet(wallets, item) || {};
+        const address = getWalletAddress(wallet);
         return `<tr>
           <td>${escapeHtml(item.currency || "–")}</td>
           <td>${escapeHtml(item.network || "–")}</td>
-          <td>${formatNumber(item.available, 8)}</td>
-          <td>${formatNumber(item.reserved, 8)}</td>
-          <td>${formatNumber(item.minimum, 8)}</td>
-          <td>${escapeHtml(label(item.wallet_status || "nicht hinterlegt"))}</td>
+          <td><span class="privacy-sensitive">${formatNumber(item.available, 8)}</span></td>
+          <td><span class="privacy-sensitive">${formatNumber(item.reserved, 8)}</span></td>
+          <td><span class="privacy-sensitive">${formatNumber(item.minimum, 8)}</span></td>
+          <td><span class="privacy-sensitive">${address ? escapeHtml(address) : "Noch nicht hinterlegt"}</span></td>
           <td><span class="status-pill">${possible ? "Ja" : "Nein"}</span></td>
         </tr>`;
       }).join("");
     }
 
     function renderWallets(items) {
-      if (!Array.isArray(items) || !items.length) {
-        walletTableBody.innerHTML = '<tr><td colspan="6"><div class="empty-state">Keine Wallets hinterlegt.</div></td></tr>';
-        return;
-      }
-      walletTableBody.innerHTML = items.map(item => `<tr>
-        <td>${escapeHtml(item.currency || "–")}</td>
-        <td>${escapeHtml(item.network || "–")}</td>
-        <td>${escapeHtml(item.address_masked || "–")}</td>
-        <td><span class="status-pill">${escapeHtml(label(item.status))}</span></td>
-        <td>${escapeHtml(item.changed_at || "–")}</td>
-        <td>${escapeHtml(item.locked_until || "–")}</td>
-      </tr>`).join("");
+      walletRouteGrid.innerHTML = SUPPORTED_ROUTES.map(function (route) {
+        const wallet = findWallet(items, route) || {};
+        const address = getWalletAddress(wallet);
+        const status = address ? label(wallet.status || "hinterlegt") : "Nicht hinterlegt";
+        const changed = wallet.changed_at || wallet.updated_at || "–";
+        const locked = wallet.locked_until || "–";
+
+        return `<article class="wallet-route-card">
+          <div class="wallet-route-head">
+            <div>
+              <div class="route-title">Wallet für ${escapeHtml(route.currency)}</div>
+              <div class="route-network">${escapeHtml(route.networkLabel)}</div>
+            </div>
+            <span class="status-pill">${escapeHtml(status)}</span>
+          </div>
+          <div class="wallet-address-label">Vollständige Wallet-Adresse</div>
+          <div class="wallet-address-value privacy-sensitive${address ? "" : " empty"}">
+            ${address ? escapeHtml(address) : "Noch nicht hinterlegt"}
+          </div>
+          <div class="route-meta">
+            <div class="route-meta-item">
+              <span class="route-meta-label">Geändert</span>
+              <span class="route-meta-value">${escapeHtml(changed)}</span>
+            </div>
+            <div class="route-meta-item">
+              <span class="route-meta-label">Sicherheitswartezeit bis</span>
+              <span class="route-meta-value">${escapeHtml(locked)}</span>
+            </div>
+          </div>
+        </article>`;
+      }).join("");
+    }
+
+    function renderPayoutRoutes(balances, wallets) {
+      payoutRouteGrid.innerHTML = SUPPORTED_ROUTES.map(function (route) {
+        const balance = findBalance(balances, route) || {};
+        const wallet = findWallet(wallets, route) || {};
+        const address = getWalletAddress(wallet);
+        const preference = getRoutePreference(route, balance, wallet);
+        const possible = balance.payout_possible === true || String(balance.payout_possible).toLowerCase() === "true";
+        const automaticActive = preference === "automatic";
+        const batchActive = preference === "batch";
+        const safeRoute = encodeURIComponent(JSON.stringify(route));
+
+        return `<article class="payout-route-card">
+          <div class="payout-route-head">
+            <div>
+              <div class="route-title">${escapeHtml(route.currency)}</div>
+              <div class="route-network">${escapeHtml(route.networkLabel)}</div>
+            </div>
+            <span class="status-pill">${possible ? "Auszahlung möglich" : "Noch nicht möglich"}</span>
+          </div>
+
+          <div class="payout-balance-grid">
+            <div class="payout-balance-item">
+              <span class="payout-balance-label">Verfügbar</span>
+              <span class="payout-balance-value privacy-sensitive">${formatNumber(balance.available || 0, 8)}</span>
+            </div>
+            <div class="payout-balance-item">
+              <span class="payout-balance-label">Reserviert</span>
+              <span class="payout-balance-value privacy-sensitive">${formatNumber(balance.reserved || 0, 8)}</span>
+            </div>
+            <div class="payout-balance-item">
+              <span class="payout-balance-label">Mindestauszahlung</span>
+              <span class="payout-balance-value privacy-sensitive">${formatNumber(balance.minimum || 0, 8)}</span>
+            </div>
+          </div>
+
+          <div class="wallet-address-label">Auszahlungsadresse</div>
+          <div class="wallet-address-value privacy-sensitive${address ? "" : " empty"}">
+            ${address ? escapeHtml(address) : "Noch nicht hinterlegt"}
+          </div>
+
+          <div class="payout-mode-stack">
+            <div class="payout-mode-card${automaticActive ? " active" : ""}">
+              <div class="payout-mode-title">
+                <span>Automatische Auszahlung</span>
+                ${automaticActive ? '<span class="status-pill">Aktiv</span>' : ""}
+              </div>
+              <div class="payout-mode-description">
+                Automatische Vorbereitung nach Erreichen der Mindestgrenze und nach allen Sicherheitsprüfungen.
+              </div>
+              <button class="button button-primary route-mode-button" type="button"
+                data-route="${safeRoute}" data-mode="automatic" ${address ? "" : "disabled"}>
+                ${automaticActive ? "Automatik ist aktiv" : "Automatische Auszahlung aktivieren"}
+              </button>
+            </div>
+
+            <div class="payout-mode-card${batchActive ? " active" : ""}">
+              <div class="payout-mode-title">
+                <span>Auszahlung am 5., 15. oder 25.</span>
+                ${batchActive ? '<span class="status-pill">Aktiv</span>' : ""}
+              </div>
+              <div class="payout-mode-description">
+                Vormerkung für den nächsten Sammeltermin. Nächster Termin: ${escapeHtml(formatGermanDate(getNextBatchDate()))}.
+              </div>
+              <button class="button button-green route-mode-button" type="button"
+                data-route="${safeRoute}" data-mode="batch" ${address ? "" : "disabled"}>
+                ${batchActive ? "5./15./25. ist aktiv" : "5./15./25. aktivieren"}
+              </button>
+            </div>
+          </div>
+        </article>`;
+      }).join("");
+
+      payoutPreferenceSummary.textContent = "Die Auszahlungsart wird getrennt je Währung und Netzwerk festgelegt.";
     }
 
     function renderProvisions(items) {
@@ -1743,15 +1772,17 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
         provisionTableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state">Keine Provisionen vorhanden.</div></td></tr>';
         return;
       }
-      provisionTableBody.innerHTML = items.map(item => `<tr>
-        <td>${escapeHtml(item.date || "–")}</td>
-        <td>${escapeHtml(item.package || "–")}</td>
-        <td>${escapeHtml(item.payment_currency || "–")}</td>
-        <td>${formatEuro(item.net_basis_eur)}</td>
-        <td>${formatNumber(item.factor_pct, 0)} %</td>
-        <td>${formatEuro(item.commission_eur)}</td>
-        <td><span class="status-pill">${escapeHtml(label(item.status))}</span></td>
-      </tr>`).join("");
+      provisionTableBody.innerHTML = items.map(function (item) {
+        return `<tr>
+          <td>${escapeHtml(item.date || "–")}</td>
+          <td>${escapeHtml(item.package || "–")}</td>
+          <td>${escapeHtml(item.payment_currency || "–")}</td>
+          <td><span class="privacy-sensitive">${formatEuro(item.net_basis_eur)}</span></td>
+          <td>${formatNumber(item.factor_pct, 0)} %</td>
+          <td><span class="privacy-sensitive">${formatEuro(item.commission_eur)}</span></td>
+          <td><span class="status-pill">${escapeHtml(label(item.status))}</span></td>
+        </tr>`;
+      }).join("");
     }
 
     function renderPayouts(items) {
@@ -1759,7 +1790,7 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
         payoutHistoryBody.innerHTML = '<tr><td colspan="9"><div class="empty-state">Keine Auszahlungsanträge vorhanden.</div></td></tr>';
         return;
       }
-      payoutHistoryBody.innerHTML = items.map(item => {
+      payoutHistoryBody.innerHTML = items.map(function (item) {
         const fee = item.network_fee ?? item.network_fee_estimate ?? 0;
         const net = item.net_paid ?? (num(item.gross) - num(fee));
         return `<tr>
@@ -1767,75 +1798,13 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
           <td>${escapeHtml(item.mode || "–")}</td>
           <td>${escapeHtml(item.currency || "–")}</td>
           <td>${escapeHtml(item.network || "–")}</td>
-          <td>${formatNumber(item.gross, 8)}</td>
-          <td>${formatNumber(fee, 8)}</td>
-          <td>${formatNumber(net, 8)}</td>
+          <td><span class="privacy-sensitive">${formatNumber(item.gross, 8)}</span></td>
+          <td><span class="privacy-sensitive">${formatNumber(fee, 8)}</span></td>
+          <td><span class="privacy-sensitive">${formatNumber(net, 8)}</span></td>
           <td><span class="status-pill">${escapeHtml(label(item.status))}</span></td>
-          <td>${escapeHtml(item.tx_hash || "–")}</td>
+          <td><span class="privacy-sensitive">${escapeHtml(item.tx_hash || "–")}</span></td>
         </tr>`;
       }).join("");
-    }
-
-
-    function setSignedAmount(element, value) {
-      const amount = num(value);
-      element.textContent = (amount > 0 ? "+" : "") + formatEuro(amount);
-      element.classList.remove("amount-positive", "amount-negative", "amount-neutral");
-      element.classList.add(amount > 0 ? "amount-positive" : amount < 0 ? "amount-negative" : "amount-neutral");
-    }
-
-    function renderCosts(summary, items, adjustment, rules) {
-      const safeSummary = summary && typeof summary === "object" ? summary : {};
-      const safeAdjustment = adjustment && typeof adjustment === "object" ? adjustment : {};
-      const safeRules = rules && typeof rules === "object" ? rules : {};
-
-      costMonthLabel.textContent = safeSummary.display_month || safeSummary.month || "Monat offen";
-      costPrepaymentValue.textContent = formatEuro(safeSummary.prepayment_eur || 0);
-      actualCostsValue.textContent = formatEuro(safeSummary.actual_costs_eur || 0);
-      setSignedAmount(costDifferenceValue, safeSummary.difference_eur || 0);
-      setSignedAmount(costPersonalAdjustment, safeAdjustment.personal_adjustment_eur || 0);
-
-      const distribution = safeSummary.distribution || "40/30/30";
-      costDistributionNote.textContent = "Persönlicher Anteil nach " + distribution;
-      costStatusNote.textContent = safeSummary.data_mode === "MUSTER"
-        ? "Musterdaten: Die aufgeführten Beträge sind noch keine endgültige Monatsabrechnung. Nur genehmigte Belege werden später als Ist-Kosten gewertet."
-        : "Nur genehmigte gemeinsame Kosten werden in der endgültigen Monatsabrechnung berücksichtigt.";
-
-      if (!Array.isArray(items) || !items.length) {
-        costItemsBody.innerHTML = '<tr><td colspan="5"><div class="empty-state">Noch keine Kostenpositionen vorhanden.</div></td></tr>';
-      } else {
-        costItemsBody.innerHTML = items.map(item => {
-          const amount = item.amount_eur === null || item.amount_eur === undefined
-            ? "noch offen"
-            : formatEuro(item.amount_eur);
-          return `<tr>
-            <td>${escapeHtml(item.provider || "–")}</td>
-            <td>${escapeHtml(label(item.category || "–"))}</td>
-            <td>${escapeHtml(item.description || "–")}</td>
-            <td>${escapeHtml(amount)}</td>
-            <td><span class="status-pill">${escapeHtml(label(item.status || "offen"))}</span></td>
-          </tr>`;
-        }).join("");
-      }
-
-      const split = safeRules.distribution || { luciano: 40, martin: 30, frank: 30 };
-      financeRuleSummary.innerHTML =
-        "Die Betriebskosten-Vorauszahlung beträgt <strong>" + formatNumber(safeRules.cost_prepayment_pct ?? 2.5, 1) +
-        " %</strong>. Die tatsächlichen gemeinsamen Kosten werden im Folgemonat abgerechnet. " +
-        "Positive und negative Differenzen werden mit <strong>" +
-        escapeHtml(String(split.luciano ?? 40)) + " % Luciano, " +
-        escapeHtml(String(split.martin ?? 30)) + " % Martin und " +
-        escapeHtml(String(split.frank ?? 30)) + " % Frank</strong> verteilt. " +
-        "Persönliche Lohn- und Individualkosten trägt jeder aus seinem eigenen Anteil.";
-    }
-
-    function renderAffiliate(summary) {
-      const safe = summary && typeof summary === "object" ? summary : {};
-      affiliateReserved.textContent = formatEuro(safe.reserved_eur || 0);
-      affiliateReleased.textContent = formatEuro(safe.released_eur || 0);
-      affiliateCompanyPool.textContent = formatEuro(safe.company_pool_eur || 0);
-      affiliatePersonalAvailable.textContent = formatEuro(safe.personal_affiliate_available_eur || 0);
-      affiliatePersonalExpected.textContent = formatEuro(safe.personal_affiliate_expected_eur || 0);
     }
 
     function applyData(data) {
@@ -1847,47 +1816,38 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
       roleBadge.textContent = isMaster ? "Master-Admin" : "Admin";
       masterTabButton.classList.toggle("hidden", !isMaster);
 
-      document.getElementById("availableBalance").textContent = String(data.available_balance || "0,00");
-      document.getElementById("reservedBalance").textContent = String(data.reserved_balance || "0,00");
+      document.getElementById("availableBalance").innerHTML = '<span class="privacy-sensitive">' +
+        escapeHtml(String(data.available_balance || "0,00")) + '</span>';
+      document.getElementById("reservedBalance").innerHTML = '<span class="privacy-sensitive">' +
+        escapeHtml(String(data.reserved_balance || "0,00")) + '</span>';
       document.getElementById("effectiveFactor").textContent = String(data.effective_factor_pct ?? 0) + " %";
       document.getElementById("nextBatchDate").textContent = String(data.next_batch_date || formatGermanDate(getNextBatchDate()));
 
-      const pref = preferenceMode(data.payout_preference);
-      if (pref) {
-        const radio = document.querySelector(`input[name="defaultPayoutMode"][value="${pref}"]`);
-        if (radio) radio.checked = true;
-        payoutPreferenceSummary.textContent = pref === "batch"
-          ? "Sammelauszahlung am 5., 15. oder 25."
-          : "Sofortauszahlung mit Gebührenabzug";
-      }
-
-      const balances = parseJsonValue(data.balances, []);
-      const wallets = parseJsonValue(data.wallets, []);
+      latestBalances = parseJsonValue(data.balances, []);
+      latestWallets = mergeWallets(parseJsonValue(data.wallets, []));
       const provisions = parseJsonValue(data.provisions, []);
       const payouts = parseJsonValue(data.payout_history, []);
       const master = parseJsonValue(data.master, {});
-      const costsSummary = parseJsonValue(data.costs_summary, {});
-      const costsItems = parseJsonValue(data.costs_items, []);
-      const affiliateSummary = parseJsonValue(data.affiliate_summary, {});
-      const costAdjustment = parseJsonValue(data.cost_adjustment, {});
-      const financeRules = parseJsonValue(data.finance_rules, {});
 
-      renderBalances(balances);
-      renderWallets(wallets);
+      renderBalances(latestBalances, latestWallets);
+      renderWallets(latestWallets);
+      renderPayoutRoutes(latestBalances, latestWallets);
       renderProvisions(provisions);
       renderPayouts(payouts);
-      renderCosts(costsSummary, costsItems, costAdjustment, financeRules);
-      renderAffiliate(affiliateSummary);
 
       if (isMaster && master && typeof master === "object") {
-        document.getElementById("masterCompanyReserve").textContent = formatEuro(master.company_reserve_eur || 0);
-        document.getElementById("masterLucianoShare").textContent = formatEuro(master.luciano_share_eur || 0);
+        document.getElementById("masterCompanyReserve").innerHTML = '<span class="privacy-sensitive">' +
+          formatEuro(master.company_reserve_eur || 0) + '</span>';
+        document.getElementById("masterLucianoShare").innerHTML = '<span class="privacy-sensitive">' +
+          formatEuro(master.luciano_share_eur || 0) + '</span>';
         document.getElementById("masterOpenPayouts").textContent = String(master.open_payouts ?? 0);
         document.getElementById("masterBlockedProcesses").textContent = String(master.blocked_processes ?? 0);
       }
 
-      activitySummary.textContent = `Geladen: ${provisions.length} Provisionen, ${payouts.length} Auszahlungsvorgänge, ${wallets.length} Wallets und ${costsItems.length} Kostenpositionen.`;
-      const mode = String(data.data_mode || "").toUpperCase() === "MUSTER" ? "Musterdaten erfolgreich geladen" : "Backoffice-Daten geladen";
+      activitySummary.textContent = `Geladen: ${provisions.length} Provisionen, ${payouts.length} Auszahlungsvorgänge und ${latestWallets.length} Wallets.`;
+      const mode = String(data.data_mode || "").toUpperCase() === "MUSTER"
+        ? "Musterdaten erfolgreich geladen"
+        : "Backoffice-Daten geladen";
       apiStatusText.innerHTML = '<span class="status-dot" aria-hidden="true"></span><strong>' +
         escapeHtml(mode) + ':</strong> ' + escapeHtml(data.message || "Make-Verbindung aktiv.") +
         (data.updated_at ? ' Stand: ' + escapeHtml(data.updated_at) + '.' : '');
@@ -1905,8 +1865,7 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
         const url = new URL(API_URL);
         url.searchParams.set("action", "load");
         url.searchParams.set("admin_code", current.code);
-        url.searchParams.set("request_id", (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") ? crypto.randomUUID() : String(Date.now()));
-
+        url.searchParams.set("request_id", crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
         const response = await fetch(url.toString(), { method: "GET", cache: "no-store" });
         if (!response.ok) throw new Error("HTTP " + response.status);
         applyData(await response.json());
@@ -1922,53 +1881,76 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
     }
 
     function saveWalletLocally() {
+      const current = getCurrentAdmin();
       const currency = document.getElementById("settingsCurrency").value;
       const network = document.getElementById("settingsNetwork").value;
-      const wallet = document.getElementById("settingsWallet").value.trim();
+      const walletAddress = settingsWallet.value.trim();
 
-      if (!wallet) {
-        window.alert("Bitte eine Wallet-Adresse eintragen.");
+      if (!walletAddress) {
+        walletSaveMessage.textContent = "Bitte eine vollständige Wallet-Adresse eintragen.";
         return;
       }
 
-      window.alert(
-        "Wallet für " + currency + " / " + network +
-        " wurde vorläufig nur lokal erfasst. Die echte Speicherung folgt nach Make-Anschluss."
-      );
+      const route = SUPPORTED_ROUTES.find(function (item) {
+        return routeKey(item.currency, item.network) === routeKey(currency, network);
+      });
+
+      if (!route) {
+        walletSaveMessage.textContent = "Diese Kombination aus Währung und Netzwerk ist derzeit nicht freigegeben.";
+        return;
+      }
+
+      const localWallets = getLocalWallets();
+      const now = new Date();
+      const lockedUntil = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+      localWallets[routeKey(currency, network)] = {
+        currency,
+        network,
+        address_full: walletAddress,
+        status: "lokal_hinterlegt",
+        changed_at: new Intl.DateTimeFormat("de-DE", {
+          day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit"
+        }).format(now),
+        locked_until: new Intl.DateTimeFormat("de-DE", {
+          day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit"
+        }).format(lockedUntil)
+      };
+      localStorage.setItem(LOCAL_WALLET_KEY + "_" + current.code, JSON.stringify(localWallets));
+
+      latestWallets = mergeWallets(latestWallets);
+      renderWallets(latestWallets);
+      renderBalances(latestBalances, latestWallets);
+      renderPayoutRoutes(latestBalances, latestWallets);
+      settingsWallet.value = "";
+      walletSaveMessage.textContent =
+        "Wallet wurde auf diesem Gerät vollständig hinterlegt und ist jetzt in der Liste sichtbar. Die echte Speicherung im Sheet folgt über die geschützte Make-Aktion.";
     }
 
     document.querySelectorAll(".tab-button").forEach(function (button) {
-      button.addEventListener("click", function () {
-        activateTab(button.dataset.tab);
-      });
+      button.addEventListener("click", function () { activateTab(button.dataset.tab); });
     });
 
     document.querySelectorAll("[data-open-tab]").forEach(function (button) {
-      button.addEventListener("click", function () {
-        activateTab(button.dataset.openTab);
-      });
-    });
-
-    document.querySelectorAll('input[name="payoutMode"]').forEach(function (radio) {
-      radio.addEventListener("change", updatePayoutModeDisplay);
-    });
-
-    document.querySelectorAll(".tooltip-button").forEach(function (button) {
-      button.addEventListener("click", function () {
-        const wrap = button.closest(".tooltip-wrap");
-        const wasOpen = wrap.classList.contains("open");
-
-        document.querySelectorAll(".tooltip-wrap.open").forEach(function (item) {
-          item.classList.remove("open");
-        });
-
-        if (!wasOpen) {
-          wrap.classList.add("open");
-        }
-      });
+      button.addEventListener("click", function () { activateTab(button.dataset.openTab); });
     });
 
     document.addEventListener("click", function (event) {
+      const privacyButton = event.target.closest("#privacyToggleButton, [data-privacy-toggle]");
+      if (privacyButton) {
+        togglePrivacy();
+        return;
+      }
+
+      const modeButton = event.target.closest(".route-mode-button");
+      if (modeButton && !modeButton.disabled) {
+        const route = JSON.parse(decodeURIComponent(modeButton.dataset.route));
+        saveRoutePreference(route, modeButton.dataset.mode);
+        apiStatusText.innerHTML = '<span class="status-dot" aria-hidden="true"></span><strong>Auswahl gespeichert:</strong> ' +
+          escapeHtml(route.currency + " / " + route.networkLabel) +
+          '. Die echte Übernahme ins Sheet folgt über die geschützte Make-Aktion.';
+        return;
+      }
+
       if (!event.target.closest(".tooltip-wrap")) {
         document.querySelectorAll(".tooltip-wrap.open").forEach(function (item) {
           item.classList.remove("open");
@@ -1976,18 +1958,23 @@ Hinweis: Vollständige Backoffice-Seite mit Make-Lade-Webhook und Musterdaten.
       }
     });
 
+    document.querySelectorAll(".tooltip-button").forEach(function (button) {
+      button.addEventListener("click", function () {
+        const wrap = button.closest(".tooltip-wrap");
+        const wasOpen = wrap.classList.contains("open");
+        document.querySelectorAll(".tooltip-wrap.open").forEach(function (item) { item.classList.remove("open"); });
+        if (!wasOpen) wrap.classList.add("open");
+      });
+    });
+
     reloadButton.addEventListener("click", loadBackofficeData);
     logoutButton.addEventListener("click", logout);
-    estimateButton.addEventListener("click", showApiNotConnected);
-    savePreferenceButton.addEventListener("click", savePreference);
     saveWalletButton.addEventListener("click", saveWalletLocally);
 
     const current = requireLogin();
-
     if (current) {
+      initializePrivacy();
       updateNextBatchDate();
-      updatePayoutModeDisplay();
-      loadSavedPreference();
       loadBackofficeData();
     }
   </script>
