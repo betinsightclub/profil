@@ -2,8 +2,8 @@
 <!--
 Projekt: BetInsight
 Datei auf GitHub: profil/admin/backoffice/index.html
-Version: 2026.08.03-02
-Hinweis: Vollständige Backoffice-Seite mit Wallet-Vollanzeige, Sichtschutz und Auszahlungsart je Währung.
+Version: 2026.08.03-03
+Hinweis: Vier gleich breite Hauptbereiche, Aktivitätsliste, transparente Abzüge, Wallet-Zielauswahl und feste Netzwerke.
 -->
 <html lang="de">
 <head>
@@ -448,20 +448,19 @@ Hinweis: Vollständige Backoffice-Seite mit Wallet-Vollanzeige, Sichtschutz und 
     }
 
     .tabs {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 9px;
-      overflow-x: auto;
       margin-bottom: 18px;
       padding: 7px;
       border: 1px solid var(--border);
       border-radius: 16px;
       background: var(--panel-soft);
-      scrollbar-width: thin;
     }
 
     .tab-button {
-      flex: 0 0 auto;
-      min-height: 42px;
+      width: 100%;
+      min-height: 46px;
       padding: 9px 15px;
       border: 1px solid transparent;
       border-radius: 11px;
@@ -471,10 +470,56 @@ Hinweis: Vollständige Backoffice-Seite mit Wallet-Vollanzeige, Sichtschutz und 
       font-weight: 800;
     }
 
+    .tab-button.hidden { display: none; }
+
     .tab-button[aria-selected="true"] {
       border-color: rgba(0, 218, 255, 0.38);
       background: linear-gradient(135deg, rgba(22, 168, 245, 0.22), rgba(8, 121, 187, 0.26));
       color: #ffffff;
+    }
+
+
+    .activity-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .activity-item {
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 13px 14px;
+      border: 1px solid rgba(185, 216, 232, 0.16);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .activity-date { color: var(--muted); font-size: 13px; }
+    .activity-title { font-weight: 800; }
+    .activity-value { font-weight: 900; white-space: nowrap; }
+
+    .choice-stack { display: grid; gap: 10px; margin-top: 12px; }
+    .choice-card {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 13px;
+      border: 1px solid rgba(185, 216, 232, 0.18);
+      border-radius: 12px;
+      background: rgba(255,255,255,.035);
+      cursor: pointer;
+    }
+    .choice-card input { margin-top: 3px; }
+    .choice-card strong { display:block; margin-bottom:4px; }
+    .choice-card small { color:var(--muted); line-height:1.45; }
+
+    .route-hint {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
     }
 
     .panel {
@@ -1086,7 +1131,7 @@ Hinweis: Vollständige Backoffice-Seite mit Wallet-Vollanzeige, Sichtschutz und 
                 </tr>
               </thead>
               <tbody id="balanceTableBody">
-                <tr><td colspan="7"><div class="empty-state">Guthaben werden geladen.</div></td></tr>
+                <tr><td colspan="10"><div class="empty-state">Guthaben werden geladen.</div></td></tr>
               </tbody>
             </table>
           </div>
@@ -1094,7 +1139,14 @@ Hinweis: Vollständige Backoffice-Seite mit Wallet-Vollanzeige, Sichtschutz und 
 
         <article class="content-card full">
           <h3>Letzte Aktivitäten</h3>
-          <div id="activitySummary" class="empty-state">Aktivitäten werden geladen.</div>
+          <p class="muted">Die jüngsten Provisionen, Wallet-Änderungen und Auszahlungsvorgänge.</p>
+          <div id="activitySummary" class="activity-list">
+            <div class="activity-item">
+              <div class="activity-date">02.08.2026</div>
+              <div><div class="activity-title">Musteraktivität · Elite-Paket bestätigt</div><div class="muted">Provision wurde dem verfügbaren Guthaben zugeordnet.</div></div>
+              <div class="activity-value privacy-sensitive">113,02 €</div>
+            </div>
+          </div>
         </article>
       </div>
     </section>
@@ -1116,7 +1168,10 @@ Hinweis: Vollständige Backoffice-Seite mit Wallet-Vollanzeige, Sichtschutz und 
               <th>Datum</th>
               <th>Paket</th>
               <th>Währung</th>
-              <th>Netto-Basis</th>
+              <th>Eingang nach Plisio</th>
+              <th>Betriebskosten 2,5 %</th>
+              <th>Affiliate-Budget 10 %</th>
+              <th>Verteilbare Basis</th>
               <th>Faktor</th>
               <th>Deine Provision</th>
               <th>Status</th>
@@ -1134,9 +1189,14 @@ Hinweis: Vollständige Backoffice-Seite mit Wallet-Vollanzeige, Sichtschutz und 
         </table>
       </div>
 
-      <div class="warning-box">
-        Berechnungsreihenfolge: Kundenzahlung minus tatsächliche Plisio-Eingangsgebühr
-        minus 2,5 % vorläufige Betriebskostenvorauszahlung ergibt die weitere Berechnungsgrundlage.
+      <div class="info-box">
+        <strong>So wird gerechnet:</strong> Zuerst zählt nur der tatsächlich eingegangene Betrag nach der Plisio-Eingangsgebühr.
+        Davon werden parallel 2,5 % als vorläufige Betriebskostenvorauszahlung und 10 % als Affiliate-Budget ausgewiesen.
+        Der verbleibende Betrag ist die Grundlage für den persönlichen Faktor von 40 %, 30 % oder 30 %.
+        <br><br>
+        <strong>Firmenreserve / Unternehmenspool:</strong> Es gibt derzeit keinen zusätzlichen pauschalen 5-%-Abzug.
+        Nicht zuordenbare Affiliate-Anteile sowie positive, nicht ausgezahlte Kostenüberschüsse werden getrennt als Unternehmenspool geführt.
+        Die tatsächlichen gemeinsamen Kosten sind im Bereich „Kosten & Affiliate“ beziehungsweise in der Kostenabrechnung einsehbar.
       </div>
     </section>
 
@@ -1166,10 +1226,13 @@ Hinweis: Vollständige Backoffice-Seite mit Wallet-Vollanzeige, Sichtschutz und 
       </div>
 
       <div class="info-box">
-        <strong>Automatische Auszahlung:</strong> Sobald Mindestauszahlung, gültige Wallet und alle Sicherheitsprüfungen
-        erfüllt sind, wird die Auszahlung automatisch vorbereitet. Plisio- und Netzwerkgebühr trägt der Admin.<br><br>
-        <strong>Auszahlung am 5., 15. oder 25.:</strong> Der Betrag wird für den nächsten Sammeltermin vorgemerkt.
-        BetInsight übernimmt die Plisio-Servicegebühr; die Netzwerkgebühr trägt der Admin.
+        <strong>1. Automatische Auszahlung:</strong> Sobald das Guthaben die Mindestauszahlung erreicht, eine bestätigte Wallet hinterlegt ist,
+        keine 24-Stunden-Sperre besteht und alle Sicherheitsprüfungen bestanden sind, darf das System die Auszahlung ohne erneuten Terminwunsch vorbereiten.
+        Diese Variante ist schneller. Die Plisio-Servicegebühr und die jeweilige Netzwerkgebühr werden dem Admin zugerechnet.<br><br>
+        <strong>2. Auszahlung am 5., 15. oder 25.:</strong> Das Guthaben bleibt bis zum nächsten festen Auszahlungstag verfügbar und wird erst nach Aktivierung
+        für diesen Sammeltermin vorgemerkt. BetInsight übernimmt bei dieser Variante die Plisio-Servicegebühr; die Netzwerkgebühr trägt der Admin.
+        Bis zur Vormerkung bleibt der Betrag im Backoffice sichtbar und wird nicht automatisch versendet.<br><br>
+        <strong>Wichtig:</strong> Pro Währung und Netzwerk kann immer nur eine Variante aktiv sein. Die vollständige Zieladresse steht in jeder Auszahlungskarte.
       </div>
 
       <div class="section-grid">
@@ -1195,10 +1258,10 @@ Hinweis: Vollständige Backoffice-Seite mit Wallet-Vollanzeige, Sichtschutz und 
     <section class="panel" id="tab-settings" data-panel="settings">
       <div class="panel-heading">
         <div>
-          <h2>Wallets und Auszahlungsarten</h2>
+          <h2>Wallet hinterlegen</h2>
           <p class="muted">
-            Wallets werden je Währung und Netzwerk getrennt hinterlegt. Die vollständige Adresse steht direkt unter
-            dem jeweiligen Währungsfeld.
+            Hier wird ausschließlich eine neue oder geänderte Wallet hinterlegt. Währung und Netzwerk sind fest miteinander verknüpft,
+            damit keine unzulässige Kombination gespeichert werden kann. Bereits gespeicherte Wallets siehst du in Übersicht und Auszahlung.
           </p>
         </div>
       </div>
@@ -1234,22 +1297,27 @@ Hinweis: Vollständige Backoffice-Seite mit Wallet-Vollanzeige, Sichtschutz und 
 
             <div class="field">
               <label for="settingsNetwork">Netzwerk</label>
-              <select id="settingsNetwork">
-                <option value="BNB_CHAIN">BNB Chain</option>
-                <option value="BITCOIN">Bitcoin</option>
-                <option value="ETHEREUM">Ethereum</option>
-                <option value="SOLANA">Solana</option>
-                <option value="TON">TON</option>
-                <option value="TRON">TRON</option>
-                <option value="BEP20">BEP-20</option>
-                <option value="ERC20">ERC-20</option>
-                <option value="TRC20">TRC-20</option>
-              </select>
+              <select id="settingsNetwork"></select>
+              <div id="networkHint" class="route-hint">Für BNB ist ausschließlich BNB Chain freigegeben.</div>
             </div>
 
             <div class="field full">
               <label for="settingsWallet">Wallet-Adresse</label>
-              <input id="settingsWallet" type="password" autocomplete="off" placeholder="Wallet-Adresse eintragen">
+              <input id="settingsWallet" type="password" autocomplete="off" placeholder="Wallet-Adresse vollständig eintragen">
+            </div>
+
+            <div class="field full">
+              <label>Diese Wallet verwenden für</label>
+              <div class="choice-stack">
+                <label class="choice-card">
+                  <input type="radio" name="settingsPayoutMode" value="automatic">
+                  <span><strong>Automatische Auszahlung</strong><small>Auszahlung nach Erreichen der Mindestgrenze und bestandener Sicherheitsprüfung. Plisio-Servicegebühr und Netzwerkgebühr trägt der Admin.</small></span>
+                </label>
+                <label class="choice-card">
+                  <input type="radio" name="settingsPayoutMode" value="batch" checked>
+                  <span><strong>Auszahlung am 5., 15. oder 25.</strong><small>Auszahlung wird für den nächsten festen Termin vorgemerkt. BetInsight übernimmt die Plisio-Servicegebühr; der Admin trägt die Netzwerkgebühr.</small></span>
+                </label>
+              </div>
             </div>
           </div>
 
@@ -1266,21 +1334,14 @@ Hinweis: Vollständige Backoffice-Seite mit Wallet-Vollanzeige, Sichtschutz und 
         </article>
 
         <article class="content-card">
-          <h3>Auszahlungsart je Währung</h3>
-          <p class="muted">
-            Die Auszahlungsart wird nicht mehr einmal für das gesamte Konto gewählt, sondern getrennt für jede
-            Währung und jedes Netzwerk. Die Auswahl erfolgt direkt in der jeweiligen Auszahlungskarte.
-          </p>
+          <h3>Was die Auswahl bedeutet</h3>
           <div class="info-box">
-            Es kann immer nur eine Auszahlungsart je Währung und Netzwerk aktiv sein: automatische Auszahlung
-            oder Sammelauszahlung am 5., 15. und 25.
+            Die gewählte Auszahlungsart wird gemeinsam mit genau dieser Wallet-Route gespeichert.
+            Eine USDT-TRC-20-Wallet kann daher beispielsweise für Sammelauszahlungen genutzt werden,
+            während eine TRX-Wallet separat auf automatische Auszahlung gestellt sein kann.
           </div>
-        </article>
-
-        <article class="content-card full">
-          <h3>Hinterlegte Wallets nach Währung</h3>
-          <div id="walletRouteGrid" class="wallet-route-grid">
-            <div class="empty-state">Wallets werden geladen.</div>
+          <div class="warning-box">
+            Nach jeder Änderung der Wallet-Adresse gilt eine 24-Stunden-Sperre. Während dieser Zeit darf über die geänderte Route keine Auszahlung ausgeführt werden.
           </div>
         </article>
       </div>
@@ -1407,6 +1468,12 @@ Hinweis: Vollständige Backoffice-Seite mit Wallet-Vollanzeige, Sichtschutz und 
       { currency: "USDT", network: "TRC20", networkLabel: "TRC-20" }
     ];
 
+    const ROUTES_BY_CURRENCY = SUPPORTED_ROUTES.reduce(function (map, route) {
+      if (!map[route.currency]) map[route.currency] = [];
+      map[route.currency].push(route);
+      return map;
+    }, {});
+
     const adminName = document.getElementById("adminName");
     const roleBadge = document.getElementById("roleBadge");
     const masterTabButton = document.getElementById("masterTabButton");
@@ -1417,13 +1484,15 @@ Hinweis: Vollständige Backoffice-Seite mit Wallet-Vollanzeige, Sichtschutz und 
     const balanceTableBody = document.getElementById("balanceTableBody");
     const provisionTableBody = document.getElementById("provisionTableBody");
     const payoutHistoryBody = document.getElementById("payoutHistoryBody");
-    const walletRouteGrid = document.getElementById("walletRouteGrid");
     const payoutRouteGrid = document.getElementById("payoutRouteGrid");
     const activitySummary = document.getElementById("activitySummary");
     const payoutPreferenceSummary = document.getElementById("payoutPreferenceSummary");
     const saveWalletButton = document.getElementById("saveWalletButton");
     const walletSaveMessage = document.getElementById("walletSaveMessage");
     const settingsWallet = document.getElementById("settingsWallet");
+    const settingsCurrency = document.getElementById("settingsCurrency");
+    const settingsNetwork = document.getElementById("settingsNetwork");
+    const networkHint = document.getElementById("networkHint");
 
     let latestBalances = [];
     let latestWallets = [];
@@ -1769,15 +1838,22 @@ Hinweis: Vollständige Backoffice-Seite mit Wallet-Vollanzeige, Sichtschutz und 
 
     function renderProvisions(items) {
       if (!Array.isArray(items) || !items.length) {
-        provisionTableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state">Keine Provisionen vorhanden.</div></td></tr>';
+        provisionTableBody.innerHTML = '<tr><td colspan="10"><div class="empty-state">Keine Provisionen vorhanden.</div></td></tr>';
         return;
       }
       provisionTableBody.innerHTML = items.map(function (item) {
+        const incoming = num(item.incoming_after_plisio_eur ?? item.net_basis_eur);
+        const costs = num(item.cost_prepayment_eur ?? (incoming * 0.025));
+        const affiliate = num(item.affiliate_budget_eur ?? (incoming * 0.10));
+        const distribution = num(item.distribution_basis_eur ?? Math.max(incoming - costs - affiliate, 0));
         return `<tr>
           <td>${escapeHtml(item.date || "–")}</td>
           <td>${escapeHtml(item.package || "–")}</td>
           <td>${escapeHtml(item.payment_currency || "–")}</td>
-          <td><span class="privacy-sensitive">${formatEuro(item.net_basis_eur)}</span></td>
+          <td><span class="privacy-sensitive">${formatEuro(incoming)}</span></td>
+          <td><span class="privacy-sensitive">${formatEuro(costs)}</span></td>
+          <td><span class="privacy-sensitive">${formatEuro(affiliate)}</span></td>
+          <td><span class="privacy-sensitive">${formatEuro(distribution)}</span></td>
           <td>${formatNumber(item.factor_pct, 0)} %</td>
           <td><span class="privacy-sensitive">${formatEuro(item.commission_eur)}</span></td>
           <td><span class="status-pill">${escapeHtml(label(item.status))}</span></td>
@@ -1830,7 +1906,6 @@ Hinweis: Vollständige Backoffice-Seite mit Wallet-Vollanzeige, Sichtschutz und 
       const master = parseJsonValue(data.master, {});
 
       renderBalances(latestBalances, latestWallets);
-      renderWallets(latestWallets);
       renderPayoutRoutes(latestBalances, latestWallets);
       renderProvisions(provisions);
       renderPayouts(payouts);
@@ -1844,7 +1919,7 @@ Hinweis: Vollständige Backoffice-Seite mit Wallet-Vollanzeige, Sichtschutz und 
         document.getElementById("masterBlockedProcesses").textContent = String(master.blocked_processes ?? 0);
       }
 
-      activitySummary.textContent = `Geladen: ${provisions.length} Provisionen, ${payouts.length} Auszahlungsvorgänge und ${latestWallets.length} Wallets.`;
+      renderActivities(provisions, payouts, latestWallets);
       const mode = String(data.data_mode || "").toUpperCase() === "MUSTER"
         ? "Musterdaten erfolgreich geladen"
         : "Backoffice-Daten geladen";
@@ -1873,17 +1948,48 @@ Hinweis: Vollständige Backoffice-Seite mit Wallet-Vollanzeige, Sichtschutz und 
         console.error(error);
         apiStatusText.innerHTML = '<span class="status-dot" aria-hidden="true"></span><strong>Fehler:</strong> ' +
           escapeHtml(error.message || "Daten konnten nicht geladen werden.");
-        activitySummary.textContent = "Die Verbindung zu Make konnte nicht hergestellt werden.";
+        activitySummary.innerHTML = '<div class="empty-state">Die Verbindung zu Make konnte nicht hergestellt werden.</div>';
       } finally {
         reloadButton.disabled = false;
         reloadButton.textContent = "Daten neu laden";
       }
     }
 
+    function updateNetworkOptions() {
+      const currency = settingsCurrency.value;
+      const routes = ROUTES_BY_CURRENCY[currency] || [];
+      settingsNetwork.innerHTML = routes.map(function (route) {
+        return '<option value="' + escapeHtml(route.network) + '">' + escapeHtml(route.networkLabel) + '</option>';
+      }).join("");
+      networkHint.textContent = routes.length === 1
+        ? 'Für ' + currency + ' ist ausschließlich ' + routes[0].networkLabel + ' freigegeben.'
+        : 'Für ' + currency + ' sind nur diese Netzwerke freigegeben: ' + routes.map(function (r) { return r.networkLabel; }).join(', ') + '.';
+    }
+
+    function renderActivities(provisions, payouts, wallets) {
+      const entries = [];
+      (provisions || []).slice(0, 3).forEach(function (item) {
+        entries.push({ date: item.date || '–', title: 'Provision · ' + (item.package || 'Paket'), detail: 'Bestätigte Kundenzahlung', value: formatEuro(item.commission_eur || 0) });
+      });
+      (payouts || []).slice(0, 2).forEach(function (item) {
+        entries.push({ date: item.requested_at || '–', title: 'Auszahlung · ' + (item.currency || ''), detail: label(item.status), value: formatNumber(item.gross || 0, 8) });
+      });
+      (wallets || []).slice(0, 1).forEach(function (item) {
+        entries.push({ date: item.changed_at || '–', title: 'Wallet geändert · ' + (item.currency || ''), detail: item.network || '', value: '24-h-Schutz' });
+      });
+      if (!entries.length) {
+        entries.push({ date: '02.08.2026', title: 'Musteraktivität · Elite-Paket bestätigt', detail: 'Provision wurde dem verfügbaren Guthaben zugeordnet.', value: '113,02 €' });
+      }
+      activitySummary.innerHTML = entries.map(function (entry) {
+        return '<div class="activity-item"><div class="activity-date">' + escapeHtml(entry.date) + '</div><div><div class="activity-title">' + escapeHtml(entry.title) + '</div><div class="muted">' + escapeHtml(entry.detail) + '</div></div><div class="activity-value privacy-sensitive">' + escapeHtml(entry.value) + '</div></div>';
+      }).join('');
+    }
+
     function saveWalletLocally() {
       const current = getCurrentAdmin();
-      const currency = document.getElementById("settingsCurrency").value;
-      const network = document.getElementById("settingsNetwork").value;
+      const currency = settingsCurrency.value;
+      const network = settingsNetwork.value;
+      const payoutMode = document.querySelector('input[name="settingsPayoutMode"]:checked')?.value || "batch";
       const walletAddress = settingsWallet.value.trim();
 
       if (!walletAddress) {
@@ -1913,17 +2019,18 @@ Hinweis: Vollständige Backoffice-Seite mit Wallet-Vollanzeige, Sichtschutz und 
         }).format(now),
         locked_until: new Intl.DateTimeFormat("de-DE", {
           day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit"
-        }).format(lockedUntil)
+        }).format(lockedUntil),
+        payout_mode: payoutMode
       };
       localStorage.setItem(LOCAL_WALLET_KEY + "_" + current.code, JSON.stringify(localWallets));
 
       latestWallets = mergeWallets(latestWallets);
-      renderWallets(latestWallets);
+      saveRoutePreference(route, payoutMode);
       renderBalances(latestBalances, latestWallets);
       renderPayoutRoutes(latestBalances, latestWallets);
       settingsWallet.value = "";
       walletSaveMessage.textContent =
-        "Wallet wurde auf diesem Gerät vollständig hinterlegt und ist jetzt in der Liste sichtbar. Die echte Speicherung im Sheet folgt über die geschützte Make-Aktion.";
+        "Wallet und gewählte Auszahlungsart wurden auf diesem Gerät gespeichert. Sie sind jetzt in Übersicht und Auszahlung sichtbar. Die echte Speicherung im Sheet folgt über die geschützte Make-Aktion.";
     }
 
     document.querySelectorAll(".tab-button").forEach(function (button) {
@@ -1970,6 +2077,8 @@ Hinweis: Vollständige Backoffice-Seite mit Wallet-Vollanzeige, Sichtschutz und 
     reloadButton.addEventListener("click", loadBackofficeData);
     logoutButton.addEventListener("click", logout);
     saveWalletButton.addEventListener("click", saveWalletLocally);
+    settingsCurrency.addEventListener("change", updateNetworkOptions);
+    updateNetworkOptions();
 
     const current = requireLogin();
     if (current) {
