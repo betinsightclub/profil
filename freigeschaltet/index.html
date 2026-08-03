@@ -307,17 +307,18 @@ function parseWebhookJson(rawText) {
 
 function normalizeTip(item) {
   return {
-    datum: item["2"],
-    preis_units: item["3"],
-    spiel: item["7"],
-    tipp: item["8"],
-    quote: item["9"],
-    ersteller: item["10"],
-    liga: item["11"],
-    markt: item["12"],
-    spiel_datum: item["13"],
-    anpfiff: item["14"],
-    analyse: item["15"]
+    tipp_id: item.tipp_id ?? item["1"],
+    datum: item.datum ?? item["2"],
+    preis_units: item.preis_units ?? item["3"],
+    spiel: item.spiel ?? item["7"],
+    tipp: item.tipp ?? item["8"],
+    quote: item.quote ?? item["9"],
+    ersteller: item.ersteller ?? item["10"],
+    liga: item.liga ?? item["11"],
+    markt: item.markt ?? item["12"],
+    spiel_datum: item.spiel_datum ?? item["13"],
+    anpfiff: item.anpfiff ?? item["14"],
+    analyse: item.analyse ?? item["15"]
   };
 }
 
@@ -423,8 +424,14 @@ Bitte öffne diese Seite über deinen persönlichen BetInsight-Link.
       return;
     }
 
-    const tipps = rawTipps
-      .map(normalizeTip)
+    const normalisierteTipps = rawTipps.map(normalizeTip);
+
+    const eindeutigeTipps = normalisierteTipps.filter((tipp, index, alle) => {
+      if (!tipp.tipp_id) return true;
+      return index === alle.findIndex(eintrag => eintrag.tipp_id === tipp.tipp_id);
+    });
+
+    const tipps = eindeutigeTipps
       .sort((a, b) => parseDateForSorting(b.datum) - parseDateForSorting(a.datum));
 
     tipps.forEach(tipp => {
