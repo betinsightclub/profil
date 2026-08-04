@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Ausgewählte Wettanbieter von BetInsight: internationale Krypto-Sportwetten und ein Anbieter für Deutschland.">
+  <meta name="theme-color" content="#001b24">
+
+  <title>BetInsight | Ausgewählte Wettanbieter</title>
+
+  <!-- Bereits im GitHub-Projekt vorhandenes BetInsight-Favicon -->
+  <link rel="icon" href="/profil/favicon.ico" type="image/x-icon">
+
+  <style>
+    :root {
+      --bg: #001b24;
+      --bg-deep: #001219;
+      --panel: #04263a;
+      --panel-soft: #07334a;
+      --line: rgba(255, 255, 255, 0.11);
+      --text: #f4f8fb;
+      --muted: #b8c8d2;
+      --blue: #008cff;
+      --blue-light: #4db8ff;
+      --green: #21d07a;
+      --orange: #ffae35;
+      --danger: #ff6f61;
+      --shadow: 0 22px 50px rgba(0, 0, 0, 0.28);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(0, 140, 255, 0.18), transparent 32%),
+        radial-gradient(circle at 90% 15%, rgba(33, 208, 122, 0.10), transparent 26%),
+        linear-gradient(180deg, var(--bg-deep) 0%, var(--bg) 45%, #002631 100%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    button,
+    a {
+      font: inherit;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .page-shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 26px 0 54px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 86px;
+      margin-bottom: 18px;
+    }
+
+    .brand-logo {
+      width: min(235px, 64vw);
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.28));
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 48px 34px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background:
+        linear-gradient(135deg, rgba(0, 140, 255, 0.15), rgba(33, 208, 122, 0.07)),
+        rgba(4, 38, 58, 0.84);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -90px;
+      top: -110px;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: rgba(0, 140, 255, 0.12);
+      filter: blur(8px);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding: 7px 12px;
+      border: 1px solid rgba(77, 184, 255, 0.34);
+      border-radius: 999px;
+      background: rgba(0, 140, 255, 0.10);
+      color: #bfe5ff;
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      max-width: 780px;
+      margin: 0 auto 15px;
+      font-size: clamp(2rem, 4.5vw, 3.6rem);
+      line-height: 1.06;
+      letter-spacing: -0.045em;
+    }
+
+    .hero p {
+      max-width: 790px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: clamp(1rem, 1.6vw, 1.13rem);
+    }
+
+    .quick-info {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .quick-info div {
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: rgba(0, 18, 25, 0.38);
+      color: #d9e8ef;
+      font-size: 0.92rem;
+    }
+
+    .quick-info strong {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--text);
+    }
+
+    .section-heading {
+      margin: 48px 0 22px;
+      text-align: center;
+    }
+
+    .section-heading h2 {
+      margin: 0 0 8px;
+      font-size: clamp(1.55rem, 3vw, 2.25rem);
+      letter-spacing: -0.03em;
+    }
+
+    .section-heading p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .provider-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .provider-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      overflow: visible;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, rgba(7, 51, 74, 0.96), rgba(4, 38, 58, 0.96));
+      box-shadow: 0 18px 38px rgba(0, 0, 0, 0.22);
+      transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .provider-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(77, 184, 255, 0.45);
+      box-shadow: 0 24px 46px rgba(0, 0, 0, 0.30);
+    }
+
+    .provider-card.featured {
+      border-color: rgba(33, 208, 122, 0.58);
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.32), 0 0 0 1px rgba(33, 208, 122, 0.08);
+    }
+
+    .rank-badge {
+      position: absolute;
+      top: -13px;
+      left: 20px;
+      z-index: 2;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: var(--green);
+      color: #002516;
+      font-size: 0.79rem;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      box-shadow: 0 8px 18px rgba(33, 208, 122, 0.25);
+    }
+
+    .card-header {
+      padding: 30px 24px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .provider-name-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .provider-card h3 {
+      margin: 0;
+      font-size: 1.7rem;
+      letter-spacing: -0.035em;
+    }
+
+    .since {
+      flex: 0 0 auto;
+      padding: 5px 9px;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 999px;
+      background: rgba(0, 18, 25, 0.38);
+      color: #d7e8f0;
+      font-size: 0.77rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .provider-subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .card-content {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      padding: 22px 24px 24px;
+    }
+
+    .benefit-title {
+      margin: 0 0 12px;
+      color: #dff7ff;
+      font-size: 0.93rem;
+      font-weight: 850;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .benefits {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .benefits li {
+      position: relative;
+      padding-left: 25px;
+      color: #e7f0f5;
+      font-size: 0.94rem;
+    }
+
+    .benefits li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--green);
+      font-weight: 950;
+    }
+
+    .experience {
+      margin-top: 18px;
+      padding: 15px;
+      border: 1px solid rgba(33, 208, 122, 0.25);
+      border-radius: var(--radius-md);
+      background: rgba(33, 208, 122, 0.075);
+    }
+
+    .experience strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #9ff0c5;
+      font-size: 0.91rem;
+    }
+
+    .experience p {
+      margin: 0;
+      color: #d7e7df;
+      font-size: 0.84rem;
+    }
+
+    .customer-note {
+      margin-top: 17px;
+      padding: 13px 14px;
+      border-left: 3px solid var(--blue-light);
+      border-radius: 0 10px 10px 0;
+      background: rgba(0, 140, 255, 0.075);
+      color: #d4e7f2;
+      font-size: 0.85rem;
+    }
+
+    .card-actions {
+      display: grid;
+      gap: 10px;
+      margin-top: auto;
+      padding-top: 22px;
+    }
+
+    .action-link,
+    .action-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 50px;
+      padding: 13px 16px;
+      border: 0;
+      border-radius: 11px;
+      font-weight: 850;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 160ms ease, filter 160ms ease, box-shadow 160ms ease;
+    }
+
+    .action-link:hover,
+    .action-button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+    }
+
+    .action-link:focus-visible,
+    .action-button:focus-visible,
+    .info-button:focus-visible {
+      outline: 3px solid rgba(77, 184, 255, 0.65);
+      outline-offset: 3px;
+    }
+
+    .provider-link {
+      background: linear-gradient(135deg, var(--blue), #006fd6);
+      color: white;
+      box-shadow: 0 12px 24px rgba(0, 140, 255, 0.23);
+    }
+
+    .featured .provider-link {
+      background: linear-gradient(135deg, var(--green), #11ad61);
+      color: #002b19;
+      box-shadow: 0 12px 24px rgba(33, 208, 122, 0.20);
+    }
+
+    .vpn-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 42px;
+      gap: 9px;
+      align-items: stretch;
+    }
+
+    .vpn-link {
+      border: 1px solid rgba(255, 174, 53, 0.43);
+      background: rgba(255, 174, 53, 0.10);
+      color: #ffe1a9;
+    }
+
+    .info-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      min-height: 50px;
+      padding: 0;
+      border: 1px solid rgba(255, 174, 53, 0.46);
+      border-radius: 11px;
+      background: rgba(255, 174, 53, 0.13);
+      color: #ffd486;
+      font-size: 1.08rem;
+      font-weight: 950;
+      cursor: pointer;
+    }
+
+    .vpn-popover {
+      position: absolute;
+      right: 0;
+      bottom: calc(100% + 10px);
+      z-index: 20;
+      width: min(300px, calc(100vw - 70px));
+      padding: 13px 14px;
+      border: 1px solid rgba(255, 174, 53, 0.35);
+      border-radius: 12px;
+      background: #082f43;
+      color: #f0f6f8;
+      box-shadow: 0 18px 38px rgba(0, 0, 0, 0.38);
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    .vpn-popover[hidden] {
+      display: none;
+    }
+
+    .pending-note {
+      margin: 0;
+      color: #91a9b5;
+      font-size: 0.75rem;
+      text-align: center;
+    }
+
+    .disclosure {
+      margin-top: 34px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: rgba(4, 38, 58, 0.72);
+    }
+
+    .disclosure h2 {
+      margin: 0 0 10px;
+      font-size: 1.1rem;
+    }
+
+    .disclosure p {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 0.87rem;
+    }
+
+    .footer {
+      padding: 28px 8px 0;
+      color: #8fa5b0;
+      font-size: 0.78rem;
+      text-align: center;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      z-index: 100;
+      width: min(440px, calc(100% - 32px));
+      padding: 14px 17px;
+      border: 1px solid rgba(77, 184, 255, 0.38);
+      border-radius: 12px;
+      background: #063149;
+      color: white;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.42);
+      text-align: center;
+      transform: translate(-50%, 18px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .toast.visible {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+
+    @media (max-width: 940px) {
+      .provider-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .provider-card {
+        max-width: 720px;
+        width: 100%;
+        margin: 0 auto;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .page-shell {
+        width: min(100% - 22px, 1180px);
+        padding-top: 18px;
+      }
+
+      .hero {
+        padding: 36px 20px;
+      }
+
+      .quick-info {
+        grid-template-columns: 1fr;
+      }
+
+      .card-header,
+      .card-content {
+        padding-left: 19px;
+        padding-right: 19px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <header class="topbar">
+      <!-- Bereits im GitHub-Projekt vorhandenes BetInsight-Logo -->
+      <img
+        class="brand-logo"
+        src="/profil/logo_betisight.club.png"
+        alt="BetInsight Club"
+        width="470"
+        height="160"
+      >
+    </header>
+
+    <section class="hero" aria-labelledby="page-title">
+      <div class="eyebrow">BetInsight Empfehlungen</div>
+      <h1 id="page-title">Ausgewählte Plattformen für Sportwetten</h1>
+      <p>
+        Zwei internationale Krypto-Wettplattformen und ein Anbieter für Deutschland.
+        Vergleiche die Schwerpunkte und entscheide, welche Plattform zu dir passt.
+      </p>
+
+      <div class="quick-info" aria-label="Wichtige Hinweise">
+        <div>
+          <strong>Ab 18 Jahren</strong>
+          Verantwortungsbewusst spielen.
+        </div>
+        <div>
+          <strong>Wohnsitz beachten</strong>
+          Die jeweilige Länderfreigabe gilt.
+        </div>
+        <div>
+          <strong>Werbelinks</strong>
+          BetInsight kann eine Provision erhalten.
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="anbieter-heading">
+      <div class="section-heading">
+        <h2 id="anbieter-heading">Unsere Auswahl</h2>
+        <p>Aufgeräumt, vergleichbar und mit direktem Zugang zum jeweiligen Anbieter.</p>
+      </div>
+
+      <div class="provider-grid">
+        <!-- BETFURY -->
+        <article class="provider-card featured">
+          <div class="rank-badge">Platz 1</div>
+
+          <div class="card-header">
+            <div class="provider-name-row">
+              <div>
+                <h3>BetFury</h3>
+                <p class="provider-subtitle">Krypto-Sportwetten mit zusätzlichen Krypto-Funktionen</p>
+              </div>
+              <span class="since">seit 2019</span>
+            </div>
+          </div>
+
+          <div class="card-content">
+            <p class="benefit-title">Vorteile im Überblick</p>
+            <ul class="benefits">
+              <li>Internationale Sportwetten und Livewetten</li>
+              <li>Ein- und Auszahlungen mit verschiedenen Kryptowährungen</li>
+              <li>Staking-Möglichkeiten unter anderem mit BTC, USDT, BNB, TRX und ETH</li>
+              <li>Eigener BFG-Token, der bei Aktionen innerhalb der Plattform verdient werden kann</li>
+              <li>Beim Halten beziehungsweise Staken von BFG sind zusätzliche Krypto-Ausschüttungen möglich</li>
+              <li>Free Box und Fury Wheel mit regelmäßigen kostenlosen Krypto-Chancen</li>
+              <li>Die FunFury Battle startet alle 12 Stunden; Belohnungen richten sich nach Rang und Aktion</li>
+              <li>Zugang über Computer und Smartphone</li>
+            </ul>
+
+            <div class="experience">
+              <strong>Unsere bisherigen Erfahrungen seit 2021</strong>
+              <p>
+                Gewinne wurden von uns und weiteren Partnern mehrfach erfolgreich über Kryptowährungen
+                ausgezahlt und auf die jeweiligen Wallets übertragen. Dies ist ein persönlicher Erfahrungswert
+                von BetInsight und unseren Partnern und keine Garantie für zukünftige Auszahlungen,
+                Bearbeitungszeiten oder zusätzliche Kontoprüfungen.
+              </p>
+            </div>
+
+            <div class="customer-note">
+              Wichtig für Kunden: Unterstützte Währungen, Aktionen, Quoten und Bedingungen können sich ändern.
+            </div>
+
+            <div class="card-actions">
+              <a class="action-link provider-link pending-link" href="#" data-link-key="betfury">
+                BetFury Sportwetten öffnen
+              </a>
+
+              <div class="vpn-row">
+                <a class="action-link vpn-link pending-link" href="#" data-link-key="vpn">
+                  Sicherer verbinden – VPN
+                </a>
+                <button class="info-button" type="button" aria-expanded="false" aria-label="Warum ein VPN?">?</button>
+                <div class="vpn-popover" role="tooltip" hidden>
+                  Geschützte Verbindung und mehr Privatsphäre. Weitere Informationen erhältst du im Webinar,
+                  bei deinem Sponsor oder beim Support.
+                </div>
+              </div>
+
+              <p class="pending-note">Die endgültigen Partnerlinks werden später eingesetzt.</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- STAKE -->
+        <article class="provider-card">
+          <div class="card-header">
+            <div class="provider-name-row">
+              <div>
+                <h3>Stake</h3>
+                <p class="provider-subtitle">Internationale Krypto-Sportwetten mit großer Liga-Auswahl</p>
+              </div>
+              <span class="since">seit 2017</span>
+            </div>
+          </div>
+
+          <div class="card-content">
+            <p class="benefit-title">Vorteile im Überblick</p>
+            <ul class="benefits">
+              <li>Große Auswahl an internationalen Fußballligen und Wettbewerben</li>
+              <li>Wetten vor Spielbeginn und während laufender Begegnungen</li>
+              <li>Verschiedene Wettmärkte für Ergebnis, Tore, Handicap und Spieler</li>
+              <li>Weitere Sportarten wie Basketball, Tennis und E-Sport</li>
+              <li>Ein- und Auszahlungen mit unterstützten Kryptowährungen</li>
+              <li>Übersichtlicher Kontobereich für offene und abgeschlossene Wetten</li>
+              <li>VIP- und Treueprogramm für aktive Nutzer</li>
+              <li>Nutzung am Computer und auf mobilen Geräten</li>
+            </ul>
+
+            <div class="customer-note">
+              Wichtig für Kunden: Vor der Nutzung müssen Wohnsitzland, Zahlungsnetzwerk und Wallet-Adresse geprüft werden.
+            </div>
+
+            <div class="card-actions">
+              <a class="action-link provider-link pending-link" href="#" data-link-key="stake">
+                Stake Sportwetten öffnen
+              </a>
+
+              <div class="vpn-row">
+                <a class="action-link vpn-link pending-link" href="#" data-link-key="vpn">
+                  Sicherer verbinden – VPN
+                </a>
+                <button class="info-button" type="button" aria-expanded="false" aria-label="Warum ein VPN?">?</button>
+                <div class="vpn-popover" role="tooltip" hidden>
+                  Geschützte Verbindung und mehr Privatsphäre. Weitere Informationen erhältst du im Webinar,
+                  bei deinem Sponsor oder beim Support.
+                </div>
+              </div>
+
+              <p class="pending-note">Die endgültigen Partnerlinks werden später eingesetzt.</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- TIPICO -->
+        <article class="provider-card">
+          <div class="card-header">
+            <div class="provider-name-row">
+              <div>
+                <h3>Tipico</h3>
+                <p class="provider-subtitle">Sportwetten und Liga-Wetten für den deutschen Markt</p>
+              </div>
+              <span class="since">seit 2004</span>
+            </div>
+          </div>
+
+          <div class="card-content">
+            <p class="benefit-title">Vorteile im Überblick</p>
+            <ul class="benefits">
+              <li>Sportwettenangebot für Nutzer in Deutschland</li>
+              <li>Bundesliga, 2. Bundesliga, 3. Liga und DFB-Pokal</li>
+              <li>Champions League, Europa League und internationale Ligen</li>
+              <li>Wetten vor Spielbeginn und während laufender Begegnungen</li>
+              <li>Ergebnis-, Tor-, Torschützen- und Handicapwetten</li>
+              <li>Weitere Sportarten wie Tennis, Basketball, Handball und Darts</li>
+              <li>Deutschsprachige Oberfläche und klarer Kontobereich</li>
+              <li>Gesetzliche Schutzfunktionen und Einzahlungslimits</li>
+            </ul>
+
+            <div class="customer-note">
+              Wichtig für Kunden: Für Deutschland gelten die gesetzlichen Vorgaben und Schutzmaßnahmen des Anbieters.
+            </div>
+
+            <div class="card-actions">
+              <a class="action-link provider-link pending-link" href="#" data-link-key="tipico">
+                Tipico Liga-Wetten öffnen
+              </a>
+
+              <div class="vpn-row">
+                <a class="action-link vpn-link pending-link" href="#" data-link-key="vpn">
+                  Sicherer verbinden – VPN
+                </a>
+                <button class="info-button" type="button" aria-expanded="false" aria-label="Warum ein VPN?">?</button>
+                <div class="vpn-popover" role="tooltip" hidden>
+                  Geschützte Verbindung und mehr Privatsphäre. Weitere Informationen erhältst du im Webinar,
+                  bei deinem Sponsor oder beim Support.
+                </div>
+              </div>
+
+              <p class="pending-note">Die endgültigen Partnerlinks werden später eingesetzt.</p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <aside class="disclosure" aria-labelledby="hinweis-heading">
+      <h2 id="hinweis-heading">Wichtiger Hinweis</h2>
+      <p>
+        Glücksspiel ist ausschließlich für Personen ab 18 Jahren bestimmt und kann abhängig machen.
+        Gewinne sind nicht garantiert. Setze nur Geld ein, dessen Verlust du verkraften kannst.
+      </p>
+      <p>
+        BetInsight ist nicht Betreiber der vorgestellten Plattformen. Bedingungen, Quoten, Aktionen,
+        Kryptowährungen, Länderfreigaben und Bearbeitungszeiten werden vom jeweiligen Anbieter festgelegt.
+      </p>
+      <p>
+        Die Anbieter- und VPN-Schaltflächen können Werbelinks enthalten. BetInsight kann bei einer
+        Registrierung oder Nutzung eine Provision erhalten, ohne dass sich dadurch der Preis für dich erhöht.
+      </p>
+    </aside>
+
+    <footer class="footer">
+      © <span id="currentYear"></span> BetInsight Club · Verantwortungsbewusst entscheiden
+    </footer>
+  </main>
+
+  <div class="toast" id="linkToast" role="status" aria-live="polite">
+    Dieser Partnerlink wird noch ergänzt.
+  </div>
+
+  <script>
+    "use strict";
+
+    /*
+      Später werden hier die endgültigen Partnerlinks eingesetzt.
+      Bitte bei einer Änderung weiterhin die vollständige Datei ersetzen.
+    */
+    const PARTNER_LINKS = Object.freeze({
+      betfury: "",
+      stake: "",
+      tipico: "",
+      vpn: ""
+    });
+
+    const toast = document.getElementById("linkToast");
+    let toastTimer;
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("visible");
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => {
+        toast.classList.remove("visible");
+      }, 2600);
+    }
+
+    document.querySelectorAll("[data-link-key]").forEach((link) => {
+      const key = link.dataset.linkKey;
+      const finalUrl = PARTNER_LINKS[key];
+
+      if (finalUrl) {
+        link.href = finalUrl;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer sponsored";
+        link.classList.remove("pending-link");
+        return;
+      }
+
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        showToast(key === "vpn" ? "Der VPN-Partnerlink wird noch ergänzt." : "Dieser Anbieterlink wird noch ergänzt.");
+      });
+    });
+
+    document.querySelectorAll(".info-button").forEach((button) => {
+      const popover = button.nextElementSibling;
+
+      button.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const isOpen = button.getAttribute("aria-expanded") === "true";
+
+        document.querySelectorAll(".info-button").forEach((otherButton) => {
+          otherButton.setAttribute("aria-expanded", "false");
+          otherButton.nextElementSibling.hidden = true;
+        });
+
+        if (!isOpen) {
+          button.setAttribute("aria-expanded", "true");
+          popover.hidden = false;
+        }
+      });
+    });
+
+    document.addEventListener("click", () => {
+      document.querySelectorAll(".info-button").forEach((button) => {
+        button.setAttribute("aria-expanded", "false");
+        button.nextElementSibling.hidden = true;
+      });
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        document.querySelectorAll(".info-button").forEach((button) => {
+          button.setAttribute("aria-expanded", "false");
+          button.nextElementSibling.hidden = true;
+        });
+      }
+    });
+
+    document.getElementById("currentYear").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
