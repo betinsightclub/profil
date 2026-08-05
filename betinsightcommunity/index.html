@@ -1,5 +1,5 @@
-
 <!doctype html>
+<!-- BetInsight Landingpage v2.0 · Referral-Persistenz · Start-Units · Netzwerk -->
 <html lang="de">
 <head>
   <meta charset="utf-8">
@@ -116,6 +116,8 @@
       align-items: center;
       gap: 10px;
     }
+
+    .mobile-menu { display: none; }
 
     .menu-button {
       display: none;
@@ -441,10 +443,73 @@
       box-shadow: 0 24px 70px rgba(0,0,0,.44), 0 0 42px rgba(0,217,155,.06);
     }
 
+    .calculator-section .split {
+      grid-template-columns: minmax(0, 1.08fr) minmax(360px, .92fr);
+    }
+
+    .calculator-preview {
+      width: 100%;
+      max-width: 560px;
+      justify-self: end;
+    }
+
     .calculator-preview img {
       width: 100%;
+      height: auto;
+      aspect-ratio: 4 / 3;
+      object-fit: contain;
+      border-radius: 15px;
+      background: #02131c;
+    }
+
+    .network-section {
+      background:
+        radial-gradient(circle at 18% 32%, rgba(0,217,155,.11), transparent 25rem),
+        linear-gradient(180deg, #031720, #041b26);
+      border-block: 1px solid rgba(255,255,255,.06);
+    }
+
+    .network-visual {
+      overflow: hidden;
+      padding: 12px;
+      border: 1px solid rgba(0,217,155,.28);
+      border-radius: 24px;
+      background: rgba(2,15,22,.72);
+      box-shadow: var(--shadow);
+    }
+
+    .network-visual img {
+      width: 100%;
+      height: auto;
       border-radius: 15px;
     }
+
+    .start-units-box {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      align-items: center;
+      margin: 24px 0;
+      padding: 18px;
+      border: 1px solid rgba(0,217,155,.30);
+      border-radius: 16px;
+      background: rgba(0,217,155,.06);
+    }
+
+    .start-units-number {
+      min-width: 72px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      color: #00251a;
+      background: linear-gradient(135deg, #93ff65, #20e7a8);
+      font-size: 30px;
+      font-weight: 950;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .start-units-box strong { display: block; margin-bottom: 2px; }
+    .start-units-box span { color: var(--muted); font-size: 14px; }
 
     .info-box {
       margin: 24px 0;
@@ -511,13 +576,28 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 440px;
+      min-height: 360px;
     }
 
     .package-visual img {
-      max-height: 460px;
-      width: auto;
+      width: min(100%, 360px);
+      max-height: 330px;
+      object-fit: contain;
       filter: drop-shadow(0 20px 30px rgba(0,0,0,.38));
+    }
+
+    .package-visual.missing-image::after {
+      content: "Paketbild konnte nicht geladen werden.";
+      display: grid;
+      place-items: center;
+      min-height: 240px;
+      width: min(100%, 420px);
+      padding: 24px;
+      border: 1px dashed rgba(126,211,255,.36);
+      border-radius: 20px;
+      color: var(--muted);
+      background: rgba(255,255,255,.025);
+      text-align: center;
     }
 
     .bullet-list {
@@ -723,10 +803,10 @@
       .split { grid-template-columns: 1fr; }
       .split .media-card { order: -1; }
       .media-card, .media-card img { min-height: 300px; }
-      .calculator-section .split .calculator-preview { order: -1; }
+      .calculator-section .split .calculator-preview { order: -1; justify-self: center; max-width: 620px; }
       .package-area { grid-template-columns: 1fr; padding: 24px; }
-      .package-visual { min-height: 340px; }
-      .package-visual img { max-height: 390px; }
+      .package-visual { min-height: 300px; }
+      .package-visual img { width: min(100%, 300px); max-height: 280px; }
       .footer-grid { grid-template-columns: 1fr; gap: 28px; }
       .footer-bottom { flex-direction: column; }
     }
@@ -763,12 +843,13 @@
           <a href="#system">So funktioniert es</a>
           <a href="#rechner">Kundenrechner</a>
           <a href="#vorteile">Vorteile</a>
+          <a href="#netzwerk">Partnerprogramm</a>
           <a href="#vertrauen">Vertrauen</a>
         </nav>
 
         <div class="nav-actions">
           <a class="btn btn-secondary" href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726">Anmelden</a>
-          <a class="btn btn-primary" href="https://betinsight.systeme.io/registrierung?ref=POOL">Kostenlos registrieren</a>
+          <a class="btn btn-primary" href="https://betinsight.systeme.io/registrierung?ref=POOL" data-registration-link>Kostenlos registrieren</a>
           <button class="menu-button" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Menü öffnen">☰</button>
         </div>
       </div>
@@ -777,9 +858,10 @@
         <a href="#system">So funktioniert es</a>
         <a href="#rechner">Kundenrechner</a>
         <a href="#vorteile">Vorteile</a>
+        <a href="#netzwerk">Partnerprogramm</a>
         <a href="#vertrauen">Vertrauen</a>
         <a href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726">Bereits Mitglied? Anmelden</a>
-        <a href="https://betinsight.systeme.io/registrierung?ref=POOL">Jetzt kostenlos registrieren</a>
+        <a href="https://betinsight.systeme.io/registrierung?ref=POOL" data-registration-link>Jetzt kostenlos registrieren</a>
       </nav>
     </div>
   </header>
@@ -794,11 +876,11 @@
             BetInsight ist eine Mitgliederplattform für strukturierte Sportanalysen, nachvollziehbare Unit-Gewichtungen und kontrolliertes Bankroll-Management. Du entscheidest selbst, welchen Tipp du freischaltest und wie du ihn umsetzt.
           </p>
           <div class="hero-actions">
-            <a class="btn btn-primary" href="https://betinsight.systeme.io/registrierung?ref=POOL">Jetzt kostenlosen Zugang erstellen</a>
-            <a class="btn btn-secondary" href="https://betinsightclub.github.io/profil/rechner/">Beispiel kostenlos berechnen</a>
+            <a class="btn btn-primary" href="https://betinsight.systeme.io/registrierung?ref=POOL" data-registration-link>Jetzt kostenlos testen</a>
+            <a class="btn btn-secondary" href="https://betinsightclub.github.io/profil/rechner/" data-preserve-ref>Beispiel kostenlos berechnen</a>
           </div>
           <div class="hero-note">
-            <span>Erste Units zum Start</span>
+            <span>5 kostenlose Start-Units</span>
             <span>Keine Registrierung für den Rechner</span>
             <span>Keine Wetten oder Kundengelder bei BetInsight</span>
           </div>
@@ -811,7 +893,7 @@
         <div class="trust-item"><strong>Klare Tipps</strong><span>Analyse statt Bauchgefühl</span></div>
         <div class="trust-item"><strong>Units-System</strong><span>Jeder Tipp mit Gewichtung</span></div>
         <div class="trust-item"><strong>Volle Kontrolle</strong><span>Du entscheidest selbst</span></div>
-        <div class="trust-item"><strong>Mobil nutzbar</strong><span>Für Smartphone und Laptop</span></div>
+        <div class="trust-item"><strong>Kostenlos starten</strong><span>5 Start-Units nach Registrierung</span></div>
       </div>
     </div>
 
@@ -854,6 +936,11 @@
           <h2 id="system-title">Ein verständlicher Ablauf vom Tipp bis zur eigenen Entscheidung.</h2>
           <p>Tipps werden von unserem Team vorbereitet, mit Units gewichtet und im geschützten Mitgliederbereich veröffentlicht.</p>
 
+          <div class="start-units-box">
+            <div class="start-units-number">5</div>
+            <div><strong>Kostenlose Start-Units</strong><span>Nach der Registrierung kannst du den Mitgliederbereich und die Tippfreischaltung ohne vorherigen Paketkauf kennenlernen.</span></div>
+          </div>
+
           <div class="steps">
             <div class="step">
               <div class="step-number">1</div>
@@ -889,10 +976,10 @@
           <div class="info-box">
             Die auswählbaren Werte von 7 oder 8 richtigen Tipps aus 10 orientieren sich an unserer dokumentierten internen Auswertung von Martins Tipps aus den vergangenen fünf Jahren. Vergangene Ergebnisse sind keine Garantie für zukünftige Treffer oder Gewinne.
           </div>
-          <a class="btn btn-green" href="https://betinsightclub.github.io/profil/rechner/">Jetzt kostenlos berechnen</a>
+          <a class="btn btn-green" href="https://betinsightclub.github.io/profil/rechner/" data-preserve-ref>Jetzt kostenlos berechnen</a>
           <div class="microcopy">Keine Registrierung erforderlich · unverbindliche Simulation</div>
         </div>
-        <a class="calculator-preview" href="https://betinsightclub.github.io/profil/rechner/" aria-label="BetInsight Kundenrechner öffnen">
+        <a class="calculator-preview" href="https://betinsightclub.github.io/profil/rechner/" data-preserve-ref aria-label="BetInsight Kundenrechner öffnen">
           <img src="assets/kundenrechner-vorschau.png" alt="Vorschau des BetInsight Kundenrechners mit mathematischer Beispielrechnung" loading="lazy" width="1448" height="1086">
         </a>
       </div>
@@ -944,21 +1031,41 @@
       </div>
     </section>
 
+    <section class="network-section" id="netzwerk" aria-labelledby="network-title">
+      <div class="container split">
+        <figure class="network-visual">
+          <img src="assets/netzwerk-3-ebenen.webp" alt="Darstellung des BetInsight Partnernetzwerks über drei Ebenen" loading="lazy" width="1400" height="933">
+        </figure>
+        <div class="content-copy">
+          <div class="section-label">BetInsight Partnerprogramm</div>
+          <h2 id="network-title">Teile deinen persönlichen Link und baue dir ein kleines Netzwerk auf.</h2>
+          <p>Jedes Mitglied erhält einen eigenen öffentlichen Empfehlungslink. Registriert sich darüber ein neuer Nutzer, bleibt die Zuordnung zum werbenden Partner erhalten.</p>
+          <ul class="bullet-list">
+            <li>Persönlicher Landingpage-Link mit deinem Referral-Code</li>
+            <li>Direkter Registrierungslink für eine schnelle Anmeldung</li>
+            <li>Übersichtliche Struktur bis zur aktuell vorgesehenen dritten Ebene</li>
+            <li>Referral-Units nur nach den im Mitgliederbereich festgelegten Regeln</li>
+          </ul>
+          <a class="btn btn-secondary" href="https://betinsight.systeme.io/registrierung?ref=POOL" data-registration-link>Mit 5 Start-Units registrieren</a>
+        </div>
+      </div>
+    </section>
+
     <section aria-labelledby="packages-title">
       <div class="container package-area">
         <div class="package-visual">
-          <img src="assets/paket-elite-365-units.png" alt="BetInsight Elite-Paket mit 365 Units und Bonus-Units" loading="lazy" width="1000" height="1500">
+          <img src="assets/unit-pakete-aktuell.png" alt="BetInsight PRO Paket mit 199 Units und 41 Bonus-Units" loading="lazy" width="503" height="720" onerror="this.hidden=true; this.parentElement.classList.add('missing-image');">
         </div>
         <div class="content-copy">
           <div class="section-label">Unit-Pakete</div>
           <h2 id="packages-title">Wähle nur den Umfang, der zu deiner Nutzung passt.</h2>
-          <p>Units dienen ausschließlich innerhalb von BetInsight zur Freischaltung digitaler Inhalte. Verschiedene Pakete ermöglichen einen passenden Einstieg oder einen höheren langfristigen Bedarf.</p>
+          <p>Units dienen ausschließlich innerhalb von BetInsight zur Freischaltung digitaler Inhalte. Die aktuellen Pakete ermöglichen einen passenden Einstieg oder einen höheren langfristigen Bedarf. Preise und enthaltene Units werden auf der Kaufseite aktuell angezeigt.</p>
           <ul class="bullet-list">
             <li>Klare Paketgrößen ohne automatische Wetteinsätze</li>
             <li>Units werden deinem registrierten BetInsight-Konto gutgeschrieben</li>
             <li>Du entscheidest bei jedem Tipp erneut über die Freischaltung</li>
           </ul>
-          <a class="btn btn-primary" href="https://betinsight.systeme.io/registrierung?ref=POOL">Kostenlos registrieren und starten</a>
+          <a class="btn btn-primary" href="https://betinsight.systeme.io/registrierung?ref=POOL" data-registration-link>Mit 5 Start-Units kostenlos testen</a>
         </div>
       </div>
     </section>
@@ -980,9 +1087,9 @@
       <div class="container cta-box">
         <div class="section-label">Bereit für einen klareren Ablauf?</div>
         <h2 id="cta-title">Erstelle deinen kostenlosen BetInsight-Zugang.</h2>
-        <p>Registriere dich, erhalte deine ersten Units und lerne den Mitgliederbereich in deinem eigenen Tempo kennen.</p>
+        <p>Registriere dich, erhalte 5 kostenlose Start-Units und lerne den Mitgliederbereich ohne vorherigen Paketkauf kennen.</p>
         <div class="cta-actions">
-          <a class="btn btn-primary" href="https://betinsight.systeme.io/registrierung?ref=POOL">Jetzt kostenlosen Zugang erstellen</a>
+          <a class="btn btn-primary" href="https://betinsight.systeme.io/registrierung?ref=POOL" data-registration-link>Jetzt kostenlosen Zugang erstellen</a>
           <a class="btn btn-secondary" href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726">Bereits Mitglied? Anmelden</a>
         </div>
       </div>
@@ -1001,7 +1108,8 @@
           <div class="footer-links">
             <a href="#system">So funktioniert es</a>
             <a href="#rechner">Kundenrechner</a>
-            <a href="https://betinsight.systeme.io/registrierung?ref=POOL">Registrierung</a>
+            <a href="#netzwerk">Partnerprogramm</a>
+            <a href="https://betinsight.systeme.io/registrierung?ref=POOL" data-registration-link>Registrierung</a>
             <a href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726">Anmeldung</a>
           </div>
         </div>
@@ -1027,23 +1135,63 @@
   </footer>
 
   <script>
+    const REF_STORAGE_KEY = 'betinsight_ref_code';
+    const DEFAULT_REF_CODE = 'POOL';
+
+    function cleanReferralCode(value) {
+      if (!value) return '';
+      const cleaned = String(value).trim();
+      return /^[A-Za-z0-9_-]{2,50}$/.test(cleaned) ? cleaned : '';
+    }
+
+    function getActiveReferralCode() {
+      const params = new URLSearchParams(window.location.search);
+      const fromUrl = cleanReferralCode(params.get('ref') || params.get('ref_code'));
+
+      if (fromUrl) {
+        localStorage.setItem(REF_STORAGE_KEY, fromUrl);
+        document.cookie = `${REF_STORAGE_KEY}=${encodeURIComponent(fromUrl)}; Max-Age=15552000; Path=/; SameSite=Lax; Secure`;
+        return fromUrl;
+      }
+
+      return cleanReferralCode(localStorage.getItem(REF_STORAGE_KEY)) || DEFAULT_REF_CODE;
+    }
+
+    const activeReferralCode = getActiveReferralCode();
+
+    document.querySelectorAll('[data-registration-link]').forEach(link => {
+      const target = new URL(link.href);
+      target.searchParams.set('ref', activeReferralCode);
+      link.href = target.toString();
+    });
+
+    document.querySelectorAll('[data-preserve-ref]').forEach(link => {
+      const target = new URL(link.href);
+      if (activeReferralCode !== DEFAULT_REF_CODE) {
+        target.searchParams.set('ref', activeReferralCode);
+      }
+      link.href = target.toString();
+    });
+
     const menuButton = document.querySelector('.menu-button');
     const mobileMenu = document.getElementById('mobileMenu');
 
-    menuButton.addEventListener('click', () => {
-      const isOpen = mobileMenu.classList.toggle('open');
-      menuButton.setAttribute('aria-expanded', String(isOpen));
-      menuButton.textContent = isOpen ? '×' : '☰';
-      menuButton.setAttribute('aria-label', isOpen ? 'Menü schließen' : 'Menü öffnen');
-    });
-
-    mobileMenu.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
-        mobileMenu.classList.remove('open');
-        menuButton.setAttribute('aria-expanded', 'false');
-        menuButton.textContent = '☰';
+    if (menuButton && mobileMenu) {
+      menuButton.addEventListener('click', () => {
+        const isOpen = mobileMenu.classList.toggle('open');
+        menuButton.setAttribute('aria-expanded', String(isOpen));
+        menuButton.textContent = isOpen ? '×' : '☰';
+        menuButton.setAttribute('aria-label', isOpen ? 'Menü schließen' : 'Menü öffnen');
       });
-    });
+
+      mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          mobileMenu.classList.remove('open');
+          menuButton.setAttribute('aria-expanded', 'false');
+          menuButton.textContent = '☰';
+        });
+      });
+    }
 
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
