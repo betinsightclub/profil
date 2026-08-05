@@ -1,0 +1,1051 @@
+
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#041823">
+  <meta name="description" content="BetInsight ist eine Mitgliederplattform für strukturierte Sportanalysen, klare Unit-Gewichtungen und kontrolliertes Bankroll-Management.">
+  <title>BetInsight.club – Sportanalysen mit System</title>
+  <link rel="icon" type="image/x-icon" href="https://betinsightclub.github.io/profil/favicon.ico">
+  <link rel="preload" as="image" href="assets/hero-fussball-dunkel.png">
+  <style>
+    :root {
+      --bg: #031720;
+      --bg-deep: #020f16;
+      --panel: #072432;
+      --panel-2: #0a2b3b;
+      --line: rgba(126, 211, 255, .18);
+      --line-strong: rgba(0, 225, 164, .42);
+      --text: #f5fbff;
+      --muted: #aac0cc;
+      --blue: #1687ff;
+      --blue-2: #0a69d8;
+      --green: #00d99b;
+      --green-dark: #008e69;
+      --red: #ff5f65;
+      --gold: #f7c950;
+      --shadow: 0 22px 70px rgba(0, 0, 0, .34);
+      --radius: 24px;
+      --max: 1200px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 12%, rgba(0, 126, 191, .12), transparent 32rem),
+        radial-gradient(circle at 88% 52%, rgba(0, 217, 155, .08), transparent 28rem),
+        var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+      text-rendering: optimizeLegibility;
+    }
+
+    img { display: block; max-width: 100%; }
+    a { color: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+
+    .container {
+      width: min(calc(100% - 36px), var(--max));
+      margin-inline: auto;
+    }
+
+    .skip-link {
+      position: fixed;
+      left: 16px;
+      top: -80px;
+      z-index: 9999;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: white;
+      color: #001b29;
+      font-weight: 800;
+    }
+    .skip-link:focus { top: 16px; }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(2, 15, 22, .84);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(18px);
+    }
+
+    .nav-wrap {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      flex: 0 0 auto;
+    }
+
+    .brand img {
+      width: 198px;
+      height: auto;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-left: auto;
+    }
+
+    .nav-links a {
+      color: #d8e9f1;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 750;
+      transition: color .2s ease;
+    }
+    .nav-links a:hover { color: white; }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .menu-button {
+      display: none;
+      width: 46px;
+      height: 46px;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      color: white;
+      background: rgba(255,255,255,.04);
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 50px;
+      padding: 13px 21px;
+      border: 1px solid transparent;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 850;
+      line-height: 1.15;
+      text-align: center;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue), var(--blue-2));
+      box-shadow: 0 14px 30px rgba(22, 135, 255, .28);
+    }
+    .btn-primary:hover { box-shadow: 0 18px 38px rgba(22, 135, 255, .4); }
+
+    .btn-secondary {
+      color: white;
+      background: rgba(255,255,255,.055);
+      border-color: rgba(255,255,255,.16);
+    }
+    .btn-secondary:hover { border-color: rgba(126,211,255,.55); }
+
+    .btn-green {
+      color: #00251a;
+      background: linear-gradient(135deg, #22efb2, #00bf86);
+      box-shadow: 0 14px 30px rgba(0, 217, 155, .22);
+    }
+
+    .hero {
+      position: relative;
+      min-height: 730px;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      isolation: isolate;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -3;
+      background-image: url("assets/hero-fussball-dunkel.png");
+      background-size: cover;
+      background-position: center 58%;
+      transform: scale(1.01);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background:
+        linear-gradient(90deg, rgba(2,15,22,.97) 0%, rgba(2,15,22,.84) 43%, rgba(2,15,22,.40) 72%, rgba(2,15,22,.58) 100%),
+        linear-gradient(0deg, var(--bg) 0%, transparent 34%);
+    }
+
+    .hero-inner {
+      min-height: 730px;
+      display: grid;
+      grid-template-columns: minmax(0, 760px) 1fr;
+      align-items: center;
+      padding: 82px 0 124px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 18px;
+      padding: 7px 12px;
+      border: 1px solid rgba(0, 217, 155, .32);
+      border-radius: 999px;
+      color: #aef9dc;
+      background: rgba(0, 217, 155, .09);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 16px var(--green);
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      max-width: 760px;
+      margin-bottom: 22px;
+      font-size: clamp(42px, 6vw, 76px);
+      line-height: 1.03;
+      letter-spacing: -.045em;
+      text-wrap: balance;
+    }
+
+    .accent { color: #69b8ff; }
+
+    .hero-copy {
+      max-width: 690px;
+      margin-bottom: 28px;
+      color: #d1e0e8;
+      font-size: clamp(18px, 2vw, 22px);
+      line-height: 1.65;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .hero-note {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 11px 20px;
+      color: #b8cbd5;
+      font-size: 14px;
+    }
+    .hero-note span::before {
+      content: "✓";
+      margin-right: 7px;
+      color: var(--green);
+      font-weight: 900;
+    }
+
+    .trust-strip {
+      position: relative;
+      z-index: 3;
+      margin-top: -74px;
+    }
+
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(6, 33, 45, .92);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .trust-item {
+      padding: 22px 20px;
+      text-align: center;
+      border-right: 1px solid var(--line);
+    }
+    .trust-item:last-child { border-right: 0; }
+    .trust-item strong { display: block; font-size: 18px; }
+    .trust-item span { color: var(--muted); font-size: 13px; }
+
+    section { padding: 104px 0; }
+
+    .section-head {
+      max-width: 760px;
+      margin: 0 auto 52px;
+      text-align: center;
+    }
+
+    .section-label {
+      margin-bottom: 10px;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+
+    .section-head h2,
+    .content-copy h2 {
+      margin-bottom: 16px;
+      font-size: clamp(32px, 4.4vw, 52px);
+      line-height: 1.1;
+      letter-spacing: -.03em;
+      text-wrap: balance;
+    }
+
+    .section-head p,
+    .content-copy > p {
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(10,43,59,.96), rgba(6,31,43,.96));
+      box-shadow: 0 18px 45px rgba(0,0,0,.16);
+    }
+
+    .card-icon {
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 18px;
+      border-radius: 14px;
+      color: white;
+      background: rgba(255,95,101,.14);
+      border: 1px solid rgba(255,95,101,.24);
+      font-size: 22px;
+    }
+
+    .card h3 { margin-bottom: 8px; font-size: 19px; }
+    .card p { margin: 0; color: var(--muted); font-size: 15px; }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 70px;
+      align-items: center;
+    }
+
+    .media-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 450px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .media-card img {
+      width: 100%;
+      height: 100%;
+      min-height: 450px;
+      object-fit: cover;
+    }
+
+    .media-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(180deg, transparent 54%, rgba(2,15,22,.56));
+    }
+
+    .steps {
+      display: grid;
+      gap: 15px;
+      margin: 30px 0 0;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 15px;
+      align-items: start;
+      padding: 19px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: rgba(255,255,255,.025);
+    }
+
+    .step-number {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 15px;
+      color: #00291e;
+      background: linear-gradient(135deg, #27efb5, #00bd85);
+      font-weight: 950;
+    }
+
+    .step h3 { margin-bottom: 3px; font-size: 18px; }
+    .step p { margin: 0; color: var(--muted); font-size: 15px; }
+
+    .calculator-section {
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 83% 18%, rgba(0,217,155,.13), transparent 25rem),
+        linear-gradient(180deg, #041b26, #031720);
+      border-block: 1px solid rgba(255,255,255,.06);
+    }
+
+    .calculator-preview {
+      padding: 14px;
+      border: 1px solid rgba(0,217,155,.32);
+      border-radius: 24px;
+      background: rgba(2,15,22,.82);
+      box-shadow: 0 24px 70px rgba(0,0,0,.44), 0 0 42px rgba(0,217,155,.06);
+    }
+
+    .calculator-preview img {
+      width: 100%;
+      border-radius: 15px;
+    }
+
+    .info-box {
+      margin: 24px 0;
+      padding: 18px 19px;
+      border: 1px solid rgba(0,217,155,.30);
+      border-left: 4px solid var(--green);
+      border-radius: 14px;
+      color: #cbe2dc;
+      background: rgba(0,217,155,.055);
+      font-size: 14px;
+    }
+
+    .microcopy {
+      margin-top: 10px;
+      color: #91aab7;
+      font-size: 12px;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .feature-card {
+      min-height: 250px;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(9,43,59,.95), rgba(5,27,38,.95));
+    }
+
+    .feature-card .tag {
+      display: inline-block;
+      margin-bottom: 34px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      color: #bcebdc;
+      background: rgba(0,217,155,.09);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .feature-card h3 { font-size: 23px; line-height: 1.25; }
+    .feature-card p { margin-bottom: 0; color: var(--muted); }
+
+    .package-area {
+      display: grid;
+      grid-template-columns: .82fr 1.18fr;
+      gap: 60px;
+      align-items: center;
+      padding: 40px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at 15% 28%, rgba(139, 85, 255, .17), transparent 22rem),
+        linear-gradient(135deg, #071f2b, #03151e);
+      box-shadow: var(--shadow);
+    }
+
+    .package-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 440px;
+    }
+
+    .package-visual img {
+      max-height: 460px;
+      width: auto;
+      filter: drop-shadow(0 20px 30px rgba(0,0,0,.38));
+    }
+
+    .bullet-list {
+      display: grid;
+      gap: 12px;
+      margin: 26px 0 30px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .bullet-list li {
+      display: flex;
+      gap: 10px;
+      color: #d6e6ed;
+    }
+    .bullet-list li::before {
+      content: "✓";
+      flex: 0 0 auto;
+      color: var(--green);
+      font-weight: 900;
+    }
+
+    .trust-section {
+      position: relative;
+      min-height: 610px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .trust-section::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background: url("assets/stadion-community.webp") center/cover no-repeat;
+    }
+    .trust-section::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(90deg, rgba(2,15,22,.97), rgba(2,15,22,.73) 62%, rgba(2,15,22,.54));
+    }
+
+    .trust-copy {
+      max-width: 720px;
+      padding: 80px 0;
+    }
+
+    .trust-copy h2 {
+      margin-bottom: 18px;
+      font-size: clamp(36px, 5vw, 58px);
+      line-height: 1.08;
+      letter-spacing: -.035em;
+    }
+
+    .trust-copy p { color: #d0e0e8; font-size: 18px; }
+
+    .disclaimer {
+      padding: 25px;
+      border: 1px solid rgba(247,201,80,.3);
+      border-radius: 18px;
+      color: #dfd6b8;
+      background: rgba(247,201,80,.07);
+      font-size: 14px;
+    }
+
+    .final-cta {
+      text-align: center;
+      background: linear-gradient(180deg, var(--bg), var(--bg-deep));
+    }
+
+    .cta-box {
+      padding: 58px 34px;
+      border: 1px solid rgba(22,135,255,.3);
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(22,135,255,.16), transparent 28rem),
+        linear-gradient(180deg, rgba(8,39,54,.96), rgba(3,23,32,.96));
+      box-shadow: var(--shadow);
+    }
+
+    .cta-box h2 {
+      max-width: 800px;
+      margin: 0 auto 16px;
+      font-size: clamp(34px, 4.8vw, 56px);
+      line-height: 1.1;
+      letter-spacing: -.035em;
+    }
+
+    .cta-box p {
+      max-width: 680px;
+      margin: 0 auto 28px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .cta-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .site-footer {
+      padding: 50px 0 26px;
+      border-top: 1px solid rgba(255,255,255,.07);
+      background: #020f16;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.25fr .75fr .75fr;
+      gap: 48px;
+      padding-bottom: 34px;
+    }
+
+    .footer-logo { width: 210px; margin-bottom: 16px; }
+    .footer-copy { max-width: 440px; color: #91a9b5; font-size: 14px; }
+    .footer-title { margin-bottom: 12px; font-size: 14px; text-transform: uppercase; letter-spacing: .11em; }
+    .footer-links { display: grid; gap: 9px; }
+    .footer-links a { color: #a8bcc6; text-decoration: none; font-size: 14px; }
+    .footer-links a:hover { color: white; }
+
+    .imprint {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      color: #9db1bb;
+      background: rgba(255,255,255,.025);
+      font-size: 13px;
+    }
+    .imprint strong { color: white; }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      padding-top: 22px;
+      border-top: 1px solid rgba(255,255,255,.07);
+      color: #718a96;
+      font-size: 12px;
+    }
+
+    @media (max-width: 1050px) {
+      .nav-links { display: none; }
+      .card-grid { grid-template-columns: repeat(2, 1fr); }
+      .split { gap: 42px; }
+      .package-area { gap: 30px; }
+    }
+
+    @media (max-width: 780px) {
+      .container { width: min(calc(100% - 24px), var(--max)); }
+      .site-header { position: sticky; }
+      .nav-wrap { min-height: 68px; }
+      .brand img { width: 164px; }
+      .nav-actions .btn-secondary { display: none; }
+      .nav-actions .btn-primary { display: none; }
+      .menu-button { display: inline-flex; }
+
+      .mobile-menu {
+        display: none;
+        padding: 0 0 16px;
+      }
+      .mobile-menu.open { display: grid; gap: 8px; }
+      .mobile-menu a {
+        padding: 13px 15px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        color: #d9e7ee;
+        background: rgba(255,255,255,.035);
+        text-decoration: none;
+        font-weight: 750;
+      }
+
+      .hero, .hero-inner { min-height: 700px; }
+      .hero::before { background-position: 58% 64%; }
+      .hero::after {
+        background:
+          linear-gradient(180deg, rgba(2,15,22,.74), rgba(2,15,22,.90) 45%, rgba(2,15,22,.99) 100%),
+          linear-gradient(90deg, rgba(2,15,22,.52), rgba(2,15,22,.25));
+      }
+      .hero-inner {
+        grid-template-columns: 1fr;
+        align-items: end;
+        padding: 92px 0 118px;
+      }
+      h1 { font-size: clamp(39px, 12vw, 58px); }
+      .hero-copy { font-size: 18px; }
+      .hero-actions { display: grid; }
+      .hero-actions .btn { width: 100%; }
+      .hero-note { display: grid; gap: 8px; }
+
+      .trust-grid { grid-template-columns: repeat(2, 1fr); }
+      .trust-item:nth-child(2) { border-right: 0; }
+      .trust-item:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+
+      section { padding: 78px 0; }
+      .section-head { margin-bottom: 38px; }
+      .card-grid, .feature-grid { grid-template-columns: 1fr; }
+      .split { grid-template-columns: 1fr; }
+      .split .media-card { order: -1; }
+      .media-card, .media-card img { min-height: 300px; }
+      .calculator-section .split .calculator-preview { order: -1; }
+      .package-area { grid-template-columns: 1fr; padding: 24px; }
+      .package-visual { min-height: 340px; }
+      .package-visual img { max-height: 390px; }
+      .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+      .footer-bottom { flex-direction: column; }
+    }
+
+    @media (max-width: 480px) {
+      .trust-item { padding: 17px 10px; }
+      .trust-item strong { font-size: 15px; }
+      .trust-item span { font-size: 11px; }
+      .card { padding: 22px; }
+      .step { grid-template-columns: 42px 1fr; padding: 16px; }
+      .step-number { width: 42px; height: 42px; }
+      .cta-box { padding: 42px 20px; }
+      .cta-actions { display: grid; }
+      .cta-actions .btn { width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+
+  <header class="site-header">
+    <div class="container">
+      <div class="nav-wrap">
+        <a class="brand" href="#top" aria-label="BetInsight Startseite">
+          <img src="assets/betinsight-logo.png" alt="BetInsight.club">
+        </a>
+
+        <nav class="nav-links" aria-label="Hauptnavigation">
+          <a href="#system">So funktioniert es</a>
+          <a href="#rechner">Kundenrechner</a>
+          <a href="#vorteile">Vorteile</a>
+          <a href="#vertrauen">Vertrauen</a>
+        </nav>
+
+        <div class="nav-actions">
+          <a class="btn btn-secondary" href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726">Anmelden</a>
+          <a class="btn btn-primary" href="https://betinsight.systeme.io/registrierung?ref=POOL">Kostenlos registrieren</a>
+          <button class="menu-button" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Menü öffnen">☰</button>
+        </div>
+      </div>
+
+      <nav class="mobile-menu" id="mobileMenu" aria-label="Mobile Navigation">
+        <a href="#system">So funktioniert es</a>
+        <a href="#rechner">Kundenrechner</a>
+        <a href="#vorteile">Vorteile</a>
+        <a href="#vertrauen">Vertrauen</a>
+        <a href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726">Bereits Mitglied? Anmelden</a>
+        <a href="https://betinsight.systeme.io/registrierung?ref=POOL">Jetzt kostenlos registrieren</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="container hero-inner">
+        <div>
+          <div class="eyebrow"><span class="eyebrow-dot"></span> Sportanalysen mit klarer Struktur</div>
+          <h1>Klare Entscheidungen statt <span class="accent">Wetten nach Gefühl.</span></h1>
+          <p class="hero-copy">
+            BetInsight ist eine Mitgliederplattform für strukturierte Sportanalysen, nachvollziehbare Unit-Gewichtungen und kontrolliertes Bankroll-Management. Du entscheidest selbst, welchen Tipp du freischaltest und wie du ihn umsetzt.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="https://betinsight.systeme.io/registrierung?ref=POOL">Jetzt kostenlosen Zugang erstellen</a>
+            <a class="btn btn-secondary" href="https://betinsightclub.github.io/profil/rechner/">Beispiel kostenlos berechnen</a>
+          </div>
+          <div class="hero-note">
+            <span>Erste Units zum Start</span>
+            <span>Keine Registrierung für den Rechner</span>
+            <span>Keine Wetten oder Kundengelder bei BetInsight</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="trust-strip">
+      <div class="container trust-grid">
+        <div class="trust-item"><strong>Klare Tipps</strong><span>Analyse statt Bauchgefühl</span></div>
+        <div class="trust-item"><strong>Units-System</strong><span>Jeder Tipp mit Gewichtung</span></div>
+        <div class="trust-item"><strong>Volle Kontrolle</strong><span>Du entscheidest selbst</span></div>
+        <div class="trust-item"><strong>Mobil nutzbar</strong><span>Für Smartphone und Laptop</span></div>
+      </div>
+    </div>
+
+    <section aria-labelledby="problem-title">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-label">Das eigentliche Problem</div>
+          <h2 id="problem-title">Ohne klare Regeln wird jede Wette zur Einzelentscheidung.</h2>
+          <p>BetInsight ersetzt spontane Entscheidungen nicht durch Versprechen, sondern durch einen nachvollziehbaren Ablauf.</p>
+        </div>
+        <div class="card-grid">
+          <article class="card">
+            <div class="card-icon">×</div>
+            <h3>Emotionale Wetten</h3>
+            <p>Bauchgefühl ersetzt die Prüfung von Informationen, Quote und Risiko.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon">×</div>
+            <h3>Zu hohe Einsätze</h3>
+            <p>Eine einzelne Entscheidung erhält zu viel Gewicht und gefährdet das Kapital.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon">×</div>
+            <h3>Keine feste Struktur</h3>
+            <p>Ohne wiederholbaren Prozess lassen sich Entscheidungen kaum vergleichen.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon">×</div>
+            <h3>Kein Bankroll-Plan</h3>
+            <p>Einsätze werden nicht an Kapital, Risiko und Tippgewichtung angepasst.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="system" aria-labelledby="system-title">
+      <div class="container split">
+        <div class="content-copy">
+          <div class="section-label">So funktioniert BetInsight</div>
+          <h2 id="system-title">Ein verständlicher Ablauf vom Tipp bis zur eigenen Entscheidung.</h2>
+          <p>Tipps werden von unserem Team vorbereitet, mit Units gewichtet und im geschützten Mitgliederbereich veröffentlicht.</p>
+
+          <div class="steps">
+            <div class="step">
+              <div class="step-number">1</div>
+              <div><h3>Analyse ansehen</h3><p>Du siehst zunächst die wichtigsten Eckdaten und die benötigten Units.</p></div>
+            </div>
+            <div class="step">
+              <div class="step-number">2</div>
+              <div><h3>Bewusst freischalten</h3><p>Du entscheidest selbst, ob du deine Units für den vollständigen Tipp einsetzen möchtest.</p></div>
+            </div>
+            <div class="step">
+              <div class="step-number">3</div>
+              <div><h3>Eigenständig umsetzen</h3><p>BetInsight nimmt kein Wettkapital entgegen. Einsatz, Anbieter und Umsetzung bleiben vollständig bei dir.</p></div>
+            </div>
+          </div>
+        </div>
+        <figure class="media-card">
+          <img src="assets/analyse-control-room.webp" alt="Sportanalyst vor mehreren Bildschirmen mit Fußballstatistiken" loading="lazy" width="1408" height="768">
+        </figure>
+      </div>
+    </section>
+
+    <section class="calculator-section" id="rechner" aria-labelledby="calculator-title">
+      <div class="container split">
+        <div class="content-copy">
+          <div class="section-label">Kostenlose Beispielrechnung</div>
+          <h2 id="calculator-title">Wie könnte sich dein Wettkapital mathematisch entwickeln?</h2>
+          <p>
+            Teste mit wenigen Klicks, wie sich Startkapital, Einsatzhöhe, durchschnittliche Quote, Trefferquote und Gewinnverwendung in einer mathematischen Simulation auswirken können.
+          </p>
+          <p>
+            Vergleiche die Varianten „Gewinne auszahlen“ und „im Stammkapital lassen“. Der Rechner zeigt zusätzlich den benötigten Unit- und Paketbedarf für dein gewähltes Beispiel.
+          </p>
+          <div class="info-box">
+            Die auswählbaren Werte von 7 oder 8 richtigen Tipps aus 10 orientieren sich an unserer dokumentierten internen Auswertung von Martins Tipps aus den vergangenen fünf Jahren. Vergangene Ergebnisse sind keine Garantie für zukünftige Treffer oder Gewinne.
+          </div>
+          <a class="btn btn-green" href="https://betinsightclub.github.io/profil/rechner/">Jetzt kostenlos berechnen</a>
+          <div class="microcopy">Keine Registrierung erforderlich · unverbindliche Simulation</div>
+        </div>
+        <a class="calculator-preview" href="https://betinsightclub.github.io/profil/rechner/" aria-label="BetInsight Kundenrechner öffnen">
+          <img src="assets/kundenrechner-vorschau.png" alt="Vorschau des BetInsight Kundenrechners mit mathematischer Beispielrechnung" loading="lazy" width="1448" height="1086">
+        </a>
+      </div>
+    </section>
+
+    <section id="vorteile" aria-labelledby="benefits-title">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-label">Dein BetInsight-Bereich</div>
+          <h2 id="benefits-title">Alles Wichtige an einem Ort.</h2>
+          <p>Die Plattform verbindet Tippzugang, Unit-Verwaltung und persönliche Übersicht in einem klaren Mitgliederbereich.</p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <span class="tag">Tipps</span>
+            <h3>Strukturierte Empfehlungen statt unübersichtlicher Einzelinformationen</h3>
+            <p>Jeder Tipp erhält eine klare Gewichtung. Vollständige Inhalte werden erst nach deiner bewussten Freischaltung sichtbar.</p>
+          </article>
+          <article class="feature-card">
+            <span class="tag">Units</span>
+            <h3>Transparenter Kontostand und nachvollziehbare Nutzung</h3>
+            <p>Du siehst deine verfügbaren Units, deine freigeschalteten Tipps und deine Aktivitäten zentral im Profil.</p>
+          </article>
+          <article class="feature-card">
+            <span class="tag">Kontrolle</span>
+            <h3>Du entscheidest über Anbieter, Kapital und Umsetzung</h3>
+            <p>BetInsight verwahrt kein Wettkapital und platziert keine Wetten in deinem Namen.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="analysis-title">
+      <div class="container split">
+        <figure class="media-card">
+          <img src="assets/analyse-tipster.webp" alt="Handschriftliche Fußballanalyse mit Notizen und Taktikskizze" loading="lazy" width="1408" height="768">
+        </figure>
+        <div class="content-copy">
+          <div class="section-label">Nachvollziehbare Vorbereitung</div>
+          <h2 id="analysis-title">Nicht nur ein Ergebnis, sondern eine begründete Einschätzung.</h2>
+          <p>Unser Ansatz basiert auf Vorbereitung, Statistik, Spielkontext und klarer Gewichtung. Die Analyse unterstützt deine Entscheidung, ersetzt sie aber nicht.</p>
+          <ul class="bullet-list">
+            <li>Klare Einordnung statt bloßer Ergebnisbehauptung</li>
+            <li>Unit-Gewichtung als Orientierung für das Risiko</li>
+            <li>Transparente Trennung zwischen Analyse und eigener Umsetzung</li>
+            <li>Keine Garantie und keine automatische Wettausführung</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="packages-title">
+      <div class="container package-area">
+        <div class="package-visual">
+          <img src="assets/paket-elite-365-units.png" alt="BetInsight Elite-Paket mit 365 Units und Bonus-Units" loading="lazy" width="1000" height="1500">
+        </div>
+        <div class="content-copy">
+          <div class="section-label">Unit-Pakete</div>
+          <h2 id="packages-title">Wähle nur den Umfang, der zu deiner Nutzung passt.</h2>
+          <p>Units dienen ausschließlich innerhalb von BetInsight zur Freischaltung digitaler Inhalte. Verschiedene Pakete ermöglichen einen passenden Einstieg oder einen höheren langfristigen Bedarf.</p>
+          <ul class="bullet-list">
+            <li>Klare Paketgrößen ohne automatische Wetteinsätze</li>
+            <li>Units werden deinem registrierten BetInsight-Konto gutgeschrieben</li>
+            <li>Du entscheidest bei jedem Tipp erneut über die Freischaltung</li>
+          </ul>
+          <a class="btn btn-primary" href="https://betinsight.systeme.io/registrierung?ref=POOL">Kostenlos registrieren und starten</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="trust-section" id="vertrauen" aria-labelledby="trust-title">
+      <div class="container">
+        <div class="trust-copy">
+          <div class="section-label">Keine Versprechen</div>
+          <h2 id="trust-title">Ein System schafft Struktur – aber keine garantierten Ergebnisse.</h2>
+          <p>Sport bleibt unvorhersehbar. BetInsight soll dir helfen, Informationen, Gewichtung und eigenes Risiko geordneter zu betrachten. Jede Entscheidung und jeder mögliche Verlust bleiben in deiner Verantwortung.</p>
+          <div class="disclaimer">
+            Die Inhalte und Simulationen auf BetInsight dienen ausschließlich Informations- und Beispielzwecken. Sie stellen keine Finanz-, Anlage- oder Gewinnberatung dar. Vergangene Trefferquoten und mathematische Modellrechnungen sind keine Zusage für zukünftige Ergebnisse.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta" aria-labelledby="cta-title">
+      <div class="container cta-box">
+        <div class="section-label">Bereit für einen klareren Ablauf?</div>
+        <h2 id="cta-title">Erstelle deinen kostenlosen BetInsight-Zugang.</h2>
+        <p>Registriere dich, erhalte deine ersten Units und lerne den Mitgliederbereich in deinem eigenen Tempo kennen.</p>
+        <div class="cta-actions">
+          <a class="btn btn-primary" href="https://betinsight.systeme.io/registrierung?ref=POOL">Jetzt kostenlosen Zugang erstellen</a>
+          <a class="btn btn-secondary" href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726">Bereits Mitglied? Anmelden</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <img class="footer-logo" src="assets/betinsight-logo.png" alt="BetInsight.club">
+          <p class="footer-copy">Mitgliederplattform für Sportanalysen, Unit-Gewichtungen und eine klar strukturierte Tippfreischaltung.</p>
+        </div>
+        <div>
+          <h2 class="footer-title">Navigation</h2>
+          <div class="footer-links">
+            <a href="#system">So funktioniert es</a>
+            <a href="#rechner">Kundenrechner</a>
+            <a href="https://betinsight.systeme.io/registrierung?ref=POOL">Registrierung</a>
+            <a href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726">Anmeldung</a>
+          </div>
+        </div>
+        <div>
+          <h2 class="footer-title">Rechtliches</h2>
+          <div class="footer-links">
+            <a href="https://betinsight.systeme.io/agbs">AGB</a>
+            <a href="https://betinsight.systeme.io/datenschutz">Datenschutz</a>
+            <a href="#impressum">Impressum</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="imprint" id="impressum">
+        <strong>Impressum:</strong> LucMedia LTDA · Av 33 850 · CEP 14780-192 Barretos, SP · Brasilien · E-Mail: <a href="mailto:betinsight.club@gmail.com">betinsight.club@gmail.com</a>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© <span id="year">2026</span> BetInsight.club / LucMedia LTDA. Alle Rechte vorbehalten.</span>
+        <span>Keine Wettplattform · keine Verwahrung von Wettkapital</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const menuButton = document.querySelector('.menu-button');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    menuButton.addEventListener('click', () => {
+      const isOpen = mobileMenu.classList.toggle('open');
+      menuButton.setAttribute('aria-expanded', String(isOpen));
+      menuButton.textContent = isOpen ? '×' : '☰';
+      menuButton.setAttribute('aria-label', isOpen ? 'Menü schließen' : 'Menü öffnen');
+    });
+
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.remove('open');
+        menuButton.setAttribute('aria-expanded', 'false');
+        menuButton.textContent = '☰';
+      });
+    });
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
