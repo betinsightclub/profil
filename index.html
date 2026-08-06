@@ -2,8 +2,11 @@
 <!--
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.02-07
+Version: 2026.08.06-01
 Änderungen:
+- Persönlicher Empfehlungsbereich um einen zweiten kopierbaren Link ergänzt
+- Direkter Registrierungslink und persönlicher Landingpage-Link werden automatisch aus dem Referral-Code erstellt
+- Keine zusätzlichen Make-Aufrufe oder Sheet-Abfragen
 - Die drei unteren Hauptbuttons haben auf Desktop, Tablet und Mobil dieselbe Höhe
 - Die kompaktere Höhe von „Netzwerkdaten laden“ gilt nur noch für den oberen Aktualisieren-Button
 - Referral-Zusammenfassung fachlich vereinheitlicht
@@ -647,12 +650,28 @@ button:hover,
   font-size: 11px;
 }
 
+.referral-link-group {
+  display: grid;
+  gap: 12px;
+  margin-top: 13px;
+}
+
+.referral-link-item {
+  display: grid;
+  gap: 7px;
+}
+
+.referral-link-heading {
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 900;
+}
+
 .referral-link-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 10px;
   align-items: center;
-  margin-top: 13px;
 }
 
 .referral-linkbox {
@@ -671,7 +690,7 @@ button:hover,
 
 .referral-link-row button {
   width: auto;
-  min-width: 150px;
+  min-width: 205px;
 }
 
 /* Struktur und Umsätze */
@@ -888,7 +907,6 @@ input {
   .profile-grid {
     grid-template-columns: 1fr;
   }
-
 
   .referral-overview {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1321,9 +1339,12 @@ button:focus-visible,
   min-height: 40px !important;
 }
 
+.referral-link-group {
+  margin-top: 16px;
+}
+
 .referral-link-row {
   position: relative;
-  margin-top: 16px;
   padding: 10px;
   border: 1px solid rgba(112, 190, 220, 0.13);
   border-radius: 16px;
@@ -1338,7 +1359,7 @@ button:focus-visible,
 }
 
 .referral-link-row button {
-  min-width: 158px;
+  min-width: 205px;
 }
 
 .structure-panel {
@@ -1824,7 +1845,7 @@ button:focus-visible,
 
           <p class="privacy-note">
             Die Privatsphäre blendet nur die E-Mail-Adresse und den persönlichen
-            Zugang vollständig aus. BetInsight-ID, Units, Empfehlungslink und
+            Zugang vollständig aus. BetInsight-ID, Units, Empfehlungslinks und
             Netzwerkzahlen bleiben sichtbar.
           </p>
 
@@ -1939,7 +1960,7 @@ button:focus-visible,
             🔗 <span class="panel-title-accent">Persönliche Übersicht</span>
           </h2>
           <p class="panel-subtitle">
-            Dein Netzwerk, deine Referral-Units und dein persönlicher Empfehlungslink.
+            Dein Netzwerk, deine Referral-Units und deine persönlichen Empfehlungslinks.
           </p>
         </div>
 
@@ -2000,19 +2021,46 @@ button:focus-visible,
 
         </div>
 
-        <div class="referral-link-row">
-          <div id="referralLink" class="referral-linkbox">
-            Empfehlungsdaten werden geladen...
+        <div class="referral-link-group">
+
+          <div class="referral-link-item">
+            <div class="referral-link-heading">Direkter Registrierungslink</div>
+
+            <div class="referral-link-row">
+              <div id="registrationReferralLink" class="referral-linkbox">
+                Registrierungslink wird geladen...
+              </div>
+
+              <button
+                id="copyRegistrationReferralButton"
+                class="btn-green"
+                type="button"
+                onclick="copyRegistrationReferralLink()"
+              >
+                📋 Registrierungslink kopieren
+              </button>
+            </div>
           </div>
 
-          <button
-            id="copyReferralButton"
-            class="btn-green"
-            type="button"
-            onclick="copyReferralLink()"
-          >
-            📋 Link kopieren
-          </button>
+          <div class="referral-link-item">
+            <div class="referral-link-heading">Persönlicher Landingpage-Link</div>
+
+            <div class="referral-link-row">
+              <div id="landingpageReferralLink" class="referral-linkbox">
+                Landingpage-Link wird geladen...
+              </div>
+
+              <button
+                id="copyLandingpageReferralButton"
+                class="btn-blue"
+                type="button"
+                onclick="copyLandingpageReferralLink()"
+              >
+                📋 Landingpage-Link kopieren
+              </button>
+            </div>
+          </div>
+
         </div>
 
       </div>
@@ -2598,7 +2646,13 @@ async function copyText(text) {
   copyTextFallback(text);
 }
 
-function buildReferralLink(data) {
+function getReferralCode(data) {
+  return data && data.ref_code
+    ? String(data.ref_code).trim()
+    : String(currentProfileData.refCode || "").trim();
+}
+
+function buildRegistrationReferralLink(data) {
   if (data && data.ref_link && String(data.ref_link).trim() !== "") {
     return String(data.ref_link).trim();
   }
@@ -2607,19 +2661,45 @@ function buildReferralLink(data) {
     return String(currentProfileData.refLink).trim();
   }
 
-  const refCode =
-    data && data.ref_code
-      ? String(data.ref_code).trim()
-      : String(currentProfileData.refCode || "").trim();
+  const refCode = getReferralCode(data);
 
   if (!refCode) {
     return "";
   }
 
   return (
-    "https://betinsightclub.github.io/ref/?ref=" +
+    "https://betinsightclub.github.io/profil/ref/?ref=" +
     encodeURIComponent(refCode)
   );
+}
+
+function buildLandingpageReferralLink(data) {
+  const refCode = getReferralCode(data);
+
+  if (!refCode) {
+    return "";
+  }
+
+  return (
+    "https://betinsightclub.github.io/profil/betinsightcommunity/?ref=" +
+    encodeURIComponent(refCode)
+  );
+}
+
+function setReferralLinks(data = {}) {
+  const registrationBox =
+    document.getElementById("registrationReferralLink");
+  const landingpageBox =
+    document.getElementById("landingpageReferralLink");
+
+  const registrationLink = buildRegistrationReferralLink(data);
+  const landingpageLink = buildLandingpageReferralLink(data);
+
+  registrationBox.innerText =
+    registrationLink || "Kein direkter Registrierungslink gefunden.";
+
+  landingpageBox.innerText =
+    landingpageLink || "Kein persönlicher Landingpage-Link gefunden.";
 }
 
 function toggleLevel(level) {
@@ -2803,14 +2883,11 @@ function setLevelSummary(level, data, partners) {
 }
 
 function prepareNetworkSection() {
-  const linkBox = document.getElementById("referralLink");
   const status = document.getElementById("referralStatus");
 
   document.getElementById("referralSection").style.display = "block";
 
-  linkBox.innerText =
-    buildReferralLink({}) ||
-    "Persönlicher Empfehlungslink wird noch vorbereitet.";
+  setReferralLinks({});
 
   resetReferralValues();
   resetStructureValues();
@@ -2931,11 +3008,7 @@ function getLevelSummaryValues(level, data, partners) {
 }
 
 function renderReferralOverview(data, levelSummaries) {
-  const linkBox = document.getElementById("referralLink");
-  const referralLink = buildReferralLink(data);
-
-  linkBox.innerText =
-    referralLink || "Kein persönlicher Empfehlungslink gefunden.";
+  setReferralLinks(data);
 
   levelSummaries.forEach((summary, index) => {
     document.getElementById("networkLevel" + (index + 1)).innerText =
@@ -3130,38 +3203,60 @@ async function refreshNetworkData(showButtonFeedback = false, sourceButton = nul
   }
 }
 
-async function copyReferralLink() {
+function isUnavailableReferralLink(link) {
+  const value = String(link || "").trim().toLowerCase();
+
+  return (
+    !value ||
+    value.includes("wird geladen") ||
+    value.includes("nicht gefunden") ||
+    value.includes("nicht verfügbar") ||
+    value.includes("vorbereitet")
+  );
+}
+
+async function copyReferralLinkById(linkElementId, buttonElementId, successText) {
   const link = String(
-    document.getElementById("referralLink").innerText || ""
+    document.getElementById(linkElementId).innerText || ""
   ).trim();
 
   const status = document.getElementById("referralStatus");
-  const button = document.getElementById("copyReferralButton");
+  const button = document.getElementById(buttonElementId);
   const oldText = button.innerText;
 
-  if (
-    !link ||
-    link.includes("vorbereitet") ||
-    link.includes("nicht verfügbar") ||
-    link.includes("nicht gefunden") ||
-    link.includes("geladen")
-  ) {
-    status.innerText = "Noch kein persönlicher Empfehlungslink verfügbar.";
+  if (isUnavailableReferralLink(link)) {
+    status.innerText = "Der gewünschte Empfehlungslink ist noch nicht verfügbar.";
     return;
   }
 
   try {
     await copyText(link);
-    status.innerText = "Empfehlungslink wurde kopiert.";
+    status.innerText = successText;
     button.innerText = "✅ Link kopiert";
   } catch (error) {
-    status.innerText = "Empfehlungslink konnte nicht kopiert werden.";
+    status.innerText = "Der Link konnte nicht kopiert werden.";
     button.innerText = "❌ Fehler";
   }
 
   window.setTimeout(() => {
     button.innerText = oldText;
   }, 2200);
+}
+
+function copyRegistrationReferralLink() {
+  return copyReferralLinkById(
+    "registrationReferralLink",
+    "copyRegistrationReferralButton",
+    "Direkter Registrierungslink wurde kopiert."
+  );
+}
+
+function copyLandingpageReferralLink() {
+  return copyReferralLinkById(
+    "landingpageReferralLink",
+    "copyLandingpageReferralButton",
+    "Persönlicher Landingpage-Link wurde kopiert."
+  );
 }
 
 function referralUnitsToAccount() {
