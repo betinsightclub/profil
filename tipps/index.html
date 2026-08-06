@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <!--
 BetInsight Tipps
-Version: 2026.07.28-01
-Letzte Änderung:
-- Profil-Token wird nicht mehr automatisch mit "BI" ergänzt
-- Freischalten-Webhook erhält jetzt den unveränderten Token aus der URL
+Version: 2026.08.06-02
+
+Änderungen:
+- Bis zu 100 veröffentlichte Tipps werden einmalig über Make geladen.
+- Zunächst werden nur 10 Tippkarten angezeigt.
+- "Weitere 10 Tipps anzeigen" erzeugt weitere Karten direkt im Browser.
+- Kein zusätzlicher Make-Aufruf beim Nachladen.
+- Token- und Freischaltlogik bleiben erhalten.
+- Modernisierte Kartenoptik passend zum BetInsight-Profil.
 -->
 
 <html lang="de">
 <head>
 <meta charset="UTF-8">
- <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
+<link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BetInsight Tipps</title>
 
@@ -19,23 +24,45 @@ Letzte Änderung:
     box-sizing: border-box;
   }
 
+  :root {
+    --bg-deep: #031018;
+    --bg-mid: #061d2a;
+    --panel: rgba(8, 54, 73, 0.96);
+    --panel-dark: rgba(5, 36, 50, 0.96);
+    --line: rgba(35, 190, 255, 0.42);
+    --line-soft: rgba(255, 255, 255, 0.08);
+    --cyan: #16a8ff;
+    --cyan-light: #00c8ff;
+    --turquoise: #00d7b8;
+    --text: #ffffff;
+    --muted: #b8d7e8;
+    --muted-2: #8eb6c8;
+    --warning: #ffcc66;
+    --danger: #ff8f8f;
+    --success: #8fffd2;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     margin: 0;
+    min-height: 100vh;
     background:
-      radial-gradient(
-        circle at top,
-        rgba(0, 200, 255, 0.10),
-        transparent 35%
-      ),
-      linear-gradient(
-        180deg,
-        #061923 0%,
-        #071d2b 45%,
-        #04131c 100%
-      );
-    color: white;
+      radial-gradient(circle at top, rgba(0, 200, 255, 0.12), transparent 34%),
+      radial-gradient(circle at 85% 30%, rgba(0, 215, 184, 0.07), transparent 28%),
+      linear-gradient(180deg, #061923 0%, #071d2b 46%, #04131c 100%);
+    color: var(--text);
     font-family: Arial, sans-serif;
     text-align: center;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
   }
 
   .floating-back-btn {
@@ -47,7 +74,7 @@ Letzte Änderung:
     align-items: center;
     justify-content: center;
     gap: 8px;
-    background: linear-gradient(90deg, #16a8ff, #00c8ff);
+    background: linear-gradient(90deg, var(--cyan), var(--cyan-light));
     color: #ffffff;
     border: 1px solid rgba(255,255,255,0.18);
     border-radius: 999px;
@@ -56,30 +83,77 @@ Letzte Änderung:
     font-size: 15px;
     font-weight: 700;
     box-shadow: 0 12px 30px rgba(0, 174, 255, 0.35);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .floating-back-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 36px rgba(0, 174, 255, 0.45);
   }
 
   .page {
-    max-width: 1100px;
+    max-width: 1120px;
     margin: 0 auto;
-    padding: 35px 18px 90px;
+    padding: 34px 18px 105px;
+  }
+
+  .hero {
+    position: relative;
+    overflow: hidden;
+    max-width: 900px;
+    margin: 0 auto 34px;
+    padding: 26px 28px 28px;
+    border-radius: 24px;
+    background:
+      linear-gradient(135deg, rgba(10, 64, 85, 0.97), rgba(5, 37, 52, 0.97));
+    border: 1px solid rgba(35, 190, 255, 0.35);
+    box-shadow:
+      0 20px 48px rgba(0, 0, 0, 0.34),
+      inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  .hero::after {
+    content: "";
+    position: absolute;
+    width: 160px;
+    height: 160px;
+    right: -72px;
+    bottom: -82px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 35% 35%,
+        rgba(0, 200, 255, 0.24),
+        rgba(0, 200, 255, 0.08) 45%,
+        transparent 72%);
+    border: 1px solid rgba(0, 200, 255, 0.13);
+    pointer-events: none;
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 1;
   }
 
   .logo {
-    width: 155px;
-    max-width: 70%;
+    width: 170px;
+    max-width: 72%;
     height: auto;
-    margin: 8px 0 28px;
+    margin: 0 auto 18px;
+    display: block;
   }
 
   h1 {
-    margin: 8px 0 8px;
-    font-size: 34px;
+    margin: 4px 0 10px;
+    font-size: 36px;
+    line-height: 1.2;
   }
 
   .subtitle {
-    color: #b8d7e8;
-    margin-bottom: 38px;
+    max-width: 720px;
+    margin: 0 auto;
+    color: var(--muted);
     font-size: 16px;
+    line-height: 1.55;
   }
 
   .status {
@@ -89,27 +163,24 @@ Letzte Änderung:
 
   .tips-grid {
     display: grid;
-    gap: 30px;
+    gap: 28px;
   }
 
   .tip-card {
     position: relative;
     overflow: hidden;
-    background:
-      linear-gradient(
-        180deg,
-        rgba(16, 72, 91, 0.98),
-        rgba(9, 51, 68, 0.98)
-      );
-    border: 1px solid rgba(35, 190, 255, 0.48);
+    max-width: 820px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 32px 30px 30px;
     border-radius: 24px;
-    padding: 34px 28px;
+    background:
+      linear-gradient(180deg, rgba(14, 79, 99, 0.97), rgba(6, 49, 66, 0.98));
+    border: 1px solid rgba(35, 190, 255, 0.48);
     box-shadow:
       0 18px 42px rgba(0,0,0,0.38),
       inset 0 1px 0 rgba(255,255,255,0.06);
-    max-width: 790px;
-    width: 100%;
-    margin: 0 auto;
+    isolation: isolate;
   }
 
   .tip-card::before {
@@ -117,12 +188,33 @@ Letzte Änderung:
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(
-        circle at top right,
-        rgba(0, 200, 255, 0.16),
-        transparent 35%
-      );
+      radial-gradient(circle at top right, rgba(0, 200, 255, 0.16), transparent 36%),
+      linear-gradient(135deg, transparent 62%, rgba(0, 215, 184, 0.05));
     pointer-events: none;
+    z-index: -2;
+  }
+
+  /* Rundes BetInsight-Zierelement wie im Profil */
+  .tip-card::after {
+    content: "";
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    right: -72px;
+    bottom: -76px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 30% 30%,
+        rgba(22, 168, 255, 0.28),
+        rgba(22, 168, 255, 0.10) 44%,
+        rgba(0, 215, 184, 0.05) 66%,
+        transparent 72%);
+    border: 1px solid rgba(0, 200, 255, 0.13);
+    box-shadow:
+      -18px -18px 46px rgba(0, 200, 255, 0.05),
+      inset 0 0 34px rgba(0, 215, 184, 0.06);
+    pointer-events: none;
+    z-index: -1;
   }
 
   .tip-inner {
@@ -131,64 +223,113 @@ Letzte Änderung:
   }
 
   .badge {
-    display: inline-block;
-    background: rgba(0, 200, 255, 0.14);
-    border: 1px solid rgba(0, 200, 255, 0.35);
-    color: #bff3ff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: rgba(0, 200, 255, 0.13);
+    border: 1px solid rgba(0, 200, 255, 0.36);
+    color: #c8f6ff;
     border-radius: 999px;
-    padding: 6px 13px;
+    padding: 7px 14px;
     font-size: 13px;
-    margin-bottom: 16px;
+    margin-bottom: 17px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
   }
 
   .tip-card h2 {
-    margin: 0 0 22px;
+    margin: 0 auto 22px;
+    max-width: 720px;
     font-size: 31px;
     line-height: 1.25;
+    text-wrap: balance;
   }
 
   .tip-meta {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 14px 18px;
+    gap: 10px 12px;
     color: #e4f7ff;
-    font-size: 15px;
-    border-top: 1px solid rgba(255,255,255,0.08);
+    font-size: 14px;
+    border-top: 1px solid var(--line-soft);
     border-bottom: 2px solid #19c8f5;
-    padding: 18px 0;
+    padding: 17px 0 18px;
     margin-bottom: 20px;
   }
 
   .meta-item {
-    background: rgba(255,255,255,0.04);
-    border-radius: 10px;
-    padding: 7px 10px;
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    background: rgba(255,255,255,0.045);
+    border: 1px solid rgba(255,255,255,0.045);
+    border-radius: 12px;
+    padding: 8px 11px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.025);
+  }
+
+  .meta-item::after {
+    content: "";
+    position: absolute;
+    width: 38px;
+    height: 38px;
+    right: -20px;
+    bottom: -21px;
+    border-radius: 50%;
+    background: rgba(0, 200, 255, 0.10);
+    pointer-events: none;
   }
 
   .locked {
-    color: #a9c9d8;
+    color: #b6d2df;
     font-size: 14px;
     margin: 16px 0;
+    line-height: 1.5;
   }
 
   .price {
-    font-size: 26px;
-    margin: 17px 0 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 170px;
+    margin: 4px 0 20px;
+    padding: 10px 18px;
+    border-radius: 14px;
+    background: rgba(3, 28, 40, 0.45);
+    border: 1px solid rgba(255,255,255,0.05);
+    font-size: 25px;
     font-weight: bold;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.035);
   }
 
   .btn {
-    display: inline-block;
-    background: linear-gradient(90deg, #16a8ff, #00c8ff);
-    color: white;
-    border: none;
-    border-radius: 14px;
-    padding: 15px 44px;
-    font-size: 16px;
-    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     min-width: 245px;
-    box-shadow: 0 12px 28px rgba(0, 174, 255, 0.32);
+    min-height: 48px;
+    padding: 14px 34px;
+    color: white;
+    background: linear-gradient(90deg, var(--cyan), var(--cyan-light));
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 12px 28px rgba(0, 174, 255, 0.30);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+  }
+
+  .btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    filter: brightness(1.05);
+    box-shadow: 0 16px 34px rgba(0, 174, 255, 0.40);
   }
 
   .btn:disabled {
@@ -197,9 +338,10 @@ Letzte Änderung:
   }
 
   .small-note {
-    color: #b8d7e8;
+    color: var(--muted);
     font-size: 13px;
     margin-top: 15px;
+    line-height: 1.45;
   }
 
   .unlock-message {
@@ -209,7 +351,7 @@ Letzte Änderung:
   }
 
   .unlock-message.success {
-    color: #8fffd2;
+    color: var(--success);
   }
 
   .unlock-message.info {
@@ -217,12 +359,26 @@ Letzte Änderung:
   }
 
   .unlock-box {
+    position: relative;
+    overflow: hidden;
     margin-top: 24px;
     background: rgba(0,0,0,0.18);
     border: 1px solid rgba(35, 190, 255, 0.45);
-    border-radius: 16px;
+    border-radius: 18px;
     padding: 22px;
     text-align: left;
+  }
+
+  .unlock-box::after {
+    content: "";
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    right: -45px;
+    bottom: -46px;
+    border-radius: 50%;
+    background: rgba(0, 215, 184, 0.08);
+    pointer-events: none;
   }
 
   .unlock-box h3 {
@@ -239,11 +395,12 @@ Letzte Änderung:
     margin-top: 18px;
     padding-top: 18px;
     white-space: pre-wrap;
+    line-height: 1.6;
   }
 
   .empty,
   .error {
-    max-width: 790px;
+    max-width: 820px;
     margin: 0 auto;
     border-radius: 18px;
     padding: 24px;
@@ -252,6 +409,7 @@ Letzte Änderung:
   .empty {
     background: #0f3040;
     color: #c9e8f5;
+    border: 1px solid rgba(35, 190, 255, 0.22);
   }
 
   .error {
@@ -262,7 +420,36 @@ Letzte Änderung:
     text-align: left;
   }
 
-  @media (max-width: 600px) {
+  .pagination-panel {
+    display: none;
+    max-width: 820px;
+    margin: 28px auto 0;
+    padding: 20px;
+    border-radius: 20px;
+    background:
+      linear-gradient(135deg, rgba(8, 54, 73, 0.93), rgba(5, 37, 52, 0.96));
+    border: 1px solid rgba(35, 190, 255, 0.32);
+    box-shadow:
+      0 16px 38px rgba(0,0,0,0.28),
+      inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+
+  .pagination-count {
+    margin: 0 0 14px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .load-more-btn {
+    min-width: 260px;
+  }
+
+  .all-loaded {
+    color: var(--success);
+    font-weight: 700;
+  }
+
+  @media (max-width: 700px) {
     .floating-back-btn {
       left: 12px;
       right: 12px;
@@ -271,24 +458,58 @@ Letzte Änderung:
     }
 
     .page {
-      padding: 28px 14px 95px;
+      padding: 22px 12px 98px;
+    }
+
+    .hero {
+      padding: 22px 18px 24px;
+      border-radius: 21px;
+    }
+
+    .logo {
+      width: 150px;
     }
 
     h1 {
-      font-size: 27px;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      font-size: 15px;
     }
 
     .tip-card {
-      padding: 28px 18px;
+      padding: 26px 16px 24px;
+      border-radius: 21px;
     }
 
     .tip-card h2 {
       font-size: 24px;
     }
 
-    .btn {
+    .tip-meta {
+      gap: 9px;
+    }
+
+    .meta-item {
+      width: 100%;
+      justify-content: flex-start;
+      text-align: left;
+    }
+
+    .btn,
+    .load-more-btn {
       width: 100%;
       min-width: unset;
+    }
+
+    .price {
+      width: 100%;
+      max-width: 290px;
+    }
+
+    .pagination-panel {
+      padding: 18px 14px;
     }
   }
 </style>
@@ -305,23 +526,40 @@ Letzte Änderung:
 
 <div class="page">
 
-  <img
-    src="../logo_betisight.club.png"
-    alt="BetInsight Club"
-    class="logo"
-  >
+  <section class="hero">
+    <div class="hero-inner">
+      <img
+        src="../logo_betisight.club.png"
+        alt="BetInsight Club"
+        class="logo"
+      >
 
-  <h1>🔥 Neue BetInsight Tipps</h1>
+      <h1>🔥 Neue BetInsight Tipps</h1>
 
-  <p class="subtitle">
-    Hier siehst du alle aktuell veröffentlichten Tipps als Vorschau.
-  </p>
+      <p class="subtitle">
+        Hier siehst du alle aktuell veröffentlichten Tipps als Vorschau.
+        Zunächst werden die neuesten 10 Tipps angezeigt.
+      </p>
+    </div>
+  </section>
 
   <div id="status" class="status">
     Tipps werden geladen...
   </div>
 
   <div id="tips" class="tips-grid"></div>
+
+  <div id="paginationPanel" class="pagination-panel">
+    <p id="paginationCount" class="pagination-count"></p>
+
+    <button
+      id="loadMoreButton"
+      class="btn load-more-btn"
+      type="button"
+    >
+      Weitere 10 Tipps anzeigen
+    </button>
+  </div>
 
 </div>
 
@@ -333,6 +571,11 @@ const FREISCHALTEN_WEBHOOK =
   "https://hook.eu1.make.com/k1qn9hlfqd7yhz55vwiotkojgpuqzxug";
 
 const TOKEN_STORAGE_KEY = "betinsight_profile_token";
+
+const PAGE_SIZE = 10;
+
+let loadedTipps = [];
+let visibleTipCount = 0;
 
 function normalizeToken(value) {
   return String(value || "").trim();
@@ -451,7 +694,7 @@ function parseUnlockResponse(rawText) {
 }
 
 function createTipCard(tipp) {
-  const card = document.createElement("div");
+  const card = document.createElement("article");
   card.className = "tip-card";
 
   const tippId =
@@ -522,7 +765,9 @@ function createTipCard(tipp) {
         💎 ${escapeHtml(preisUnits)} Units
       </div>
 
-      <button class="btn" type="button">
+      <br>
+
+      <button class="btn unlock-button" type="button">
         Freischalten
       </button>
 
@@ -537,7 +782,7 @@ function createTipCard(tipp) {
   `;
 
   const button =
-    card.querySelector(".btn");
+    card.querySelector(".unlock-button");
 
   button.addEventListener(
     "click",
@@ -553,12 +798,87 @@ function createTipCard(tipp) {
   return card;
 }
 
+function updatePagination() {
+  const paginationPanel =
+    document.getElementById("paginationPanel");
+
+  const paginationCount =
+    document.getElementById("paginationCount");
+
+  const loadMoreButton =
+    document.getElementById("loadMoreButton");
+
+  if (loadedTipps.length === 0) {
+    paginationPanel.style.display = "none";
+    return;
+  }
+
+  paginationPanel.style.display = "block";
+
+  const shown =
+    Math.min(visibleTipCount, loadedTipps.length);
+
+  if (shown >= loadedTipps.length) {
+    paginationCount.innerHTML = `
+      <span class="all-loaded">
+        Alle ${loadedTipps.length} Tipps werden angezeigt.
+      </span>
+    `;
+
+    loadMoreButton.style.display = "none";
+    return;
+  }
+
+  paginationCount.textContent =
+    shown +
+    " von " +
+    loadedTipps.length +
+    " Tipps werden angezeigt.";
+
+  const remaining =
+    loadedTipps.length - shown;
+
+  const nextAmount =
+    Math.min(PAGE_SIZE, remaining);
+
+  loadMoreButton.textContent =
+    "Weitere " +
+    nextAmount +
+    " Tipps anzeigen";
+
+  loadMoreButton.style.display = "inline-flex";
+}
+
+function renderNextTipps() {
+  const tipsBox =
+    document.getElementById("tips");
+
+  const nextTipps =
+    loadedTipps.slice(
+      visibleTipCount,
+      visibleTipCount + PAGE_SIZE
+    );
+
+  nextTipps.forEach(tipp => {
+    tipsBox.appendChild(
+      createTipCard(tipp)
+    );
+  });
+
+  visibleTipCount += nextTipps.length;
+
+  updatePagination();
+}
+
 async function loadTipps() {
   const statusBox =
     document.getElementById("status");
 
   const tipsBox =
     document.getElementById("tips");
+
+  const paginationPanel =
+    document.getElementById("paginationPanel");
 
   try {
     const response =
@@ -589,6 +909,7 @@ async function loadTipps() {
 
     statusBox.style.display = "none";
     tipsBox.innerHTML = "";
+    paginationPanel.style.display = "none";
 
     if (
       !Array.isArray(tipps) ||
@@ -603,14 +924,14 @@ async function loadTipps() {
       return;
     }
 
-    tipps.forEach(tipp => {
-      tipsBox.appendChild(
-        createTipCard(tipp)
-      );
-    });
+    loadedTipps = tipps;
+    visibleTipCount = 0;
+
+    renderNextTipps();
 
   } catch (error) {
     statusBox.style.display = "none";
+    paginationPanel.style.display = "none";
 
     tipsBox.innerHTML = `
       <div class="error">
@@ -830,6 +1151,10 @@ ${escapeHtml(error.message)}
       "Freischalten";
   }
 }
+
+document
+  .getElementById("loadMoreButton")
+  .addEventListener("click", renderNextTipps);
 
 loadTipps();
 </script>
