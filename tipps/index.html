@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
 BetInsight Tipps
-Version: 2026.08.06-02
+Version: 2026.08.06-03
 
 Änderungen:
 - Bis zu 100 veröffentlichte Tipps werden einmalig über Make geladen.
@@ -10,6 +10,7 @@ Version: 2026.08.06-02
 - Kein zusätzlicher Make-Aufruf beim Nachladen.
 - Token- und Freischaltlogik bleiben erhalten.
 - Modernisierte Kartenoptik passend zum BetInsight-Profil.
+- Tippgeber wird bereits in der gesperrten Vorschau angezeigt.
 -->
 
 <html lang="de">
@@ -721,6 +722,9 @@ function createTipCard(tipp) {
   const anpfiff =
     safeText(tipp.anpfiff);
 
+  const ersteller =
+    safeText(tipp.ersteller, "System");
+
   card.innerHTML = `
     <div class="tip-inner">
 
@@ -733,6 +737,10 @@ function createTipCard(tipp) {
       </h2>
 
       <div class="tip-meta">
+
+        <span class="meta-item">
+          👤 Tippgeber: ${escapeHtml(ersteller)}
+        </span>
 
         <span class="meta-item">
           🏆 ${escapeHtml(liga)}
