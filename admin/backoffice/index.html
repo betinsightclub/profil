@@ -2,8 +2,8 @@
 <!--
 Projekt: BetInsight
 Datei auf GitHub: profil/admin/backoffice/index.html
-Version: 2026.08.06-04
-Hinweis: Master-Steuerung für Tippgeber, individuelle Wochenziele, manuelle Mengen-/Qualitätsfaktoren, Ergebnisübersicht, Wallet-Zielauswahl und feste Netzwerke.
+Version: 2026.08.07-40-60-MASTER-v1
+Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippgeberregeln, Ergebnisübersicht, Wallet-Zielauswahl und festen Netzwerken.
 -->
 <html lang="de">
 <head>
@@ -449,7 +449,7 @@ Hinweis: Master-Steuerung für Tippgeber, individuelle Wochenziele, manuelle Men
 
     .tabs {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 9px;
       margin-bottom: 18px;
       padding: 7px;
@@ -1038,6 +1038,113 @@ Hinweis: Master-Steuerung für Tippgeber, individuelle Wochenziele, manuelle Men
       line-height: 1.55;
     }
 
+    .model-status-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .model-status-card {
+      min-width: 0;
+      padding: 14px;
+      border: 1px solid rgba(0, 218, 255, 0.18);
+      border-radius: 12px;
+      background: rgba(1, 12, 19, 0.34);
+    }
+
+    .model-status-label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .model-status-value {
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .model-status-value.test {
+      color: var(--yellow);
+    }
+
+    .model-status-value.safe {
+      color: #91f5cf;
+    }
+
+    .distribution-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin: 15px 0;
+    }
+
+    .distribution-card {
+      padding: 15px;
+      border: 1px solid rgba(185, 216, 232, 0.15);
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .distribution-card strong {
+      color: #ffffff;
+    }
+
+    .distribution-line {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(185, 216, 232, 0.10);
+      color: var(--muted);
+    }
+
+    .distribution-line:last-child {
+      border-bottom: 0;
+    }
+
+    .distribution-line span:last-child {
+      color: #ffffff;
+      font-weight: 900;
+    }
+
+    .test-preview-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 9px;
+      margin-top: 14px;
+    }
+
+    .test-preview-item {
+      padding: 11px;
+      border: 1px solid rgba(185, 216, 232, 0.13);
+      border-radius: 10px;
+      background: rgba(1, 12, 19, 0.30);
+    }
+
+    .test-preview-label {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .test-preview-value {
+      color: #ffffff;
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .test-locked {
+      border-color: rgba(255, 218, 118, 0.30);
+      background: rgba(255, 218, 118, 0.06);
+    }
+
     .hidden {
       display: none !important;
     }
@@ -1058,8 +1165,13 @@ Hinweis: Master-Steuerung für Tippgeber, individuelle Wochenziele, manuelle Men
       .form-grid,
       .wallet-route-grid,
       .payout-route-grid,
-      .tipster-card-grid {
+      .tipster-card-grid,
+      .distribution-grid {
         grid-template-columns: 1fr;
+      }
+
+      .model-status-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .field.full,
@@ -1114,8 +1226,13 @@ Hinweis: Master-Steuerung für Tippgeber, individuelle Wochenziele, manuelle Men
       .factor-grid,
       .payout-balance-grid,
       .route-meta,
-      .tipster-settings-grid {
+      .tipster-settings-grid,
+      .test-preview-grid {
         grid-template-columns: 1fr;
+      }
+
+      .tabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .tipster-stat-grid {
@@ -1246,9 +1363,9 @@ Hinweis: Master-Steuerung für Tippgeber, individuelle Wochenziele, manuelle Men
         </article>
 
         <article class="kpi-card">
-          <div class="kpi-label">Aktueller Gesamtfaktor</div>
+          <div class="kpi-label">Normaler Unit-Pool-Anteil</div>
           <div class="kpi-value" id="effectiveFactor">30 %</div>
-          <div class="kpi-note">Startphase: voller möglicher Adminanteil</div>
+          <div class="kpi-note">Startphase: Luciano 40 %, Martin 30 %, Frank 30 %</div>
         </article>
 
         <article class="kpi-card">
@@ -1343,10 +1460,12 @@ Hinweis: Master-Steuerung für Tippgeber, individuelle Wochenziele, manuelle Men
               <th>Währung</th>
               <th>Eingang nach Plisio</th>
               <th>Betriebskosten 2,5 %</th>
-              <th>Affiliate-Budget 10 %</th>
-              <th>Verteilbare Basis</th>
-              <th>Faktor</th>
-              <th>Deine Provision</th>
+              <th>Affiliate-Reserve 10 %</th>
+              <th>Verteilbarer Netto</th>
+              <th>Sofortpool 40 %</th>
+              <th>Unit-Pool 60 %</th>
+              <th>Deine Sofortgutschrift</th>
+              <th>Freigegebener Unit-Anteil</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -1363,13 +1482,15 @@ Hinweis: Master-Steuerung für Tippgeber, individuelle Wochenziele, manuelle Men
       </div>
 
       <div class="info-box">
-        <strong>So wird gerechnet:</strong> Zuerst zählt nur der tatsächlich eingegangene Betrag nach der Plisio-Eingangsgebühr.
-        Davon werden parallel 2,5 % als vorläufige Betriebskostenvorauszahlung und 10 % als Affiliate-Budget ausgewiesen.
-        Der verbleibende Betrag ist die Grundlage für den persönlichen Faktor von 40 %, 30 % oder 30 %.
+        <strong>So wird gerechnet:</strong> Ausgangspunkt ist ausschließlich der tatsächlich von Plisio gutgeschriebene Eingang.
+        Davon werden 2,5 % Betriebskostenvorauszahlung und 10 % Affiliate-Reserve abgezogen. Der verbleibende Nettowert wird in
+        <strong>40 % sofortigen Gründerpool</strong> und <strong>60 % chargengebundenen Unit-Pool</strong> geteilt.
+        Der Unit-Pool wird erst sichtbar freigegeben, wenn die zugehörigen Units tatsächlich für Tipps verbraucht wurden.
         <br><br>
-        <strong>Firmenreserve / Unternehmenspool:</strong> Es gibt derzeit keinen zusätzlichen pauschalen 5-%-Abzug.
-        Nicht zuordenbare Affiliate-Anteile sowie positive, nicht ausgezahlte Kostenüberschüsse werden getrennt als Unternehmenspool geführt.
-        Die tatsächlichen gemeinsamen Kosten sind im Bereich „Kosten & Affiliate“ beziehungsweise in der Kostenabrechnung einsehbar.
+        <strong>Normale Tipps:</strong> In der Startphase wird der verbrauchte Unit-Pool 40/30/30 verteilt.
+        <strong>Spezialtipps:</strong> 50 % Luciano und 50 % tatsächlicher Spezialtippgeber. Bei einer Doppelrolle bleibt der bereits endgültig
+        gezahlte Gründer-Sofortanteil bestehen und wird auf den zusätzlichen Spezialanspruch angerechnet. Nicht verdiente oder frei bleibende Beträge
+        gehen in die Unternehmensreserve.
       </div>
     </section>
 
@@ -1536,6 +1657,124 @@ Hinweis: Master-Steuerung für Tippgeber, individuelle Wochenziele, manuelle Men
         <strong>save_tipster_settings</strong> angeschlossen ist.
       </div>
 
+      <article class="content-card full" id="model4060Card">
+        <div class="panel-heading">
+          <div>
+            <h3>40/60-Chargenmodell und Testbetrieb</h3>
+            <p class="muted">
+              Nur der Master-Admin sieht diese Steuerung. Testwerte bleiben vollständig von echten Wallets und Auszahlungen getrennt.
+            </p>
+          </div>
+          <a class="link-button" target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/1qpQDGtE1bl2bw10S2rOd4tQ72RqBOL8q4P6V34Jmsxs/edit#gid=2101000040">
+            Testtabelle öffnen
+          </a>
+        </div>
+
+        <div class="model-status-grid">
+          <div class="model-status-card">
+            <span class="model-status-label">Regelversion</span>
+            <span class="model-status-value" id="masterModelVersion">MIX-40-60-CHARGE-v3</span>
+          </div>
+          <div class="model-status-card">
+            <span class="model-status-label">Modellstatus</span>
+            <span class="model-status-value test" id="masterModelStatus">TEST</span>
+          </div>
+          <div class="model-status-card">
+            <span class="model-status-label">Sofortpool</span>
+            <span class="model-status-value" id="masterImmediatePoolPct">40 %</span>
+          </div>
+          <div class="model-status-card">
+            <span class="model-status-label">Unit-Pool</span>
+            <span class="model-status-value" id="masterUsagePoolPct">60 %</span>
+          </div>
+          <div class="model-status-card test-locked">
+            <span class="model-status-label">Produktivfreigabe</span>
+            <span class="model-status-value test" id="masterProductionRelease">NEIN</span>
+          </div>
+        </div>
+
+        <div class="distribution-grid">
+          <div class="distribution-card">
+            <h3>Normale Tipps · Startphase</h3>
+            <div class="distribution-line"><span>Luciano aus verbrauchtem Unit-Pool</span><span>40 %</span></div>
+            <div class="distribution-line"><span>Martin aus verbrauchtem Unit-Pool</span><span>30 %</span></div>
+            <div class="distribution-line"><span>Frank aus verbrauchtem Unit-Pool</span><span>30 %</span></div>
+            <div class="route-hint">Die vollen Anteile gelten nur für tatsächlich verbrauchte und finanziell gedeckte Units.</div>
+          </div>
+          <div class="distribution-card">
+            <h3>Spezialtipps</h3>
+            <div class="distribution-line"><span>Luciano aus verbrauchtem Unit-Pool</span><span>50 %</span></div>
+            <div class="distribution-line"><span>Tatsächlicher Spezialtippgeber</span><span>50 %</span></div>
+            <div class="distribution-line"><span>Andere Partner aus diesem Unit-Pool</span><span>0 %</span></div>
+            <div class="route-hint">Bei Martin als Tennis-Tippgeber wird sein endgültiger Gründer-Sofortanteil angerechnet, nicht zurückgebucht.</div>
+          </div>
+        </div>
+
+        <div class="warning-box">
+          <strong>Sicherheitsstatus:</strong> Das Modell ist im Sheet vorbereitet, aber produktiv ausgeschaltet. Testguthaben ist nicht auszahlbar.
+          Das Make-Szenario „BetInsight – Testzahlung simulieren – v1.0“ muss zuerst angeschlossen und geprüft werden.
+        </div>
+
+        <div class="section-grid">
+          <div class="content-card">
+            <h3>Testzahlung vorbereiten</h3>
+            <div class="form-grid">
+              <div class="field">
+                <label for="testPackageCode">Paket</label>
+                <select id="testPackageCode">
+                  <option value="starter" data-units="50" data-price="49">Starter · 49 € / 50 Units</option>
+                  <option value="starter_bonus" data-units="70" data-price="64">Starter Bonus · 64 € / 70 Units</option>
+                  <option value="basic" data-units="110" data-price="99" selected>Basic · 99 € / 110 Units</option>
+                  <option value="basic_bonus" data-units="130" data-price="114">Basic Bonus · 114 € / 130 Units</option>
+                  <option value="pro" data-units="240" data-price="199">Pro · 199 € / 240 Units</option>
+                  <option value="pro_bonus" data-units="260" data-price="214">Pro Bonus · 214 € / 260 Units</option>
+                  <option value="elite" data-units="365" data-price="299">Elite · 299 € / 365 Units</option>
+                  <option value="elite_bonus" data-units="385" data-price="314">Elite Bonus · 314 € / 385 Units</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="testPlisioIncoming">Simulierter Plisio-Eingang in EUR</label>
+                <input id="testPlisioIncoming" type="number" min="0.01" step="0.01" value="98.01">
+              </div>
+              <div class="field">
+                <label for="testUserId">Testnutzer-ID</label>
+                <input id="testUserId" type="text" value="TEST-USER-001" autocomplete="off">
+              </div>
+              <div class="field">
+                <label for="testPaymentNote">Bemerkung</label>
+                <input id="testPaymentNote" type="text" value="40/60-Systemtest" autocomplete="off">
+              </div>
+            </div>
+
+            <div class="test-preview-grid">
+              <div class="test-preview-item"><span class="test-preview-label">Verteilbarer Netto</span><span class="test-preview-value" id="testPreviewNet">85,76 €</span></div>
+              <div class="test-preview-item"><span class="test-preview-label">Sofortpool 40 %</span><span class="test-preview-value" id="testPreviewImmediate">34,30 €</span></div>
+              <div class="test-preview-item"><span class="test-preview-label">Unit-Pool 60 %</span><span class="test-preview-value" id="testPreviewUsage">51,46 €</span></div>
+              <div class="test-preview-item"><span class="test-preview-label">Unit-Pool je Unit</span><span class="test-preview-value" id="testPreviewPerUnit">0,467775 €</span></div>
+            </div>
+
+            <div class="button-row">
+              <button class="button button-primary" type="button" id="simulateTestPaymentButton" disabled>
+                Testzahlung an Make senden
+              </button>
+            </div>
+            <div id="testPaymentMessage" class="master-action-message visible error">
+              Make-Testwebhook noch nicht verbunden. Die Berechnungsvorschau funktioniert bereits; es wird noch nichts gebucht.
+            </div>
+          </div>
+
+          <div class="content-card">
+            <h3>Was der Test später buchen muss</h3>
+            <div class="distribution-line"><span>Testzahlung</span><span>BO_TESTZAHLUNGEN_40_60</span></div>
+            <div class="distribution-line"><span>Test-Kaufcharge</span><span>BO_TEST_CHARGEN_40_60</span></div>
+            <div class="distribution-line"><span>Test-Walletbewegungen</span><span>BO_TEST_LEDGER_40_60</span></div>
+            <div class="distribution-line"><span>Plisio-Aufruf</span><span>NEIN</span></div>
+            <div class="distribution-line"><span>Auszahlbar</span><span>NEIN</span></div>
+            <div class="info-box">Erst nach einer Kontrollsumme von 0,00 € darf der Teststatus auf „VERARBEITET“ wechseln.</div>
+          </div>
+        </div>
+      </article>
+
       <div id="tipsterCards" class="tipster-card-grid">
         <div class="empty-state">Tippgeber-Einstellungen werden geladen.</div>
       </div>
@@ -1624,12 +1863,12 @@ Hinweis: Master-Steuerung für Tippgeber, individuelle Wochenziele, manuelle Men
             <div class="kpi-card">
               <div class="kpi-label">Firmenreserve</div>
               <div class="kpi-value" id="masterCompanyReserve">0,00</div>
-              <div class="kpi-note">5 % je bestätigtem Paketkauf</div>
+              <div class="kpi-note">Nicht verdiente, frei gewordene und Anrechnungsbeträge</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">Luciano-Anteil</div>
               <div class="kpi-value" id="masterLucianoShare">40 %</div>
-              <div class="kpi-note">Von der Netto-Berechnungsgrundlage</div>
+              <div class="kpi-note">40 % Sofortpool plus 40/50 % des verbrauchten Unit-Pools</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">Offene Auszahlungen</div>
@@ -1667,6 +1906,7 @@ Hinweis: Master-Steuerung für Tippgeber, individuelle Wochenziele, manuelle Men
     const TIPSTER_DRAFT_KEY = "betinsight_master_tipster_drafts";
 
     const API_URL = "https://hook.eu1.make.com/p4t9t3gvr77dowgvg14m1wuekxzfi3sx";
+    const TEST_PAYMENT_API_URL = ""; // Nach Import des ersten Make-Blueprints hier den neuen Test-Webhook eintragen.
 
     const FALLBACK_TIPSTERS = [
       {
@@ -1746,6 +1986,12 @@ Hinweis: Master-Steuerung für Tippgeber, individuelle Wochenziele, manuelle Men
     const createTipsterMessage = document.getElementById("createTipsterMessage");
     const masterResultsTableBody = document.getElementById("masterResultsTableBody");
     const masterResultsMessage = document.getElementById("masterResultsMessage");
+    const testPackageCode = document.getElementById("testPackageCode");
+    const testPlisioIncoming = document.getElementById("testPlisioIncoming");
+    const testUserId = document.getElementById("testUserId");
+    const testPaymentNote = document.getElementById("testPaymentNote");
+    const simulateTestPaymentButton = document.getElementById("simulateTestPaymentButton");
+    const testPaymentMessage = document.getElementById("testPaymentMessage");
 
     let latestBalances = [];
     let latestWallets = [];
@@ -1786,30 +2032,7 @@ Hinweis: Master-Steuerung für Tippgeber, individuelle Wochenziele, manuelle Men
     }
 
     function activateTab(tabName) {
-      tipsterCards.addEventListener("input", function (event) {
-      const card = event.target.closest("[data-tipster-card]");
-      if (card) refreshTipsterPreview(card);
-    });
-
-    tipsterCards.addEventListener("change", function (event) {
-      const card = event.target.closest("[data-tipster-card]");
-      if (card) refreshTipsterPreview(card);
-    });
-
-    tipsterCards.addEventListener("click", function (event) {
-      const button = event.target.closest(".save-tipster-button");
-      const card = event.target.closest("[data-tipster-card]");
-      if (button && card) saveTipsterCard(card, button);
-    });
-
-    masterResultsTableBody.addEventListener("click", function (event) {
-      const button = event.target.closest(".result-review-button");
-      if (button) reviewTipResult(button);
-    });
-
-    createTipsterButton.addEventListener("click", createTipster);
-
-    document.querySelectorAll(".tab-button").forEach(function (button) {
+      document.querySelectorAll(".tab-button").forEach(function (button) {
         const active = button.dataset.tab === tabName;
         button.setAttribute("aria-selected", active ? "true" : "false");
       });
@@ -2220,25 +2443,36 @@ Hinweis: Master-Steuerung für Tippgeber, individuelle Wochenziele, manuelle Men
 
     function renderProvisions(items) {
       if (!Array.isArray(items) || !items.length) {
-        provisionTableBody.innerHTML = '<tr><td colspan="10"><div class="empty-state">Keine Provisionen vorhanden.</div></td></tr>';
+        provisionTableBody.innerHTML = '<tr><td colspan="12"><div class="empty-state">Keine Provisionen vorhanden.</div></td></tr>';
         return;
       }
+
+      const current = getCurrentAdmin();
+      const founderPct = current.admin?.role === "owner" ? 40 : 30;
+
       provisionTableBody.innerHTML = items.map(function (item) {
-        const incoming = num(item.incoming_after_plisio_eur ?? item.net_basis_eur);
-        const costs = num(item.cost_prepayment_eur ?? (incoming * 0.025));
-        const affiliate = num(item.affiliate_budget_eur ?? (incoming * 0.10));
-        const distribution = num(item.distribution_basis_eur ?? Math.max(incoming - costs - affiliate, 0));
+        const incoming = num(item.incoming_after_plisio_eur ?? item.net_basis_eur ?? item.netto_nach_plisio_eur);
+        const costs = num(item.cost_prepayment_eur ?? item.betriebskosten_vorauszahlung_eur ?? (incoming * 0.025));
+        const affiliate = num(item.affiliate_budget_eur ?? item.affiliate_reserve_eur ?? (incoming * 0.10));
+        const distribution = num(item.distribution_basis_eur ?? item.verteilbarer_netto_eur ?? Math.max(incoming - costs - affiliate, 0));
+        const immediatePool = num(item.sofort_pool_eur ?? (distribution * 0.40));
+        const usagePool = num(item.nutzungspool_eur ?? (distribution * 0.60));
+        const immediateCredit = num(item.sofort_person_eur ?? item.immediate_credit_eur ?? (immediatePool * founderPct / 100));
+        const unitCredit = num(item.unit_credit_released_eur ?? item.nutzungspool_person_freigegeben_eur ?? item.unit_commission_eur ?? 0);
+
         return `<tr>
-          <td>${escapeHtml(item.date || "–")}</td>
-          <td>${escapeHtml(item.package || "–")}</td>
-          <td>${escapeHtml(item.payment_currency || "–")}</td>
+          <td>${escapeHtml(item.date || item.zahlung_bestaetigt_am || "–")}</td>
+          <td>${escapeHtml(item.package || item.paket_code || "–")}</td>
+          <td>${escapeHtml(item.payment_currency || item.waehrung || "–")}</td>
           <td><span class="privacy-sensitive">${formatEuro(incoming)}</span></td>
           <td><span class="privacy-sensitive">${formatEuro(costs)}</span></td>
           <td><span class="privacy-sensitive">${formatEuro(affiliate)}</span></td>
           <td><span class="privacy-sensitive">${formatEuro(distribution)}</span></td>
-          <td>${formatNumber(item.factor_pct, 0)} %</td>
-          <td><span class="privacy-sensitive">${formatEuro(item.commission_eur)}</span></td>
-          <td><span class="status-pill">${escapeHtml(label(item.status))}</span></td>
+          <td><span class="privacy-sensitive">${formatEuro(immediatePool)}</span></td>
+          <td><span class="privacy-sensitive">${formatEuro(usagePool)}</span></td>
+          <td><span class="privacy-sensitive">${formatEuro(immediateCredit)}</span></td>
+          <td><span class="privacy-sensitive">${formatEuro(unitCredit)}</span></td>
+          <td><span class="status-pill">${escapeHtml(label(item.status || item.abrechnungsstatus || "offen"))}</span></td>
         </tr>`;
       }).join("");
     }
@@ -2555,11 +2789,111 @@ Hinweis: Master-Steuerung für Tippgeber, individuelle Wochenziele, manuelle Men
       }
     }
 
+    function selectedTestPackage() {
+      const option = testPackageCode?.selectedOptions?.[0];
+      return {
+        code: option?.value || "basic",
+        units: num(option?.dataset?.units || 0),
+        price: num(option?.dataset?.price || 0)
+      };
+    }
+
+    function updateTestPaymentPreview() {
+      if (!testPackageCode || !testPlisioIncoming) return;
+      const selected = selectedTestPackage();
+      const incoming = Math.max(num(testPlisioIncoming.value), 0);
+      const costs = incoming * 0.025;
+      const affiliate = incoming * 0.10;
+      const net = Math.max(incoming - costs - affiliate, 0);
+      const immediate = net * 0.40;
+      const usage = net * 0.60;
+      const perUnit = selected.units > 0 ? usage / selected.units : 0;
+
+      document.getElementById("testPreviewNet").textContent = formatEuro(net);
+      document.getElementById("testPreviewImmediate").textContent = formatEuro(immediate);
+      document.getElementById("testPreviewUsage").textContent = formatEuro(usage);
+      document.getElementById("testPreviewPerUnit").textContent = formatNumber(perUnit, 6) + " €";
+    }
+
+    function configureTestPaymentButton() {
+      if (!simulateTestPaymentButton) return;
+      const connected = Boolean(TEST_PAYMENT_API_URL && TEST_PAYMENT_API_URL.startsWith("https://"));
+      simulateTestPaymentButton.disabled = !connected;
+      if (!connected) {
+        setActionMessage(
+          testPaymentMessage,
+          "Make-Testwebhook noch nicht verbunden. Die Berechnungsvorschau funktioniert bereits; es wird noch nichts gebucht.",
+          "error"
+        );
+      }
+    }
+
+    async function simulateTestPayment() {
+      const current = getCurrentAdmin();
+      const selected = selectedTestPackage();
+      const incoming = num(testPlisioIncoming?.value);
+      if (!TEST_PAYMENT_API_URL) {
+        configureTestPaymentButton();
+        return;
+      }
+      if (incoming <= 0 || selected.units <= 0) {
+        setActionMessage(testPaymentMessage, "Bitte Paket und einen positiven Plisio-Testeingang prüfen.", "error");
+        return;
+      }
+
+      simulateTestPaymentButton.disabled = true;
+      simulateTestPaymentButton.textContent = "Testzahlung wird gesendet …";
+      setActionMessage(testPaymentMessage, "", "error");
+
+      try {
+        const response = await fetch(TEST_PAYMENT_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "simulate_test_payment",
+            request_id: requestId(),
+            admin_code: current.code,
+            created_by_admin_id: current.admin?.role === "owner" ? "ADM-001" : "",
+            package_code: selected.code,
+            package_units: selected.units,
+            package_price_eur: selected.price,
+            plisio_incoming_eur: incoming,
+            test_user_id: String(testUserId?.value || "TEST-USER-001").trim(),
+            note: String(testPaymentNote?.value || "40/60-Systemtest").trim(),
+            environment: "TEST",
+            payout_allowed: "NEIN",
+            rule_version: "MIX-40-60-CHARGE-v3"
+          })
+        });
+        const responseText = await response.text();
+        let result = {};
+        try { result = responseText ? JSON.parse(responseText) : {}; }
+        catch (error) { result = { ok: false, message: responseText || "Ungültige Make-Antwort." }; }
+        if (!response.ok || result.ok === false) throw new Error(result.message || ("HTTP " + response.status));
+        setActionMessage(testPaymentMessage, result.message || "Testzahlung wurde getrennt und nicht auszahlbar gebucht.", "success");
+      } catch (error) {
+        setActionMessage(testPaymentMessage, "Testzahlung konnte nicht gebucht werden: " + (error.message || "Unbekannter Fehler"), "error");
+      } finally {
+        simulateTestPaymentButton.disabled = false;
+        simulateTestPaymentButton.textContent = "Testzahlung an Make senden";
+      }
+    }
+
+    function renderMasterModel(master) {
+      const model = parseJsonValue(master?.model_40_60 ?? master?.model4060, {});
+      document.getElementById("masterModelVersion").textContent = String(model.rule_version || "MIX-40-60-CHARGE-v3");
+      document.getElementById("masterModelStatus").textContent = String(model.status || "TEST");
+      document.getElementById("masterImmediatePoolPct").textContent = formatNumber(model.immediate_pool_pct ?? 40, 0) + " %";
+      document.getElementById("masterUsagePoolPct").textContent = formatNumber(model.usage_pool_pct ?? 60, 0) + " %";
+      document.getElementById("masterProductionRelease").textContent = String(model.production_release || "NEIN");
+    }
+
     function applyData(data) {
       if (!data || data.ok === false) throw new Error(data?.message || "Ungültige Antwort");
 
       const role = String(data.role || "").toUpperCase();
-      const isMaster = role === "MASTER";
+      const localOwner = getCurrentAdmin().admin?.role === "owner";
+      const isMaster = role === "MASTER" || localOwner;
       if (data.admin_name) adminName.textContent = data.admin_name;
       roleBadge.textContent = isMaster ? "Master-Admin" : "Admin";
       masterTabButton.classList.toggle("hidden", !isMaster);
@@ -2587,6 +2921,7 @@ Hinweis: Master-Steuerung für Tippgeber, individuelle Wochenziele, manuelle Men
       if (isMaster && master && typeof master === "object") {
         renderTipsterCards(tipsters);
         renderMasterResults(tipResults);
+        renderMasterModel(master);
         document.getElementById("masterCompanyReserve").innerHTML = '<span class="privacy-sensitive">' +
           formatEuro(master.company_reserve_eur || 0) + '</span>';
         document.getElementById("masterLucianoShare").innerHTML = '<span class="privacy-sensitive">' +
@@ -2776,6 +3111,10 @@ Hinweis: Master-Steuerung für Tippgeber, individuelle Wochenziele, manuelle Men
       });
     });
 
+    testPackageCode?.addEventListener("change", updateTestPaymentPreview);
+    testPlisioIncoming?.addEventListener("input", updateTestPaymentPreview);
+    simulateTestPaymentButton?.addEventListener("click", simulateTestPayment);
+
     reloadButton.addEventListener("click", loadBackofficeData);
     logoutButton.addEventListener("click", logout);
     saveWalletButton.addEventListener("click", saveWalletLocally);
@@ -2786,9 +3125,15 @@ Hinweis: Master-Steuerung für Tippgeber, individuelle Wochenziele, manuelle Men
     if (current) {
       initializePrivacy();
       updateNextBatchDate();
+      updateTestPaymentPreview();
+      configureTestPaymentButton();
       if (current.admin?.role === "owner") {
         renderTipsterCards(FALLBACK_TIPSTERS);
         renderMasterResults([]);
+        renderMasterModel({});
+        activateTab("master");
+      } else {
+        activateTab("overview");
       }
       loadBackofficeData();
     }
