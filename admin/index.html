@@ -459,7 +459,7 @@
       <div class="intro">
         <h2>Was möchtest du machen?</h2>
         <p class="subtitle">
-          Wähle den gewünschten Bereich. Deine bestehende Anmeldung bleibt auf diesem Gerät gespeichert.
+          Wähle den gewünschten Bereich. Deine sichere Sitzung gilt für maximal 8 Stunden und bleibt nur in diesem Browser-Tab aktiv.
         </p>
       </div>
 
@@ -492,31 +492,36 @@
       </div>
 
       <div class="security-note">
-        Finanzielle Aktionen werden später zusätzlich über den sicheren Make-Backoffice-Zugang geprüft.
-        Die heutige Seite verwendet bewusst dieselbe lokale Admin-Anmeldung wie der bestehende Tippbereich.
+        Dein Admin-Code wird nicht im HTML und nicht im Browser gespeichert. Er wird ausschließlich zur Anmeldung
+        verschlüsselt per HTTPS an den BetInsight-Auth-Webhook gesendet. Danach arbeitet der Browser nur noch mit
+        einer zeitlich begrenzten Session.
       </div>
     </section>
 
     <footer class="footer">
-      © 2026 BetInsight Club · Admin Center
+      © 2026 BetInsight Club · Admin Center · Session-Sicherheit v2.0
     </footer>
   </main>
 
   <script>
     "use strict";
 
-    const ADMINS = {
-      "4837LUC": { name: "Luciano", role: "owner" },
-      "6152MAR": { name: "Martin", role: "tipster" },
-      "9084FRA": { name: "Frank", role: "tipster" }
-    };
+    const AUTH_API_URL = "https://hook.eu1.make.com/rfmhuu4fkr9kjsv7o15r2kir8ezbersl";
+    const SESSION_KEY = "betinsight_admin_session_v1";
 
-    const STORAGE_KEY = "betinsight_admin_login";
-    const FAILED_KEY = "betinsight_admin_failed_attempts";
-    const LOCK_KEY = "betinsight_admin_locked_until";
+    // Alte unsichere Login-Daten aus früheren HTML-Versionen entfernen.
+    const LEGACY_KEYS = [
+      "betinsight_admin_login",
+      "betinsight_admin_failed_attempts",
+      "betinsight_admin_locked_until"
+    ];
 
     const MAX_FAILED_ATTEMPTS = 3;
     const LOCK_TIME_MINUTES = 5;
+
+    let failedAttempts = 0;
+    let lockedUntil = 0;
+    let authBusy = false;
 
     const loginArea = document.getElementById("loginArea");
     const dashboardArea = document.getElementById("dashboardArea");
@@ -526,162 +531,283 @@
     const adminName = document.getElementById("adminName");
     const roleBadge = document.getElementById("roleBadge");
 
+    function removeLegacyCredentials() {
+      for (const key of LEGACY_KEYS) {
+        try {
+          localStorage.removeItem(key);
+        } catch (error) {
+          // Kein Abbruch, falls Storage blockiert ist.
+        }
+      }
+    }
+
     function normalizeCode(code) {
-      return String(code || "").trim().toUpperCase();
+      return String(code || "").trim();
     }
 
-    function getFailedAttempts() {
-      return Number(localStorage.getItem(FAILED_KEY) || "0");
-    }
-
-    function setFailedAttempts(count) {
-      localStorage.setItem(FAILED_KEY, String(count));
-    }
-
-    function clearFailedAttempts() {
-      localStorage.removeItem(FAILED_KEY);
-      localStorage.removeItem(LOCK_KEY);
-    }
-
-    function getLockedUntil() {
-      return Number(localStorage.getItem(LOCK_KEY) || "0");
+    function setMessage(text, isError = false) {
+      loginMessage.textContent = text || "";
+      loginMessage.classList.toggle("error-message", Boolean(isError));
     }
 
     function isLocked() {
-      const lockedUntil = getLockedUntil();
       return Boolean(lockedUntil && Date.now() < lockedUntil);
     }
 
     function getRemainingLockSeconds() {
-      const remaining = Math.ceil((getLockedUntil() - Date.now()) / 1000);
-      return Math.max(0, remaining);
+      return Math.max(0, Math.ceil((lockedUntil - Date.now()) / 1000));
     }
 
     function formatRemainingTime(seconds) {
       const minutes = Math.floor(seconds / 60);
       const restSeconds = seconds % 60;
-
-      if (minutes <= 0) {
-        return restSeconds + " Sekunden";
-      }
-
+      if (minutes <= 0) return restSeconds + " Sekunden";
       return minutes + " Minuten und " + restSeconds + " Sekunden";
     }
 
     function lockLogin() {
-      const lockedUntil = Date.now() + LOCK_TIME_MINUTES * 60 * 1000;
-      localStorage.setItem(LOCK_KEY, String(lockedUntil));
+      lockedUntil = Date.now() + LOCK_TIME_MINUTES * 60 * 1000;
       updateLockState();
     }
 
     function updateLockState() {
-      if (!isLocked()) {
-        adminCodeInput.disabled = false;
-        loginButton.disabled = false;
+      const locked = isLocked();
+      adminCodeInput.disabled = locked || authBusy;
+      loginButton.disabled = locked || authBusy;
 
-        if (getLockedUntil()) {
-          clearFailedAttempts();
-          loginMessage.textContent = "";
-          loginMessage.classList.remove("error-message");
-        }
-
+      if (locked) {
+        setMessage(
+          "Zu viele ungültige Anmeldeversuche in diesem Browser. Bitte versuche es in " +
+          formatRemainingTime(getRemainingLockSeconds()) + " erneut.",
+          true
+        );
         return;
       }
 
-      adminCodeInput.disabled = true;
-      loginButton.disabled = true;
-      loginMessage.classList.add("error-message");
-      loginMessage.textContent =
-        "Zu viele ungültige Anmeldeversuche. Bitte versuche es in " +
-        formatRemainingTime(getRemainingLockSeconds()) +
-        " erneut.";
+      if (lockedUntil) {
+        lockedUntil = 0;
+        failedAttempts = 0;
+        setMessage("");
+      }
     }
 
-    function loginAdmin() {
-      updateLockState();
+    async function authRequest(payload) {
+      const response = await fetch(AUTH_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        cache: "no-store",
+        credentials: "omit",
+        body: JSON.stringify({
+          ...payload,
+          user_agent: navigator.userAgent || ""
+        })
+      });
 
-      if (isLocked()) {
-        return;
+      const raw = await response.text();
+      let data = null;
+
+      try {
+        data = raw ? JSON.parse(raw) : {};
+      } catch (error) {
+        throw new Error("Auth-Server hat keine gültige JSON-Antwort geliefert.");
       }
 
-      const code = normalizeCode(adminCodeInput.value);
-
-      if (!code) {
-        loginMessage.classList.remove("error-message");
-        loginMessage.textContent = "Bitte Admin-Code eingeben.";
-        adminCodeInput.focus();
-        return;
+      if (!response.ok || !data || data.ok !== true) {
+        const message =
+          data?.message ||
+          data?.error ||
+          ("Anmeldung abgelehnt (HTTP " + response.status + ").");
+        const authError = new Error(message);
+        authError.status = response.status;
+        authError.data = data;
+        throw authError;
       }
 
-      if (!ADMINS[code]) {
-        const failedAttempts = getFailedAttempts() + 1;
-        setFailedAttempts(failedAttempts);
-        adminCodeInput.value = "";
-
-        if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
-          lockLogin();
-          return;
-        }
-
-        loginMessage.classList.add("error-message");
-        loginMessage.textContent =
-          "Admin-Code nicht erkannt. Verbleibende Versuche: " +
-          (MAX_FAILED_ATTEMPTS - failedAttempts) +
-          ".";
-        adminCodeInput.focus();
-        return;
-      }
-
-      clearFailedAttempts();
-      localStorage.setItem(STORAGE_KEY, code);
-      showDashboard(code);
+      return data;
     }
 
-    function showDashboard(code) {
-      const admin = ADMINS[code];
+    function saveSession(data) {
+      const session = {
+        token: String(data.session_token || ""),
+        expiresMs: Number(data.expires_ms || 0),
+        adminId: String(data.admin_id || ""),
+        name: String(data.name || "Admin"),
+        role: String(data.role || "ADMIN"),
+        master: String(data.master || "NEIN")
+      };
 
-      if (!admin) {
-        localStorage.removeItem(STORAGE_KEY);
-        showLogin();
-        return;
+      if (!session.token || !session.adminId || !session.expiresMs) {
+        throw new Error("Die Auth-Antwort enthält keine vollständige Sitzung.");
       }
 
-      adminName.textContent = admin.name;
-      roleBadge.textContent = admin.role === "owner" ? "Master-Admin" : "Admin";
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+      return session;
+    }
+
+    function readSession() {
+      try {
+        const raw = sessionStorage.getItem(SESSION_KEY);
+        if (!raw) return null;
+
+        const session = JSON.parse(raw);
+        if (!session || !session.token || !session.adminId) return null;
+        return session;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function clearSession() {
+      try {
+        sessionStorage.removeItem(SESSION_KEY);
+      } catch (error) {
+        // Kein Abbruch.
+      }
+    }
+
+    function sessionIsLocallyExpired(session) {
+      const expiresMs = Number(session?.expiresMs || 0);
+      return !expiresMs || Date.now() >= expiresMs;
+    }
+
+    function showDashboard(session) {
+      adminName.textContent = session.name || "Admin";
+      roleBadge.textContent =
+        session.master === "JA" || session.role === "MASTER"
+          ? "Master-Admin"
+          : "Admin";
 
       loginArea.classList.add("hidden");
       dashboardArea.classList.remove("hidden");
 
-      loginMessage.textContent = "";
-      loginMessage.classList.remove("error-message");
+      setMessage("");
       adminCodeInput.value = "";
     }
 
-    function showLogin() {
+    function showLogin(message = "") {
       dashboardArea.classList.add("hidden");
       loginArea.classList.remove("hidden");
       updateLockState();
 
-      if (!isLocked()) {
-        adminCodeInput.focus();
+      if (message) setMessage(message, true);
+
+      if (!isLocked() && !authBusy) {
+        setTimeout(() => adminCodeInput.focus(), 0);
       }
     }
 
-    function logoutAdmin() {
-      localStorage.removeItem(STORAGE_KEY);
-      showLogin();
-    }
+    async function loginAdmin() {
+      updateLockState();
+      if (isLocked() || authBusy) return;
 
-    function restoreAdminSession() {
-      const savedCode = normalizeCode(localStorage.getItem(STORAGE_KEY));
+      const code = normalizeCode(adminCodeInput.value);
 
-      if (savedCode && ADMINS[savedCode]) {
-        showDashboard(savedCode);
+      if (!code) {
+        setMessage("Bitte Admin-Code eingeben.");
+        adminCodeInput.focus();
         return;
       }
 
-      localStorage.removeItem(STORAGE_KEY);
-      showLogin();
+      authBusy = true;
+      updateLockState();
+      setMessage("Anmeldung wird sicher geprüft …");
+
+      try {
+        const result = await authRequest({
+          action: "login",
+          admin_code: code
+        });
+
+        failedAttempts = 0;
+        lockedUntil = 0;
+
+        // Klartext sofort aus dem Eingabefeld entfernen.
+        adminCodeInput.value = "";
+
+        const session = saveSession(result);
+        showDashboard(session);
+      } catch (error) {
+        adminCodeInput.value = "";
+        failedAttempts += 1;
+
+        if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
+          lockLogin();
+        } else {
+          setMessage(
+            (error?.message || "Anmeldung nicht möglich.") +
+            " Verbleibende Versuche in diesem Browser: " +
+            (MAX_FAILED_ATTEMPTS - failedAttempts) + ".",
+            true
+          );
+        }
+      } finally {
+        authBusy = false;
+        updateLockState();
+      }
+    }
+
+    async function verifyStoredSession() {
+      const session = readSession();
+
+      if (!session || sessionIsLocallyExpired(session)) {
+        clearSession();
+        showLogin();
+        return;
+      }
+
+      authBusy = true;
+      updateLockState();
+      setMessage("Bestehende Sitzung wird geprüft …");
+
+      try {
+        const result = await authRequest({
+          action: "verify",
+          session_token: session.token
+        });
+
+        const verified = {
+          token: session.token,
+          expiresMs: Number(result.expires_ms || session.expiresMs || 0),
+          adminId: String(result.admin_id || session.adminId || ""),
+          name: String(result.name || session.name || "Admin"),
+          role: String(result.role || session.role || "ADMIN"),
+          master: String(result.master || session.master || "NEIN")
+        };
+
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify(verified));
+        showDashboard(verified);
+      } catch (error) {
+        clearSession();
+        showLogin("Deine Sitzung ist nicht mehr gültig. Bitte erneut anmelden.");
+      } finally {
+        authBusy = false;
+        updateLockState();
+      }
+    }
+
+    async function logoutAdmin() {
+      const session = readSession();
+      clearSession();
+
+      dashboardArea.classList.add("hidden");
+      loginArea.classList.remove("hidden");
+      setMessage("Du wurdest abgemeldet.");
+
+      if (session?.token) {
+        try {
+          await authRequest({
+            action: "logout",
+            session_token: session.token
+          });
+        } catch (error) {
+          // Lokale Sitzung bleibt trotzdem beendet.
+        }
+      }
+
+      adminCodeInput.value = "";
+      adminCodeInput.focus();
     }
 
     loginButton.addEventListener("click", loginAdmin);
@@ -693,14 +819,16 @@
       }
     });
 
-    window.addEventListener("storage", function (event) {
-      if (event.key === STORAGE_KEY) {
-        restoreAdminSession();
+    window.addEventListener("pageshow", function () {
+      const session = readSession();
+      if (session && !sessionIsLocallyExpired(session)) {
+        showDashboard(session);
       }
     });
 
+    removeLegacyCredentials();
     setInterval(updateLockState, 1000);
-    restoreAdminSession();
+    verifyStoredSession();
   </script>
 </body>
 </html>
