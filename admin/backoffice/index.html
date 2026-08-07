@@ -1267,6 +1267,119 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
       }
     }
   </style>
+
+  <style>
+    .test-wallet-panel {
+      margin-top: 18px;
+      border: 1px solid rgba(46, 204, 113, .34);
+      background: linear-gradient(180deg, rgba(13, 93, 113, .20), rgba(5, 48, 63, .28));
+      border-radius: 16px;
+      padding: 16px;
+    }
+    .test-wallet-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .test-wallet-head h3 { margin: 0 0 4px; }
+    .test-wallet-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 210, 75, .45);
+      background: rgba(255, 210, 75, .09);
+      color: #ffe18b;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .test-wallet-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .test-wallet-card {
+      border: 1px solid rgba(122, 201, 255, .20);
+      background: rgba(0, 31, 43, .48);
+      border-radius: 13px;
+      padding: 13px;
+      min-width: 0;
+    }
+    .test-wallet-card .label {
+      display: block;
+      color: #9fd7e9;
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+    .test-wallet-card .value {
+      display: block;
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1.15;
+      word-break: break-word;
+    }
+    .test-wallet-card.reserve .value { color: #ffe18b; }
+    .test-wallet-card.person .value { color: #94f0ba; }
+    .test-wallet-card.cost .value { color: #ffc6a8; }
+    .test-wallet-summary {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .test-wallet-note {
+      margin-top: 12px;
+      padding: 11px 12px;
+      border-radius: 12px;
+      background: rgba(26, 151, 102, .09);
+      border: 1px solid rgba(46, 204, 113, .22);
+      color: #b9e7cf;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .test-history-wrap {
+      margin-top: 14px;
+      overflow-x: auto;
+      border: 1px solid rgba(122, 201, 255, .16);
+      border-radius: 12px;
+    }
+    .test-history-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+      font-size: 12px;
+    }
+    .test-history-table th,
+    .test-history-table td {
+      text-align: left;
+      padding: 9px 10px;
+      border-bottom: 1px solid rgba(122, 201, 255, .12);
+      white-space: nowrap;
+    }
+    .test-history-table th {
+      color: #aadaea;
+      background: rgba(0, 31, 43, .55);
+    }
+    .test-history-table tbody tr:last-child td { border-bottom: 0; }
+    .test-empty {
+      color: #8eb7c4;
+      padding: 14px;
+      text-align: center;
+    }
+    @media (max-width: 850px) {
+      .test-wallet-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .test-wallet-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .test-wallet-head { flex-direction: column; }
+    }
+    @media (max-width: 520px) {
+      .test-wallet-grid,
+      .test-wallet-summary { grid-template-columns: 1fr; }
+    }
+  </style>
+
 </head>
 
 <body class="privacy-on">
@@ -1771,6 +1884,90 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
             <div class="distribution-line"><span>Plisio-Aufruf</span><span>NEIN</span></div>
             <div class="distribution-line"><span>Auszahlbar</span><span>NEIN</span></div>
             <div class="info-box">Erst nach einer Kontrollsumme von 0,00 € darf der Teststatus auf „VERARBEITET“ wechseln.</div>
+          </div>
+        </div>
+
+        <div class="test-wallet-panel" id="testWalletPanel">
+          <div class="test-wallet-head">
+            <div>
+              <h3>Test-Wallets · nicht auszahlbar</h3>
+              <div class="muted">Diese Anzeige bleibt strikt von den echten Admin-Wallets getrennt und wird nach erfolgreichen 40/60-Testzahlungen aktualisiert.</div>
+            </div>
+            <div class="test-wallet-badge">TEST · AUSZAHLBAR: NEIN</div>
+          </div>
+
+          <div class="test-wallet-grid">
+            <div class="test-wallet-card person">
+              <span class="label">Luciano · Testguthaben Sofortpool</span>
+              <span class="value" id="testWalletLuciano">0,00 €</span>
+            </div>
+            <div class="test-wallet-card person">
+              <span class="label">Martin · Testguthaben Sofortpool</span>
+              <span class="value" id="testWalletMartin">0,00 €</span>
+            </div>
+            <div class="test-wallet-card person">
+              <span class="label">Frank · Testguthaben Sofortpool</span>
+              <span class="value" id="testWalletFrank">0,00 €</span>
+            </div>
+            <div class="test-wallet-card reserve">
+              <span class="label">Unit-Reserve · 60-%-Pool</span>
+              <span class="value" id="testWalletUnitReserve">0,00 €</span>
+            </div>
+            <div class="test-wallet-card reserve">
+              <span class="label">Affiliate-Reserve · 10 %</span>
+              <span class="value" id="testWalletAffiliateReserve">0,00 €</span>
+            </div>
+            <div class="test-wallet-card cost">
+              <span class="label">Betriebskosten · 2,5 %</span>
+              <span class="value" id="testWalletCosts">0,00 €</span>
+            </div>
+          </div>
+
+          <div class="test-wallet-summary">
+            <div class="test-wallet-card">
+              <span class="label">Gründer-Testguthaben gesamt</span>
+              <span class="value" id="testWalletFounderTotal">0,00 €</span>
+            </div>
+            <div class="test-wallet-card">
+              <span class="label">Verteilbarer Netto gesamt</span>
+              <span class="value" id="testWalletNetTotal">0,00 €</span>
+            </div>
+            <div class="test-wallet-card">
+              <span class="label">Simulierter Plisio-Eingang gesamt</span>
+              <span class="value" id="testWalletIncomingTotal">0,00 €</span>
+            </div>
+            <div class="test-wallet-card">
+              <span class="label">Kontrollsumme letzter Test</span>
+              <span class="value" id="testWalletControl">0,000000 €</span>
+            </div>
+          </div>
+
+          <div class="test-wallet-note" id="testWalletLastRun">
+            Noch keine Testzahlung in dieser Backoffice-Version gespeichert. Beim nächsten erfolgreichen Testlauf wird die Anzeige automatisch gefüllt.
+          </div>
+
+          <div class="test-history-wrap">
+            <table class="test-history-table">
+              <thead>
+                <tr>
+                  <th>Zeit</th>
+                  <th>Paket</th>
+                  <th>Plisio</th>
+                  <th>Luciano</th>
+                  <th>Martin</th>
+                  <th>Frank</th>
+                  <th>Unit-Reserve</th>
+                  <th>Kontrolle</th>
+                </tr>
+              </thead>
+              <tbody id="testWalletHistoryBody">
+                <tr><td colspan="8" class="test-empty">Noch kein lokaler Testverlauf gespeichert.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="button-row" style="margin-top:12px">
+            <button class="button" type="button" id="clearTestWalletDisplayButton">Lokale Testanzeige zurücksetzen</button>
           </div>
         </div>
       </article>
@@ -2798,6 +2995,145 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
       };
     }
 
+
+    const TEST_WALLET_STORAGE_KEY = "betinsight_test_wallet_state_v1";
+
+    function emptyTestWalletState() {
+      return {
+        luciano: 0,
+        martin: 0,
+        frank: 0,
+        unitReserve: 0,
+        affiliateReserve: 0,
+        costs: 0,
+        netTotal: 0,
+        incomingTotal: 0,
+        lastControl: 0,
+        lastRun: null,
+        history: []
+      };
+    }
+
+    function loadTestWalletState() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(TEST_WALLET_STORAGE_KEY) || "null");
+        if (!parsed || typeof parsed !== "object") return emptyTestWalletState();
+        const base = emptyTestWalletState();
+        return {
+          ...base,
+          ...parsed,
+          history: Array.isArray(parsed.history) ? parsed.history.slice(0, 30) : []
+        };
+      } catch (error) {
+        return emptyTestWalletState();
+      }
+    }
+
+    function saveTestWalletState(state) {
+      localStorage.setItem(TEST_WALLET_STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function renderTestWalletState() {
+      const state = loadTestWalletState();
+      const founderTotal = num(state.luciano) + num(state.martin) + num(state.frank);
+
+      const setText = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+      };
+
+      setText("testWalletLuciano", formatEuro(state.luciano));
+      setText("testWalletMartin", formatEuro(state.martin));
+      setText("testWalletFrank", formatEuro(state.frank));
+      setText("testWalletUnitReserve", formatEuro(state.unitReserve));
+      setText("testWalletAffiliateReserve", formatEuro(state.affiliateReserve));
+      setText("testWalletCosts", formatEuro(state.costs));
+      setText("testWalletFounderTotal", formatEuro(founderTotal));
+      setText("testWalletNetTotal", formatEuro(state.netTotal));
+      setText("testWalletIncomingTotal", formatEuro(state.incomingTotal));
+      setText("testWalletControl", formatNumber(state.lastControl, 6) + " €");
+
+      const lastRun = document.getElementById("testWalletLastRun");
+      if (lastRun) {
+        if (state.lastRun) {
+          lastRun.innerHTML =
+            "<strong>Letzter erfolgreicher Test:</strong> " +
+            escapeHtml(state.lastRun.packageName || state.lastRun.packageCode || "Paket") +
+            " · " + escapeHtml(String(state.lastRun.units || "")) + " Units · " +
+            "Testlauf " + escapeHtml(String(state.lastRun.testRunId || "—")) +
+            " · <strong>nicht auszahlbar</strong>.";
+        } else {
+          lastRun.textContent =
+            "Noch keine Testzahlung in dieser Backoffice-Version gespeichert. Beim nächsten erfolgreichen Testlauf wird die Anzeige automatisch gefüllt.";
+        }
+      }
+
+      const body = document.getElementById("testWalletHistoryBody");
+      if (body) {
+        if (!state.history.length) {
+          body.innerHTML = '<tr><td colspan="8" class="test-empty">Noch kein lokaler Testverlauf gespeichert.</td></tr>';
+        } else {
+          body.innerHTML = state.history.map(function (run) {
+            return "<tr>" +
+              "<td>" + escapeHtml(run.time || "—") + "</td>" +
+              "<td>" + escapeHtml(run.packageName || run.packageCode || "—") + "</td>" +
+              "<td>" + formatEuro(run.incoming) + "</td>" +
+              "<td>" + formatEuro(run.luciano) + "</td>" +
+              "<td>" + formatEuro(run.martin) + "</td>" +
+              "<td>" + formatEuro(run.frank) + "</td>" +
+              "<td>" + formatEuro(run.unitReserve) + "</td>" +
+              "<td>" + formatNumber(run.control, 6) + " €</td>" +
+              "</tr>";
+          }).join("");
+        }
+      }
+    }
+
+    function recordTestPaymentResult(result) {
+      const state = loadTestWalletState();
+
+      const run = {
+        time: new Date().toLocaleString("de-DE"),
+        testRunId: String(result.testlauf_id || ""),
+        packageCode: String(result.package_code || ""),
+        packageName: String(result.package_name || ""),
+        units: num(result.units),
+        incoming: num(result.plisio_incoming_eur),
+        costs: num(result.betriebskosten_eur),
+        affiliateReserve: num(result.affiliate_reserve_eur),
+        net: num(result.verteilbarer_netto_eur),
+        luciano: num(result.luciano_test_eur),
+        martin: num(result.martin_test_eur),
+        frank: num(result.frank_test_eur),
+        unitReserve: num(result.nutzungspool_eur),
+        control: num(result.kontrollsumme_eur)
+      };
+
+      state.luciano = num(state.luciano) + run.luciano;
+      state.martin = num(state.martin) + run.martin;
+      state.frank = num(state.frank) + run.frank;
+      state.unitReserve = num(state.unitReserve) + run.unitReserve;
+      state.affiliateReserve = num(state.affiliateReserve) + run.affiliateReserve;
+      state.costs = num(state.costs) + run.costs;
+      state.netTotal = num(state.netTotal) + run.net;
+      state.incomingTotal = num(state.incomingTotal) + run.incoming;
+      state.lastControl = run.control;
+      state.lastRun = run;
+      state.history = [run].concat(Array.isArray(state.history) ? state.history : []).slice(0, 30);
+
+      saveTestWalletState(state);
+      renderTestWalletState();
+    }
+
+    function clearLocalTestWalletDisplay() {
+      const confirmed = window.confirm(
+        "Nur die lokale Testanzeige dieses Browsers zurücksetzen? Die Testzeilen im Google Sheet werden dadurch NICHT gelöscht."
+      );
+      if (!confirmed) return;
+      localStorage.removeItem(TEST_WALLET_STORAGE_KEY);
+      renderTestWalletState();
+    }
+
     function updateTestPaymentPreview() {
       if (!testPackageCode || !testPlisioIncoming) return;
       const selected = selectedTestPackage();
@@ -2871,6 +3207,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
         catch (error) { result = { ok: false, message: responseText || "Ungültige Make-Antwort." }; }
         if (!response.ok || result.ok === false) throw new Error(result.message || ("HTTP " + response.status));
         setActionMessage(testPaymentMessage, result.message || "Testzahlung wurde getrennt und nicht auszahlbar gebucht.", "success");
+        recordTestPaymentResult(result);
       } catch (error) {
         setActionMessage(testPaymentMessage, "Testzahlung konnte nicht gebucht werden: " + (error.message || "Unbekannter Fehler"), "error");
       } finally {
@@ -3114,6 +3451,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
     testPackageCode?.addEventListener("change", updateTestPaymentPreview);
     testPlisioIncoming?.addEventListener("input", updateTestPaymentPreview);
     simulateTestPaymentButton?.addEventListener("click", simulateTestPayment);
+    document.getElementById("clearTestWalletDisplayButton")?.addEventListener("click", clearLocalTestWalletDisplay);
 
     reloadButton.addEventListener("click", loadBackofficeData);
     logoutButton.addEventListener("click", logout);
@@ -3127,6 +3465,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
       updateNextBatchDate();
       updateTestPaymentPreview();
       configureTestPaymentButton();
+      renderTestWalletState();
       if (current.admin?.role === "owner") {
         renderTipsterCards(FALLBACK_TIPSTERS);
         renderMasterResults([]);
