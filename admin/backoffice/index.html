@@ -2,7 +2,7 @@
 <!--
 Projekt: BetInsight
 Datei auf GitHub: profil/admin/backoffice/index.html
-Version: 2026.08.07-40-60-MASTER-v1
+Version: 2026.08.07-40-60-MASTER-v1.1
 Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippgeberregeln, Ergebnisübersicht, Wallet-Zielauswahl und festen Netzwerken.
 -->
 <html lang="de">
@@ -1825,7 +1825,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
 
         <div class="warning-box">
           <strong>Sicherheitsstatus:</strong> Das Modell ist im Sheet vorbereitet, aber produktiv ausgeschaltet. Testguthaben ist nicht auszahlbar.
-          Das Make-Szenario „BetInsight – Testzahlung simulieren – v1.0“ muss zuerst angeschlossen und geprüft werden.
+          Das Make-Szenario „BetInsight – Testzahlung simulieren – v1.3“ ist angeschlossen. Testguthaben bleibt nicht auszahlbar.
         </div>
 
         <div class="section-grid">
@@ -1872,7 +1872,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
               </button>
             </div>
             <div id="testPaymentMessage" class="master-action-message visible error">
-              Make-Testwebhook noch nicht verbunden. Die Berechnungsvorschau funktioniert bereits; es wird noch nichts gebucht.
+              Webhook-Status wird geprüft …
             </div>
           </div>
 
@@ -3155,7 +3155,14 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
       if (!simulateTestPaymentButton) return;
       const connected = Boolean(TEST_PAYMENT_API_URL && TEST_PAYMENT_API_URL.startsWith("https://"));
       simulateTestPaymentButton.disabled = !connected;
-      if (!connected) {
+
+      if (connected) {
+        setActionMessage(
+          testPaymentMessage,
+          "Make-Testwebhook verbunden · Testzahlung kann gesendet werden · Auszahlung bleibt gesperrt.",
+          "success"
+        );
+      } else {
         setActionMessage(
           testPaymentMessage,
           "Make-Testwebhook noch nicht verbunden. Die Berechnungsvorschau funktioniert bereits; es wird noch nichts gebucht.",
