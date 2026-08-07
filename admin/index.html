@@ -492,14 +492,12 @@
       </div>
 
       <div class="security-note">
-        Dein Admin-Code wird nicht im HTML und nicht im Browser gespeichert. Er wird ausschließlich zur Anmeldung
-        verschlüsselt per HTTPS an den BetInsight-Auth-Webhook gesendet. Danach arbeitet der Browser nur noch mit
-        einer zeitlich begrenzten Session.
+        Dein Admin-Code wird weder im HTML noch im Browser noch in Make gespeichert. Vor dem Versand wird er lokal im Browser gehasht. Danach arbeitet der Browser ausschließlich mit einer zufälligen, zeitlich begrenzten Session.
       </div>
     </section>
 
     <footer class="footer">
-      © 2026 BetInsight Club · Admin Center · Session-Sicherheit v2.0
+      © 2026 BetInsight Club · Admin Center · Session-Sicherheit v2.1
     </footer>
   </main>
 
@@ -509,7 +507,6 @@
     const AUTH_API_URL = "https://hook.eu1.make.com/rfmhuu4fkr9kjsv7o15r2kir8ezbersl";
     const SESSION_KEY = "betinsight_admin_session_v1";
 
-    // Alte unsichere Login-Daten aus früheren HTML-Versionen entfernen.
     const LEGACY_KEYS = [
       "betinsight_admin_login",
       "betinsight_admin_failed_attempts",
@@ -533,16 +530,8 @@
 
     function removeLegacyCredentials() {
       for (const key of LEGACY_KEYS) {
-        try {
-          localStorage.removeItem(key);
-        } catch (error) {
-          // Kein Abbruch, falls Storage blockiert ist.
-        }
+        try { localStorage.removeItem(key); } catch (error) {}
       }
-    }
-
-    function normalizeCode(code) {
-      return String(code || "").trim();
     }
 
     function setMessage(text, isError = false) {
@@ -561,8 +550,9 @@
     function formatRemainingTime(seconds) {
       const minutes = Math.floor(seconds / 60);
       const restSeconds = seconds % 60;
-      if (minutes <= 0) return restSeconds + " Sekunden";
-      return minutes + " Minuten und " + restSeconds + " Sekunden";
+      return minutes > 0
+        ? minutes + " Minuten und " + restSeconds + " Sekunden"
+        : restSeconds + " Sekunden";
     }
 
     function lockLogin() {
@@ -591,51 +581,60 @@
       }
     }
 
+    function bytesToHex(bytes) {
+      return Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    async function sha256Hex(text) {
+      const data = new TextEncoder().encode(String(text || ""));
+      const digest = await crypto.subtle.digest("SHA-256", data);
+      return bytesToHex(new Uint8Array(digest));
+    }
+
+    function createRandomSessionToken() {
+      const bytes = new Uint8Array(32);
+      crypto.getRandomValues(bytes);
+      return bytesToHex(bytes);
+    }
+
     async function authRequest(payload) {
       const response = await fetch(AUTH_API_URL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         cache: "no-store",
         credentials: "omit",
-        body: JSON.stringify({
-          ...payload,
-          user_agent: navigator.userAgent || ""
-        })
+        body: JSON.stringify(payload)
       });
 
       const raw = await response.text();
-      let data = null;
+      let data;
 
       try {
         data = raw ? JSON.parse(raw) : {};
       } catch (error) {
-        throw new Error("Auth-Server hat keine gültige JSON-Antwort geliefert.");
+        const parseError = new Error(
+          "Auth-Server hat keine gültige JSON-Antwort geliefert. Make-Antwort: " +
+          (raw || "(leer)")
+        );
+        parseError.raw = raw;
+        throw parseError;
       }
 
-      if (!response.ok || !data || data.ok !== true) {
-        const message =
-          data?.message ||
-          data?.error ||
-          ("Anmeldung abgelehnt (HTTP " + response.status + ").");
-        const authError = new Error(message);
-        authError.status = response.status;
-        authError.data = data;
-        throw authError;
+      if (!response.ok || data?.ok !== true) {
+        throw new Error(data?.message || data?.error || ("Anmeldung abgelehnt (HTTP " + response.status + ")."));
       }
 
       return data;
     }
 
-    function saveSession(data) {
+    function saveSession(result, rawToken) {
       const session = {
-        token: String(data.session_token || ""),
-        expiresMs: Number(data.expires_ms || 0),
-        adminId: String(data.admin_id || ""),
-        name: String(data.name || "Admin"),
-        role: String(data.role || "ADMIN"),
-        master: String(data.master || "NEIN")
+        token: rawToken,
+        expiresMs: Number(result.expires_ms || 0),
+        adminId: String(result.admin_id || ""),
+        name: String(result.name || "Admin"),
+        role: String(result.role || "ADMIN"),
+        master: String(result.master || "NEIN")
       };
 
       if (!session.token || !session.adminId || !session.expiresMs) {
@@ -650,21 +649,15 @@
       try {
         const raw = sessionStorage.getItem(SESSION_KEY);
         if (!raw) return null;
-
         const session = JSON.parse(raw);
-        if (!session || !session.token || !session.adminId) return null;
-        return session;
+        return session?.token && session?.adminId ? session : null;
       } catch (error) {
         return null;
       }
     }
 
     function clearSession() {
-      try {
-        sessionStorage.removeItem(SESSION_KEY);
-      } catch (error) {
-        // Kein Abbruch.
-      }
+      try { sessionStorage.removeItem(SESSION_KEY); } catch (error) {}
     }
 
     function sessionIsLocallyExpired(session) {
@@ -681,29 +674,23 @@
 
       loginArea.classList.add("hidden");
       dashboardArea.classList.remove("hidden");
-
-      setMessage("");
       adminCodeInput.value = "";
+      setMessage("");
     }
 
     function showLogin(message = "") {
       dashboardArea.classList.add("hidden");
       loginArea.classList.remove("hidden");
-      updateLockState();
-
       if (message) setMessage(message, true);
-
-      if (!isLocked() && !authBusy) {
-        setTimeout(() => adminCodeInput.focus(), 0);
-      }
+      updateLockState();
+      if (!isLocked() && !authBusy) setTimeout(() => adminCodeInput.focus(), 0);
     }
 
     async function loginAdmin() {
       updateLockState();
       if (isLocked() || authBusy) return;
 
-      const code = normalizeCode(adminCodeInput.value);
-
+      const code = String(adminCodeInput.value || "").trim().toUpperCase();
       if (!code) {
         setMessage("Bitte Admin-Code eingeben.");
         adminCodeInput.focus();
@@ -715,18 +702,24 @@
       setMessage("Anmeldung wird sicher geprüft …");
 
       try {
+        const loginHash = await sha256Hex(code);
+        const rawSessionToken = createRandomSessionToken();
+        const sessionHash = await sha256Hex(rawSessionToken);
+        const userAgentHash = await sha256Hex(navigator.userAgent || "");
+
+        // Klartext-Code sofort aus dem Eingabefeld entfernen.
+        adminCodeInput.value = "";
+
         const result = await authRequest({
           action: "login",
-          admin_code: code
+          login_hash: loginHash,
+          session_hash: sessionHash,
+          user_agent_hash: userAgentHash
         });
 
         failedAttempts = 0;
         lockedUntil = 0;
-
-        // Klartext sofort aus dem Eingabefeld entfernen.
-        adminCodeInput.value = "";
-
-        const session = saveSession(result);
+        const session = saveSession(result, rawSessionToken);
         showDashboard(session);
       } catch (error) {
         adminCodeInput.value = "";
@@ -759,12 +752,12 @@
 
       authBusy = true;
       updateLockState();
-      setMessage("Bestehende Sitzung wird geprüft …");
 
       try {
+        const sessionHash = await sha256Hex(session.token);
         const result = await authRequest({
           action: "verify",
-          session_token: session.token
+          session_hash: sessionHash
         });
 
         const verified = {
@@ -797,9 +790,10 @@
 
       if (session?.token) {
         try {
+          const sessionHash = await sha256Hex(session.token);
           await authRequest({
             action: "logout",
-            session_token: session.token
+            session_hash: sessionHash
           });
         } catch (error) {
           // Lokale Sitzung bleibt trotzdem beendet.
@@ -816,13 +810,6 @@
       if (event.key === "Enter") {
         event.preventDefault();
         loginAdmin();
-      }
-    });
-
-    window.addEventListener("pageshow", function () {
-      const session = readSession();
-      if (session && !sessionIsLocallyExpired(session)) {
-        showDashboard(session);
       }
     });
 
