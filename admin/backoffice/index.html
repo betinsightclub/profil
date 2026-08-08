@@ -2083,7 +2083,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
     </section>
 
     <footer class="footer">
-      © 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.3 · WALLET-SICHER
+      © 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.4 · WALLET-SICHER
     </footer>
   </main>
 
@@ -2509,6 +2509,50 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
       });
     }
 
+    function parseWebhookJsonSafe(raw) {
+      let text = String(raw ?? "")
+        .replace(/^\uFEFF/, "")
+        .replace(/[\u200B-\u200D\u2060]/g, "")
+        .trim();
+
+      if (!text) return {};
+
+      // Normaler JSON-Fall.
+      try {
+        let parsed = JSON.parse(text);
+
+        // Manche Webhook-Konfigurationen liefern JSON noch einmal als JSON-String.
+        if (typeof parsed === "string") {
+          const inner = parsed
+            .replace(/^\uFEFF/, "")
+            .replace(/[\u200B-\u200D\u2060]/g, "")
+            .trim();
+          parsed = JSON.parse(inner);
+        }
+
+        return parsed;
+      } catch (firstError) {
+        // Letzter sicherer Versuch: äußere Anführungszeichen eines
+        // doppelt kodierten JSON-Strings entfernen und Escapes auflösen.
+        if (
+          text.length >= 2 &&
+          text.startsWith('"') &&
+          text.endsWith('"')
+        ) {
+          try {
+            const unwrapped = JSON.parse(text);
+            if (typeof unwrapped === "string") {
+              return JSON.parse(unwrapped.trim());
+            }
+          } catch (secondError) {
+            // fällt unten in die ursprüngliche Fehlermeldung
+          }
+        }
+
+        throw firstError;
+      }
+    }
+
     async function postBackofficeAction(action, payload) {
       const current = getCurrentAdmin();
 
@@ -2544,7 +2588,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
           currency: String(payload.currency || ""),
           network_label: String(payload.network_label || ""),
           wallet_address: String(payload.wallet_address || ""),
-          payout_mode: String(payload.payout_mode || "batch"),
+          payout_mode_label: String(payload.payout_mode_label || "SAMMEL_5_15_25"),
           request_id: requestId
         })
       });
@@ -2553,10 +2597,10 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
       let result = {};
 
       try {
-        result = raw ? JSON.parse(raw) : {};
+        result = parseWebhookJsonSafe(raw);
       } catch (error) {
         throw new Error(
-          "Der Wallet-Webhook hat keine gültige JSON-Antwort geliefert. Make-Antwort: " +
+          "Der Wallet-Webhook hat geantwortet, aber die Antwort konnte nicht als JSON gelesen werden. Make-Antwort: " +
           (raw || "(leer)")
         );
       }
@@ -3571,6 +3615,8 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
       const network = settingsNetwork.value;
       const payoutMode =
         document.querySelector('input[name="settingsPayoutMode"]:checked')?.value || "batch";
+      const payoutModeLabel =
+        payoutMode === "auto" ? "AUTOMATISCH" : "SAMMEL_5_15_25";
       const walletAddress = settingsWallet.value.trim();
 
       walletSaveMessage.textContent = "";
@@ -3611,7 +3657,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
           currency,
           network_label: route.networkLabel,
           wallet_address: walletAddress,
-          payout_mode: payoutMode
+          payout_mode_label: payoutModeLabel
         });
 
         const localWallets = getLocalWallets();
@@ -3622,7 +3668,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
           status: "bestaetigung_offen",
           changed_at: new Date().toLocaleString("de-DE"),
           locked_until: String(result.locked_until || ""),
-          payout_mode: payoutMode
+          payout_mode_label: payoutModeLabel
         };
 
         localStorage.setItem(
