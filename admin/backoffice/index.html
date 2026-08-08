@@ -2083,27 +2083,27 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
     </section>
 
     <footer class="footer">
-      © 2026 BetInsight Club · Admin Backoffice
+      © 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.0
     </footer>
   </main>
 
   <script>
     "use strict";
 
-    const ADMINS = {
-      "4837LUC": { name: "Luciano", role: "owner" },
-      "6152MAR": { name: "Martin", role: "tipster" },
-      "9084FRA": { name: "Frank", role: "tipster" }
-    };
+    const AUTH_API_URL = "https://hook.eu1.make.com/rfmhuu4fkr9kjsv7o15r2kir8ezbersl";
+    const SESSION_KEY = "betinsight_admin_session_v1";
 
-    const STORAGE_KEY = "betinsight_admin_login";
+    // Bis die alten Make-Szenarien ebenfalls die Session serverseitig prüfen,
+    // bleiben deren Schreib-/Finanzzugriffe absichtlich gesperrt.
+    const BACKOFFICE_SESSION_API_READY = false;
+    const TEST_PAYMENT_SESSION_API_READY = false;
     const PRIVACY_KEY = "betinsight_admin_privacy_active";
     const ROUTE_PREF_KEY = "betinsight_admin_route_payout_preference";
     const LOCAL_WALLET_KEY = "betinsight_admin_local_wallets";
     const TIPSTER_DRAFT_KEY = "betinsight_master_tipster_drafts";
 
-    const API_URL = "https://hook.eu1.make.com/p4t9t3gvr77dowgvg14m1wuekxzfi3sx";
-    const TEST_PAYMENT_API_URL = "https://hook.eu1.make.com/iouqjh3suejuj8gcyoy422pxa1c22o56"; // Make-Testwebhook 40/60.
+    const API_URL = ""; // Alt-Backoffice-Webhook während Session-Migration deaktiviert.
+    const TEST_PAYMENT_API_URL = ""; // Alt-Testzahlungs-Webhook während Session-Migration deaktiviert.
 
     const FALLBACK_TIPSTERS = [
       {
@@ -2195,36 +2195,169 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
     let latestTipsters = [];
     let latestTipResults = [];
 
-    function getSavedCode() {
-      return String(localStorage.getItem(STORAGE_KEY) || "").trim().toUpperCase();
+    function readAdminSession() {
+      try {
+        const raw = sessionStorage.getItem(SESSION_KEY);
+        if (!raw) return null;
+
+        const session = JSON.parse(raw);
+        if (!session || !session.token || !session.adminId) return null;
+        return session;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function sessionIsLocallyExpired(session) {
+      const expiresMs = Number(session?.expiresMs || 0);
+      return !expiresMs || Date.now() >= expiresMs;
+    }
+
+    function bytesToHex(bytes) {
+      return Array.from(bytes, function (b) {
+        return b.toString(16).padStart(2, "0");
+      }).join("");
+    }
+
+    async function sha256Hex(text) {
+      const data = new TextEncoder().encode(String(text || ""));
+      const digest = await crypto.subtle.digest("SHA-256", data);
+      return bytesToHex(new Uint8Array(digest));
     }
 
     function getCurrentAdmin() {
-      const code = getSavedCode();
-      const knownAdmin = ADMINS[code] || null;
+      const session = readAdminSession();
+
+      if (!session || sessionIsLocallyExpired(session)) {
+        return {
+          code: "",
+          adminId: "",
+          session: null,
+          admin: null,
+          known: false
+        };
+      }
+
+      const isMaster = session.master === "JA" || session.role === "MASTER";
+
       return {
-        code,
-        admin: knownAdmin || (code ? { name: "Admin", role: "pending" } : null),
-        known: Boolean(knownAdmin)
+        // "code" ist nur noch eine interne Kompatibilitätskennung (= ADM-ID),
+        // niemals wieder ein Zugangscode.
+        code: String(session.adminId || ""),
+        adminId: String(session.adminId || ""),
+        session,
+        admin: {
+          name: String(session.name || "Admin"),
+          role: isMaster ? "owner" : "tipster"
+        },
+        known: true
       };
+    }
+
+    async function verifyBackofficeSession() {
+      const current = getCurrentAdmin();
+
+      if (!current.session) {
+        window.location.replace("https://betinsightclub.github.io/profil/admin/");
+        return null;
+      }
+
+      try {
+        const sessionHash = await sha256Hex(current.session.token);
+
+        const response = await fetch(AUTH_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          cache: "no-store",
+          credentials: "omit",
+          body: JSON.stringify({
+            action: "verify",
+            session_hash: sessionHash
+          })
+        });
+
+        const raw = await response.text();
+        let result = {};
+
+        try {
+          result = raw ? JSON.parse(raw) : {};
+        } catch (error) {
+          throw new Error("Auth-Server hat keine gültige JSON-Antwort geliefert.");
+        }
+
+        if (
+          !response.ok ||
+          result.ok !== true ||
+          result.session_valid !== "JA"
+        ) {
+          throw new Error(result.message || "Session ist nicht mehr gültig.");
+        }
+
+        const verified = {
+          token: current.session.token,
+          expiresMs: Number(result.expires_ms || current.session.expiresMs || 0),
+          adminId: String(result.admin_id || current.session.adminId || ""),
+          name: String(result.name || current.session.name || "Admin"),
+          role: String(result.role || current.session.role || "ADMIN"),
+          master: String(result.master || current.session.master || "NEIN")
+        };
+
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify(verified));
+        return verified;
+      } catch (error) {
+        console.error("Session-Prüfung fehlgeschlagen:", error);
+        sessionStorage.removeItem(SESSION_KEY);
+        window.location.replace("https://betinsightclub.github.io/profil/admin/");
+        return null;
+      }
     }
 
     function requireLogin() {
       const current = getCurrentAdmin();
-      if (!current.code) {
+
+      if (!current.session) {
         window.location.replace("https://betinsightclub.github.io/profil/admin/");
         return null;
       }
 
       adminName.textContent = current.admin?.name || "Admin";
-      roleBadge.textContent = current.admin?.role === "owner" ? "Master-Admin" : "Zugang wird geprüft";
-      if (current.admin?.role === "owner") masterTabButton.classList.remove("hidden");
+      roleBadge.textContent =
+        current.admin?.role === "owner" ? "Master-Admin" : "Admin";
+
+      masterTabButton.classList.toggle(
+        "hidden",
+        current.admin?.role !== "owner"
+      );
+
       return current;
     }
 
-    function logout() {
-      localStorage.removeItem(STORAGE_KEY);
+    async function logout() {
+      const current = getCurrentAdmin();
+      const token = current.session?.token || "";
+
+      sessionStorage.removeItem(SESSION_KEY);
       sessionStorage.removeItem(PRIVACY_KEY);
+
+      if (token) {
+        try {
+          const sessionHash = await sha256Hex(token);
+
+          await fetch(AUTH_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            cache: "no-store",
+            credentials: "omit",
+            body: JSON.stringify({
+              action: "logout",
+              session_hash: sessionHash
+            })
+          });
+        } catch (error) {
+          // Die lokale Abmeldung bleibt trotzdem wirksam.
+        }
+      }
+
       window.location.replace("https://betinsightclub.github.io/profil/admin/");
     }
 
@@ -2376,37 +2509,20 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
 
     async function postBackofficeAction(action, payload) {
       const current = getCurrentAdmin();
-      if (!current.code) throw new Error("Kein gültiger Admin-Zugang vorhanden.");
 
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action,
-          admin_code: current.code,
-          request_id: requestId(),
-          ...payload
-        })
-      });
-
-      const responseText = await response.text();
-      let result = {};
-      try { result = responseText ? JSON.parse(responseText) : {}; }
-      catch (error) { result = { ok: false, message: responseText || "Ungültige Make-Antwort." }; }
-
-      if (!response.ok || result.ok === false) {
-        throw new Error(result.message || ("HTTP " + response.status));
+      if (!current.session) {
+        throw new Error("Keine gültige Admin-Session vorhanden.");
       }
-      return result;
-    }
 
-    function normalizeNetwork(value) {
-      return String(value || "")
-        .trim()
-        .toUpperCase()
-        .replaceAll("-", "")
-        .replaceAll(" ", "")
-        .replace("BNBCHAIN", "BNB_CHAIN");
+      if (!BACKOFFICE_SESSION_API_READY) {
+        throw new Error(
+          "Sicherheitsmigration aktiv: Diese Backoffice-Schreibaktion ist " +
+          "vorübergehend gesperrt, bis das Make-Datenszenario die Admin-Session " +
+          "serverseitig prüft."
+        );
+      }
+
+      throw new Error("Session-Backoffice-API ist noch nicht verbunden.");
     }
 
     function routeKey(currency, network) {
@@ -3153,74 +3269,38 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
 
     function configureTestPaymentButton() {
       if (!simulateTestPaymentButton) return;
-      const connected = Boolean(TEST_PAYMENT_API_URL && TEST_PAYMENT_API_URL.startsWith("https://"));
+
+      const connected = Boolean(
+        TEST_PAYMENT_SESSION_API_READY &&
+        TEST_PAYMENT_API_URL &&
+        TEST_PAYMENT_API_URL.startsWith("https://")
+      );
+
       simulateTestPaymentButton.disabled = !connected;
 
       if (connected) {
         setActionMessage(
           testPaymentMessage,
-          "Make-Testwebhook verbunden · Testzahlung kann gesendet werden · Auszahlung bleibt gesperrt.",
+          "Session-gesicherter Testwebhook verbunden · Auszahlung bleibt gesperrt.",
           "success"
         );
       } else {
         setActionMessage(
           testPaymentMessage,
-          "Make-Testwebhook noch nicht verbunden. Die Berechnungsvorschau funktioniert bereits; es wird noch nichts gebucht.",
+          "Sicherheitsmigration aktiv: Testzahlungen sind vorübergehend gesperrt, " +
+          "bis der Testwebhook die neue Admin-Session serverseitig prüft.",
           "error"
         );
       }
     }
 
     async function simulateTestPayment() {
-      const current = getCurrentAdmin();
-      const selected = selectedTestPackage();
-      const incoming = num(testPlisioIncoming?.value);
-      if (!TEST_PAYMENT_API_URL) {
-        configureTestPaymentButton();
-        return;
-      }
-      if (incoming <= 0 || selected.units <= 0) {
-        setActionMessage(testPaymentMessage, "Bitte Paket und einen positiven Plisio-Testeingang prüfen.", "error");
-        return;
-      }
-
-      simulateTestPaymentButton.disabled = true;
-      simulateTestPaymentButton.textContent = "Testzahlung wird gesendet …";
-      setActionMessage(testPaymentMessage, "", "error");
-
-      try {
-        const response = await fetch(TEST_PAYMENT_API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "simulate_test_payment",
-            request_id: requestId(),
-            admin_code: current.code,
-            created_by_admin_id: current.admin?.role === "owner" ? "ADM-001" : "",
-            package_code: selected.code,
-            package_units: selected.units,
-            package_price_eur: selected.price,
-            plisio_incoming_eur: incoming,
-            test_user_id: String(testUserId?.value || "TEST-USER-001").trim(),
-            note: String(testPaymentNote?.value || "40/60-Systemtest").trim(),
-            environment: "TEST",
-            payout_allowed: "NEIN",
-            rule_version: "MIX-40-60-CHARGE-v3"
-          })
-        });
-        const responseText = await response.text();
-        let result = {};
-        try { result = responseText ? JSON.parse(responseText) : {}; }
-        catch (error) { result = { ok: false, message: responseText || "Ungültige Make-Antwort." }; }
-        if (!response.ok || result.ok === false) throw new Error(result.message || ("HTTP " + response.status));
-        setActionMessage(testPaymentMessage, result.message || "Testzahlung wurde getrennt und nicht auszahlbar gebucht.", "success");
-        recordTestPaymentResult(result);
-      } catch (error) {
-        setActionMessage(testPaymentMessage, "Testzahlung konnte nicht gebucht werden: " + (error.message || "Unbekannter Fehler"), "error");
-      } finally {
-        simulateTestPaymentButton.disabled = false;
-        simulateTestPaymentButton.textContent = "Testzahlung an Make senden";
-      }
+      setActionMessage(
+        testPaymentMessage,
+        "Testzahlungen sind während der Session-Sicherheitsmigration vorübergehend " +
+        "gesperrt. Es wird nichts an Make gesendet.",
+        "error"
+      );
     }
 
     function renderMasterModel(master) {
@@ -3288,29 +3368,35 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
 
     async function loadBackofficeData() {
       const current = getCurrentAdmin();
-      if (!current.admin) return;
+      if (!current.session) return;
 
       reloadButton.disabled = true;
-      reloadButton.textContent = "Daten werden geladen …";
-      apiStatusText.innerHTML = '<span class="status-dot" aria-hidden="true"></span><strong>Make wird abgefragt:</strong> Bitte kurz warten.';
+      reloadButton.textContent = "Session aktiv";
 
-      try {
-        const url = new URL(API_URL);
-        url.searchParams.set("action", "load");
-        url.searchParams.set("admin_code", current.code);
-        url.searchParams.set("request_id", crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
-        const response = await fetch(url.toString(), { method: "GET", cache: "no-store" });
-        if (!response.ok) throw new Error("HTTP " + response.status);
-        applyData(await response.json());
-      } catch (error) {
-        console.error(error);
-        apiStatusText.innerHTML = '<span class="status-dot" aria-hidden="true"></span><strong>Fehler:</strong> ' +
-          escapeHtml(error.message || "Daten konnten nicht geladen werden.");
-        activitySummary.innerHTML = '<div class="empty-state">Die Verbindung zu Make konnte nicht hergestellt werden.</div>';
-      } finally {
-        reloadButton.disabled = false;
-        reloadButton.textContent = "Daten neu laden";
-      }
+      apiStatusText.innerHTML =
+        '<span class="status-dot" aria-hidden="true"></span>' +
+        '<strong>Session sicher:</strong> Anmeldung wurde serverseitig bestätigt. ' +
+        'Der alte Backoffice-Datenwebhook ist während der Sicherheitsmigration ' +
+        'bewusst deaktiviert.';
+
+      activitySummary.innerHTML =
+        '<div class="empty-state">' +
+        'Die Live-Daten werden wieder geladen, sobald das bestehende Make-' +
+        'Backoffice-Szenario auf Session-Prüfung umgestellt ist.' +
+        '</div>';
+
+      payoutRoutes.innerHTML =
+        '<div class="empty-state">' +
+        'Auszahlungs- und Wallet-Schreibzugriffe sind bis zur Session-Migration ' +
+        'des Make-Szenarios gesperrt.' +
+        '</div>';
+
+      renderTipsterCards(FALLBACK_TIPSTERS);
+      renderMasterResults([]);
+      renderMasterModel({});
+
+      reloadButton.disabled = false;
+      reloadButton.textContent = "Daten neu laden";
     }
 
     function updateNetworkOptions() {
@@ -3466,13 +3552,19 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
     settingsCurrency.addEventListener("change", updateNetworkOptions);
     updateNetworkOptions();
 
-    const current = requireLogin();
-    if (current) {
+    (async function initializeSecureBackoffice() {
+      const verified = await verifyBackofficeSession();
+      if (!verified) return;
+
+      const current = requireLogin();
+      if (!current) return;
+
       initializePrivacy();
       updateNextBatchDate();
       updateTestPaymentPreview();
       configureTestPaymentButton();
       renderTestWalletState();
+
       if (current.admin?.role === "owner") {
         renderTipsterCards(FALLBACK_TIPSTERS);
         renderMasterResults([]);
@@ -3481,8 +3573,9 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
       } else {
         activateTab("overview");
       }
+
       loadBackofficeData();
-    }
+    })();
   </script>
 </body>
 </html>
