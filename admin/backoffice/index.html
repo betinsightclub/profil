@@ -2083,7 +2083,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
     </section>
 
     <footer class="footer">
-      © 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.0
+      © 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.1 · READ-ONLY
     </footer>
   </main>
 
@@ -2095,14 +2095,14 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
 
     // Bis die alten Make-Szenarien ebenfalls die Session serverseitig prüfen,
     // bleiben deren Schreib-/Finanzzugriffe absichtlich gesperrt.
-    const BACKOFFICE_SESSION_API_READY = false;
+    const BACKOFFICE_SESSION_API_READY = true;
     const TEST_PAYMENT_SESSION_API_READY = false;
     const PRIVACY_KEY = "betinsight_admin_privacy_active";
     const ROUTE_PREF_KEY = "betinsight_admin_route_payout_preference";
     const LOCAL_WALLET_KEY = "betinsight_admin_local_wallets";
     const TIPSTER_DRAFT_KEY = "betinsight_master_tipster_drafts";
 
-    const API_URL = ""; // Alt-Backoffice-Webhook während Session-Migration deaktiviert.
+    const API_URL = "https://hook.eu1.make.com/hvkixmp4n1ego6exgprjn6x04oe4a6fw"; // Session-gesicherter READ-ONLY Backoffice-Datenwebhook.
     const TEST_PAYMENT_API_URL = ""; // Alt-Testzahlungs-Webhook während Session-Migration deaktiviert.
 
     const FALLBACK_TIPSTERS = [
@@ -3326,7 +3326,9 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
         escapeHtml(String(data.available_balance || "0,00")) + '</span>';
       document.getElementById("reservedBalance").innerHTML = '<span class="privacy-sensitive">' +
         escapeHtml(String(data.reserved_balance || "0,00")) + '</span>';
-      document.getElementById("effectiveFactor").textContent = String(data.effective_factor_pct ?? 0) + " %";
+      const effectiveFactorText = String(data.effective_factor_pct ?? 0).trim();
+      document.getElementById("effectiveFactor").textContent =
+        effectiveFactorText.includes("%") ? effectiveFactorText : effectiveFactorText + " %";
       document.getElementById("nextBatchDate").textContent = String(data.next_batch_date || formatGermanDate(getNextBatchDate()));
 
       latestBalances = parseJsonValue(data.balances, []);
@@ -3371,32 +3373,86 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
       if (!current.session) return;
 
       reloadButton.disabled = true;
-      reloadButton.textContent = "Session aktiv";
+      reloadButton.textContent = "Daten werden geladen …";
 
-      apiStatusText.innerHTML =
-        '<span class="status-dot" aria-hidden="true"></span>' +
-        '<strong>Session sicher:</strong> Anmeldung wurde serverseitig bestätigt. ' +
-        'Der alte Backoffice-Datenwebhook ist während der Sicherheitsmigration ' +
-        'bewusst deaktiviert.';
+      try {
+        if (!BACKOFFICE_SESSION_API_READY || !API_URL) {
+          throw new Error("Session-Datenwebhook ist noch nicht verbunden.");
+        }
 
-      activitySummary.innerHTML =
-        '<div class="empty-state">' +
-        'Die Live-Daten werden wieder geladen, sobald das bestehende Make-' +
-        'Backoffice-Szenario auf Session-Prüfung umgestellt ist.' +
-        '</div>';
+        const sessionHash = await sha256Hex(current.session.token);
 
-      payoutRoutes.innerHTML =
-        '<div class="empty-state">' +
-        'Auszahlungs- und Wallet-Schreibzugriffe sind bis zur Session-Migration ' +
-        'des Make-Szenarios gesperrt.' +
-        '</div>';
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          cache: "no-store",
+          credentials: "omit",
+          body: JSON.stringify({
+            action: "load",
+            session_hash: sessionHash
+          })
+        });
 
-      renderTipsterCards(FALLBACK_TIPSTERS);
-      renderMasterResults([]);
-      renderMasterModel({});
+        const raw = await response.text();
+        let data = null;
 
-      reloadButton.disabled = false;
-      reloadButton.textContent = "Daten neu laden";
+        try {
+          data = raw ? JSON.parse(raw) : {};
+        } catch (error) {
+          throw new Error(
+            "Der Backoffice-Datenwebhook hat keine gültige JSON-Antwort geliefert. " +
+            "Make-Antwort: " + (raw || "(leer)")
+          );
+        }
+
+        if (!response.ok || !data || data.ok !== true) {
+          throw new Error(
+            data?.message ||
+            data?.error ||
+            ("Backoffice-Daten konnten nicht geladen werden (HTTP " + response.status + ").")
+          );
+        }
+
+        // Zusätzliche Browser-seitige Plausibilitätsprüfung:
+        // Die zurückgelieferte Admin-ID muss zur bereits serverseitig
+        // bestätigten Session gehören.
+        if (
+          String(data.admin_id || "") !== String(current.adminId || "")
+        ) {
+          throw new Error(
+            "Sicherheitsprüfung fehlgeschlagen: Die geladene Admin-ID passt nicht zur aktiven Session."
+          );
+        }
+
+        applyData(data);
+
+        // Schreib-/Auszahlungsfunktionen bleiben bis zum nächsten
+        // Sicherheitsbaustein weiterhin deaktiviert.
+        payoutPreferenceSummary.textContent =
+          "READ-ONLY Sicherheitsphase: Daten werden live geladen. " +
+          "Änderungen und Auszahlungen bleiben noch gesperrt.";
+
+      } catch (error) {
+        console.error("Backoffice-Datenfehler:", error);
+
+        apiStatusText.innerHTML =
+          '<span class="status-dot" aria-hidden="true"></span>' +
+          '<strong>Datenfehler:</strong> ' +
+          escapeHtml(error?.message || "Backoffice-Daten konnten nicht geladen werden.");
+
+        activitySummary.innerHTML =
+          '<div class="empty-state">Die sichere Admin-Session bleibt aktiv. ' +
+          'Es wurden keine Schreib- oder Auszahlungsaktionen ausgeführt.</div>';
+
+        payoutRoutes.innerHTML =
+          '<div class="empty-state">Auszahlungsaktionen bleiben aus Sicherheitsgründen gesperrt.</div>';
+
+      } finally {
+        reloadButton.disabled = false;
+        reloadButton.textContent = "Daten neu laden";
+      }
     }
 
     function updateNetworkOptions() {
