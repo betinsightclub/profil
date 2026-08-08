@@ -1478,7 +1478,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
         <article class="kpi-card">
           <div class="kpi-label">Normaler Unit-Pool-Anteil</div>
           <div class="kpi-value" id="effectiveFactor">30 %</div>
-          <div class="kpi-note">Startphase: Luciano 40 %, Martin 30 %, Frank 30 %</div>
+          <div class="kpi-note">Dein Anteil von BetInsight</div>
         </article>
 
         <article class="kpi-card">
@@ -2083,7 +2083,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
     </section>
 
     <footer class="footer">
-      © 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.2 · READ-ONLY
+      © 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.3 · WALLET-SICHER
     </footer>
   </main>
 
@@ -2096,6 +2096,8 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
     // Bis die alten Make-Szenarien ebenfalls die Session serverseitig prüfen,
     // bleiben deren Schreib-/Finanzzugriffe absichtlich gesperrt.
     const BACKOFFICE_SESSION_API_READY = true;
+    const WALLET_SESSION_API_READY = true;
+    const WALLET_API_URL = "https://hook.eu1.make.com/hypoxkxvfio7syw1cpxi7pre1i3znjid";
     const TEST_PAYMENT_SESSION_API_READY = false;
     const PRIVACY_KEY = "betinsight_admin_privacy_active";
     const ROUTE_PREF_KEY = "betinsight_admin_route_payout_preference";
@@ -2514,15 +2516,66 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
         throw new Error("Keine gültige Admin-Session vorhanden.");
       }
 
-      if (!BACKOFFICE_SESSION_API_READY) {
+      if (action !== "save_wallet") {
         throw new Error(
-          "Sicherheitsmigration aktiv: Diese Backoffice-Schreibaktion ist " +
-          "vorübergehend gesperrt, bis das Make-Datenszenario die Admin-Session " +
-          "serverseitig prüft."
+          "Diese Backoffice-Schreibaktion ist noch nicht session-gesichert und bleibt deshalb gesperrt."
         );
       }
 
-      throw new Error("Session-Backoffice-API ist noch nicht verbunden.");
+      if (!WALLET_SESSION_API_READY || !WALLET_API_URL) {
+        throw new Error("Der session-gesicherte Wallet-Webhook ist noch nicht verbunden.");
+      }
+
+      const sessionHash = await sha256Hex(current.session.token);
+      const requestId =
+        (crypto.randomUUID ? crypto.randomUUID() :
+        "wallet-" + Date.now() + "-" + Math.random().toString(16).slice(2));
+
+      const response = await fetch(WALLET_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        cache: "no-store",
+        credentials: "omit",
+        body: JSON.stringify({
+          action: "save_wallet",
+          session_hash: sessionHash,
+          currency: String(payload.currency || ""),
+          network_label: String(payload.network_label || ""),
+          wallet_address: String(payload.wallet_address || ""),
+          payout_mode: String(payload.payout_mode || "batch"),
+          request_id: requestId
+        })
+      });
+
+      const raw = await response.text();
+      let result = {};
+
+      try {
+        result = raw ? JSON.parse(raw) : {};
+      } catch (error) {
+        throw new Error(
+          "Der Wallet-Webhook hat keine gültige JSON-Antwort geliefert. Make-Antwort: " +
+          (raw || "(leer)")
+        );
+      }
+
+      if (!response.ok || result.ok !== true) {
+        throw new Error(
+          result?.message ||
+          result?.error ||
+          ("Wallet konnte nicht gespeichert werden (HTTP " + response.status + ").")
+        );
+      }
+
+      if (String(result.admin_id || "") !== String(current.adminId || "")) {
+        throw new Error(
+          "Sicherheitsprüfung fehlgeschlagen: Wallet-Antwort passt nicht zur aktiven Admin-Session."
+        );
+      }
+
+      return result;
     }
 
     function normalizeNetwork(network) {
@@ -3512,15 +3565,29 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
       }).join('');
     }
 
-    function saveWalletLocally() {
+    async function saveWalletSecurely() {
       const current = getCurrentAdmin();
       const currency = settingsCurrency.value;
       const network = settingsNetwork.value;
-      const payoutMode = document.querySelector('input[name="settingsPayoutMode"]:checked')?.value || "batch";
+      const payoutMode =
+        document.querySelector('input[name="settingsPayoutMode"]:checked')?.value || "batch";
       const walletAddress = settingsWallet.value.trim();
+
+      walletSaveMessage.textContent = "";
+
+      if (!current.session) {
+        walletSaveMessage.textContent = "Keine gültige Admin-Session vorhanden.";
+        return;
+      }
 
       if (!walletAddress) {
         walletSaveMessage.textContent = "Bitte eine vollständige Wallet-Adresse eintragen.";
+        return;
+      }
+
+      if (walletAddress.length < 10 || /\s/.test(walletAddress)) {
+        walletSaveMessage.textContent =
+          "Die Wallet-Adresse wirkt unvollständig oder enthält Leerzeichen.";
         return;
       }
 
@@ -3529,35 +3596,58 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
       });
 
       if (!route) {
-        walletSaveMessage.textContent = "Diese Kombination aus Währung und Netzwerk ist derzeit nicht freigegeben.";
+        walletSaveMessage.textContent =
+          "Diese Kombination aus Währung und Netzwerk ist derzeit nicht freigegeben.";
         return;
       }
 
-      const localWallets = getLocalWallets();
-      const now = new Date();
-      const lockedUntil = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-      localWallets[routeKey(currency, network)] = {
-        currency,
-        network,
-        address_full: walletAddress,
-        status: "lokal_hinterlegt",
-        changed_at: new Intl.DateTimeFormat("de-DE", {
-          day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit"
-        }).format(now),
-        locked_until: new Intl.DateTimeFormat("de-DE", {
-          day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit"
-        }).format(lockedUntil),
-        payout_mode: payoutMode
-      };
-      localStorage.setItem(LOCAL_WALLET_KEY + "_" + current.code, JSON.stringify(localWallets));
-
-      latestWallets = mergeWallets(latestWallets);
-      saveRoutePreference(route, payoutMode);
-      renderBalances(latestBalances, latestWallets);
-      renderPayoutRoutes(latestBalances, latestWallets);
-      settingsWallet.value = "";
+      saveWalletButton.disabled = true;
+      saveWalletButton.textContent = "Wird sicher gespeichert …";
       walletSaveMessage.textContent =
-        "Wallet und gewählte Auszahlungsart wurden auf diesem Gerät gespeichert. Sie sind jetzt in Übersicht und Auszahlung sichtbar. Die echte Speicherung im Sheet folgt über die geschützte Make-Aktion.";
+        "Session wird geprüft und die Walletänderung wird mit 24-Stunden-Sperre gespeichert …";
+
+      try {
+        const result = await postBackofficeAction("save_wallet", {
+          currency,
+          network_label: route.networkLabel,
+          wallet_address: walletAddress,
+          payout_mode: payoutMode
+        });
+
+        const localWallets = getLocalWallets();
+        localWallets[routeKey(currency, network)] = {
+          currency,
+          network,
+          address_full: walletAddress,
+          status: "bestaetigung_offen",
+          changed_at: new Date().toLocaleString("de-DE"),
+          locked_until: String(result.locked_until || ""),
+          payout_mode: payoutMode
+        };
+
+        localStorage.setItem(
+          LOCAL_WALLET_KEY + "_" + current.code,
+          JSON.stringify(localWallets)
+        );
+
+        latestWallets = mergeWallets(latestWallets);
+        saveRoutePreference(route, payoutMode);
+        renderBalances(latestBalances, latestWallets);
+        renderPayoutRoutes(latestBalances, latestWallets);
+
+        settingsWallet.value = "";
+        walletSaveMessage.textContent =
+          "Wallet sicher gespeichert. Freigabe steht auf offen; Auszahlungen über diese Route sind bis " +
+          String(result.locked_until || "24 Stunden nach der Änderung") +
+          " gesperrt.";
+
+      } catch (error) {
+        walletSaveMessage.textContent =
+          error?.message || "Wallet konnte nicht gespeichert werden.";
+      } finally {
+        saveWalletButton.disabled = false;
+        saveWalletButton.textContent = "Wallet speichern";
+      }
     }
 
     tipsterCards.addEventListener("input", function (event) {
@@ -3631,7 +3721,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
 
     reloadButton.addEventListener("click", loadBackofficeData);
     logoutButton.addEventListener("click", logout);
-    saveWalletButton.addEventListener("click", saveWalletLocally);
+    saveWalletButton.addEventListener("click", saveWalletSecurely);
     settingsCurrency.addEventListener("change", updateNetworkOptions);
     updateNetworkOptions();
 
