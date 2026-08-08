@@ -1726,6 +1726,16 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
                 </label>
               </div>
             </div>
+            <div class="field">
+              <label for="settingsMinimumSelect">Dein Mindest-Auszahlungswert</label>
+              <select id="settingsMinimumSelect"></select>
+              <div id="settingsMinimumHint" class="route-hint">Systemminimum wird aus BetInsight geladen.</div>
+            </div>
+
+            <div class="field hidden" id="settingsMinimumCustomWrap">
+              <label for="settingsMinimumCustom">Eigener Betrag in EUR</label>
+              <input id="settingsMinimumCustom" type="number" min="1" step="1" inputmode="decimal" placeholder="z. B. 750">
+            </div>
           </div>
 
           <div class="button-row">
@@ -2083,7 +2093,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
     </section>
 
     <footer class="footer">
-      © 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.4 · WALLET-SICHER
+      © 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.5 · MINDESTWERT-SICHER
     </footer>
   </main>
 
@@ -2143,16 +2153,16 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
     ];
 
     const SUPPORTED_ROUTES = [
-      { currency: "BNB", network: "BNB_CHAIN", networkLabel: "BNB Chain" },
-      { currency: "BTC", network: "BITCOIN", networkLabel: "Bitcoin" },
-      { currency: "ETH", network: "ETHEREUM", networkLabel: "Ethereum" },
-      { currency: "SOL", network: "SOLANA", networkLabel: "Solana" },
-      { currency: "TON", network: "TON", networkLabel: "TON" },
-      { currency: "TRX", network: "TRON", networkLabel: "TRON" },
-      { currency: "USDC", network: "BEP20", networkLabel: "BEP-20" },
-      { currency: "USDT", network: "ERC20", networkLabel: "ERC-20" },
-      { currency: "USDT", network: "TON", networkLabel: "TON" },
-      { currency: "USDT", network: "TRC20", networkLabel: "TRC-20" }
+      { currency: "BNB", network: "BNB_CHAIN", networkLabel: "BNB Chain", systemMinimumEur: 50, autoAllowed: true },
+      { currency: "BTC", network: "BITCOIN", networkLabel: "Bitcoin", systemMinimumEur: 250, autoAllowed: false },
+      { currency: "ETH", network: "ETHEREUM", networkLabel: "Ethereum", systemMinimumEur: 150, autoAllowed: true },
+      { currency: "SOL", network: "SOLANA", networkLabel: "Solana", systemMinimumEur: 50, autoAllowed: true },
+      { currency: "TON", network: "TON", networkLabel: "TON", systemMinimumEur: 50, autoAllowed: true },
+      { currency: "TRX", network: "TRON", networkLabel: "TRON", systemMinimumEur: 50, autoAllowed: true },
+      { currency: "USDC", network: "BEP20", networkLabel: "BEP-20", systemMinimumEur: 50, autoAllowed: true },
+      { currency: "USDT", network: "ERC20", networkLabel: "ERC-20", systemMinimumEur: 100, autoAllowed: true },
+      { currency: "USDT", network: "TON", networkLabel: "TON", systemMinimumEur: 50, autoAllowed: true },
+      { currency: "USDT", network: "TRC20", networkLabel: "TRC-20", systemMinimumEur: 50, autoAllowed: true }
     ];
 
     const ROUTES_BY_CURRENCY = SUPPORTED_ROUTES.reduce(function (map, route) {
@@ -2160,6 +2170,116 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
       map[route.currency].push(route);
       return map;
     }, {});
+
+    function isStablecoinRoute(route) {
+      return route.currency === "USDT" || route.currency === "USDC";
+    }
+
+    function routePolicy(route, wallet) {
+      const systemMinimum = Math.max(
+        num(wallet?.system_minimum_eur ?? route.systemMinimumEur ?? 0),
+        0
+      );
+      const personalMinimum = Math.max(
+        num(wallet?.personal_minimum_eur ?? systemMinimum),
+        systemMinimum
+      );
+      const autoRaw = String(
+        wallet?.auto_allowed ??
+        (route.autoAllowed ? "JA" : "NEIN")
+      ).toUpperCase();
+
+      return {
+        systemMinimum,
+        personalMinimum,
+        autoAllowed: autoRaw === "JA"
+      };
+    }
+
+    function minimumPresets(systemMinimum, currentMinimum) {
+      const base = [50, 100, 150, 250, 500, 1000, 2500, 5000];
+      const values = [systemMinimum, ...base, currentMinimum]
+        .map(Number)
+        .filter(function (value) {
+          return Number.isFinite(value) && value >= systemMinimum && value > 0;
+        });
+      return Array.from(new Set(values)).sort(function (a, b) { return a - b; });
+    }
+
+    function minimumOptionsHtml(systemMinimum, currentMinimum) {
+      const presets = minimumPresets(systemMinimum, currentMinimum);
+      const isPreset = presets.includes(Number(currentMinimum));
+      return presets.map(function (value) {
+        const selected = Number(currentMinimum) === value ? " selected" : "";
+        return '<option value="' + value + '"' + selected + '>' +
+          formatNumber(value, 0) + ' €</option>';
+      }).join("") +
+      '<option value="custom"' + (!isPreset ? " selected" : "") + '>Eigener Betrag …</option>';
+    }
+
+    function minimumLabel(route, amount) {
+      return formatNumber(amount, 0) + " €" +
+        (isStablecoinRoute(route) ? "" : " Gegenwert");
+    }
+
+    function selectedSettingsMinimum(route, wallet) {
+      const policy = routePolicy(route, wallet);
+      const raw = settingsMinimumSelect.value;
+      const value = raw === "custom"
+        ? num(settingsMinimumCustom.value)
+        : num(raw);
+      if (!value || value < policy.systemMinimum) {
+        throw new Error(
+          "Der Mindest-Auszahlungswert muss mindestens " +
+          minimumLabel(route, policy.systemMinimum) + " betragen."
+        );
+      }
+      return value;
+    }
+
+    function updateSettingsMinimumUi() {
+      const route = SUPPORTED_ROUTES.find(function (item) {
+        return routeKey(item.currency, item.network) ===
+          routeKey(settingsCurrency.value, settingsNetwork.value);
+      });
+      if (!route) return;
+
+      const wallet = findWallet(latestWallets, route) || {};
+      const policy = routePolicy(route, wallet);
+      settingsMinimumSelect.innerHTML =
+        minimumOptionsHtml(policy.systemMinimum, policy.personalMinimum);
+
+      const presets = minimumPresets(policy.systemMinimum, policy.personalMinimum);
+      const custom = !presets.includes(Number(policy.personalMinimum));
+      settingsMinimumCustomWrap.classList.toggle("hidden", !custom);
+      settingsMinimumCustom.value = custom ? policy.personalMinimum : "";
+
+      settingsMinimumHint.textContent =
+        "Systemminimum: " + minimumLabel(route, policy.systemMinimum) +
+        ". Du kannst jederzeit einen höheren Betrag wählen.";
+
+      const autoRadio =
+        document.querySelector('input[name="settingsPayoutMode"][value="automatic"]');
+      const batchRadio =
+        document.querySelector('input[name="settingsPayoutMode"][value="batch"]');
+
+      if (autoRadio) {
+        autoRadio.disabled = !policy.autoAllowed;
+        autoRadio.closest(".choice-card")?.classList.toggle("disabled", !policy.autoAllowed);
+      }
+
+      if (!policy.autoAllowed && autoRadio?.checked && batchRadio) {
+        batchRadio.checked = true;
+      }
+
+      const walletMode = String(wallet?.payout_mode || "").toUpperCase();
+      if (walletMode.includes("AUTO") && policy.autoAllowed && autoRadio) {
+        autoRadio.checked = true;
+      } else if (walletMode && batchRadio) {
+        batchRadio.checked = true;
+      }
+    }
+
 
     const adminName = document.getElementById("adminName");
     const roleBadge = document.getElementById("roleBadge");
@@ -2180,6 +2300,10 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
     const settingsCurrency = document.getElementById("settingsCurrency");
     const settingsNetwork = document.getElementById("settingsNetwork");
     const networkHint = document.getElementById("networkHint");
+    const settingsMinimumSelect = document.getElementById("settingsMinimumSelect");
+    const settingsMinimumCustomWrap = document.getElementById("settingsMinimumCustomWrap");
+    const settingsMinimumCustom = document.getElementById("settingsMinimumCustom");
+    const settingsMinimumHint = document.getElementById("settingsMinimumHint");
     const tipsterCards = document.getElementById("tipsterCards");
     const createTipsterButton = document.getElementById("createTipsterButton");
     const createTipsterMessage = document.getElementById("createTipsterMessage");
@@ -2560,7 +2684,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
         throw new Error("Keine gültige Admin-Session vorhanden.");
       }
 
-      if (action !== "save_wallet") {
+      if (!["save_wallet", "save_payout_settings"].includes(action)) {
         throw new Error(
           "Diese Backoffice-Schreibaktion ist noch nicht session-gesichert und bleibt deshalb gesperrt."
         );
@@ -2589,6 +2713,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
           network_label: String(payload.network_label || ""),
           wallet_address: String(payload.wallet_address || ""),
           payout_mode_label: String(payload.payout_mode_label || "SAMMEL_5_15_25"),
+          personal_minimum_eur: Number(payload.personal_minimum_eur || 0),
           request_id: requestId
         })
       });
@@ -2809,10 +2934,25 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
         const wallet = findWallet(wallets, route) || {};
         const address = getWalletAddress(wallet);
         const preference = getRoutePreference(route, balance, wallet);
-        const possible = balance.payout_possible === true || String(balance.payout_possible).toLowerCase() === "true";
+        const possible =
+          balance.payout_possible === true ||
+          String(balance.payout_possible).toLowerCase() === "true";
         const automaticActive = preference === "automatic";
         const batchActive = preference === "batch";
         const safeRoute = encodeURIComponent(JSON.stringify(route));
+        const policy = routePolicy(route, wallet);
+        const presets = minimumPresets(policy.systemMinimum, policy.personalMinimum);
+        const currentIsPreset = presets.includes(Number(policy.personalMinimum));
+        const minimumOptions = presets.map(function (value) {
+          return '<option value="' + value + '"' +
+            (Number(policy.personalMinimum) === value ? " selected" : "") +
+            '>' + formatNumber(value, 0) + ' €</option>';
+        }).join("") +
+        '<option value="custom"' + (!currentIsPreset ? " selected" : "") +
+        '>Eigener Betrag …</option>';
+
+        const autoDisabled = !address || !policy.autoAllowed;
+        const batchDisabled = !address;
 
         return `<article class="payout-route-card">
           <div class="payout-route-head">
@@ -2833,14 +2973,29 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
               <span class="payout-balance-value privacy-sensitive">${formatNumber(balance.reserved || 0, 8)}</span>
             </div>
             <div class="payout-balance-item">
-              <span class="payout-balance-label">Mindestauszahlung</span>
-              <span class="payout-balance-value privacy-sensitive">${formatNumber(balance.minimum || 0, 8)}</span>
+              <span class="payout-balance-label">Dein Mindestwert</span>
+              <span class="payout-balance-value">${formatNumber(policy.personalMinimum, 0)} €</span>
             </div>
           </div>
 
           <div class="wallet-address-label">Auszahlungsadresse</div>
           <div class="wallet-address-value privacy-sensitive${address ? "" : " empty"}">
             ${address ? escapeHtml(address) : "Noch nicht hinterlegt"}
+          </div>
+
+          <div class="field" style="margin-top:14px">
+            <label>Persönlicher Mindest-Auszahlungswert</label>
+            <select class="route-minimum-select">
+              ${minimumOptions}
+            </select>
+            <input class="route-minimum-custom${currentIsPreset ? " hidden" : ""}"
+              type="number" min="${policy.systemMinimum}" step="1"
+              value="${currentIsPreset ? "" : policy.personalMinimum}"
+              placeholder="Eigener Betrag in EUR">
+            <div class="route-hint">
+              Systemminimum: ${escapeHtml(minimumLabel(route, policy.systemMinimum))}.
+              Höhere Werte wie 500 €, 1.000 € oder mehr sind jederzeit möglich.
+            </div>
           </div>
 
           <div class="payout-mode-stack">
@@ -2850,11 +3005,15 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
                 ${automaticActive ? '<span class="status-pill">Aktiv</span>' : ""}
               </div>
               <div class="payout-mode-description">
-                Automatische Vorbereitung nach Erreichen der Mindestgrenze und nach allen Sicherheitsprüfungen.
+                ${policy.autoAllowed
+                  ? "Automatische Vorbereitung nach Erreichen deines Mindestwerts und nach allen Sicherheitsprüfungen."
+                  : "Für BTC / Bitcoin ist die automatische Auszahlung nicht verfügbar."}
               </div>
               <button class="button button-primary route-mode-button" type="button"
-                data-route="${safeRoute}" data-mode="automatic" ${address ? "" : "disabled"}>
-                ${automaticActive ? "Automatik ist aktiv" : "Automatische Auszahlung aktivieren"}
+                data-route="${safeRoute}" data-mode="automatic" ${autoDisabled ? "disabled" : ""}>
+                ${!policy.autoAllowed
+                  ? "Automatik nicht verfügbar"
+                  : (automaticActive ? "Automatik ist aktiv" : "Automatische Auszahlung aktivieren")}
               </button>
             </div>
 
@@ -2864,10 +3023,11 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
                 ${batchActive ? '<span class="status-pill">Aktiv</span>' : ""}
               </div>
               <div class="payout-mode-description">
-                Vormerkung für den nächsten Sammeltermin. Nächster Termin: ${escapeHtml(formatGermanDate(getNextBatchDate()))}.
+                Am nächsten Sammeltermin wird nur ausgezahlt, wenn dein persönlicher Mindestwert erreicht ist.
+                Nächster Termin: ${escapeHtml(formatGermanDate(getNextBatchDate()))}.
               </div>
               <button class="button button-green route-mode-button" type="button"
-                data-route="${safeRoute}" data-mode="batch" ${address ? "" : "disabled"}>
+                data-route="${safeRoute}" data-mode="batch" ${batchDisabled ? "disabled" : ""}>
                 ${batchActive ? "5./15./25. ist aktiv" : "5./15./25. aktivieren"}
               </button>
             </div>
@@ -2875,7 +3035,77 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
         </article>`;
       }).join("");
 
-      payoutPreferenceSummary.textContent = "Die Auszahlungsart wird getrennt je Währung und Netzwerk festgelegt.";
+      payoutPreferenceSummary.textContent =
+        "Auszahlungsart und persönlicher Mindestwert werden getrennt je Währung und Netzwerk gespeichert.";
+    }
+
+    async function savePayoutSettingsSecurely(route, mode, card, button) {
+      const wallet = findWallet(latestWallets, route) || {};
+      const address = getWalletAddress(wallet);
+      if (!address) {
+        throw new Error("Für diese Route ist noch keine Wallet hinterlegt.");
+      }
+
+      const policy = routePolicy(route, wallet);
+      if (mode === "automatic" && !policy.autoAllowed) {
+        throw new Error("Für BTC / Bitcoin ist die automatische Auszahlung nicht verfügbar.");
+      }
+
+      const select = card.querySelector(".route-minimum-select");
+      const custom = card.querySelector(".route-minimum-custom");
+      const personalMinimum =
+        select?.value === "custom" ? num(custom?.value) : num(select?.value);
+
+      if (!personalMinimum || personalMinimum < policy.systemMinimum) {
+        throw new Error(
+          "Der Mindest-Auszahlungswert muss mindestens " +
+          minimumLabel(route, policy.systemMinimum) + " betragen."
+        );
+      }
+
+      const payoutModeLabel =
+        mode === "automatic" ? "AUTOMATISCH" : "SAMMEL_5_15_25";
+
+      const previousText = button.textContent;
+      button.disabled = true;
+      button.textContent = "Wird gespeichert …";
+
+      try {
+        const result = await postBackofficeAction("save_payout_settings", {
+          currency: route.currency,
+          network_label: route.networkLabel,
+          payout_mode_label: payoutModeLabel,
+          personal_minimum_eur: personalMinimum
+        });
+
+        const index = latestWallets.findIndex(function (item) {
+          return routeKey(item.currency, item.network) ===
+            routeKey(route.currency, route.network);
+        });
+
+        const patch = {
+          payout_mode: payoutModeLabel,
+          personal_minimum_eur: String(personalMinimum),
+          system_minimum_eur: String(result.system_minimum_eur || policy.systemMinimum),
+          auto_allowed: String(result.auto_allowed || (policy.autoAllowed ? "JA" : "NEIN"))
+        };
+
+        if (index >= 0) latestWallets[index] = { ...latestWallets[index], ...patch };
+        saveRoutePreference(route, mode);
+        renderPayoutRoutes(latestBalances, latestWallets);
+
+        apiStatusText.innerHTML =
+          '<span class="status-dot" aria-hidden="true"></span>' +
+          '<strong>Auszahlungseinstellung gespeichert:</strong> ' +
+          escapeHtml(route.currency + " / " + route.networkLabel) +
+          ' · ' + escapeHtml(mode === "automatic" ? "Automatisch" : "5./15./25.") +
+          ' · Mindestwert ' + escapeHtml(formatNumber(personalMinimum, 0) + " €") + '.';
+      } finally {
+        if (button.isConnected) {
+          button.disabled = false;
+          button.textContent = previousText;
+        }
+      }
     }
 
     function renderProvisions(items) {
@@ -3465,6 +3695,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
 
       renderBalances(latestBalances, latestWallets);
       renderPayoutRoutes(latestBalances, latestWallets);
+      updateSettingsMinimumUi();
       renderProvisions(provisions);
       renderPayouts(payouts);
 
@@ -3552,11 +3783,9 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
 
         applyData(data);
 
-        // Schreib-/Auszahlungsfunktionen bleiben bis zum nächsten
-        // Sicherheitsbaustein weiterhin deaktiviert.
         payoutPreferenceSummary.textContent =
-          "READ-ONLY Sicherheitsphase: Daten werden live geladen. " +
-          "Änderungen und Auszahlungen bleiben noch gesperrt.";
+          "Wallets, Auszahlungsart und persönliche Mindestwerte sind session-gesichert. " +
+          "Die tatsächliche Auszahlung bleibt weiterhin gesperrt.";
 
       } catch (error) {
         console.error("Backoffice-Datenfehler:", error);
@@ -3616,7 +3845,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
       const payoutMode =
         document.querySelector('input[name="settingsPayoutMode"]:checked')?.value || "batch";
       const payoutModeLabel =
-        payoutMode === "auto" ? "AUTOMATISCH" : "SAMMEL_5_15_25";
+        payoutMode === "automatic" ? "AUTOMATISCH" : "SAMMEL_5_15_25";
       const walletAddress = settingsWallet.value.trim();
 
       walletSaveMessage.textContent = "";
@@ -3647,6 +3876,24 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
         return;
       }
 
+      const policy = routePolicy(route, findWallet(latestWallets, route) || {});
+      if (payoutMode === "automatic" && !policy.autoAllowed) {
+        walletSaveMessage.textContent =
+          "Für BTC / Bitcoin ist die automatische Auszahlung nicht verfügbar.";
+        return;
+      }
+
+      let personalMinimum;
+      try {
+        personalMinimum = selectedSettingsMinimum(
+          route,
+          findWallet(latestWallets, route) || {}
+        );
+      } catch (error) {
+        walletSaveMessage.textContent = error.message;
+        return;
+      }
+
       saveWalletButton.disabled = true;
       saveWalletButton.textContent = "Wird sicher gespeichert …";
       walletSaveMessage.textContent =
@@ -3657,7 +3904,8 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
           currency,
           network_label: route.networkLabel,
           wallet_address: walletAddress,
-          payout_mode_label: payoutModeLabel
+          payout_mode_label: payoutModeLabel,
+          personal_minimum_eur: personalMinimum
         });
 
         const localWallets = getLocalWallets();
@@ -3668,7 +3916,10 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
           status: "bestaetigung_offen",
           changed_at: new Date().toLocaleString("de-DE"),
           locked_until: String(result.locked_until || ""),
-          payout_mode_label: payoutModeLabel
+          payout_mode: payoutModeLabel,
+          personal_minimum_eur: String(personalMinimum),
+          system_minimum_eur: String(result.system_minimum_eur || policy.systemMinimum),
+          auto_allowed: String(result.auto_allowed || (policy.autoAllowed ? "JA" : "NEIN"))
         };
 
         localStorage.setItem(
@@ -3685,7 +3936,8 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
         walletSaveMessage.textContent =
           "Wallet sicher gespeichert. Freigabe steht auf offen; Auszahlungen über diese Route sind bis " +
           String(result.locked_until || "24 Stunden nach der Änderung") +
-          " gesperrt.";
+          " gesperrt. Persönlicher Mindestwert: " +
+          formatNumber(personalMinimum, 0) + " €.";
 
       } catch (error) {
         walletSaveMessage.textContent =
@@ -3734,13 +3986,25 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
         return;
       }
 
+      const minimumSelect = event.target.closest(".route-minimum-select");
+      if (minimumSelect) {
+        const card = minimumSelect.closest(".payout-route-card");
+        const custom = card?.querySelector(".route-minimum-custom");
+        custom?.classList.toggle("hidden", minimumSelect.value !== "custom");
+        return;
+      }
+
       const modeButton = event.target.closest(".route-mode-button");
       if (modeButton && !modeButton.disabled) {
         const route = JSON.parse(decodeURIComponent(modeButton.dataset.route));
-        saveRoutePreference(route, modeButton.dataset.mode);
-        apiStatusText.innerHTML = '<span class="status-dot" aria-hidden="true"></span><strong>Auswahl gespeichert:</strong> ' +
-          escapeHtml(route.currency + " / " + route.networkLabel) +
-          '. Die echte Übernahme ins Sheet folgt über die geschützte Make-Aktion.';
+        const card = modeButton.closest(".payout-route-card");
+        savePayoutSettingsSecurely(route, modeButton.dataset.mode, card, modeButton)
+          .catch(function (error) {
+            apiStatusText.innerHTML =
+              '<span class="status-dot" aria-hidden="true"></span>' +
+              '<strong>Auszahlungseinstellung nicht gespeichert:</strong> ' +
+              escapeHtml(error?.message || "Unbekannter Fehler");
+          });
         return;
       }
 
@@ -3769,6 +4033,13 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
     logoutButton.addEventListener("click", logout);
     saveWalletButton.addEventListener("click", saveWalletSecurely);
     settingsCurrency.addEventListener("change", updateNetworkOptions);
+    settingsNetwork.addEventListener("change", updateSettingsMinimumUi);
+    settingsMinimumSelect.addEventListener("change", function () {
+      settingsMinimumCustomWrap.classList.toggle(
+        "hidden",
+        settingsMinimumSelect.value !== "custom"
+      );
+    });
     updateNetworkOptions();
 
     (async function initializeSecureBackoffice() {
