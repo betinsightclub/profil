@@ -2083,7 +2083,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
     </section>
 
     <footer class="footer">
-      © 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.1 · READ-ONLY
+      © 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.2 · READ-ONLY
     </footer>
   </main>
 
@@ -2525,8 +2525,35 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, getrenntem Testbetrieb, Tippg
       throw new Error("Session-Backoffice-API ist noch nicht verbunden.");
     }
 
+    function normalizeNetwork(network) {
+      const raw = String(network || "")
+        .trim()
+        .toUpperCase()
+        .replaceAll(" ", "")
+        .replaceAll("_", "")
+        .replaceAll("-", "");
+
+      const aliases = {
+        "TRC20": "TRC20",
+        "TRON": "TRON",
+        "ERC20": "ERC20",
+        "BEP20": "BEP20",
+        "BNBCHAIN": "BNB_CHAIN",
+        "BSC": "BNB_CHAIN",
+        "BITCOIN": "BITCOIN",
+        "BTC": "BITCOIN",
+        "ETHEREUM": "ETHEREUM",
+        "ETH": "ETHEREUM",
+        "SOLANA": "SOLANA",
+        "SOL": "SOLANA",
+        "TON": "TON"
+      };
+
+      return aliases[raw] || raw;
+    }
+
     function routeKey(currency, network) {
-      return String(currency || "").toUpperCase() + "__" + normalizeNetwork(network);
+      return String(currency || "").trim().toUpperCase() + "__" + normalizeNetwork(network);
     }
 
     function getWalletAddress(item) {
