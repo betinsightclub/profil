@@ -2,7 +2,7 @@
 <!--
 Projekt: BetInsight
 Datei auf GitHub: profil/admin/backoffice/index.html
-Version: 2026.08.09-BACKOFFICE-v2.6-LED-10-10-10
+Version: 2026.08.09-BACKOFFICE-v2.7-LED-PEGEL-10-10-10
 Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED-Wochenfortschritt, getrenntem Testbetrieb, Ergebnisübersicht, Wallet-Zielauswahl und festen Netzwerken.
 -->
 <html lang="de">
@@ -1063,6 +1063,107 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
       line-height: 1.4;
     }
 
+    .level-control {
+      padding: 13px;
+      border: 1px solid rgba(0, 218, 255, 0.18);
+      border-radius: 12px;
+      background: rgba(1, 12, 19, 0.34);
+    }
+
+    .level-control-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .level-control-title {
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .level-control-system {
+      color: #a9f7dc;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .level-slider-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 72px;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .level-slider {
+      width: 100%;
+      cursor: pointer;
+      accent-color: #31d4ff;
+    }
+
+    .level-readout {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 7px 8px;
+      border: 1px solid rgba(255, 191, 74, 0.30);
+      border-radius: 10px;
+      background: rgba(255, 191, 74, 0.08);
+      color: #ffe4a3;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .level-scale {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 5px;
+      padding-right: 84px;
+      color: rgba(190, 215, 229, 0.70);
+      font-size: 9px;
+      font-weight: 800;
+    }
+
+    .level-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .manual-override-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 5px 9px;
+      border: 1px solid rgba(255, 191, 74, 0.28);
+      border-radius: 999px;
+      color: #ffe4a3;
+      background: rgba(255, 191, 74, 0.06);
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .personal-tipster-card {
+      border-color: rgba(49, 212, 255, 0.24);
+      background: linear-gradient(180deg, rgba(12, 65, 88, 0.62), rgba(3, 27, 40, 0.92));
+    }
+
+    .personal-tipster-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .personal-tipster-head h3 { margin: 0; }
+
     .tipster-settings-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1595,25 +1696,40 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
       </div>
 
       <div class="section-grid">
-        <article class="content-card">
-          <h3>Vergütungsregel</h3>
-          <div class="factor-grid">
-            <div class="factor-item">
-              <div class="factor-label">Menge</div>
-              <div class="factor-value">100 %</div>
+        <article class="content-card full personal-tipster-card hidden" id="personalTipsterCard">
+          <div class="personal-tipster-head">
+            <div>
+              <h3>Mein Tippgeber-Fortschritt</h3>
+              <p class="muted">Deine Wochenleistung und dein aktueller Anteil. Die LED-Leiste ist nur eine motivierende Fortschrittsanzeige; die endgültige Freigabe bleibt beim Master.</p>
             </div>
-            <div class="factor-item">
-              <div class="factor-label">Qualität</div>
-              <div class="factor-value">100 %</div>
+            <span class="quantity-system-pill" id="selfQuantitySystem">System: 0,0 / 10 %</span>
+          </div>
+
+          <div class="tipster-progress-panel">
+            <div class="tipster-progress-head">
+              <div>
+                <div class="tipster-progress-title">Tipps diese Woche · LED-Anzeige</div>
+                <div class="tipster-progress-subtitle">Je zwei LEDs bilden eine Stufe. Gezählt werden gültige, veröffentlichte und vergütungsrelevante Tipps.</div>
+              </div>
+              <span class="tipster-status-badge" id="selfTipsterStatus">Aktiv</span>
             </div>
-            <div class="factor-item">
-              <div class="factor-label">Gesamtanteil</div>
-              <div class="factor-value">30 %</div>
+            <div class="led-rail" id="selfLedRail" aria-label="Eigener Wochenfortschritt"></div>
+            <div class="quantity-progress-meta">
+              <span>Aktuell: <strong id="selfWeekCount">0 Tipps</strong></span>
+              <span>Mindestziel: <strong id="selfMinTarget">0</strong></span>
+              <span>Wunschwert: <strong id="selfMaxTarget">0</strong></span>
             </div>
           </div>
-          <div class="info-box">
-            Die Startphase ist aktuell auf den vollständigen 30-%-Anteil eingestellt.
-            Spätere Änderungen gelten nur für zukünftige Zeiträume.
+
+          <div class="tipster-factor-preview">
+            <div class="factor-item"><div class="factor-label">Grundanteil fest</div><div class="factor-value" id="selfBaseShare">10 %</div></div>
+            <div class="factor-item"><div class="factor-label">Menge aktuell</div><div class="factor-value" id="selfQuantityShare">0,0 %</div></div>
+            <div class="factor-item"><div class="factor-label">Qualität aktuell</div><div class="factor-value" id="selfQualityShare">0,0 %</div></div>
+            <div class="factor-item"><div class="factor-label">Gesamtanteil</div><div class="factor-value" id="selfTotalShare">10,0 %</div></div>
+          </div>
+
+          <div class="info-box" id="selfTipsterInfo">
+            Dein Master kann Mengen- und Qualitätswerte manuell korrigieren. Du selbst kannst diese Werte nicht verändern.
           </div>
         </article>
 
@@ -1881,9 +1997,9 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
       </div>
 
       <div class="master-note">
-        Die LED-Anzeige und die Tipp-Ergebnisse dienen als Entscheidungshilfe. Der Mengen-Systemvorschlag steigt automatisch mit der Wochenleistung; der endgültige Mengen- und Qualitätswert bleibt manuell steuerbar.
-        Eine Änderung wird erst dann dauerhaft in Google Sheets gespeichert, wenn die geschützte Make-Aktion
-        <strong>save_tipster_settings</strong> angeschlossen ist.
+        Die LED-Anzeige und die Tipp-Ergebnisse dienen als Entscheidungshilfe. Der Mengen-Systemvorschlag steigt automatisch mit der Wochenleistung.
+        Mit den Pegelstellern kannst du Menge und Qualität jederzeit in 0,5-Prozentpunkten zwischen 0 und 10 % korrigieren.
+        <strong>Systemwert übernehmen</strong> setzt nur den Pegel auf den Vorschlag – du behältst die letzte Entscheidung.
       </div>
 
       <article class="content-card full" id="model4060Card">
@@ -2199,7 +2315,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
     </section>
 
     <footer class="footer">
-      © 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.6 · LED-10-10-10 · MINDESTWERT-SICHER
+      © 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.7a · LED-AUTOMATIK-PEGEL · 10-10-10 · MINDESTWERT-SICHER
     </footer>
   </main>
 
@@ -2214,6 +2330,8 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
     const BACKOFFICE_SESSION_API_READY = true;
     const WALLET_SESSION_API_READY = true;
     const WALLET_API_URL = "https://hook.eu1.make.com/hypoxkxvfio7syw1cpxi7pre1i3znjid";
+    const TIPSTER_SESSION_API_READY = false; // Nach Import des session-gesicherten Tippgeber-Szenarios auf true setzen.
+    const TIPSTER_API_URL = "";             // Neuer Tippgeber-Webhook wird nach dem Make-Import eingesetzt.
     const TEST_PAYMENT_SESSION_API_READY = false;
     const PRIVACY_KEY = "betinsight_admin_privacy_active";
     const ROUTE_PREF_KEY = "betinsight_admin_route_payout_preference";
@@ -2230,13 +2348,13 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
         tippgeber_status: "AKTIV",
         wochenziel_min: 8,
         wochenziel_max: 10,
-        mengenbewertung_modus: "VORSCHLAG_MANUELL",
+        mengenbewertung_modus: "AUTOMATISCH",
         mengenfaktor_manuell_pct: 0,
         qualitaetsmodus: "MANUELL",
         qualitaetsfaktor_manuell_pct: 0,
         ergebnisse_oeffentlich: "JA",
         regelversion: "NORMAL-10-10-10-v1",
-        tippgeber_bemerkung: "Wochenziel 8–10 Tipps; Systemvorschlag Menge steigt weich an, endgültige Einstellung bleibt manuell.",
+        tippgeber_bemerkung: "Wochenziel 8–10 Tipps; Mengenanteil steigt automatisch mit gültigen Wochen-Tipps; der Master kann jederzeit manuell korrigieren.",
         grundanteil_pct: 10,
         quantity_share_max_pct: 10,
         quality_share_max_pct: 10
@@ -2247,13 +2365,13 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
         tippgeber_status: "AKTIV",
         wochenziel_min: 4,
         wochenziel_max: 6,
-        mengenbewertung_modus: "VORSCHLAG_MANUELL",
+        mengenbewertung_modus: "AUTOMATISCH",
         mengenfaktor_manuell_pct: 0,
         qualitaetsmodus: "MANUELL",
         qualitaetsfaktor_manuell_pct: 0,
         ergebnisse_oeffentlich: "JA",
         regelversion: "NORMAL-10-10-10-v1",
-        tippgeber_bemerkung: "Wochenziel 4–6 Tipps; Systemvorschlag Menge steigt weich an, endgültige Einstellung bleibt manuell.",
+        tippgeber_bemerkung: "Wochenziel 4–6 Tipps; Mengenanteil steigt automatisch mit gültigen Wochen-Tipps; der Master kann jederzeit manuell korrigieren.",
         grundanteil_pct: 10,
         quantity_share_max_pct: 10,
         quality_share_max_pct: 10
@@ -2714,8 +2832,15 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
     }
 
     function effectiveQuantityFactor(tipster) {
-      const mode = normalizeText(firstDefined(tipster, ["mengenbewertung_modus", "quantity_mode"], "MANUELL")).toUpperCase();
+      const mode = normalizeText(firstDefined(tipster, ["mengenbewertung_modus", "quantity_mode"], "AUTOMATISCH")).toUpperCase();
       if (mode === "DEAKTIVIERT") return 0;
+      if (mode === "AUTOMATISCH") {
+        return quantitySystemSuggestionFactor(
+          firstDefined(tipster, ["week_count", "week_tip_count", "gueltige_tipps_woche", "tipps_woche"], 0),
+          firstDefined(tipster, ["wochenziel_min", "weekly_target_min"], 0),
+          firstDefined(tipster, ["wochenziel_max", "weekly_target_max"], 0)
+        );
+      }
       return num(firstDefined(tipster, ["mengenfaktor_manuell_pct", "quantity_manual_pct", "quantity_factor_pct"], 0));
     }
 
@@ -2822,38 +2947,69 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
         throw new Error("Keine gültige Admin-Session vorhanden.");
       }
 
-      if (!["save_wallet", "save_payout_settings"].includes(action)) {
-        throw new Error(
-          "Diese Backoffice-Schreibaktion ist noch nicht session-gesichert und bleibt deshalb gesperrt."
-        );
+      const walletActions = ["save_wallet", "save_payout_settings"];
+      const tipsterActions = ["save_tipster_settings"];
+      if (!walletActions.includes(action) && !tipsterActions.includes(action)) {
+        throw new Error("Diese Backoffice-Schreibaktion ist noch nicht freigegeben.");
       }
 
-      if (!WALLET_SESSION_API_READY || !WALLET_API_URL) {
-        throw new Error("Der session-gesicherte Wallet-Webhook ist noch nicht verbunden.");
+      const isTipsterAction = tipsterActions.includes(action);
+      const endpoint = isTipsterAction ? TIPSTER_API_URL : WALLET_API_URL;
+      const endpointReady = isTipsterAction ? TIPSTER_SESSION_API_READY : WALLET_SESSION_API_READY;
+
+      if (!endpointReady || !endpoint) {
+        throw new Error(isTipsterAction
+          ? "Der session-gesicherte Tippgeber-Webhook ist noch nicht verbunden."
+          : "Der session-gesicherte Wallet-Webhook ist noch nicht verbunden.");
+      }
+
+      if (isTipsterAction && current.admin?.role !== "owner") {
+        throw new Error("Tippgeber-Pegel dürfen nur vom Master geändert werden.");
       }
 
       const sessionHash = await sha256Hex(current.session.token);
       const requestId =
         (crypto.randomUUID ? crypto.randomUUID() :
-        "wallet-" + Date.now() + "-" + Math.random().toString(16).slice(2));
+        (isTipsterAction ? "tipster-" : "wallet-") + Date.now() + "-" + Math.random().toString(16).slice(2));
 
-      const response = await fetch(WALLET_API_URL, {
+      const body = isTipsterAction
+        ? {
+            action: action,
+            session_hash: sessionHash,
+            target_admin_id: String(payload.target_admin_id || ""),
+            tippgeber_status: String(payload.tippgeber_status || "AKTIV"),
+            wochenziel_min: Number(payload.wochenziel_min || 0),
+            wochenziel_max: Number(payload.wochenziel_max || 0),
+            mengenbewertung_modus: String(payload.mengenbewertung_modus || "AUTOMATISCH"),
+            mengenanteil_manuell_pct: Number(payload.mengenanteil_manuell_pct || 0),
+            mengenfaktor_manuell_pct: Number(payload.mengenfaktor_manuell_pct || 0),
+            mengenfaktor_system_vorschlag_pct: Number(payload.mengenfaktor_system_vorschlag_pct || 0),
+            qualitaetsmodus: String(payload.qualitaetsmodus || "MANUELL"),
+            qualitaetsanteil_manuell_pct: Number(payload.qualitaetsanteil_manuell_pct || 0),
+            qualitaetsfaktor_manuell_pct: Number(payload.qualitaetsfaktor_manuell_pct || 0),
+            testphase_bis: String(payload.testphase_bis || ""),
+            ergebnisse_oeffentlich: String(payload.ergebnisse_oeffentlich || "NEIN"),
+            regelversion: String(payload.regelversion || "NORMAL-10-10-10-v1"),
+            tippgeber_bemerkung: String(payload.tippgeber_bemerkung || ""),
+            request_id: requestId
+          }
+        : {
+            action: action,
+            session_hash: sessionHash,
+            currency: String(payload.currency || ""),
+            network_label: String(payload.network_label || ""),
+            wallet_address: String(payload.wallet_address || ""),
+            payout_mode_label: String(payload.payout_mode_label || "SAMMEL_5_15_25"),
+            personal_minimum_eur: Number(payload.personal_minimum_eur || 0),
+            request_id: requestId
+          };
+
+      const response = await fetch(endpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         cache: "no-store",
         credentials: "omit",
-        body: JSON.stringify({
-          action: "save_wallet",
-          session_hash: sessionHash,
-          currency: String(payload.currency || ""),
-          network_label: String(payload.network_label || ""),
-          wallet_address: String(payload.wallet_address || ""),
-          payout_mode_label: String(payload.payout_mode_label || "SAMMEL_5_15_25"),
-          personal_minimum_eur: Number(payload.personal_minimum_eur || 0),
-          request_id: requestId
-        })
+        body: JSON.stringify(body)
       });
 
       const raw = await response.text();
@@ -2862,24 +3018,15 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
       try {
         result = parseWebhookJsonSafe(raw);
       } catch (error) {
-        throw new Error(
-          "Der Wallet-Webhook hat geantwortet, aber die Antwort konnte nicht als JSON gelesen werden. Make-Antwort: " +
-          (raw || "(leer)")
-        );
+        throw new Error("Der Webhook hat geantwortet, aber die Antwort konnte nicht als JSON gelesen werden. Make-Antwort: " + (raw || "(leer)"));
       }
 
       if (!response.ok || result.ok !== true) {
-        throw new Error(
-          result?.message ||
-          result?.error ||
-          ("Wallet konnte nicht gespeichert werden (HTTP " + response.status + ").")
-        );
+        throw new Error(result?.message || result?.error || ("Speichern fehlgeschlagen (HTTP " + response.status + ")."));
       }
 
       if (String(result.admin_id || "") !== String(current.adminId || "")) {
-        throw new Error(
-          "Sicherheitsprüfung fehlgeschlagen: Wallet-Antwort passt nicht zur aktiven Admin-Session."
-        );
+        throw new Error("Sicherheitsprüfung fehlgeschlagen: Die Antwort passt nicht zur aktiven Admin-Session.");
       }
 
       return result;
@@ -3306,6 +3453,79 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
 
 
 
+    function renderPersonalTipster(tipster, data) {
+      const card = document.getElementById("personalTipsterCard");
+      if (!card) return;
+      if (String(data?.role || "").toUpperCase() === "MASTER") {
+        card.classList.add("hidden");
+        return;
+      }
+
+      let item = tipster && typeof tipster === "object" ? tipster : {};
+      const adminId = normalizeText(firstDefined(item, ["admin_id", "tippgeber_id"], data?.admin_id || ""));
+
+      // Übergangs-Fallback bis der Read-Webhook tipster_self ausliefert.
+      if (!item.admin_id && ["ADM-002", "ADM-003"].includes(adminId)) {
+        const isMartin = adminId === "ADM-002";
+        item = {
+          admin_id: adminId,
+          admin_name: data?.admin_name || (isMartin ? "Martin" : "Frank"),
+          tippgeber_status: "AKTIV",
+          week_count: 0,
+          wochenziel_min: isMartin ? 8 : 4,
+          wochenziel_max: isMartin ? 10 : 6,
+          mengenbewertung_modus: "AUTOMATISCH",
+          mengenfaktor_manuell_pct: num(data?.quantity_factor_pct || 0),
+          qualitaetsmodus: "MANUELL",
+          qualitaetsfaktor_manuell_pct: num(data?.quality_factor_pct || 0),
+          grundanteil_pct: 10,
+          quantity_share_max_pct: 10,
+          quality_share_max_pct: 10,
+          effective_total_pct: num(data?.effective_factor_pct || 10),
+          _fallback: true
+        };
+      }
+
+      if (!normalizeText(item.admin_id)) {
+        card.classList.add("hidden");
+        return;
+      }
+
+      const weekCount = num(firstDefined(item, ["week_count", "gueltige_tipps"], 0));
+      const minTarget = num(firstDefined(item, ["wochenziel_min", "weekly_target_min"], 0));
+      const maxTarget = num(firstDefined(item, ["wochenziel_max", "weekly_target_max"], minTarget));
+      const baseShare = num(firstDefined(item, ["grundanteil_pct", "base_share_pct"], 10));
+      const quantityMax = num(firstDefined(item, ["quantity_share_max_pct", "mengenanteil_max_pct"], 10));
+      const qualityMax = num(firstDefined(item, ["quality_share_max_pct", "qualitaetsanteil_max_pct"], 10));
+      const quantityMode = normalizeText(firstDefined(item, ["mengenbewertung_modus", "quantity_mode"], "AUTOMATISCH")).toUpperCase();
+      const quantityManualFactor = num(firstDefined(item, ["mengenfaktor_manuell_pct", "quantity_manual_pct", "quantity_factor_pct"], 0));
+      const qualityMode = normalizeText(firstDefined(item, ["qualitaetsmodus", "quality_mode"], "MANUELL")).toUpperCase();
+      const qualityManualFactor = num(firstDefined(item, ["qualitaetsfaktor_manuell_pct", "quality_manual_pct", "quality_factor_pct"], 0));
+      const qualitySystemFactor = num(firstDefined(item, ["system_vorschlag_pct", "quality_system_suggestion_pct", "quality_suggestion_pct"], 0));
+      const quantitySystemShare = quantitySystemSuggestionShare(weekCount, minTarget, maxTarget, quantityMax);
+      const quantityShare = quantityMode === "DEAKTIVIERT"
+        ? 0
+        : (quantityMode === "AUTOMATISCH" ? quantitySystemShare : Math.min(quantityMax, Math.max(0, quantityManualFactor * quantityMax / 100)));
+      const qualityFactor = qualityMode === "AUTOMATISCH" ? qualitySystemFactor : qualityManualFactor;
+      const qualityShare = Math.min(qualityMax, Math.max(0, qualityFactor * qualityMax / 100));
+      const total = Math.min(30, baseShare + quantityShare + qualityShare);
+
+      card.classList.remove("hidden");
+      document.getElementById("selfQuantitySystem").textContent = "System: " + formatNumber(quantitySystemShare, 1) + " / " + formatNumber(quantityMax, 0) + " %";
+      document.getElementById("selfTipsterStatus").textContent = label(firstDefined(item, ["tippgeber_status", "status"], "AKTIV"));
+      document.getElementById("selfLedRail").innerHTML = renderLedRail(weekCount, minTarget);
+      document.getElementById("selfWeekCount").textContent = formatNumber(weekCount, 0) + " Tipps";
+      document.getElementById("selfMinTarget").textContent = formatNumber(minTarget, 0);
+      document.getElementById("selfMaxTarget").textContent = formatNumber(maxTarget, 0);
+      document.getElementById("selfBaseShare").textContent = formatNumber(baseShare, 0) + " %";
+      document.getElementById("selfQuantityShare").textContent = formatNumber(quantityShare, 1) + " %";
+      document.getElementById("selfQualityShare").textContent = formatNumber(qualityShare, 1) + " %";
+      document.getElementById("selfTotalShare").textContent = formatNumber(total, 1) + " %";
+      document.getElementById("selfTipsterInfo").textContent = item._fallback
+        ? "Die LED-Anzeige ist eingebaut. Die echte Wochenzahl wird live, sobald der aktualisierte Backoffice-Datenwebhook tipster_self liefert. Du selbst kannst die Pegel nicht verändern."
+        : "Dein Mengenanteil steigt automatisch mit deinen gültigen Wochen-Tipps. Nur der Master kann ihn bei Sonderfällen oder Missbrauch manuell korrigieren; Qualität bleibt kontrolliert.";
+    }
+
     function renderTipsterCards(items) {
       const sourceItems = Array.isArray(items) && items.length ? items : FALLBACK_TIPSTERS;
       latestTipsters = mergeTipsterDrafts(sourceItems);
@@ -3316,7 +3536,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
         const status = normalizeText(firstDefined(rawTipster, ["tippgeber_status", "status"], "AKTIV")).toUpperCase();
         const minTarget = num(firstDefined(rawTipster, ["wochenziel_min", "weekly_target_min"], 0));
         const maxTarget = num(firstDefined(rawTipster, ["wochenziel_max", "weekly_target_max"], 0));
-        const quantityMode = normalizeText(firstDefined(rawTipster, ["mengenbewertung_modus", "quantity_mode"], "VORSCHLAG_MANUELL")).toUpperCase();
+        const quantityMode = normalizeText(firstDefined(rawTipster, ["mengenbewertung_modus", "quantity_mode"], "AUTOMATISCH")).toUpperCase();
         const quantityManual = num(firstDefined(rawTipster, ["mengenfaktor_manuell_pct", "quantity_manual_pct", "quantity_factor_pct"], 0));
         const qualityMode = normalizeText(firstDefined(rawTipster, ["qualitaetsmodus", "quality_mode"], "MANUELL")).toUpperCase();
         const qualityManual = num(firstDefined(rawTipster, ["qualitaetsfaktor_manuell_pct", "quality_manual_pct", "quality_factor_pct"], 0));
@@ -3325,7 +3545,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
         const testUntil = normalizeText(firstDefined(rawTipster, ["testphase_bis", "test_phase_until"]));
         const ruleVersion = normalizeText(firstDefined(rawTipster, ["regelversion", "rule_version"], "NORMAL-10-10-10-v1"));
         const note = normalizeText(firstDefined(rawTipster, ["tippgeber_bemerkung", "note"]));
-        const weekCount = num(firstDefined(rawTipster, ["week_tip_count", "gueltige_tipps_woche", "tipps_woche"], 0));
+        const weekCount = num(firstDefined(rawTipster, ["week_count", "week_tip_count", "gueltige_tipps_woche", "tipps_woche"], 0));
         const monthWins = num(firstDefined(rawTipster, ["month_wins", "gewonnen_monat", "gewonnen"], 0));
         const monthLosses = num(firstDefined(rawTipster, ["month_losses", "verloren_monat", "verloren"], 0));
         const hitRate = firstDefined(rawTipster, ["hit_rate_pct", "trefferquote_pct"], "–");
@@ -3400,28 +3620,52 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
             <div class="field">
               <label>Mengenbewertung</label>
               <select data-field="mengenbewertung_modus">${selectOptions([
-                {value:"MANUELL",label:"Nur manuell"},
-                {value:"VORSCHLAG_MANUELL",label:"LED/Systemvorschlag + manuelle Entscheidung"},
+                {value:"AUTOMATISCH",label:"Automatisch nach LED/Systemwert"},
+                {value:"MANUELL",label:"Manuelle Überschreibung"},
                 {value:"DEAKTIVIERT",label:"Deaktiviert"}
-              ], quantityMode)}</select>
+              ], quantityMode === "VORSCHLAG_MANUELL" ? "MANUELL" : quantityMode)}</select>
             </div>
-            <div class="field">
-              <label>Manueller Mengenanteil</label>
-              <select data-field="mengenfaktor_manuell_pct">${selectOptions([0,10,20,30,40,50,60,70,80,90,100].map(function(v){return {value:String(v),label:formatNumber(v * quantityMax / 100, 1) + " % von max. " + formatNumber(quantityMax, 0) + " %"};}), quantityManual)}</select>
-              <div class="quantity-manual-note">Der Systemvorschlag ändert diesen Wert nicht selbstständig. Du kannst ihn prüfen und manuell übernehmen oder korrigieren.</div>
+            <div class="field full">
+              <div class="level-control">
+                <div class="level-control-head">
+                  <div class="level-control-title">Mengen-Pegel · endgültige Einstellung</div>
+                  <div class="level-control-system">Systemvorschlag: <span data-output="quantity-system-share">${formatNumber(quantitySystemShare, 1)} %</span></div>
+                </div>
+                <div class="level-slider-row">
+                  <input class="level-slider" data-field="mengenanteil_manuell_pct" type="range" min="0" max="${quantityMax}" step="0.5" value="${Math.min(quantityMax, Math.max(0, quantityMode === "AUTOMATISCH" ? quantitySystemShare : quantityManual * quantityMax / 100))}">
+                  <output class="level-readout" data-output="quantity-manual-display">${formatNumber(quantityMode === "AUTOMATISCH" ? quantitySystemShare : quantityManual * quantityMax / 100, 1)} %</output>
+                </div>
+                <div class="level-scale"><span>0 %</span><span>${formatNumber(quantityMax / 2, 1)} %</span><span>${formatNumber(quantityMax, 0)} %</span></div>
+                <div class="level-actions">
+                  <button class="button button-neutral button-small apply-system-quantity" type="button">Automatik verwenden</button>
+                  <span class="manual-override-badge">Manuelle Korrektur jederzeit möglich</span>
+                </div>
+              </div>
             </div>
             <div class="field">
               <label>Qualitätsmodus</label>
               <select data-field="qualitaetsmodus">${selectOptions([
-                {value:"UEBERGANG_100",label:"Übergang 100 %"},
                 {value:"MANUELL",label:"Manuell"},
-                {value:"TEILAUTOMATISCH",label:"Vorschlag, Entscheidung manuell"},
+                {value:"TEILAUTOMATISCH",label:"Systemvorschlag + manuelle Entscheidung"},
                 {value:"AUTOMATISCH",label:"Automatisch nach Systemvorschlag"}
-              ], qualityMode)}</select>
+              ], qualityMode === "UEBERGANG_100" ? "MANUELL" : qualityMode)}</select>
             </div>
-            <div class="field">
-              <label>Manueller Qualitätsfaktor</label>
-              <select data-field="qualitaetsfaktor_manuell_pct">${selectOptions([0,25,50,75,100].map(function(v){return {value:String(v),label:v + " %"};}), qualityManual)}</select>
+            <div class="field full">
+              <div class="level-control">
+                <div class="level-control-head">
+                  <div class="level-control-title">Qualitäts-Pegel · endgültige Einstellung</div>
+                  <div class="level-control-system">Systemvorschlag: <span data-output="quality-system-share">${formatNumber(qualitySuggestion * qualityMax / 100, 1)} %</span></div>
+                </div>
+                <div class="level-slider-row">
+                  <input class="level-slider" data-field="qualitaetsanteil_manuell_pct" type="range" min="0" max="${qualityMax}" step="0.5" value="${Math.min(qualityMax, Math.max(0, qualityManual * qualityMax / 100))}">
+                  <output class="level-readout" data-output="quality-manual-display">${formatNumber(qualityManual * qualityMax / 100, 1)} %</output>
+                </div>
+                <div class="level-scale"><span>0 %</span><span>${formatNumber(qualityMax / 2, 1)} %</span><span>${formatNumber(qualityMax, 0)} %</span></div>
+                <div class="level-actions">
+                  <button class="button button-neutral button-small apply-system-quality" type="button">Systemwert übernehmen</button>
+                  <span class="manual-override-badge">Master entscheidet endgültig</span>
+                </div>
+              </div>
             </div>
             <div class="field">
               <label>Testphase bis</label>
@@ -3449,16 +3693,22 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
       function value(field) {
         return card.querySelector('[data-field="' + field + '"]')?.value ?? "";
       }
+      const quantityMax = Math.max(0, num(card.dataset.quantityMax || 10));
+      const qualityMax = Math.max(0, num(card.dataset.qualityMax || 10));
+      const quantityShare = Math.max(0, Math.min(quantityMax, num(value("mengenanteil_manuell_pct"))));
+      const qualityShare = Math.max(0, Math.min(qualityMax, num(value("qualitaetsanteil_manuell_pct"))));
       return {
         target_admin_id: card.dataset.adminId,
         tippgeber_status: value("tippgeber_status"),
         wochenziel_min: num(value("wochenziel_min")),
         wochenziel_max: num(value("wochenziel_max")),
         mengenbewertung_modus: value("mengenbewertung_modus"),
-        mengenfaktor_manuell_pct: num(value("mengenfaktor_manuell_pct")),
+        mengenanteil_manuell_pct: quantityShare,
+        mengenfaktor_manuell_pct: quantityMax > 0 ? Math.round((quantityShare / quantityMax) * 10000) / 100 : 0,
         mengenfaktor_system_vorschlag_pct: num(card.dataset.quantitySystemFactor || 0),
         qualitaetsmodus: value("qualitaetsmodus"),
-        qualitaetsfaktor_manuell_pct: num(value("qualitaetsfaktor_manuell_pct")),
+        qualitaetsanteil_manuell_pct: qualityShare,
+        qualitaetsfaktor_manuell_pct: qualityMax > 0 ? Math.round((qualityShare / qualityMax) * 10000) / 100 : 0,
         testphase_bis: value("testphase_bis"),
         ergebnisse_oeffentlich: value("ergebnisse_oeffentlich"),
         regelversion: value("regelversion"),
@@ -3477,27 +3727,32 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
       const maxTarget = payload.wochenziel_max;
       const quantitySystemFactor = quantitySystemSuggestionFactor(weekCount, minTarget, maxTarget);
       const quantitySystemShare = quantitySystemSuggestionShare(weekCount, minTarget, maxTarget, quantityMax);
-      const quantityFactor = payload.mengenbewertung_modus === "DEAKTIVIERT" ? 0 : payload.mengenfaktor_manuell_pct;
-      const qualityFactor = payload.qualitaetsmodus === "UEBERGANG_100"
-        ? 100
-        : payload.qualitaetsmodus === "AUTOMATISCH"
-          ? systemSuggestion
-          : payload.qualitaetsfaktor_manuell_pct;
-      const quantityShare = quantityFactor * quantityMax / 100;
-      const qualityShare = qualityFactor * qualityMax / 100;
+      const qualitySystemShare = Math.min(qualityMax, Math.max(0, systemSuggestion * qualityMax / 100));
+      const quantityShare = payload.mengenbewertung_modus === "DEAKTIVIERT"
+        ? 0
+        : (payload.mengenbewertung_modus === "AUTOMATISCH" ? quantitySystemShare : payload.mengenanteil_manuell_pct);
+      const qualityShare = payload.qualitaetsmodus === "AUTOMATISCH"
+        ? qualitySystemShare
+        : payload.qualitaetsanteil_manuell_pct;
       const total = Math.min(30, baseShare + quantityShare + qualityShare);
 
       card.dataset.quantitySystemFactor = String(quantitySystemFactor);
       card.dataset.minTarget = String(minTarget);
       card.dataset.maxTarget = String(maxTarget);
       card.querySelector('[data-output="quantity-system"]').textContent = "System: " + formatNumber(quantitySystemShare, 1) + " / " + formatNumber(quantityMax, 0) + " %";
+      card.querySelector('[data-output="quantity-system-share"]').textContent = formatNumber(quantitySystemShare, 1) + " %";
+      card.querySelector('[data-output="quality-system-share"]').textContent = formatNumber(qualitySystemShare, 1) + " %";
       card.querySelector('[data-output="quantity-system-factor"]').textContent = formatNumber(quantitySystemFactor, 0) + " %";
+      const quantitySlider = card.querySelector('[data-field="mengenanteil_manuell_pct"]');
+      if (quantitySlider && payload.mengenbewertung_modus === "AUTOMATISCH") quantitySlider.value = String(Math.round(quantitySystemShare * 2) / 2);
       card.querySelector('[data-output="min-target"]').textContent = formatNumber(minTarget, 0);
       card.querySelector('[data-output="max-target"]').textContent = formatNumber(maxTarget, 0);
       card.querySelector('[data-output="led-rail"]').innerHTML = renderLedRail(weekCount, minTarget);
       card.querySelector('[data-output="quantity-share"]').textContent = formatNumber(quantityShare, 1) + " %";
       card.querySelector('[data-output="quality-share"]').textContent = formatNumber(qualityShare, 1) + " %";
-      card.querySelector('[data-output="total-share"]').textContent = formatNumber(total, 2) + " %";
+      card.querySelector('[data-output="total-share"]').textContent = formatNumber(total, 1) + " %";
+      card.querySelector('[data-output="quantity-manual-display"]').textContent = formatNumber(payload.mengenbewertung_modus === "AUTOMATISCH" ? quantitySystemShare : payload.mengenanteil_manuell_pct, 1) + " %";
+      card.querySelector('[data-output="quality-manual-display"]').textContent = formatNumber(payload.qualitaetsanteil_manuell_pct, 1) + " %";
       card.querySelector('[data-status-badge]').textContent = label(payload.tippgeber_status);
     }
 
@@ -3527,7 +3782,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
         const drafts = getTipsterDrafts();
         drafts[payload.target_admin_id] = payload;
         localStorage.setItem(TIPSTER_DRAFT_KEY, JSON.stringify(drafts));
-        setActionMessage(message, "Make-Speicherung noch nicht erreichbar. Die Eingabe wurde nur als lokaler Entwurf gesichert: " + (error.message || "Unbekannter Fehler"), "error");
+        setActionMessage(message, "Session-Speicherung für Tippgeber ist noch nicht verbunden. Die Einstellung wurde als lokaler Entwurf gesichert: " + (error.message || "Unbekannter Fehler"), "error");
       } finally {
         button.disabled = false;
         button.textContent = "Einstellungen speichern";
@@ -3869,8 +4124,10 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
       const payouts = parseJsonValue(data.payout_history, []);
       const master = parseJsonValue(data.master, {});
       const tipsters = parseJsonValue(data.tipsters ?? master.tipsters, []);
+      const tipsterSelf = parseJsonValue(data.tipster_self ?? data.tipster, {});
       const tipResults = parseJsonValue(data.tip_results ?? master.tip_results ?? master.results, []);
 
+      renderPersonalTipster(tipsterSelf, data);
       renderBalances(latestBalances, latestWallets);
       renderPayoutRoutes(latestBalances, latestWallets);
       updateSettingsMinimumUi();
@@ -4128,7 +4385,16 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
 
     tipsterCards.addEventListener("input", function (event) {
       const card = event.target.closest("[data-tipster-card]");
-      if (card) refreshTipsterPreview(card);
+      if (!card) return;
+      if (event.target.matches('[data-field="mengenanteil_manuell_pct"]')) {
+        const mode = card.querySelector('[data-field="mengenbewertung_modus"]');
+        if (mode) mode.value = "MANUELL";
+      }
+      if (event.target.matches('[data-field="qualitaetsanteil_manuell_pct"]')) {
+        const mode = card.querySelector('[data-field="qualitaetsmodus"]');
+        if (mode) mode.value = "MANUELL";
+      }
+      refreshTipsterPreview(card);
     });
 
     tipsterCards.addEventListener("change", function (event) {
@@ -4137,9 +4403,40 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
     });
 
     tipsterCards.addEventListener("click", function (event) {
-      const button = event.target.closest(".save-tipster-button");
       const card = event.target.closest("[data-tipster-card]");
-      if (button && card) saveTipsterCard(card, button);
+      if (!card) return;
+
+      const quantityButton = event.target.closest(".apply-system-quantity");
+      if (quantityButton) {
+        const slider = card.querySelector('[data-field="mengenanteil_manuell_pct"]');
+        const mode = card.querySelector('[data-field="mengenbewertung_modus"]');
+        const quantityMax = num(card.dataset.quantityMax || 10);
+        const share = quantitySystemSuggestionShare(
+          num(card.dataset.weekCount),
+          num(card.querySelector('[data-field="wochenziel_min"]')?.value),
+          num(card.querySelector('[data-field="wochenziel_max"]')?.value),
+          quantityMax
+        );
+        if (slider) slider.value = String(Math.round(share * 2) / 2);
+        if (mode) mode.value = "AUTOMATISCH";
+        refreshTipsterPreview(card);
+        return;
+      }
+
+      const qualityButton = event.target.closest(".apply-system-quality");
+      if (qualityButton) {
+        const slider = card.querySelector('[data-field="qualitaetsanteil_manuell_pct"]');
+        const mode = card.querySelector('[data-field="qualitaetsmodus"]');
+        const qualityMax = num(card.dataset.qualityMax || 10);
+        const suggestion = num(card.dataset.systemSuggestion || 0) * qualityMax / 100;
+        if (slider) slider.value = String(Math.round(Math.min(qualityMax, Math.max(0, suggestion)) * 2) / 2);
+        if (mode) mode.value = "MANUELL";
+        refreshTipsterPreview(card);
+        return;
+      }
+
+      const button = event.target.closest(".save-tipster-button");
+      if (button) saveTipsterCard(card, button);
     });
 
     masterResultsTableBody.addEventListener("click", function (event) {
