@@ -2,8 +2,8 @@
 <!--
 Projekt: BetInsight
 Datei auf GitHub: profil/admin/backoffice/index.html
-Version: 2026.08.09-BACKOFFICE-v2.7-LED-PEGEL-10-10-10
-Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED-Wochenfortschritt, getrenntem Testbetrieb, Ergebnisübersicht, Wallet-Zielauswahl und festen Netzwerken.
+Version: 2026.08.10-BACKOFFICE-v2.8-LED-BONUSPUNKTE-WOCHENHISTORIE
+Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, zwei LEDs je Ziel-Tipp, Bonuspunkten für Übererfüllung, Wochenhistorie, getrenntem Testbetrieb, Ergebnisübersicht, Wallet-Zielauswahl und festen Netzwerken.
 -->
 <html lang="de">
 <head>
@@ -1042,6 +1042,101 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
       font-weight: 800;
     }
 
+    .led-pair {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      flex: 0 0 auto;
+      padding: 6px 7px 18px;
+      border: 1px solid rgba(185, 216, 232, 0.08);
+      border-radius: 10px;
+      background: rgba(255,255,255,.018);
+    }
+
+    .led-pair-label {
+      position: absolute;
+      left: 50%;
+      bottom: 3px;
+      transform: translateX(-50%);
+      color: rgba(190, 215, 229, 0.72);
+      font-size: 8px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .led-pair.bonus-target {
+      margin-left: 6px;
+      padding-left: 10px;
+      padding-right: 10px;
+      border-color: rgba(255, 218, 118, 0.62);
+      background: linear-gradient(180deg, rgba(255,218,118,.13), rgba(255,191,74,.055));
+      box-shadow: inset 0 0 0 1px rgba(255,218,118,.10), 0 0 18px rgba(255,191,74,.07);
+    }
+
+    .led-pair.bonus-target .led-pair-label { color: #ffe49a; }
+
+    .overachievement-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      padding: 7px 11px;
+      border: 1px solid rgba(255,218,118,.52);
+      border-radius: 999px;
+      background: rgba(255,218,118,.10);
+      color: #ffe49a;
+      font-size: 11px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .history-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .history-toolbar select { min-width: 150px; }
+
+    .history-card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .history-card {
+      padding: 14px;
+      border: 1px solid rgba(185,216,232,.16);
+      border-radius: 14px;
+      background: rgba(255,255,255,.028);
+    }
+
+    .history-card-head {
+      display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:10px;
+    }
+    .history-card-title { font-weight:900; font-size:17px; }
+    .history-card-sub { color:var(--muted); font-size:11px; margin-top:3px; }
+    .history-kpis { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:11px; }
+    .history-kpi { padding:9px; border-radius:10px; background:rgba(1,12,19,.34); }
+    .history-kpi span { display:block; color:var(--muted); font-size:10px; margin-bottom:3px; }
+    .history-kpi strong { display:block; font-size:14px; }
+    .bonus-total-strip {
+      display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; margin-top:12px;
+    }
+    .bonus-total-item { padding:10px 12px; border-radius:11px; border:1px solid rgba(255,218,118,.16); background:rgba(255,218,118,.045); }
+    .bonus-total-item span { color:var(--muted); font-size:10px; display:block; margin-bottom:3px; }
+    .bonus-total-item strong { color:#ffe49a; font-size:17px; }
+
+    @media (max-width: 760px) {
+      .history-card-grid { grid-template-columns: 1fr; }
+      .history-toolbar { justify-content:flex-start; width:100%; }
+      .bonus-total-strip { grid-template-columns:1fr; }
+    }
+
     .quantity-progress-meta {
       display: flex;
       flex-wrap: wrap;
@@ -1709,7 +1804,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
             <div class="tipster-progress-head">
               <div>
                 <div class="tipster-progress-title">Tipps diese Woche · LED-Anzeige</div>
-                <div class="tipster-progress-subtitle">Je zwei LEDs bilden eine Stufe. Gezählt werden gültige, veröffentlichte und vergütungsrelevante Tipps.</div>
+                <div class="tipster-progress-subtitle">Jeder mögliche Ziel-Tipp hat ein eigenes LED-Paar. Das letzte Paar ist das Bonus-Ziel. Gezählt werden nur gültige, veröffentlichte und vergütungsrelevante Tipps.</div>
               </div>
               <span class="tipster-status-badge" id="selfTipsterStatus">Aktiv</span>
             </div>
@@ -1718,6 +1813,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
               <span>Aktuell: <strong id="selfWeekCount">0 Tipps</strong></span>
               <span>Mindestziel: <strong id="selfMinTarget">0</strong></span>
               <span>Wunschwert: <strong id="selfMaxTarget">0</strong></span>
+              <span>Bonuspunkte Woche: <strong id="selfWeekBonus">0</strong></span>
             </div>
           </div>
 
@@ -1726,6 +1822,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
             <div class="factor-item"><div class="factor-label">Menge aktuell</div><div class="factor-value" id="selfQuantityShare">0,0 %</div></div>
             <div class="factor-item"><div class="factor-label">Qualität aktuell</div><div class="factor-value" id="selfQualityShare">0,0 %</div></div>
             <div class="factor-item"><div class="factor-label">Gesamtanteil</div><div class="factor-value" id="selfTotalShare">10,0 %</div></div>
+            <div class="factor-item"><div class="factor-label">Bonuspunkte gesammelt</div><div class="factor-value" id="selfBonusPoints">0</div></div>
           </div>
 
           <div class="info-box" id="selfTipsterInfo">
@@ -2204,6 +2301,29 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
         </div>
       </article>
 
+      <article class="content-card full" id="tipsterHistoryPanel">
+        <div class="panel-heading">
+          <div>
+            <h3>Wochen-Historie &amp; Bonuspunkte</h3>
+            <p class="muted">Alte Wochen bleiben aufrufbar. Über dem Wochenmaximum gibt es +1 Bonuspunkt je weiterem gültigen Tipp, maximal 3 Punkte pro Woche. Bonuspunkte erhöhen den 30-%-Deckel nicht.</p>
+          </div>
+          <div class="history-toolbar">
+            <button class="button button-neutral button-small" type="button" id="historyPrevWeek">←</button>
+            <select id="historyWeekSelect" aria-label="Abrechnungswoche"></select>
+            <button class="button button-neutral button-small" type="button" id="historyCurrentWeek">Aktuelle Woche</button>
+            <button class="button button-neutral button-small" type="button" id="historyNextWeek">→</button>
+          </div>
+        </div>
+        <div class="bonus-total-strip">
+          <div class="bonus-total-item"><span>Martin · Bonuspunkte gesamt</span><strong id="historyMartinBonusTotal">0</strong></div>
+          <div class="bonus-total-item"><span>Frank · Bonuspunkte gesamt</span><strong id="historyFrankBonusTotal">0</strong></div>
+          <div class="bonus-total-item"><span>Regel</span><strong>max. +3 / Woche</strong></div>
+        </div>
+        <div class="history-card-grid" id="tipsterHistoryCards">
+          <div class="empty-state">Wochenhistorie wird geladen.</div>
+        </div>
+      </article>
+
       <div id="tipsterCards" class="tipster-card-grid">
         <div class="empty-state">Tippgeber-Einstellungen werden geladen.</div>
       </div>
@@ -2315,7 +2435,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
     </section>
 
     <footer class="footer">
-      © 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.7b · LED-AUTOMATIK-PEGEL · 10-10-10 · MINDESTWERT-SICHER
+      © 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.8b · LED-AUTOMATIK-PEGEL · 10-10-10 · MINDESTWERT-SICHER
     </footer>
   </main>
 
@@ -2531,6 +2651,11 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
     const settingsMinimumCustom = document.getElementById("settingsMinimumCustom");
     const settingsMinimumHint = document.getElementById("settingsMinimumHint");
     const tipsterCards = document.getElementById("tipsterCards");
+    const historyWeekSelect = document.getElementById("historyWeekSelect");
+    const historyPrevWeek = document.getElementById("historyPrevWeek");
+    const historyNextWeek = document.getElementById("historyNextWeek");
+    const historyCurrentWeek = document.getElementById("historyCurrentWeek");
+    const tipsterHistoryCards = document.getElementById("tipsterHistoryCards");
     const createTipsterButton = document.getElementById("createTipsterButton");
     const createTipsterMessage = document.getElementById("createTipsterMessage");
     const masterResultsTableBody = document.getElementById("masterResultsTableBody");
@@ -2546,6 +2671,8 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
     let latestWallets = [];
     let latestTipsters = [];
     let latestTipResults = [];
+    let latestTipsterHistory = [];
+    let selectedHistoryWeek = "";
 
     function readAdminSession() {
       try {
@@ -2858,17 +2985,38 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
       return quantitySystemSuggestionFactor(weekCount, minTarget, maxTarget) * Math.max(0, num(quantityMax)) / 100;
     }
 
-    function renderLedRail(weekCount, minTarget) {
+    function bonusPointsForWeek(weekCount, maxTarget) {
       const count = Math.max(0, Math.floor(num(weekCount)));
-      const rawTarget = Math.max(2, Math.floor(num(minTarget) || 2));
-      const target = Math.min(12, Math.ceil(rawTarget / 2) * 2);
-      const lit = count <= 0 ? 0 : Math.min(target, Math.ceil(count / 2) * 2);
+      const max = Math.max(0, Math.floor(num(maxTarget)));
+      return max > 0 ? Math.min(3, Math.max(0, count - max)) : 0;
+    }
+
+    function renderLedRail(weekCount, minTarget, maxTarget) {
+      const count = Math.max(0, Math.floor(num(weekCount)));
+      const min = Math.max(0, Math.floor(num(minTarget)));
+      const max = Math.max(1, Math.floor(num(maxTarget) || min || 1));
+      const completed = Math.min(count, max);
       let html = '';
-      for (let i = 1; i <= target; i++) {
-        const phase = Math.min(5, Math.ceil(i / 2));
-        const stageStart = ((phase - 1) * 2) + 1;
-        const stageEnd = phase * 2;
-        html += '<span class="led-dot phase-' + phase + (i <= lit ? ' on' : '') + '" data-step="' + i + '" aria-label="Stufe ' + stageStart + ' bis ' + stageEnd + ' Tipps' + (i <= lit ? ' erreicht' : ' offen') + '"></span>';
+
+      for (let tip = 1; tip <= max; tip++) {
+        let phase = 1;
+        if (tip === max) phase = 5;
+        else if (tip >= min && min > 0) phase = 4;
+        else if (min > 0 && tip > Math.ceil(min * 0.66)) phase = 3;
+        else if (min > 0 && tip > Math.ceil(min * 0.33)) phase = 2;
+        const on = tip <= completed;
+        const pairClass = tip === max ? 'led-pair bonus-target' : 'led-pair';
+        const aria = 'Tipp ' + tip + (tip === max ? ' · Bonusziel' : '') + (on ? ' erreicht' : ' offen');
+        html += '<span class="' + pairClass + '" aria-label="' + aria + '">' +
+          '<span class="led-dot phase-' + phase + (on ? ' on' : '') + '"></span>' +
+          '<span class="led-dot phase-' + phase + (on ? ' on' : '') + '"></span>' +
+          '<span class="led-pair-label">' + tip + (tip === max ? ' ★' : '') + '</span>' +
+          '</span>';
+      }
+
+      const bonus = bonusPointsForWeek(count, max);
+      if (count > max) {
+        html += '<span class="overachievement-badge">+' + bonus + ' Bonuspunkt' + (bonus === 1 ? '' : 'e') + ' · ' + (count - max) + ' über Ziel</span>';
       }
       return html;
     }
@@ -2878,6 +3026,90 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
       const quantityMax = num(firstDefined(tipster, ["quantity_share_max_pct", "mengenanteil_max_pct"], 10));
       const qualityMax = num(firstDefined(tipster, ["quality_share_max_pct", "qualitaetsanteil_max_pct"], 10));
       return Math.min(30, baseShare + (effectiveQuantityFactor(tipster) * quantityMax / 100) + (effectiveQualityFactor(tipster) * qualityMax / 100));
+    }
+
+    function parseTipsterHistoryRaw(raw) {
+      const text = String(raw || "").trim();
+      if (!text) return [];
+      return text.split("§").map(function (record) {
+        const p = record.split("|");
+        if (p.length < 16) return null;
+        return {
+          week: p[0], admin_id: p[1], admin_name: p[2], start: p[3], end: p[4],
+          week_count: num(p[5]), wochenziel_min: num(p[6]), wochenziel_max: num(p[7]),
+          quantity_system_share: num(p[8]), quantity_effective_share: num(p[9]), quality_effective_share: num(p[10]),
+          total_share: num(p[11]), bonus_auto: num(p[12]), bonus_final: num(p[13]), bonus_total: num(p[14]),
+          status: p[15]
+        };
+      }).filter(Boolean);
+    }
+
+    function historyForAdmin(adminId) {
+      return latestTipsterHistory.filter(function (item) { return item.admin_id === adminId; });
+    }
+
+    function latestHistoryForAdmin(adminId) {
+      const rows = historyForAdmin(adminId);
+      const nonFuture = rows.filter(function (item) { return String(item.status || "").toUpperCase() !== "ZUKUNFT"; });
+      return (nonFuture.length ? nonFuture : rows).slice().sort(function (a,b) { return String(b.week).localeCompare(String(a.week)); })[0] || null;
+    }
+
+    function totalBonusForAdmin(adminId) {
+      const rows = historyForAdmin(adminId);
+      if (!rows.length) return 0;
+      const latest = rows.slice().sort(function (a,b) { return String(b.week).localeCompare(String(a.week)); })[0];
+      return num(latest.bonus_total);
+    }
+
+    function renderTipsterHistory() {
+      if (!historyWeekSelect || !tipsterHistoryCards) return;
+      const visibleHistory = latestTipsterHistory.filter(function (item) { return String(item.status || "").toUpperCase() !== "ZUKUNFT"; });
+      const weeks = Array.from(new Set(visibleHistory.map(function (item) { return item.week; }).filter(Boolean))).sort().reverse();
+      if (!weeks.length) {
+        historyWeekSelect.innerHTML = '<option value="">Noch keine Woche</option>';
+        tipsterHistoryCards.innerHTML = '<div class="empty-state">Noch keine Wochenhistorie geliefert.</div>';
+        return;
+      }
+      const runningWeek = latestTipsterHistory.find(function (item) { return String(item.status || "").toUpperCase() === "LAUFEND"; });
+      if (!selectedHistoryWeek || !weeks.includes(selectedHistoryWeek)) selectedHistoryWeek = runningWeek?.week || weeks[0];
+      historyWeekSelect.innerHTML = weeks.map(function (week) {
+        return '<option value="' + escapeHtml(week) + '"' + (week === selectedHistoryWeek ? ' selected' : '') + '>' + escapeHtml(week) + '</option>';
+      }).join('');
+      document.getElementById('historyMartinBonusTotal').textContent = formatNumber(totalBonusForAdmin('ADM-002'),0);
+      document.getElementById('historyFrankBonusTotal').textContent = formatNumber(totalBonusForAdmin('ADM-003'),0);
+
+      const rows = visibleHistory.filter(function (item) { return item.week === selectedHistoryWeek; });
+      if (!rows.length) {
+        tipsterHistoryCards.innerHTML = '<div class="empty-state">Für diese Woche liegen keine Daten vor.</div>';
+        return;
+      }
+      tipsterHistoryCards.innerHTML = rows.map(function (item) {
+        const bonus = num(item.bonus_final);
+        return '<article class="history-card">' +
+          '<div class="history-card-head"><div><div class="history-card-title">' + escapeHtml(item.admin_name || item.admin_id) + '</div>' +
+          '<div class="history-card-sub">' + escapeHtml(item.week) + ' · ' + escapeHtml(item.start) + '–' + escapeHtml(item.end) + '</div></div>' +
+          '<span class="tipster-status-badge">' + escapeHtml(label(item.status || 'offen')) + '</span></div>' +
+          '<div class="led-rail">' + renderLedRail(item.week_count, item.wochenziel_min, item.wochenziel_max) + '</div>' +
+          '<div class="quantity-progress-meta"><span>Tipps: <strong>' + formatNumber(item.week_count,0) + '</strong></span><span>Ziel: <strong>' + formatNumber(item.wochenziel_min,0) + '–' + formatNumber(item.wochenziel_max,0) + '</strong></span><span>Bonus Woche: <strong>+' + formatNumber(bonus,0) + '</strong></span></div>' +
+          '<div class="history-kpis">' +
+            '<div class="history-kpi"><span>Menge System</span><strong>' + formatNumber(item.quantity_system_share,1) + ' %</strong></div>' +
+            '<div class="history-kpi"><span>Menge effektiv</span><strong>' + formatNumber(item.quantity_effective_share,1) + ' %</strong></div>' +
+            '<div class="history-kpi"><span>Qualität</span><strong>' + formatNumber(item.quality_effective_share,1) + ' %</strong></div>' +
+            '<div class="history-kpi"><span>Gesamtanteil</span><strong>' + formatNumber(item.total_share,1) + ' %</strong></div>' +
+            '<div class="history-kpi"><span>Bonuspunkte gesamt</span><strong>' + formatNumber(item.bonus_total,0) + '</strong></div>' +
+            '<div class="history-kpi"><span>Über Maximum</span><strong>' + Math.max(0, Math.floor(num(item.week_count)-num(item.wochenziel_max))) + '</strong></div>' +
+          '</div></article>';
+      }).join('');
+    }
+
+    function moveHistoryWeek(direction) {
+      const visibleHistory = latestTipsterHistory.filter(function (item) { return String(item.status || "").toUpperCase() !== "ZUKUNFT"; });
+      const weeks = Array.from(new Set(visibleHistory.map(function (item) { return item.week; }).filter(Boolean))).sort().reverse();
+      if (!weeks.length) return;
+      let index = Math.max(0, weeks.indexOf(selectedHistoryWeek));
+      index = Math.min(weeks.length - 1, Math.max(0, index + direction));
+      selectedHistoryWeek = weeks[index];
+      renderTipsterHistory();
     }
 
     function getTipsterDrafts() {
@@ -3025,7 +3257,10 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
         throw new Error(result?.message || result?.error || ("Speichern fehlgeschlagen (HTTP " + response.status + ")."));
       }
 
-      if (String(result.admin_id || "") !== String(current.adminId || "")) {
+      const responseAdminId = isTipsterAction
+        ? String(result.master_admin_id || result.admin_id || "")
+        : String(result.admin_id || "");
+      if (responseAdminId !== String(current.adminId || "")) {
         throw new Error("Sicherheitsprüfung fehlgeschlagen: Die Antwort passt nicht zur aktiven Admin-Session.");
       }
 
@@ -3513,7 +3748,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
       card.classList.remove("hidden");
       document.getElementById("selfQuantitySystem").textContent = "System: " + formatNumber(quantitySystemShare, 1) + " / " + formatNumber(quantityMax, 0) + " %";
       document.getElementById("selfTipsterStatus").textContent = label(firstDefined(item, ["tippgeber_status", "status"], "AKTIV"));
-      document.getElementById("selfLedRail").innerHTML = renderLedRail(weekCount, minTarget);
+      document.getElementById("selfLedRail").innerHTML = renderLedRail(weekCount, minTarget, maxTarget);
       document.getElementById("selfWeekCount").textContent = formatNumber(weekCount, 0) + " Tipps";
       document.getElementById("selfMinTarget").textContent = formatNumber(minTarget, 0);
       document.getElementById("selfMaxTarget").textContent = formatNumber(maxTarget, 0);
@@ -3521,6 +3756,9 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
       document.getElementById("selfQuantityShare").textContent = formatNumber(quantityShare, 1) + " %";
       document.getElementById("selfQualityShare").textContent = formatNumber(qualityShare, 1) + " %";
       document.getElementById("selfTotalShare").textContent = formatNumber(total, 1) + " %";
+      const selfHistory = latestHistoryForAdmin(normalizeText(firstDefined(item, ["admin_id", "tippgeber_id"], "")));
+      document.getElementById("selfWeekBonus").textContent = formatNumber(bonusPointsForWeek(weekCount, maxTarget), 0);
+      document.getElementById("selfBonusPoints").textContent = formatNumber(selfHistory ? selfHistory.bonus_total : 0, 0);
       document.getElementById("selfTipsterInfo").textContent = item._fallback
         ? "Die LED-Anzeige ist eingebaut. Die echte Wochenzahl wird live, sobald der aktualisierte Backoffice-Datenwebhook tipster_self liefert. Du selbst kannst die Pegel nicht verändern."
         : "Dein Mengenanteil steigt automatisch mit deinen gültigen Wochen-Tipps. Nur der Master kann ihn bei Sonderfällen oder Missbrauch manuell korrigieren; Qualität bleibt kontrolliert.";
@@ -3558,6 +3796,9 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
         const qualityEffective = effectiveQualityFactor(rawTipster);
         const totalShare = calculateTotalShare(rawTipster);
         const draftBadge = rawTipster.local_draft ? " · lokaler Entwurf" : "";
+        const latestHistory = latestHistoryForAdmin(adminId);
+        const weekBonus = bonusPointsForWeek(weekCount, maxTarget);
+        const bonusTotal = latestHistory ? num(latestHistory.bonus_total) : 0;
 
         return `<article class="tipster-card" data-tipster-card data-admin-id="${escapeHtml(adminId)}" data-quantity-max="${quantityMax}" data-quality-max="${qualityMax}" data-base-share="${baseShare}" data-system-suggestion="${qualitySuggestion}" data-week-count="${weekCount}" data-min-target="${minTarget}" data-max-target="${maxTarget}" data-quantity-system-factor="${quantitySystemFactor}">
           <div class="tipster-card-head">
@@ -3574,17 +3815,19 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
             <div class="tipster-stat"><span class="tipster-stat-label">Verloren im Monat</span><span class="tipster-stat-value">${formatNumber(monthLosses, 0)}</span></div>
             <div class="tipster-stat"><span class="tipster-stat-label">Trefferquote</span><span class="tipster-stat-value">${hitRate === "–" || hitRate === "" ? "–" : formatNumber(hitRate, 2) + " %"}</span></div>
             <div class="tipster-stat"><span class="tipster-stat-label">Systemvorschlag Qualität</span><span class="tipster-stat-value">${formatNumber(qualitySuggestion, 0)} %</span></div>
+            <div class="tipster-stat"><span class="tipster-stat-label">Bonuspunkte Woche</span><span class="tipster-stat-value" data-output="bonus-week">+${formatNumber(weekBonus, 0)}</span></div>
+            <div class="tipster-stat"><span class="tipster-stat-label">Bonuspunkte gesamt</span><span class="tipster-stat-value">${formatNumber(bonusTotal, 0)}</span></div>
           </div>
 
           <div class="tipster-progress-panel">
             <div class="tipster-progress-head">
               <div>
                 <div class="tipster-progress-title">Wochen-Fortschritt · LED-Anzeige</div>
-                <div class="tipster-progress-subtitle">Je zwei LEDs bilden eine Stufe: 1–2 Tipps, 3–4 Tipps usw. Sobald eine Stufe erreicht ist, leuchtet das Paar in einer eigenen Farbe. Ab dem Mindestziel sind alle LEDs an; bis zum Wunschwert steigt der Mengenanteil weiter.</div>
+                <div class="tipster-progress-subtitle">Jeder mögliche Ziel-Tipp hat zwei LEDs. Das letzte LED-Paar ist separat als Bonus-Ziel markiert. Nach dem Maximum entstehen Bonuspunkte, ohne den 30-%-Deckel zu erhöhen.</div>
               </div>
               <div class="quantity-system-pill" data-output="quantity-system">System: ${formatNumber(quantitySystemShare, 1)} / ${formatNumber(quantityMax, 0)} %</div>
             </div>
-            <div class="led-rail" data-output="led-rail" aria-label="Wochenfortschritt">${renderLedRail(weekCount, minTarget)}</div>
+            <div class="led-rail" data-output="led-rail" aria-label="Wochenfortschritt">${renderLedRail(weekCount, minTarget, maxTarget)}</div>
             <div class="quantity-progress-meta">
               <span>Aktuell: <strong data-output="week-count">${formatNumber(weekCount, 0)} Tipps</strong></span>
               <span>Mindestziel: <strong data-output="min-target">${formatNumber(minTarget, 0)}</strong></span>
@@ -3747,8 +3990,10 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
       if (quantitySlider && payload.mengenbewertung_modus === "AUTOMATISCH") quantitySlider.value = String(Math.round(quantitySystemShare * 2) / 2);
       card.querySelector('[data-output="min-target"]').textContent = formatNumber(minTarget, 0);
       card.querySelector('[data-output="max-target"]').textContent = formatNumber(maxTarget, 0);
-      card.querySelector('[data-output="led-rail"]').innerHTML = renderLedRail(weekCount, minTarget);
+      card.querySelector('[data-output="led-rail"]').innerHTML = renderLedRail(weekCount, minTarget, maxTarget);
       card.querySelector('[data-output="quantity-share"]').textContent = formatNumber(quantityShare, 1) + " %";
+      const bonusWeekOutput = card.querySelector('[data-output="bonus-week"]');
+      if (bonusWeekOutput) bonusWeekOutput.textContent = "+" + formatNumber(bonusPointsForWeek(weekCount, maxTarget), 0);
       card.querySelector('[data-output="quality-share"]').textContent = formatNumber(qualityShare, 1) + " %";
       card.querySelector('[data-output="total-share"]').textContent = formatNumber(total, 1) + " %";
       card.querySelector('[data-output="quantity-manual-display"]').textContent = formatNumber(payload.mengenbewertung_modus === "AUTOMATISCH" ? quantitySystemShare : payload.mengenanteil_manuell_pct, 1) + " %";
@@ -4126,6 +4371,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
       const tipsters = parseJsonValue(data.tipsters ?? master.tipsters, []);
       const tipsterSelf = parseJsonValue(data.tipster_self ?? data.tipster, {});
       const tipResults = parseJsonValue(data.tip_results ?? master.tip_results ?? master.results, []);
+      latestTipsterHistory = parseTipsterHistoryRaw(data.tipster_history_raw || "");
 
       renderPersonalTipster(tipsterSelf, data);
       renderBalances(latestBalances, latestWallets);
@@ -4135,6 +4381,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
       renderPayouts(payouts);
 
       if (isMaster && master && typeof master === "object") {
+        renderTipsterHistory();
         renderTipsterCards(tipsters);
         renderMasterResults(tipResults);
         renderMasterModel(master);
@@ -4382,6 +4629,21 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, LED
         saveWalletButton.textContent = "Wallet speichern";
       }
     }
+
+    if (historyWeekSelect) historyWeekSelect.addEventListener("change", function () {
+      selectedHistoryWeek = historyWeekSelect.value;
+      renderTipsterHistory();
+    });
+    if (historyPrevWeek) historyPrevWeek.addEventListener("click", function () { moveHistoryWeek(1); });
+    if (historyNextWeek) historyNextWeek.addEventListener("click", function () { moveHistoryWeek(-1); });
+    if (historyCurrentWeek) historyCurrentWeek.addEventListener("click", function () {
+      const visibleHistory = latestTipsterHistory.filter(function (item) { return String(item.status || "").toUpperCase() !== "ZUKUNFT"; });
+      const weeks = Array.from(new Set(visibleHistory.map(function (item) { return item.week; }).filter(Boolean))).sort().reverse();
+      const runningWeek = latestTipsterHistory.find(function (item) { return String(item.status || "").toUpperCase() === "LAUFEND"; });
+      if (runningWeek?.week) selectedHistoryWeek = runningWeek.week;
+      else if (weeks.length) selectedHistoryWeek = weeks[0];
+      renderTipsterHistory();
+    });
 
     tipsterCards.addEventListener("input", function (event) {
       const card = event.target.closest("[data-tipster-card]");
