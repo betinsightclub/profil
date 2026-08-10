@@ -2,8 +2,8 @@
 <!--
 Projekt: BetInsight
 Datei auf GitHub: profil/admin/backoffice/index.html
-Version: 2026.08.10-BACKOFFICE-v2.8-LED-BONUSPUNKTE-WOCHENHISTORIE
-Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, zwei LEDs je Ziel-Tipp, Bonuspunkten für Übererfüllung, Wochenhistorie, getrenntem Testbetrieb, Ergebnisübersicht, Wallet-Zielauswahl und festen Netzwerken.
+Version: 2026.08.10-BACKOFFICE-v2.9-TIPP-LED-ERGEBNIS-LED
+Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro Tipp einer Liefer-LED plus einer Ergebnis-LED, Bonuspunkten für Übererfüllung, Tipp-ID-sicherer Wochenhistorie, getrenntem Testbetrieb, Ergebnisübersicht, Wallet-Zielauswahl und festen Netzwerken.
 -->
 <html lang="de">
 <head>
@@ -1045,10 +1045,13 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, zwe
     .led-pair {
       position: relative;
       display: inline-flex;
+      flex-direction: column;
       align-items: center;
+      justify-content: center;
       gap: 5px;
       flex: 0 0 auto;
-      padding: 6px 7px 18px;
+      min-width: 42px;
+      padding: 7px 8px 19px;
       border: 1px solid rgba(185, 216, 232, 0.08);
       border-radius: 10px;
       background: rgba(255,255,255,.018);
@@ -1075,6 +1078,86 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, zwe
     }
 
     .led-pair.bonus-target .led-pair-label { color: #ffe49a; }
+
+
+    .tip-delivery-led {
+      border-color: rgba(49, 212, 255, 0.30);
+    }
+
+    .tip-result-led {
+      border-color: rgba(185, 216, 232, 0.20);
+      background: rgba(255,255,255,.035);
+    }
+
+    .tip-result-led.result-won.on {
+      background: #20d58a;
+      border-color: rgba(126,255,204,.72);
+      box-shadow: 0 0 14px rgba(32,213,138,.78), inset 0 0 4px rgba(255,255,255,.48);
+    }
+
+    .tip-result-led.result-lost.on {
+      background: #ff626f;
+      border-color: rgba(255,157,165,.76);
+      box-shadow: 0 0 14px rgba(255,98,111,.75), inset 0 0 4px rgba(255,255,255,.45);
+    }
+
+    .tip-result-led.result-void.on {
+      background: #ffca57;
+      border-color: rgba(255,226,150,.72);
+      box-shadow: 0 0 14px rgba(255,202,87,.70), inset 0 0 4px rgba(255,255,255,.45);
+    }
+
+    .tip-result-led.result-open {
+      opacity: .28;
+    }
+
+    .tip-led-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px 13px;
+      align-items: center;
+      margin-top: 9px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.35;
+    }
+
+    .tip-led-legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .mini-led {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      display: inline-block;
+      border: 1px solid rgba(255,255,255,.26);
+      background: rgba(255,255,255,.08);
+    }
+    .mini-led.delivered { background:#16a8f5; box-shadow:0 0 7px rgba(22,168,245,.48); }
+    .mini-led.won { background:#20d58a; box-shadow:0 0 7px rgba(32,213,138,.48); }
+    .mini-led.lost { background:#ff626f; box-shadow:0 0 7px rgba(255,98,111,.48); }
+    .mini-led.void { background:#ffca57; box-shadow:0 0 7px rgba(255,202,87,.45); }
+
+    .result-led-summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px 12px;
+      align-items: center;
+      margin-top: 8px;
+      padding: 8px 10px;
+      border: 1px solid rgba(185,216,232,.10);
+      border-radius: 10px;
+      background: rgba(1,12,19,.24);
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .result-led-summary strong { color:#fff; }
+    .result-led-summary .won-text { color:#86f0c4; }
+    .result-led-summary .lost-text { color:#ffabb1; }
+    .result-led-summary .void-text { color:#ffe09a; }
 
     .overachievement-badge {
       display: inline-flex;
@@ -1804,11 +1887,12 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, zwe
             <div class="tipster-progress-head">
               <div>
                 <div class="tipster-progress-title">Tipps diese Woche · LED-Anzeige</div>
-                <div class="tipster-progress-subtitle">Jeder mögliche Ziel-Tipp hat ein eigenes LED-Paar. Das letzte Paar ist das Bonus-Ziel. Gezählt werden nur gültige, veröffentlichte und vergütungsrelevante Tipps.</div>
+                <div class="tipster-progress-subtitle">Jeder mögliche Ziel-Tipp hat oben seine Liefer-LED und direkt darunter seine Ergebnis-LED. Grün = gewonnen, Rot = verloren, Gelb = void; offen bleibt dunkel. Das letzte Feld ist das Bonus-Ziel.</div>
               </div>
               <span class="tipster-status-badge" id="selfTipsterStatus">Aktiv</span>
             </div>
             <div class="led-rail" id="selfLedRail" aria-label="Eigener Wochenfortschritt"></div>
+            <div id="selfResultSummary"></div>
             <div class="quantity-progress-meta">
               <span>Aktuell: <strong id="selfWeekCount">0 Tipps</strong></span>
               <span>Mindestziel: <strong id="selfMinTarget">0</strong></span>
@@ -2435,7 +2519,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, zwe
     </section>
 
     <footer class="footer">
-      © 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.8b · LED-AUTOMATIK-PEGEL · 10-10-10 · MINDESTWERT-SICHER
+      © 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.9 · TIPP-ID-LED · ERGEBNIS-LED · 10-10-10 · MINDESTWERT-SICHER
     </footer>
   </main>
 
@@ -2672,6 +2756,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, zwe
     let latestTipsters = [];
     let latestTipResults = [];
     let latestTipsterHistory = [];
+    let latestTipsterTipResults = [];
     let selectedHistoryWeek = "";
 
     function readAdminSession() {
@@ -2991,11 +3076,102 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, zwe
       return max > 0 ? Math.min(3, Math.max(0, count - max)) : 0;
     }
 
-    function renderLedRail(weekCount, minTarget, maxTarget) {
+    function canonicalTipResultStatus(value) {
+      const status = normalizeText(value).toUpperCase();
+      if (["GEWONNEN", "WON", "WIN", "GREEN"].includes(status)) return "GEWONNEN";
+      if (["VERLOREN", "LOST", "LOSS", "RED"].includes(status)) return "VERLOREN";
+      if (["VOID", "STORNIERT", "UNGUELTIG", "PUSH", "REFUND"].includes(status)) return "VOID";
+      return "OFFEN";
+    }
+
+    function parseTipsterTipResultsRaw(raw) {
+      const text = String(raw || "").trim();
+      if (!text) return [];
+      return text.split("§").map(function (record) {
+        const p = record.split("|");
+        if (p.length < 6) return null;
+        return {
+          tip_id: p[0], admin_id: p[1], week: p[2], published_at: p[3], event_at: p[4],
+          result_status: p[5], result_source: p[6] || "", result_checked_at: p[7] || "", tip_label: p[8] || ""
+        };
+      }).filter(Boolean);
+    }
+
+    function normalizeTipsterTipResults(items) {
+      const list = Array.isArray(items) ? items : [];
+      const byId = new Map();
+      list.forEach(function (raw) {
+        if (!raw || typeof raw !== "object") return;
+        const tipId = normalizeText(firstDefined(raw, ["tip_id", "tipp_id", "id"], ""));
+        const adminId = normalizeText(firstDefined(raw, ["admin_id", "tippgeber_id", "tipster_id"], ""));
+        const week = normalizeText(firstDefined(raw, ["week", "jahr_woche", "wochen_id", "week_id"], ""));
+        if (!tipId || !adminId || !week) return; // absichtlich streng: keine unsichere Zuordnung
+        const item = {
+          tip_id: tipId,
+          admin_id: adminId,
+          week: week,
+          published_at: normalizeText(firstDefined(raw, ["published_at", "veroeffentlicht_am", "erstellt_am"], "")),
+          event_at: normalizeText(firstDefined(raw, ["event_at", "spiel_datum", "ereignis_datum"], "")),
+          result_status: canonicalTipResultStatus(firstDefined(raw, ["result_status", "ergebnis_status", "result", "ergebnis"], "OFFEN")),
+          result_source: normalizeText(firstDefined(raw, ["result_source", "ergebnis_quelle"], "")),
+          result_checked_at: normalizeText(firstDefined(raw, ["result_checked_at", "ergebnis_geprueft_am"], "")),
+          tip_label: normalizeText(firstDefined(raw, ["tip_label", "spiel", "title", "tipp"], "")),
+          slot_index: num(firstDefined(raw, ["slot_index", "tip_slot", "position"], 0))
+        };
+        const previous = byId.get(tipId);
+        if (!previous || item.result_checked_at || previous.result_status === "OFFEN") byId.set(tipId, item);
+      });
+      return Array.from(byId.values());
+    }
+
+    function tipItemsFor(adminId, week) {
+      const aid = normalizeText(adminId);
+      const w = normalizeText(week);
+      if (!aid || !w) return [];
+      return latestTipsterTipResults
+        .filter(function (item) { return item.admin_id === aid && item.week === w; })
+        .sort(function (a,b) {
+          if (a.slot_index && b.slot_index && a.slot_index !== b.slot_index) return a.slot_index - b.slot_index;
+          return String(a.published_at || a.tip_id).localeCompare(String(b.published_at || b.tip_id));
+        });
+    }
+
+    function runningHistoryForAdmin(adminId) {
+      return latestTipsterHistory.find(function (item) {
+        return item.admin_id === adminId && String(item.status || "").toUpperCase() === "LAUFEND";
+      }) || null;
+    }
+
+    function resultSummaryHtml(tipItems, deliveredCount) {
+      const items = Array.isArray(tipItems) ? tipItems : [];
+      const won = items.filter(function (x) { return x.result_status === "GEWONNEN"; }).length;
+      const lost = items.filter(function (x) { return x.result_status === "VERLOREN"; }).length;
+      const voided = items.filter(function (x) { return x.result_status === "VOID"; }).length;
+      const open = Math.max(0, Math.max(Math.floor(num(deliveredCount)), items.length) - won - lost - voided);
+      const decided = won + lost;
+      const rate = decided > 0 ? (won / decided * 100) : null;
+      return '<div class="result-led-summary">' +
+        '<span class="won-text">Gewonnen: <strong>' + won + '</strong></span>' +
+        '<span class="lost-text">Verloren: <strong>' + lost + '</strong></span>' +
+        '<span class="void-text">Void: <strong>' + voided + '</strong></span>' +
+        '<span>Offen: <strong>' + open + '</strong></span>' +
+        '<span>Trefferquote: <strong>' + (rate === null ? '–' : formatNumber(rate,1) + ' %') + '</strong></span>' +
+        '</div>' +
+        '<div class="tip-led-legend">' +
+          '<span class="tip-led-legend-item"><i class="mini-led delivered"></i>oben: Tipp gültig geliefert</span>' +
+          '<span class="tip-led-legend-item"><i class="mini-led won"></i>unten: gewonnen</span>' +
+          '<span class="tip-led-legend-item"><i class="mini-led lost"></i>unten: verloren</span>' +
+          '<span class="tip-led-legend-item"><i class="mini-led void"></i>unten: void</span>' +
+          '<span class="tip-led-legend-item"><i class="mini-led"></i>unten: Ergebnis offen</span>' +
+        '</div>';
+    }
+
+    function renderLedRail(weekCount, minTarget, maxTarget, tipItems) {
       const count = Math.max(0, Math.floor(num(weekCount)));
       const min = Math.max(0, Math.floor(num(minTarget)));
       const max = Math.max(1, Math.floor(num(maxTarget) || min || 1));
       const completed = Math.min(count, max);
+      const exactItems = Array.isArray(tipItems) ? tipItems : [];
       let html = '';
 
       for (let tip = 1; tip <= max; tip++) {
@@ -3004,12 +3180,20 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, zwe
         else if (tip >= min && min > 0) phase = 4;
         else if (min > 0 && tip > Math.ceil(min * 0.66)) phase = 3;
         else if (min > 0 && tip > Math.ceil(min * 0.33)) phase = 2;
-        const on = tip <= completed;
+
+        const item = exactItems[tip - 1] || null;
+        const delivered = Boolean(item) || tip <= completed;
+        const result = item ? canonicalTipResultStatus(item.result_status) : "OFFEN";
+        const resultOn = delivered && result !== "OFFEN";
+        const resultClass = result === "GEWONNEN" ? "result-won" : result === "VERLOREN" ? "result-lost" : result === "VOID" ? "result-void" : "result-open";
         const pairClass = tip === max ? 'led-pair bonus-target' : 'led-pair';
-        const aria = 'Tipp ' + tip + (tip === max ? ' · Bonusziel' : '') + (on ? ' erreicht' : ' offen');
-        html += '<span class="' + pairClass + '" aria-label="' + aria + '">' +
-          '<span class="led-dot phase-' + phase + (on ? ' on' : '') + '"></span>' +
-          '<span class="led-dot phase-' + phase + (on ? ' on' : '') + '"></span>' +
+        const tipId = item ? item.tip_id : '';
+        const aria = 'Tipp ' + tip + (tipId ? ' · ' + tipId : '') + (tip === max ? ' · Bonusziel' : '') + (delivered ? ' · geliefert' : ' · noch nicht geliefert') + ' · Ergebnis ' + result.toLowerCase();
+        const title = item ? (item.tip_label || item.tip_id) + ' · ' + result : ('Tipp ' + tip + ' · Ergebnis offen');
+
+        html += '<span class="' + pairClass + '" aria-label="' + escapeHtml(aria) + '" title="' + escapeHtml(title) + '"' + (tipId ? ' data-tip-id="' + escapeHtml(tipId) + '"' : '') + '>' +
+          '<span class="led-dot tip-delivery-led phase-' + phase + (delivered ? ' on' : '') + '" aria-hidden="true"></span>' +
+          '<span class="led-dot tip-result-led ' + resultClass + (resultOn ? ' on' : '') + '" aria-hidden="true"></span>' +
           '<span class="led-pair-label">' + tip + (tip === max ? ' ★' : '') + '</span>' +
           '</span>';
       }
@@ -3089,7 +3273,8 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, zwe
           '<div class="history-card-head"><div><div class="history-card-title">' + escapeHtml(item.admin_name || item.admin_id) + '</div>' +
           '<div class="history-card-sub">' + escapeHtml(item.week) + ' · ' + escapeHtml(item.start) + '–' + escapeHtml(item.end) + '</div></div>' +
           '<span class="tipster-status-badge">' + escapeHtml(label(item.status || 'offen')) + '</span></div>' +
-          '<div class="led-rail">' + renderLedRail(item.week_count, item.wochenziel_min, item.wochenziel_max) + '</div>' +
+          '<div class="led-rail">' + renderLedRail(item.week_count, item.wochenziel_min, item.wochenziel_max, tipItemsFor(item.admin_id, item.week)) + '</div>' +
+          resultSummaryHtml(tipItemsFor(item.admin_id, item.week), item.week_count) +
           '<div class="quantity-progress-meta"><span>Tipps: <strong>' + formatNumber(item.week_count,0) + '</strong></span><span>Ziel: <strong>' + formatNumber(item.wochenziel_min,0) + '–' + formatNumber(item.wochenziel_max,0) + '</strong></span><span>Bonus Woche: <strong>+' + formatNumber(bonus,0) + '</strong></span></div>' +
           '<div class="history-kpis">' +
             '<div class="history-kpi"><span>Menge System</span><strong>' + formatNumber(item.quantity_system_share,1) + ' %</strong></div>' +
@@ -3748,7 +3933,10 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, zwe
       card.classList.remove("hidden");
       document.getElementById("selfQuantitySystem").textContent = "System: " + formatNumber(quantitySystemShare, 1) + " / " + formatNumber(quantityMax, 0) + " %";
       document.getElementById("selfTipsterStatus").textContent = label(firstDefined(item, ["tippgeber_status", "status"], "AKTIV"));
-      document.getElementById("selfLedRail").innerHTML = renderLedRail(weekCount, minTarget, maxTarget);
+      const selfRunningWeek = runningHistoryForAdmin(normalizeText(firstDefined(item, ["admin_id", "tippgeber_id"], "")));
+      const selfTipItems = selfRunningWeek ? tipItemsFor(selfRunningWeek.admin_id, selfRunningWeek.week) : [];
+      document.getElementById("selfLedRail").innerHTML = renderLedRail(weekCount, minTarget, maxTarget, selfTipItems);
+      document.getElementById("selfResultSummary").innerHTML = resultSummaryHtml(selfTipItems, weekCount);
       document.getElementById("selfWeekCount").textContent = formatNumber(weekCount, 0) + " Tipps";
       document.getElementById("selfMinTarget").textContent = formatNumber(minTarget, 0);
       document.getElementById("selfMaxTarget").textContent = formatNumber(maxTarget, 0);
@@ -3761,7 +3949,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, zwe
       document.getElementById("selfBonusPoints").textContent = formatNumber(selfHistory ? selfHistory.bonus_total : 0, 0);
       document.getElementById("selfTipsterInfo").textContent = item._fallback
         ? "Die LED-Anzeige ist eingebaut. Die echte Wochenzahl wird live, sobald der aktualisierte Backoffice-Datenwebhook tipster_self liefert. Du selbst kannst die Pegel nicht verändern."
-        : "Dein Mengenanteil steigt automatisch mit deinen gültigen Wochen-Tipps. Nur der Master kann ihn bei Sonderfällen oder Missbrauch manuell korrigieren; Qualität bleibt kontrolliert.";
+        : "Oben siehst du je Tipp die Liefer-LED, darunter sein Ergebnis. Ergebnisse können während der Woche oder später in die ursprüngliche Woche nachlaufen. Nur der Master kann Vergütungswerte korrigieren.";
     }
 
     function renderTipsterCards(items) {
@@ -3797,6 +3985,8 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, zwe
         const totalShare = calculateTotalShare(rawTipster);
         const draftBadge = rawTipster.local_draft ? " · lokaler Entwurf" : "";
         const latestHistory = latestHistoryForAdmin(adminId);
+        const runningHistory = runningHistoryForAdmin(adminId);
+        const currentTipItems = runningHistory ? tipItemsFor(adminId, runningHistory.week) : [];
         const weekBonus = bonusPointsForWeek(weekCount, maxTarget);
         const bonusTotal = latestHistory ? num(latestHistory.bonus_total) : 0;
 
@@ -3823,11 +4013,12 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, zwe
             <div class="tipster-progress-head">
               <div>
                 <div class="tipster-progress-title">Wochen-Fortschritt · LED-Anzeige</div>
-                <div class="tipster-progress-subtitle">Jeder mögliche Ziel-Tipp hat zwei LEDs. Das letzte LED-Paar ist separat als Bonus-Ziel markiert. Nach dem Maximum entstehen Bonuspunkte, ohne den 30-%-Deckel zu erhöhen.</div>
+                <div class="tipster-progress-subtitle">Jeder mögliche Ziel-Tipp hat oben eine Liefer-LED und darunter die Ergebnis-LED desselben Tipps. Das letzte Tipp-Feld ist separat als Bonus-Ziel markiert. Nach dem Maximum entstehen Bonuspunkte, ohne den 30-%-Deckel zu erhöhen.</div>
               </div>
               <div class="quantity-system-pill" data-output="quantity-system">System: ${formatNumber(quantitySystemShare, 1)} / ${formatNumber(quantityMax, 0)} %</div>
             </div>
-            <div class="led-rail" data-output="led-rail" aria-label="Wochenfortschritt">${renderLedRail(weekCount, minTarget, maxTarget)}</div>
+            <div class="led-rail" data-output="led-rail" aria-label="Wochenfortschritt">${renderLedRail(weekCount, minTarget, maxTarget, currentTipItems)}</div>
+            <div data-output="result-summary">${resultSummaryHtml(currentTipItems, weekCount)}</div>
             <div class="quantity-progress-meta">
               <span>Aktuell: <strong data-output="week-count">${formatNumber(weekCount, 0)} Tipps</strong></span>
               <span>Mindestziel: <strong data-output="min-target">${formatNumber(minTarget, 0)}</strong></span>
@@ -3990,7 +4181,12 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, zwe
       if (quantitySlider && payload.mengenbewertung_modus === "AUTOMATISCH") quantitySlider.value = String(Math.round(quantitySystemShare * 2) / 2);
       card.querySelector('[data-output="min-target"]').textContent = formatNumber(minTarget, 0);
       card.querySelector('[data-output="max-target"]').textContent = formatNumber(maxTarget, 0);
-      card.querySelector('[data-output="led-rail"]').innerHTML = renderLedRail(weekCount, minTarget, maxTarget);
+      const previewAdminId = normalizeText(card.dataset.adminId || "");
+      const previewRunningWeek = runningHistoryForAdmin(previewAdminId);
+      const previewTipItems = previewRunningWeek ? tipItemsFor(previewAdminId, previewRunningWeek.week) : [];
+      card.querySelector('[data-output="led-rail"]').innerHTML = renderLedRail(weekCount, minTarget, maxTarget, previewTipItems);
+      const resultSummary = card.querySelector('[data-output="result-summary"]');
+      if (resultSummary) resultSummary.innerHTML = resultSummaryHtml(previewTipItems, weekCount);
       card.querySelector('[data-output="quantity-share"]').textContent = formatNumber(quantityShare, 1) + " %";
       const bonusWeekOutput = card.querySelector('[data-output="bonus-week"]');
       if (bonusWeekOutput) bonusWeekOutput.textContent = "+" + formatNumber(bonusPointsForWeek(weekCount, maxTarget), 0);
@@ -4371,6 +4567,9 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, zwe
       const tipsters = parseJsonValue(data.tipsters ?? master.tipsters, []);
       const tipsterSelf = parseJsonValue(data.tipster_self ?? data.tipster, {});
       const tipResults = parseJsonValue(data.tip_results ?? master.tip_results ?? master.results, []);
+      const tipResultFeed = parseJsonValue(data.tipster_tip_results ?? master.tipster_tip_results, []);
+      const rawTipResultFeed = parseTipsterTipResultsRaw(data.tipster_tip_results_raw || master.tipster_tip_results_raw || "");
+      latestTipsterTipResults = normalizeTipsterTipResults([].concat(Array.isArray(tipResults) ? tipResults : [], Array.isArray(tipResultFeed) ? tipResultFeed : [], rawTipResultFeed));
       latestTipsterHistory = parseTipsterHistoryRaw(data.tipster_history_raw || "");
 
       renderPersonalTipster(tipsterSelf, data);
