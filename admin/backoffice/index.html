@@ -2,7 +2,7 @@
 <!--
 Projekt: BetInsight
 Datei auf GitHub: profil/admin/backoffice/index.html
-Version: 2026.08.10-BACKOFFICE-v2.9-TIPP-LED-ERGEBNIS-LED
+Version: 2026.08.10-BACKOFFICE-v2.10-TIPP-LED-SPIELZUORDNUNG
 Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro Tipp einer Liefer-LED plus einer Ergebnis-LED, Bonuspunkten für Übererfüllung, Tipp-ID-sicherer Wochenhistorie, getrenntem Testbetrieb, Ergebnisübersicht, Wallet-Zielauswahl und festen Netzwerken.
 -->
 <html lang="de">
@@ -1050,8 +1050,9 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       justify-content: center;
       gap: 5px;
       flex: 0 0 auto;
-      min-width: 42px;
-      padding: 7px 8px 19px;
+      min-width: 92px;
+      max-width: 112px;
+      padding: 7px 8px 42px;
       border: 1px solid rgba(185, 216, 232, 0.08);
       border-radius: 10px;
       background: rgba(255,255,255,.018);
@@ -1060,12 +1061,35 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
     .led-pair-label {
       position: absolute;
       left: 50%;
-      bottom: 3px;
+      bottom: 27px;
       transform: translateX(-50%);
       color: rgba(190, 215, 229, 0.72);
       font-size: 8px;
       font-weight: 900;
       white-space: nowrap;
+    }
+
+    .tip-match-name {
+      position: absolute;
+      left: 5px;
+      right: 5px;
+      bottom: 4px;
+      min-height: 20px;
+      color: rgba(224, 238, 246, 0.86);
+      font-size: 8px;
+      line-height: 1.18;
+      font-weight: 750;
+      text-align: center;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      word-break: break-word;
+    }
+
+    .led-pair:not([data-tip-id]) .tip-match-name {
+      color: rgba(173, 198, 211, 0.42);
+      font-weight: 650;
     }
 
     .led-pair.bonus-target {
@@ -3195,6 +3219,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
           '<span class="led-dot tip-delivery-led phase-' + phase + (delivered ? ' on' : '') + '" aria-hidden="true"></span>' +
           '<span class="led-dot tip-result-led ' + resultClass + (resultOn ? ' on' : '') + '" aria-hidden="true"></span>' +
           '<span class="led-pair-label">' + tip + (tip === max ? ' ★' : '') + '</span>' +
+          '<span class="tip-match-name">' + escapeHtml(item ? (item.tip_label || item.tip_id) : ('Tipp ' + tip)) + '</span>' +
           '</span>';
       }
 
