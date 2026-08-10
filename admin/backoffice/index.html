@@ -2,7 +2,7 @@
 <!--
 Projekt: BetInsight
 Datei auf GitHub: profil/admin/backoffice/index.html
-Version: 2026.08.10-BACKOFFICE-v2.10-TIPP-LED-SPIELZUORDNUNG
+Version: 2026.08.10-BACKOFFICE-v2.11-LED-TEAMNAMEN-VORSCHAU
 Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro Tipp einer Liefer-LED plus einer Ergebnis-LED, Bonuspunkten für Übererfüllung, Tipp-ID-sicherer Wochenhistorie, getrenntem Testbetrieb, Ergebnisübersicht, Wallet-Zielauswahl und festen Netzwerken.
 -->
 <html lang="de">
@@ -1050,9 +1050,9 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       justify-content: center;
       gap: 5px;
       flex: 0 0 auto;
-      min-width: 92px;
-      max-width: 112px;
-      padding: 7px 8px 42px;
+      min-width: 105px;
+      max-width: 126px;
+      padding: 7px 8px 48px;
       border: 1px solid rgba(185, 216, 232, 0.08);
       border-radius: 10px;
       background: rgba(255,255,255,.018);
@@ -1061,7 +1061,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
     .led-pair-label {
       position: absolute;
       left: 50%;
-      bottom: 27px;
+      bottom: 32px;
       transform: translateX(-50%);
       color: rgba(190, 215, 229, 0.72);
       font-size: 8px;
@@ -1074,9 +1074,9 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       left: 5px;
       right: 5px;
       bottom: 4px;
-      min-height: 20px;
-      color: rgba(224, 238, 246, 0.86);
-      font-size: 8px;
+      min-height: 25px;
+      color: rgba(224, 238, 246, 0.90);
+      font-size: 9px;
       line-height: 1.18;
       font-weight: 750;
       text-align: center;
@@ -1090,6 +1090,11 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
     .led-pair:not([data-tip-id]) .tip-match-name {
       color: rgba(173, 198, 211, 0.42);
       font-weight: 650;
+    }
+
+    .led-pair.preview-label .tip-match-name {
+      color: rgba(230, 242, 249, 0.94);
+      font-weight: 760;
     }
 
     .led-pair.bonus-target {
@@ -3116,7 +3121,9 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
         if (p.length < 6) return null;
         return {
           tip_id: p[0], admin_id: p[1], week: p[2], published_at: p[3], event_at: p[4],
-          result_status: p[5], result_source: p[6] || "", result_checked_at: p[7] || "", tip_label: p[8] || ""
+          result_status: p[5], result_source: p[6] || "", result_checked_at: p[7] || "", tip_label: p[8] || "",
+          slot_index: Number(p[9] || 0),
+          display_only: String(p[10] || "").toUpperCase() === "VORSCHAU"
         };
       }).filter(Boolean);
     }
@@ -3140,7 +3147,8 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
           result_source: normalizeText(firstDefined(raw, ["result_source", "ergebnis_quelle"], "")),
           result_checked_at: normalizeText(firstDefined(raw, ["result_checked_at", "ergebnis_geprueft_am"], "")),
           tip_label: normalizeText(firstDefined(raw, ["tip_label", "spiel", "title", "tipp"], "")),
-          slot_index: num(firstDefined(raw, ["slot_index", "tip_slot", "position"], 0))
+          slot_index: num(firstDefined(raw, ["slot_index", "tip_slot", "position"], 0)),
+          display_only: Boolean(firstDefined(raw, ["display_only", "vorschau", "preview_only"], false))
         };
         const previous = byId.get(tipId);
         if (!previous || item.result_checked_at || previous.result_status === "OFFEN") byId.set(tipId, item);
@@ -3167,7 +3175,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
     }
 
     function resultSummaryHtml(tipItems, deliveredCount) {
-      const items = Array.isArray(tipItems) ? tipItems : [];
+      const items = (Array.isArray(tipItems) ? tipItems : []).filter(function (x) { return !x.display_only; });
       const won = items.filter(function (x) { return x.result_status === "GEWONNEN"; }).length;
       const lost = items.filter(function (x) { return x.result_status === "VERLOREN"; }).length;
       const voided = items.filter(function (x) { return x.result_status === "VOID"; }).length;
@@ -3196,6 +3204,10 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       const max = Math.max(1, Math.floor(num(maxTarget) || min || 1));
       const completed = Math.min(count, max);
       const exactItems = Array.isArray(tipItems) ? tipItems : [];
+      const actualItems = exactItems.filter(function (x) { return !x.display_only; });
+      const previewBySlot = new Map();
+      exactItems.filter(function (x) { return x.display_only && x.slot_index > 0; })
+        .forEach(function (x) { previewBySlot.set(Math.floor(x.slot_index), x); });
       let html = '';
 
       for (let tip = 1; tip <= max; tip++) {
@@ -3205,21 +3217,28 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
         else if (min > 0 && tip > Math.ceil(min * 0.66)) phase = 3;
         else if (min > 0 && tip > Math.ceil(min * 0.33)) phase = 2;
 
-        const item = exactItems[tip - 1] || null;
-        const delivered = Boolean(item) || tip <= completed;
-        const result = item ? canonicalTipResultStatus(item.result_status) : "OFFEN";
+        const actualItem = actualItems[tip - 1] || null;
+        const previewItem = previewBySlot.get(tip) || null;
+        const labelItem = actualItem || previewItem;
+        const delivered = Boolean(actualItem) || tip <= completed;
+        const result = actualItem ? canonicalTipResultStatus(actualItem.result_status) : "OFFEN";
         const resultOn = delivered && result !== "OFFEN";
         const resultClass = result === "GEWONNEN" ? "result-won" : result === "VERLOREN" ? "result-lost" : result === "VOID" ? "result-void" : "result-open";
-        const pairClass = tip === max ? 'led-pair bonus-target' : 'led-pair';
-        const tipId = item ? item.tip_id : '';
-        const aria = 'Tipp ' + tip + (tipId ? ' · ' + tipId : '') + (tip === max ? ' · Bonusziel' : '') + (delivered ? ' · geliefert' : ' · noch nicht geliefert') + ' · Ergebnis ' + result.toLowerCase();
-        const title = item ? (item.tip_label || item.tip_id) + ' · ' + result : ('Tipp ' + tip + ' · Ergebnis offen');
+        const pairClass = (tip === max ? 'led-pair bonus-target' : 'led-pair') + (previewItem && !actualItem ? ' preview-label' : '');
+        const tipId = actualItem ? actualItem.tip_id : '';
+        const label = labelItem ? (labelItem.tip_label || labelItem.tip_id) : ('Tipp ' + tip);
+        const aria = 'Tipp ' + tip + (tipId ? ' · ' + tipId : '') + (tip === max ? ' · Bonusziel' : '') + (delivered ? ' · geliefert' : ' · noch nicht geliefert') + ' · ' + label + ' · Ergebnis ' + result.toLowerCase();
+        const title = actualItem
+          ? label + ' · ' + result
+          : previewItem
+            ? 'Vorschau · ' + label + ' · noch kein gewerteter Tipp'
+            : ('Tipp ' + tip + ' · Ergebnis offen');
 
         html += '<span class="' + pairClass + '" aria-label="' + escapeHtml(aria) + '" title="' + escapeHtml(title) + '"' + (tipId ? ' data-tip-id="' + escapeHtml(tipId) + '"' : '') + '>' +
           '<span class="led-dot tip-delivery-led phase-' + phase + (delivered ? ' on' : '') + '" aria-hidden="true"></span>' +
           '<span class="led-dot tip-result-led ' + resultClass + (resultOn ? ' on' : '') + '" aria-hidden="true"></span>' +
           '<span class="led-pair-label">' + tip + (tip === max ? ' ★' : '') + '</span>' +
-          '<span class="tip-match-name">' + escapeHtml(item ? (item.tip_label || item.tip_id) : ('Tipp ' + tip)) + '</span>' +
+          '<span class="tip-match-name">' + escapeHtml(label) + '</span>' +
           '</span>';
       }
 
