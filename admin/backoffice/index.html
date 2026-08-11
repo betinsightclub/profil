@@ -2,7 +2,7 @@
 <!--
 Projekt: BetInsight
 Datei auf GitHub: profil/admin/backoffice/index.html
-Version: 2026.08.10-BACKOFFICE-v2.11-LED-TEAMNAMEN-VORSCHAU
+Version: 2026.08.12-BACKOFFICE-v2.12-ERGEBNIS-BUTTONS-FINAL
 Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro Tipp einer Liefer-LED plus einer Ergebnis-LED, Bonuspunkten für Übererfüllung, Tipp-ID-sicherer Wochenhistorie, getrenntem Testbetrieb, Ergebnisübersicht, Wallet-Zielauswahl und festen Netzwerken.
 -->
 <html lang="de">
@@ -1136,6 +1136,12 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       box-shadow: 0 0 14px rgba(255,202,87,.70), inset 0 0 4px rgba(255,255,255,.45);
     }
 
+    .tip-result-led.result-cancelled.on {
+      background: #ff9f43;
+      border-color: rgba(255,190,126,.76);
+      box-shadow: 0 0 14px rgba(255,159,67,.72), inset 0 0 4px rgba(255,255,255,.45);
+    }
+
     .tip-result-led.result-open {
       opacity: .28;
     }
@@ -1169,6 +1175,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
     .mini-led.won { background:#20d58a; box-shadow:0 0 7px rgba(32,213,138,.48); }
     .mini-led.lost { background:#ff626f; box-shadow:0 0 7px rgba(255,98,111,.48); }
     .mini-led.void { background:#ffca57; box-shadow:0 0 7px rgba(255,202,87,.45); }
+    .mini-led.cancelled { background:#ff9f43; box-shadow:0 0 7px rgba(255,159,67,.45); }
 
     .result-led-summary {
       display: flex;
@@ -1187,6 +1194,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
     .result-led-summary .won-text { color:#86f0c4; }
     .result-led-summary .lost-text { color:#ffabb1; }
     .result-led-summary .void-text { color:#ffe09a; }
+    .result-led-summary .cancelled-text { color:#ffc58b; }
 
     .overachievement-badge {
       display: inline-flex;
@@ -1439,6 +1447,22 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
+    }
+
+    .result-status-button { opacity: .72; }
+    .result-status-button.selected {
+      opacity: 1;
+      outline: 2px solid rgba(255,255,255,.72);
+      outline-offset: 1px;
+      transform: translateY(-1px);
+    }
+    .result-status-button[data-status="ABGESAGT"] {
+      border-color: rgba(255,159,67,.48);
+      color: #ffd2a8;
+    }
+    .result-confirm-button {
+      margin-top: 7px;
+      width: 100%;
     }
 
     .master-note {
@@ -2495,7 +2519,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
           <div class="panel-heading">
             <div>
               <h3>Ergebnisse und Nachweise</h3>
-              <p class="muted">Gewonnene, verlorene und stornierte Tipps mit Screenshot- und Prüfstatus.</p>
+              <p class="muted">Gewonnene, verlorene, stornierte und abgesagte Tipps. Der Master wählt den Status und bestätigt ihn anschließend.</p>
             </div>
           </div>
           <div class="table-wrap">
@@ -2565,6 +2589,8 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
     const WALLET_API_URL = "https://hook.eu1.make.com/hypoxkxvfio7syw1cpxi7pre1i3znjid";
     const TIPSTER_SESSION_API_READY = true; // Session-gesicherter Tippgeber-Schreibweg aktiv.
     const TIPSTER_API_URL = "https://hook.eu1.make.com/2mtxmxp37qjcyv4mf9o846cl7z4hmh8m"; // Session-gesicherter Tippgeber-Webhook.
+    const RESULT_SESSION_API_READY = true; // Session-gesicherter Master-Ergebnis-Schreibweg aktiv.
+    const RESULT_API_URL = "https://hook.eu1.make.com/k6qxta8xyae1mtnwbzu93g1798rylnwn"; // Session-gesicherter Master-Ergebnis-Webhook.
     const TEST_PAYMENT_SESSION_API_READY = false;
     const PRIVACY_KEY = "betinsight_admin_privacy_active";
     const ROUTE_PREF_KEY = "betinsight_admin_route_payout_preference";
@@ -3109,8 +3135,24 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       const status = normalizeText(value).toUpperCase();
       if (["GEWONNEN", "WON", "WIN", "GREEN"].includes(status)) return "GEWONNEN";
       if (["VERLOREN", "LOST", "LOSS", "RED"].includes(status)) return "VERLOREN";
+      if (["ABGESAGT", "CANCELLED", "CANCELED", "ABGEBROCHEN"].includes(status)) return "ABGESAGT";
       if (["VOID", "STORNIERT", "UNGUELTIG", "PUSH", "REFUND"].includes(status)) return "VOID";
       return "OFFEN";
+    }
+
+    function parseMasterTipResultsRaw(raw) {
+      const value = String(raw || "").trim();
+      if (!value) return [];
+      return value.split("§").map(function (record) {
+        const p = record.split("|");
+        if (p.length < 8 || !p[1]) return null;
+        return {
+          ergebnis_id: p[0] || "", tipp_id: p[1] || "", admin_id: p[2] || "", admin_name: p[3] || "",
+          spiel: p[4] || "", quote: p[5] || "", ergebnis_status: p[6] || "OFFEN", bestaetigungsstatus: p[7] || "OFFEN",
+          screenshot_url: p[8] || "", nachweis_status: p[9] || "FEHLT", sichtbar_fuer_teilnehmer: p[10] || "NEIN",
+          quelle: p[11] || "", bestaetigt_am: p[12] || ""
+        };
+      }).filter(Boolean);
     }
 
     function parseTipsterTipResultsRaw(raw) {
@@ -3179,13 +3221,15 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       const won = items.filter(function (x) { return x.result_status === "GEWONNEN"; }).length;
       const lost = items.filter(function (x) { return x.result_status === "VERLOREN"; }).length;
       const voided = items.filter(function (x) { return x.result_status === "VOID"; }).length;
-      const open = Math.max(0, Math.max(Math.floor(num(deliveredCount)), items.length) - won - lost - voided);
+      const cancelled = items.filter(function (x) { return x.result_status === "ABGESAGT"; }).length;
+      const open = Math.max(0, Math.max(Math.floor(num(deliveredCount)), items.length) - won - lost - voided - cancelled);
       const decided = won + lost;
       const rate = decided > 0 ? (won / decided * 100) : null;
       return '<div class="result-led-summary">' +
         '<span class="won-text">Gewonnen: <strong>' + won + '</strong></span>' +
         '<span class="lost-text">Verloren: <strong>' + lost + '</strong></span>' +
         '<span class="void-text">Void: <strong>' + voided + '</strong></span>' +
+        '<span class="cancelled-text">Abgesagt: <strong>' + cancelled + '</strong></span>' +
         '<span>Offen: <strong>' + open + '</strong></span>' +
         '<span>Trefferquote: <strong>' + (rate === null ? '–' : formatNumber(rate,1) + ' %') + '</strong></span>' +
         '</div>' +
@@ -3194,6 +3238,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
           '<span class="tip-led-legend-item"><i class="mini-led won"></i>unten: gewonnen</span>' +
           '<span class="tip-led-legend-item"><i class="mini-led lost"></i>unten: verloren</span>' +
           '<span class="tip-led-legend-item"><i class="mini-led void"></i>unten: void</span>' +
+          '<span class="tip-led-legend-item"><i class="mini-led cancelled"></i>unten: abgesagt</span>' +
           '<span class="tip-led-legend-item"><i class="mini-led"></i>unten: Ergebnis offen</span>' +
         '</div>';
     }
@@ -3223,7 +3268,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
         const delivered = Boolean(actualItem) || tip <= completed;
         const result = actualItem ? canonicalTipResultStatus(actualItem.result_status) : "OFFEN";
         const resultOn = delivered && result !== "OFFEN";
-        const resultClass = result === "GEWONNEN" ? "result-won" : result === "VERLOREN" ? "result-lost" : result === "VOID" ? "result-void" : "result-open";
+        const resultClass = result === "GEWONNEN" ? "result-won" : result === "VERLOREN" ? "result-lost" : result === "VOID" ? "result-void" : result === "ABGESAGT" ? "result-cancelled" : "result-open";
         const pairClass = (tip === max ? 'led-pair bonus-target' : 'led-pair') + (previewItem && !actualItem ? ' preview-label' : '');
         const tipId = actualItem ? actualItem.tip_id : '';
         const label = labelItem ? (labelItem.tip_label || labelItem.tip_id) : ('Tipp ' + tip);
@@ -3410,22 +3455,26 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
 
       const walletActions = ["save_wallet", "save_payout_settings"];
       const tipsterActions = ["save_tipster_settings"];
-      if (!walletActions.includes(action) && !tipsterActions.includes(action)) {
+      const resultActions = ["confirm_tip_result"];
+      if (!walletActions.includes(action) && !tipsterActions.includes(action) && !resultActions.includes(action)) {
         throw new Error("Diese Backoffice-Schreibaktion ist noch nicht freigegeben.");
       }
 
       const isTipsterAction = tipsterActions.includes(action);
-      const endpoint = isTipsterAction ? TIPSTER_API_URL : WALLET_API_URL;
-      const endpointReady = isTipsterAction ? TIPSTER_SESSION_API_READY : WALLET_SESSION_API_READY;
+      const isResultAction = resultActions.includes(action);
+      const endpoint = isResultAction ? RESULT_API_URL : (isTipsterAction ? TIPSTER_API_URL : WALLET_API_URL);
+      const endpointReady = isResultAction ? RESULT_SESSION_API_READY : (isTipsterAction ? TIPSTER_SESSION_API_READY : WALLET_SESSION_API_READY);
 
       if (!endpointReady || !endpoint) {
-        throw new Error(isTipsterAction
-          ? "Der session-gesicherte Tippgeber-Webhook ist noch nicht verbunden."
-          : "Der session-gesicherte Wallet-Webhook ist noch nicht verbunden.");
+        throw new Error(isResultAction
+          ? "Der session-gesicherte Ergebnis-Webhook ist noch nicht verbunden."
+          : (isTipsterAction
+            ? "Der session-gesicherte Tippgeber-Webhook ist noch nicht verbunden."
+            : "Der session-gesicherte Wallet-Webhook ist noch nicht verbunden."));
       }
 
-      if (isTipsterAction && current.admin?.role !== "owner") {
-        throw new Error("Tippgeber-Pegel dürfen nur vom Master geändert werden.");
+      if ((isTipsterAction || isResultAction) && current.admin?.role !== "owner") {
+        throw new Error("Diese Aktion darf nur vom Master geändert werden.");
       }
 
       const sessionHash = await sha256Hex(current.session.token);
@@ -3433,7 +3482,15 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
         (crypto.randomUUID ? crypto.randomUUID() :
         (isTipsterAction ? "tipster-" : "wallet-") + Date.now() + "-" + Math.random().toString(16).slice(2));
 
-      const body = isTipsterAction
+      const body = isResultAction
+        ? {
+            action: action,
+            session_hash: sessionHash,
+            tipp_id: String(payload.tipp_id || ""),
+            ergebnis_status: canonicalTipResultStatus(payload.ergebnis_status || "OFFEN"),
+            request_id: requestId
+          }
+        : isTipsterAction
         ? {
             action: action,
             session_hash: sessionHash,
@@ -3486,7 +3543,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
         throw new Error(result?.message || result?.error || ("Speichern fehlgeschlagen (HTTP " + response.status + ")."));
       }
 
-      const responseAdminId = isTipsterAction
+      const responseAdminId = (isTipsterAction || isResultAction)
         ? String(result.master_admin_id || result.admin_id || "")
         : String(result.admin_id || "");
       if (responseAdminId !== String(current.adminId || "")) {
@@ -4274,6 +4331,13 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       }
     }
 
+    const pendingResultSelections = new Map();
+
+    function resultStatusLabel(status) {
+      const s = canonicalTipResultStatus(status);
+      return s === "GEWONNEN" ? "Gewonnen" : s === "VERLOREN" ? "Verloren" : s === "VOID" ? "Void" : s === "ABGESAGT" ? "Abgesagt" : "Offen";
+    }
+
     function renderMasterResults(items) {
       latestTipResults = Array.isArray(items) ? items : [];
       if (!latestTipResults.length) {
@@ -4283,44 +4347,64 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
 
       masterResultsTableBody.innerHTML = latestTipResults.map(function (item) {
         const resultId = normalizeText(firstDefined(item, ["ergebnis_id", "result_id"]));
+        const tipId = normalizeText(firstDefined(item, ["tipp_id", "tip_id"]));
         const screenshot = normalizeText(firstDefined(item, ["screenshot_url", "proof_url"]));
         const proofStatus = normalizeText(firstDefined(item, ["nachweis_status", "proof_status"], "FEHLT"));
         const visible = normalizeText(firstDefined(item, ["sichtbar_fuer_teilnehmer", "visible_for_participants"], "NEIN")).toUpperCase();
-        const review = normalizeText(firstDefined(item, ["bestaetigungsstatus", "review_status"], "offen"));
+        const review = normalizeText(firstDefined(item, ["bestaetigungsstatus", "review_status"], "OFFEN"));
+        const currentStatus = canonicalTipResultStatus(firstDefined(item, ["ergebnis_status", "result_status"], "OFFEN"));
+        const selectedStatus = pendingResultSelections.get(tipId) || currentStatus;
+        const statusButton = function (status, text, cls) {
+          return '<button class="button button-small result-status-button ' + cls + (selectedStatus === status ? ' selected' : '') + '" type="button" data-tip-id="' + escapeHtml(tipId) + '" data-status="' + status + '" ' + (tipId ? '' : 'disabled') + '>' + text + '</button>';
+        };
         return `<tr>
           <td>${escapeHtml(firstDefined(item, ["admin_name", "tippgeber_name"], "–"))}</td>
-          <td>${escapeHtml(firstDefined(item, ["spiel", "event"], "–"))}</td>
+          <td><strong>${escapeHtml(firstDefined(item, ["spiel", "event"], "–"))}</strong><div class="route-hint">${escapeHtml(tipId)}</div></td>
           <td>${escapeHtml(firstDefined(item, ["quote", "odds"], "–"))}</td>
-          <td><span class="status-pill">${escapeHtml(label(firstDefined(item, ["ergebnis_status", "result_status"], "offen")))}</span></td>
+          <td>
+            <span class="status-pill">${escapeHtml(resultStatusLabel(currentStatus))}</span>
+            <div class="result-action-row" style="margin-top:7px">
+              ${statusButton("GEWONNEN", "🟢 Gewonnen", "button-green")}
+              ${statusButton("VERLOREN", "🔴 Verloren", "button-red")}
+              ${statusButton("VOID", "🟡 Void", "button-neutral")}
+              ${statusButton("ABGESAGT", "🟠 Abgesagt", "button-neutral")}
+              ${statusButton("OFFEN", "⚫ Offen", "button-neutral")}
+            </div>
+          </td>
           <td>${screenshot ? '<a class="link-button button-small" target="_blank" rel="noopener" href="' + escapeHtml(screenshot) + '">Nachweis öffnen</a>' : escapeHtml(label(proofStatus))}</td>
           <td>${escapeHtml(visible === "JA" ? "Sichtbar" : "Nicht sichtbar")}</td>
           <td>
-            <div class="result-action-row">
-              <button class="button button-green button-small result-review-button" type="button" data-result-id="${escapeHtml(resultId)}" data-decision="genehmigt" ${resultId ? "" : "disabled"}>Genehmigen</button>
-              <button class="button button-red button-small result-review-button" type="button" data-result-id="${escapeHtml(resultId)}" data-decision="abgelehnt" ${resultId ? "" : "disabled"}>Ablehnen</button>
-              <button class="button button-neutral button-small result-review-button" type="button" data-result-id="${escapeHtml(resultId)}" data-decision="toggle_visibility" ${resultId ? "" : "disabled"}>Sichtbarkeit</button>
-            </div>
-            <div class="route-hint">${escapeHtml(label(review))}</div>
+            <div class="route-hint">Auswahl: <strong>${escapeHtml(resultStatusLabel(selectedStatus))}</strong></div>
+            <button class="button button-primary button-small result-confirm-button" type="button" data-tip-id="${escapeHtml(tipId)}" ${tipId && RESULT_SESSION_API_READY ? "" : "disabled"}>Ergebnis bestätigen</button>
+            <div class="route-hint">${RESULT_SESSION_API_READY ? escapeHtml(label(review)) : "Make-Ergebnis-Schreibweg noch verbinden"}</div>
           </td>
         </tr>`;
       }).join("");
     }
 
-    async function reviewTipResult(button) {
-      const resultId = button.dataset.resultId;
-      const decision = button.dataset.decision;
-      if (!resultId) return;
+    function chooseTipResultStatus(button) {
+      const tipId = String(button.dataset.tipId || "");
+      const status = canonicalTipResultStatus(button.dataset.status || "OFFEN");
+      if (!tipId) return;
+      pendingResultSelections.set(tipId, status);
+      renderMasterResults(latestTipResults);
+    }
+
+    async function confirmTipResult(button) {
+      const tipId = String(button.dataset.tipId || "");
+      if (!tipId) return;
+      const item = latestTipResults.find(function (x) { return normalizeText(firstDefined(x, ["tipp_id", "tip_id"])) === tipId; });
+      const current = item ? canonicalTipResultStatus(firstDefined(item, ["ergebnis_status", "result_status"], "OFFEN")) : "OFFEN";
+      const status = pendingResultSelections.get(tipId) || current;
       button.disabled = true;
       setActionMessage(masterResultsMessage, "", "error");
       try {
-        const result = await postBackofficeAction("review_tip_result", {
-          ergebnis_id: resultId,
-          entscheidung: decision
-        });
-        setActionMessage(masterResultsMessage, result.message || "Ergebnis wurde aktualisiert.", "success");
+        const result = await postBackofficeAction("confirm_tip_result", { tipp_id: tipId, ergebnis_status: status });
+        pendingResultSelections.delete(tipId);
+        setActionMessage(masterResultsMessage, result.message || "Ergebnis wurde bestätigt.", "success");
         await loadBackofficeData();
       } catch (error) {
-        setActionMessage(masterResultsMessage, "Ergebnis konnte noch nicht gespeichert werden: " + (error.message || "Unbekannter Fehler"), "error");
+        setActionMessage(masterResultsMessage, "Ergebnis konnte noch nicht bestätigt werden: " + (error.message || "Unbekannter Fehler"), "error");
       } finally {
         button.disabled = false;
       }
@@ -4611,6 +4695,8 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       const tipsters = parseJsonValue(data.tipsters ?? master.tipsters, []);
       const tipsterSelf = parseJsonValue(data.tipster_self ?? data.tipster, {});
       const tipResults = parseJsonValue(data.tip_results ?? master.tip_results ?? master.results, []);
+      const masterTipResultsRaw = parseMasterTipResultsRaw(data.master_tip_results_raw || master.master_tip_results_raw || "");
+      const masterTipResults = (Array.isArray(tipResults) && tipResults.length) ? tipResults : masterTipResultsRaw;
       const tipResultFeed = parseJsonValue(data.tipster_tip_results ?? master.tipster_tip_results, []);
       const rawTipResultFeed = parseTipsterTipResultsRaw(data.tipster_tip_results_raw || master.tipster_tip_results_raw || "");
       latestTipsterTipResults = normalizeTipsterTipResults([].concat(Array.isArray(tipResults) ? tipResults : [], Array.isArray(tipResultFeed) ? tipResultFeed : [], rawTipResultFeed));
@@ -4626,7 +4712,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       if (isMaster && master && typeof master === "object") {
         renderTipsterHistory();
         renderTipsterCards(tipsters);
-        renderMasterResults(tipResults);
+        renderMasterResults(masterTipResults);
         renderMasterModel(master);
         document.getElementById("masterCompanyReserve").innerHTML = '<span class="privacy-sensitive">' +
           formatEuro(master.company_reserve_eur || 0) + '</span>';
@@ -4945,8 +5031,10 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
     });
 
     masterResultsTableBody.addEventListener("click", function (event) {
-      const button = event.target.closest(".result-review-button");
-      if (button) reviewTipResult(button);
+      const statusButton = event.target.closest(".result-status-button");
+      if (statusButton) { chooseTipResultStatus(statusButton); return; }
+      const confirmButton = event.target.closest(".result-confirm-button");
+      if (confirmButton) confirmTipResult(confirmButton);
     });
 
     createTipsterButton.addEventListener("click", createTipster);
