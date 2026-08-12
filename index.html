@@ -5,9 +5,15 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.12-03
+Version: 2026.08.12-04
 
 Änderungen:
+- Premium/Premium Plus: Live-Countdown bis Ablauf vorbereitet
+- 5-Tage-Warnphase und 5-Tage-Kulanzanzeige vorbereitet
+- Abo-/Verlängerungsbutton nur bei Premium/Premium Plus
+- Basis zeigt bewusst keinen Timer und keinen Abo-Button
+- Verlängerungsdialog für externe Zahlung / Provisionsguthaben / Auto-Verlängerung vorbereitet
+- Noch keine Zahlung oder Abbuchung aus dieser HTML möglich; Backend-Verknüpfung folgt separat
 - Profilkarte „Mitgliedschaft“ zeigt automatisch Basis / Premium / Premium Plus
 - Quelle: bestehender Profil-Webhook über USER.mitgliedschaft und USER.mitgliedschaft_level
 - Zentrale Anzeige „Gesamte verfügbare Units“ zeigt immer exakt zwei Nachkommastellen.
@@ -634,6 +640,199 @@ input{
   text-shadow:0 0 18px rgba(255,171,46,.17);
 }
 
+
+.premium-runtime-box{
+  margin-top:10px;
+}
+
+.premium-countdown{
+  color:var(--soft);
+  font-size:13px;
+  line-height:1.35;
+  font-weight:900;
+}
+
+.premium-progress{
+  width:100%;
+  height:7px;
+  margin-top:9px;
+  overflow:hidden;
+  border-radius:999px;
+  background:rgba(255,255,255,.09);
+}
+
+.premium-progress-bar{
+  width:0%;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,var(--green),var(--cyan));
+  transition:width .4s ease;
+}
+
+.premium-expiry{
+  margin-top:8px;
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.35;
+}
+
+.premium-runtime-message{
+  margin-top:7px;
+  min-height:14px;
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.35;
+}
+
+.premium-manage-button{
+  margin-top:10px;
+  min-height:36px;
+  padding:8px 10px;
+  border-radius:10px;
+  background:linear-gradient(105deg,#596f82,#748da0);
+  font-size:11px;
+}
+
+.membership-card.membership-warning{
+  border-color:rgba(255,207,51,.42);
+}
+
+.membership-card.membership-warning .premium-countdown,
+.membership-card.membership-warning .premium-runtime-message{
+  color:#ffcf33;
+}
+
+.membership-card.membership-warning .premium-progress-bar{
+  background:linear-gradient(90deg,#ffcf33,var(--orange));
+}
+
+.membership-card.membership-grace{
+  border-color:rgba(255,171,46,.55);
+  background:
+    radial-gradient(circle at 100% 0%,rgba(255,171,46,.12),transparent 44%),
+    linear-gradient(145deg,rgba(2,21,31,.74),rgba(13,55,69,.52));
+}
+
+.membership-card.membership-grace .premium-countdown,
+.membership-card.membership-grace .premium-runtime-message{
+  color:var(--orange);
+}
+
+.membership-card.membership-grace .premium-progress-bar{
+  background:linear-gradient(90deg,#ffab2e,#e76a3f);
+}
+
+.premium-manager-overlay{
+  position:fixed;
+  inset:0;
+  z-index:20000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(0,8,13,.76);
+  backdrop-filter:blur(10px);
+}
+
+.premium-manager-overlay[hidden]{
+  display:none;
+}
+
+.premium-manager-dialog{
+  position:relative;
+  width:min(620px,100%);
+  max-height:90vh;
+  overflow:auto;
+  padding:24px;
+  border:1px solid rgba(90,180,220,.25);
+  border-radius:22px;
+  background:linear-gradient(155deg,rgba(12,48,64,.99),rgba(5,29,43,.99));
+  box-shadow:0 28px 80px rgba(0,0,0,.48);
+}
+
+.premium-manager-close{
+  position:absolute;
+  right:14px;
+  top:12px;
+  width:38px;
+  min-height:38px;
+  padding:0;
+  border-radius:50%;
+  background:rgba(255,255,255,.08);
+  font-size:24px;
+}
+
+.premium-manager-eyebrow{
+  color:var(--green);
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.7px;
+  text-transform:uppercase;
+}
+
+.premium-manager-dialog h3{
+  margin:7px 0 7px;
+  font-size:24px;
+}
+
+.premium-manager-summary{
+  margin:0 0 18px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.5;
+}
+
+.premium-manager-option{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:14px;
+  align-items:center;
+  padding:14px;
+  margin-top:10px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;
+  background:rgba(0,0,0,.16);
+}
+
+.premium-manager-option strong{
+  display:block;
+  font-size:13px;
+}
+
+.premium-manager-option span{
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.4;
+}
+
+.premium-manager-option button{
+  width:auto;
+  min-width:150px;
+}
+
+.premium-manager-message{
+  margin-top:16px;
+  padding:12px 13px;
+  border:1px solid rgba(255,207,51,.16);
+  border-radius:12px;
+  background:rgba(255,207,51,.05);
+  color:#ffcf33;
+  font-size:11px;
+  line-height:1.45;
+}
+
+@media(max-width:600px){
+  .premium-manager-option{
+    grid-template-columns:1fr;
+  }
+
+  .premium-manager-option button{
+    width:100%;
+  }
+}
+
 </style>
 </head>
 
@@ -751,6 +950,26 @@ input{
             <div class="account-stat-label">Mitgliedschaft</div>
             <div id="membershipStatus" class="account-stat-value membership-value account-private-value">Basis</div>
             <div id="membershipNote" class="membership-note">BetInsight Basis-Zugang</div>
+
+            <div id="premiumRuntimeBox" class="premium-runtime-box" hidden>
+              <div id="premiumCountdown" class="premium-countdown">–</div>
+
+              <div class="premium-progress" aria-hidden="true">
+                <div id="premiumProgressBar" class="premium-progress-bar"></div>
+              </div>
+
+              <div id="premiumExpiry" class="premium-expiry">Gültig bis: –</div>
+              <div id="premiumRuntimeMessage" class="premium-runtime-message"></div>
+
+              <button
+                id="premiumManageButton"
+                class="premium-manage-button"
+                type="button"
+                onclick="openPremiumManager()"
+              >
+                🔄 Abo &amp; Verlängerung
+              </button>
+            </div>
           </div>
         </div>
 
@@ -895,6 +1114,53 @@ input{
   </div>
 </section>
 
+
+<div id="premiumManagerOverlay" class="premium-manager-overlay" hidden>
+  <div class="premium-manager-dialog" role="dialog" aria-modal="true" aria-labelledby="premiumManagerTitle">
+    <button class="premium-manager-close" type="button" onclick="closePremiumManager()" aria-label="Schließen">×</button>
+
+    <div class="premium-manager-eyebrow">BetInsight Premium</div>
+    <h3 id="premiumManagerTitle">Abo & Verlängerung</h3>
+    <p id="premiumManagerSummary" class="premium-manager-summary">
+      Deine Premium-Mitgliedschaft verwalten.
+    </p>
+
+    <div class="premium-manager-option">
+      <div>
+        <strong>Mit Provisionsguthaben verlängern</strong>
+        <span>Nur bereits auszahlbares Guthaben wird später verwendet.</span>
+      </div>
+      <button type="button" class="btn-green" onclick="premiumActionNotConnected('PROVISIONSGUTHABEN')">
+        Guthaben verwenden
+      </button>
+    </div>
+
+    <div class="premium-manager-option">
+      <div>
+        <strong>Extern verlängern</strong>
+        <span>Normale Premium-Zahlung über den vorgesehenen Zahlungsweg.</span>
+      </div>
+      <button type="button" class="btn-blue" onclick="premiumActionNotConnected('EXTERN')">
+        Jetzt verlängern
+      </button>
+    </div>
+
+    <div class="premium-manager-option">
+      <div>
+        <strong>Automatische Verlängerung</strong>
+        <span id="premiumAutoRenewText">Status: nicht aktiviert</span>
+      </div>
+      <button type="button" class="btn-orange" onclick="premiumActionNotConnected('AUTO')">
+        Einstellung ändern
+      </button>
+    </div>
+
+    <div id="premiumManagerMessage" class="premium-manager-message">
+      Die Oberfläche ist vorbereitet. Die Zahlungs- und Guthabenlogik wird erst nach Freigabe des Premium-v1.2-Backends verbunden.
+    </div>
+  </div>
+</div>
+
 <div id="debug" class="debug"></div>
 <footer class="footer">© 2026 BetInsight Club</footer>
 
@@ -927,7 +1193,13 @@ let currentProfileData = {
   consumedUnits:null,
   unlockedTips:0,
   membershipLevel:0,
-  membership:"Basis"
+  membership:"Basis",
+  premiumStart:null,
+  premiumUntil:null,
+  graceUntil:null,
+  premiumStatus:"",
+  autoRenew:"NEIN",
+  tariffCode:""
 };
 
 function safeNumber(value){
@@ -979,6 +1251,202 @@ function normalizeMembership(level, membership){
   };
 }
 
+
+let premiumCountdownInterval = null;
+
+function parseDateValue(value){
+  if(value===undefined || value===null || value==="") return null;
+
+  const raw=String(value).trim();
+  if(!raw) return null;
+
+  const isoCandidate=raw.includes("T") ? raw : raw.replace(" ","T");
+  const parsed=new Date(isoCandidate);
+
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function formatDateTimeDe(date){
+  if(!(date instanceof Date) || Number.isNaN(date.getTime())) return "–";
+
+  return new Intl.DateTimeFormat("de-DE",{
+    day:"2-digit",
+    month:"2-digit",
+    year:"numeric",
+    hour:"2-digit",
+    minute:"2-digit"
+  }).format(date);
+}
+
+function formatCountdown(ms){
+  const safe=Math.max(0,ms);
+  const totalSeconds=Math.floor(safe/1000);
+  const days=Math.floor(totalSeconds/86400);
+  const hours=Math.floor((totalSeconds%86400)/3600);
+  const minutes=Math.floor((totalSeconds%3600)/60);
+  const seconds=totalSeconds%60;
+
+  if(days>0){
+    return `${days} ${days===1?"Tag":"Tage"} · ${String(hours).padStart(2,"0")}:${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}`;
+  }
+
+  return `${String(hours).padStart(2,"0")}:${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")} Std.`;
+}
+
+function resolveGraceUntil(premiumUntil, explicitGraceUntil){
+  if(explicitGraceUntil) return explicitGraceUntil;
+  if(!premiumUntil) return null;
+
+  return new Date(premiumUntil.getTime() + 5*24*60*60*1000);
+}
+
+function stopPremiumCountdown(){
+  if(premiumCountdownInterval){
+    clearInterval(premiumCountdownInterval);
+    premiumCountdownInterval=null;
+  }
+}
+
+function renderPremiumRuntime(){
+  const box=document.getElementById("premiumRuntimeBox");
+  const countdown=document.getElementById("premiumCountdown");
+  const expiry=document.getElementById("premiumExpiry");
+  const message=document.getElementById("premiumRuntimeMessage");
+  const bar=document.getElementById("premiumProgressBar");
+  const card=document.querySelector(".membership-card");
+
+  if(!box || !countdown || !expiry || !message || !bar || !card) return;
+
+  stopPremiumCountdown();
+  card.classList.remove("membership-warning","membership-grace");
+
+  const membership=normalizeMembership(
+    currentProfileData.membershipLevel,
+    currentProfileData.membership
+  );
+
+  if(membership.level===0){
+    box.hidden=true;
+    return;
+  }
+
+  box.hidden=false;
+
+  const premiumStart=parseDateValue(currentProfileData.premiumStart);
+  const premiumUntil=parseDateValue(currentProfileData.premiumUntil);
+  const graceUntil=resolveGraceUntil(
+    premiumUntil,
+    parseDateValue(currentProfileData.graceUntil)
+  );
+
+  expiry.innerText=premiumUntil
+    ? `Gültig bis ${formatDateTimeDe(premiumUntil)}`
+    : "Ablaufdatum wird nach Backend-Verknüpfung angezeigt.";
+
+  const tick=()=>{
+    const now=new Date();
+
+    if(!premiumUntil){
+      countdown.innerText="Premium aktiv";
+      message.innerText="Countdown bereit – premium_bis fehlt noch im Profil-Webhook.";
+      bar.style.width="100%";
+      return;
+    }
+
+    if(now < premiumUntil){
+      const remaining=premiumUntil-now;
+      countdown.innerText=`Noch ${formatCountdown(remaining)}`;
+
+      const warningMs=5*24*60*60*1000;
+      if(remaining<=warningMs){
+        card.classList.add("membership-warning");
+        message.innerText="Hinweis: Deine Premium-Mitgliedschaft endet in weniger als 5 Tagen.";
+      }else{
+        card.classList.remove("membership-warning");
+        message.innerText=currentProfileData.autoRenew==="JA"
+          ? "Automatische Verlängerung ist vorgemerkt."
+          : "Premium ist aktiv.";
+      }
+
+      // 30-Tage-Anzeige. Bei frühzeitiger Verlängerung kann die Restlaufzeit >30 Tage sein;
+      // dann bleibt der Balken vollständig gefüllt.
+      const periodMs=30*24*60*60*1000;
+      const percent=Math.max(0,Math.min(100,(remaining/periodMs)*100));
+      bar.style.width=`${percent}%`;
+      return;
+    }
+
+    if(graceUntil && now < graceUntil){
+      const graceRemaining=graceUntil-now;
+      card.classList.remove("membership-warning");
+      card.classList.add("membership-grace");
+      countdown.innerText=`Kulanzzeit · noch ${formatCountdown(graceRemaining)}`;
+      message.innerText="Gruppenprovisionen sind während der Kulanz vorgemerkt, aber nicht auszahlbar.";
+      bar.style.width="0%";
+      return;
+    }
+
+    // Sobald Backend v1.2 die Mitgliedschaft zurück auf Basis setzt,
+    // verschwindet dieser Bereich vollständig. Bis dahin klare Anzeige:
+    card.classList.remove("membership-warning","membership-grace");
+    countdown.innerText="Premium-Zeitraum beendet";
+    message.innerText="Kulanz beendet. Neue Gruppenprovisionen sind nicht mehr freigabeberechtigt.";
+    bar.style.width="0%";
+  };
+
+  tick();
+  premiumCountdownInterval=setInterval(tick,1000);
+}
+
+function openPremiumManager(){
+  const overlay=document.getElementById("premiumManagerOverlay");
+  const summary=document.getElementById("premiumManagerSummary");
+  const autoText=document.getElementById("premiumAutoRenewText");
+
+  if(!overlay) return;
+
+  const membership=normalizeMembership(
+    currentProfileData.membershipLevel,
+    currentProfileData.membership
+  );
+
+  if(membership.level===0) return;
+
+  if(summary){
+    summary.innerText=
+      `${membership.name} verwalten` +
+      (currentProfileData.premiumUntil
+        ? ` · gültig bis ${formatDateTimeDe(parseDateValue(currentProfileData.premiumUntil))}`
+        : "");
+  }
+
+  if(autoText){
+    autoText.innerText=
+      `Status: ${String(currentProfileData.autoRenew||"NEIN").toUpperCase()==="JA" ? "aktiv" : "nicht aktiviert"}`;
+  }
+
+  document.getElementById("premiumManagerMessage").innerText=
+    "Die Oberfläche ist vorbereitet. Die Zahlungs- und Guthabenlogik wird erst nach Freigabe des Premium-v1.2-Backends verbunden.";
+
+  overlay.hidden=false;
+}
+
+function closePremiumManager(){
+  const overlay=document.getElementById("premiumManagerOverlay");
+  if(overlay) overlay.hidden=true;
+}
+
+function premiumActionNotConnected(type){
+  const messages={
+    PROVISIONSGUTHABEN:"Verlängerung aus auszahlbarem Provisionsguthaben ist vorbereitet und wird mit Premium v1.2 verbunden.",
+    EXTERN:"Die externe Premium-Verlängerung ist vorbereitet und wird mit Premium v1.2 verbunden.",
+    AUTO:"Die Auto-Verlängerung ist vorbereitet und wird mit Premium v1.2 verbunden."
+  };
+
+  document.getElementById("premiumManagerMessage").innerText=
+    messages[type] || "Diese Funktion wird mit Premium v1.2 verbunden.";
+}
+
 function renderMembership(level, membership){
   const normalized = normalizeMembership(level, membership);
   const card = document.querySelector(".membership-card");
@@ -997,6 +1465,8 @@ function renderMembership(level, membership){
 
   value.innerText = normalized.name;
   note.innerText = normalized.note;
+
+  renderPremiumRuntime();
 }
 
 function optionalNumber(value){
@@ -1464,6 +1934,36 @@ function fetchProfileByToken(variants,index){
         firstDefined(data,["mitgliedschaft","membership"],"Basis")
       ).trim() || "Basis";
 
+      const premiumStart = firstDefined(
+        data,
+        ["premium_start","premium_von","periode_von"],
+        null
+      );
+
+      const premiumUntil = firstDefined(
+        data,
+        ["premium_bis","premium_until","periode_bis"],
+        null
+      );
+
+      const graceUntil = firstDefined(
+        data,
+        ["kulanz_bis","grace_until"],
+        null
+      );
+
+      const premiumStatus = String(
+        firstDefined(data,["premium_status","membership_status"],"")
+      ).trim();
+
+      const autoRenew = String(
+        firstDefined(data,["auto_verlaengerung","auto_renew"],"NEIN")
+      ).trim().toUpperCase();
+
+      const tariffCode = String(
+        firstDefined(data,["tarif_code","tariff_code"],"")
+      ).trim();
+
       currentProfileData={
         email:data.email||"",
         units:total,
@@ -1473,7 +1973,13 @@ function fetchProfileByToken(variants,index){
         consumedUnits:consumed,
         unlockedTips:unlocked,
         membershipLevel:membershipLevel,
-        membership:membership
+        membership:membership,
+        premiumStart:premiumStart,
+        premiumUntil:premiumUntil,
+        graceUntil:graceUntil,
+        premiumStatus:premiumStatus,
+        autoRenew:autoRenew,
+        tariffCode:tariffCode
       };
 
       saveToken(finalToken);
@@ -1597,11 +2103,26 @@ function forgetToken(){
   currentProfileData={
     email:"",units:0,refCode:"",dashboardToken:"",
     refLink:"",consumedUnits:null,unlockedTips:0,
-    membershipLevel:0,membership:"Basis"
+    membershipLevel:0,membership:"Basis",
+    premiumStart:null,premiumUntil:null,graceUntil:null,
+    premiumStatus:"",autoRenew:"NEIN",tariffCode:""
   };
   renderMembership(0,"Basis");
   showRequestBox();
 }
+
+
+document.addEventListener("keydown",event=>{
+  if(event.key==="Escape"){
+    closePremiumManager();
+  }
+});
+
+document.getElementById("premiumManagerOverlay")?.addEventListener("click",event=>{
+  if(event.target.id==="premiumManagerOverlay"){
+    closePremiumManager();
+  }
+});
 
 loadUnits();
 </script>
