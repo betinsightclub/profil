@@ -5,9 +5,11 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.12-02
+Version: 2026.08.12-03
 
 Änderungen:
+- Profilkarte „Mitgliedschaft“ zeigt automatisch Basis / Premium / Premium Plus
+- Quelle: bestehender Profil-Webhook über USER.mitgliedschaft und USER.mitgliedschaft_level
 - Zentrale Anzeige „Gesamte verfügbare Units“ zeigt immer exakt zwei Nachkommastellen.
   Beispiel: 29,00 / 29,50 / 29,75
 - Kleine Karte „Verfügbare Units“ bleibt kompakt.
@@ -593,6 +595,45 @@ input{
 @media(max-width:390px){
   .account-stat-grid,.account-actions{grid-template-columns:1fr}
 }
+
+.membership-card {
+  position:relative;
+}
+
+.membership-value {
+  color:#3ca8ff;
+  font-size:22px;
+  line-height:1.05;
+}
+
+.membership-note {
+  margin-top:8px;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.35;
+}
+
+.membership-card.membership-premium {
+  border-color:rgba(14,220,166,.30);
+}
+
+.membership-card.membership-premium .membership-value {
+  color:var(--green);
+  text-shadow:0 0 18px rgba(14,220,166,.18);
+}
+
+.membership-card.membership-premiumplus {
+  border-color:rgba(255,171,46,.32);
+  background:
+    radial-gradient(circle at 100% 0%,rgba(255,171,46,.08),transparent 44%),
+    linear-gradient(145deg,rgba(2,21,31,.74),rgba(13,55,69,.52));
+}
+
+.membership-card.membership-premiumplus .membership-value {
+  color:var(--orange);
+  text-shadow:0 0 18px rgba(255,171,46,.17);
+}
+
 </style>
 </head>
 
@@ -706,9 +747,10 @@ input{
             <div id="consumedUnits" class="account-stat-value value-cyan account-private-value">–</div>
           </div>
 
-          <div class="account-stat">
-            <div class="account-stat-label">Profilstatus</div>
-            <div class="account-stat-value value-blue" style="font-size:18px">Aktiv</div>
+          <div class="account-stat membership-card">
+            <div class="account-stat-label">Mitgliedschaft</div>
+            <div id="membershipStatus" class="account-stat-value membership-value account-private-value">Basis</div>
+            <div id="membershipNote" class="membership-note">BetInsight Basis-Zugang</div>
           </div>
         </div>
 
@@ -883,7 +925,9 @@ let currentProfileData = {
   dashboardToken:"",
   refLink:"",
   consumedUnits:null,
-  unlockedTips:0
+  unlockedTips:0,
+  membershipLevel:0,
+  membership:"Basis"
 };
 
 function safeNumber(value){
@@ -906,6 +950,53 @@ function formatUnitsTwoDecimals(value){
     minimumFractionDigits:2,
     maximumFractionDigits:2
   }).format(safeNumber(value));
+}
+
+function normalizeMembership(level, membership){
+  const numericLevel = Number(String(level ?? "0").replace(",", "."));
+  const raw = String(membership || "").trim();
+
+  if(raw === "Premium Plus" || numericLevel >= 2){
+    return {
+      level:2,
+      name:"Premium Plus",
+      note:"BetInsight Premium Plus"
+    };
+  }
+
+  if(raw === "Premium" || numericLevel === 1){
+    return {
+      level:1,
+      name:"Premium",
+      note:"BetInsight Premium"
+    };
+  }
+
+  return {
+    level:0,
+    name:"Basis",
+    note:"BetInsight Basis-Zugang"
+  };
+}
+
+function renderMembership(level, membership){
+  const normalized = normalizeMembership(level, membership);
+  const card = document.querySelector(".membership-card");
+  const value = document.getElementById("membershipStatus");
+  const note = document.getElementById("membershipNote");
+
+  if(!card || !value || !note) return;
+
+  card.classList.remove("membership-premium", "membership-premiumplus");
+
+  if(normalized.level === 1){
+    card.classList.add("membership-premium");
+  }else if(normalized.level >= 2){
+    card.classList.add("membership-premiumplus");
+  }
+
+  value.innerText = normalized.name;
+  note.innerText = normalized.note;
 }
 
 function optionalNumber(value){
@@ -1343,6 +1434,7 @@ function fetchProfileByToken(variants,index){
     document.getElementById("unlockedTips").innerText="0";
     document.getElementById("consumedUnits").innerText="–";
     document.getElementById("email").innerText="Nicht gefunden";
+    renderMembership(0,"Basis");
     showRequestBox();
     return;
   }
@@ -1364,6 +1456,14 @@ function fetchProfileByToken(variants,index){
         "freigeschaltete_tipps","unlocked_tips","unlock_count"
       ],0));
 
+      const membershipLevel = safeNumber(
+        firstDefined(data,["mitgliedschaft_level","membership_level","premium_level"],0)
+      );
+
+      const membership = String(
+        firstDefined(data,["mitgliedschaft","membership"],"Basis")
+      ).trim() || "Basis";
+
       currentProfileData={
         email:data.email||"",
         units:total,
@@ -1371,7 +1471,9 @@ function fetchProfileByToken(variants,index){
         dashboardToken:String(data.dashboard_token||"").trim(),
         refLink:String(data.ref_link||"").trim(),
         consumedUnits:consumed,
-        unlockedTips:unlocked
+        unlockedTips:unlocked,
+        membershipLevel:membershipLevel,
+        membership:membership
       };
 
       saveToken(finalToken);
@@ -1386,6 +1488,8 @@ function fetchProfileByToken(variants,index){
       document.getElementById("unlockedTips").innerText=formatNumber(unlocked);
       document.getElementById("consumedUnits").innerText=formatOptionalNumber(consumed);
       document.getElementById("email").innerText=data.email;
+
+      renderMembership(membershipLevel, membership);
 
       setBetInsightId(data.ref_code);
       setMaskedToken(finalToken);
@@ -1412,6 +1516,7 @@ function loadUnits(){
   document.getElementById("unlockedTips").innerText="0";
   document.getElementById("consumedUnits").innerText="–";
   document.getElementById("email").innerText="Lade...";
+  renderMembership(0,"Basis");
 
   fetchProfileByToken(buildTokenVariants(token),0);
 }
@@ -1491,8 +1596,10 @@ function forgetToken(){
   localStorage.removeItem("betinsight_email");
   currentProfileData={
     email:"",units:0,refCode:"",dashboardToken:"",
-    refLink:"",consumedUnits:null,unlockedTips:0
+    refLink:"",consumedUnits:null,unlockedTips:0,
+    membershipLevel:0,membership:"Basis"
   };
+  renderMembership(0,"Basis");
   showRequestBox();
 }
 
