@@ -2,7 +2,7 @@
 <!--
 Projekt: BetInsight
 Datei auf GitHub: profil/admin/backoffice/index.html
-Version: 2026.08.12-BACKOFFICE-v2.13-STATISTIK-SYNC
+Version: 2026.08.12-BACKOFFICE-v2.14-HALBKREIS-DESIGN-KONSISTENT
 Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro Tipp einer Liefer-LED plus einer Ergebnis-LED, Bonuspunkten für Übererfüllung, Tipp-ID-sicherer Wochenhistorie, getrenntem Testbetrieb, Ergebnisübersicht, Wallet-Zielauswahl und festen Netzwerken.
 -->
 <html lang="de">
@@ -1762,7 +1762,99 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
         transition: none !important;
       }
     }
-  </style>
+  
+    /* ==========================================================
+       v2.14 – BetInsight Halbkreis-Design konsistent
+       Auf Hauptkarten, nicht auf jedem kleinen Zahlenfeld.
+       ========================================================== */
+    .tipster-card,
+    .personal-tipster-card,
+    .tipster-progress-panel,
+    .tipster-analysis-mini,
+    .history-card,
+    .kpi-card,
+    .admin-card,
+    .model-status-card,
+    .distribution-card,
+    .payout-mode-card,
+    .payout-route-card,
+    .test-wallet-card {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .tipster-card::after,
+    .personal-tipster-card::after,
+    .tipster-progress-panel::after,
+    .tipster-analysis-mini::after,
+    .history-card::after,
+    .kpi-card::after,
+    .admin-card::after,
+    .model-status-card::after,
+    .distribution-card::after,
+    .payout-mode-card::after,
+    .payout-route-card::after,
+    .test-wallet-card::after {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      width: 118px;
+      height: 118px;
+      right: -59px;
+      bottom: -59px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 32% 30%,
+          rgba(34, 211, 255, 0.24) 0%,
+          rgba(22, 168, 255, 0.13) 42%,
+          rgba(0, 215, 184, 0.06) 63%,
+          transparent 72%);
+      border: 1px solid rgba(64, 216, 255, 0.13);
+      box-shadow:
+        -16px -16px 38px rgba(0, 196, 255, 0.035),
+        inset 0 0 28px rgba(0, 215, 184, 0.045);
+      pointer-events: none;
+    }
+
+    .tipster-card::before,
+    .personal-tipster-card::before,
+    .tipster-progress-panel::before,
+    .history-card::before {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      width: 72px;
+      height: 118px;
+      left: -42px;
+      top: 28%;
+      border-radius: 0 72px 72px 0;
+      background:
+        linear-gradient(180deg,
+          rgba(23, 194, 255, 0.075),
+          rgba(0, 215, 184, 0.025));
+      border: 1px solid rgba(82, 220, 255, 0.075);
+      border-left: 0;
+      pointer-events: none;
+    }
+
+    .tipster-card > *,
+    .personal-tipster-card > *,
+    .tipster-progress-panel > *,
+    .tipster-analysis-mini > *,
+    .history-card > *,
+    .kpi-card > *,
+    .admin-card > *,
+    .model-status-card > *,
+    .distribution-card > *,
+    .payout-mode-card > *,
+    .payout-route-card > *,
+    .test-wallet-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+</style>
 
   <style>
     .test-wallet-panel {
