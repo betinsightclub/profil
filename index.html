@@ -5,9 +5,16 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.12-05
+Version: 2026.08.12-06
 
 Änderungen:
+- Basis: Upgrade-Buttons für Premium und Premium Plus
+- Premium: Upgrade-Button auf Premium Plus
+- Premium Plus: nur Abo & Verlängerung
+- Info-Panel mit Tarifvorteilen für Desktop und Mobil
+- Premium: 3 Quoten-/Anbieterbuttons + Netzwerkvorteile bis Ebene 6 (Anzeige vorbereitet)
+- Premium Plus: Quotenvergleich bis 5 Anbieter + Netzwerkvorteile bis Ebene 8 (Anzeige vorbereitet)
+- Upgrade-Aktionen noch ohne echten Zahlungsaufruf bis finale Zahlungslinks/Webhooks feststehen
 - Kontostand neu angeordnet: 3 gleich große Kennzahlen oben + Mitgliedschaft volle Breite darunter
 - Premium-Karte horizontal und deutlich ruhiger aufgebaut
 - Abo-/Verlängerungsbutton auf Desktop rechts, mobil sauber untereinander
@@ -1009,6 +1016,145 @@ input{
   }
 }
 
+
+/* v2026.08.12-06 · Mitgliedschaft Upgrades + Info */
+.membership-main-copy{width:100%}
+
+.membership-title-row{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.membership-info-button{
+  flex:0 0 auto;
+  width:31px;
+  height:31px;
+  min-height:31px;
+  padding:0;
+  border:1px solid rgba(125,196,225,.24);
+  border-radius:50%;
+  background:rgba(1,17,25,.52);
+  color:#dff5ff;
+  font-size:15px;
+  font-weight:900;
+  line-height:1;
+  box-shadow:0 8px 18px rgba(0,0,0,.14);
+}
+
+.membership-info-button:hover,
+.membership-info-button.active{
+  border-color:rgba(22,156,255,.48);
+  background:rgba(22,156,255,.12);
+  color:#5db8ff;
+}
+
+.membership-action-area{min-width:0}
+
+.basis-upgrade-box{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+
+.membership-upgrade-button{
+  min-height:48px;
+  border-radius:13px;
+  font-size:12px;
+  font-weight:900;
+  box-shadow:0 10px 24px rgba(0,0,0,.16);
+}
+
+.premium-upgrade{background:linear-gradient(105deg,#079e79,#0ed5a0)}
+.premiumplus-upgrade{background:linear-gradient(105deg,#d98608,#ffb229)}
+
+.premium-runtime-actions{
+  display:grid;
+  gap:9px;
+  min-width:190px;
+}
+
+.premium-runtime-actions .premium-manage-button,
+.premium-runtime-actions .membership-upgrade-button{
+  width:100%;
+  min-width:190px;
+}
+
+.membership-info-panel{
+  grid-column:1 / -1;
+  position:relative;
+  z-index:2;
+  margin-top:2px;
+  padding:16px;
+  border:1px solid rgba(99,184,220,.17);
+  border-radius:15px;
+  background:linear-gradient(145deg,rgba(1,19,29,.92),rgba(7,42,55,.88));
+}
+
+.membership-info-panel[hidden]{display:none}
+
+.membership-info-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+
+.membership-info-tier{
+  padding:15px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:13px;
+  background:rgba(0,0,0,.14);
+}
+
+.premium-info-tier{border-color:rgba(14,220,166,.18)}
+.premiumplus-info-tier{border-color:rgba(255,171,46,.20)}
+
+.membership-info-kicker{
+  font-size:10px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.8px;
+}
+
+.premium-info-tier .membership-info-kicker{color:var(--green)}
+.premiumplus-info-tier .membership-info-kicker{color:var(--orange)}
+
+.membership-info-tier h4{
+  margin:5px 0 10px;
+  font-size:14px;
+}
+
+.membership-info-tier ul{
+  margin:0;
+  padding-left:18px;
+  color:#cde6f2;
+  font-size:11px;
+  line-height:1.55;
+}
+
+.membership-info-tier li + li{margin-top:5px}
+
+.membership-info-note{
+  margin-top:11px;
+  padding-top:11px;
+  border-top:1px solid rgba(255,255,255,.06);
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.45;
+}
+
+@media(max-width:720px){
+  .basis-upgrade-box{grid-template-columns:1fr}
+  .membership-info-grid{grid-template-columns:1fr}
+  .premium-runtime-actions{min-width:0}
+
+  .premium-runtime-actions .premium-manage-button,
+  .premium-runtime-actions .membership-upgrade-button{
+    min-width:0;
+  }
+}
+
 </style>
 </head>
 
@@ -1124,35 +1270,115 @@ input{
 
           <div class="account-stat membership-card">
             <div class="membership-main">
-              <div>
-                <div class="account-stat-label">Mitgliedschaft</div>
-                <div id="membershipStatus" class="account-stat-value membership-value account-private-value">Basis</div>
+              <div class="membership-main-copy">
+                <div class="membership-title-row">
+                  <div>
+                    <div class="account-stat-label">Mitgliedschaft</div>
+                    <div id="membershipStatus" class="account-stat-value membership-value account-private-value">Basis</div>
+                  </div>
+
+                  <button
+                    id="membershipInfoButton"
+                    class="membership-info-button"
+                    type="button"
+                    aria-label="Tarifvorteile anzeigen"
+                    onclick="toggleMembershipInfo(event)"
+                  >?</button>
+                </div>
+
                 <div id="membershipNote" class="membership-note">BetInsight Basis-Zugang</div>
               </div>
             </div>
 
-            <div id="premiumRuntimeBox" class="premium-runtime-box" hidden>
-              <div class="premium-runtime-content">
-                <div class="premium-runtime-topline">
-                  <div id="premiumCountdown" class="premium-countdown">–</div>
-                  <div id="premiumExpiry" class="premium-expiry">Gültig bis: –</div>
-                </div>
+            <div class="membership-action-area">
+              <div id="basisUpgradeBox" class="basis-upgrade-box">
+                <button
+                  id="upgradePremiumButton"
+                  class="membership-upgrade-button premium-upgrade"
+                  type="button"
+                  onclick="startMembershipUpgrade('PREMIUM')"
+                >
+                  ⭐ Auf Premium upgraden
+                </button>
 
-                <div class="premium-progress" aria-hidden="true">
-                  <div id="premiumProgressBar" class="premium-progress-bar"></div>
-                </div>
-
-                <div id="premiumRuntimeMessage" class="premium-runtime-message"></div>
+                <button
+                  id="upgradePremiumPlusButton"
+                  class="membership-upgrade-button premiumplus-upgrade"
+                  type="button"
+                  onclick="startMembershipUpgrade('PREMIUM_PLUS')"
+                >
+                  ✨ Auf Premium Plus upgraden
+                </button>
               </div>
 
-              <button
-                id="premiumManageButton"
-                class="premium-manage-button"
-                type="button"
-                onclick="openPremiumManager()"
-              >
-                🔄 Abo &amp; Verlängerung
-              </button>
+              <div id="premiumRuntimeBox" class="premium-runtime-box" hidden>
+                <div class="premium-runtime-content">
+                  <div class="premium-runtime-topline">
+                    <div id="premiumCountdown" class="premium-countdown">–</div>
+                    <div id="premiumExpiry" class="premium-expiry">Gültig bis: –</div>
+                  </div>
+
+                  <div class="premium-progress" aria-hidden="true">
+                    <div id="premiumProgressBar" class="premium-progress-bar"></div>
+                  </div>
+
+                  <div id="premiumRuntimeMessage" class="premium-runtime-message"></div>
+                </div>
+
+                <div class="premium-runtime-actions">
+                  <button
+                    id="premiumPlusUpgradeButton"
+                    class="membership-upgrade-button premiumplus-upgrade"
+                    type="button"
+                    onclick="startMembershipUpgrade('PREMIUM_PLUS')"
+                    hidden
+                  >
+                    ✨ Auf Premium Plus upgraden
+                  </button>
+
+                  <button
+                    id="premiumManageButton"
+                    class="premium-manage-button"
+                    type="button"
+                    onclick="openPremiumManager()"
+                  >
+                    🔄 Abo &amp; Verlängerung
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div id="membershipInfoPanel" class="membership-info-panel" hidden>
+              <div class="membership-info-grid">
+                <article class="membership-info-tier premium-info-tier">
+                  <div class="membership-info-kicker">Premium</div>
+                  <h4>Mehr Komfort & Netzwerkvorteile</h4>
+                  <ul>
+                    <li>3 direkte Quoten-/Anbieterbuttons bei freigeschalteten Tipps</li>
+                    <li>Direkter Zugriff auf die hinterlegten Anbieterlinks</li>
+                    <li>Premium-Netzwerkvorteile bis zur 6. Ebene</li>
+                    <li>30 Tage Laufzeit je erfolgreicher Verlängerung</li>
+                    <li>Verlängerung aus auszahlbarem Provisionsguthaben vorbereitet</li>
+                  </ul>
+                </article>
+
+                <article class="membership-info-tier premiumplus-info-tier">
+                  <div class="membership-info-kicker">Premium Plus</div>
+                  <h4>Maximaler Komfort & größere Tiefe</h4>
+                  <ul>
+                    <li>Quotenvorschau/-vergleich für bis zu 5 Anbieter</li>
+                    <li>Direkte Anbieter-/Affiliate-Links aus der Vergleichsansicht</li>
+                    <li>Premium-Netzwerkvorteile bis zur 8. Ebene</li>
+                    <li>Alle Premium-Vorteile inklusive</li>
+                    <li>30 Tage Laufzeit je erfolgreicher Verlängerung</li>
+                  </ul>
+                </article>
+              </div>
+
+              <div class="membership-info-note">
+                Gruppenprovisionen entstehen nur nach den jeweils gültigen Premium-Regeln.
+                Geschenktes Premium kann separat von einer Provisionsberechtigung behandelt werden.
+              </div>
             </div>
           </div>
         </div>
@@ -1631,6 +1857,69 @@ function premiumActionNotConnected(type){
     messages[type] || "Diese Funktion wird mit Premium v1.2 verbunden.";
 }
 
+
+function toggleMembershipInfo(event){
+  if(event) event.stopPropagation();
+
+  const panel=document.getElementById("membershipInfoPanel");
+  const button=document.getElementById("membershipInfoButton");
+  if(!panel || !button) return;
+
+  const willOpen=panel.hidden;
+  panel.hidden=!willOpen;
+  button.classList.toggle("active",willOpen);
+}
+
+function closeMembershipInfo(){
+  const panel=document.getElementById("membershipInfoPanel");
+  const button=document.getElementById("membershipInfoButton");
+  if(panel) panel.hidden=true;
+  if(button) button.classList.remove("active");
+}
+
+function startMembershipUpgrade(target){
+  const box=document.getElementById("premiumManagerOverlay");
+  const title=document.getElementById("premiumManagerTitle");
+  const summary=document.getElementById("premiumManagerSummary");
+  const message=document.getElementById("premiumManagerMessage");
+
+  if(!box) return;
+
+  if(target==="PREMIUM_PLUS"){
+    if(title) title.innerText="Upgrade auf Premium Plus";
+    if(summary) summary.innerText="Premium Plus mit erweitertem Quotenvergleich und Netzwerkvorteilen.";
+  }else{
+    if(title) title.innerText="Upgrade auf Premium";
+    if(summary) summary.innerText="Premium mit direkten Quotenbuttons und erweiterten Netzwerkvorteilen.";
+  }
+
+  if(message){
+    message.innerText=
+      "Der Upgrade-Bereich ist vorbereitet. Der echte Zahlungsaufruf wird verbunden, sobald die finalen Premium-Zahlungslinks bzw. Webhooks feststehen.";
+  }
+
+  box.hidden=false;
+}
+
+function renderMembershipActions(level){
+  const basisBox=document.getElementById("basisUpgradeBox");
+  const premiumRuntime=document.getElementById("premiumRuntimeBox");
+  const premiumPlusUpgrade=document.getElementById("premiumPlusUpgradeButton");
+
+  if(!basisBox || !premiumRuntime || !premiumPlusUpgrade) return;
+
+  if(level===0){
+    basisBox.hidden=false;
+    premiumRuntime.hidden=true;
+    premiumPlusUpgrade.hidden=true;
+    return;
+  }
+
+  basisBox.hidden=true;
+  premiumRuntime.hidden=false;
+  premiumPlusUpgrade.hidden=(level!==1);
+}
+
 function renderMembership(level, membership){
   const normalized = normalizeMembership(level, membership);
   const card = document.querySelector(".membership-card");
@@ -1650,6 +1939,7 @@ function renderMembership(level, membership){
   value.innerText = normalized.name;
   note.innerText = normalized.note;
 
+  renderMembershipActions(normalized.level);
   renderPremiumRuntime();
 }
 
@@ -2299,7 +2589,18 @@ function forgetToken(){
 document.addEventListener("keydown",event=>{
   if(event.key==="Escape"){
     closePremiumManager();
+    closeMembershipInfo();
   }
+});
+
+document.addEventListener("click",event=>{
+  const panel=document.getElementById("membershipInfoPanel");
+  const button=document.getElementById("membershipInfoButton");
+
+  if(!panel || panel.hidden) return;
+  if(panel.contains(event.target) || button?.contains(event.target)) return;
+
+  closeMembershipInfo();
 });
 
 document.getElementById("premiumManagerOverlay")?.addEventListener("click",event=>{
