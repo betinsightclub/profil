@@ -5,9 +5,13 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.12-04
+Version: 2026.08.12-05
 
 Änderungen:
+- Kontostand neu angeordnet: 3 gleich große Kennzahlen oben + Mitgliedschaft volle Breite darunter
+- Premium-Karte horizontal und deutlich ruhiger aufgebaut
+- Abo-/Verlängerungsbutton auf Desktop rechts, mobil sauber untereinander
+- Basis bleibt ohne Timer und ohne Abo-Button
 - Premium/Premium Plus: Live-Countdown bis Ablauf vorbereitet
 - 5-Tage-Warnphase und 5-Tage-Kulanzanzeige vorbereitet
 - Abo-/Verlängerungsbutton nur bei Premium/Premium Plus
@@ -313,7 +317,7 @@ button{border:0}
 
 .account-stat-grid{
   display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-columns:repeat(3,minmax(0,1fr));
   gap:12px;
 }
 
@@ -833,6 +837,178 @@ input{
   }
 }
 
+
+/* v2026.08.12-05 · ruhige 3+1-Kartenstruktur */
+.account-stat-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+
+.account-stat{
+  min-height:110px;
+}
+
+.membership-card{
+  grid-column:1 / -1;
+  min-height:126px;
+  display:grid;
+  grid-template-columns:minmax(180px,.72fr) minmax(0,2.28fr);
+  gap:22px;
+  align-items:center;
+  padding:18px 20px;
+}
+
+.membership-card::after{
+  width:120px;
+  height:120px;
+  right:-46px;
+  bottom:-62px;
+}
+
+.membership-main{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  min-width:0;
+  height:100%;
+  padding-right:20px;
+  border-right:1px solid rgba(255,255,255,.08);
+}
+
+.membership-value{
+  margin-top:8px;
+  font-size:26px;
+}
+
+.membership-note{
+  margin-top:6px;
+  font-size:11px;
+}
+
+.premium-runtime-box{
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:18px;
+  align-items:center;
+  margin-top:0;
+}
+
+.premium-runtime-box[hidden]{
+  display:none;
+}
+
+.premium-runtime-content{
+  min-width:0;
+}
+
+.premium-runtime-topline{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+}
+
+.premium-countdown{
+  font-size:15px;
+}
+
+.premium-expiry{
+  margin-top:0;
+  flex:0 0 auto;
+  text-align:right;
+  font-size:10px;
+}
+
+.premium-progress{
+  height:8px;
+  margin-top:10px;
+}
+
+.premium-runtime-message{
+  margin-top:7px;
+  min-height:0;
+  font-size:10px;
+}
+
+.premium-manage-button{
+  width:auto;
+  min-width:190px;
+  margin-top:0;
+  min-height:46px;
+  padding:10px 16px;
+  border-radius:12px;
+  white-space:nowrap;
+  background:linear-gradient(105deg,#637e91,#7894a6);
+  box-shadow:0 10px 24px rgba(0,0,0,.16);
+}
+
+.membership-card.membership-premium .premium-manage-button{
+  background:linear-gradient(105deg,#0a9b79,#0ed5a0);
+}
+
+.membership-card.membership-premiumplus .premium-manage-button{
+  background:linear-gradient(105deg,#d98608,#ffb229);
+}
+
+@media(max-width:980px){
+  .account-stat-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .account-stat:nth-child(3){
+    grid-column:1 / -1;
+  }
+
+  .membership-card{
+    grid-column:1 / -1;
+  }
+}
+
+@media(max-width:720px){
+  .account-stat-grid{
+    grid-template-columns:1fr;
+  }
+
+  .account-stat:nth-child(3),
+  .membership-card{
+    grid-column:auto;
+  }
+
+  .membership-card{
+    grid-template-columns:1fr;
+    gap:14px;
+  }
+
+  .membership-main{
+    padding-right:0;
+    padding-bottom:13px;
+    border-right:0;
+    border-bottom:1px solid rgba(255,255,255,.08);
+  }
+
+  .premium-runtime-box{
+    grid-template-columns:1fr;
+    gap:12px;
+  }
+
+  .premium-runtime-topline{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:5px;
+  }
+
+  .premium-expiry{
+    text-align:left;
+  }
+
+  .premium-manage-button{
+    width:100%;
+    min-width:0;
+  }
+}
+
 </style>
 </head>
 
@@ -947,19 +1123,27 @@ input{
           </div>
 
           <div class="account-stat membership-card">
-            <div class="account-stat-label">Mitgliedschaft</div>
-            <div id="membershipStatus" class="account-stat-value membership-value account-private-value">Basis</div>
-            <div id="membershipNote" class="membership-note">BetInsight Basis-Zugang</div>
+            <div class="membership-main">
+              <div>
+                <div class="account-stat-label">Mitgliedschaft</div>
+                <div id="membershipStatus" class="account-stat-value membership-value account-private-value">Basis</div>
+                <div id="membershipNote" class="membership-note">BetInsight Basis-Zugang</div>
+              </div>
+            </div>
 
             <div id="premiumRuntimeBox" class="premium-runtime-box" hidden>
-              <div id="premiumCountdown" class="premium-countdown">–</div>
+              <div class="premium-runtime-content">
+                <div class="premium-runtime-topline">
+                  <div id="premiumCountdown" class="premium-countdown">–</div>
+                  <div id="premiumExpiry" class="premium-expiry">Gültig bis: –</div>
+                </div>
 
-              <div class="premium-progress" aria-hidden="true">
-                <div id="premiumProgressBar" class="premium-progress-bar"></div>
+                <div class="premium-progress" aria-hidden="true">
+                  <div id="premiumProgressBar" class="premium-progress-bar"></div>
+                </div>
+
+                <div id="premiumRuntimeMessage" class="premium-runtime-message"></div>
               </div>
-
-              <div id="premiumExpiry" class="premium-expiry">Gültig bis: –</div>
-              <div id="premiumRuntimeMessage" class="premium-runtime-message"></div>
 
               <button
                 id="premiumManageButton"
