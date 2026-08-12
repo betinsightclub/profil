@@ -2,10 +2,9 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
- <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
+<link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BetInsight – Freigeschaltete Tipps</title>
-
 <style>
   * { box-sizing: border-box; }
 
@@ -14,9 +13,10 @@
     background:
       radial-gradient(circle at top, rgba(0, 200, 255, 0.10), transparent 35%),
       linear-gradient(180deg, #061923 0%, #071d2b 45%, #04131c 100%);
-    color: white;
+    color: #fff;
     font-family: Arial, sans-serif;
     text-align: center;
+    min-height: 100vh;
   }
 
   .floating-back-btn {
@@ -29,14 +29,14 @@
     justify-content: center;
     gap: 8px;
     background: linear-gradient(90deg, #16a8ff, #00c8ff);
-    color: #ffffff;
+    color: #fff;
     border: 1px solid rgba(255,255,255,0.18);
     border-radius: 999px;
     padding: 13px 20px;
     text-decoration: none;
     font-size: 15px;
     font-weight: 700;
-    box-shadow: 0 12px 30px rgba(0, 174, 255, 0.35);
+    box-shadow: 0 12px 30px rgba(0,174,255,0.35);
   }
 
   .page {
@@ -52,25 +52,13 @@
     margin: 8px 0 24px;
   }
 
-  h1 {
-    margin: 8px 0 8px;
-    font-size: 34px;
-  }
-
-  .subtitle {
-    color: #b8d7e8;
-    margin-bottom: 34px;
-    font-size: 16px;
-  }
-
-  .status {
-    color: #8fd3ff;
-    margin: 25px 0;
-  }
+  h1 { margin: 8px 0; font-size: 34px; }
+  .subtitle { color: #b8d7e8; margin-bottom: 34px; font-size: 16px; }
+  .status { color: #8fd3ff; margin: 25px 0; }
 
   .tips-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 18px;
     align-items: start;
   }
@@ -78,14 +66,11 @@
   .tip-card {
     position: relative;
     overflow: hidden;
-    background:
-      linear-gradient(180deg, rgba(16, 72, 91, 0.98), rgba(9, 51, 68, 0.98));
-    border: 1px solid rgba(35, 190, 255, 0.48);
+    background: linear-gradient(180deg, rgba(16,72,91,.98), rgba(9,51,68,.98));
+    border: 1px solid rgba(35,190,255,.48);
     border-radius: 18px;
     padding: 20px 18px;
-    box-shadow:
-      0 14px 32px rgba(0,0,0,0.34),
-      inset 0 1px 0 rgba(255,255,255,0.06);
+    box-shadow: 0 14px 32px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.06);
     width: 100%;
     text-align: left;
   }
@@ -94,30 +79,21 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at top right, rgba(0, 200, 255, 0.13), transparent 35%);
+    background: radial-gradient(circle at top right, rgba(0,200,255,.13), transparent 35%);
     pointer-events: none;
   }
 
-  .tip-inner {
-    position: relative;
-    z-index: 1;
-  }
+  .tip-inner { position: relative; z-index: 1; }
 
   .badge {
     display: inline-block;
-    background: rgba(0, 255, 180, 0.14);
-    border: 1px solid rgba(0, 255, 180, 0.35);
+    background: rgba(0,255,180,.14);
+    border: 1px solid rgba(0,255,180,.35);
     color: #bfffe8;
     border-radius: 999px;
     padding: 5px 10px;
     font-size: 12px;
     margin-bottom: 12px;
-  }
-
-  .missing-badge {
-    background: rgba(255, 179, 71, 0.14);
-    border-color: rgba(255, 179, 71, 0.45);
-    color: #ffd08a;
   }
 
   .tip-card h2 {
@@ -134,27 +110,82 @@
     gap: 8px;
     color: #e4f7ff;
     font-size: 12px;
-    border-top: 1px solid rgba(255,255,255,0.08);
+    border-top: 1px solid rgba(255,255,255,.08);
     border-bottom: 2px solid #19c8f5;
     padding: 12px 0;
     margin-bottom: 16px;
   }
 
   .meta-item {
-    background: rgba(255,255,255,0.04);
+    background: rgba(255,255,255,.04);
     border-radius: 9px;
     padding: 6px 8px;
   }
 
-  .detail-row {
-    margin: 8px 0;
-    line-height: 1.45;
-    font-size: 14px;
+  .detail-row { margin: 8px 0; line-height: 1.45; font-size: 14px; }
+
+  .result-panel {
+    margin: 16px 0 4px;
+    padding: 13px 12px;
+    border-radius: 13px;
+    background: rgba(3,31,44,.58);
+    border: 1px solid rgba(117,206,245,.18);
   }
+
+  .result-led-line {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 7px 0;
+  }
+
+  .result-led {
+    width: 15px;
+    height: 15px;
+    flex: 0 0 15px;
+    border-radius: 50%;
+    border: 1px solid rgba(149,220,255,.24);
+    background: #082938;
+    box-shadow: inset 0 0 4px rgba(0,0,0,.55);
+  }
+
+  .result-led.delivered {
+    background: #27bfff;
+    border-color: #9be5ff;
+    box-shadow: 0 0 12px rgba(39,191,255,.75);
+  }
+
+  .result-led.won {
+    background: #4fe0a4;
+    border-color: #b9ffe1;
+    box-shadow: 0 0 12px rgba(79,224,164,.78);
+  }
+
+  .result-led.lost {
+    background: #ff6672;
+    border-color: #ffc0c5;
+    box-shadow: 0 0 12px rgba(255,102,114,.76);
+  }
+
+  .result-led.void {
+    background: #ffca57;
+    border-color: #ffe7a4;
+    box-shadow: 0 0 12px rgba(255,202,87,.76);
+  }
+
+  .result-led.cancelled {
+    background: #ff9f43;
+    border-color: #ffd0a4;
+    box-shadow: 0 0 12px rgba(255,159,67,.76);
+  }
+
+  .result-led-text { font-size: 13px; color: #d8f4ff; line-height: 1.35; }
+  .result-led-text strong { color: #fff; }
+  .result-note { margin-top: 5px; color: #93b8ca; font-size: 11px; }
 
   details {
     margin-top: 16px;
-    border-top: 1px solid rgba(255,255,255,0.14);
+    border-top: 1px solid rgba(255,255,255,.14);
     padding-top: 14px;
   }
 
@@ -165,9 +196,7 @@
     list-style: none;
   }
 
-  summary::-webkit-details-marker {
-    display: none;
-  }
+  summary::-webkit-details-marker { display: none; }
 
   .analysis-text {
     margin-top: 14px;
@@ -177,62 +206,26 @@
     color: #e8f8ff;
   }
 
-  .empty,
-  .error {
+  .empty, .error {
     max-width: 790px;
     margin: 0 auto;
     border-radius: 18px;
     padding: 24px;
   }
 
-  .empty {
-    background: #0f3040;
-    color: #c9e8f5;
-  }
+  .empty { background: #0f3040; color: #c9e8f5; }
+  .error { background: #3d1e25; color: #ffd7d7; border: 1px solid #ff6b6b; white-space: pre-wrap; text-align: left; }
 
-  .error {
-    background: #3d1e25;
-    color: #ffd7d7;
-    border: 1px solid #ff6b6b;
-    white-space: pre-wrap;
-    text-align: left;
-  }
-
-  @media (max-width: 1100px) {
-    .tips-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-
-  @media (max-width: 820px) {
-    .tips-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
+  @media (max-width: 1100px) { .tips-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 820px) { .tips-grid { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 600px) {
-    .floating-back-btn {
-      left: 12px;
-      right: 12px;
-      bottom: 12px;
-      width: auto;
-    }
-
-    .page {
-      padding: 28px 14px 95px;
-    }
-
-    h1 {
-      font-size: 27px;
-    }
-
-    .tips-grid {
-      grid-template-columns: 1fr;
-    }
+    .floating-back-btn { left: 12px; right: 12px; bottom: 12px; width: auto; }
+    .page { padding: 28px 14px 95px; }
+    h1 { font-size: 27px; }
+    .tips-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
-
 <body>
 
 <a class="floating-back-btn" href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726">
@@ -241,25 +234,24 @@
 
 <div class="page">
   <img src="../logo_betisight.club.png" alt="BetInsight Club" class="logo">
-
   <h1>✅ Freigeschaltete Tipps</h1>
-  <p class="subtitle">Hier findest du alle Tipps, die du bereits freigeschaltet hast.</p>
+  <p class="subtitle">Deine freigeschalteten Tipps und – sobald vom Master bestätigt – das jeweilige Ergebnis.</p>
 
   <div id="status" class="status">Freigeschaltete Tipps werden geladen...</div>
   <div id="tips" class="tips-grid"></div>
 </div>
 
 <script>
+"use strict";
+
 const FREIGESCHALTETE_TIPPS_WEBHOOK = "https://hook.eu1.make.com/7q3edcra1gwxd7vvklv4l7gdxn7zbihr";
 
 function getToken() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get("token") || "";
+  return new URLSearchParams(window.location.search).get("token") || "";
 }
 
 function safeText(value, fallback = "-") {
-  if (value === null || value === undefined || value === "") return fallback;
-  return String(value);
+  return value === null || value === undefined || value === "" ? fallback : String(value);
 }
 
 function escapeHtml(value) {
@@ -273,12 +265,8 @@ function escapeHtml(value) {
 
 function formatFreischaltDatum(value) {
   if (!value) return "-";
-
   const d = new Date(value);
-
-  if (isNaN(d.getTime())) {
-    return escapeHtml(value);
-  }
+  if (Number.isNaN(d.getTime())) return escapeHtml(value);
 
   const datum =
     String(d.getDate()).padStart(2, "0") + "." +
@@ -292,17 +280,34 @@ function formatFreischaltDatum(value) {
   return datum + "<br>" + uhrzeit + " Uhr";
 }
 
+function formatResultDate(value) {
+  if (!value) return "";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return escapeHtml(value);
+  return String(d.getDate()).padStart(2, "0") + "." +
+    String(d.getMonth() + 1).padStart(2, "0") + "." +
+    d.getFullYear() + " " +
+    String(d.getHours()).padStart(2, "0") + ":" +
+    String(d.getMinutes()).padStart(2, "0");
+}
+
 function parseWebhookJson(rawText) {
   let cleaned = String(rawText).replace(/^\uFEFF/, "").trim();
-
   const firstBracket = cleaned.indexOf("[");
   const lastBracket = cleaned.lastIndexOf("]");
-
-  if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
+  if (firstBracket !== -1 && lastBracket > firstBracket) {
     cleaned = cleaned.substring(firstBracket, lastBracket + 1).trim();
   }
-
   return JSON.parse(cleaned);
+}
+
+function canonicalResult(value) {
+  const s = String(value || "").trim().toUpperCase();
+  if (["GEWONNEN", "WON", "WIN"].includes(s)) return "GEWONNEN";
+  if (["VERLOREN", "LOST", "LOSS"].includes(s)) return "VERLOREN";
+  if (["VOID", "STORNIERT", "PUSH", "REFUND"].includes(s)) return "VOID";
+  if (["ABGESAGT", "ABGEBROCHEN", "CANCELLED", "CANCELED"].includes(s)) return "ABGESAGT";
+  return "";
 }
 
 function normalizeTip(item) {
@@ -318,36 +323,69 @@ function normalizeTip(item) {
     markt: item.markt ?? item["12"],
     spiel_datum: item.spiel_datum ?? item["13"],
     anpfiff: item.anpfiff ?? item["14"],
-    analyse: item.analyse ?? item["15"]
+    analyse: item.analyse ?? item["15"],
+    ergebnis_status: canonicalResult(item.ergebnis_status_bestaetigt ?? item["25"]),
+    ergebnis_bestaetigt_am: item.ergebnis_bestaetigt_am ?? item["26"],
+    ergebnis_nachweis_url: item.ergebnis_nachweis_url ?? item["27"]
   };
 }
 
 function parseDateForSorting(value) {
   if (!value) return 0;
-
   const date = new Date(value);
-  if (!isNaN(date.getTime())) return date.getTime();
-
+  if (!Number.isNaN(date.getTime())) return date.getTime();
   const parts = String(value).match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
-  if (parts) {
-    return new Date(parts[3], parts[2] - 1, parts[1]).getTime();
-  }
+  return parts ? new Date(parts[3], parts[2] - 1, parts[1]).getTime() : 0;
+}
 
-  return 0;
+function resultPanelHtml(tipp) {
+  const status = tipp.ergebnis_status;
+  let ledClass = "";
+  let label = "Ergebnis noch nicht bestätigt";
+
+  if (status === "GEWONNEN") { ledClass = "won"; label = "Gewonnen"; }
+  if (status === "VERLOREN") { ledClass = "lost"; label = "Verloren"; }
+  if (status === "VOID") { ledClass = "void"; label = "Void / storniert"; }
+  if (status === "ABGESAGT") { ledClass = "cancelled"; label = "Abgesagt"; }
+
+  const confirmed = Boolean(status);
+  return `
+    <div class="result-panel">
+      <div class="result-led-line">
+        <span class="result-led delivered" aria-hidden="true"></span>
+        <span class="result-led-text"><strong>Tipp freigeschaltet</strong></span>
+      </div>
+      <div class="result-led-line">
+        <span class="result-led ${confirmed ? ledClass : ""}" aria-hidden="true"></span>
+        <span class="result-led-text">${
+          confirmed
+            ? `<strong>Ergebnis: ${escapeHtml(label)}</strong>`
+            : `Ergebnis wird erst nach Bestätigung durch BetInsight angezeigt.`
+        }</span>
+      </div>
+      ${
+        confirmed && tipp.ergebnis_bestaetigt_am
+          ? `<div class="result-note">Bestätigt: ${formatResultDate(tipp.ergebnis_bestaetigt_am)}</div>`
+          : ""
+      }
+      ${
+        confirmed && tipp.ergebnis_nachweis_url
+          ? `<div class="result-note"><a href="${escapeHtml(tipp.ergebnis_nachweis_url)}" target="_blank" rel="noopener" style="color:#8fdcff">Ergebnisnachweis öffnen</a></div>`
+          : ""
+      }
+    </div>
+  `;
 }
 
 function createTipCard(tipp) {
   const card = document.createElement("div");
   card.className = "tip-card";
 
-  const hasFullData = Boolean(tipp.spiel || tipp.tipp || tipp.analyse);
-  const title = tipp.spiel || "Alter freigeschalteter Tipp";
-  const badgeClass = hasFullData ? "badge" : "badge missing-badge";
-  const badgeText = hasFullData ? "✅ Freigeschaltet" : "⚠️ Details fehlen";
+  const title = tipp.spiel || "Freigeschalteter Tipp";
 
   card.innerHTML = `
     <div class="tip-inner">
-      <div class="${badgeClass}">${badgeText}</div>
+      <div class="badge">✅ Freigeschaltet</div>
 
       <h2>${escapeHtml(title)}</h2>
 
@@ -364,11 +402,11 @@ function createTipCard(tipp) {
       <p class="detail-row"><strong>Ersteller:</strong> ${escapeHtml(tipp.ersteller)}</p>
       <p class="detail-row"><strong>Freigeschaltet am:</strong><br>${formatFreischaltDatum(tipp.datum)}</p>
 
+      ${resultPanelHtml(tipp)}
+
       <details>
         <summary>Analyse anzeigen</summary>
-        <div class="analysis-text">
-${escapeHtml(tipp.analyse || "Für diesen älteren Eintrag wurden noch keine Detaildaten gespeichert.")}
-        </div>
+        <div class="analysis-text">${escapeHtml(tipp.analyse || "Für diesen Eintrag liegt keine Analyse vor.")}</div>
       </details>
     </div>
   `;
@@ -383,27 +421,16 @@ async function loadFreigeschalteteTipps() {
 
   if (!token) {
     statusBox.style.display = "none";
-    tipsBox.innerHTML = `
-      <div class="error">
-Kein Token gefunden.
-
-Bitte öffne diese Seite über deinen persönlichen BetInsight-Link.
-      </div>
-    `;
+    tipsBox.innerHTML = '<div class="error">Kein Token gefunden.<br><br>Bitte öffne diese Seite über deinen persönlichen BetInsight-Link.</div>';
     return;
   }
 
   try {
-    const url =
-      FREIGESCHALTETE_TIPPS_WEBHOOK +
+    const url = FREIGESCHALTETE_TIPPS_WEBHOOK +
       "?token=" + encodeURIComponent(token) +
       "&cachebuster=" + Date.now();
 
-    const response = await fetch(url, {
-      method: "GET",
-      cache: "no-store"
-    });
-
+    const response = await fetch(url, { method: "GET", cache: "no-store" });
     const rawText = await response.text();
 
     if (!response.ok) {
@@ -416,11 +443,7 @@ Bitte öffne diese Seite über deinen persönlichen BetInsight-Link.
     tipsBox.innerHTML = "";
 
     if (!Array.isArray(rawTipps) || rawTipps.length === 0) {
-      tipsBox.innerHTML = `
-        <div class="empty">
-          Du hast bisher noch keine Tipps freigeschaltet.
-        </div>
-      `;
+      tipsBox.innerHTML = '<div class="empty">Du hast bisher noch keine Tipps freigeschaltet.</div>';
       return;
     }
 
@@ -431,28 +454,18 @@ Bitte öffne diese Seite über deinen persönlichen BetInsight-Link.
       return index === alle.findIndex(eintrag => eintrag.tipp_id === tipp.tipp_id);
     });
 
-    const tipps = eindeutigeTipps
-      .sort((a, b) => parseDateForSorting(b.datum) - parseDateForSorting(a.datum));
-
-    tipps.forEach(tipp => {
-      tipsBox.appendChild(createTipCard(tipp));
-    });
+    eindeutigeTipps
+      .sort((a, b) => parseDateForSorting(b.datum) - parseDateForSorting(a.datum))
+      .forEach(tipp => tipsBox.appendChild(createTipCard(tipp)));
 
   } catch (error) {
     statusBox.style.display = "none";
-    tipsBox.innerHTML = `
-      <div class="error">
-Fehler beim Laden deiner freigeschalteten Tipps:
-
-${escapeHtml(error.message)}
-      </div>
-    `;
+    tipsBox.innerHTML = '<div class="error">Fehler beim Laden deiner freigeschalteten Tipps:<br><br>' + escapeHtml(error.message) + '</div>';
     console.error(error);
   }
 }
 
 loadFreigeschalteteTipps();
 </script>
-
 </body>
 </html>
