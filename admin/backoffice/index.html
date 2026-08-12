@@ -2,7 +2,7 @@
 <!--
 Projekt: BetInsight
 Datei auf GitHub: profil/admin/backoffice/index.html
-Version: 2026.08.12-BACKOFFICE-v2.12-ERGEBNIS-BUTTONS-FINAL
+Version: 2026.08.12-BACKOFFICE-v2.13-STATISTIK-SYNC
 Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro Tipp einer Liefer-LED plus einer Ergebnis-LED, Bonuspunkten für Übererfüllung, Tipp-ID-sicherer Wochenhistorie, getrenntem Testbetrieb, Ergebnisübersicht, Wallet-Zielauswahl und festen Netzwerken.
 -->
 <html lang="de">
@@ -1399,6 +1399,64 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       margin-top: 14px;
     }
 
+    .tipster-analysis-mini {
+      margin-top: 12px;
+      border: 1px solid rgba(103, 203, 255, 0.22);
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(3, 30, 43, 0.46);
+    }
+
+    .tipster-analysis-title {
+      padding: 9px 11px;
+      font-size: 12px;
+      font-weight: 800;
+      color: #d9f5ff;
+      border-bottom: 1px solid rgba(185, 216, 232, 0.12);
+    }
+
+    .tipster-analysis-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 11px;
+    }
+
+    .tipster-analysis-table th,
+    .tipster-analysis-table td {
+      padding: 8px 7px;
+      text-align: center;
+      border-right: 1px solid rgba(185, 216, 232, 0.08);
+      border-bottom: 1px solid rgba(185, 216, 232, 0.08);
+    }
+
+    .tipster-analysis-table th:first-child,
+    .tipster-analysis-table td:first-child {
+      text-align: left;
+      width: 24%;
+    }
+
+    .tipster-analysis-table th {
+      color: #9edbf5;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+      font-weight: 700;
+    }
+
+    .tipster-analysis-table tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .tipster-analysis-table th:last-child,
+    .tipster-analysis-table td:last-child {
+      border-right: 0;
+    }
+
+    .tipster-analysis-win { color: #86f0c4; font-weight: 800; }
+    .tipster-analysis-loss { color: #ffabb1; font-weight: 800; }
+    .tipster-analysis-rate { color: #ffffff; font-weight: 800; }
+
     .tipster-factor-preview .factor-item {
       padding: 11px;
     }
@@ -1953,6 +2011,8 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
               <span>Bonuspunkte Woche: <strong id="selfWeekBonus">0</strong></span>
             </div>
           </div>
+
+          <div id="selfTipsterAnalysis"></div>
 
           <div class="tipster-factor-preview">
             <div class="factor-item"><div class="factor-label">Grundanteil fest</div><div class="factor-value" id="selfBaseShare">10 %</div></div>
@@ -3216,6 +3276,89 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       }) || null;
     }
 
+    function monthKeyFromTipDate(value) {
+      const s = String(value || "").trim();
+      if (!s) return "";
+      let m = s.match(/^(\d{4})-(\d{2})/);
+      if (m) return m[1] + "-" + m[2];
+      m = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+      if (m) return m[3] + "-" + String(Number(m[2])).padStart(2, "0");
+      const d = new Date(s);
+      if (!Number.isNaN(d.getTime())) {
+        return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+      }
+      return "";
+    }
+
+    function currentMonthKey() {
+      const d = new Date();
+      return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+    }
+
+    function realTipItemsForAdmin(adminId) {
+      const aid = normalizeText(adminId);
+      return latestTipsterTipResults.filter(function (item) {
+        return item && !item.display_only && item.admin_id === aid;
+      });
+    }
+
+    function resultStatsForItems(items, deliveredFallback) {
+      const real = (Array.isArray(items) ? items : []).filter(function (item) {
+        return item && !item.display_only;
+      });
+      const won = real.filter(function (item) { return item.result_status === "GEWONNEN"; }).length;
+      const lost = real.filter(function (item) { return item.result_status === "VERLOREN"; }).length;
+      const decided = won + lost;
+      const rate = decided > 0 ? (won / decided * 100) : null;
+      const tips = deliveredFallback === undefined || deliveredFallback === null
+        ? real.length
+        : Math.max(Math.floor(num(deliveredFallback)), real.length);
+      return { tips: tips, won: won, lost: lost, rate: rate };
+    }
+
+    function monthlyResultStatsForAdmin(adminId) {
+      const key = currentMonthKey();
+      const items = realTipItemsForAdmin(adminId).filter(function (item) {
+        return monthKeyFromTipDate(item.published_at || item.event_at) === key;
+      });
+      return resultStatsForItems(items);
+    }
+
+    function compactTipsterAnalysisHtml(adminId, runningWeek, weekCount) {
+      const weekItems = runningWeek ? tipItemsFor(adminId, runningWeek) : [];
+      const weekStats = resultStatsForItems(weekItems, weekCount);
+      const totalStats = resultStatsForItems(realTipItemsForAdmin(adminId));
+
+      function rateText(rate) {
+        return rate === null ? "–" : formatNumber(rate, 1) + " %";
+      }
+
+      return '<div class="tipster-analysis-mini">' +
+        '<div class="tipster-analysis-title">Kurz-Analyse</div>' +
+        '<table class="tipster-analysis-table" aria-label="Tippgeber Kurz-Analyse">' +
+          '<thead><tr>' +
+            '<th>Zeitraum</th><th>Tipps</th><th>Gewonnen</th><th>Verloren</th><th>Trefferquote</th>' +
+          '</tr></thead>' +
+          '<tbody>' +
+            '<tr>' +
+              '<td>Diese Woche</td>' +
+              '<td><strong>' + weekStats.tips + '</strong></td>' +
+              '<td class="tipster-analysis-win">' + weekStats.won + '</td>' +
+              '<td class="tipster-analysis-loss">' + weekStats.lost + '</td>' +
+              '<td class="tipster-analysis-rate">' + rateText(weekStats.rate) + '</td>' +
+            '</tr>' +
+            '<tr>' +
+              '<td>Gesamt</td>' +
+              '<td><strong>' + totalStats.tips + '</strong></td>' +
+              '<td class="tipster-analysis-win">' + totalStats.won + '</td>' +
+              '<td class="tipster-analysis-loss">' + totalStats.lost + '</td>' +
+              '<td class="tipster-analysis-rate">' + rateText(totalStats.rate) + '</td>' +
+            '</tr>' +
+          '</tbody>' +
+        '</table>' +
+      '</div>';
+    }
+
     function resultSummaryHtml(tipItems, deliveredCount) {
       const items = (Array.isArray(tipItems) ? tipItems : []).filter(function (x) { return !x.display_only; });
       const won = items.filter(function (x) { return x.result_status === "GEWONNEN"; }).length;
@@ -4038,6 +4181,11 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       const selfTipItems = selfRunningWeek ? tipItemsFor(selfRunningWeek.admin_id, selfRunningWeek.week) : [];
       document.getElementById("selfLedRail").innerHTML = renderLedRail(weekCount, minTarget, maxTarget, selfTipItems);
       document.getElementById("selfResultSummary").innerHTML = resultSummaryHtml(selfTipItems, weekCount);
+      document.getElementById("selfTipsterAnalysis").innerHTML = compactTipsterAnalysisHtml(
+        selfRunningWeek ? selfRunningWeek.admin_id : normalizeText(firstDefined(item, ["admin_id", "tippgeber_id"], "")),
+        selfRunningWeek ? selfRunningWeek.week : "",
+        weekCount
+      );
       document.getElementById("selfWeekCount").textContent = formatNumber(weekCount, 0) + " Tipps";
       document.getElementById("selfMinTarget").textContent = formatNumber(minTarget, 0);
       document.getElementById("selfMaxTarget").textContent = formatNumber(maxTarget, 0);
@@ -4073,9 +4221,10 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
         const ruleVersion = normalizeText(firstDefined(rawTipster, ["regelversion", "rule_version"], "NORMAL-10-10-10-v1"));
         const note = normalizeText(firstDefined(rawTipster, ["tippgeber_bemerkung", "note"]));
         const weekCount = num(firstDefined(rawTipster, ["week_count", "week_tip_count", "gueltige_tipps_woche", "tipps_woche"], 0));
-        const monthWins = num(firstDefined(rawTipster, ["month_wins", "gewonnen_monat", "gewonnen"], 0));
-        const monthLosses = num(firstDefined(rawTipster, ["month_losses", "verloren_monat", "verloren"], 0));
-        const hitRate = firstDefined(rawTipster, ["hit_rate_pct", "trefferquote_pct"], "–");
+        const liveMonthStats = monthlyResultStatsForAdmin(adminId);
+        const monthWins = liveMonthStats.won;
+        const monthLosses = liveMonthStats.lost;
+        const hitRate = liveMonthStats.rate === null ? "–" : liveMonthStats.rate;
         const baseShare = num(firstDefined(rawTipster, ["grundanteil_pct", "base_share_pct"], 10));
         const quantityMax = num(firstDefined(rawTipster, ["quantity_share_max_pct", "mengenanteil_max_pct"], 10));
         const qualityMax = num(firstDefined(rawTipster, ["quality_share_max_pct", "qualitaetsanteil_max_pct"], 10));
@@ -4127,6 +4276,8 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
               <span>Systemfaktor Menge: <strong data-output="quantity-system-factor">${formatNumber(quantitySystemFactor, 0)} %</strong></span>
             </div>
           </div>
+
+          ${compactTipsterAnalysisHtml(adminId, runningHistory ? runningHistory.week : "", weekCount)}
 
           <div class="tipster-factor-preview">
             <div class="factor-item"><div class="factor-label">Grundanteil fest</div><div class="factor-value">${formatNumber(baseShare, 0)} %</div></div>
