@@ -1,7 +1,15 @@
 <!DOCTYPE html>
 <!--
+GitHub-Ziel: betinsightclub/profil/tipps/index.html
+Live-Seite: https://betinsightclub.github.io/profil/tipps/
+
+WICHTIG:
+Diese Datei ersetzt die dort vorhandene index.html vollständig.
+-->
+
+<!--
 BetInsight Tipps
-Version: 2026.08.12-04
+Version: 2026.08.12-07
 
 - Offene veröffentlichte Tipps oben.
 - Vom Master bestätigte Ergebnisse automatisch unten.
@@ -92,10 +100,10 @@ button { font:inherit; }
   content:"";
   position:absolute;
   z-index:0;
-  width:150px;
-  height:150px;
-  right:-72px;
-  bottom:-76px;
+  width:126px;
+  height:126px;
+  right:-61px;
+  bottom:-64px;
   border-radius:50%;
   background:
     radial-gradient(circle at 30% 30%,
@@ -114,11 +122,11 @@ button { font:inherit; }
   content:"";
   position:absolute;
   z-index:0;
-  width:70px;
-  height:120px;
-  left:-42px;
+  width:58px;
+  height:100px;
+  left:-35px;
   top:29%;
-  border-radius:0 70px 70px 0;
+  border-radius:0 58px 58px 0;
   background:linear-gradient(180deg,rgba(0,202,255,.09),rgba(0,215,184,.025));
   border:1px solid rgba(71,218,255,.09);
   border-left:0;
@@ -171,7 +179,9 @@ h1 { margin:4px 0 10px; font-size:36px; }
 
 .tips-grid {
   display:grid;
-  gap:28px;
+  grid-template-columns:1fr;
+  gap:20px;
+  align-items:start;
 }
 
 .tip-card,
@@ -179,20 +189,20 @@ h1 { margin:4px 0 10px; font-size:36px; }
   position:relative;
   overflow:hidden;
   isolation:isolate;
-  max-width:820px;
+  max-width:none;
   width:100%;
-  margin:0 auto;
-  padding:30px;
-  border-radius:24px;
+  margin:0;
+  padding:22px 19px 21px;
+  border-radius:22px;
   background:linear-gradient(180deg,rgba(14,79,99,.97),rgba(6,49,66,.98));
   border:1px solid rgba(35,190,255,.48);
   box-shadow:0 18px 42px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.06);
 }
 
 .card-title {
-  margin:0 auto 20px;
-  max-width:720px;
-  font-size:29px;
+  margin:0 auto 16px;
+  max-width:100%;
+  font-size:23px;
   line-height:1.25;
 }
 
@@ -243,9 +253,9 @@ h1 { margin:4px 0 10px; font-size:36px; }
   display:flex;
   justify-content:center;
   flex-wrap:wrap;
-  gap:10px;
-  padding:17px 0 18px;
-  margin-bottom:20px;
+  gap:8px;
+  padding:13px 0 14px;
+  margin-bottom:15px;
   border-top:1px solid rgba(255,255,255,.08);
   border-bottom:2px solid #19c8f5;
 }
@@ -256,32 +266,32 @@ h1 { margin:4px 0 10px; font-size:36px; }
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  min-height:34px;
-  padding:8px 11px;
+  min-height:31px;
+  padding:6px 9px;
   border-radius:999px;
   background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.035));
   border:1px solid rgba(117,218,255,.10);
   color:#e4f7ff;
-  font-size:14px;
+  font-size:12px;
 }
 
 .locked {
   color:#b6d2df;
   font-size:14px;
-  margin:16px 0;
-  line-height:1.5;
+  margin:13px 0;
+  line-height:1.45;
 }
 
 .price {
   display:inline-flex;
-  min-width:170px;
+  min-width:145px;
   justify-content:center;
-  margin:4px 0 20px;
-  padding:10px 18px;
-  border-radius:14px;
+  margin:4px 0 15px;
+  padding:8px 15px;
+  border-radius:13px;
   background:rgba(3,28,40,.45);
   border:1px solid rgba(255,255,255,.05);
-  font-size:24px;
+  font-size:20px;
   font-weight:800;
 }
 
@@ -289,9 +299,9 @@ h1 { margin:4px 0 10px; font-size:36px; }
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  min-width:245px;
-  min-height:48px;
-  padding:14px 34px;
+  min-width:205px;
+  min-height:44px;
+  padding:11px 25px;
   color:#fff;
   background:linear-gradient(90deg,var(--cyan),var(--cyan-light));
   border:1px solid rgba(255,255,255,.12);
@@ -403,12 +413,87 @@ h1 { margin:4px 0 10px; font-size:36px; }
   .hero,.section-head { padding:22px 18px; border-radius:21px; }
   .logo { width:150px; }
   h1 { font-size:28px; }
-  .tip-card,.result-card { padding:25px 16px; border-radius:21px; }
-  .card-title { font-size:23px; }
+  .tip-card,.result-card { padding:22px 16px; border-radius:21px; }
+  .card-title { font-size:22px; }
   .meta-item { width:100%; justify-content:flex-start; }
   .btn { width:100%; min-width:0; }
   .price { width:100%; max-width:290px; }
 }
+
+.dashboard-columns {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:24px;
+  align-items:start;
+  margin-top:38px;
+}
+
+.dashboard-column {
+  min-width:0;
+}
+
+.dashboard-column .section {
+  margin-top:0;
+}
+
+.dashboard-column .section-head {
+  margin-bottom:18px;
+  min-height:112px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+.dashboard-column .tip-card,
+.dashboard-column .result-card {
+  min-height:0;
+}
+
+.dashboard-column.left .tip-card {
+  background:
+    linear-gradient(180deg,rgba(14,79,99,.98),rgba(6,49,66,.99));
+}
+
+.dashboard-column.right .result-card {
+  background:
+    linear-gradient(180deg,rgba(12,69,86,.98),rgba(5,44,58,.99));
+}
+
+@media(max-width:980px){
+  .dashboard-columns {
+    grid-template-columns:1fr;
+    gap:34px;
+  }
+
+  .dashboard-column .section-head {
+    min-height:0;
+  }
+}
+
+
+.dashboard-column.left,
+.dashboard-column.right {
+  width:100%;
+}
+
+.dashboard-column .section-head,
+.dashboard-column .tips-grid,
+.dashboard-column .pagination-panel {
+  width:100%;
+}
+
+.dashboard-column .tip-card,
+.dashboard-column .result-card {
+  width:100%;
+  max-width:none;
+}
+
+/* Gleich breit, Höhe bleibt inhaltsabhängig */
+.dashboard-column .tip-card,
+.dashboard-column .result-card {
+  align-self:start;
+}
+
 </style>
 </head>
 <body>
@@ -422,35 +507,43 @@ h1 { margin:4px 0 10px; font-size:36px; }
     <img src="../logo_betisight.club.png" alt="BetInsight Club" class="logo">
     <h1>BetInsight Tipps</h1>
     <p class="subtitle">
-      Aktuelle Tipps stehen oben zur Freischaltung bereit. Sobald ein Ergebnis vom Master bestätigt wird,
-      wandert der Tipp automatisch in den Ergebnisbereich.
+      Hier findest du die aktuellen BetInsight Tipps. Sobald BetInsight ein Ergebnis bestätigt,
+      wird der Tipp automatisch unter „Beendete Tipps & Ergebnisse“ eingeordnet.
     </p>
   </section>
 
-  <section class="section" id="openSection">
-    <div class="section-head">
-      <h2>🔥 Neue BetInsight Tipps</h2>
-      <p>Nur offene Tipps können freigeschaltet werden.</p>
+  <div class="dashboard-columns">
+
+    <div class="dashboard-column left">
+      <section class="section" id="openSection">
+        <div class="section-head">
+          <h2>🔥 Neue BetInsight Tipps</h2>
+          <p>Hier findest du alle aktuell offenen Tipps, die noch freigeschaltet werden können.</p>
+        </div>
+
+        <div id="openStatus" class="status">Neue Tipps werden geladen...</div>
+        <div id="openTips" class="tips-grid"></div>
+
+        <div id="paginationPanel" class="pagination-panel">
+          <p id="paginationCount" class="pagination-count"></p>
+          <button id="loadMoreButton" class="btn" type="button">Weitere 10 Tipps anzeigen</button>
+        </div>
+      </section>
     </div>
 
-    <div id="openStatus" class="status">Neue Tipps werden geladen...</div>
-    <div id="openTips" class="tips-grid"></div>
+    <div class="dashboard-column right">
+      <section class="section" id="resultsSection">
+        <div class="section-head">
+          <h2>📊 Beendete Tipps & Ergebnisse</h2>
+          <p>Hier siehst du alle von BetInsight bestätigten Ergebnisse auf einen Blick.</p>
+        </div>
 
-    <div id="paginationPanel" class="pagination-panel">
-      <p id="paginationCount" class="pagination-count"></p>
-      <button id="loadMoreButton" class="btn" type="button">Weitere 10 Tipps anzeigen</button>
-    </div>
-  </section>
-
-  <section class="section" id="resultsSection">
-    <div class="section-head">
-      <h2>📊 Beendete Tipps & Ergebnisse</h2>
-      <p>Nur vom Master bestätigte Ergebnisse werden hier veröffentlicht.</p>
+        <div id="resultStatus" class="status">Ergebnisse werden geladen...</div>
+        <div id="resultTips" class="tips-grid"></div>
+      </section>
     </div>
 
-    <div id="resultStatus" class="status">Ergebnisse werden geladen...</div>
-    <div id="resultTips" class="tips-grid"></div>
-  </section>
+  </div>
 </div>
 
 <script>
@@ -636,7 +729,7 @@ function createResultCard(item) {
     </div>
 
     <p class="result-note">
-      Ergebnis von BetInsight / Master bestätigt.
+      Ergebnis von BetInsight bestätigt.
     </p>
   `;
 
