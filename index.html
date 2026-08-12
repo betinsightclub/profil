@@ -5,34 +5,19 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.12-06
+Version: 2026.08.12-07
 
 Änderungen:
-- Basis: Upgrade-Buttons für Premium und Premium Plus
-- Premium: Upgrade-Button auf Premium Plus
-- Premium Plus: nur Abo & Verlängerung
-- Info-Panel mit Tarifvorteilen für Desktop und Mobil
-- Premium: 3 Quoten-/Anbieterbuttons + Netzwerkvorteile bis Ebene 6 (Anzeige vorbereitet)
-- Premium Plus: Quotenvergleich bis 5 Anbieter + Netzwerkvorteile bis Ebene 8 (Anzeige vorbereitet)
-- Upgrade-Aktionen noch ohne echten Zahlungsaufruf bis finale Zahlungslinks/Webhooks feststehen
-- Kontostand neu angeordnet: 3 gleich große Kennzahlen oben + Mitgliedschaft volle Breite darunter
-- Premium-Karte horizontal und deutlich ruhiger aufgebaut
-- Abo-/Verlängerungsbutton auf Desktop rechts, mobil sauber untereinander
-- Basis bleibt ohne Timer und ohne Abo-Button
-- Premium/Premium Plus: Live-Countdown bis Ablauf vorbereitet
-- 5-Tage-Warnphase und 5-Tage-Kulanzanzeige vorbereitet
-- Abo-/Verlängerungsbutton nur bei Premium/Premium Plus
-- Basis zeigt bewusst keinen Timer und keinen Abo-Button
-- Verlängerungsdialog für externe Zahlung / Provisionsguthaben / Auto-Verlängerung vorbereitet
-- Noch keine Zahlung oder Abbuchung aus dieser HTML möglich; Backend-Verknüpfung folgt separat
-- Profilkarte „Mitgliedschaft“ zeigt automatisch Basis / Premium / Premium Plus
-- Quelle: bestehender Profil-Webhook über USER.mitgliedschaft und USER.mitgliedschaft_level
-- Zentrale Anzeige „Gesamte verfügbare Units“ zeigt immer exakt zwei Nachkommastellen.
-  Beispiel: 29,00 / 29,50 / 29,75
-- Kleine Karte „Verfügbare Units“ bleibt kompakt.
-- Freigeschaltete Tipps bleiben an freigeschaltete_tipps angebunden.
-- Verbrauchte Units bleiben an verbrauchte_units angebunden.
-- Profil-, Token-, Empfehlungs- und Netzwerklogik bleiben erhalten.
+- Aktive Premium-/Premium-Plus-Mitglieder sehen keine doppelten Upgrade-Buttons mehr im Dashboard.
+- Basis behält die Auswahl Premium / Premium Plus.
+- Versteckte Mitgliedschaftsbuttons werden technisch zuverlässig ausgeblendet.
+- Tarifinfo modernisiert und auf drei Karten erweitert: Basis, Premium, Premium Plus.
+- Bestehende Unit-Provisionen bis Ebene 3 sind bei allen drei Mitgliedschaften klar ausgewiesen.
+- Premium-Provisionen bleiben davon getrennt: Premium bis E6, Premium Plus bis E8.
+- Premium zeigt korrekt keine direkten Affiliate-Links; Premium Plus kann direkte Anbieter-/Affiliate-Links erhalten.
+- Aktueller Tarif wird im Tarifvergleich visuell hervorgehoben.
+- Upgrade-/Zahlungsaktionen bleiben bis Premium-v1.2 ohne echten Zahlungsaufruf.
+- Kontostand, Tipp-, Referral-, Token- und Netzwerklogik bleiben unverändert.
 -->
 
 <html lang="de">
@@ -613,9 +598,7 @@ input{
   .account-stat-grid,.account-actions{grid-template-columns:1fr}
 }
 
-.membership-card {
-  position:relative;
-}
+.membership-card {position:relative}
 
 .membership-value {
   color:#3ca8ff;
@@ -630,9 +613,7 @@ input{
   line-height:1.35;
 }
 
-.membership-card.membership-premium {
-  border-color:rgba(14,220,166,.30);
-}
+.membership-card.membership-premium {border-color:rgba(14,220,166,.30)}
 
 .membership-card.membership-premium .membership-value {
   color:var(--green);
@@ -651,10 +632,7 @@ input{
   text-shadow:0 0 18px rgba(255,171,46,.17);
 }
 
-
-.premium-runtime-box{
-  margin-top:10px;
-}
+.premium-runtime-box{margin-top:10px}
 
 .premium-countdown{
   color:var(--soft);
@@ -704,18 +682,10 @@ input{
   font-size:11px;
 }
 
-.membership-card.membership-warning{
-  border-color:rgba(255,207,51,.42);
-}
-
+.membership-card.membership-warning{border-color:rgba(255,207,51,.42)}
 .membership-card.membership-warning .premium-countdown,
-.membership-card.membership-warning .premium-runtime-message{
-  color:#ffcf33;
-}
-
-.membership-card.membership-warning .premium-progress-bar{
-  background:linear-gradient(90deg,#ffcf33,var(--orange));
-}
+.membership-card.membership-warning .premium-runtime-message{color:#ffcf33}
+.membership-card.membership-warning .premium-progress-bar{background:linear-gradient(90deg,#ffcf33,var(--orange))}
 
 .membership-card.membership-grace{
   border-color:rgba(255,171,46,.55);
@@ -725,13 +695,8 @@ input{
 }
 
 .membership-card.membership-grace .premium-countdown,
-.membership-card.membership-grace .premium-runtime-message{
-  color:var(--orange);
-}
-
-.membership-card.membership-grace .premium-progress-bar{
-  background:linear-gradient(90deg,#ffab2e,#e76a3f);
-}
+.membership-card.membership-grace .premium-runtime-message{color:var(--orange)}
+.membership-card.membership-grace .premium-progress-bar{background:linear-gradient(90deg,#ffab2e,#e76a3f)}
 
 .premium-manager-overlay{
   position:fixed;
@@ -745,9 +710,7 @@ input{
   backdrop-filter:blur(10px);
 }
 
-.premium-manager-overlay[hidden]{
-  display:none;
-}
+.premium-manager-overlay[hidden]{display:none}
 
 .premium-manager-dialog{
   position:relative;
@@ -781,10 +744,7 @@ input{
   text-transform:uppercase;
 }
 
-.premium-manager-dialog h3{
-  margin:7px 0 7px;
-  font-size:24px;
-}
+.premium-manager-dialog h3{margin:7px 0 7px;font-size:24px}
 
 .premium-manager-summary{
   margin:0 0 18px;
@@ -805,10 +765,7 @@ input{
   background:rgba(0,0,0,.16);
 }
 
-.premium-manager-option strong{
-  display:block;
-  font-size:13px;
-}
+.premium-manager-option strong{display:block;font-size:13px}
 
 .premium-manager-option span{
   display:block;
@@ -818,10 +775,7 @@ input{
   line-height:1.4;
 }
 
-.premium-manager-option button{
-  width:auto;
-  min-width:150px;
-}
+.premium-manager-option button{width:auto;min-width:150px}
 
 .premium-manager-message{
   margin-top:16px;
@@ -835,24 +789,12 @@ input{
 }
 
 @media(max-width:600px){
-  .premium-manager-option{
-    grid-template-columns:1fr;
-  }
-
-  .premium-manager-option button{
-    width:100%;
-  }
+  .premium-manager-option{grid-template-columns:1fr}
+  .premium-manager-option button{width:100%}
 }
 
-
-/* v2026.08.12-05 · ruhige 3+1-Kartenstruktur */
-.account-stat-grid{
-  grid-template-columns:repeat(3,minmax(0,1fr));
-}
-
-.account-stat{
-  min-height:110px;
-}
+.account-stat-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.account-stat{min-height:110px}
 
 .membership-card{
   grid-column:1 / -1;
@@ -882,15 +824,8 @@ input{
   border-right:1px solid rgba(255,255,255,.08);
 }
 
-.membership-value{
-  margin-top:8px;
-  font-size:26px;
-}
-
-.membership-note{
-  margin-top:6px;
-  font-size:11px;
-}
+.membership-value{margin-top:8px;font-size:26px}
+.membership-note{margin-top:6px;font-size:11px}
 
 .premium-runtime-box{
   position:relative;
@@ -902,13 +837,8 @@ input{
   margin-top:0;
 }
 
-.premium-runtime-box[hidden]{
-  display:none;
-}
-
-.premium-runtime-content{
-  min-width:0;
-}
+.premium-runtime-box[hidden]{display:none!important}
+.premium-runtime-content{min-width:0}
 
 .premium-runtime-topline{
   display:flex;
@@ -917,27 +847,10 @@ input{
   gap:14px;
 }
 
-.premium-countdown{
-  font-size:15px;
-}
-
-.premium-expiry{
-  margin-top:0;
-  flex:0 0 auto;
-  text-align:right;
-  font-size:10px;
-}
-
-.premium-progress{
-  height:8px;
-  margin-top:10px;
-}
-
-.premium-runtime-message{
-  margin-top:7px;
-  min-height:0;
-  font-size:10px;
-}
+.premium-countdown{font-size:15px}
+.premium-expiry{margin-top:0;flex:0 0 auto;text-align:right;font-size:10px}
+.premium-progress{height:8px;margin-top:10px}
+.premium-runtime-message{margin-top:7px;min-height:0;font-size:10px}
 
 .premium-manage-button{
   width:auto;
@@ -951,73 +864,32 @@ input{
   box-shadow:0 10px 24px rgba(0,0,0,.16);
 }
 
-.membership-card.membership-premium .premium-manage-button{
-  background:linear-gradient(105deg,#0a9b79,#0ed5a0);
-}
-
-.membership-card.membership-premiumplus .premium-manage-button{
-  background:linear-gradient(105deg,#d98608,#ffb229);
-}
+.membership-card.membership-premium .premium-manage-button{background:linear-gradient(105deg,#0a9b79,#0ed5a0)}
+.membership-card.membership-premiumplus .premium-manage-button{background:linear-gradient(105deg,#d98608,#ffb229)}
 
 @media(max-width:980px){
-  .account-stat-grid{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-  }
-
-  .account-stat:nth-child(3){
-    grid-column:1 / -1;
-  }
-
-  .membership-card{
-    grid-column:1 / -1;
-  }
+  .account-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .account-stat:nth-child(3){grid-column:1 / -1}
+  .membership-card{grid-column:1 / -1}
 }
 
 @media(max-width:720px){
-  .account-stat-grid{
-    grid-template-columns:1fr;
-  }
-
-  .account-stat:nth-child(3),
-  .membership-card{
-    grid-column:auto;
-  }
-
-  .membership-card{
-    grid-template-columns:1fr;
-    gap:14px;
-  }
-
+  .account-stat-grid{grid-template-columns:1fr}
+  .account-stat:nth-child(3),.membership-card{grid-column:auto}
+  .membership-card{grid-template-columns:1fr;gap:14px}
   .membership-main{
     padding-right:0;
     padding-bottom:13px;
     border-right:0;
     border-bottom:1px solid rgba(255,255,255,.08);
   }
-
-  .premium-runtime-box{
-    grid-template-columns:1fr;
-    gap:12px;
-  }
-
-  .premium-runtime-topline{
-    align-items:flex-start;
-    flex-direction:column;
-    gap:5px;
-  }
-
-  .premium-expiry{
-    text-align:left;
-  }
-
-  .premium-manage-button{
-    width:100%;
-    min-width:0;
-  }
+  .premium-runtime-box{grid-template-columns:1fr;gap:12px}
+  .premium-runtime-topline{align-items:flex-start;flex-direction:column;gap:5px}
+  .premium-expiry{text-align:left}
+  .premium-manage-button{width:100%;min-width:0}
 }
 
-
-/* v2026.08.12-06 · Mitgliedschaft Upgrades + Info */
+/* v2026.08.12-07 · Mitgliedschaft sauber + Tarifvergleich */
 .membership-main-copy{width:100%}
 
 .membership-title-row{
@@ -1058,6 +930,9 @@ input{
   gap:12px;
 }
 
+.basis-upgrade-box[hidden],
+.membership-upgrade-button[hidden]{display:none!important}
+
 .membership-upgrade-button{
   min-height:48px;
   border-radius:13px;
@@ -1085,74 +960,151 @@ input{
   grid-column:1 / -1;
   position:relative;
   z-index:2;
-  margin-top:2px;
-  padding:16px;
-  border:1px solid rgba(99,184,220,.17);
-  border-radius:15px;
-  background:linear-gradient(145deg,rgba(1,19,29,.92),rgba(7,42,55,.88));
+  margin-top:4px;
+  padding:18px;
+  border:1px solid rgba(99,184,220,.20);
+  border-radius:18px;
+  background:
+    radial-gradient(circle at 88% 0%,rgba(22,156,255,.10),transparent 34%),
+    linear-gradient(145deg,rgba(1,19,29,.96),rgba(7,42,55,.92));
+  box-shadow:0 18px 42px rgba(0,0,0,.18);
 }
 
-.membership-info-panel[hidden]{display:none}
+.membership-info-panel[hidden]{display:none!important}
+
+.membership-info-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:14px;
+}
+
+.membership-info-head strong{font-size:14px;color:#fff}
+.membership-info-head span{color:var(--muted);font-size:10px;text-align:right}
 
 .membership-info-grid{
   display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-columns:repeat(3,minmax(0,1fr));
   gap:12px;
 }
 
 .membership-info-tier{
-  padding:15px;
+  position:relative;
+  overflow:hidden;
+  min-height:220px;
+  padding:16px;
   border:1px solid rgba(255,255,255,.08);
-  border-radius:13px;
-  background:rgba(0,0,0,.14);
+  border-radius:15px;
+  background:linear-gradient(155deg,rgba(0,0,0,.22),rgba(255,255,255,.025));
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
 }
 
-.premium-info-tier{border-color:rgba(14,220,166,.18)}
-.premiumplus-info-tier{border-color:rgba(255,171,46,.20)}
+.membership-info-tier::before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  top:0;
+  height:3px;
+  background:rgba(255,255,255,.12);
+}
+
+.membership-info-tier:hover{
+  transform:translateY(-2px);
+  box-shadow:0 14px 30px rgba(0,0,0,.18);
+}
+
+.basis-info-tier{border-color:rgba(60,168,255,.18)}
+.basis-info-tier::before{background:linear-gradient(90deg,#3ca8ff,#18c9f3)}
+.premium-info-tier{border-color:rgba(14,220,166,.20)}
+.premium-info-tier::before{background:linear-gradient(90deg,#079e79,#0ed5a0)}
+.premiumplus-info-tier{border-color:rgba(255,171,46,.22)}
+.premiumplus-info-tier::before{background:linear-gradient(90deg,#d98608,#ffb229)}
+
+.membership-info-tier.current-tier{
+  border-color:rgba(255,255,255,.30);
+  box-shadow:0 0 0 1px rgba(255,255,255,.06),0 14px 34px rgba(0,0,0,.24);
+}
+
+.membership-info-tier.current-tier::after{
+  content:"DEIN TARIF";
+  position:absolute;
+  top:11px;
+  right:11px;
+  padding:5px 8px;
+  border-radius:999px;
+  background:rgba(255,255,255,.09);
+  color:#fff;
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.7px;
+}
 
 .membership-info-kicker{
   font-size:10px;
   font-weight:900;
   text-transform:uppercase;
-  letter-spacing:.8px;
+  letter-spacing:.9px;
 }
 
+.basis-info-tier .membership-info-kicker{color:#5db8ff}
 .premium-info-tier .membership-info-kicker{color:var(--green)}
 .premiumplus-info-tier .membership-info-kicker{color:var(--orange)}
 
 .membership-info-tier h4{
-  margin:5px 0 10px;
+  margin:6px 0 11px;
+  padding-right:54px;
   font-size:14px;
+  line-height:1.25;
 }
 
 .membership-info-tier ul{
+  list-style:none;
   margin:0;
-  padding-left:18px;
+  padding:0;
   color:#cde6f2;
   font-size:11px;
-  line-height:1.55;
+  line-height:1.5;
 }
 
-.membership-info-tier li + li{margin-top:5px}
+.membership-info-tier li{position:relative;padding-left:19px}
+.membership-info-tier li::before{
+  content:"✓";
+  position:absolute;
+  left:0;
+  top:0;
+  color:#7fd7f4;
+  font-weight:900;
+}
+
+.premium-info-tier li::before{color:var(--green)}
+.premiumplus-info-tier li::before{color:var(--orange)}
+.membership-info-tier li + li{margin-top:7px}
 
 .membership-info-note{
-  margin-top:11px;
-  padding-top:11px;
-  border-top:1px solid rgba(255,255,255,.06);
-  color:var(--muted);
+  margin-top:14px;
+  padding:12px 13px 0;
+  border-top:1px solid rgba(255,255,255,.07);
+  color:#9fc4d5;
   font-size:10px;
-  line-height:1.45;
+  line-height:1.5;
+}
+
+.membership-info-note strong{color:#dff5ff}
+
+@media(max-width:980px){
+  .membership-info-grid{grid-template-columns:1fr}
+  .membership-info-tier{min-height:0}
 }
 
 @media(max-width:720px){
   .basis-upgrade-box{grid-template-columns:1fr}
-  .membership-info-grid{grid-template-columns:1fr}
   .premium-runtime-actions{min-width:0}
-
   .premium-runtime-actions .premium-manage-button,
-  .premium-runtime-actions .membership-upgrade-button{
-    min-width:0;
-  }
+  .premium-runtime-actions .membership-upgrade-button{min-width:0}
+  .membership-info-head{align-items:flex-start;flex-direction:column;gap:4px}
+  .membership-info-head span{text-align:left}
 }
 
 </style>
@@ -1281,7 +1233,8 @@ input{
                     id="membershipInfoButton"
                     class="membership-info-button"
                     type="button"
-                    aria-label="Tarifvorteile anzeigen"
+                    aria-label="Tarife und Leistungen vergleichen"
+                    aria-expanded="false"
                     onclick="toggleMembershipInfo(event)"
                   >?</button>
                 </div>
@@ -1349,35 +1302,54 @@ input{
             </div>
 
             <div id="membershipInfoPanel" class="membership-info-panel" hidden>
+              <div class="membership-info-head">
+                <strong>Mitgliedschaften & Leistungen</strong>
+                <span>Unit-System und Premium-Provisionen sind zwei getrennte Vergütungsbereiche.</span>
+              </div>
+
               <div class="membership-info-grid">
-                <article class="membership-info-tier premium-info-tier">
-                  <div class="membership-info-kicker">Premium</div>
-                  <h4>Mehr Komfort & Netzwerkvorteile</h4>
+                <article class="membership-info-tier basis-info-tier" data-membership-level="0">
+                  <div class="membership-info-kicker">Basis</div>
+                  <h4>Der vollständige BetInsight Basis-Zugang</h4>
                   <ul>
-                    <li>3 direkte Quoten-/Anbieterbuttons bei freigeschalteten Tipps</li>
-                    <li>Direkter Zugriff auf die hinterlegten Anbieterlinks</li>
-                    <li>Premium-Netzwerkvorteile bis zur 6. Ebene</li>
-                    <li>30 Tage Laufzeit je erfolgreicher Verlängerung</li>
-                    <li>Verlängerung aus auszahlbarem Provisionsguthaben vorbereitet</li>
+                    <li>Zugang zum BetInsight Unit- und Tipp-System</li>
+                    <li>Laufende Unit-Provisionen aus dem Referral-System bis Ebene 3</li>
+                    <li>Persönliche Empfehlungslinks und Netzwerkübersicht</li>
+                    <li>Freigeschaltete Tipps und Unit-Verwaltung im eigenen Profil</li>
+                    <li>Keine monatliche Premium-Laufzeit erforderlich</li>
                   </ul>
                 </article>
 
-                <article class="membership-info-tier premiumplus-info-tier">
-                  <div class="membership-info-kicker">Premium Plus</div>
-                  <h4>Maximaler Komfort & größere Tiefe</h4>
+                <article class="membership-info-tier premium-info-tier" data-membership-level="1">
+                  <div class="membership-info-kicker">Premium</div>
+                  <h4>Mehr Komfort & zusätzliche Provisionstiefe</h4>
                   <ul>
+                    <li>Alle Basis-Vorteile inklusive</li>
+                    <li>Laufende Unit-Provisionen aus dem Referral-System bis Ebene 3</li>
+                    <li>Bis zu 3 Anbieter-/Quotenanzeigen bei freigeschalteten Tipps</li>
+                    <li>Keine direkten Affiliate-Links im Premium-Tarif</li>
+                    <li>Zusätzliche Premium-Provisionen bis Ebene 6</li>
+                    <li>30 Tage Laufzeit je erfolgreicher Aktivierung oder Verlängerung</li>
+                  </ul>
+                </article>
+
+                <article class="membership-info-tier premiumplus-info-tier" data-membership-level="2">
+                  <div class="membership-info-kicker">Premium Plus</div>
+                  <h4>Maximaler Komfort & Premium-Tiefe bis E8</h4>
+                  <ul>
+                    <li>Alle Basis- und Premium-Vorteile inklusive</li>
+                    <li>Laufende Unit-Provisionen aus dem Referral-System bis Ebene 3</li>
                     <li>Quotenvorschau/-vergleich für bis zu 5 Anbieter</li>
-                    <li>Direkte Anbieter-/Affiliate-Links aus der Vergleichsansicht</li>
-                    <li>Premium-Netzwerkvorteile bis zur 8. Ebene</li>
-                    <li>Alle Premium-Vorteile inklusive</li>
-                    <li>30 Tage Laufzeit je erfolgreicher Verlängerung</li>
+                    <li>Direkte freigegebene Anbieter-/Affiliate-Links möglich</li>
+                    <li>Zusätzliche Premium-Provisionen bis Ebene 8</li>
+                    <li>30 Tage Laufzeit je erfolgreicher Aktivierung oder Verlängerung</li>
                   </ul>
                 </article>
               </div>
 
               <div class="membership-info-note">
-                Gruppenprovisionen entstehen nur nach den jeweils gültigen Premium-Regeln.
-                Geschenktes Premium kann separat von einer Provisionsberechtigung behandelt werden.
+                <strong>Wichtig:</strong> Die normalen Unit-Provisionen aus dem bestehenden Referral-System bis Ebene 3 gelten für Basis, Premium und Premium Plus.
+                Die zusätzlichen Premium-Provisionen sind davon getrennt: Premium bis Ebene 6, Premium Plus bis Ebene 8 und jeweils erst ab bestätigter Aktivierung nach den gültigen Regeln.
               </div>
             </div>
           </div>
@@ -1524,7 +1496,6 @@ input{
   </div>
 </section>
 
-
 <div id="premiumManagerOverlay" class="premium-manager-overlay" hidden>
   <div class="premium-manager-dialog" role="dialog" aria-modal="true" aria-labelledby="premiumManagerTitle">
     <button class="premium-manager-close" type="button" onclick="closePremiumManager()" aria-label="Schließen">×</button>
@@ -1595,21 +1566,10 @@ let accountPrivacyActive = false;
 let referralPrivacyActive = false;
 
 let currentProfileData = {
-  email:"",
-  units:0,
-  refCode:"",
-  dashboardToken:"",
-  refLink:"",
-  consumedUnits:null,
-  unlockedTips:0,
-  membershipLevel:0,
-  membership:"Basis",
-  premiumStart:null,
-  premiumUntil:null,
-  graceUntil:null,
-  premiumStatus:"",
-  autoRenew:"NEIN",
-  tariffCode:""
+  email:"",units:0,refCode:"",dashboardToken:"",refLink:"",
+  consumedUnits:null,unlockedTips:0,membershipLevel:0,membership:"Basis",
+  premiumStart:null,premiumUntil:null,graceUntil:null,premiumStatus:"",
+  autoRenew:"NEIN",tariffCode:""
 };
 
 function safeNumber(value){
@@ -1619,19 +1579,12 @@ function safeNumber(value){
   return Number.isFinite(parsed)?parsed:0;
 }
 
-/* kompakte Standarddarstellung */
 function formatNumber(value){
-  return new Intl.NumberFormat("de-DE",{
-    maximumFractionDigits:2
-  }).format(safeNumber(value));
+  return new Intl.NumberFormat("de-DE",{maximumFractionDigits:2}).format(safeNumber(value));
 }
 
-/* NUR für die große Gesamtanzeige oben */
 function formatUnitsTwoDecimals(value){
-  return new Intl.NumberFormat("de-DE",{
-    minimumFractionDigits:2,
-    maximumFractionDigits:2
-  }).format(safeNumber(value));
+  return new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(safeNumber(value));
 }
 
 function normalizeMembership(level, membership){
@@ -1639,52 +1592,29 @@ function normalizeMembership(level, membership){
   const raw = String(membership || "").trim();
 
   if(raw === "Premium Plus" || numericLevel >= 2){
-    return {
-      level:2,
-      name:"Premium Plus",
-      note:"BetInsight Premium Plus"
-    };
+    return {level:2,name:"Premium Plus",note:"BetInsight Premium Plus"};
   }
-
   if(raw === "Premium" || numericLevel === 1){
-    return {
-      level:1,
-      name:"Premium",
-      note:"BetInsight Premium"
-    };
+    return {level:1,name:"Premium",note:"BetInsight Premium"};
   }
-
-  return {
-    level:0,
-    name:"Basis",
-    note:"BetInsight Basis-Zugang"
-  };
+  return {level:0,name:"Basis",note:"BetInsight Basis-Zugang"};
 }
-
 
 let premiumCountdownInterval = null;
 
 function parseDateValue(value){
   if(value===undefined || value===null || value==="") return null;
-
   const raw=String(value).trim();
   if(!raw) return null;
-
   const isoCandidate=raw.includes("T") ? raw : raw.replace(" ","T");
   const parsed=new Date(isoCandidate);
-
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
 function formatDateTimeDe(date){
   if(!(date instanceof Date) || Number.isNaN(date.getTime())) return "–";
-
   return new Intl.DateTimeFormat("de-DE",{
-    day:"2-digit",
-    month:"2-digit",
-    year:"numeric",
-    hour:"2-digit",
-    minute:"2-digit"
+    day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"
   }).format(date);
 }
 
@@ -1695,18 +1625,15 @@ function formatCountdown(ms){
   const hours=Math.floor((totalSeconds%86400)/3600);
   const minutes=Math.floor((totalSeconds%3600)/60);
   const seconds=totalSeconds%60;
-
   if(days>0){
     return `${days} ${days===1?"Tag":"Tage"} · ${String(hours).padStart(2,"0")}:${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}`;
   }
-
   return `${String(hours).padStart(2,"0")}:${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")} Std.`;
 }
 
 function resolveGraceUntil(premiumUntil, explicitGraceUntil){
   if(explicitGraceUntil) return explicitGraceUntil;
   if(!premiumUntil) return null;
-
   return new Date(premiumUntil.getTime() + 5*24*60*60*1000);
 }
 
@@ -1724,30 +1651,17 @@ function renderPremiumRuntime(){
   const message=document.getElementById("premiumRuntimeMessage");
   const bar=document.getElementById("premiumProgressBar");
   const card=document.querySelector(".membership-card");
-
   if(!box || !countdown || !expiry || !message || !bar || !card) return;
 
   stopPremiumCountdown();
   card.classList.remove("membership-warning","membership-grace");
 
-  const membership=normalizeMembership(
-    currentProfileData.membershipLevel,
-    currentProfileData.membership
-  );
-
-  if(membership.level===0){
-    box.hidden=true;
-    return;
-  }
-
+  const membership=normalizeMembership(currentProfileData.membershipLevel,currentProfileData.membership);
+  if(membership.level===0){box.hidden=true;return}
   box.hidden=false;
 
-  const premiumStart=parseDateValue(currentProfileData.premiumStart);
   const premiumUntil=parseDateValue(currentProfileData.premiumUntil);
-  const graceUntil=resolveGraceUntil(
-    premiumUntil,
-    parseDateValue(currentProfileData.graceUntil)
-  );
+  const graceUntil=resolveGraceUntil(premiumUntil,parseDateValue(currentProfileData.graceUntil));
 
   expiry.innerText=premiumUntil
     ? `Gültig bis ${formatDateTimeDe(premiumUntil)}`
@@ -1755,18 +1669,15 @@ function renderPremiumRuntime(){
 
   const tick=()=>{
     const now=new Date();
-
     if(!premiumUntil){
       countdown.innerText="Premium aktiv";
       message.innerText="Countdown bereit – premium_bis fehlt noch im Profil-Webhook.";
       bar.style.width="100%";
       return;
     }
-
     if(now < premiumUntil){
       const remaining=premiumUntil-now;
       countdown.innerText=`Noch ${formatCountdown(remaining)}`;
-
       const warningMs=5*24*60*60*1000;
       if(remaining<=warningMs){
         card.classList.add("membership-warning");
@@ -1777,30 +1688,22 @@ function renderPremiumRuntime(){
           ? "Automatische Verlängerung ist vorgemerkt."
           : "Premium ist aktiv.";
       }
-
-      // 30-Tage-Anzeige. Bei frühzeitiger Verlängerung kann die Restlaufzeit >30 Tage sein;
-      // dann bleibt der Balken vollständig gefüllt.
       const periodMs=30*24*60*60*1000;
-      const percent=Math.max(0,Math.min(100,(remaining/periodMs)*100));
-      bar.style.width=`${percent}%`;
+      bar.style.width=`${Math.max(0,Math.min(100,(remaining/periodMs)*100))}%`;
       return;
     }
-
     if(graceUntil && now < graceUntil){
       const graceRemaining=graceUntil-now;
       card.classList.remove("membership-warning");
       card.classList.add("membership-grace");
       countdown.innerText=`Kulanzzeit · noch ${formatCountdown(graceRemaining)}`;
-      message.innerText="Gruppenprovisionen sind während der Kulanz vorgemerkt, aber nicht auszahlbar.";
+      message.innerText="Premium-Provisionen sind während der Kulanz vorgemerkt, aber nicht auszahlbar.";
       bar.style.width="0%";
       return;
     }
-
-    // Sobald Backend v1.2 die Mitgliedschaft zurück auf Basis setzt,
-    // verschwindet dieser Bereich vollständig. Bis dahin klare Anzeige:
     card.classList.remove("membership-warning","membership-grace");
     countdown.innerText="Premium-Zeitraum beendet";
-    message.innerText="Kulanz beendet. Neue Gruppenprovisionen sind nicht mehr freigabeberechtigt.";
+    message.innerText="Kulanz beendet. Neue Premium-Gruppenprovisionen sind nicht mehr freigabeberechtigt.";
     bar.style.width="0%";
   };
 
@@ -1812,32 +1715,20 @@ function openPremiumManager(){
   const overlay=document.getElementById("premiumManagerOverlay");
   const summary=document.getElementById("premiumManagerSummary");
   const autoText=document.getElementById("premiumAutoRenewText");
-
   if(!overlay) return;
 
-  const membership=normalizeMembership(
-    currentProfileData.membershipLevel,
-    currentProfileData.membership
-  );
-
+  const membership=normalizeMembership(currentProfileData.membershipLevel,currentProfileData.membership);
   if(membership.level===0) return;
 
   if(summary){
-    summary.innerText=
-      `${membership.name} verwalten` +
-      (currentProfileData.premiumUntil
-        ? ` · gültig bis ${formatDateTimeDe(parseDateValue(currentProfileData.premiumUntil))}`
-        : "");
+    summary.innerText=`${membership.name} verwalten`+
+      (currentProfileData.premiumUntil ? ` · gültig bis ${formatDateTimeDe(parseDateValue(currentProfileData.premiumUntil))}` : "");
   }
-
   if(autoText){
-    autoText.innerText=
-      `Status: ${String(currentProfileData.autoRenew||"NEIN").toUpperCase()==="JA" ? "aktiv" : "nicht aktiviert"}`;
+    autoText.innerText=`Status: ${String(currentProfileData.autoRenew||"NEIN").toUpperCase()==="JA" ? "aktiv" : "nicht aktiviert"}`;
   }
-
   document.getElementById("premiumManagerMessage").innerText=
     "Die Oberfläche ist vorbereitet. Die Zahlungs- und Guthabenlogik wird erst nach Freigabe des Premium-v1.2-Backends verbunden.";
-
   overlay.hidden=false;
 }
 
@@ -1852,29 +1743,25 @@ function premiumActionNotConnected(type){
     EXTERN:"Die externe Premium-Verlängerung ist vorbereitet und wird mit Premium v1.2 verbunden.",
     AUTO:"Die Auto-Verlängerung ist vorbereitet und wird mit Premium v1.2 verbunden."
   };
-
-  document.getElementById("premiumManagerMessage").innerText=
-    messages[type] || "Diese Funktion wird mit Premium v1.2 verbunden.";
+  document.getElementById("premiumManagerMessage").innerText=messages[type] || "Diese Funktion wird mit Premium v1.2 verbunden.";
 }
-
 
 function toggleMembershipInfo(event){
   if(event) event.stopPropagation();
-
   const panel=document.getElementById("membershipInfoPanel");
   const button=document.getElementById("membershipInfoButton");
   if(!panel || !button) return;
-
   const willOpen=panel.hidden;
   panel.hidden=!willOpen;
   button.classList.toggle("active",willOpen);
+  button.setAttribute("aria-expanded",willOpen?"true":"false");
 }
 
 function closeMembershipInfo(){
   const panel=document.getElementById("membershipInfoPanel");
   const button=document.getElementById("membershipInfoButton");
   if(panel) panel.hidden=true;
-  if(button) button.classList.remove("active");
+  if(button){button.classList.remove("active");button.setAttribute("aria-expanded","false")}
 }
 
 function startMembershipUpgrade(target){
@@ -1882,22 +1769,18 @@ function startMembershipUpgrade(target){
   const title=document.getElementById("premiumManagerTitle");
   const summary=document.getElementById("premiumManagerSummary");
   const message=document.getElementById("premiumManagerMessage");
-
   if(!box) return;
 
   if(target==="PREMIUM_PLUS"){
     if(title) title.innerText="Upgrade auf Premium Plus";
-    if(summary) summary.innerText="Premium Plus mit erweitertem Quotenvergleich und Netzwerkvorteilen.";
+    if(summary) summary.innerText="Premium Plus mit erweitertem Quotenvergleich und Premium-Provisionen bis Ebene 8.";
   }else{
     if(title) title.innerText="Upgrade auf Premium";
-    if(summary) summary.innerText="Premium mit direkten Quotenbuttons und erweiterten Netzwerkvorteilen.";
+    if(summary) summary.innerText="Premium mit bis zu 3 Anbieter-/Quotenanzeigen und Premium-Provisionen bis Ebene 6.";
   }
-
   if(message){
-    message.innerText=
-      "Der Upgrade-Bereich ist vorbereitet. Der echte Zahlungsaufruf wird verbunden, sobald die finalen Premium-Zahlungslinks bzw. Webhooks feststehen.";
+    message.innerText="Der Upgrade-Bereich ist vorbereitet. Der echte Zahlungsaufruf wird verbunden, sobald Premium v1.2 freigegeben ist.";
   }
-
   box.hidden=false;
 }
 
@@ -1905,7 +1788,6 @@ function renderMembershipActions(level){
   const basisBox=document.getElementById("basisUpgradeBox");
   const premiumRuntime=document.getElementById("premiumRuntimeBox");
   const premiumPlusUpgrade=document.getElementById("premiumPlusUpgradeButton");
-
   if(!basisBox || !premiumRuntime || !premiumPlusUpgrade) return;
 
   if(level===0){
@@ -1917,7 +1799,12 @@ function renderMembershipActions(level){
 
   basisBox.hidden=true;
   premiumRuntime.hidden=false;
-  premiumPlusUpgrade.hidden=(level!==1);
+  premiumPlusUpgrade.hidden=true;
+}
+
+function highlightCurrentMembershipTier(level){
+  document.querySelectorAll(".membership-info-tier").forEach(card=>card.classList.remove("current-tier"));
+  document.querySelector(`.membership-info-tier[data-membership-level="${level}"]`)?.classList.add("current-tier");
 }
 
 function renderMembership(level, membership){
@@ -1925,20 +1812,15 @@ function renderMembership(level, membership){
   const card = document.querySelector(".membership-card");
   const value = document.getElementById("membershipStatus");
   const note = document.getElementById("membershipNote");
-
   if(!card || !value || !note) return;
 
   card.classList.remove("membership-premium", "membership-premiumplus");
-
-  if(normalized.level === 1){
-    card.classList.add("membership-premium");
-  }else if(normalized.level >= 2){
-    card.classList.add("membership-premiumplus");
-  }
+  if(normalized.level === 1){card.classList.add("membership-premium")}
+  else if(normalized.level >= 2){card.classList.add("membership-premiumplus")}
 
   value.innerText = normalized.name;
   note.innerText = normalized.note;
-
+  highlightCurrentMembershipTier(normalized.level);
   renderMembershipActions(normalized.level);
   renderPremiumRuntime();
 }
@@ -1982,10 +1864,7 @@ function maskAccessToken(token){
 function setMaskedToken(token){
   const el=document.getElementById("maskedToken");
   if(!el) return;
-  if(profilePrivacyActive){
-    el.classList.add("private-token-hidden");
-    return;
-  }
+  if(profilePrivacyActive){el.classList.add("private-token-hidden");return}
   el.classList.remove("private-token-hidden");
   el.innerText=maskAccessToken(token);
 }
@@ -1995,10 +1874,7 @@ function setBetInsightId(refCode){
 }
 
 async function copyText(text){
-  if(navigator.clipboard?.writeText){
-    await navigator.clipboard.writeText(text);
-    return;
-  }
+  if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(text);return}
   const ta=document.createElement("textarea");
   ta.value=text;
   ta.style.position="fixed";
@@ -2028,9 +1904,7 @@ function toggleProfilePrivacy(){
 
 function toggleAccountPrivacy(){
   accountPrivacyActive=!accountPrivacyActive;
-  document.querySelectorAll(".account-private-value").forEach(el=>{
-    el.classList.toggle("private-value-hidden",accountPrivacyActive);
-  });
+  document.querySelectorAll(".account-private-value").forEach(el=>el.classList.toggle("private-value-hidden",accountPrivacyActive));
   const b=document.getElementById("accountPrivacyButton");
   b.classList.toggle("active",accountPrivacyActive);
   b.innerText=accountPrivacyActive?"◉ Geschützt":"◉ Schützen";
@@ -2045,30 +1919,17 @@ function toggleReferralPrivacy(){
     "#referralSection .level-metric-value,"+
     "#referralSection .level-body"
   ).forEach(el=>el.classList.toggle("private-value-hidden",referralPrivacyActive));
-
   const b=document.getElementById("referralPrivacyButton");
   b.classList.toggle("active",referralPrivacyActive);
   b.innerText=referralPrivacyActive?"◉ Geschützt":"◉ Schützen";
 }
 
-function getTokenFromUrl(){
-  return new URLSearchParams(location.search).get("token");
-}
-
-function getSavedToken(){
-  return localStorage.getItem(TOKEN_STORAGE_KEY);
-}
-
-function saveToken(token){
-  if(token && String(token).trim()) localStorage.setItem(TOKEN_STORAGE_KEY,String(token).trim());
-}
-
+function getTokenFromUrl(){return new URLSearchParams(location.search).get("token")}
+function getSavedToken(){return localStorage.getItem(TOKEN_STORAGE_KEY)}
+function saveToken(token){if(token && String(token).trim()) localStorage.setItem(TOKEN_STORAGE_KEY,String(token).trim())}
 function getActiveToken(){
   const fromUrl=getTokenFromUrl();
-  if(fromUrl && fromUrl.trim()){
-    saveToken(fromUrl);
-    return fromUrl.trim();
-  }
+  if(fromUrl && fromUrl.trim()){saveToken(fromUrl);return fromUrl.trim()}
   return getSavedToken();
 }
 
@@ -2076,13 +1937,10 @@ function buildTokenVariants(token){
   if(!token) return [];
   const clean=String(token).trim();
   const variants=[clean];
-
   if(clean.startsWith("BI-")){
-    const p=clean.substring(3);
-    variants.push(p,"BI"+p);
+    const p=clean.substring(3);variants.push(p,"BI"+p);
   }else if(clean.startsWith("BI")){
-    const p=clean.substring(2);
-    variants.push(p,"BI-"+p);
+    const p=clean.substring(2);variants.push(p,"BI-"+p);
   }else{
     variants.push("BI"+clean,"BI-"+clean);
   }
@@ -2109,13 +1967,9 @@ function setUnitColor(units){
   document.getElementById("accountUnits").style.color=color;
 }
 
-function setDebug(text){
-  document.getElementById("debug").innerText=text;
-}
+function setDebug(text){document.getElementById("debug").innerText=text}
 
-function getReferralCode(data={}){
-  return String(data.ref_code || currentProfileData.refCode || "").trim();
-}
+function getReferralCode(data={}){return String(data.ref_code || currentProfileData.refCode || "").trim()}
 
 function buildRegistrationReferralLink(data={}){
   if(data.ref_link && String(data.ref_link).trim()) return String(data.ref_link).trim();
@@ -2130,10 +1984,8 @@ function buildLandingpageReferralLink(data={}){
 }
 
 function setReferralLinks(data={}){
-  document.getElementById("registrationReferralLink").innerText=
-    buildRegistrationReferralLink(data) || "Kein direkter Registrierungslink gefunden.";
-  document.getElementById("landingpageReferralLink").innerText=
-    buildLandingpageReferralLink(data) || "Kein persönlicher Landingpage-Link gefunden.";
+  document.getElementById("registrationReferralLink").innerText=buildRegistrationReferralLink(data) || "Kein direkter Registrierungslink gefunden.";
+  document.getElementById("landingpageReferralLink").innerText=buildLandingpageReferralLink(data) || "Kein persönlicher Landingpage-Link gefunden.";
 }
 
 async function copyReferralLinkById(linkId,buttonId,success){
@@ -2150,24 +2002,13 @@ async function copyReferralLinkById(linkId,buttonId,success){
   setTimeout(()=>b.innerText=old,1800);
 }
 
-function copyRegistrationReferralLink(){
-  return copyReferralLinkById("registrationReferralLink","copyRegistrationReferralButton","Direkter Registrierungslink wurde kopiert.");
-}
+function copyRegistrationReferralLink(){return copyReferralLinkById("registrationReferralLink","copyRegistrationReferralButton","Direkter Registrierungslink wurde kopiert.")}
+function copyLandingpageReferralLink(){return copyReferralLinkById("landingpageReferralLink","copyLandingpageReferralButton","Persönlicher Landingpage-Link wurde kopiert.")}
 
-function copyLandingpageReferralLink(){
-  return copyReferralLinkById("landingpageReferralLink","copyLandingpageReferralButton","Persönlicher Landingpage-Link wurde kopiert.");
-}
-
-function partnerValue(partner,keys,fallback=0){
-  return firstDefined(partner,keys,fallback);
-}
+function partnerValue(partner,keys,fallback=0){return firstDefined(partner,keys,fallback)}
 
 function normalizePartnerArray(data,level){
-  const keys=[
-    "level"+level,"ebene"+level,"level_"+level,"ebene_"+level,
-    "partners_level"+level,"partner_ebene"+level
-  ];
-
+  const keys=["level"+level,"ebene"+level,"level_"+level,"ebene_"+level,"partners_level"+level,"partner_ebene"+level];
   for(const key of keys){
     const v=data?.[key];
     if(Array.isArray(v)) return v;
@@ -2183,46 +2024,26 @@ function normalizePartnerArray(data,level){
   return [];
 }
 
-function sumPartnerMetric(partners,keys){
-  return partners.reduce((sum,p)=>sum+safeNumber(partnerValue(p,keys,0)),0);
-}
+function sumPartnerMetric(partners,keys){return partners.reduce((sum,p)=>sum+safeNumber(partnerValue(p,keys,0)),0)}
 
 function getLevelSummaryValues(level,data,partners){
-  const partnerCount=
-    optionalNumber(firstDefined(data,[
-      "ebene"+level,
-      "level"+level+"_partners",
-      "level"+level+"_count",
-      "partner_ebene"+level
-    ],null)) ?? partners.length;
+  const partnerCount=optionalNumber(firstDefined(data,[
+    "ebene"+level,"level"+level+"_partners","level"+level+"_count","partner_ebene"+level
+  ],null)) ?? partners.length;
 
-  const purchased=sumPartnerMetric(partners,[
-    "gekaufte_units","gekaufte_units_rest","purchased_units","gekauft","35"
-  ]);
-
+  const purchased=sumPartnerMetric(partners,["gekaufte_units","gekaufte_units_rest","purchased_units","gekauft","35"]);
   const expected=sumPartnerMetric(partners,[
-    "erwartete_referral_units","ref_erwartet","expected_units","erwartet",
-    "ref_partner_erwartet_l"+level,"ref_ebene_"+level,"ref_level_"+level
+    "erwartete_referral_units","ref_erwartet","expected_units","erwartet","ref_partner_erwartet_l"+level,"ref_ebene_"+level,"ref_level_"+level
   ]);
-
   const released=sumPartnerMetric(partners,[
-    "freigegebene_referral_units","ref_verfuegbar","released_units","available_units",
-    "ref_partner_verfuegbar_l"+level,"freigegeben"
+    "freigegebene_referral_units","ref_verfuegbar","released_units","available_units","ref_partner_verfuegbar_l"+level,"freigegeben"
   ]);
 
   return{
     partnerCount,
-    purchased:safeNumber(firstDefined(data,[
-      "ebene"+level+"_gekauft","level"+level+"_purchased","gekauft_ebene"+level
-    ],purchased)),
-    expected:safeNumber(firstDefined(data,[
-      "ref_partner_erwartet_l"+level,"ref_erwartet_l"+level,
-      "ebene"+level+"_erwartet","level"+level+"_expected"
-    ],expected)),
-    released:safeNumber(firstDefined(data,[
-      "ref_partner_verfuegbar_l"+level,"ref_verfuegbar_l"+level,
-      "ebene"+level+"_freigegeben","level"+level+"_released"
-    ],released))
+    purchased:safeNumber(firstDefined(data,["ebene"+level+"_gekauft","level"+level+"_purchased","gekauft_ebene"+level],purchased)),
+    expected:safeNumber(firstDefined(data,["ref_partner_erwartet_l"+level,"ref_erwartet_l"+level,"ebene"+level+"_erwartet","level"+level+"_expected"],expected)),
+    released:safeNumber(firstDefined(data,["ref_partner_verfuegbar_l"+level,"ref_verfuegbar_l"+level,"ebene"+level+"_freigegeben","level"+level+"_released"],released))
   };
 }
 
@@ -2234,7 +2055,6 @@ function renderLevelCard(level,partners,summary){
     const consumed=partnerValue(p,["verbrauchte_kauf_units","consumed_units","verbraucht"],0);
     const expected=partnerValue(p,["erwartete_referral_units","ref_erwartet","expected_units","erwartet"],0);
     const released=partnerValue(p,["freigegebene_referral_units","ref_verfuegbar","released_units","available_units","freigegeben"],0);
-
     return `<tr>
       <td class="partner-id">${escapeHtml(bi)}</td>
       <td>${escapeHtml(sponsor)}</td>
@@ -2255,28 +2075,18 @@ function renderLevelCard(level,partners,summary){
       <div class="level-metric"><div class="level-metric-label">Freigegeben</div><div class="level-metric-value">${formatNumber(summary.released)}</div></div>
       <div class="level-arrow">⌃</div>
     </div>
-    <div class="level-body">
-      <div class="table-wrap">
-        <table class="network-table">
-          <thead><tr>
-            <th>BI-Nummer</th><th>Sponsor</th><th>Gekaufte Units</th>
-            <th>Verbrauchte Kauf-Units</th><th>Erwartete Referral Units</th><th>Freigegebene Referral Units</th>
-          </tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-    </div>
+    <div class="level-body"><div class="table-wrap"><table class="network-table">
+      <thead><tr><th>BI-Nummer</th><th>Sponsor</th><th>Gekaufte Units</th><th>Verbrauchte Kauf-Units</th><th>Erwartete Referral Units</th><th>Freigegebene Referral Units</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div></div>
   </article>`;
 }
 
-function toggleLevel(level){
-  document.getElementById("levelCard"+level)?.classList.toggle("open");
-}
+function toggleLevel(level){document.getElementById("levelCard"+level)?.classList.toggle("open")}
 
 function renderNetworkPayload(data){
   const summaries=[];
   let html="";
-
   for(let level=1;level<=3;level++){
     const partners=normalizePartnerArray(data,level);
     const summary=getLevelSummaryValues(level,data,partners);
@@ -2284,21 +2094,12 @@ function renderNetworkPayload(data){
     document.getElementById("networkLevel"+level).innerText=formatNumber(summary.partnerCount);
     html+=renderLevelCard(level,partners,summary);
   }
-
   document.getElementById("levelList").innerHTML=html;
 
   const calculatedPending=summaries.reduce((s,x)=>s+x.expected,0);
   const calculatedReleased=summaries.reduce((s,x)=>s+x.released,0);
-
-  const pending=optionalNumber(firstDefined(data,[
-    "ref_noch_nicht_freigegeben","ref_gesamt_erwartet",
-    "ref_erwartet_gesamt","pending_ref_units"
-  ],null)) ?? calculatedPending;
-
-  const all=optionalNumber(firstDefined(data,[
-    "ref_units_insgesamt","ref_gesamt_insgesamt",
-    "referral_units_total","total_ref_units"
-  ],null)) ?? (pending+calculatedReleased);
+  const pending=optionalNumber(firstDefined(data,["ref_noch_nicht_freigegeben","ref_gesamt_erwartet","ref_erwartet_gesamt","pending_ref_units"],null)) ?? calculatedPending;
+  const all=optionalNumber(firstDefined(data,["ref_units_insgesamt","ref_gesamt_insgesamt","referral_units_total","total_ref_units"],null)) ?? (pending+calculatedReleased);
 
   document.getElementById("referralAllUnits").innerText=formatNumber(all);
   document.getElementById("referralPendingUnits").innerText=formatNumber(pending);
@@ -2308,10 +2109,7 @@ function renderNetworkPayload(data){
 async function fetchNetworkPayload(){
   const id=String(currentProfileData.dashboardToken||"").trim();
   if(!id) throw new Error("dashboard_token fehlt.");
-  const r=await fetch(
-    EMPFEHLUNGEN_WEBHOOK_URL+"?id="+encodeURIComponent(id),
-    {cache:"no-store"}
-  );
+  const r=await fetch(EMPFEHLUNGEN_WEBHOOK_URL+"?id="+encodeURIComponent(id),{cache:"no-store"});
   if(!r.ok) throw new Error("HTTP "+r.status);
   return await r.json();
 }
@@ -2319,12 +2117,7 @@ async function fetchNetworkPayload(){
 async function refreshNetworkData(showFeedback=false,sourceButton=null){
   const status=document.getElementById("referralStatus");
   const old=sourceButton?.innerText;
-
-  if(sourceButton && showFeedback){
-    sourceButton.disabled=true;
-    sourceButton.innerText="⏳ Lädt...";
-  }
-
+  if(sourceButton && showFeedback){sourceButton.disabled=true;sourceButton.innerText="⏳ Lädt..."}
   try{
     status.innerText="Empfehlungsdaten werden geladen...";
     const data=await fetchNetworkPayload();
@@ -2337,10 +2130,7 @@ async function refreshNetworkData(showFeedback=false,sourceButton=null){
     if(sourceButton) sourceButton.innerText="❌ Fehler";
   }finally{
     if(sourceButton){
-      setTimeout(()=>{
-        sourceButton.disabled=false;
-        sourceButton.innerText=old;
-      },1800);
+      setTimeout(()=>{sourceButton.disabled=false;sourceButton.innerText=old},1800);
     }
   }
 }
@@ -2359,16 +2149,11 @@ function prepareNetworkSection(){
 async function requestCurrentProfileLink(){
   const email=String(currentProfileData.email||"").trim().toLowerCase();
   const msg=document.getElementById("message");
-  if(!email){
-    msg.innerText="Die registrierte E-Mail-Adresse ist noch nicht geladen.";
-    return;
-  }
+  if(!email){msg.innerText="Die registrierte E-Mail-Adresse ist noch nicht geladen.";return}
   try{
     await fetch(REQUEST_LINK_WEBHOOK_URL+"?email="+encodeURIComponent(email),{cache:"no-store"});
     msg.innerText="Der persönliche Profil-Link wurde erneut an deine registrierte E-Mail-Adresse gesendet.";
-  }catch(e){
-    msg.innerText="Der Profil-Link konnte nicht gesendet werden.";
-  }
+  }catch(e){msg.innerText="Der Profil-Link konnte nicht gesendet werden."}
 }
 
 function fetchProfileByToken(variants,index){
@@ -2384,99 +2169,44 @@ function fetchProfileByToken(variants,index){
   }
 
   const token=variants[index];
-
   fetch(PROFILE_WEBHOOK_URL+"?token="+encodeURIComponent(token),{cache:"no-store"})
     .then(r=>r.json())
     .then(data=>{
-      if(!data || data.found===false || !data.email){
-        fetchProfileByToken(variants,index+1);
-        return;
-      }
+      if(!data || data.found===false || !data.email){fetchProfileByToken(variants,index+1);return}
 
       const finalToken=data.token || token;
       const total=safeNumber(data.einsetzbare_units);
       const consumed=firstDefined(data,["verbrauchte_units","consumed_units","used_units"],null);
-      const unlocked=safeNumber(firstDefined(data,[
-        "freigeschaltete_tipps","unlocked_tips","unlock_count"
-      ],0));
-
-      const membershipLevel = safeNumber(
-        firstDefined(data,["mitgliedschaft_level","membership_level","premium_level"],0)
-      );
-
-      const membership = String(
-        firstDefined(data,["mitgliedschaft","membership"],"Basis")
-      ).trim() || "Basis";
-
-      const premiumStart = firstDefined(
-        data,
-        ["premium_start","premium_von","periode_von"],
-        null
-      );
-
-      const premiumUntil = firstDefined(
-        data,
-        ["premium_bis","premium_until","periode_bis"],
-        null
-      );
-
-      const graceUntil = firstDefined(
-        data,
-        ["kulanz_bis","grace_until"],
-        null
-      );
-
-      const premiumStatus = String(
-        firstDefined(data,["premium_status","membership_status"],"")
-      ).trim();
-
-      const autoRenew = String(
-        firstDefined(data,["auto_verlaengerung","auto_renew"],"NEIN")
-      ).trim().toUpperCase();
-
-      const tariffCode = String(
-        firstDefined(data,["tarif_code","tariff_code"],"")
-      ).trim();
+      const unlocked=safeNumber(firstDefined(data,["freigeschaltete_tipps","unlocked_tips","unlock_count"],0));
+      const membershipLevel=safeNumber(firstDefined(data,["mitgliedschaft_level","membership_level","premium_level"],0));
+      const membership=String(firstDefined(data,["mitgliedschaft","membership"],"Basis")).trim() || "Basis";
+      const premiumStart=firstDefined(data,["premium_start","premium_von","periode_von"],null);
+      const premiumUntil=firstDefined(data,["premium_bis","premium_until","periode_bis"],null);
+      const graceUntil=firstDefined(data,["kulanz_bis","grace_until"],null);
+      const premiumStatus=String(firstDefined(data,["premium_status","membership_status"],"")).trim();
+      const autoRenew=String(firstDefined(data,["auto_verlaengerung","auto_renew"],"NEIN")).trim().toUpperCase();
+      const tariffCode=String(firstDefined(data,["tarif_code","tariff_code"],"")).trim();
 
       currentProfileData={
-        email:data.email||"",
-        units:total,
-        refCode:String(data.ref_code||"").trim(),
-        dashboardToken:String(data.dashboard_token||"").trim(),
-        refLink:String(data.ref_link||"").trim(),
-        consumedUnits:consumed,
-        unlockedTips:unlocked,
-        membershipLevel:membershipLevel,
-        membership:membership,
-        premiumStart:premiumStart,
-        premiumUntil:premiumUntil,
-        graceUntil:graceUntil,
-        premiumStatus:premiumStatus,
-        autoRenew:autoRenew,
-        tariffCode:tariffCode
+        email:data.email||"",units:total,refCode:String(data.ref_code||"").trim(),
+        dashboardToken:String(data.dashboard_token||"").trim(),refLink:String(data.ref_link||"").trim(),
+        consumedUnits:consumed,unlockedTips:unlocked,membershipLevel,membership,
+        premiumStart,premiumUntil,graceUntil,premiumStatus,autoRenew,tariffCode
       };
 
       saveToken(finalToken);
       showProfileBox();
-
-      /* Zentrale Anzeige zwingend mit zwei Nachkommastellen */
       document.getElementById("units").innerText=formatUnitsTwoDecimals(total);
-
-      /* Kleine Karte weiterhin kompakt */
       document.getElementById("accountUnits").innerText=formatNumber(total);
-
       document.getElementById("unlockedTips").innerText=formatNumber(unlocked);
       document.getElementById("consumedUnits").innerText=formatOptionalNumber(consumed);
       document.getElementById("email").innerText=data.email;
-
       renderMembership(membershipLevel, membership);
-
       setBetInsightId(data.ref_code);
       setMaskedToken(finalToken);
       setUnitColor(total);
       setReferralLinks(data);
       prepareNetworkSection();
-
       document.getElementById("message").innerText="Kontostand wurde aktualisiert.";
     })
     .catch(()=>fetchProfileByToken(variants,index+1));
@@ -2484,11 +2214,7 @@ function fetchProfileByToken(variants,index){
 
 function loadUnits(){
   const token=getActiveToken();
-  if(!token){
-    showRequestBox();
-    return;
-  }
-
+  if(!token){showRequestBox();return}
   showProfileBox();
   document.getElementById("message").innerText="Kontostand wird geladen...";
   document.getElementById("units").innerText="0,00";
@@ -2497,21 +2223,14 @@ function loadUnits(){
   document.getElementById("consumedUnits").innerText="–";
   document.getElementById("email").innerText="Lade...";
   renderMembership(0,"Basis");
-
   fetchProfileByToken(buildTokenVariants(token),0);
 }
 
 function requestProfileLink(){
   const email=document.getElementById("requestEmail").value.trim().toLowerCase();
   const msg=document.getElementById("requestMessage");
-
-  if(!email){
-    msg.innerText="Bitte deine registrierte BetInsight E-Mail eingeben.";
-    return;
-  }
-
+  if(!email){msg.innerText="Bitte deine registrierte BetInsight E-Mail eingeben.";return}
   msg.innerText="Profil-Link wird angefordert...";
-
   fetch(REQUEST_LINK_WEBHOOK_URL+"?email="+encodeURIComponent(email))
     .then(()=>msg.innerText="✅ Profil-Link wurde verschickt. Öffne dein E-Mail-Postfach und verwende den erhaltenen Link.")
     .catch(()=>msg.innerText="Fehler beim Anfordern. Bitte versuche es erneut.");
@@ -2520,71 +2239,42 @@ function requestProfileLink(){
 function extractTokenFromInput(value){
   const clean=String(value||"").trim();
   if(!clean) return "";
-
   try{
     const url=new URL(clean);
     return url.searchParams.get("token") || clean;
   }catch(_){}
-
-  if(clean.includes("token=")){
-    return decodeURIComponent(clean.split("token=")[1].split("&")[0]).trim();
-  }
+  if(clean.includes("token=")) return decodeURIComponent(clean.split("token=")[1].split("&")[0]).trim();
   return clean;
 }
 
 function openReceivedProfileLink(){
   const token=extractTokenFromInput(document.getElementById("receivedProfileLink").value);
-  if(!token){
-    document.getElementById("receivedLinkMessage").innerText="Bitte Profil-Link oder Zugangscode eintragen.";
-    return;
-  }
+  if(!token){document.getElementById("receivedLinkMessage").innerText="Bitte Profil-Link oder Zugangscode eintragen.";return}
   saveToken(token);
   location.href="https://betinsightclub.github.io/profil/?token="+encodeURIComponent(token);
 }
 
-function goBuyUnits(){
-  const token=getActiveToken();
-  if(token) location.href="https://betinsightclub.github.io/profil/kaufen/?token="+encodeURIComponent(token);
-}
-
-function goTipps(){
-  const token=getActiveToken();
-  if(token) location.href="https://betinsightclub.github.io/profil/tipps/?token="+encodeURIComponent(token);
-}
-
-function goFreigeschaltet(){
-  const token=getActiveToken();
-  if(token) location.href="https://betinsightclub.github.io/profil/freigeschaltet/?token="+encodeURIComponent(token);
-}
-
-function goUnitExchange(){
-  const token=getActiveToken();
-  if(token) location.href="https://betinsightclub.github.io/profil/wechselboerse/?token="+encodeURIComponent(token);
-}
-
-function goBackoffice(){
-  location.href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726";
-}
+function goBuyUnits(){const token=getActiveToken();if(token) location.href="https://betinsightclub.github.io/profil/kaufen/?token="+encodeURIComponent(token)}
+function goTipps(){const token=getActiveToken();if(token) location.href="https://betinsightclub.github.io/profil/tipps/?token="+encodeURIComponent(token)}
+function goFreigeschaltet(){const token=getActiveToken();if(token) location.href="https://betinsightclub.github.io/profil/freigeschaltet/?token="+encodeURIComponent(token)}
+function goUnitExchange(){const token=getActiveToken();if(token) location.href="https://betinsightclub.github.io/profil/wechselboerse/?token="+encodeURIComponent(token)}
+function goBackoffice(){location.href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726"}
 
 function referralUnitsToAccount(){
-  document.getElementById("referralStatus").innerText=
-    "Diese Funktion wird später mit dem Referral-Ledger in Make verbunden.";
+  document.getElementById("referralStatus").innerText="Diese Funktion wird später mit dem Referral-Ledger in Make verbunden.";
 }
 
 function forgetToken(){
   localStorage.removeItem(TOKEN_STORAGE_KEY);
   localStorage.removeItem("betinsight_email");
   currentProfileData={
-    email:"",units:0,refCode:"",dashboardToken:"",
-    refLink:"",consumedUnits:null,unlockedTips:0,
-    membershipLevel:0,membership:"Basis",
-    premiumStart:null,premiumUntil:null,graceUntil:null,
+    email:"",units:0,refCode:"",dashboardToken:"",refLink:"",consumedUnits:null,unlockedTips:0,
+    membershipLevel:0,membership:"Basis",premiumStart:null,premiumUntil:null,graceUntil:null,
     premiumStatus:"",autoRenew:"NEIN",tariffCode:""
   };
   renderMembership(0,"Basis");
   showRequestBox();
 }
-
 
 document.addEventListener("keydown",event=>{
   if(event.key==="Escape"){
@@ -2596,17 +2286,13 @@ document.addEventListener("keydown",event=>{
 document.addEventListener("click",event=>{
   const panel=document.getElementById("membershipInfoPanel");
   const button=document.getElementById("membershipInfoButton");
-
   if(!panel || panel.hidden) return;
   if(panel.contains(event.target) || button?.contains(event.target)) return;
-
   closeMembershipInfo();
 });
 
 document.getElementById("premiumManagerOverlay")?.addEventListener("click",event=>{
-  if(event.target.id==="premiumManagerOverlay"){
-    closePremiumManager();
-  }
+  if(event.target.id==="premiumManagerOverlay") closePremiumManager();
 });
 
 loadUnits();
