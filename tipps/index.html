@@ -9,7 +9,7 @@ Diese Datei ersetzt die dort vorhandene index.html vollständig.
 
 <!--
 BetInsight Tipps
-Version: 2026.08.12-07
+Version: 2026.08.12-08
 
 - Offene veröffentlichte Tipps oben.
 - Vom Master bestätigte Ergebnisse automatisch unten.
@@ -492,6 +492,36 @@ h1 { margin:4px 0 10px; font-size:36px; }
 .dashboard-column .tip-card,
 .dashboard-column .result-card {
   align-self:start;
+}
+
+
+/* v08: gleiche optische Tiefe/Höhe der Haupttafeln */
+.dashboard-column .tip-card,
+.dashboard-column .result-card {
+  min-height:380px;
+  display:flex;
+  flex-direction:column;
+}
+
+.dashboard-column .result-card .result-status-line {
+  margin-top:auto;
+}
+
+.dashboard-column .result-card .result-note {
+  margin-bottom:auto;
+  padding-bottom:18px;
+}
+
+.dashboard-column .tip-card .unlock-result {
+  margin-top:auto;
+}
+
+/* Auf kleineren Geräten keine künstliche Mindesthöhe */
+@media(max-width:980px){
+  .dashboard-column .tip-card,
+  .dashboard-column .result-card {
+    min-height:0;
+  }
 }
 
 </style>
