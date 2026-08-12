@@ -1,2394 +1,866 @@
 <!DOCTYPE html>
 <!--
+GitHub-Ziel: betinsightclub/profil/index.html
+Live-Seite: https://betinsightclub.github.io/profil/
+
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.06-01
+Version: 2026.08.12-02
+
 Änderungen:
-- Persönlicher Empfehlungsbereich um einen zweiten kopierbaren Link ergänzt
-- Direkter Registrierungslink und persönlicher Landingpage-Link werden automatisch aus dem Referral-Code erstellt
-- Keine zusätzlichen Make-Aufrufe oder Sheet-Abfragen
-- Die drei unteren Hauptbuttons haben auf Desktop, Tablet und Mobil dieselbe Höhe
-- Die kompaktere Höhe von „Netzwerkdaten laden“ gilt nur noch für den oberen Aktualisieren-Button
-- Referral-Zusammenfassung fachlich vereinheitlicht
-- "Ref-Units insgesamt" und "Davon noch nicht freigegeben" beziehen sich beide auf das gesamte Netzwerk der Ebenen 1-3
-- Personenanzahl und Ref-Unit-Werte werden nicht mehr miteinander verglichen
-- Ein Klick auf Netzwerk aktualisieren erzeugt nur noch einen Empfehlungscenter-Aufruf
-- Fehlerhafte alte Button-Variablen aus der Netzwerkladefunktion entfernt
-- Visuelle Modernisierung der gesamten Profil- und Netzwerkansicht
-- Unvollständiges Zwei-Spalten-Raster im Empfehlungscenter beseitigt
-- Mitgliederbereich-Button wieder als kompakter schwebender Button dargestellt
-- Strukturkarten, Tabellen und mobile Partneransicht neu gestaltet
-- Technische Untertitel durch nutzerfreundliche Formulierungen ersetzt
-- Schutzfunktion für die persönliche Netzwerkübersicht wiederhergestellt
-- Netzwerk-Aktualisierung auf je einen Button oben und unten reduziert
-- Eigener verkaufbarer Referral-Bestand vollständig aus der Profilansicht entfernt
-- Verkaufbarer Bestand wird ausschließlich auf profil/verkaufen/index.html angezeigt
-- Struktur und Umsätze verwenden jetzt ebenfalls den Empfehlungscenter-V5-Webhook
-- Alter Struktur-Webhook entfernt
-- Ebene 1, Ebene 2 und Ebene 3 werden aus partners_level1/2/3 geladen
-- Reale Make-Daten statt Musterdaten
-- Interne Unit-Aufschlüsselung auf dem Dashboard entfernt
-- Kontostand auf vier übersichtliche Anzeigefelder reduziert
-- Kontostandsbezeichnungen präzisiert
-- Wechselstuben-Button mit Token-Weitergabe ergänzt
+- Zentrale Anzeige „Gesamte verfügbare Units“ zeigt immer exakt zwei Nachkommastellen.
+  Beispiel: 29,00 / 29,50 / 29,75
+- Kleine Karte „Verfügbare Units“ bleibt kompakt.
+- Freigeschaltete Tipps bleiben an freigeschaltete_tipps angebunden.
+- Verbrauchte Units bleiben an verbrauchte_units angebunden.
+- Profil-, Token-, Empfehlungs- und Netzwerklogik bleiben erhalten.
 -->
 
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-  <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
+<link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>BetInsight Profil & Empfehlungscenter</title>
 
 <style>
-* {
-  box-sizing: border-box;
+* { box-sizing:border-box; }
+
+:root{
+  --bg1:#03131d;
+  --bg2:#062434;
+  --bg3:#020c13;
+  --panel:#07202e;
+  --panel2:#0a2a3a;
+  --border:rgba(104,191,230,.18);
+  --green:#0edca6;
+  --blue:#169cff;
+  --cyan:#18c9f3;
+  --orange:#ffab2e;
+  --red:#c94a4a;
+  --muted:#83abc0;
+  --soft:#d7edf7;
 }
 
-:root {
-  --bg-1: #061923;
-  --bg-2: #071d2b;
-  --bg-3: #04131c;
+html{min-height:100%}
 
-  --panel: rgba(11, 37, 53, 0.96);
-  --panel-soft: rgba(15, 45, 63, 0.94);
-  --panel-deep: rgba(7, 29, 42, 0.98);
-
-  --border: rgba(80, 168, 214, 0.24);
-  --border-strong: rgba(0, 217, 166, 0.40);
-
-  --text: #ffffff;
-  --text-soft: #c9e6f4;
-  --text-muted: #84a9bc;
-
-  --blue: #1d9bf0;
-  --cyan: #16c7f3;
-  --green: #11d6a0;
-  --green-dark: #08aa7e;
-  --orange: #f1a313;
-  --red: #c94a4a;
-  --gray: #72899a;
-  --yellow: #ffcf33;
-}
-
-html {
-  min-height: 100%;
-}
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  color: var(--text);
-  font-family: Arial, Helvetica, sans-serif;
+body{
+  margin:0;
+  min-height:100vh;
+  color:#fff;
+  font-family:Inter,Arial,sans-serif;
   background:
-    radial-gradient(circle at top, rgba(0, 200, 255, 0.11), transparent 34%),
-    linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
-}
-
-button,
-input,
-a {
-  font-family: inherit;
-}
-
-button {
-  border: 0;
-}
-
-.page {
-  width: 100%;
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: 24px 22px 100px;
-}
-
-.floating-back-button {
-  position: fixed;
-  left: 18px;
-  bottom: 18px;
-  z-index: 10000;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-
-  min-height: 48px;
-  padding: 12px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 999px;
-
-  background: linear-gradient(90deg, #168aff, #00b8ff);
-  color: #ffffff;
-  font-size: 15px;
-  font-weight: 800;
-  cursor: pointer;
-
-  box-shadow:
-    0 12px 30px rgba(0, 174, 255, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.20);
-
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
-}
-
-.floating-back-button:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 16px 34px rgba(0, 174, 255, 0.44),
-    inset 0 1px 0 rgba(255, 255, 255, 0.20);
-}
-
-/* Kopf */
-
-.dashboard-header {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 18px;
-  align-items: center;
-
-  margin-bottom: 20px;
-  padding: 18px 20px;
-
-  background: rgba(8, 31, 45, 0.92);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
-}
-
-.logo {
-  width: 118px;
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-
-.header-main {
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  min-width: 0;
-}
-
-.header-icon {
-  font-size: 42px;
-  line-height: 1;
-}
-
-.header-copy h1 {
-  margin: 0;
-  font-size: 28px;
-  line-height: 1.15;
-}
-
-.header-copy p {
-  margin: 5px 0 0;
-  color: var(--text-muted);
-  font-size: 14px;
-}
-
-.header-balance {
-  min-width: 285px;
-  padding: 11px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: 14px;
-  background: rgba(0, 0, 0, 0.22);
-  text-align: center;
-}
-
-.header-balance-label {
-  display: block;
-  color: var(--text-soft);
-  font-size: 12px;
-  font-weight: 700;
-}
-
-#units {
-  display: block;
-  margin-top: 3px;
-  font-size: 36px;
-  line-height: 1;
-  font-weight: 900;
-  color: lime;
-}
-
-/* Allgemeine Panels */
-
-.panel {
-  background: linear-gradient(180deg, var(--panel-soft), var(--panel));
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  box-shadow:
-    0 16px 36px rgba(0, 0, 0, 0.26),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
-  overflow: hidden;
-}
-
-.panel-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-
-  padding: 15px 18px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.panel-head-copy {
-  min-width: 0;
-}
-
-.panel-title {
-  margin: 0;
-  color: #ffffff;
-  font-size: 18px;
-  line-height: 1.25;
-}
-
-.panel-title-accent {
-  color: var(--green);
-}
-
-.panel-subtitle {
-  margin: 3px 0 0;
-  color: var(--text-muted);
-  font-size: 12px;
-  line-height: 1.4;
-}
-
-.panel-body {
-  padding: 18px;
-}
-
-.privacy-toggle {
-  flex: 0 0 auto;
-  width: auto;
-  min-height: 36px;
-  padding: 8px 12px;
-
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: 10px;
-
-  background: rgba(0, 0, 0, 0.18);
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.privacy-toggle.active {
-  border-color: rgba(17, 214, 160, 0.42);
-  background: rgba(17, 214, 160, 0.13);
-  color: var(--green);
-}
-
-/* Profilbereich */
-
-.profile-box,
-.request-box {
-  display: none;
-}
-
-.profile-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(340px, 0.92fr);
-  gap: 20px;
-  align-items: stretch;
-  margin-bottom: 20px;
-}
-
-.profile-grid > .panel {
-  min-height: 100%;
-}
-
-.account-data {
-  display: grid;
-  gap: 10px;
-}
-
-.data-row {
-  display: grid;
-  grid-template-columns: 120px minmax(0, 1fr);
-  gap: 12px;
-  align-items: center;
-
-  min-height: 48px;
-  padding: 11px 13px;
-
-  background: rgba(0, 0, 0, 0.17);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 10px;
-}
-
-.data-label {
-  color: var(--text-muted);
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.data-value {
-  min-width: 0;
-  color: #ffffff;
-  font-size: 15px;
-  font-weight: 800;
-  overflow-wrap: anywhere;
-}
-
-.id-line {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-#betInsightId {
-  color: var(--green);
-  font-size: 18px;
-  letter-spacing: 0.4px;
-}
-
-.inline-copy-button {
-  flex: 0 0 auto;
-  width: auto;
-  min-height: 34px;
-  padding: 8px 11px;
-  border-radius: 8px;
-  background: linear-gradient(90deg, #627f92, #7894a6);
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.secure-access {
-  margin-top: 12px;
-  padding: 14px;
-
-  background: rgba(0, 0, 0, 0.17);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 10px;
-}
-
-.secure-access-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-
-.secure-access-title {
-  color: var(--text-soft);
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.secure-access-status {
-  color: var(--green);
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.masked-token {
-  padding: 11px 13px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 9px;
-  background: rgba(0, 0, 0, 0.24);
-  color: #ffffff;
-  font-size: 15px;
-  font-weight: 900;
-  letter-spacing: 1px;
-  text-align: center;
-}
-
-.secure-access-note {
-  margin: 10px 0 0;
-  color: var(--text-muted);
-  font-size: 12px;
-  line-height: 1.45;
-  text-align: center;
-}
-
-.privacy-note {
-  margin: 12px 0 0;
-  color: var(--text-muted);
-  font-size: 12px;
-  line-height: 1.45;
-}
-
-.message {
-  min-height: 19px;
-  margin: 12px 0 0;
-  color: var(--yellow);
-  font-size: 12px;
-  line-height: 1.45;
-  text-align: center;
-  white-space: pre-wrap;
-}
-
-/* Datenschutz nur auf sensiblen Zeilen */
-
-.private-row-hidden {
-  position: relative;
-  overflow: hidden;
-}
-
-.private-row-hidden::after {
-  content: "E-Mail geschützt";
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-
-  padding: 11px 13px;
-  border-radius: inherit;
-
-  background: rgba(4, 20, 29, 0.98);
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: 0.3px;
-}
-
-.private-token-hidden {
-  color: transparent !important;
-  text-shadow: none !important;
-  user-select: none;
-  pointer-events: none;
-  position: relative;
-}
-
-.private-token-hidden::after {
-  content: "Persönlicher Zugang geschützt";
-  position: absolute;
-  inset: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: 0;
-}
-
-.private-value-hidden {
-  color: transparent !important;
-  text-shadow: none !important;
-  user-select: none;
-  pointer-events: none;
-  position: relative;
-}
-
-.private-value-hidden::after {
-  content: "Geschützt";
-  position: absolute;
-  inset: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-/* Kontostand und Aktionen */
-
-.account-summary {
-  display: grid;
-  gap: 12px;
-}
-
-.account-stat-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 11px;
-}
-
-.account-stat {
-  min-height: 105px;
-  padding: 14px;
-
-  background: rgba(0, 0, 0, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 13px;
-}
-
-.account-stat-label {
-  color: var(--text-muted);
-  font-size: 12px;
-  line-height: 1.35;
-}
-
-.account-stat-value {
-  margin-top: 9px;
-  font-size: 29px;
-  line-height: 1;
-  font-weight: 900;
-}
-
-.value-blue { color: #3ca8ff; }
-.value-green { color: var(--green); }
-.value-orange { color: var(--orange); }
-.value-cyan { color: var(--cyan); }
-
-.account-actions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-
-button,
-.btn-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-
-  width: 100%;
-  min-height: 46px;
-  padding: 11px 13px;
-
-  border-radius: 10px;
-  color: #ffffff;
-  text-decoration: none;
-  text-align: center;
-  font-size: 13px;
-  font-weight: 800;
-  cursor: pointer;
-
-  transition: transform 0.16s ease, filter 0.16s ease;
-}
-
-button:hover,
-.btn-link:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.07);
-}
-
-.btn-blue {
-  background: linear-gradient(90deg, #168aff, #00b8ff);
-}
-
-.btn-green {
-  background: linear-gradient(90deg, #08aa7e, #13c792);
-}
-
-.btn-orange {
-  background: linear-gradient(90deg, #df8e0c, #f2a514);
-}
-
-.btn-red {
-  background: linear-gradient(90deg, #a83b3b, #c94a4a);
-}
-
-.btn-gray {
-  background: linear-gradient(90deg, #627f92, #7894a6);
-}
-
-.security-box {
-  padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.09);
-}
-
-.small-warning {
-  margin: 0 0 10px;
-  color: var(--yellow);
-  font-size: 11px;
-  line-height: 1.45;
-  text-align: center;
-}
-
-/* Empfehlungscenter */
-
-.referral-section {
-  display: none;
-}
-
-.referral-overview {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.referral-stat {
-  min-height: 108px;
-  padding: 14px;
-
-  background: rgba(255, 255, 255, 0.025);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 13px;
-}
-
-.referral-stat-label {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  color: var(--text-muted);
-  font-size: 12px;
-  line-height: 1.3;
-}
-
-.referral-stat-value {
-  margin-top: 10px;
-  color: #ffffff;
-  font-size: 29px;
-  line-height: 1;
-  font-weight: 900;
-}
-
-.referral-stat-note {
-  margin-top: 6px;
-  color: var(--text-muted);
-  font-size: 11px;
-}
-
-.referral-link-group {
-  display: grid;
-  gap: 12px;
-  margin-top: 13px;
-}
-
-.referral-link-item {
-  display: grid;
-  gap: 7px;
-}
-
-.referral-link-heading {
-  color: var(--text-soft);
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.referral-link-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px;
-  align-items: center;
-}
-
-.referral-linkbox {
-  min-height: 48px;
-  padding: 13px 14px;
-
-  background: rgba(0, 0, 0, 0.24);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: 10px;
-
-  color: #ffffff;
-  font-size: 13px;
-  line-height: 1.45;
-  word-break: break-all;
-}
-
-.referral-link-row button {
-  width: auto;
-  min-width: 205px;
-}
-
-/* Struktur und Umsätze */
-
-.structure-panel {
-  margin-top: 20px;
-}
-
-.level-list {
-  display: grid;
-  gap: 12px;
-}
-
-.level-card {
-  border: 1px solid rgba(17, 214, 160, 0.26);
-  border-radius: 14px;
-  overflow: hidden;
-  background: rgba(6, 31, 44, 0.76);
-}
-
-.level-head {
-  display: grid;
-  grid-template-columns: auto minmax(180px, 1.2fr) repeat(4, minmax(90px, 0.7fr)) auto;
-  gap: 14px;
-  align-items: center;
-
-  padding: 13px 14px;
-  cursor: pointer;
-}
-
-.level-number {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-
-  background: rgba(17, 214, 160, 0.12);
-  border: 1px solid rgba(17, 214, 160, 0.30);
-  color: var(--green);
-  font-weight: 900;
-}
-
-.level-name {
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 900;
-}
-
-.level-metric {
-  min-width: 0;
-}
-
-.level-metric-label {
-  color: var(--text-muted);
-  font-size: 10px;
-  line-height: 1.2;
-}
-
-.level-metric-value {
-  margin-top: 4px;
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 900;
-  overflow-wrap: anywhere;
-}
-
-.level-arrow {
-  color: #ffffff;
-  font-size: 18px;
-  transition: transform 0.2s ease;
-}
-
-.level-card.open .level-arrow {
-  transform: rotate(180deg);
-}
-
-.level-body {
-  display: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.level-card.open .level-body {
-  display: block;
-}
-
-.table-wrap {
-  width: 100%;
-  overflow-x: auto;
-}
-
-.network-table {
-  width: 100%;
-  min-width: 880px;
-  border-collapse: collapse;
-}
-
-.network-table th,
-.network-table td {
-  padding: 11px 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-  text-align: left;
-}
-
-.network-table th {
-  background: rgba(0, 0, 0, 0.18);
-  color: var(--text-muted);
-  font-size: 10px;
-  letter-spacing: 0.35px;
-  text-transform: uppercase;
-}
-
-.network-table td {
-  color: #ffffff;
-  font-size: 12px;
-}
-
-.network-table tr:last-child td {
-  border-bottom: 0;
-}
-
-.partner-id {
-  color: #3ca8ff;
-  font-weight: 900;
-}
-
-.empty-row {
-  padding: 18px !important;
-  color: var(--text-muted) !important;
-  text-align: center !important;
-}
-
-.referral-footer-actions {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.referral-status {
-  min-height: 19px;
-  margin: 12px 0 0;
-  color: var(--yellow);
-  font-size: 12px;
-  line-height: 1.45;
-  text-align: center;
-  white-space: pre-wrap;
-}
-
-/* Profil-Link anfordern */
-
-.request-header {
-  max-width: 780px;
-  margin: 0 auto 20px;
-  text-align: center;
-}
-
-.request-header h2 {
-  margin: 0 0 8px;
-  font-size: 27px;
-}
-
-.request-header p {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.request-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
-input {
-  width: 100%;
-  min-height: 47px;
-  padding: 12px 14px;
-
-  border: 2px solid var(--blue);
-  border-radius: 10px;
-
-  background: #ffffff;
-  color: #17242c;
-  font-size: 14px;
-  text-align: center;
-  outline: none;
-}
-
-.request-panel input {
-  margin: 10px 0;
-}
-
-.request-actions {
-  display: grid;
-  gap: 10px;
-}
-
-.footer {
-  margin-top: 24px;
-  color: rgba(255, 255, 255, 0.40);
-  font-size: 12px;
-  text-align: center;
-}
-
-.debug {
-  display: none;
-}
-
-@media (max-width: 980px) {
-  .profile-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .referral-overview {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .level-head {
-    grid-template-columns: auto 1fr auto;
-  }
-
-  .level-metric {
-    display: none;
+    radial-gradient(circle at 14% 0%,rgba(14,220,166,.10),transparent 30%),
+    radial-gradient(circle at 88% 8%,rgba(22,156,255,.14),transparent 34%),
+    linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 48%,var(--bg3) 100%);
+  background-attachment:fixed;
+}
+
+button,input,a{font:inherit}
+button{border:0}
+
+.page{
+  width:100%;
+  max-width:1240px;
+  margin:0 auto;
+  padding:30px 26px 112px;
+}
+
+.floating-back-button{
+  position:fixed;
+  left:24px;
+  bottom:22px;
+  z-index:10000;
+  width:auto;
+  min-width:190px;
+  min-height:48px;
+  padding:12px 19px;
+  border:1px solid rgba(255,255,255,.20);
+  border-radius:15px;
+  background:linear-gradient(105deg,#168dff,#08bdec);
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 16px 38px rgba(0,135,224,.35);
+}
+
+.dashboard-header{
+  position:relative;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:18px;
+  align-items:center;
+  margin-bottom:24px;
+  padding:20px 22px;
+  border:1px solid rgba(91,192,232,.24);
+  border-radius:24px;
+  background:linear-gradient(115deg,rgba(13,52,69,.97),rgba(5,28,41,.96));
+  box-shadow:0 24px 60px rgba(0,0,0,.30);
+}
+
+.dashboard-header::after{
+  content:"";
+  position:absolute;
+  width:260px;
+  height:260px;
+  right:-100px;
+  top:-150px;
+  border-radius:50%;
+  background:rgba(22,156,255,.16);
+  pointer-events:none;
+}
+
+.logo{
+  position:relative;
+  z-index:1;
+  width:112px;
+  max-width:100%;
+  height:auto;
+}
+
+.header-main{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  gap:13px;
+  min-width:0;
+}
+
+.header-icon{font-size:42px}
+.header-copy h1{margin:0;font-size:clamp(25px,3vw,33px)}
+.header-copy p{margin:7px 0 0;color:var(--muted);font-size:13px}
+
+.header-balance{
+  position:relative;
+  z-index:1;
+  min-width:238px;
+  padding:13px 18px;
+  border:1px solid rgba(14,220,166,.24);
+  border-radius:16px;
+  background:linear-gradient(145deg,rgba(6,20,29,.78),rgba(13,52,59,.72));
+  text-align:center;
+}
+
+.header-balance-label{
+  display:block;
+  color:var(--soft);
+  font-size:12px;
+  font-weight:700;
+}
+
+#units{
+  display:block;
+  margin-top:6px;
+  color:var(--green);
+  font-size:38px;
+  font-weight:900;
+  line-height:1;
+  text-shadow:0 0 24px rgba(14,220,166,.24);
+}
+
+.profile-box,.request-box,.referral-section{display:none}
+
+.profile-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.08fr) minmax(340px,.92fr);
+  gap:24px;
+  margin-bottom:24px;
+}
+
+.panel{
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(90,180,220,.20);
+  border-radius:22px;
+  background:linear-gradient(155deg,rgba(12,48,64,.97),rgba(5,29,43,.97));
+  box-shadow:0 22px 56px rgba(0,0,0,.28);
+}
+
+.panel::before{
+  content:"";
+  position:absolute;
+  inset:0 auto 0 0;
+  width:3px;
+  background:linear-gradient(180deg,var(--green),rgba(22,156,255,.18),transparent 88%);
+}
+
+.panel-head{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  min-height:78px;
+  padding:18px 21px;
+  border-bottom:1px solid rgba(255,255,255,.065);
+}
+
+.panel-title{margin:0;font-size:19px}
+.panel-title-accent{color:#16dcb0}
+.panel-subtitle{margin:5px 0 0;color:var(--muted);font-size:12px}
+.panel-body{position:relative;padding:20px}
+
+.privacy-toggle{
+  width:auto;
+  min-width:88px;
+  min-height:38px;
+  padding:8px 13px;
+  border:1px solid rgba(120,195,226,.18);
+  border-radius:999px;
+  background:rgba(2,17,25,.55);
+  color:#fff;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.privacy-toggle.active{
+  border-color:rgba(14,220,166,.42);
+  background:rgba(14,220,166,.10);
+  color:var(--green);
+}
+
+.account-data{display:grid;gap:10px}
+
+.data-row{
+  display:grid;
+  grid-template-columns:120px minmax(0,1fr);
+  gap:12px;
+  align-items:center;
+  min-height:48px;
+  padding:11px 13px;
+  border:1px solid rgba(135,197,222,.11);
+  border-radius:13px;
+  background:linear-gradient(145deg,rgba(0,0,0,.19),rgba(255,255,255,.018));
+}
+
+.data-label{color:var(--muted);font-size:13px;font-weight:800}
+.data-value{min-width:0;color:#fff;font-size:15px;font-weight:800;overflow-wrap:anywhere}
+
+.id-line{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#betInsightId{color:var(--green);font-size:18px}
+
+.inline-copy-button{
+  width:auto;
+  min-height:38px;
+  padding:8px 12px;
+  border-radius:11px;
+  background:linear-gradient(105deg,#627f92,#7894a6);
+  color:#fff;
+  font-size:12px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.secure-access{
+  margin-top:12px;
+  padding:14px;
+  border:1px solid rgba(135,197,222,.11);
+  border-radius:13px;
+  background:linear-gradient(145deg,rgba(0,0,0,.19),rgba(255,255,255,.018));
+}
+
+.secure-access-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:10px;
+}
+
+.secure-access-title{color:var(--soft);font-size:13px;font-weight:800}
+.secure-access-status{color:var(--green);font-size:12px;font-weight:900}
+
+.masked-token{
+  padding:11px 13px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:9px;
+  background:rgba(0,0,0,.24);
+  color:#fff;
+  font-weight:900;
+  letter-spacing:1px;
+  text-align:center;
+}
+
+.secure-access-note,.privacy-note{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.45;
+}
+
+.secure-access-note{text-align:center}
+.message,.referral-status{
+  min-height:19px;
+  margin:12px 0 0;
+  color:#ffcf33;
+  font-size:12px;
+  line-height:1.45;
+  text-align:center;
+  white-space:pre-wrap;
+}
+
+.account-summary{display:grid;gap:12px}
+
+.account-stat-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+
+.account-stat{
+  position:relative;
+  overflow:hidden;
+  min-height:112px;
+  padding:15px;
+  border:1px solid rgba(126,194,220,.12);
+  border-radius:15px;
+  background:linear-gradient(145deg,rgba(2,21,31,.74),rgba(13,55,69,.52));
+}
+
+.account-stat::after{
+  content:"";
+  position:absolute;
+  width:70px;
+  height:70px;
+  right:-35px;
+  bottom:-35px;
+  border-radius:50%;
+  background:currentColor;
+  opacity:.05;
+}
+
+.account-stat-label{color:var(--muted);font-size:12px;font-weight:700}
+.account-stat-value{margin-top:12px;font-size:31px;font-weight:900}
+.value-green{color:var(--green)}
+.value-cyan{color:var(--cyan)}
+.value-orange{color:var(--orange)}
+.value-blue{color:#3ca8ff}
+
+.account-actions{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+
+button,.btn-link{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  width:100%;
+  min-height:47px;
+  padding:11px 13px;
+  border-radius:13px;
+  color:#fff;
+  text-decoration:none;
+  font-size:13px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.btn-blue{background:linear-gradient(105deg,#168dff,#08bdec)}
+.btn-green{background:linear-gradient(105deg,#079e79,#0ed5a0)}
+.btn-orange{background:linear-gradient(105deg,#d98608,#ffb229)}
+.btn-red{background:linear-gradient(105deg,#a83b3b,#c94a4a)}
+.btn-gray{background:linear-gradient(105deg,#627f92,#7894a6)}
+
+.security-box{
+  padding-top:12px;
+  border-top:1px solid rgba(255,255,255,.09);
+}
+
+.small-warning{
+  margin:0 0 10px;
+  color:#ffcf33;
+  font-size:11px;
+  line-height:1.45;
+  text-align:center;
+}
+
+.private-row-hidden,.private-token-hidden,.private-value-hidden{
+  position:relative;
+  overflow:hidden;
+}
+
+.private-row-hidden::after{
+  content:"E-Mail geschützt";
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  padding:11px 13px;
+  background:#04141d;
+  color:#fff;
+  font-weight:900;
+}
+
+.private-token-hidden,.private-value-hidden{color:transparent!important;user-select:none}
+.private-token-hidden::after,.private-value-hidden::after{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+}
+.private-token-hidden::after{content:"Persönlicher Zugang geschützt"}
+.private-value-hidden::after{content:"Geschützt"}
+
+.referral-overview{
+  display:grid;
+  grid-template-columns:minmax(250px,1.18fr) minmax(190px,.91fr) minmax(190px,.91fr);
+  gap:14px;
+}
+
+.referral-stat{
+  position:relative;
+  min-height:168px;
+  padding:17px;
+  border:1px solid rgba(118,194,224,.13);
+  border-radius:17px;
+  background:linear-gradient(145deg,rgba(3,27,39,.76),rgba(13,54,68,.58));
+}
+
+.referral-stat-label{color:#8bc1d7;font-size:12px;font-weight:800}
+
+.network-levels{display:grid;gap:7px;margin-top:13px}
+.network-level-line{display:flex;justify-content:space-between;color:var(--soft);font-size:14px}
+.network-level-line strong{color:#fff}
+
+.referral-stat-value{
+  margin-top:17px;
+  font-size:36px;
+  font-weight:900;
+}
+
+.referral-stat-note{margin-top:8px;color:var(--muted);font-size:11px}
+
+.referral-link-group{display:grid;gap:12px;margin-top:16px}
+.referral-link-heading{margin-bottom:7px;color:var(--soft);font-size:12px;font-weight:900}
+.referral-link-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:10px;
+  padding:10px;
+  border:1px solid rgba(112,190,220,.13);
+  border-radius:16px;
+  background:rgba(2,18,27,.44);
+}
+.referral-linkbox{
+  min-height:46px;
+  padding:13px 14px;
+  border-radius:11px;
+  background:rgba(0,0,0,.24);
+  color:#fff;
+  font-size:13px;
+  line-height:1.45;
+  word-break:break-all;
+}
+.referral-link-row button{width:auto;min-width:205px}
+
+.structure-panel{margin-top:24px}
+.structure-hint{
+  padding:8px 11px;
+  border:1px solid rgba(14,220,166,.20);
+  border-radius:999px;
+  background:rgba(14,220,166,.07);
+  color:#8ce9cf;
+  font-size:11px;
+  font-weight:800;
+}
+
+.level-list{display:grid;gap:14px}
+.level-card{
+  overflow:hidden;
+  border:1px solid rgba(14,220,166,.20);
+  border-radius:17px;
+  background:linear-gradient(145deg,rgba(3,29,41,.88),rgba(4,39,48,.72));
+}
+.level-head{
+  display:grid;
+  grid-template-columns:auto minmax(180px,1.2fr) repeat(4,minmax(90px,.7fr)) auto;
+  gap:14px;
+  align-items:center;
+  min-height:66px;
+  padding:14px 16px;
+  cursor:pointer;
+}
+.level-number{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:38px;height:38px;
+  border:1px solid rgba(14,220,166,.30);
+  border-radius:12px;
+  background:linear-gradient(145deg,rgba(14,220,166,.16),rgba(22,156,255,.09));
+  color:var(--green);
+  font-weight:900;
+}
+.level-name{font-size:14px;font-weight:900}
+.level-metric{padding-left:10px;border-left:1px solid rgba(255,255,255,.07)}
+.level-metric-label{color:var(--muted);font-size:9px;text-transform:uppercase}
+.level-metric-value{margin-top:5px;font-size:13px;font-weight:900}
+.level-arrow{
+  display:flex;align-items:center;justify-content:center;
+  width:32px;height:32px;border-radius:10px;background:rgba(0,0,0,.18)
+}
+.level-body{display:none;border-top:1px solid rgba(255,255,255,.08)}
+.level-card.open .level-body{display:block}
+
+.table-wrap{width:100%;overflow-x:auto}
+.network-table{width:100%;min-width:880px;border-collapse:collapse}
+.network-table th,.network-table td{
+  padding:13px 12px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  text-align:left;
+}
+.network-table th{background:rgba(1,17,25,.72);color:#77b8d2;font-size:9px;text-transform:uppercase}
+.network-table td{font-size:12px}
+.partner-id{color:#3ca8ff;font-weight:900}
+.empty-row{height:94px;color:var(--muted)!important;text-align:center!important}
+
+.referral-footer-actions{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin-top:17px;
+  padding-top:17px;
+  border-top:1px solid rgba(255,255,255,.065);
+}
+
+.request-header{
+  max-width:780px;
+  margin:0 auto 20px;
+  text-align:center;
+}
+.request-header h2{margin:0 0 8px}
+.request-header p{color:var(--muted)}
+.request-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+input{
+  width:100%;
+  min-height:47px;
+  padding:12px 14px;
+  border:2px solid var(--blue);
+  border-radius:10px;
+  background:#fff;
+  color:#17242c;
+  text-align:center;
+}
+.request-panel input{margin:10px 0}
+.request-actions{display:grid;gap:10px}
+.footer{margin-top:28px;color:rgba(255,255,255,.40);font-size:12px;text-align:center}
+.debug{display:none}
+
+@media(max-width:980px){
+  .profile-grid{grid-template-columns:1fr}
+  .referral-overview{grid-template-columns:1fr}
+  .level-head{grid-template-columns:auto 1fr auto}
+  .level-metric{display:none}
+}
+
+@media(max-width:760px){
+  .page{padding:16px 14px 104px}
+  .dashboard-header{grid-template-columns:auto 1fr}
+  .header-balance{grid-column:1/-1}
+  .request-grid{grid-template-columns:1fr}
+  .referral-footer-actions{grid-template-columns:1fr}
+  .referral-link-row{grid-template-columns:1fr}
+  .referral-link-row button{width:100%}
+  .structure-hint{display:none}
+}
+
+@media(max-width:600px){
+  .dashboard-header{display:block;text-align:center}
+  .logo{margin:0 auto 11px}
+  .header-main{display:block}
+  .header-balance{margin-top:13px}
+  .account-stat-grid,.account-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .data-row{grid-template-columns:1fr;gap:4px}
+  .id-line{flex-direction:column;align-items:stretch}
+  .inline-copy-button{width:100%}
+  .floating-back-button{
+    left:50%;
+    bottom:14px;
+    transform:translateX(-50%);
+    max-width:calc(100vw - 28px);
   }
 }
 
-@media (max-width: 760px) {
-  .dashboard-header {
-    grid-template-columns: auto 1fr;
-  }
-
-  .header-balance {
-    grid-column: 1 / -1;
-  }
-
-  .request-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .referral-footer-actions {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 600px) {
-  .page {
-    padding: 12px 12px 92px;
-  }
-
-  .dashboard-header {
-    display: block;
-    padding: 15px;
-    text-align: center;
-  }
-
-  .logo {
-    width: 100px;
-    margin: 0 auto 11px;
-  }
-
-  .header-main {
-    display: block;
-  }
-
-  .header-icon {
-    margin-bottom: 6px;
-    font-size: 36px;
-  }
-
-  .header-copy h1 {
-    font-size: 24px;
-  }
-
-  .header-balance {
-    margin-top: 13px;
-  }
-
-  .panel-head {
-    align-items: flex-start;
-  }
-
-  .panel-body {
-    padding: 15px;
-  }
-
-  .data-row {
-    grid-template-columns: 1fr;
-    gap: 4px;
-  }
-
-  .id-line {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .inline-copy-button {
-    width: 100%;
-  }
-
-  .account-stat-grid,
-  .account-actions,
-  .referral-overview {
-    grid-template-columns: 1fr;
-  }
-
-  .referral-link-row {
-    grid-template-columns: 1fr;
-  }
-
-  .referral-link-row button {
-    width: 100%;
-  }
-
-  .floating-back-button {
-    left: 12px;
-    bottom: 12px;
-    max-width: calc(100vw - 24px);
-  }
-}
-
-/* =========================================================
-   Modernes BetInsight-Finish – Version 2026.08.02-05
-   Rein visuelle Überarbeitung; Datenlogik und Webhooks bleiben unverändert.
-   ========================================================= */
-
-:root {
-  --bg-1: #03131d;
-  --bg-2: #062434;
-  --bg-3: #020c13;
-  --panel: rgba(7, 32, 46, 0.94);
-  --panel-soft: rgba(10, 42, 58, 0.92);
-  --panel-deep: rgba(4, 23, 34, 0.98);
-  --border: rgba(104, 191, 230, 0.18);
-  --border-strong: rgba(15, 221, 166, 0.42);
-  --text-soft: #d7edf7;
-  --text-muted: #83abc0;
-  --blue: #169cff;
-  --cyan: #18c9f3;
-  --green: #0edca6;
-  --orange: #ffab2e;
-}
-
-body {
-  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background:
-    radial-gradient(circle at 14% 0%, rgba(14, 220, 166, 0.10), transparent 30%),
-    radial-gradient(circle at 88% 8%, rgba(22, 156, 255, 0.14), transparent 34%),
-    linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
-  background-attachment: fixed;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.32;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
-  background-size: 46px 46px;
-  mask-image: linear-gradient(to bottom, black, transparent 88%);
-}
-
-.page {
-  max-width: 1240px;
-  padding: 30px 26px 112px;
-}
-
-.dashboard-header {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  margin-bottom: 24px;
-  padding: 20px 22px;
-  border-color: rgba(91, 192, 232, 0.24);
-  border-radius: 24px;
-  background:
-    linear-gradient(115deg, rgba(13, 52, 69, 0.97), rgba(5, 28, 41, 0.96));
-  box-shadow:
-    0 24px 60px rgba(0, 0, 0, 0.30),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-
-.dashboard-header::after {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  width: 260px;
-  height: 260px;
-  right: -100px;
-  top: -150px;
-  border-radius: 50%;
-  background: rgba(22, 156, 255, 0.16);
-  filter: blur(2px);
-}
-
-.header-copy h1 {
-  font-size: clamp(25px, 3vw, 33px);
-  letter-spacing: -0.65px;
-}
-
-.header-copy p {
-  max-width: 560px;
-  margin-top: 7px;
-  font-size: 13px;
-  line-height: 1.45;
-}
-
-.header-balance {
-  min-width: 238px;
-  padding: 13px 18px;
-  border-color: rgba(14, 220, 166, 0.24);
-  border-radius: 16px;
-  background: linear-gradient(145deg, rgba(6, 20, 29, 0.78), rgba(13, 52, 59, 0.72));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
-}
-
-#units {
-  margin-top: 6px;
-  color: var(--green);
-  font-size: 38px;
-  text-shadow: 0 0 24px rgba(14, 220, 166, 0.24);
-}
-
-.profile-grid {
-  gap: 24px;
-  margin-bottom: 24px;
-}
-
-.panel {
-  position: relative;
-  border-color: rgba(90, 180, 220, 0.20);
-  border-radius: 22px;
-  background:
-    linear-gradient(155deg, rgba(12, 48, 64, 0.97), rgba(5, 29, 43, 0.97));
-  box-shadow:
-    0 22px 56px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.045);
-}
-
-.panel::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 3px;
-  background: linear-gradient(180deg, var(--green), rgba(22, 156, 255, 0.18), transparent 88%);
-  opacity: 0.85;
-  pointer-events: none;
-}
-
-.panel-head {
-  min-height: 78px;
-  padding: 18px 21px;
-  border-bottom-color: rgba(255, 255, 255, 0.065);
-  background: linear-gradient(90deg, rgba(255,255,255,0.018), transparent 70%);
-}
-
-.panel-title {
-  font-size: 19px;
-  letter-spacing: -0.2px;
-}
-
-.panel-title-accent {
-  color: #16dcb0;
-}
-
-.panel-subtitle {
-  margin-top: 5px;
-  font-size: 12px;
-}
-
-.panel-body {
-  padding: 20px;
-}
-
-.privacy-toggle {
-  width: auto;
-  min-height: 38px;
-  padding: 8px 13px;
-  border-color: rgba(120, 195, 226, 0.18);
-  border-radius: 999px;
-  background: rgba(2, 17, 25, 0.55);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
-}
-
-.privacy-toggle:hover {
-  border-color: rgba(14, 220, 166, 0.42);
-}
-
-.data-row,
-.secure-access {
-  border-color: rgba(135, 197, 222, 0.11);
-  border-radius: 13px;
-  background: linear-gradient(145deg, rgba(0,0,0,0.19), rgba(255,255,255,0.018));
-}
-
-.account-stat-grid {
-  gap: 12px;
-}
-
-.account-stat {
-  position: relative;
-  overflow: hidden;
-  min-height: 112px;
-  padding: 15px;
-  border-color: rgba(126, 194, 220, 0.12);
-  border-radius: 15px;
-  background:
-    linear-gradient(145deg, rgba(2, 21, 31, 0.74), rgba(13, 55, 69, 0.52));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.035);
-}
-
-.account-stat::after {
-  content: "";
-  position: absolute;
-  width: 70px;
-  height: 70px;
-  right: -35px;
-  bottom: -35px;
-  border-radius: 50%;
-  background: currentColor;
-  opacity: 0.05;
-}
-
-.account-stat-label {
-  font-weight: 700;
-}
-
-.account-stat-value {
-  margin-top: 12px;
-  font-size: 31px;
-}
-
-button,
-.btn-link {
-  min-height: 47px;
-  border-radius: 13px;
-  box-shadow:
-    0 8px 20px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255,255,255,0.16);
-}
-
-button:focus-visible,
-.btn-link:focus-visible,
-.level-head:focus-visible {
-  outline: 3px solid rgba(22, 201, 243, 0.42);
-  outline-offset: 2px;
-}
-
-.btn-blue {
-  background: linear-gradient(105deg, #168dff, #08bdec);
-}
-
-.btn-green {
-  background: linear-gradient(105deg, #079e79, #0ed5a0);
-}
-
-.btn-orange {
-  background: linear-gradient(105deg, #d98608, #ffb229);
-}
-
-.floating-back-button {
-  left: 24px;
-  bottom: 22px;
-  width: auto !important;
-  min-width: 190px;
-  max-width: calc(100vw - 48px);
-  min-height: 48px;
-  padding: 12px 19px;
-  border-radius: 15px;
-  border-color: rgba(255,255,255,0.20);
-  background: linear-gradient(105deg, #168dff, #08bdec);
-  box-shadow:
-    0 16px 38px rgba(0, 135, 224, 0.35),
-    inset 0 1px 0 rgba(255,255,255,0.22);
-  backdrop-filter: blur(14px);
-}
-
-.referral-overview {
-  grid-template-columns: minmax(250px, 1.18fr) minmax(190px, 0.91fr) minmax(190px, 0.91fr);
-  gap: 14px;
-}
-
-.referral-stat {
-  position: relative;
-  overflow: hidden;
-  min-height: 168px;
-  padding: 17px;
-  border-color: rgba(118, 194, 224, 0.13);
-  border-radius: 17px;
-  background:
-    radial-gradient(circle at 100% 0%, rgba(22, 156, 255, 0.09), transparent 42%),
-    linear-gradient(145deg, rgba(3, 27, 39, 0.76), rgba(13, 54, 68, 0.58));
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.04),
-    0 12px 28px rgba(0,0,0,0.12);
-}
-
-.referral-stat-label {
-  color: #8bc1d7;
-  font-weight: 750;
-  letter-spacing: 0.15px;
-}
-
-.network-levels {
-  display: grid;
-  gap: 7px;
-  margin-top: 13px;
-}
-
-.network-level-line {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 26px;
-  color: var(--text-soft);
-  font-size: 14px;
-}
-
-.network-level-line strong {
-  min-width: 34px;
-  color: #ffffff;
-  font-size: 15px;
-  text-align: right;
-}
-
-.referral-stat-value {
-  margin-top: 17px;
-  font-size: 36px;
-  letter-spacing: -1px;
-}
-
-.referral-stat-note {
-  margin-top: 8px;
-  font-size: 11px;
-}
-
-.network-refresh-button {
-  margin-top: 13px !important;
-  min-height: 40px !important;
-}
-
-.referral-link-group {
-  margin-top: 16px;
-}
-
-.referral-link-row {
-  position: relative;
-  padding: 10px;
-  border: 1px solid rgba(112, 190, 220, 0.13);
-  border-radius: 16px;
-  background: rgba(2, 18, 27, 0.44);
-}
-
-.referral-linkbox {
-  min-height: 46px;
-  border-color: transparent;
-  border-radius: 11px;
-  background: rgba(0, 0, 0, 0.24);
-}
-
-.referral-link-row button {
-  min-width: 205px;
-}
-
-.structure-panel {
-  margin-top: 24px;
-}
-
-.structure-panel .panel-head {
-  background:
-    radial-gradient(circle at 88% 0%, rgba(14, 220, 166, 0.08), transparent 34%),
-    linear-gradient(90deg, rgba(255,255,255,0.018), transparent 70%);
-}
-
-.structure-hint {
-  flex: 0 0 auto;
-  padding: 8px 11px;
-  border: 1px solid rgba(14, 220, 166, 0.20);
-  border-radius: 999px;
-  background: rgba(14, 220, 166, 0.07);
-  color: #8ce9cf;
-  font-size: 11px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.level-list {
-  gap: 14px;
-}
-
-.level-card {
-  border-color: rgba(14, 220, 166, 0.20);
-  border-radius: 17px;
-  background: linear-gradient(145deg, rgba(3, 29, 41, 0.88), rgba(4, 39, 48, 0.72));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.035);
-  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.level-card:hover {
-  border-color: rgba(14, 220, 166, 0.34);
-}
-
-.level-card.open {
-  border-color: rgba(14, 220, 166, 0.42);
-  box-shadow:
-    0 14px 34px rgba(0,0,0,0.15),
-    inset 0 1px 0 rgba(255,255,255,0.045);
-}
-
-.level-head {
-  min-height: 66px;
-  padding: 14px 16px;
-}
-
-.level-number {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  background: linear-gradient(145deg, rgba(14, 220, 166, 0.16), rgba(22, 156, 255, 0.09));
-}
-
-.level-name {
-  font-size: 14px;
-}
-
-.level-metric {
-  padding-left: 10px;
-  border-left: 1px solid rgba(255,255,255,0.07);
-}
-
-.level-metric-label {
-  font-size: 9px;
-  letter-spacing: 0.35px;
-  text-transform: uppercase;
-}
-
-.level-metric-value {
-  margin-top: 5px;
-}
-
-.level-arrow {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  background: rgba(0, 0, 0, 0.18);
-}
-
-.table-wrap {
-  scrollbar-color: rgba(14, 220, 166, 0.58) rgba(255,255,255,0.06);
-  scrollbar-width: thin;
-}
-
-.table-wrap::-webkit-scrollbar {
-  height: 8px;
-}
-
-.table-wrap::-webkit-scrollbar-track {
-  background: rgba(255,255,255,0.05);
-}
-
-.table-wrap::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  background: linear-gradient(90deg, #0c9b7a, #12bce8);
-}
-
-.network-table th {
-  padding-top: 13px;
-  padding-bottom: 13px;
-  background: rgba(1, 17, 25, 0.72);
-  color: #77b8d2;
-  font-size: 9px;
-}
-
-.network-table td {
-  padding-top: 13px;
-  padding-bottom: 13px;
-}
-
-.network-table tbody tr:not(:only-child):nth-child(even) {
-  background: rgba(255,255,255,0.018);
-}
-
-.empty-row {
-  height: 94px;
-  font-size: 12px !important;
-}
-
-.empty-row::before {
-  content: "◎";
-  display: block;
-  margin-bottom: 8px;
-  color: rgba(14, 220, 166, 0.70);
-  font-size: 25px;
-  line-height: 1;
-}
-
-.referral-footer-actions {
-  gap: 12px;
-  margin-top: 17px;
-  padding-top: 17px;
-  border-top: 1px solid rgba(255,255,255,0.065);
-}
-
-.referral-footer-actions button {
-  min-height: 52px !important;
-  margin-top: 0 !important;
-  padding: 13px 16px;
-}
-
-.footer {
-  margin-top: 28px;
-  letter-spacing: 0.3px;
-}
-
-@media (max-width: 980px) {
-  .page {
-    max-width: 930px;
-  }
-
-  .referral-overview {
-    grid-template-columns: minmax(240px, 1.1fr) repeat(2, minmax(170px, 0.9fr));
-  }
-
-  .level-head {
-    grid-template-columns: auto 1fr auto;
-  }
-}
-
-@media (max-width: 760px) {
-  .page {
-    padding: 16px 14px 104px;
-  }
-
-  .dashboard-header {
-    border-radius: 19px;
-  }
-
-  .panel {
-    border-radius: 19px;
-  }
-
-  .panel-head {
-    min-height: 72px;
-  }
-
-  .referral-overview {
-    grid-template-columns: 1fr;
-  }
-
-  .referral-stat {
-    min-height: auto;
-  }
-
-  .referral-link-row {
-    grid-template-columns: 1fr;
-  }
-
-  .referral-link-row button {
-    width: 100%;
-  }
-
-  .structure-hint {
-    display: none;
-  }
-
-  .network-table,
-  .network-table tbody,
-  .network-table tr,
-  .network-table td {
-    display: block;
-    width: 100%;
-    min-width: 0;
-  }
-
-  .network-table thead {
-    display: none;
-  }
-
-  .network-table tbody {
-    padding: 11px;
-  }
-
-  .network-table tr {
-    margin-bottom: 10px;
-    padding: 8px 11px;
-    border: 1px solid rgba(116, 191, 220, 0.12);
-    border-radius: 13px;
-    background: rgba(0,0,0,0.16);
-  }
-
-  .network-table tr:last-child {
-    margin-bottom: 0;
-  }
-
-  .network-table td {
-    display: grid;
-    grid-template-columns: minmax(132px, 0.9fr) 1.1fr;
-    gap: 12px;
-    align-items: center;
-    min-height: 38px;
-    padding: 8px 2px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    text-align: right;
-  }
-
-  .network-table td::before {
-    content: attr(data-label);
-    color: #75abc2;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.28px;
-    text-align: left;
-    text-transform: uppercase;
-  }
-
-  .network-table .empty-row {
-    display: block;
-    height: auto;
-    min-height: 90px;
-    padding: 21px 12px !important;
-    text-align: center !important;
-  }
-
-  .network-table .empty-row::before {
-    content: "◎";
-    text-align: center;
-  }
-
-  .referral-footer-actions {
-    grid-template-columns: 1fr;
-  }
-
-  .floating-back-button {
-    left: 50%;
-    bottom: 14px;
-    width: auto !important;
-    min-width: 210px;
-    transform: translateX(-50%);
-  }
-
-  .floating-back-button:hover {
-    transform: translateX(-50%) translateY(-2px);
-  }
-}
-
-@media (max-width: 600px) {
-  .dashboard-header {
-    padding: 17px 15px;
-  }
-
-  .logo {
-    width: 112px;
-  }
-
-  .header-copy h1 {
-    font-size: 24px;
-  }
-
-  .panel-head {
-    gap: 10px;
-    padding: 16px;
-  }
-
-  .panel-title {
-    font-size: 17px;
-  }
-
-  .panel-body {
-    padding: 15px;
-  }
-
-  .account-stat-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .account-stat {
-    min-height: 105px;
-    padding: 13px;
-  }
-
-  .account-stat-value {
-    font-size: 27px;
-  }
-
-  .privacy-toggle {
-    flex: 0 0 auto;
-    width: auto;
-    min-width: 88px;
-    padding-inline: 10px;
-    font-size: 11px;
-  }
-
-  .network-table td {
-    grid-template-columns: 1fr;
-    gap: 4px;
-    text-align: left;
-  }
-
-  .floating-back-button {
-    max-width: calc(100vw - 28px);
-  }
-}
-
-@media (max-width: 390px) {
-  .account-stat-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .panel-head {
-    align-items: flex-start;
-  }
-
-  .privacy-toggle {
-    min-width: 0;
-  }
+@media(max-width:390px){
+  .account-stat-grid,.account-actions{grid-template-columns:1fr}
 }
 </style>
 </head>
 
 <body>
 
-<button
-  class="floating-back-button"
-  type="button"
-  onclick="goBackoffice()"
->
+<button class="floating-back-button" type="button" onclick="goBackoffice()">
   ⬅ Mitgliederbereich
 </button>
 
 <main class="page">
 
-  <header class="dashboard-header">
+<header class="dashboard-header">
+  <img src="logo_betisight.club.png" alt="BetInsight Club" class="logo" onerror="this.style.display='none'">
 
-    <img
-      src="logo_betisight.club.png"
-      alt="BetInsight Club"
-      class="logo"
-      onerror="this.style.display='none'"
-    >
-
-    <div class="header-main">
-      <div class="header-icon">👤</div>
-
-      <div class="header-copy">
-        <h1>Mein BetInsight Profil</h1>
-        <p>Kontostand, Tipps, Empfehlungen und persönlicher Profilzugang</p>
-      </div>
+  <div class="header-main">
+    <div class="header-icon">👤</div>
+    <div class="header-copy">
+      <h1>Mein BetInsight Profil</h1>
+      <p>Kontostand, Tipps, Empfehlungen und persönlicher Profilzugang</p>
     </div>
+  </div>
 
-    <div id="headerUnitsBox" class="header-balance">
-      <span class="header-balance-label">Gesamte verfügbare Units</span>
-      <span id="units">0</span>
-    </div>
+  <div id="headerUnitsBox" class="header-balance">
+    <span class="header-balance-label">Gesamte verfügbare Units</span>
+    <span id="units">0,00</span>
+  </div>
+</header>
 
-  </header>
-
-  <section id="profileBox" class="profile-box">
-
-    <div class="profile-grid">
-
-      <section class="panel">
-
-        <div class="panel-head">
-          <div class="panel-head-copy">
-            <h2 class="panel-title">
-              🔒 <span class="panel-title-accent">Persönlicher Profilzugang</span>
-            </h2>
-            <p class="panel-subtitle">
-              Deine persönlichen Daten und dein sicher gespeicherter Zugang.
-            </p>
-          </div>
-
-          <button
-            id="profilePrivacyButton"
-            class="privacy-toggle"
-            type="button"
-            onclick="toggleProfilePrivacy()"
-          >
-            ◉ Schützen
-          </button>
-        </div>
-
-        <div class="panel-body">
-
-          <div class="account-data">
-
-            <div class="data-row">
-              <span class="data-label">BetInsight-ID</span>
-
-              <div class="id-line">
-                <span id="betInsightId" class="data-value">Lade...</span>
-
-                <button
-                  class="inline-copy-button"
-                  type="button"
-                  onclick="copyBetInsightId()"
-                >
-                  📋 ID kopieren
-                </button>
-              </div>
-            </div>
-
-            <div id="emailDataRow" class="data-row">
-              <span class="data-label">E-Mail</span>
-              <span id="email" class="data-value">Lade...</span>
-            </div>
-
-            <div class="data-row">
-              <span class="data-label">Status</span>
-              <span class="data-value">Profilzugang aktiv</span>
-            </div>
-
-          </div>
-
-          <div class="secure-access">
-
-            <div class="secure-access-head">
-              <span class="secure-access-title">Persönlicher Zugang</span>
-              <span class="secure-access-status">✅ Auf diesem Gerät gespeichert</span>
-            </div>
-
-            <div id="maskedToken" class="masked-token">
-              Wird geladen...
-            </div>
-
-            <p class="secure-access-note">
-              Der vollständige Zugangscode wird nicht angezeigt und kann hier
-              nicht kopiert werden.
-            </p>
-
-            <button
-              id="resendProfileButton"
-              class="btn-gray"
-              type="button"
-              onclick="requestCurrentProfileLink()"
-              style="margin-top:10px;"
-            >
-              📩 Profil-Link erneut per E-Mail senden
-            </button>
-
-          </div>
-
-          <p class="privacy-note">
-            Die Privatsphäre blendet nur die E-Mail-Adresse und den persönlichen
-            Zugang vollständig aus. BetInsight-ID, Units, Empfehlungslinks und
-            Netzwerkzahlen bleiben sichtbar.
-          </p>
-
-          <div id="message" class="message">
-            Kontostand wird geladen...
-          </div>
-
-        </div>
-
-      </section>
-
-      <section class="panel">
-
-        <div class="panel-head">
-          <div class="panel-head-copy">
-            <h2 class="panel-title">
-              📊 <span class="panel-title-accent">Kontostand &amp; Aktivitäten</span>
-            </h2>
-            <p class="panel-subtitle">
-              Deine wichtigsten Kontowerte auf einen Blick.
-            </p>
-          </div>
-
-          <button
-            id="accountPrivacyButton"
-            class="privacy-toggle"
-            type="button"
-            onclick="toggleAccountPrivacy()"
-          >
-            ◉ Schützen
-          </button>
-        </div>
-
-        <div class="panel-body account-summary">
-
-          <div class="account-stat-grid">
-
-            <div class="account-stat">
-              <div class="account-stat-label">Verfügbare Units</div>
-              <div id="accountUnits" class="account-stat-value value-orange account-private-value">0</div>
-            </div>
-
-            <div class="account-stat">
-              <div class="account-stat-label">Freigeschaltete Tipps</div>
-              <div id="unlockedTips" class="account-stat-value value-green account-private-value">0</div>
-            </div>
-
-            <div class="account-stat">
-              <div class="account-stat-label">Verbrauchte Units</div>
-              <div id="consumedUnits" class="account-stat-value value-cyan account-private-value">–</div>
-            </div>
-
-            <div class="account-stat">
-              <div class="account-stat-label">Profilstatus</div>
-              <div class="account-stat-value value-blue" style="font-size:18px;">Aktiv</div>
-            </div>
-
-          </div>
-
-          <div class="account-actions">
-
-            <button class="btn-blue" type="button" onclick="loadUnits()">
-              🔄 Aktualisieren
-            </button>
-
-            <button class="btn-blue" type="button" onclick="goTipps()">
-              🔥 Neue Tipps
-            </button>
-
-            <button class="btn-green" type="button" onclick="goFreigeschaltet()">
-              ✅ Freigeschaltet
-            </button>
-
-            <button class="btn-green" type="button" onclick="goBuyUnits()">
-              💎 Units kaufen
-            </button>
-
-          </div>
-
-          <div class="security-box">
-
-            <p class="small-warning">
-              Zugangscode nur löschen, wenn die angezeigte E-Mail nicht stimmt
-              oder dieses Gerät mit einer anderen Person geteilt wird.
-            </p>
-
-            <button
-              class="btn-red"
-              type="button"
-              onclick="forgetToken()"
-            >
-              Zugangscode auf diesem Gerät löschen
-            </button>
-
-          </div>
-
-        </div>
-
-      </section>
-
-    </div>
-
-  </section>
-
-  <section id="referralSection" class="referral-section">
+<section id="profileBox" class="profile-box">
+  <div class="profile-grid">
 
     <section class="panel">
-
       <div class="panel-head">
-        <div class="panel-head-copy">
-          <h2 class="panel-title">
-            🔗 <span class="panel-title-accent">Persönliche Übersicht</span>
-          </h2>
-          <p class="panel-subtitle">
-            Dein Netzwerk, deine Referral-Units und deine persönlichen Empfehlungslinks.
-          </p>
+        <div>
+          <h2 class="panel-title">🔒 <span class="panel-title-accent">Persönlicher Profilzugang</span></h2>
+          <p class="panel-subtitle">Deine persönlichen Daten und dein sicher gespeicherter Zugang.</p>
         </div>
-
-        <button
-          id="referralPrivacyButton"
-          class="privacy-toggle"
-          type="button"
-          onclick="toggleReferralPrivacy()"
-        >
-          ◉ Schützen
-        </button>
+        <button id="profilePrivacyButton" class="privacy-toggle" type="button" onclick="toggleProfilePrivacy()">◉ Schützen</button>
       </div>
 
       <div class="panel-body">
-
-        <div class="referral-overview">
-
-          <div class="referral-stat">
-            <div class="referral-stat-label">👥 Netzwerk</div>
-
-            <div class="network-levels">
-              <div class="network-level-line">
-                <span>Ebene 1</span>
-                <strong id="networkLevel1">–</strong>
-              </div>
-              <div class="network-level-line">
-                <span>Ebene 2</span>
-                <strong id="networkLevel2">–</strong>
-              </div>
-              <div class="network-level-line">
-                <span>Ebene 3</span>
-                <strong id="networkLevel3">–</strong>
-              </div>
+        <div class="account-data">
+          <div class="data-row">
+            <span class="data-label">BetInsight-ID</span>
+            <div class="id-line">
+              <span id="betInsightId" class="data-value">Lade...</span>
+              <button class="inline-copy-button" type="button" onclick="copyBetInsightId()">📋 ID kopieren</button>
             </div>
-
-            <button
-              id="networkLoadButton"
-              class="btn-blue network-refresh-button"
-              type="button"
-              style="margin-top:12px;min-height:38px;"
-              onclick="refreshNetworkData(true, this)"
-            >
-              🔄 Netzwerk laden
-            </button>
           </div>
 
-          <div class="referral-stat">
-            <div class="referral-stat-label">◎ Ref-Units insgesamt</div>
-            <div id="referralAllUnits" class="referral-stat-value">0</div>
-            <div class="referral-stat-note">Gesamtes Netzwerk · Ebenen 1–3</div>
+          <div id="emailDataRow" class="data-row">
+            <span class="data-label">E-Mail</span>
+            <span id="email" class="data-value">Lade...</span>
           </div>
 
-          <div class="referral-stat">
-            <div class="referral-stat-label">◷ Davon noch nicht freigegeben</div>
-            <div id="referralPendingUnits" class="referral-stat-value">0</div>
-            <div class="referral-stat-note">Gesamtes Netzwerk · Ebenen 1–3</div>
+          <div class="data-row">
+            <span class="data-label">Status</span>
+            <span class="data-value">Profilzugang aktiv</span>
           </div>
-
         </div>
 
-        <div class="referral-link-group">
-
-          <div class="referral-link-item">
-            <div class="referral-link-heading">Direkter Registrierungslink</div>
-
-            <div class="referral-link-row">
-              <div id="registrationReferralLink" class="referral-linkbox">
-                Registrierungslink wird geladen...
-              </div>
-
-              <button
-                id="copyRegistrationReferralButton"
-                class="btn-green"
-                type="button"
-                onclick="copyRegistrationReferralLink()"
-              >
-                📋 Registrierungslink kopieren
-              </button>
-            </div>
+        <div class="secure-access">
+          <div class="secure-access-head">
+            <span class="secure-access-title">Persönlicher Zugang</span>
+            <span class="secure-access-status">✅ Auf diesem Gerät gespeichert</span>
           </div>
 
-          <div class="referral-link-item">
-            <div class="referral-link-heading">Persönlicher Landingpage-Link</div>
+          <div id="maskedToken" class="masked-token">Wird geladen...</div>
 
-            <div class="referral-link-row">
-              <div id="landingpageReferralLink" class="referral-linkbox">
-                Landingpage-Link wird geladen...
-              </div>
-
-              <button
-                id="copyLandingpageReferralButton"
-                class="btn-blue"
-                type="button"
-                onclick="copyLandingpageReferralLink()"
-              >
-                📋 Landingpage-Link kopieren
-              </button>
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-    <section class="panel structure-panel">
-
-      <div class="panel-head">
-        <div class="panel-head-copy">
-          <h2 class="panel-title">
-            📈 <span class="panel-title-accent">Struktur und Umsätze</span>
-          </h2>
-          <p class="panel-subtitle">
-            Deine Netzwerkstruktur und Unit-Entwicklung übersichtlich nach Ebenen.
+          <p class="secure-access-note">
+            Der vollständige Zugangscode wird nicht angezeigt und kann hier nicht kopiert werden.
           </p>
+
+          <button id="resendProfileButton" class="btn-gray" type="button" onclick="requestCurrentProfileLink()">
+            📩 Profil-Link erneut per E-Mail senden
+          </button>
         </div>
 
-        <div class="structure-hint">Ebene antippen für Details</div>
+        <p class="privacy-note">
+          Die Privatsphäre blendet nur E-Mail-Adresse und persönlichen Zugang aus.
+          BetInsight-ID, Units und Netzwerkzahlen bleiben sichtbar.
+        </p>
+
+        <div id="message" class="message">Kontostand wird geladen...</div>
       </div>
-
-      <div class="panel-body">
-
-        <div class="level-list">
-
-          <article id="levelCard1" class="level-card open">
-
-            <div
-              class="level-head"
-              role="button"
-              tabindex="0"
-              aria-expanded="true"
-              aria-controls="levelBody1"
-              onclick="toggleLevel(1)"
-              onkeydown="handleLevelKey(event, 1)"
-            >
-              <div class="level-number">1</div>
-              <div class="level-name">Ebene 1 – direkte Partner</div>
-
-              <div class="level-metric">
-                <div class="level-metric-label">Partner</div>
-                <div id="level1Partners" class="level-metric-value">0</div>
-              </div>
-
-              <div class="level-metric">
-                <div class="level-metric-label">Gekauft</div>
-                <div id="level1Purchased" class="level-metric-value">0 Units</div>
-              </div>
-
-              <div class="level-metric">
-                <div class="level-metric-label">Erwartet</div>
-                <div id="level1Expected" class="level-metric-value">0</div>
-              </div>
-
-              <div class="level-metric">
-                <div class="level-metric-label">Freigegeben</div>
-                <div id="level1Released" class="level-metric-value">0</div>
-              </div>
-
-              <div class="level-arrow">⌃</div>
-            </div>
-
-            <div id="levelBody1" class="level-body">
-              <div class="table-wrap">
-                <table class="network-table">
-                  <thead>
-                    <tr>
-                      <th>BI-Nummer</th>
-                      <th>Sponsor</th>
-                      <th>Gekaufte Units</th>
-                      <th>Verbrauchte Kauf-Units</th>
-                      <th>Erwartete Referral Units</th>
-                      <th>Freigegebene Referral Units</th>
-                    </tr>
-                  </thead>
-
-                  <tbody id="level1TableBody">
-                    <tr>
-                      <td colspan="6" class="empty-row">Noch keine Daten vorhanden.</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-          </article>
-
-          <article id="levelCard2" class="level-card">
-
-            <div
-              class="level-head"
-              role="button"
-              tabindex="0"
-              aria-expanded="false"
-              aria-controls="levelBody2"
-              onclick="toggleLevel(2)"
-              onkeydown="handleLevelKey(event, 2)"
-            >
-              <div class="level-number">2</div>
-              <div class="level-name">Ebene 2</div>
-
-              <div class="level-metric">
-                <div class="level-metric-label">Partner</div>
-                <div id="level2Partners" class="level-metric-value">0</div>
-              </div>
-
-              <div class="level-metric">
-                <div class="level-metric-label">Gekauft</div>
-                <div id="level2Purchased" class="level-metric-value">0 Units</div>
-              </div>
-
-              <div class="level-metric">
-                <div class="level-metric-label">Erwartet</div>
-                <div id="level2Expected" class="level-metric-value">0</div>
-              </div>
-
-              <div class="level-metric">
-                <div class="level-metric-label">Freigegeben</div>
-                <div id="level2Released" class="level-metric-value">0</div>
-              </div>
-
-              <div class="level-arrow">⌃</div>
-            </div>
-
-            <div id="levelBody2" class="level-body">
-              <div class="table-wrap">
-                <table class="network-table">
-                  <thead>
-                    <tr>
-                      <th>BI-Nummer</th>
-                      <th>Sponsor</th>
-                      <th>Gekaufte Units</th>
-                      <th>Verbrauchte Kauf-Units</th>
-                      <th>Erwartete Referral Units</th>
-                      <th>Freigegebene Referral Units</th>
-                    </tr>
-                  </thead>
-
-                  <tbody id="level2TableBody">
-                    <tr>
-                      <td colspan="6" class="empty-row">Noch keine Daten vorhanden.</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-          </article>
-
-          <article id="levelCard3" class="level-card">
-
-            <div
-              class="level-head"
-              role="button"
-              tabindex="0"
-              aria-expanded="false"
-              aria-controls="levelBody3"
-              onclick="toggleLevel(3)"
-              onkeydown="handleLevelKey(event, 3)"
-            >
-              <div class="level-number">3</div>
-              <div class="level-name">Ebene 3</div>
-
-              <div class="level-metric">
-                <div class="level-metric-label">Partner</div>
-                <div id="level3Partners" class="level-metric-value">0</div>
-              </div>
-
-              <div class="level-metric">
-                <div class="level-metric-label">Gekauft</div>
-                <div id="level3Purchased" class="level-metric-value">0 Units</div>
-              </div>
-
-              <div class="level-metric">
-                <div class="level-metric-label">Erwartet</div>
-                <div id="level3Expected" class="level-metric-value">0</div>
-              </div>
-
-              <div class="level-metric">
-                <div class="level-metric-label">Freigegeben</div>
-                <div id="level3Released" class="level-metric-value">0</div>
-              </div>
-
-              <div class="level-arrow">⌃</div>
-            </div>
-
-            <div id="levelBody3" class="level-body">
-              <div class="table-wrap">
-                <table class="network-table">
-                  <thead>
-                    <tr>
-                      <th>BI-Nummer</th>
-                      <th>Sponsor</th>
-                      <th>Gekaufte Units</th>
-                      <th>Verbrauchte Kauf-Units</th>
-                      <th>Erwartete Referral Units</th>
-                      <th>Freigegebene Referral Units</th>
-                    </tr>
-                  </thead>
-
-                  <tbody id="level3TableBody">
-                    <tr>
-                      <td colspan="6" class="empty-row">Noch keine Daten vorhanden.</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-          </article>
-
-        </div>
-
-        <div class="referral-footer-actions">
-
-          <button class="btn-green" type="button" onclick="referralUnitsToAccount()">
-            ⭐ Units aufs Konto buchen
-          </button>
-
-          <button class="btn-orange" type="button" onclick="goUnitExchange()">
-            🔄 Zur Unit-Wechselstube
-          </button>
-
-          <button
-            id="networkBottomLoadButton"
-            class="btn-blue network-refresh-button"
-            type="button"
-            onclick="refreshNetworkData(true, this)"
-          >
-            🔄 Netzwerkdaten laden
-          </button>
-
-        </div>
-
-        <div id="referralStatus" class="referral-status">
-          Verbindung zum Empfehlungscenter wird vorbereitet...
-        </div>
-
-      </div>
-
     </section>
 
-  </section>
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">📊 <span class="panel-title-accent">Kontostand & Aktivitäten</span></h2>
+          <p class="panel-subtitle">Deine wichtigsten Kontowerte auf einen Blick.</p>
+        </div>
+        <button id="accountPrivacyButton" class="privacy-toggle" type="button" onclick="toggleAccountPrivacy()">◉ Schützen</button>
+      </div>
 
-  <section id="requestBox" class="request-box">
+      <div class="panel-body account-summary">
+        <div class="account-stat-grid">
+          <div class="account-stat">
+            <div class="account-stat-label">Verfügbare Units</div>
+            <div id="accountUnits" class="account-stat-value value-orange account-private-value">0</div>
+          </div>
 
-    <div class="request-header">
-      <h2>Persönliches Profil öffnen</h2>
-      <p>
-        Fordere deinen Profil-Link per E-Mail an oder trage einen bereits
-        erhaltenen Link direkt ein.
-      </p>
+          <div class="account-stat">
+            <div class="account-stat-label">Freigeschaltete Tipps</div>
+            <div id="unlockedTips" class="account-stat-value value-green account-private-value">0</div>
+          </div>
+
+          <div class="account-stat">
+            <div class="account-stat-label">Verbrauchte Units</div>
+            <div id="consumedUnits" class="account-stat-value value-cyan account-private-value">–</div>
+          </div>
+
+          <div class="account-stat">
+            <div class="account-stat-label">Profilstatus</div>
+            <div class="account-stat-value value-blue" style="font-size:18px">Aktiv</div>
+          </div>
+        </div>
+
+        <div class="account-actions">
+          <button class="btn-blue" type="button" onclick="loadUnits()">🔄 Aktualisieren</button>
+          <button class="btn-blue" type="button" onclick="goTipps()">🔥 Neue Tipps</button>
+          <button class="btn-green" type="button" onclick="goFreigeschaltet()">✅ Freigeschaltet</button>
+          <button class="btn-green" type="button" onclick="goBuyUnits()">💎 Units kaufen</button>
+        </div>
+
+        <div class="security-box">
+          <p class="small-warning">
+            Zugangscode nur löschen, wenn die angezeigte E-Mail nicht stimmt oder dieses Gerät mit einer anderen Person geteilt wird.
+          </p>
+          <button class="btn-red" type="button" onclick="forgetToken()">Zugangscode auf diesem Gerät löschen</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</section>
+
+<section id="referralSection" class="referral-section">
+
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2 class="panel-title">🔗 <span class="panel-title-accent">Persönliche Übersicht</span></h2>
+        <p class="panel-subtitle">Dein Netzwerk, deine Referral-Units und deine persönlichen Empfehlungslinks.</p>
+      </div>
+      <button id="referralPrivacyButton" class="privacy-toggle" type="button" onclick="toggleReferralPrivacy()">◉ Schützen</button>
     </div>
 
-    <div class="request-grid">
+    <div class="panel-body">
+      <div class="referral-overview">
+        <div class="referral-stat">
+          <div class="referral-stat-label">👥 Netzwerk</div>
+          <div class="network-levels">
+            <div class="network-level-line"><span>Ebene 1</span><strong id="networkLevel1">–</strong></div>
+            <div class="network-level-line"><span>Ebene 2</span><strong id="networkLevel2">–</strong></div>
+            <div class="network-level-line"><span>Ebene 3</span><strong id="networkLevel3">–</strong></div>
+          </div>
+          <button class="btn-blue network-refresh-button" type="button" style="margin-top:13px;min-height:40px" onclick="refreshNetworkData(true,this)">🔄 Netzwerk laden</button>
+        </div>
 
-      <section class="panel request-panel">
-        <div class="panel-head">
-          <div class="panel-head-copy">
-            <h2 class="panel-title panel-title-accent">Profil-Link anfordern</h2>
-            <p class="panel-subtitle">Registrierte E-Mail-Adresse eintragen.</p>
+        <div class="referral-stat">
+          <div class="referral-stat-label">◎ Ref-Units insgesamt</div>
+          <div id="referralAllUnits" class="referral-stat-value">0</div>
+          <div class="referral-stat-note">Gesamtes Netzwerk · Ebenen 1–3</div>
+        </div>
+
+        <div class="referral-stat">
+          <div class="referral-stat-label">◷ Davon noch nicht freigegeben</div>
+          <div id="referralPendingUnits" class="referral-stat-value">0</div>
+          <div class="referral-stat-note">Gesamtes Netzwerk · Ebenen 1–3</div>
+        </div>
+      </div>
+
+      <div class="referral-link-group">
+        <div>
+          <div class="referral-link-heading">Direkter Registrierungslink</div>
+          <div class="referral-link-row">
+            <div id="registrationReferralLink" class="referral-linkbox">Registrierungslink wird geladen...</div>
+            <button id="copyRegistrationReferralButton" class="btn-green" type="button" onclick="copyRegistrationReferralLink()">📋 Registrierungslink kopieren</button>
           </div>
         </div>
 
-        <div class="panel-body">
-          <input
-            id="requestEmail"
-            type="email"
-            placeholder="Deine E-Mail-Adresse"
-            autocomplete="email"
-          >
-
-          <div class="request-actions">
-            <button class="btn-blue" type="button" onclick="requestProfileLink()">
-              📩 Profil-Link anfordern
-            </button>
-
-            <a
-              class="btn-link btn-gray"
-              href="https://betinsight.systeme.io/profile/user-settings"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              🔎 Registrierte E-Mail nachsehen
-            </a>
-          </div>
-
-          <div id="requestMessage" class="message"></div>
-        </div>
-      </section>
-
-      <section class="panel request-panel">
-        <div class="panel-head">
-          <div class="panel-head-copy">
-            <h2 class="panel-title panel-title-accent">Profil-Link eintragen</h2>
-            <p class="panel-subtitle">Link oder Zugangscode aus deiner E-Mail verwenden.</p>
+        <div>
+          <div class="referral-link-heading">Persönlicher Landingpage-Link</div>
+          <div class="referral-link-row">
+            <div id="landingpageReferralLink" class="referral-linkbox">Landingpage-Link wird geladen...</div>
+            <button id="copyLandingpageReferralButton" class="btn-blue" type="button" onclick="copyLandingpageReferralLink()">📋 Landingpage-Link kopieren</button>
           </div>
         </div>
-
-        <div class="panel-body">
-          <input
-            id="receivedProfileLink"
-            type="text"
-            placeholder="Profil-Link oder Zugangscode"
-            autocomplete="off"
-          >
-
-          <button class="btn-green" type="button" onclick="openReceivedProfileLink()">
-            🔓 Persönliches Profil öffnen
-          </button>
-
-          <div id="receivedLinkMessage" class="message"></div>
-        </div>
-      </section>
-
+      </div>
     </div>
-
   </section>
 
-  <div id="debug" class="debug"></div>
+  <section class="panel structure-panel">
+    <div class="panel-head">
+      <div>
+        <h2 class="panel-title">📈 <span class="panel-title-accent">Struktur und Umsätze</span></h2>
+        <p class="panel-subtitle">Deine Netzwerkstruktur und Unit-Entwicklung übersichtlich nach Ebenen.</p>
+      </div>
+      <div class="structure-hint">Ebene antippen für Details</div>
+    </div>
 
-  <footer class="footer">
-    © 2026 BetInsight Club
-  </footer>
+    <div class="panel-body">
+      <div id="levelList" class="level-list"></div>
+
+      <div class="referral-footer-actions">
+        <button class="btn-green" type="button" onclick="referralUnitsToAccount()">⭐ Units aufs Konto buchen</button>
+        <button class="btn-orange" type="button" onclick="goUnitExchange()">🔄 Zur Unit-Wechselstube</button>
+        <button class="btn-blue network-refresh-button" type="button" onclick="refreshNetworkData(true,this)">🔄 Netzwerkdaten laden</button>
+      </div>
+
+      <div id="referralStatus" class="referral-status">
+        Netzwerkdaten werden erst geladen, wenn du auf „Netzwerk laden“ klickst.
+      </div>
+    </div>
+  </section>
+
+</section>
+
+<section id="requestBox" class="request-box">
+  <div class="request-header">
+    <h2>Persönliches Profil öffnen</h2>
+    <p>Fordere deinen Profil-Link per E-Mail an oder trage einen bereits erhaltenen Link direkt ein.</p>
+  </div>
+
+  <div class="request-grid">
+    <section class="panel request-panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title panel-title-accent">Profil-Link anfordern</h2>
+          <p class="panel-subtitle">Registrierte E-Mail-Adresse eintragen.</p>
+        </div>
+      </div>
+      <div class="panel-body">
+        <input id="requestEmail" type="email" placeholder="Deine E-Mail-Adresse" autocomplete="email">
+        <div class="request-actions">
+          <button class="btn-blue" type="button" onclick="requestProfileLink()">📩 Profil-Link anfordern</button>
+          <a class="btn-link btn-gray" href="https://betinsight.systeme.io/profile/user-settings" target="_blank" rel="noopener noreferrer">🔎 Registrierte E-Mail nachsehen</a>
+        </div>
+        <div id="requestMessage" class="message"></div>
+      </div>
+    </section>
+
+    <section class="panel request-panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title panel-title-accent">Profil-Link eintragen</h2>
+          <p class="panel-subtitle">Link oder Zugangscode aus deiner E-Mail verwenden.</p>
+        </div>
+      </div>
+      <div class="panel-body">
+        <input id="receivedProfileLink" type="text" placeholder="Profil-Link oder Zugangscode" autocomplete="off">
+        <button class="btn-green" type="button" onclick="openReceivedProfileLink()">🔓 Persönliches Profil öffnen</button>
+        <div id="receivedLinkMessage" class="message"></div>
+      </div>
+    </section>
+  </div>
+</section>
+
+<div id="debug" class="debug"></div>
+<footer class="footer">© 2026 BetInsight Club</footer>
 
 </main>
 
 <script>
+"use strict";
+
 const PROFILE_WEBHOOK_URL =
   "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
 
@@ -2405,1302 +877,623 @@ let accountPrivacyActive = false;
 let referralPrivacyActive = false;
 
 let currentProfileData = {
-  email: "",
-  units: 0,
-  refCode: "",
-  dashboardToken: "",
-  refLink: "",
-  consumedUnits: null,
-  unlockedTips: 0
+  email:"",
+  units:0,
+  refCode:"",
+  dashboardToken:"",
+  refLink:"",
+  consumedUnits:null,
+  unlockedTips:0
 };
 
-function safeNumber(value) {
-  if (value === undefined || value === null || value === "") {
-    return 0;
-  }
-
-  const normalized = String(value).replace(",", ".");
-  const parsed = Number(normalized);
-
-  return Number.isFinite(parsed) ? parsed : 0;
+function safeNumber(value){
+  if(value===undefined || value===null || value==="") return 0;
+  const normalized=String(value).replace(",",".");
+  const parsed=Number(normalized);
+  return Number.isFinite(parsed)?parsed:0;
 }
 
-function formatNumber(value) {
-  const number = safeNumber(value);
-
-  return new Intl.NumberFormat("de-DE", {
-    maximumFractionDigits: 2
-  }).format(number);
+/* kompakte Standarddarstellung */
+function formatNumber(value){
+  return new Intl.NumberFormat("de-DE",{
+    maximumFractionDigits:2
+  }).format(safeNumber(value));
 }
 
-function firstDefined(object, keys, fallback = 0) {
-  for (const key of keys) {
-    if (
-      object &&
-      Object.prototype.hasOwnProperty.call(object, key) &&
-      object[key] !== undefined &&
-      object[key] !== null &&
-      object[key] !== ""
-    ) {
+/* NUR für die große Gesamtanzeige oben */
+function formatUnitsTwoDecimals(value){
+  return new Intl.NumberFormat("de-DE",{
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
+  }).format(safeNumber(value));
+}
+
+function optionalNumber(value){
+  if(value===undefined || value===null || value==="") return null;
+  const n=safeNumber(value);
+  return Number.isFinite(n)?n:null;
+}
+
+function firstDefined(object,keys,fallback=0){
+  for(const key of keys){
+    if(object && Object.prototype.hasOwnProperty.call(object,key) &&
+       object[key]!==undefined && object[key]!==null && object[key]!==""){
       return object[key];
     }
   }
-
   return fallback;
 }
 
-function formatOptionalNumber(value) {
-  if (value === undefined || value === null || value === "") {
-    return "–";
-  }
-
-  return formatNumber(value);
+function formatOptionalNumber(value){
+  return value===undefined || value===null || value==="" ? "–" : formatNumber(value);
 }
 
-function maskAccessToken(token) {
-  const clean = String(token || "").trim();
-
-  if (!clean) {
-    return "Nicht verfügbar";
-  }
-
-  if (clean.length <= 8) {
-    return clean.substring(0, 2) + "••••" + clean.slice(-2);
-  }
-
-  return clean.substring(0, 4) + "••••" + clean.slice(-4);
+function escapeHtml(value){
+  return String(value ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 }
 
-function setMaskedToken(token) {
-  const element = document.getElementById("maskedToken");
+function maskAccessToken(token){
+  const clean=String(token||"").trim();
+  if(!clean) return "Nicht verfügbar";
+  if(clean.length<=8) return clean.substring(0,2)+"••••"+clean.slice(-2);
+  return clean.substring(0,4)+"••••"+clean.slice(-4);
+}
 
-  if (!element) {
+function setMaskedToken(token){
+  const el=document.getElementById("maskedToken");
+  if(!el) return;
+  if(profilePrivacyActive){
+    el.classList.add("private-token-hidden");
     return;
   }
-
-  if (profilePrivacyActive) {
-    element.classList.add("private-token-hidden");
-    element.innerText = "Persönlicher Zugang geschützt";
-    return;
-  }
-
-  element.classList.remove("private-token-hidden");
-  element.innerText = maskAccessToken(token);
+  el.classList.remove("private-token-hidden");
+  el.innerText=maskAccessToken(token);
 }
 
-function toggleProfilePrivacy() {
-  profilePrivacyActive = !profilePrivacyActive;
-
-  const emailRow = document.getElementById("emailDataRow");
-  const tokenBox = document.getElementById("maskedToken");
-  const button = document.getElementById("profilePrivacyButton");
-  const message = document.getElementById("message");
-
-  emailRow.classList.toggle("private-row-hidden", profilePrivacyActive);
-  tokenBox.classList.toggle("private-token-hidden", profilePrivacyActive);
-  button.classList.toggle("active", profilePrivacyActive);
-
-  if (profilePrivacyActive) {
-    button.innerText = "◉ Geschützt";
-    tokenBox.innerText = "Persönlicher Zugang geschützt";
-    message.innerText =
-      "Privatsphäre aktiv: E-Mail und persönlicher Zugang sind geschützt.";
-  } else {
-    button.innerText = "◉ Schützen";
-    setMaskedToken(getActiveToken());
-    message.innerText = "Privatsphäre wurde deaktiviert.";
-  }
+function setBetInsightId(refCode){
+  document.getElementById("betInsightId").innerText=String(refCode||"").trim() || "Nicht verfügbar";
 }
 
-function toggleAccountPrivacy() {
-  accountPrivacyActive = !accountPrivacyActive;
-
-  const button = document.getElementById("accountPrivacyButton");
-  const values = document.querySelectorAll(".account-private-value");
-
-  values.forEach(element => {
-    element.classList.toggle("private-value-hidden", accountPrivacyActive);
-  });
-
-  button.classList.toggle("active", accountPrivacyActive);
-  button.innerText = accountPrivacyActive ? "◉ Geschützt" : "◉ Schützen";
-}
-
-function toggleReferralPrivacy() {
-  referralPrivacyActive = !referralPrivacyActive;
-
-  const button = document.getElementById("referralPrivacyButton");
-  const values = document.querySelectorAll(
-    "#referralSection .referral-stat-value, " +
-    "#referralSection #networkLevel1, " +
-    "#referralSection #networkLevel2, " +
-    "#referralSection #networkLevel3, " +
-    "#referralSection .referral-linkbox, " +
-    "#referralSection .level-metric-value, " +
-    "#referralSection .level-body"
-  );
-
-  values.forEach(element => {
-    element.classList.toggle("private-value-hidden", referralPrivacyActive);
-  });
-
-  button.classList.toggle("active", referralPrivacyActive);
-  button.innerText = referralPrivacyActive ? "◉ Geschützt" : "◉ Schützen";
-}
-
-async function requestCurrentProfileLink() {
-  const email = String(currentProfileData.email || "").trim().toLowerCase();
-  const button = document.getElementById("resendProfileButton");
-  const message = document.getElementById("message");
-
-  if (!email) {
-    message.innerText =
-      "Die registrierte E-Mail-Adresse ist noch nicht geladen.";
-    return;
-  }
-
-  const oldText = button.innerText;
-  button.disabled = true;
-  button.innerText = "⏳ Profil-Link wird gesendet...";
-
-  try {
-    const response = await fetch(
-      REQUEST_LINK_WEBHOOK_URL + "?email=" + encodeURIComponent(email),
-      {
-        method: "GET",
-        cache: "no-store"
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("HTTP-Fehler: " + response.status);
-    }
-
-    button.innerText = "✅ Profil-Link wurde gesendet";
-    message.innerText =
-      "Der persönliche Profil-Link wurde erneut an deine registrierte E-Mail-Adresse gesendet.";
-
-  } catch (error) {
-    console.error(error);
-    button.innerText = "❌ Versand fehlgeschlagen";
-    message.innerText =
-      "Der Profil-Link konnte nicht gesendet werden. Bitte versuche es erneut.";
-
-  } finally {
-    window.setTimeout(() => {
-      button.disabled = false;
-      button.innerText = oldText;
-    }, 2500);
-  }
-}
-
-function setBetInsightId(refCode) {
-  const cleanRefCode = String(refCode || "").trim();
-  document.getElementById("betInsightId").innerText =
-    cleanRefCode || "Nicht verfügbar";
-}
-
-function copyBetInsightId() {
-  const refCode = String(
-    document.getElementById("betInsightId").innerText || ""
-  ).trim();
-
-  const message = document.getElementById("message");
-
-  if (!refCode || refCode === "Lade..." || refCode === "Nicht verfügbar") {
-    message.innerText = "BetInsight-ID ist noch nicht verfügbar.";
-    return;
-  }
-
-  copyText(refCode)
-    .then(() => {
-      message.innerText = "BetInsight-ID wurde kopiert.";
-    })
-    .catch(() => {
-      message.innerText = "BetInsight-ID konnte nicht kopiert werden.";
-    });
-}
-
-function copyTextFallback(text) {
-  const temporaryInput = document.createElement("textarea");
-  temporaryInput.value = text;
-  temporaryInput.setAttribute("readonly", "");
-  temporaryInput.style.position = "fixed";
-  temporaryInput.style.opacity = "0";
-
-  document.body.appendChild(temporaryInput);
-  temporaryInput.select();
-  document.execCommand("copy");
-  document.body.removeChild(temporaryInput);
-}
-
-async function copyText(text) {
-  if (
-    navigator.clipboard &&
-    typeof navigator.clipboard.writeText === "function"
-  ) {
+async function copyText(text){
+  if(navigator.clipboard?.writeText){
     await navigator.clipboard.writeText(text);
     return;
   }
-
-  copyTextFallback(text);
+  const ta=document.createElement("textarea");
+  ta.value=text;
+  ta.style.position="fixed";
+  ta.style.opacity="0";
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand("copy");
+  ta.remove();
 }
 
-function getReferralCode(data) {
-  return data && data.ref_code
-    ? String(data.ref_code).trim()
-    : String(currentProfileData.refCode || "").trim();
-}
-
-function buildRegistrationReferralLink(data) {
-  if (data && data.ref_link && String(data.ref_link).trim() !== "") {
-    return String(data.ref_link).trim();
-  }
-
-  if (currentProfileData.refLink) {
-    return String(currentProfileData.refLink).trim();
-  }
-
-  const refCode = getReferralCode(data);
-
-  if (!refCode) {
-    return "";
-  }
-
-  return (
-    "https://betinsightclub.github.io/profil/ref/?ref=" +
-    encodeURIComponent(refCode)
-  );
-}
-
-function buildLandingpageReferralLink(data) {
-  const refCode = getReferralCode(data);
-
-  if (!refCode) {
-    return "";
-  }
-
-  return (
-    "https://betinsightclub.github.io/profil/betinsightcommunity/?ref=" +
-    encodeURIComponent(refCode)
-  );
-}
-
-function setReferralLinks(data = {}) {
-  const registrationBox =
-    document.getElementById("registrationReferralLink");
-  const landingpageBox =
-    document.getElementById("landingpageReferralLink");
-
-  const registrationLink = buildRegistrationReferralLink(data);
-  const landingpageLink = buildLandingpageReferralLink(data);
-
-  registrationBox.innerText =
-    registrationLink || "Kein direkter Registrierungslink gefunden.";
-
-  landingpageBox.innerText =
-    landingpageLink || "Kein persönlicher Landingpage-Link gefunden.";
-}
-
-function toggleLevel(level) {
-  const card = document.getElementById("levelCard" + level);
-
-  if (card) {
-    card.classList.toggle("open");
-
-    const head = card.querySelector(".level-head");
-
-    if (head) {
-      head.setAttribute("aria-expanded", String(card.classList.contains("open")));
-    }
+function copyBetInsightId(){
+  const value=document.getElementById("betInsightId").innerText.trim();
+  if(value && value!=="Lade..." && value!=="Nicht verfügbar"){
+    copyText(value).then(()=>document.getElementById("message").innerText="BetInsight-ID wurde kopiert.");
   }
 }
 
-function handleLevelKey(event, level) {
-  if (event.key === "Enter" || event.key === " ") {
-    event.preventDefault();
-    toggleLevel(level);
-  }
+function toggleProfilePrivacy(){
+  profilePrivacyActive=!profilePrivacyActive;
+  document.getElementById("emailDataRow").classList.toggle("private-row-hidden",profilePrivacyActive);
+  document.getElementById("maskedToken").classList.toggle("private-token-hidden",profilePrivacyActive);
+  const b=document.getElementById("profilePrivacyButton");
+  b.classList.toggle("active",profilePrivacyActive);
+  b.innerText=profilePrivacyActive?"◉ Geschützt":"◉ Schützen";
+  if(!profilePrivacyActive) setMaskedToken(getActiveToken());
 }
 
-function normalizePartnerArray(data, level) {
-  const possibleKeys = [
-    "level" + level,
-    "ebene" + level,
-    "level_" + level,
-    "ebene_" + level,
-    "partners_level" + level,
-    "partner_ebene" + level
-  ];
-
-  for (const key of possibleKeys) {
-    const value = data ? data[key] : null;
-
-    if (Array.isArray(value)) {
-      return value;
-    }
-
-    if (typeof value === "string" && value.trim() !== "") {
-      try {
-        const parsed = JSON.parse(value);
-
-        if (Array.isArray(parsed)) {
-          return parsed;
-        }
-
-        if (parsed && typeof parsed === "object" && Array.isArray(parsed.array)) {
-          return parsed.array;
-        }
-      } catch (error) {
-        /* Kein JSON-String. */
-      }
-    }
-
-    if (value && typeof value === "object" && Array.isArray(value.array)) {
-      return value.array;
-    }
-  }
-
-  if (data && data.levels && Array.isArray(data.levels[level])) {
-    return data.levels[level];
-  }
-
-  if (data && data.ebenen && Array.isArray(data.ebenen[level])) {
-    return data.ebenen[level];
-  }
-
-  return [];
-}
-
-function partnerValue(partner, keys, fallback = 0) {
-  return firstDefined(partner, keys, fallback);
-}
-
-function renderLevelTable(level, partners) {
-  const body = document.getElementById("level" + level + "TableBody");
-
-  if (!body) {
-    return;
-  }
-
-  if (!Array.isArray(partners) || partners.length === 0) {
-    body.innerHTML =
-      '<tr><td colspan="6" class="empty-row">Noch keine Daten vorhanden.</td></tr>';
-    return;
-  }
-
-  body.innerHTML = partners.map(partner => {
-    const biNumber = String(
-      partnerValue(partner, ["bi_nummer", "bi_number", "ref_code", "user_id", "7", "6"], "-")
-    );
-
-    const sponsor = String(
-      partnerValue(partner, ["sponsor", "sponsor_ref", "sponsor_code", "sponsor_ref_code", "8", "9"], "-")
-    );
-
-    const purchased = formatNumber(
-      partnerValue(
-        partner,
-        ["gekaufte_units", "gekaufte_units_rest", "purchased_units", "gekauft", "35"],
-        0
-      )
-    );
-
-    const consumed = formatNumber(
-      partnerValue(partner, ["verbrauchte_kauf_units", "consumed_units", "verbraucht"], 0)
-    );
-
-    const expected = formatNumber(
-      partnerValue(
-        partner,
-        [
-          "erwartete_referral_units",
-          "ref_erwartet",
-          "expected_units",
-          "erwartet",
-          "ref_partner_erwartet_l" + level,
-          String(34 + level * 2),
-          "ref_ebene_" + level,
-          "ref_level_" + level,
-          "referral_units_ebene_" + level
-        ],
-        0
-      )
-    );
-
-    const released = formatNumber(
-      partnerValue(
-        partner,
-        [
-          "freigegebene_referral_units",
-          "ref_verfuegbar",
-          "released_units",
-          "available_units",
-          "ref_partner_verfuegbar_l" + level,
-          String(35 + level * 2),
-          "freigegeben"
-        ],
-        0
-      )
-    );
-
-    return `
-      <tr>
-        <td class="partner-id" data-label="BI-Nummer">${escapeHtml(biNumber)}</td>
-        <td data-label="Sponsor">${escapeHtml(sponsor)}</td>
-        <td data-label="Gekaufte Units">${purchased}</td>
-        <td data-label="Verbrauchte Kauf-Units">${consumed}</td>
-        <td data-label="Erwartete Referral-Units">${expected}</td>
-        <td data-label="Freigegebene Referral-Units">${released}</td>
-      </tr>
-    `;
-  }).join("");
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function setLevelSummary(level, data, partners) {
-  const summary = getLevelSummaryValues(level, data, partners);
-
-  document.getElementById("level" + level + "Partners").innerText =
-    formatNumber(summary.partnerCount);
-
-  document.getElementById("level" + level + "Purchased").innerText =
-    formatNumber(summary.purchased) + " Units";
-
-  document.getElementById("level" + level + "Expected").innerText =
-    formatNumber(summary.expected);
-
-  document.getElementById("level" + level + "Released").innerText =
-    formatNumber(summary.released);
-}
-
-function prepareNetworkSection() {
-  const status = document.getElementById("referralStatus");
-
-  document.getElementById("referralSection").style.display = "block";
-
-  setReferralLinks({});
-
-  resetReferralValues();
-  resetStructureValues();
-
-  status.innerText =
-    "Netzwerkdaten werden erst geladen, wenn du auf „Netzwerkdaten laden“ klickst.";
-}
-
-function optionalNumber(value) {
-  if (value === undefined || value === null || value === "") {
-    return null;
-  }
-
-  const normalized = String(value).replace(",", ".");
-  const parsed = Number(normalized);
-
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
-function sumPartnerMetric(partners, keys) {
-  return partners.reduce((sum, partner) => {
-    return sum + safeNumber(partnerValue(partner, keys, 0));
-  }, 0);
-}
-
-function getLevelSummaryValues(level, data, partners) {
-  const partnerCountRaw = firstDefined(
-    data,
-    [
-      "ebene" + level,
-      "level" + level + "_partners",
-      "level" + level + "_count",
-      "partner_ebene" + level
-    ],
-    null
-  );
-
-  const partnerCount =
-    optionalNumber(partnerCountRaw) ?? partners.length;
-
-  const purchasedFallback = sumPartnerMetric(
-    partners,
-    ["gekaufte_units", "gekaufte_units_rest", "purchased_units", "gekauft", "35"]
-  );
-
-  const purchased = safeNumber(
-    firstDefined(
-      data,
-      [
-        "ebene" + level + "_gekauft",
-        "level" + level + "_purchased",
-        "gekauft_ebene" + level
-      ],
-      purchasedFallback
-    )
-  );
-
-  const expectedPartnerKeys = [
-    "erwartete_referral_units",
-    "ref_erwartet",
-    "expected_units",
-    "erwartet",
-    "ref_partner_erwartet_l" + level,
-    String(34 + level * 2),
-    "ref_ebene_" + level,
-    "ref_level_" + level,
-    "referral_units_ebene_" + level
-  ];
-
-  const expectedFallback = sumPartnerMetric(partners, expectedPartnerKeys);
-
-  const expected = safeNumber(
-    firstDefined(
-      data,
-      [
-        "ref_partner_erwartet_l" + level,
-        "ref_erwartet_l" + level,
-        "ebene" + level + "_erwartet",
-        "level" + level + "_expected",
-        "erwartet_ebene" + level
-      ],
-      expectedFallback
-    )
-  );
-
-  const releasedPartnerKeys = [
-    "freigegebene_referral_units",
-    "ref_verfuegbar",
-    "released_units",
-    "available_units",
-    "ref_partner_verfuegbar_l" + level,
-    String(35 + level * 2),
-    "freigegeben"
-  ];
-
-  const releasedFallback = sumPartnerMetric(partners, releasedPartnerKeys);
-
-  const released = safeNumber(
-    firstDefined(
-      data,
-      [
-        "ref_partner_verfuegbar_l" + level,
-        "ref_verfuegbar_l" + level,
-        "ebene" + level + "_freigegeben",
-        "level" + level + "_released",
-        "freigegeben_ebene" + level
-      ],
-      releasedFallback
-    )
-  );
-
-  return {
-    partnerCount,
-    purchased,
-    expected,
-    released
-  };
-}
-
-function renderReferralOverview(data, levelSummaries) {
-  setReferralLinks(data);
-
-  levelSummaries.forEach((summary, index) => {
-    document.getElementById("networkLevel" + (index + 1)).innerText =
-      formatNumber(summary.partnerCount);
+function toggleAccountPrivacy(){
+  accountPrivacyActive=!accountPrivacyActive;
+  document.querySelectorAll(".account-private-value").forEach(el=>{
+    el.classList.toggle("private-value-hidden",accountPrivacyActive);
   });
-
-  const calculatedPending = levelSummaries.reduce((sum, summary) => {
-    return sum + summary.expected;
-  }, 0);
-
-  const calculatedReleased = levelSummaries.reduce((sum, summary) => {
-    return sum + summary.released;
-  }, 0);
-
-  const explicitPending = optionalNumber(
-    firstDefined(
-      data,
-      [
-        "ref_noch_nicht_freigegeben",
-        "ref_gesamt_erwartet",
-        "ref_erwartet_gesamt",
-        "pending_ref_units"
-      ],
-      null
-    )
-  );
-
-  const pendingUnits = explicitPending ?? calculatedPending;
-
-  const explicitAllUnits = optionalNumber(
-    firstDefined(
-      data,
-      [
-        "ref_units_insgesamt",
-        "ref_gesamt_insgesamt",
-        "referral_units_total",
-        "total_ref_units"
-      ],
-      null
-    )
-  );
-
-  const allUnits =
-    explicitAllUnits ?? (pendingUnits + calculatedReleased);
-
-  document.getElementById("referralAllUnits").innerText =
-    formatNumber(allUnits);
-  document.getElementById("referralPendingUnits").innerText =
-    formatNumber(pendingUnits);
+  const b=document.getElementById("accountPrivacyButton");
+  b.classList.toggle("active",accountPrivacyActive);
+  b.innerText=accountPrivacyActive?"◉ Geschützt":"◉ Schützen";
 }
 
-function resetReferralValues() {
-  document.getElementById("networkLevel1").innerText = "–";
-  document.getElementById("networkLevel2").innerText = "–";
-  document.getElementById("networkLevel3").innerText = "–";
-  document.getElementById("referralAllUnits").innerText = "0";
-  document.getElementById("referralPendingUnits").innerText = "0";
+function toggleReferralPrivacy(){
+  referralPrivacyActive=!referralPrivacyActive;
+  document.querySelectorAll(
+    "#referralSection .referral-stat-value,"+
+    "#referralSection .network-level-line strong,"+
+    "#referralSection .referral-linkbox,"+
+    "#referralSection .level-metric-value,"+
+    "#referralSection .level-body"
+  ).forEach(el=>el.classList.toggle("private-value-hidden",referralPrivacyActive));
+
+  const b=document.getElementById("referralPrivacyButton");
+  b.classList.toggle("active",referralPrivacyActive);
+  b.innerText=referralPrivacyActive?"◉ Geschützt":"◉ Schützen";
 }
 
-function resetStructureValues() {
-  for (let level = 1; level <= 3; level += 1) {
-    document.getElementById("level" + level + "Partners").innerText = "0";
-    document.getElementById("level" + level + "Purchased").innerText = "0 Units";
-    document.getElementById("level" + level + "Expected").innerText = "0";
-    document.getElementById("level" + level + "Released").innerText = "0";
-    renderLevelTable(level, []);
-  }
+function getTokenFromUrl(){
+  return new URLSearchParams(location.search).get("token");
 }
 
-async function fetchNetworkPayload() {
-  const dashboardToken =
-    String(currentProfileData.dashboardToken || "").trim();
-
-  if (!dashboardToken) {
-    throw new Error("dashboard_token fehlt.");
-  }
-
-  const response = await fetch(
-    EMPFEHLUNGEN_WEBHOOK_URL +
-    "?id=" +
-    encodeURIComponent(dashboardToken),
-    {
-      method: "GET",
-      cache: "no-store"
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error("HTTP-Fehler: " + response.status);
-  }
-
-  const data = await response.json();
-
-  if (!data || typeof data !== "object") {
-    throw new Error("Keine gültigen Empfehlungsdaten erhalten.");
-  }
-
-  return data;
-}
-
-function renderNetworkPayload(data) {
-  const levelSummaries = [];
-
-  for (let level = 1; level <= 3; level += 1) {
-    const partners = normalizePartnerArray(data, level);
-    const summary = getLevelSummaryValues(level, data, partners);
-
-    levelSummaries.push(summary);
-    setLevelSummary(level, data, partners);
-    renderLevelTable(level, partners);
-  }
-
-  renderReferralOverview(data, levelSummaries);
-}
-
-async function loadStructureData() {
-  const status = document.getElementById("referralStatus");
-  const dashboardToken =
-    String(currentProfileData.dashboardToken || "").trim();
-
-  if (!dashboardToken) {
-    resetStructureValues();
-    status.innerText =
-      "Die Strukturdetails können noch nicht geladen werden: dashboard_token fehlt.";
-    return;
-  }
-
-  try {
-    const data = await fetchNetworkPayload();
-    renderNetworkPayload(data);
-
-    status.innerText =
-      "Empfehlungsübersicht und Strukturdetails wurden erfolgreich geladen.";
-
-  } catch (error) {
-    console.error("Fehler beim Laden der Strukturdetails:", error);
-    resetStructureValues();
-    status.innerText =
-      "Die Strukturdetails konnten nicht geladen werden. Bitte versuche es erneut.";
-  }
-}
-
-async function refreshNetworkData(showButtonFeedback = false, sourceButton = null) {
-  const refreshButtons = Array.from(
-    document.querySelectorAll(".network-refresh-button")
-  );
-  const buttonTexts = refreshButtons.map(button => button.innerText);
-  const activeButton = sourceButton || refreshButtons[0] || null;
-  let refreshSucceeded = false;
-
-  if (showButtonFeedback) {
-    refreshButtons.forEach(button => {
-      button.disabled = true;
-    });
-
-    if (activeButton) {
-      activeButton.innerText = "⏳ Lädt...";
-    }
-  }
-
-  const status = document.getElementById("referralStatus");
-
-  try {
-    status.innerText = "Empfehlungsdaten werden geladen...";
-    const data = await fetchNetworkPayload();
-    renderNetworkPayload(data);
-    status.innerText =
-      "Empfehlungsübersicht und Strukturdetails wurden erfolgreich geladen.";
-    refreshSucceeded = true;
-
-  } catch (error) {
-    console.error("Fehler beim Laden der Empfehlungsdaten:", error);
-    resetReferralValues();
-    resetStructureValues();
-    status.innerText =
-      "Die Empfehlungsdaten konnten nicht geladen werden. Bitte versuche es erneut.";
-  }
-
-  if (showButtonFeedback) {
-    if (activeButton) {
-      activeButton.innerText = refreshSucceeded
-        ? "✅ Aktualisiert"
-        : "❌ Fehler";
-    }
-
-    window.setTimeout(() => {
-      refreshButtons.forEach((button, index) => {
-        button.disabled = false;
-        button.innerText = buttonTexts[index];
-      });
-    }, 2200);
-  }
-}
-
-function isUnavailableReferralLink(link) {
-  const value = String(link || "").trim().toLowerCase();
-
-  return (
-    !value ||
-    value.includes("wird geladen") ||
-    value.includes("nicht gefunden") ||
-    value.includes("nicht verfügbar") ||
-    value.includes("vorbereitet")
-  );
-}
-
-async function copyReferralLinkById(linkElementId, buttonElementId, successText) {
-  const link = String(
-    document.getElementById(linkElementId).innerText || ""
-  ).trim();
-
-  const status = document.getElementById("referralStatus");
-  const button = document.getElementById(buttonElementId);
-  const oldText = button.innerText;
-
-  if (isUnavailableReferralLink(link)) {
-    status.innerText = "Der gewünschte Empfehlungslink ist noch nicht verfügbar.";
-    return;
-  }
-
-  try {
-    await copyText(link);
-    status.innerText = successText;
-    button.innerText = "✅ Link kopiert";
-  } catch (error) {
-    status.innerText = "Der Link konnte nicht kopiert werden.";
-    button.innerText = "❌ Fehler";
-  }
-
-  window.setTimeout(() => {
-    button.innerText = oldText;
-  }, 2200);
-}
-
-function copyRegistrationReferralLink() {
-  return copyReferralLinkById(
-    "registrationReferralLink",
-    "copyRegistrationReferralButton",
-    "Direkter Registrierungslink wurde kopiert."
-  );
-}
-
-function copyLandingpageReferralLink() {
-  return copyReferralLinkById(
-    "landingpageReferralLink",
-    "copyLandingpageReferralButton",
-    "Persönlicher Landingpage-Link wurde kopiert."
-  );
-}
-
-function referralUnitsToAccount() {
-  document.getElementById("referralStatus").innerText =
-    "Diese Funktion wird später mit dem Referral-Ledger in Make verbunden.";
-}
-
-function goUnitExchange() {
-  const token = getActiveToken();
-
-  if (!token) {
-    alert("Kein Zugangscode gefunden.");
-    showRequestBox();
-    return;
-  }
-
-  window.location.href =
-    "https://betinsightclub.github.io/profil/wechselboerse/?token=" +
-    encodeURIComponent(token);
-}
-
-function getTokenFromUrl() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get("token");
-}
-
-function getSavedToken() {
+function getSavedToken(){
   return localStorage.getItem(TOKEN_STORAGE_KEY);
 }
 
-function saveToken(token) {
-  if (token && token.trim() !== "") {
-    localStorage.setItem(TOKEN_STORAGE_KEY, token.trim());
-  }
+function saveToken(token){
+  if(token && String(token).trim()) localStorage.setItem(TOKEN_STORAGE_KEY,String(token).trim());
 }
 
-function getActiveToken() {
-  const tokenFromUrl = getTokenFromUrl();
-
-  if (tokenFromUrl && tokenFromUrl.trim() !== "") {
-    saveToken(tokenFromUrl);
-    return tokenFromUrl.trim();
+function getActiveToken(){
+  const fromUrl=getTokenFromUrl();
+  if(fromUrl && fromUrl.trim()){
+    saveToken(fromUrl);
+    return fromUrl.trim();
   }
-
   return getSavedToken();
 }
 
-function buildTokenVariants(token) {
-  if (!token) {
-    return [];
+function buildTokenVariants(token){
+  if(!token) return [];
+  const clean=String(token).trim();
+  const variants=[clean];
+
+  if(clean.startsWith("BI-")){
+    const p=clean.substring(3);
+    variants.push(p,"BI"+p);
+  }else if(clean.startsWith("BI")){
+    const p=clean.substring(2);
+    variants.push(p,"BI-"+p);
+  }else{
+    variants.push("BI"+clean,"BI-"+clean);
   }
-
-  const clean = String(token).trim();
-  const variants = [clean];
-
-  if (clean.startsWith("BI-")) {
-    const numberPart = clean.substring(3);
-    variants.push(numberPart);
-    variants.push("BI" + numberPart);
-
-  } else if (clean.startsWith("BI")) {
-    const numberPart = clean.substring(2);
-    variants.push(numberPart);
-    variants.push("BI-" + numberPart);
-
-  } else {
-    variants.push("BI" + clean);
-    variants.push("BI-" + clean);
-  }
-
   return [...new Set(variants)];
 }
 
-function showProfileBox() {
-  document.getElementById("profileBox").style.display = "block";
-  document.getElementById("requestBox").style.display = "none";
-  document.getElementById("headerUnitsBox").style.display = "";
-  document.getElementById("referralSection").style.display = "block";
+function showProfileBox(){
+  document.getElementById("profileBox").style.display="block";
+  document.getElementById("requestBox").style.display="none";
+  document.getElementById("headerUnitsBox").style.display="";
+  document.getElementById("referralSection").style.display="block";
 }
 
-function showRequestBox() {
-  document.getElementById("profileBox").style.display = "none";
-  document.getElementById("requestBox").style.display = "block";
-  document.getElementById("headerUnitsBox").style.display = "none";
-  document.getElementById("referralSection").style.display = "none";
+function showRequestBox(){
+  document.getElementById("profileBox").style.display="none";
+  document.getElementById("requestBox").style.display="block";
+  document.getElementById("headerUnitsBox").style.display="none";
+  document.getElementById("referralSection").style.display="none";
 }
 
-function setUnitColor(units) {
-  const unitsElement = document.getElementById("units");
-  const accountUnits = document.getElementById("accountUnits");
-
-  let color = "lime";
-
-  if (units === 0) {
-    color = "red";
-  } else if (units < 10) {
-    color = "orange";
-  }
-
-  unitsElement.style.color = color;
-
-  if (accountUnits) {
-    accountUnits.style.color = color;
-  }
+function setUnitColor(units){
+  let color=units===0?"red":(units<10?"orange":"lime");
+  document.getElementById("units").style.color=color;
+  document.getElementById("accountUnits").style.color=color;
 }
 
-function setDebug(text) {
-  document.getElementById("debug").innerText = text;
+function setDebug(text){
+  document.getElementById("debug").innerText=text;
 }
 
-function setRequestMessage(text, color) {
-  const message = document.getElementById("requestMessage");
-  message.innerText = text;
-  message.style.color = color || "#ffcc00";
+function getReferralCode(data={}){
+  return String(data.ref_code || currentProfileData.refCode || "").trim();
 }
 
-function setReceivedLinkMessage(text, color) {
-  const message = document.getElementById("receivedLinkMessage");
-  message.innerText = text;
-  message.style.color = color || "#ffcc00";
+function buildRegistrationReferralLink(data={}){
+  if(data.ref_link && String(data.ref_link).trim()) return String(data.ref_link).trim();
+  if(currentProfileData.refLink) return currentProfileData.refLink;
+  const ref=getReferralCode(data);
+  return ref ? "https://betinsightclub.github.io/profil/ref/?ref="+encodeURIComponent(ref) : "";
 }
 
-function extractTokenFromInput(value) {
-  const clean = String(value || "").trim();
-
-  if (!clean) {
-    return "";
-  }
-
-  try {
-    const url = new URL(clean);
-    const tokenFromUrl = url.searchParams.get("token");
-
-    if (tokenFromUrl && tokenFromUrl.trim() !== "") {
-      return tokenFromUrl.trim();
-    }
-
-  } catch (error) {
-    /* Eingabe ist kein vollständiger Link. */
-  }
-
-  if (clean.includes("token=")) {
-    const tokenPart = clean.split("token=")[1].split("&")[0];
-    return decodeURIComponent(tokenPart).trim();
-  }
-
-  return clean;
+function buildLandingpageReferralLink(data={}){
+  const ref=getReferralCode(data);
+  return ref ? "https://betinsightclub.github.io/profil/betinsightcommunity/?ref="+encodeURIComponent(ref) : "";
 }
 
-function openReceivedProfileLink() {
-  const input = document.getElementById("receivedProfileLink").value;
-  const token = extractTokenFromInput(input);
+function setReferralLinks(data={}){
+  document.getElementById("registrationReferralLink").innerText=
+    buildRegistrationReferralLink(data) || "Kein direkter Registrierungslink gefunden.";
+  document.getElementById("landingpageReferralLink").innerText=
+    buildLandingpageReferralLink(data) || "Kein persönlicher Landingpage-Link gefunden.";
+}
 
-  if (!token) {
-    setReceivedLinkMessage(
-      "Bitte den vollständigen Profil-Link oder deinen Zugangscode eintragen.",
-      "#ff4444"
-    );
+async function copyReferralLinkById(linkId,buttonId,success){
+  const value=document.getElementById(linkId).innerText.trim();
+  if(!value || value.includes("gefunden") || value.includes("geladen")){
+    document.getElementById("referralStatus").innerText="Der gewünschte Empfehlungslink ist noch nicht verfügbar.";
     return;
   }
-
-  saveToken(token);
-
-  setReceivedLinkMessage("Profil wird geöffnet...", "#00ff99");
-
-  window.location.href =
-    "https://betinsightclub.github.io/profil/?token=" +
-    encodeURIComponent(token);
+  await copyText(value);
+  const b=document.getElementById(buttonId);
+  const old=b.innerText;
+  b.innerText="✅ Link kopiert";
+  document.getElementById("referralStatus").innerText=success;
+  setTimeout(()=>b.innerText=old,1800);
 }
 
-function fetchProfileByToken(tokenVariants, index) {
-  if (index >= tokenVariants.length) {
-    document.getElementById("units").innerText = "0";
-    document.getElementById("accountUnits").innerText = "0";
-    document.getElementById("email").innerText = "Nicht gefunden";
-    setBetInsightId("");
-    setMaskedToken("");
+function copyRegistrationReferralLink(){
+  return copyReferralLinkById("registrationReferralLink","copyRegistrationReferralButton","Direkter Registrierungslink wurde kopiert.");
+}
 
-    document.getElementById("message").innerText =
-      "Zugangscode wurde nicht gefunden. Bitte fordere deinen Profil-Link erneut an.";
+function copyLandingpageReferralLink(){
+  return copyReferralLinkById("landingpageReferralLink","copyLandingpageReferralButton","Persönlicher Landingpage-Link wurde kopiert.");
+}
 
-    setUnitColor(0);
+function partnerValue(partner,keys,fallback=0){
+  return firstDefined(partner,keys,fallback);
+}
+
+function normalizePartnerArray(data,level){
+  const keys=[
+    "level"+level,"ebene"+level,"level_"+level,"ebene_"+level,
+    "partners_level"+level,"partner_ebene"+level
+  ];
+
+  for(const key of keys){
+    const v=data?.[key];
+    if(Array.isArray(v)) return v;
+    if(v && typeof v==="object" && Array.isArray(v.array)) return v.array;
+    if(typeof v==="string" && v.trim()){
+      try{
+        const p=JSON.parse(v);
+        if(Array.isArray(p)) return p;
+        if(p && Array.isArray(p.array)) return p.array;
+      }catch(_){}
+    }
+  }
+  return [];
+}
+
+function sumPartnerMetric(partners,keys){
+  return partners.reduce((sum,p)=>sum+safeNumber(partnerValue(p,keys,0)),0);
+}
+
+function getLevelSummaryValues(level,data,partners){
+  const partnerCount=
+    optionalNumber(firstDefined(data,[
+      "ebene"+level,
+      "level"+level+"_partners",
+      "level"+level+"_count",
+      "partner_ebene"+level
+    ],null)) ?? partners.length;
+
+  const purchased=sumPartnerMetric(partners,[
+    "gekaufte_units","gekaufte_units_rest","purchased_units","gekauft","35"
+  ]);
+
+  const expected=sumPartnerMetric(partners,[
+    "erwartete_referral_units","ref_erwartet","expected_units","erwartet",
+    "ref_partner_erwartet_l"+level,"ref_ebene_"+level,"ref_level_"+level
+  ]);
+
+  const released=sumPartnerMetric(partners,[
+    "freigegebene_referral_units","ref_verfuegbar","released_units","available_units",
+    "ref_partner_verfuegbar_l"+level,"freigegeben"
+  ]);
+
+  return{
+    partnerCount,
+    purchased:safeNumber(firstDefined(data,[
+      "ebene"+level+"_gekauft","level"+level+"_purchased","gekauft_ebene"+level
+    ],purchased)),
+    expected:safeNumber(firstDefined(data,[
+      "ref_partner_erwartet_l"+level,"ref_erwartet_l"+level,
+      "ebene"+level+"_erwartet","level"+level+"_expected"
+    ],expected)),
+    released:safeNumber(firstDefined(data,[
+      "ref_partner_verfuegbar_l"+level,"ref_verfuegbar_l"+level,
+      "ebene"+level+"_freigegeben","level"+level+"_released"
+    ],released))
+  };
+}
+
+function renderLevelCard(level,partners,summary){
+  const rows=partners.length ? partners.map(p=>{
+    const bi=partnerValue(p,["bi_nummer","bi_number","ref_code","user_id","7","6"],"-");
+    const sponsor=partnerValue(p,["sponsor","sponsor_ref","sponsor_code","sponsor_ref_code","8","9"],"-");
+    const purchased=partnerValue(p,["gekaufte_units","gekaufte_units_rest","purchased_units","gekauft","35"],0);
+    const consumed=partnerValue(p,["verbrauchte_kauf_units","consumed_units","verbraucht"],0);
+    const expected=partnerValue(p,["erwartete_referral_units","ref_erwartet","expected_units","erwartet"],0);
+    const released=partnerValue(p,["freigegebene_referral_units","ref_verfuegbar","released_units","available_units","freigegeben"],0);
+
+    return `<tr>
+      <td class="partner-id">${escapeHtml(bi)}</td>
+      <td>${escapeHtml(sponsor)}</td>
+      <td>${formatNumber(purchased)}</td>
+      <td>${formatNumber(consumed)}</td>
+      <td>${formatNumber(expected)}</td>
+      <td>${formatNumber(released)}</td>
+    </tr>`;
+  }).join("") : `<tr><td colspan="6" class="empty-row">Noch keine Daten vorhanden.</td></tr>`;
+
+  return `<article class="level-card ${level===1?"open":""}" id="levelCard${level}">
+    <div class="level-head" onclick="toggleLevel(${level})">
+      <div class="level-number">${level}</div>
+      <div class="level-name">${level===1?"Ebene 1 – direkte Partner":"Ebene "+level}</div>
+      <div class="level-metric"><div class="level-metric-label">Partner</div><div class="level-metric-value">${formatNumber(summary.partnerCount)}</div></div>
+      <div class="level-metric"><div class="level-metric-label">Gekauft</div><div class="level-metric-value">${formatNumber(summary.purchased)} Units</div></div>
+      <div class="level-metric"><div class="level-metric-label">Erwartet</div><div class="level-metric-value">${formatNumber(summary.expected)}</div></div>
+      <div class="level-metric"><div class="level-metric-label">Freigegeben</div><div class="level-metric-value">${formatNumber(summary.released)}</div></div>
+      <div class="level-arrow">⌃</div>
+    </div>
+    <div class="level-body">
+      <div class="table-wrap">
+        <table class="network-table">
+          <thead><tr>
+            <th>BI-Nummer</th><th>Sponsor</th><th>Gekaufte Units</th>
+            <th>Verbrauchte Kauf-Units</th><th>Erwartete Referral Units</th><th>Freigegebene Referral Units</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  </article>`;
+}
+
+function toggleLevel(level){
+  document.getElementById("levelCard"+level)?.classList.toggle("open");
+}
+
+function renderNetworkPayload(data){
+  const summaries=[];
+  let html="";
+
+  for(let level=1;level<=3;level++){
+    const partners=normalizePartnerArray(data,level);
+    const summary=getLevelSummaryValues(level,data,partners);
+    summaries.push(summary);
+    document.getElementById("networkLevel"+level).innerText=formatNumber(summary.partnerCount);
+    html+=renderLevelCard(level,partners,summary);
+  }
+
+  document.getElementById("levelList").innerHTML=html;
+
+  const calculatedPending=summaries.reduce((s,x)=>s+x.expected,0);
+  const calculatedReleased=summaries.reduce((s,x)=>s+x.released,0);
+
+  const pending=optionalNumber(firstDefined(data,[
+    "ref_noch_nicht_freigegeben","ref_gesamt_erwartet",
+    "ref_erwartet_gesamt","pending_ref_units"
+  ],null)) ?? calculatedPending;
+
+  const all=optionalNumber(firstDefined(data,[
+    "ref_units_insgesamt","ref_gesamt_insgesamt",
+    "referral_units_total","total_ref_units"
+  ],null)) ?? (pending+calculatedReleased);
+
+  document.getElementById("referralAllUnits").innerText=formatNumber(all);
+  document.getElementById("referralPendingUnits").innerText=formatNumber(pending);
+  setReferralLinks(data);
+}
+
+async function fetchNetworkPayload(){
+  const id=String(currentProfileData.dashboardToken||"").trim();
+  if(!id) throw new Error("dashboard_token fehlt.");
+  const r=await fetch(
+    EMPFEHLUNGEN_WEBHOOK_URL+"?id="+encodeURIComponent(id),
+    {cache:"no-store"}
+  );
+  if(!r.ok) throw new Error("HTTP "+r.status);
+  return await r.json();
+}
+
+async function refreshNetworkData(showFeedback=false,sourceButton=null){
+  const status=document.getElementById("referralStatus");
+  const old=sourceButton?.innerText;
+
+  if(sourceButton && showFeedback){
+    sourceButton.disabled=true;
+    sourceButton.innerText="⏳ Lädt...";
+  }
+
+  try{
+    status.innerText="Empfehlungsdaten werden geladen...";
+    const data=await fetchNetworkPayload();
+    renderNetworkPayload(data);
+    status.innerText="Empfehlungsübersicht und Strukturdetails wurden erfolgreich geladen.";
+    if(sourceButton) sourceButton.innerText="✅ Aktualisiert";
+  }catch(e){
+    console.error(e);
+    status.innerText="Die Empfehlungsdaten konnten nicht geladen werden. Bitte versuche es erneut.";
+    if(sourceButton) sourceButton.innerText="❌ Fehler";
+  }finally{
+    if(sourceButton){
+      setTimeout(()=>{
+        sourceButton.disabled=false;
+        sourceButton.innerText=old;
+      },1800);
+    }
+  }
+}
+
+function prepareNetworkSection(){
+  document.getElementById("referralSection").style.display="block";
+  setReferralLinks({});
+  document.getElementById("levelList").innerHTML="";
+  document.getElementById("networkLevel1").innerText="–";
+  document.getElementById("networkLevel2").innerText="–";
+  document.getElementById("networkLevel3").innerText="–";
+  document.getElementById("referralAllUnits").innerText="0";
+  document.getElementById("referralPendingUnits").innerText="0";
+}
+
+async function requestCurrentProfileLink(){
+  const email=String(currentProfileData.email||"").trim().toLowerCase();
+  const msg=document.getElementById("message");
+  if(!email){
+    msg.innerText="Die registrierte E-Mail-Adresse ist noch nicht geladen.";
+    return;
+  }
+  try{
+    await fetch(REQUEST_LINK_WEBHOOK_URL+"?email="+encodeURIComponent(email),{cache:"no-store"});
+    msg.innerText="Der persönliche Profil-Link wurde erneut an deine registrierte E-Mail-Adresse gesendet.";
+  }catch(e){
+    msg.innerText="Der Profil-Link konnte nicht gesendet werden.";
+  }
+}
+
+function fetchProfileByToken(variants,index){
+  if(index>=variants.length){
+    document.getElementById("units").innerText="0,00";
+    document.getElementById("accountUnits").innerText="0";
+    document.getElementById("unlockedTips").innerText="0";
+    document.getElementById("consumedUnits").innerText="–";
+    document.getElementById("email").innerText="Nicht gefunden";
     showRequestBox();
-    setDebug("Debug: Kein Token-Treffer.");
     return;
   }
 
-  const tokenToTry = tokenVariants[index];
+  const token=variants[index];
 
-  fetch(
-    PROFILE_WEBHOOK_URL +
-    "?token=" +
-    encodeURIComponent(tokenToTry),
-    {
-      cache: "no-store"
-    }
-  )
-    .then(response => response.json())
-    .then(data => {
-      if (!data || data.found === false || !data.email) {
-        fetchProfileByToken(tokenVariants, index + 1);
+  fetch(PROFILE_WEBHOOK_URL+"?token="+encodeURIComponent(token),{cache:"no-store"})
+    .then(r=>r.json())
+    .then(data=>{
+      if(!data || data.found===false || !data.email){
+        fetchProfileByToken(variants,index+1);
         return;
       }
 
-      const finalToken = data.token || tokenToTry;
-      const refCode = String(data.ref_code || "").trim();
-      const dashboardToken = String(data.dashboard_token || "").trim();
-      const refLink = String(data.ref_link || "").trim();
+      const finalToken=data.token || token;
+      const total=safeNumber(data.einsetzbare_units);
+      const consumed=firstDefined(data,["verbrauchte_units","consumed_units","used_units"],null);
+      const unlocked=safeNumber(firstDefined(data,[
+        "freigeschaltete_tipps","unlocked_tips","unlock_count"
+      ],0));
 
-      /*
-       * AQ ist die einzige Anzeige-Wahrheit der Profilseite und enthält:
-       * Geschenk-, Kauf-, Konto-Referral- und verfügbare Referral-Units.
-       * Die interne Aufteilung wird erst in der Unit-Wechselstube angezeigt.
-       */
-      const totalAvailableUnits = safeNumber(data.einsetzbare_units);
-
-      const consumedUnitsRaw = firstDefined(
-        data,
-        ["verbrauchte_units", "consumed_units", "used_units"],
-        null
-      );
-
-      const unlockedTips = safeNumber(
-        firstDefined(
-          data,
-          ["freigeschaltete_tipps", "unlocked_tips", "unlock_count"],
-          0
-        )
-      );
-
-      currentProfileData = {
-        email: data.email || "",
-        units: totalAvailableUnits,
-        refCode: refCode,
-        dashboardToken: dashboardToken,
-        refLink: refLink,
-        consumedUnits: consumedUnitsRaw,
-        unlockedTips: unlockedTips
+      currentProfileData={
+        email:data.email||"",
+        units:total,
+        refCode:String(data.ref_code||"").trim(),
+        dashboardToken:String(data.dashboard_token||"").trim(),
+        refLink:String(data.ref_link||"").trim(),
+        consumedUnits:consumed,
+        unlockedTips:unlocked
       };
 
       saveToken(finalToken);
       showProfileBox();
 
-      document.getElementById("units").innerText =
-        formatNumber(totalAvailableUnits);
-      document.getElementById("accountUnits").innerText =
-        formatNumber(totalAvailableUnits);
-      document.getElementById("consumedUnits").innerText =
-        formatOptionalNumber(consumedUnitsRaw);
-      document.getElementById("unlockedTips").innerText = formatNumber(unlockedTips);
-      document.getElementById("email").innerText = data.email;
+      /* Zentrale Anzeige zwingend mit zwei Nachkommastellen */
+      document.getElementById("units").innerText=formatUnitsTwoDecimals(total);
 
-      setBetInsightId(refCode);
+      /* Kleine Karte weiterhin kompakt */
+      document.getElementById("accountUnits").innerText=formatNumber(total);
+
+      document.getElementById("unlockedTips").innerText=formatNumber(unlocked);
+      document.getElementById("consumedUnits").innerText=formatOptionalNumber(consumed);
+      document.getElementById("email").innerText=data.email;
+
+      setBetInsightId(data.ref_code);
       setMaskedToken(finalToken);
-      setUnitColor(totalAvailableUnits);
-
-      document.getElementById("message").innerText =
-        "Kontostand wurde aktualisiert.";
-
+      setUnitColor(total);
+      setReferralLinks(data);
       prepareNetworkSection();
 
-      setDebug(
-        "Debug: Token aktiv: " + finalToken +
-        " | API E-Mail: " + (data.email || "leer") +
-        " | API Units: " + (data.einsetzbare_units || "0") +
-        " | API Ref-Code: " + (data.ref_code || "leer") +
-        " | API Dashboard-Token: " + (data.dashboard_token || "leer")
-      );
+      document.getElementById("message").innerText="Kontostand wurde aktualisiert.";
     })
-    .catch(error => {
-      console.error(error);
-      fetchProfileByToken(tokenVariants, index + 1);
-    });
+    .catch(()=>fetchProfileByToken(variants,index+1));
 }
 
-function loadUnits() {
-  const token = getActiveToken();
-
-  if (!token) {
+function loadUnits(){
+  const token=getActiveToken();
+  if(!token){
     showRequestBox();
-    setDebug("Debug: Kein Token aktiv.");
     return;
   }
 
   showProfileBox();
+  document.getElementById("message").innerText="Kontostand wird geladen...";
+  document.getElementById("units").innerText="0,00";
+  document.getElementById("accountUnits").innerText="0";
+  document.getElementById("unlockedTips").innerText="0";
+  document.getElementById("consumedUnits").innerText="–";
+  document.getElementById("email").innerText="Lade...";
 
-  document.getElementById("message").innerText =
-    "Kontostand wird geladen...";
-
-  document.getElementById("email").innerText = "Lade...";
-  setBetInsightId("Lade...");
-  setMaskedToken("Lade...");
-
-  document.getElementById("units").innerText = "0";
-  document.getElementById("accountUnits").innerText = "0";
-  document.getElementById("consumedUnits").innerText = "–";
-  document.getElementById("unlockedTips").innerText = "0";
-
-  fetchProfileByToken(buildTokenVariants(token), 0);
+  fetchProfileByToken(buildTokenVariants(token),0);
 }
 
-function requestProfileLink() {
-  const email =
-    document
-      .getElementById("requestEmail")
-      .value
-      .trim()
-      .toLowerCase();
+function requestProfileLink(){
+  const email=document.getElementById("requestEmail").value.trim().toLowerCase();
+  const msg=document.getElementById("requestMessage");
 
-  if (!email) {
-    alert("Bitte deine registrierte BetInsight E-Mail eingeben.");
+  if(!email){
+    msg.innerText="Bitte deine registrierte BetInsight E-Mail eingeben.";
     return;
   }
 
-  setRequestMessage("Profil-Link wird angefordert...", "#ffcc00");
+  msg.innerText="Profil-Link wird angefordert...";
 
-  fetch(
-    REQUEST_LINK_WEBHOOK_URL +
-    "?email=" +
-    encodeURIComponent(email)
-  )
-    .then(response => response.text())
-    .then(text => {
-      setRequestMessage(
-        "✅ Profil-Link wurde verschickt. Öffne dein E-Mail-Postfach und verwende den erhaltenen Link.",
-        "#00ff99"
-      );
-
-      setDebug(
-        "Debug: Profil-Link angefordert für: " +
-        email +
-        " | Antwort: " +
-        text
-      );
-    })
-    .catch(error => {
-      console.error(error);
-
-      setRequestMessage(
-        "Fehler beim Anfordern. Bitte versuche es erneut.",
-        "#ff4444"
-      );
-    });
+  fetch(REQUEST_LINK_WEBHOOK_URL+"?email="+encodeURIComponent(email))
+    .then(()=>msg.innerText="✅ Profil-Link wurde verschickt. Öffne dein E-Mail-Postfach und verwende den erhaltenen Link.")
+    .catch(()=>msg.innerText="Fehler beim Anfordern. Bitte versuche es erneut.");
 }
 
-function goBuyUnits() {
-  const token = getActiveToken();
+function extractTokenFromInput(value){
+  const clean=String(value||"").trim();
+  if(!clean) return "";
 
-  if (!token) {
-    alert("Kein Zugangscode gefunden.");
-    showRequestBox();
+  try{
+    const url=new URL(clean);
+    return url.searchParams.get("token") || clean;
+  }catch(_){}
+
+  if(clean.includes("token=")){
+    return decodeURIComponent(clean.split("token=")[1].split("&")[0]).trim();
+  }
+  return clean;
+}
+
+function openReceivedProfileLink(){
+  const token=extractTokenFromInput(document.getElementById("receivedProfileLink").value);
+  if(!token){
+    document.getElementById("receivedLinkMessage").innerText="Bitte Profil-Link oder Zugangscode eintragen.";
     return;
   }
-
-  window.location.href =
-    "https://betinsightclub.github.io/profil/kaufen/?token=" +
-    encodeURIComponent(token);
+  saveToken(token);
+  location.href="https://betinsightclub.github.io/profil/?token="+encodeURIComponent(token);
 }
 
-function goTipps() {
-  const token = getActiveToken();
-
-  if (!token) {
-    alert("Kein Zugangscode gefunden.");
-    showRequestBox();
-    return;
-  }
-
-  window.location.href =
-    "https://betinsightclub.github.io/profil/tipps/?token=" +
-    encodeURIComponent(token);
+function goBuyUnits(){
+  const token=getActiveToken();
+  if(token) location.href="https://betinsightclub.github.io/profil/kaufen/?token="+encodeURIComponent(token);
 }
 
-function goFreigeschaltet() {
-  const token = getActiveToken();
-
-  if (!token) {
-    alert("Kein Zugangscode gefunden.");
-    showRequestBox();
-    return;
-  }
-
-  window.location.href =
-    "https://betinsightclub.github.io/profil/freigeschaltet/?token=" +
-    encodeURIComponent(token);
+function goTipps(){
+  const token=getActiveToken();
+  if(token) location.href="https://betinsightclub.github.io/profil/tipps/?token="+encodeURIComponent(token);
 }
 
-function goBackoffice() {
-  window.location.href =
-    "https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726";
+function goFreigeschaltet(){
+  const token=getActiveToken();
+  if(token) location.href="https://betinsightclub.github.io/profil/freigeschaltet/?token="+encodeURIComponent(token);
 }
 
-function forgetToken() {
+function goUnitExchange(){
+  const token=getActiveToken();
+  if(token) location.href="https://betinsightclub.github.io/profil/wechselboerse/?token="+encodeURIComponent(token);
+}
+
+function goBackoffice(){
+  location.href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726";
+}
+
+function referralUnitsToAccount(){
+  document.getElementById("referralStatus").innerText=
+    "Diese Funktion wird später mit dem Referral-Ledger in Make verbunden.";
+}
+
+function forgetToken(){
   localStorage.removeItem(TOKEN_STORAGE_KEY);
   localStorage.removeItem("betinsight_email");
-
-  profilePrivacyActive = false;
-  accountPrivacyActive = false;
-  referralPrivacyActive = false;
-
-  document.getElementById("emailDataRow").classList.remove("private-row-hidden");
-  document.getElementById("maskedToken").classList.remove("private-token-hidden");
-
-  document.querySelectorAll(".account-private-value").forEach(element => {
-    element.classList.remove("private-value-hidden");
-  });
-
-  document.getElementById("profilePrivacyButton").classList.remove("active");
-  document.getElementById("profilePrivacyButton").innerText = "◉ Schützen";
-
-  document.getElementById("accountPrivacyButton").classList.remove("active");
-  document.getElementById("accountPrivacyButton").innerText = "◉ Schützen";
-
-  document.querySelectorAll("#referralSection .private-value-hidden").forEach(element => {
-    element.classList.remove("private-value-hidden");
-  });
-
-  document.getElementById("referralPrivacyButton").classList.remove("active");
-  document.getElementById("referralPrivacyButton").innerText = "◉ Schützen";
-
-  document.getElementById("units").innerText = "0";
-  document.getElementById("accountUnits").innerText = "0";
-  document.getElementById("consumedUnits").innerText = "–";
-  document.getElementById("unlockedTips").innerText = "0";
-  document.getElementById("email").innerText = "Kein Zugangscode";
-
-  setBetInsightId("");
-  setMaskedToken("");
-  resetReferralValues();
-  resetStructureValues();
-
-  currentProfileData = {
-    email: "",
-    units: 0,
-    refCode: "",
-    dashboardToken: "",
-    refLink: "",
-    consumedUnits: null,
-    unlockedTips: 0
+  currentProfileData={
+    email:"",units:0,refCode:"",dashboardToken:"",
+    refLink:"",consumedUnits:null,unlockedTips:0
   };
-
-  setUnitColor(0);
   showRequestBox();
-  setDebug("Debug: Zugangscode gelöscht.");
 }
 
 loadUnits();
