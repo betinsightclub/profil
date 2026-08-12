@@ -5,18 +5,19 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.12-07
+Version: 2026.08.13-08
 
 Änderungen:
 - Aktive Premium-/Premium-Plus-Mitglieder sehen keine doppelten Upgrade-Buttons mehr im Dashboard.
 - Basis behält die Auswahl Premium / Premium Plus.
-- Versteckte Mitgliedschaftsbuttons werden technisch zuverlässig ausgeblendet.
-- Tarifinfo modernisiert und auf drei Karten erweitert: Basis, Premium, Premium Plus.
-- Bestehende Unit-Provisionen bis Ebene 3 sind bei allen drei Mitgliedschaften klar ausgewiesen.
-- Premium-Provisionen bleiben davon getrennt: Premium bis E6, Premium Plus bis E8.
-- Premium zeigt korrekt keine direkten Affiliate-Links; Premium Plus kann direkte Anbieter-/Affiliate-Links erhalten.
-- Aktueller Tarif wird im Tarifvergleich visuell hervorgehoben.
-- Upgrade-/Zahlungsaktionen bleiben bis Premium-v1.2 ohne echten Zahlungsaufruf.
+- Das ?-Panel ist tarifabhängig und kompakter: Basis sieht Premium + Premium Plus; Premium sieht den eigenen Tarif + Premium Plus; Premium Plus nur den eigenen Tarif.
+- Basis-Vorteile werden nicht mehr als eigene Karte wiederholt.
+- Premium: 2 Anbieter-/Quotenanzeigen; Premium Plus: bis zu 5 Anbieter im Quotenvergleich.
+- Laufende Unit-Provisionen bis Ebene 3 bleiben bei Basis, Premium und Premium Plus enthalten.
+- Zusätzliche Premium-Provisionen: Premium bis E6, Premium Plus bis E8.
+- Premium ohne direkte Affiliate-Links; Premium Plus mit freigegebenen direkten Anbieter-/Affiliate-Links.
+- Premium → Premium Plus ist dezent im Bereich Abo & Verlängerung vorbereitet.
+- Fehlendes premium_bis wird ohne künstlichen Countdown kompakt als aktiver Status dargestellt.
 - Kontostand, Tipp-, Referral-, Token- und Netzwerklogik bleiben unverändert.
 -->
 
@@ -889,7 +890,7 @@ input{
   .premium-manage-button{width:100%;min-width:0}
 }
 
-/* v2026.08.12-07 · Mitgliedschaft sauber + Tarifvergleich */
+/* v2026.08.13-08 · kompakter, tarifabhängiger Vergleich */
 .membership-main-copy{width:100%}
 
 .membership-title-row{
@@ -917,9 +918,10 @@ input{
 
 .membership-info-button:hover,
 .membership-info-button.active{
-  border-color:rgba(22,156,255,.48);
-  background:rgba(22,156,255,.12);
+  border-color:rgba(22,156,255,.52);
+  background:rgba(22,156,255,.13);
   color:#5db8ff;
+  transform:translateY(-1px);
 }
 
 .membership-action-area{min-width:0}
@@ -931,7 +933,8 @@ input{
 }
 
 .basis-upgrade-box[hidden],
-.membership-upgrade-button[hidden]{display:none!important}
+.membership-upgrade-button[hidden],
+.premium-manager-option[hidden]{display:none!important}
 
 .membership-upgrade-button{
   min-height:48px;
@@ -956,85 +959,148 @@ input{
   min-width:190px;
 }
 
+/* Solange premium_bis noch nicht aus dem Backend kommt, kein künstlicher Countdown. */
+.premium-runtime-box.runtime-date-pending .premium-progress,
+.premium-runtime-box.runtime-date-pending .premium-expiry{
+  display:none;
+}
+
+.premium-runtime-box.runtime-date-pending .premium-runtime-content{
+  display:flex;
+  align-items:center;
+  min-height:48px;
+}
+
+.premium-runtime-box.runtime-date-pending .premium-runtime-topline{
+  width:100%;
+}
+
+.premium-runtime-box.runtime-date-pending .premium-countdown{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  width:auto;
+  padding:8px 11px;
+  border:1px solid rgba(14,220,166,.20);
+  border-radius:999px;
+  background:rgba(14,220,166,.07);
+  color:#a9f3df;
+  font-size:11px;
+}
+
+.premium-runtime-box.runtime-date-pending .premium-runtime-message{
+  margin:0 0 0 10px;
+  color:#83abc0;
+  font-size:10px;
+}
+
 .membership-info-panel{
   grid-column:1 / -1;
   position:relative;
   z-index:2;
-  margin-top:4px;
+  margin-top:5px;
   padding:18px;
   border:1px solid rgba(99,184,220,.20);
-  border-radius:18px;
+  border-radius:19px;
   background:
-    radial-gradient(circle at 88% 0%,rgba(22,156,255,.10),transparent 34%),
-    linear-gradient(145deg,rgba(1,19,29,.96),rgba(7,42,55,.92));
-  box-shadow:0 18px 42px rgba(0,0,0,.18);
+    radial-gradient(circle at 92% -8%,rgba(22,156,255,.14),transparent 34%),
+    radial-gradient(circle at 5% 105%,rgba(14,220,166,.07),transparent 31%),
+    linear-gradient(145deg,rgba(1,19,29,.97),rgba(7,42,55,.94));
+  box-shadow:0 22px 50px rgba(0,0,0,.23);
 }
 
 .membership-info-panel[hidden]{display:none!important}
 
 .membership-info-head{
   display:flex;
-  align-items:flex-end;
+  align-items:center;
   justify-content:space-between;
   gap:14px;
   margin-bottom:14px;
 }
 
-.membership-info-head strong{font-size:14px;color:#fff}
-.membership-info-head span{color:var(--muted);font-size:10px;text-align:right}
+.membership-info-title-wrap{min-width:0}
+.membership-info-eyebrow{
+  color:#74bedb;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+.membership-info-head strong{
+  display:block;
+  margin-top:4px;
+  font-size:15px;
+  color:#fff;
+}
+.membership-info-head span{
+  max-width:260px;
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.4;
+  text-align:right;
+}
 
 .membership-info-grid{
   display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:12px;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+
+.membership-info-panel.info-level-2 .membership-info-grid{
+  grid-template-columns:minmax(0,1fr);
+  max-width:560px;
 }
 
 .membership-info-tier{
   position:relative;
   overflow:hidden;
-  min-height:220px;
-  padding:16px;
+  min-height:190px;
+  padding:17px;
   border:1px solid rgba(255,255,255,.08);
-  border-radius:15px;
-  background:linear-gradient(155deg,rgba(0,0,0,.22),rgba(255,255,255,.025));
+  border-radius:16px;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(255,255,255,.035),transparent 36%),
+    linear-gradient(155deg,rgba(0,0,0,.22),rgba(255,255,255,.025));
   transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
 }
 
 .membership-info-tier::before{
   content:"";
   position:absolute;
-  left:0;
-  right:0;
-  top:0;
+  left:0;right:0;top:0;
   height:3px;
   background:rgba(255,255,255,.12);
 }
 
 .membership-info-tier:hover{
   transform:translateY(-2px);
-  box-shadow:0 14px 30px rgba(0,0,0,.18);
+  box-shadow:0 16px 34px rgba(0,0,0,.20);
 }
 
-.basis-info-tier{border-color:rgba(60,168,255,.18)}
-.basis-info-tier::before{background:linear-gradient(90deg,#3ca8ff,#18c9f3)}
-.premium-info-tier{border-color:rgba(14,220,166,.20)}
+/* Basis wird nie noch einmal als Leistungskarte aufgeklappt. */
+.basis-info-tier{display:none!important}
+
+.premium-info-tier{border-color:rgba(14,220,166,.22)}
 .premium-info-tier::before{background:linear-gradient(90deg,#079e79,#0ed5a0)}
-.premiumplus-info-tier{border-color:rgba(255,171,46,.22)}
+.premiumplus-info-tier{border-color:rgba(255,171,46,.24)}
 .premiumplus-info-tier::before{background:linear-gradient(90deg,#d98608,#ffb229)}
 
+.membership-info-panel.info-level-2 .premium-info-tier{display:none!important}
+
 .membership-info-tier.current-tier{
-  border-color:rgba(255,255,255,.30);
-  box-shadow:0 0 0 1px rgba(255,255,255,.06),0 14px 34px rgba(0,0,0,.24);
+  border-color:rgba(255,255,255,.32);
+  box-shadow:0 0 0 1px rgba(255,255,255,.06),0 16px 38px rgba(0,0,0,.24);
 }
 
 .membership-info-tier.current-tier::after{
   content:"DEIN TARIF";
   position:absolute;
-  top:11px;
-  right:11px;
+  top:12px;
+  right:12px;
   padding:5px 8px;
   border-radius:999px;
-  background:rgba(255,255,255,.09);
+  background:rgba(255,255,255,.10);
   color:#fff;
   font-size:8px;
   font-weight:900;
@@ -1048,15 +1114,14 @@ input{
   letter-spacing:.9px;
 }
 
-.basis-info-tier .membership-info-kicker{color:#5db8ff}
 .premium-info-tier .membership-info-kicker{color:var(--green)}
 .premiumplus-info-tier .membership-info-kicker{color:var(--orange)}
 
 .membership-info-tier h4{
-  margin:6px 0 11px;
-  padding-right:54px;
-  font-size:14px;
-  line-height:1.25;
+  margin:7px 0 12px;
+  padding-right:68px;
+  font-size:16px;
+  line-height:1.2;
 }
 
 .membership-info-tier ul{
@@ -1065,22 +1130,31 @@ input{
   padding:0;
   color:#cde6f2;
   font-size:11px;
-  line-height:1.5;
+  line-height:1.48;
 }
 
-.membership-info-tier li{position:relative;padding-left:19px}
+.membership-info-tier li{position:relative;padding-left:20px}
 .membership-info-tier li::before{
   content:"✓";
   position:absolute;
-  left:0;
-  top:0;
-  color:#7fd7f4;
+  left:0;top:0;
   font-weight:900;
 }
-
 .premium-info-tier li::before{color:var(--green)}
 .premiumplus-info-tier li::before{color:var(--orange)}
 .membership-info-tier li + li{margin-top:7px}
+
+.membership-feature-highlight{
+  display:inline-block;
+  padding:2px 7px;
+  margin-left:3px;
+  border-radius:999px;
+  background:rgba(255,255,255,.07);
+  color:#fff;
+  font-size:9px;
+  font-weight:900;
+  white-space:nowrap;
+}
 
 .membership-info-note{
   margin-top:14px;
@@ -1090,11 +1164,21 @@ input{
   font-size:10px;
   line-height:1.5;
 }
-
 .membership-info-note strong{color:#dff5ff}
 
+.premium-plus-switch-option{
+  border-color:rgba(255,171,46,.22);
+  background:
+    radial-gradient(circle at 100% 0%,rgba(255,171,46,.08),transparent 42%),
+    rgba(0,0,0,.16);
+}
+
 @media(max-width:980px){
-  .membership-info-grid{grid-template-columns:1fr}
+  .membership-info-grid,
+  .membership-info-panel.info-level-2 .membership-info-grid{
+    grid-template-columns:1fr;
+    max-width:none;
+  }
   .membership-info-tier{min-height:0}
 }
 
@@ -1103,8 +1187,10 @@ input{
   .premium-runtime-actions{min-width:0}
   .premium-runtime-actions .premium-manage-button,
   .premium-runtime-actions .membership-upgrade-button{min-width:0}
-  .membership-info-head{align-items:flex-start;flex-direction:column;gap:4px}
-  .membership-info-head span{text-align:left}
+  .membership-info-head{align-items:flex-start;flex-direction:column;gap:5px}
+  .membership-info-head span{max-width:none;text-align:left}
+  .premium-runtime-box.runtime-date-pending .premium-runtime-content{display:block}
+  .premium-runtime-box.runtime-date-pending .premium-runtime-message{margin:7px 0 0}
 }
 
 </style>
@@ -1301,55 +1387,51 @@ input{
               </div>
             </div>
 
-            <div id="membershipInfoPanel" class="membership-info-panel" hidden>
+            <div id="membershipInfoPanel" class="membership-info-panel info-level-0" hidden>
               <div class="membership-info-head">
-                <strong>Mitgliedschaften & Leistungen</strong>
-                <span>Unit-System und Premium-Provisionen sind zwei getrennte Vergütungsbereiche.</span>
+                <div class="membership-info-title-wrap">
+                  <div class="membership-info-eyebrow">Deine Möglichkeiten</div>
+                  <strong id="membershipInfoTitle">Premium-Optionen im Vergleich</strong>
+                </div>
+                <span id="membershipInfoSubline">Alle gezeigten Premium-Leistungen kommen zusätzlich zu deinem Basis-Zugang.</span>
               </div>
 
               <div class="membership-info-grid">
-                <article class="membership-info-tier basis-info-tier" data-membership-level="0">
+                <article class="membership-info-tier basis-info-tier" data-membership-level="0" aria-hidden="true">
                   <div class="membership-info-kicker">Basis</div>
-                  <h4>Der vollständige BetInsight Basis-Zugang</h4>
-                  <ul>
-                    <li>Zugang zum BetInsight Unit- und Tipp-System</li>
-                    <li>Laufende Unit-Provisionen aus dem Referral-System bis Ebene 3</li>
-                    <li>Persönliche Empfehlungslinks und Netzwerkübersicht</li>
-                    <li>Freigeschaltete Tipps und Unit-Verwaltung im eigenen Profil</li>
-                    <li>Keine monatliche Premium-Laufzeit erforderlich</li>
-                  </ul>
+                  <h4>BetInsight Basis</h4>
                 </article>
 
                 <article class="membership-info-tier premium-info-tier" data-membership-level="1">
-                  <div class="membership-info-kicker">Premium</div>
-                  <h4>Mehr Komfort & zusätzliche Provisionstiefe</h4>
+                  <div class="membership-info-kicker">Premium · 9,99 € / 30 Tage</div>
+                  <h4>Mehr Komfort, klare Zusatzleistung</h4>
                   <ul>
                     <li>Alle Basis-Vorteile inklusive</li>
-                    <li>Laufende Unit-Provisionen aus dem Referral-System bis Ebene 3</li>
-                    <li>Bis zu 3 Anbieter-/Quotenanzeigen bei freigeschalteten Tipps</li>
+                    <li>Unit-Provisionen aus dem Referral-System weiterhin bis Ebene 3</li>
+                    <li><strong>2 Anbieter-/Quotenanzeigen</strong> bei freigeschalteten Tipps</li>
+                    <li>Zusätzliche Premium-Provisionen bis <span class="membership-feature-highlight">Ebene 6</span></li>
                     <li>Keine direkten Affiliate-Links im Premium-Tarif</li>
-                    <li>Zusätzliche Premium-Provisionen bis Ebene 6</li>
                     <li>30 Tage Laufzeit je erfolgreicher Aktivierung oder Verlängerung</li>
                   </ul>
                 </article>
 
                 <article class="membership-info-tier premiumplus-info-tier" data-membership-level="2">
-                  <div class="membership-info-kicker">Premium Plus</div>
-                  <h4>Maximaler Komfort & Premium-Tiefe bis E8</h4>
+                  <div class="membership-info-kicker">Premium Plus · 14,99 € / 30 Tage</div>
+                  <h4>Mehr Auswahl & maximale Provisionstiefe</h4>
                   <ul>
-                    <li>Alle Basis- und Premium-Vorteile inklusive</li>
-                    <li>Laufende Unit-Provisionen aus dem Referral-System bis Ebene 3</li>
-                    <li>Quotenvorschau/-vergleich für bis zu 5 Anbieter</li>
+                    <li>Alle Premium-Vorteile inklusive</li>
+                    <li>Unit-Provisionen aus dem Referral-System weiterhin bis Ebene 3</li>
+                    <li><strong>Quotenvorschau/-vergleich für bis zu 5 Anbieter</strong></li>
                     <li>Direkte freigegebene Anbieter-/Affiliate-Links möglich</li>
-                    <li>Zusätzliche Premium-Provisionen bis Ebene 8</li>
+                    <li>Zusätzliche Premium-Provisionen bis <span class="membership-feature-highlight">Ebene 8</span></li>
                     <li>30 Tage Laufzeit je erfolgreicher Aktivierung oder Verlängerung</li>
                   </ul>
                 </article>
               </div>
 
               <div class="membership-info-note">
-                <strong>Wichtig:</strong> Die normalen Unit-Provisionen aus dem bestehenden Referral-System bis Ebene 3 gelten für Basis, Premium und Premium Plus.
-                Die zusätzlichen Premium-Provisionen sind davon getrennt: Premium bis Ebene 6, Premium Plus bis Ebene 8 und jeweils erst ab bestätigter Aktivierung nach den gültigen Regeln.
+                <strong>Die Basis bleibt immer enthalten:</strong> Unit-System, Tipps, Empfehlungslinks und die laufenden Unit-Provisionen bis Ebene 3.
+                Premium und Premium Plus ergänzen diese Leistungen um Anbieterkomfort und die zusätzliche Premium-Provisionstiefe.
               </div>
             </div>
           </div>
@@ -1536,6 +1618,16 @@ input{
       </button>
     </div>
 
+    <div id="premiumPlusSwitchOption" class="premium-manager-option premium-plus-switch-option" hidden>
+      <div>
+        <strong>Zu Premium Plus wechseln</strong>
+        <span>Bis zu 5 Anbieter im Quotenvergleich und zusätzliche Premium-Provisionen bis Ebene 8.</span>
+      </div>
+      <button type="button" class="btn-orange" onclick="premiumActionNotConnected('UPGRADE_PLUS')">
+        Premium Plus ansehen
+      </button>
+    </div>
+
     <div id="premiumManagerMessage" class="premium-manager-message">
       Die Oberfläche ist vorbereitet. Die Zahlungs- und Guthabenlogik wird erst nach Freigabe des Premium-v1.2-Backends verbunden.
     </div>
@@ -1655,6 +1747,7 @@ function renderPremiumRuntime(){
 
   stopPremiumCountdown();
   card.classList.remove("membership-warning","membership-grace");
+  box.classList.remove("runtime-date-pending");
 
   const membership=normalizeMembership(currentProfileData.membershipLevel,currentProfileData.membership);
   if(membership.level===0){box.hidden=true;return}
@@ -1670,11 +1763,14 @@ function renderPremiumRuntime(){
   const tick=()=>{
     const now=new Date();
     if(!premiumUntil){
-      countdown.innerText="Premium aktiv";
-      message.innerText="Countdown bereit – premium_bis fehlt noch im Profil-Webhook.";
-      bar.style.width="100%";
+      box.classList.add("runtime-date-pending");
+      countdown.innerText="✓ Premium aktiv";
+      message.innerText="Laufzeit wird mit Premium v1.2 synchronisiert.";
+      bar.style.width="0%";
       return;
     }
+
+    box.classList.remove("runtime-date-pending");
     if(now < premiumUntil){
       const remaining=premiumUntil-now;
       countdown.innerText=`Noch ${formatCountdown(remaining)}`;
@@ -1720,6 +1816,9 @@ function openPremiumManager(){
   const membership=normalizeMembership(currentProfileData.membershipLevel,currentProfileData.membership);
   if(membership.level===0) return;
 
+  const title=document.getElementById("premiumManagerTitle");
+  if(title) title.innerText="Abo & Verlängerung";
+
   if(summary){
     summary.innerText=`${membership.name} verwalten`+
       (currentProfileData.premiumUntil ? ` · gültig bis ${formatDateTimeDe(parseDateValue(currentProfileData.premiumUntil))}` : "");
@@ -1727,6 +1826,10 @@ function openPremiumManager(){
   if(autoText){
     autoText.innerText=`Status: ${String(currentProfileData.autoRenew||"NEIN").toUpperCase()==="JA" ? "aktiv" : "nicht aktiviert"}`;
   }
+
+  const plusSwitch=document.getElementById("premiumPlusSwitchOption");
+  if(plusSwitch) plusSwitch.hidden=(membership.level!==1);
+
   document.getElementById("premiumManagerMessage").innerText=
     "Die Oberfläche ist vorbereitet. Die Zahlungs- und Guthabenlogik wird erst nach Freigabe des Premium-v1.2-Backends verbunden.";
   overlay.hidden=false;
@@ -1741,7 +1844,8 @@ function premiumActionNotConnected(type){
   const messages={
     PROVISIONSGUTHABEN:"Verlängerung aus auszahlbarem Provisionsguthaben ist vorbereitet und wird mit Premium v1.2 verbunden.",
     EXTERN:"Die externe Premium-Verlängerung ist vorbereitet und wird mit Premium v1.2 verbunden.",
-    AUTO:"Die Auto-Verlängerung ist vorbereitet und wird mit Premium v1.2 verbunden."
+    AUTO:"Die Auto-Verlängerung ist vorbereitet und wird mit Premium v1.2 verbunden.",
+    UPGRADE_PLUS:"Der Wechsel zu Premium Plus wird mit Premium v1.2 verbunden. Ab bestätigter Aktivierung gelten dann die Premium-Plus-Leistungen und die zusätzliche Provisionstiefe bis Ebene 8; keine Rückwirkung."
   };
   document.getElementById("premiumManagerMessage").innerText=messages[type] || "Diese Funktion wird mit Premium v1.2 verbunden.";
 }
@@ -1771,12 +1875,15 @@ function startMembershipUpgrade(target){
   const message=document.getElementById("premiumManagerMessage");
   if(!box) return;
 
+  const plusSwitch=document.getElementById("premiumPlusSwitchOption");
+  if(plusSwitch) plusSwitch.hidden=true;
+
   if(target==="PREMIUM_PLUS"){
     if(title) title.innerText="Upgrade auf Premium Plus";
     if(summary) summary.innerText="Premium Plus mit erweitertem Quotenvergleich und Premium-Provisionen bis Ebene 8.";
   }else{
     if(title) title.innerText="Upgrade auf Premium";
-    if(summary) summary.innerText="Premium mit bis zu 3 Anbieter-/Quotenanzeigen und Premium-Provisionen bis Ebene 6.";
+    if(summary) summary.innerText="Premium mit 2 Anbieter-/Quotenanzeigen und Premium-Provisionen bis Ebene 6.";
   }
   if(message){
     message.innerText="Der Upgrade-Bereich ist vorbereitet. Der echte Zahlungsaufruf wird verbunden, sobald Premium v1.2 freigegeben ist.";
@@ -1804,7 +1911,30 @@ function renderMembershipActions(level){
 
 function highlightCurrentMembershipTier(level){
   document.querySelectorAll(".membership-info-tier").forEach(card=>card.classList.remove("current-tier"));
-  document.querySelector(`.membership-info-tier[data-membership-level="${level}"]`)?.classList.add("current-tier");
+  if(level>=1){
+    document.querySelector(`.membership-info-tier[data-membership-level="${level}"]`)?.classList.add("current-tier");
+  }
+}
+
+function configureMembershipInfo(level){
+  const panel=document.getElementById("membershipInfoPanel");
+  const title=document.getElementById("membershipInfoTitle");
+  const subline=document.getElementById("membershipInfoSubline");
+  if(!panel) return;
+
+  panel.classList.remove("info-level-0","info-level-1","info-level-2");
+  panel.classList.add(`info-level-${Math.min(2,Math.max(0,level))}`);
+
+  if(level<=0){
+    if(title) title.innerText="Welches Premium passt zu dir?";
+    if(subline) subline.innerText="Dein Basis-Zugang bleibt vollständig erhalten – hier siehst du nur die zusätzlichen Premium-Leistungen.";
+  }else if(level===1){
+    if(title) title.innerText="Dein Premium & die Plus-Erweiterung";
+    if(subline) subline.innerText="Premium ist dein aktueller Tarif. Premium Plus erweitert Anbieterkomfort und Provisionstiefe.";
+  }else{
+    if(title) title.innerText="Dein Premium Plus";
+    if(subline) subline.innerText="Du nutzt bereits die höchste Premium-Stufe mit bis zu 5 Anbietern und Premium-Provisionen bis Ebene 8.";
+  }
 }
 
 function renderMembership(level, membership){
@@ -1821,6 +1951,7 @@ function renderMembership(level, membership){
   value.innerText = normalized.name;
   note.innerText = normalized.note;
   highlightCurrentMembershipTier(normalized.level);
+  configureMembershipInfo(normalized.level);
   renderMembershipActions(normalized.level);
   renderPremiumRuntime();
 }
