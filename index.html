@@ -5,7 +5,7 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.13-11
+Version: 2026.08.13-12
 
 Änderungen:
 - Premium-Karte neu ausgerichtet: Status und Abo-Button überlappen nicht mehr.
@@ -22,6 +22,7 @@ Version: 2026.08.13-11
 - v10: Status/Laufzeit kompakt direkt unter dem Tarifnamen; rechts bleibt nur Abo & Verlängerung.
 - v10: Tarifinfo öffnet als eigenes Dialogfenster und vergrößert das Dashboard nicht mehr.
 - v11: Tarifvergleich zeigt Basis, Premium und Premium Plus gemeinsam; kundenfreundliche Ebenenbezeichnungen ohne E-Abkürzungen.
+- v12: Basis-Upgrades zeigen kein Provisionsguthaben und keine Verlängerungsoptionen mehr; Erstaktivierung nur über den vorgesehenen externen Zahlungsweg. Premium→Premium Plus bleibt separat vorbereitet. Kundenhinweis zu Anbieterlinks verständlicher formuliert.
 -->
 
 <html lang="de">
@@ -1534,7 +1535,7 @@ input{
                     <li><strong>2 Anbieter-/Quotenanzeigen</strong> bei freigeschalteten Tipps</li>
                     <li>Zusätzliche Premium-Provision bis <span class="membership-feature-highlight">Ebene 6</span></li>
                     <li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li>
-                    <li>Keine direkten Affiliate-Links im Premium-Tarif</li>
+                    <li>Direkte Anbieterlinks gibt es erst mit Premium Plus</li>
                   </ul>
                 </article>
 
@@ -1676,7 +1677,7 @@ input{
       <div class="panel-body">
         <input id="requestEmail" type="email" placeholder="Deine E-Mail-Adresse" autocomplete="email">
         <div class="request-actions">
-          <button class="btn-blue" type="button" onclick="requestProfileLink()">📩 Profil-Link anfordern</button>
+          <button id="requestProfileButton" class="btn-blue" type="button" onclick="requestProfileLink()">📩 Profil-Link anfordern</button>
           <a class="btn-link btn-gray" href="https://betinsight.systeme.io/profile/user-settings" target="_blank" rel="noopener noreferrer">🔎 Registrierte E-Mail nachsehen</a>
         </div>
         <div id="requestMessage" class="message"></div>
@@ -1729,7 +1730,7 @@ input{
           <li><strong>2 Anbieter-/Quotenanzeigen</strong> bei freigeschalteten Tipps</li>
           <li>Zusätzliche Premium-Provision bis zur <span class="membership-feature-highlight">6. Ebene</span></li>
           <li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li>
-          <li>Keine direkten Affiliate-Links im Premium-Tarif</li>
+          <li>Direkte Anbieterlinks gibt es erst mit Premium Plus</li>
         </ul>
       </article>
       <article class="membership-info-tier premiumplus-info-tier" data-membership-level="2">
@@ -1758,27 +1759,27 @@ input{
       Deine Premium-Mitgliedschaft verwalten.
     </p>
 
-    <div class="premium-manager-option">
+    <div id="premiumCreditOption" class="premium-manager-option">
       <div>
-        <strong>Mit Provisionsguthaben verlängern</strong>
-        <span>Nur bereits auszahlbares Guthaben wird später verwendet.</span>
+        <strong id="premiumCreditTitle">Mit Provisionsguthaben verlängern</strong>
+        <span id="premiumCreditText">Nur bereits auszahlbares Guthaben wird später verwendet.</span>
       </div>
-      <button type="button" class="btn-green" onclick="premiumActionNotConnected('PROVISIONSGUTHABEN')">
+      <button id="premiumCreditButton" type="button" class="btn-green" onclick="premiumActionNotConnected('PROVISIONSGUTHABEN')">
         Guthaben verwenden
       </button>
     </div>
 
-    <div class="premium-manager-option">
+    <div id="premiumExternalOption" class="premium-manager-option">
       <div>
-        <strong>Extern verlängern</strong>
-        <span>Normale Premium-Zahlung über den vorgesehenen Zahlungsweg.</span>
+        <strong id="premiumExternalTitle">Extern verlängern</strong>
+        <span id="premiumExternalText">Normale Premium-Zahlung über den vorgesehenen Zahlungsweg.</span>
       </div>
-      <button type="button" class="btn-blue" onclick="premiumActionNotConnected('EXTERN')">
+      <button id="premiumExternalButton" type="button" class="btn-blue" onclick="premiumActionNotConnected('EXTERN')">
         Jetzt verlängern
       </button>
     </div>
 
-    <div class="premium-manager-option">
+    <div id="premiumAutoOption" class="premium-manager-option">
       <div>
         <strong>Automatische Verlängerung</strong>
         <span id="premiumAutoRenewText">Status: nicht aktiviert</span>
@@ -1863,6 +1864,8 @@ function normalizeMembership(level, membership){
 }
 
 let premiumCountdownInterval = null;
+let premiumManagerMode = "MANAGE";
+let requestLinkInFlight = false;
 
 function parseDateValue(value){
   if(value===undefined || value===null || value==="") return null;
@@ -1960,8 +1963,29 @@ function openPremiumManager(){
   const membership=normalizeMembership(currentProfileData.membershipLevel,currentProfileData.membership);
   if(membership.level===0) return;
 
+  premiumManagerMode="MANAGE";
+
   const title=document.getElementById("premiumManagerTitle");
+  const creditOption=document.getElementById("premiumCreditOption");
+  const externalOption=document.getElementById("premiumExternalOption");
+  const autoOption=document.getElementById("premiumAutoOption");
+  const creditTitle=document.getElementById("premiumCreditTitle");
+  const creditText=document.getElementById("premiumCreditText");
+  const creditButton=document.getElementById("premiumCreditButton");
+  const externalTitle=document.getElementById("premiumExternalTitle");
+  const externalText=document.getElementById("premiumExternalText");
+  const externalButton=document.getElementById("premiumExternalButton");
+
   if(title) title.innerText="Abo & Verlängerung";
+  if(creditOption) creditOption.hidden=false;
+  if(externalOption) externalOption.hidden=false;
+  if(autoOption) autoOption.hidden=false;
+  if(creditTitle) creditTitle.innerText="Mit Provisionsguthaben verlängern";
+  if(creditText) creditText.innerText="Nur bereits auszahlbares Provisionsguthaben kann für eine Verlängerung verwendet werden.";
+  if(creditButton) creditButton.innerText="Guthaben verwenden";
+  if(externalTitle) externalTitle.innerText="Extern verlängern";
+  if(externalText) externalText.innerText="Normale Premium-Zahlung über den vorgesehenen Zahlungsweg.";
+  if(externalButton) externalButton.innerText="Jetzt verlängern";
 
   if(summary){
     summary.innerText=`${membership.name} verwalten`+
@@ -1985,13 +2009,24 @@ function closePremiumManager(){
 }
 
 function premiumActionNotConnected(type){
-  const messages={
-    PROVISIONSGUTHABEN:"Verlängerung aus auszahlbarem Provisionsguthaben ist vorbereitet und wird mit Premium v1.2 verbunden.",
-    EXTERN:"Die externe Premium-Verlängerung ist vorbereitet und wird mit Premium v1.2 verbunden.",
-    AUTO:"Die Auto-Verlängerung ist vorbereitet und wird mit Premium v1.2 verbunden.",
-    UPGRADE_PLUS:"Der Wechsel zu Premium Plus wird mit Premium v1.2 verbunden. Ab bestätigter Aktivierung gelten dann die Premium-Plus-Leistungen und die zusätzliche Provisionstiefe bis zur 8. Ebene; keine Rückwirkung."
-  };
-  document.getElementById("premiumManagerMessage").innerText=messages[type] || "Diese Funktion wird mit Premium v1.2 verbunden.";
+  let text="Diese Funktion wird mit Premium v1.2 verbunden.";
+
+  if(premiumManagerMode==="UPGRADE_PREMIUM"){
+    if(type==="EXTERN") text="Die erstmalige Premium-Aktivierung wird über den vorgesehenen externen Zahlungsweg mit Premium v1.2 verbunden.";
+  }else if(premiumManagerMode==="UPGRADE_PLUS"){
+    if(type==="PROVISIONSGUTHABEN") text="Der Wechsel auf Premium Plus aus bereits auszahlbarem Provisionsguthaben wird mit Premium v1.2 geprüft und verbunden.";
+    if(type==="EXTERN") text="Der externe Wechsel auf Premium Plus wird mit Premium v1.2 verbunden. Die zusätzlichen Leistungen gelten erst ab bestätigter Aktivierung und nicht rückwirkend.";
+  }else{
+    const messages={
+      PROVISIONSGUTHABEN:"Verlängerung aus auszahlbarem Provisionsguthaben ist vorbereitet und wird mit Premium v1.2 verbunden.",
+      EXTERN:"Die externe Premium-Verlängerung ist vorbereitet und wird mit Premium v1.2 verbunden.",
+      AUTO:"Die Auto-Verlängerung ist vorbereitet und wird mit Premium v1.2 verbunden.",
+      UPGRADE_PLUS:"Der Wechsel zu Premium Plus wird mit Premium v1.2 verbunden. Ab bestätigter Aktivierung gelten dann die Premium-Plus-Leistungen und die zusätzliche Provisionstiefe bis zur 8. Ebene; keine Rückwirkung."
+    };
+    text=messages[type] || text;
+  }
+
+  document.getElementById("premiumManagerMessage").innerText=text;
 }
 
 function toggleMembershipInfo(event){
@@ -2016,19 +2051,60 @@ function startMembershipUpgrade(target){
   const message=document.getElementById("premiumManagerMessage");
   if(!box) return;
 
+  const membership=normalizeMembership(currentProfileData.membershipLevel,currentProfileData.membership);
+  const creditOption=document.getElementById("premiumCreditOption");
+  const externalOption=document.getElementById("premiumExternalOption");
+  const autoOption=document.getElementById("premiumAutoOption");
+  const creditTitle=document.getElementById("premiumCreditTitle");
+  const creditText=document.getElementById("premiumCreditText");
+  const creditButton=document.getElementById("premiumCreditButton");
+  const externalTitle=document.getElementById("premiumExternalTitle");
+  const externalText=document.getElementById("premiumExternalText");
+  const externalButton=document.getElementById("premiumExternalButton");
+
   const plusSwitch=document.getElementById("premiumPlusSwitchOption");
   if(plusSwitch) plusSwitch.hidden=true;
+  if(externalOption) externalOption.hidden=false;
 
-  if(target==="PREMIUM_PLUS"){
-    if(title) title.innerText="Upgrade auf Premium Plus";
-    if(summary) summary.innerText="Premium Plus mit erweitertem Quotenvergleich und Premium-Provisionen bis zur 8. Ebene.";
-  }else{
-    if(title) title.innerText="Upgrade auf Premium";
-    if(summary) summary.innerText="Premium mit 2 Anbieter-/Quotenanzeigen und Premium-Provisionen bis zur 6. Ebene.";
+  if(membership.level===0){
+    // Basis-Mitglieder besitzen noch kein Premium-Provisionsguthaben.
+    // Bei der Erstaktivierung zeigen wir deshalb nur den echten Zahlungsweg.
+    premiumManagerMode=target==="PREMIUM_PLUS" ? "UPGRADE_PLUS" : "UPGRADE_PREMIUM";
+    if(creditOption) creditOption.hidden=true;
+    if(autoOption) autoOption.hidden=true;
+
+    if(target==="PREMIUM_PLUS"){
+      if(title) title.innerText="Premium Plus aktivieren";
+      if(summary) summary.innerText="Bis zu 5 Anbieter im Quotenvergleich und zusätzliche Premium-Provisionen bis zur 8. Ebene.";
+      if(externalTitle) externalTitle.innerText="Premium Plus aktivieren";
+      if(externalText) externalText.innerText="Erstaktivierung über den vorgesehenen externen Zahlungsweg.";
+      if(externalButton) externalButton.innerText="Jetzt aktivieren";
+    }else{
+      if(title) title.innerText="Premium aktivieren";
+      if(summary) summary.innerText="2 Anbieter-/Quotenanzeigen und zusätzliche Premium-Provisionen bis zur 6. Ebene.";
+      if(externalTitle) externalTitle.innerText="Premium aktivieren";
+      if(externalText) externalText.innerText="Erstaktivierung über den vorgesehenen externen Zahlungsweg.";
+      if(externalButton) externalButton.innerText="Jetzt aktivieren";
+    }
+
+    if(message) message.innerText="Nach erfolgreicher Aktivierung stehen Abo-Verwaltung, Verlängerung und – sofern vorhanden – auszahlbares Provisionsguthaben zur Verfügung.";
+    box.hidden=false;
+    return;
   }
-  if(message){
-    message.innerText="Der Upgrade-Bereich ist vorbereitet. Der echte Zahlungsaufruf wird verbunden, sobald Premium v1.2 freigegeben ist.";
-  }
+
+  // Ein bereits aktives Premium-Mitglied kann später auf Premium Plus wechseln.
+  premiumManagerMode="UPGRADE_PLUS";
+  if(creditOption) creditOption.hidden=false;
+  if(autoOption) autoOption.hidden=true;
+  if(creditTitle) creditTitle.innerText="Mit Provisionsguthaben upgraden";
+  if(creditText) creditText.innerText="Nur bereits auszahlbares Provisionsguthaben kann verwendet werden.";
+  if(creditButton) creditButton.innerText="Guthaben verwenden";
+  if(externalTitle) externalTitle.innerText="Extern auf Premium Plus wechseln";
+  if(externalText) externalText.innerText="Tarifwechsel über den vorgesehenen externen Zahlungsweg.";
+  if(externalButton) externalButton.innerText="Premium Plus aktivieren";
+  if(title) title.innerText="Upgrade auf Premium Plus";
+  if(summary) summary.innerText="Bis zu 5 Anbieter im Quotenvergleich und zusätzliche Premium-Provisionen bis zur 8. Ebene.";
+  if(message) message.innerText="Die zusätzlichen Premium-Plus-Leistungen gelten erst ab bestätigter Aktivierung und nicht rückwirkend.";
   box.hidden=false;
 }
 
@@ -2411,14 +2487,35 @@ function prepareNetworkSection(){
   document.getElementById("referralPendingUnits").innerText="0";
 }
 
+function isValidEmailAddress(email){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email||"").trim());
+}
+
 async function requestCurrentProfileLink(){
   const email=String(currentProfileData.email||"").trim().toLowerCase();
   const msg=document.getElementById("message");
-  if(!email){msg.innerText="Die registrierte E-Mail-Adresse ist noch nicht geladen.";return}
+  const button=document.getElementById("resendProfileButton");
+
+  if(!isValidEmailAddress(email)){
+    msg.innerText="Die registrierte E-Mail-Adresse ist nicht verfügbar oder ungültig.";
+    return;
+  }
+  if(requestLinkInFlight) return;
+
+  requestLinkInFlight=true;
+  if(button){button.disabled=true;button.innerText="⏳ Wird gesendet...";}
+
   try{
-    await fetch(REQUEST_LINK_WEBHOOK_URL+"?email="+encodeURIComponent(email),{cache:"no-store"});
+    const response=await fetch(REQUEST_LINK_WEBHOOK_URL+"?email="+encodeURIComponent(email),{cache:"no-store"});
+    if(!response.ok) throw new Error("HTTP "+response.status);
     msg.innerText="Der persönliche Profil-Link wurde erneut an deine registrierte E-Mail-Adresse gesendet.";
-  }catch(e){msg.innerText="Der Profil-Link konnte nicht gesendet werden."}
+  }catch(e){
+    console.error(e);
+    msg.innerText="Der Profil-Link konnte nicht gesendet werden. Bitte versuche es später erneut.";
+  }finally{
+    requestLinkInFlight=false;
+    if(button){button.disabled=false;button.innerText="📩 Profil-Link erneut per E-Mail senden";}
+  }
 }
 
 function fetchProfileByToken(variants,index){
@@ -2491,14 +2588,32 @@ function loadUnits(){
   fetchProfileByToken(buildTokenVariants(token),0);
 }
 
-function requestProfileLink(){
+async function requestProfileLink(){
   const email=document.getElementById("requestEmail").value.trim().toLowerCase();
   const msg=document.getElementById("requestMessage");
-  if(!email){msg.innerText="Bitte deine registrierte BetInsight E-Mail eingeben.";return}
+  const button=document.getElementById("requestProfileButton");
+
+  if(!isValidEmailAddress(email)){
+    msg.innerText="Bitte eine gültige registrierte BetInsight E-Mail-Adresse eingeben.";
+    return;
+  }
+  if(requestLinkInFlight) return;
+
+  requestLinkInFlight=true;
   msg.innerText="Profil-Link wird angefordert...";
-  fetch(REQUEST_LINK_WEBHOOK_URL+"?email="+encodeURIComponent(email))
-    .then(()=>msg.innerText="✅ Profil-Link wurde verschickt. Öffne dein E-Mail-Postfach und verwende den erhaltenen Link.")
-    .catch(()=>msg.innerText="Fehler beim Anfordern. Bitte versuche es erneut.");
+  if(button){button.disabled=true;button.innerText="⏳ Wird gesendet...";}
+
+  try{
+    const response=await fetch(REQUEST_LINK_WEBHOOK_URL+"?email="+encodeURIComponent(email),{cache:"no-store"});
+    if(!response.ok) throw new Error("HTTP "+response.status);
+    msg.innerText="✅ Profil-Link wurde verschickt. Öffne dein E-Mail-Postfach und verwende den erhaltenen Link.";
+  }catch(e){
+    console.error(e);
+    msg.innerText="Der Profil-Link konnte nicht gesendet werden. Prüfe die E-Mail-Adresse oder versuche es später erneut.";
+  }finally{
+    requestLinkInFlight=false;
+    if(button){button.disabled=false;button.innerText="📩 Profil-Link anfordern";}
+  }
 }
 
 function extractTokenFromInput(value){
