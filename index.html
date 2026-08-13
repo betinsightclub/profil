@@ -5,7 +5,7 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.13-09
+Version: 2026.08.13-10
 
 Änderungen:
 - Premium-Karte neu ausgerichtet: Status und Abo-Button überlappen nicht mehr.
@@ -17,6 +17,10 @@ Version: 2026.08.13-09
 - Premium Plus: bis zu 5 Anbieter im Quotenvergleich, zusätzliche Premium-Provision bis E8, freigegebene direkte Anbieter-/Affiliate-Links.
 - Premium → Premium Plus bleibt im Bereich Abo & Verlängerung vorbereitet.
 - Kontostand, Tipp-, Referral-, Token- und Netzwerklogik bleiben unverändert.
+- v10: Premiumkarte neu ausgerichtet; kein gequetschter Statuskasten mehr.
+- v10: Status/Laufzeit kompakt direkt unter dem Tarifnamen; rechts bleibt nur Abo & Verlängerung.
+- v10: Tarifinfo öffnet als eigenes Dialogfenster und vergrößert das Dashboard nicht mehr.
+- v10: Premium 2 Anbieter/E6, Premium Plus 5 Anbieter/E8; gemeinsame Unit-Provision bis E3 nur einmal genannt.
 -->
 
 <html lang="de">
@@ -1235,6 +1239,51 @@ input{
   .membership-info-head span{max-width:none;text-align:left}
 }
 
+
+/* v2026.08.13-10 · Premiumkarte + Tarifinfo-Dialog */
+.membership-card.membership-premium,
+.membership-card.membership-premiumplus{grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:18px;min-height:120px}
+.membership-card.membership-premium .membership-main,
+.membership-card.membership-premiumplus .membership-main{min-width:260px;padding-right:24px}
+.membership-runtime-hint{margin-top:8px;color:#9ec8d8;font-size:10px;line-height:1.35;font-weight:700}
+.membership-runtime-hint[hidden]{display:none!important}
+.membership-card.membership-premium .membership-runtime-hint{color:#91dfca}
+.membership-card.membership-premiumplus .membership-runtime-hint{color:#f1c477}
+.membership-card.membership-premium .membership-action-area,
+.membership-card.membership-premiumplus .membership-action-area{display:flex;justify-content:flex-end;min-width:190px}
+.membership-card.membership-premium .premium-runtime-box,
+.membership-card.membership-premiumplus .premium-runtime-box{display:block;width:190px}
+.membership-card.membership-premium .premium-runtime-content,
+.membership-card.membership-premiumplus .premium-runtime-content{display:none!important}
+.premium-runtime-actions{display:block}.premium-runtime-actions .premium-manage-button{width:100%;min-width:190px}
+
+.membership-info-overlay{position:fixed;inset:0;z-index:21000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,8,13,.80);backdrop-filter:blur(11px)}
+.membership-info-overlay[hidden]{display:none!important}
+.membership-info-dialog{position:relative;width:min(760px,100%);max-height:90vh;overflow:auto;margin:0;padding:24px;border:1px solid rgba(99,184,220,.25);border-radius:22px;background:radial-gradient(circle at 94% -8%,rgba(22,156,255,.14),transparent 34%),radial-gradient(circle at 2% 108%,rgba(14,220,166,.07),transparent 30%),linear-gradient(155deg,rgba(12,48,64,.99),rgba(5,29,43,.99));box-shadow:0 30px 90px rgba(0,0,0,.50)}
+.membership-info-close{position:absolute;top:12px;right:14px;width:38px;height:38px;min-height:38px;padding:0;border-radius:50%;background:rgba(255,255,255,.08);color:#fff;font-size:24px;line-height:1}
+.membership-info-dialog .membership-info-head{align-items:flex-start;padding-right:46px;margin-bottom:18px}
+.membership-info-dialog .membership-info-head strong{font-size:22px}
+.membership-info-dialog .membership-info-head span{max-width:290px;font-size:10px}
+.membership-info-dialog .membership-info-eyebrow{font-size:9px;color:#6ec7e8}
+.membership-info-dialog .membership-info-grid{gap:16px}
+.membership-info-dialog .membership-info-tier{padding:18px;border-radius:17px}
+.membership-info-dialog .membership-info-tier h4{font-size:18px;margin:7px 0 13px}
+.membership-info-dialog .membership-info-tier ul{font-size:11px;line-height:1.5}
+.membership-info-dialog .membership-info-tier li + li{margin-top:8px}
+.membership-info-dialog .membership-info-kicker{font-size:9px}
+.membership-info-dialog .membership-info-note{margin-top:16px;padding-top:13px;font-size:10px}
+@media(max-width:720px){
+.membership-card.membership-premium,.membership-card.membership-premiumplus{grid-template-columns:1fr;gap:13px}
+.membership-card.membership-premium .membership-main,.membership-card.membership-premiumplus .membership-main{min-width:0;padding-right:0;padding-bottom:13px;border-right:0;border-bottom:1px solid rgba(255,255,255,.08)}
+.membership-card.membership-premium .membership-action-area,.membership-card.membership-premiumplus .membership-action-area{min-width:0}
+.membership-card.membership-premium .premium-runtime-box,.membership-card.membership-premiumplus .premium-runtime-box{width:100%}
+.premium-runtime-actions .premium-manage-button{min-width:0}
+.membership-info-overlay{padding:12px}.membership-info-dialog{padding:20px 16px}
+.membership-info-dialog .membership-info-head{flex-direction:column;gap:5px;padding-right:40px}
+.membership-info-dialog .membership-info-head span{max-width:none;text-align:left}
+.membership-info-dialog .membership-info-grid{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 
@@ -1368,6 +1417,7 @@ input{
                 </div>
 
                 <div id="membershipNote" class="membership-note">BetInsight Basis-Zugang</div>
+                <div id="membershipRuntimeHint" class="membership-runtime-hint" hidden></div>
               </div>
             </div>
 
@@ -1429,13 +1479,13 @@ input{
               </div>
             </div>
 
-            <div id="membershipInfoPanel" class="membership-info-panel info-level-0" hidden>
+            <div id="membershipInfoPanelLegacy" class="membership-info-panel info-level-0" style="display:none!important" aria-hidden="true">
               <div class="membership-info-head">
                 <div class="membership-info-title-wrap">
                   <div class="membership-info-eyebrow">Premium-Vorteile</div>
-                  <strong id="membershipInfoTitle">Premium wählen</strong>
+                  <strong id="membershipInfoTitleLegacy">Premium wählen</strong>
                 </div>
-                <span id="membershipInfoSubline">Hier siehst du nur die zusätzlichen Leistungen.</span>
+                <span id="membershipInfoSublineLegacy">Hier siehst du nur die zusätzlichen Leistungen.</span>
               </div>
 
               <div class="membership-info-grid">
@@ -1616,6 +1666,45 @@ input{
   </div>
 </section>
 
+<div id="membershipInfoOverlay" class="membership-info-overlay" hidden>
+  <div id="membershipInfoPanel" class="membership-info-panel membership-info-dialog info-level-0" role="dialog" aria-modal="true" aria-labelledby="membershipInfoTitle">
+    <button class="membership-info-close" type="button" onclick="closeMembershipInfo()" aria-label="Schließen">×</button>
+    <div class="membership-info-head">
+      <div class="membership-info-title-wrap">
+        <div class="membership-info-eyebrow">BetInsight Mitgliedschaft</div>
+        <strong id="membershipInfoTitle">Premium wählen</strong>
+      </div>
+      <span id="membershipInfoSubline">Hier siehst du nur die zusätzlichen Leistungen.</span>
+    </div>
+    <div class="membership-info-grid">
+      <article class="membership-info-tier basis-info-tier" data-membership-level="0" aria-hidden="true">
+        <div class="membership-info-kicker">Basis</div><h4>BetInsight Basis</h4>
+      </article>
+      <article class="membership-info-tier premium-info-tier" data-membership-level="1">
+        <div class="membership-info-kicker">Premium · 9,99 € / 30 Tage</div>
+        <h4>2 Anbieter + Premium bis E6</h4>
+        <ul>
+          <li><strong>2 Anbieter-/Quotenanzeigen</strong> bei freigeschalteten Tipps</li>
+          <li>Zusätzliche Premium-Provision bis <span class="membership-feature-highlight">Ebene 6</span></li>
+          <li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li>
+          <li>Keine direkten Affiliate-Links im Premium-Tarif</li>
+        </ul>
+      </article>
+      <article class="membership-info-tier premiumplus-info-tier" data-membership-level="2">
+        <div class="membership-info-kicker">Premium Plus · 14,99 € / 30 Tage</div>
+        <h4>5 Anbieter + Premium bis E8</h4>
+        <ul>
+          <li><strong>Quotenvergleich für bis zu 5 Anbieter</strong></li>
+          <li>Zusätzliche Premium-Provision bis <span class="membership-feature-highlight">Ebene 8</span></li>
+          <li>Freigegebene direkte Anbieter-/Affiliate-Links</li>
+          <li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li>
+        </ul>
+      </article>
+    </div>
+    <div class="membership-info-note"><strong>Immer enthalten:</strong> das bestehende Unit-/Referral-System mit laufenden Unit-Provisionen bis Ebene 3.</div>
+  </div>
+</div>
+
 <div id="premiumManagerOverlay" class="premium-manager-overlay" hidden>
   <div class="premium-manager-dialog" role="dialog" aria-modal="true" aria-labelledby="premiumManagerTitle">
     <button class="premium-manager-close" type="button" onclick="closePremiumManager()" aria-label="Schließen">×</button>
@@ -1780,69 +1869,43 @@ function renderPremiumRuntime(){
   const expiry=document.getElementById("premiumExpiry");
   const message=document.getElementById("premiumRuntimeMessage");
   const bar=document.getElementById("premiumProgressBar");
+  const hint=document.getElementById("membershipRuntimeHint");
   const card=document.querySelector(".membership-card");
-  if(!box || !countdown || !expiry || !message || !bar || !card) return;
-
+  if(!box || !countdown || !expiry || !message || !bar || !hint || !card) return;
   stopPremiumCountdown();
   card.classList.remove("membership-warning","membership-grace");
-  box.classList.remove("runtime-date-pending");
-
   const membership=normalizeMembership(currentProfileData.membershipLevel,currentProfileData.membership);
-  if(membership.level===0){box.hidden=true;return}
-  box.hidden=false;
-
+  if(membership.level===0){box.hidden=true;hint.hidden=true;hint.innerText="";return}
+  box.hidden=false;hint.hidden=false;
   const premiumUntil=parseDateValue(currentProfileData.premiumUntil);
   const graceUntil=resolveGraceUntil(premiumUntil,parseDateValue(currentProfileData.graceUntil));
-
-  expiry.innerText=premiumUntil
-    ? `Gültig bis ${formatDateTimeDe(premiumUntil)}`
-    : "Ablaufdatum wird nach Backend-Verknüpfung angezeigt.";
-
   const tick=()=>{
     const now=new Date();
     if(!premiumUntil){
-      box.classList.add("runtime-date-pending");
-      countdown.innerText=`✓ ${membership.name} aktiv`;
+      countdown.innerText=`${membership.name} aktiv`;
       message.innerText="Laufzeit wird mit Premium v1.2 synchronisiert.";
-      bar.style.width="0%";
+      expiry.innerText="";bar.style.width="100%";
+      hint.innerText="● Aktiv · Laufzeit wird mit Premium v1.2 synchronisiert";
       return;
     }
-
-    box.classList.remove("runtime-date-pending");
-    if(now < premiumUntil){
+    if(now<premiumUntil){
       const remaining=premiumUntil-now;
       countdown.innerText=`Noch ${formatCountdown(remaining)}`;
+      expiry.innerText=`Gültig bis ${formatDateTimeDe(premiumUntil)}`;
+      hint.innerText=`● Aktiv · noch ${formatCountdown(remaining)} · bis ${formatDateTimeDe(premiumUntil)}`;
       const warningMs=5*24*60*60*1000;
-      if(remaining<=warningMs){
-        card.classList.add("membership-warning");
-        message.innerText="Hinweis: Deine Premium-Mitgliedschaft endet in weniger als 5 Tagen.";
-      }else{
-        card.classList.remove("membership-warning");
-        message.innerText=currentProfileData.autoRenew==="JA"
-          ? "Automatische Verlängerung ist vorgemerkt."
-          : "Premium ist aktiv.";
-      }
-      const periodMs=30*24*60*60*1000;
-      bar.style.width=`${Math.max(0,Math.min(100,(remaining/periodMs)*100))}%`;
-      return;
+      if(remaining<=warningMs){card.classList.add("membership-warning");message.innerText="Deine Mitgliedschaft endet in weniger als 5 Tagen."}
+      else{card.classList.remove("membership-warning");message.innerText=currentProfileData.autoRenew==="JA"?"Automatische Verlängerung ist vorgemerkt.":`${membership.name} ist aktiv.`}
+      const periodMs=30*24*60*60*1000;bar.style.width=`${Math.max(0,Math.min(100,(remaining/periodMs)*100))}%`;return;
     }
-    if(graceUntil && now < graceUntil){
-      const graceRemaining=graceUntil-now;
-      card.classList.remove("membership-warning");
-      card.classList.add("membership-grace");
-      countdown.innerText=`Kulanzzeit · noch ${formatCountdown(graceRemaining)}`;
-      message.innerText="Premium-Provisionen sind während der Kulanz vorgemerkt, aber nicht auszahlbar.";
-      bar.style.width="0%";
-      return;
+    if(graceUntil && now<graceUntil){
+      const rest=graceUntil-now;card.classList.remove("membership-warning");card.classList.add("membership-grace");
+      countdown.innerText=`Kulanzzeit · noch ${formatCountdown(rest)}`;hint.innerText=`● Kulanz · noch ${formatCountdown(rest)}`;
+      message.innerText="Gruppenprovisionen sind während der Kulanz vorgemerkt, aber nicht auszahlbar.";bar.style.width="0%";return;
     }
-    card.classList.remove("membership-warning","membership-grace");
-    countdown.innerText="Premium-Zeitraum beendet";
-    message.innerText="Kulanz beendet. Neue Premium-Gruppenprovisionen sind nicht mehr freigabeberechtigt.";
-    bar.style.width="0%";
+    card.classList.remove("membership-warning","membership-grace");countdown.innerText="Premium-Zeitraum beendet";hint.innerText="● Premium-Zeitraum beendet";message.innerText="Kulanz beendet.";bar.style.width="0%";
   };
-
-  tick();
-  premiumCountdownInterval=setInterval(tick,1000);
+  tick();premiumCountdownInterval=setInterval(tick,1000);
 }
 
 function openPremiumManager(){
@@ -1890,19 +1953,16 @@ function premiumActionNotConnected(type){
 
 function toggleMembershipInfo(event){
   if(event) event.stopPropagation();
-  const panel=document.getElementById("membershipInfoPanel");
+  const overlay=document.getElementById("membershipInfoOverlay");
   const button=document.getElementById("membershipInfoButton");
-  if(!panel || !button) return;
-  const willOpen=panel.hidden;
-  panel.hidden=!willOpen;
-  button.classList.toggle("active",willOpen);
-  button.setAttribute("aria-expanded",willOpen?"true":"false");
+  if(!overlay || !button) return;
+  const willOpen=overlay.hidden;overlay.hidden=!willOpen;button.classList.toggle("active",willOpen);button.setAttribute("aria-expanded",willOpen?"true":"false");
 }
 
 function closeMembershipInfo(){
-  const panel=document.getElementById("membershipInfoPanel");
+  const overlay=document.getElementById("membershipInfoOverlay");
   const button=document.getElementById("membershipInfoButton");
-  if(panel) panel.hidden=true;
+  if(overlay) overlay.hidden=true;
   if(button){button.classList.remove("active");button.setAttribute("aria-expanded","false")}
 }
 
@@ -1948,9 +2008,11 @@ function renderMembershipActions(level){
 }
 
 function highlightCurrentMembershipTier(level){
-  document.querySelectorAll(".membership-info-tier").forEach(card=>card.classList.remove("current-tier"));
+  const panel=document.getElementById("membershipInfoPanel");
+  if(!panel) return;
+  panel.querySelectorAll(".membership-info-tier").forEach(card=>card.classList.remove("current-tier"));
   if(level>=1){
-    document.querySelector(`.membership-info-tier[data-membership-level="${level}"]`)?.classList.add("current-tier");
+    panel.querySelector(`.membership-info-tier[data-membership-level="${level}"]`)?.classList.add("current-tier");
   }
 }
 
@@ -2452,12 +2514,8 @@ document.addEventListener("keydown",event=>{
   }
 });
 
-document.addEventListener("click",event=>{
-  const panel=document.getElementById("membershipInfoPanel");
-  const button=document.getElementById("membershipInfoButton");
-  if(!panel || panel.hidden) return;
-  if(panel.contains(event.target) || button?.contains(event.target)) return;
-  closeMembershipInfo();
+document.getElementById("membershipInfoOverlay")?.addEventListener("click",event=>{
+  if(event.target.id==="membershipInfoOverlay") closeMembershipInfo();
 });
 
 document.getElementById("premiumManagerOverlay")?.addEventListener("click",event=>{
