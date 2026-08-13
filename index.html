@@ -5,9 +5,10 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.13-12
+Version: 2026.08.13-13
 
 Änderungen:
+- Profil-Link-Anforderung zeigt bei öffentlichen E-Mail-Eingaben eine neutrale Antwort; nicht registrierte Adressen werden nicht offengelegt.
 - Premium-Karte neu ausgerichtet: Status und Abo-Button überlappen nicht mehr.
 - Solange premium_bis fehlt, erscheint ein ruhiger Statusblock statt eines gequetschten Countdown-Platzhalters.
 - Das ?-Panel wurde deutlich reduziert und moderner aufgebaut.
@@ -2606,7 +2607,7 @@ async function requestProfileLink(){
   try{
     const response=await fetch(REQUEST_LINK_WEBHOOK_URL+"?email="+encodeURIComponent(email),{cache:"no-store"});
     if(!response.ok) throw new Error("HTTP "+response.status);
-    msg.innerText="✅ Profil-Link wurde verschickt. Öffne dein E-Mail-Postfach und verwende den erhaltenen Link.";
+    msg.innerText="✅ Wenn diese E-Mail bei BetInsight registriert ist, wurde der Profil-Link versendet. Bitte prüfe dein E-Mail-Postfach.";
   }catch(e){
     console.error(e);
     msg.innerText="Der Profil-Link konnte nicht gesendet werden. Prüfe die E-Mail-Adresse oder versuche es später erneut.";
