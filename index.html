@@ -5,9 +5,10 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.14-01
+Version: 2026.08.15-01
 
 Änderungen:
+- Kontostand & Aktivitäten: Referral verfügbar kompakt im Feld „Verfügbare Units“ integriert; drei gleich große Hauptfelder bleiben in einer Reihe.
 - „Units aufs Konto buchen“ mit sicherem Dialog, lokaler Mengenprüfung und Anbindung an den getesteten Referral-Umbuchungs-Webhook aktiviert.
 - Profil-Link-Anforderung zeigt bei öffentlichen E-Mail-Eingaben eine neutrale Antwort; nicht registrierte Adressen werden nicht offengelegt.
 - Premium-Karte neu ausgerichtet: Status und Abo-Button überlappen nicht mehr.
@@ -315,7 +316,7 @@ button{border:0}
 
 .account-stat-grid{
   display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
+  grid-template-columns:repeat(3,minmax(0,1fr));
   gap:12px;
 }
 
@@ -353,6 +354,31 @@ button{border:0}
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
+  font-variant-numeric:tabular-nums;
+}
+.account-stat-primary .account-stat-value{margin-top:8px}
+.account-stat-referral{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:9px;
+  padding-top:7px;
+  border-top:1px solid rgba(255,255,255,.07);
+  color:var(--muted);
+  font-size:10px;
+  font-weight:800;
+  line-height:1.1;
+}
+.account-stat-referral strong{
+  min-width:0;
+  color:#3ca8ff;
+  font-size:12px;
+  font-weight:900;
+  line-height:1;
+  white-space:nowrap;
   font-variant-numeric:tabular-nums;
 }
 .value-green{color:var(--green)}
@@ -1576,9 +1602,13 @@ input{
 
       <div class="panel-body account-summary">
         <div class="account-stat-grid">
-          <div class="account-stat">
+          <div class="account-stat account-stat-primary">
             <div class="account-stat-label">Verfügbare Units</div>
             <div id="accountUnits" class="account-stat-value value-orange account-private-value">0</div>
+            <div class="account-stat-referral">
+              <span>Referral verfügbar</span>
+              <strong id="accountReferralUnits" class="account-private-value">0,00</strong>
+            </div>
           </div>
 
           <div class="account-stat">
@@ -1589,11 +1619,6 @@ input{
           <div class="account-stat">
             <div class="account-stat-label">Verbrauchte Units</div>
             <div id="consumedUnits" class="account-stat-value value-cyan account-private-value">–</div>
-          </div>
-
-          <div class="account-stat">
-            <div class="account-stat-label">Referral verfügbar</div>
-            <div id="accountReferralUnits" class="account-stat-value value-blue account-private-value">0</div>
           </div>
 
           <div class="account-stat membership-card">
