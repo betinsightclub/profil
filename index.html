@@ -5,9 +5,10 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.13-13
+Version: 2026.08.14-01
 
 Änderungen:
+- „Units aufs Konto buchen“ mit sicherem Dialog, lokaler Mengenprüfung und Anbindung an den getesteten Referral-Umbuchungs-Webhook aktiviert.
 - Profil-Link-Anforderung zeigt bei öffentlichen E-Mail-Eingaben eine neutrale Antwort; nicht registrierte Adressen werden nicht offengelegt.
 - Premium-Karte neu ausgerichtet: Status und Abo-Button überlappen nicht mehr.
 - Solange premium_bis fehlt, erscheint ein ruhiger Statusblock statt eines gequetschten Countdown-Platzhalters.
@@ -248,7 +249,6 @@ button{border:0}
 
 .data-label{color:var(--muted);font-size:13px;font-weight:800}
 .data-value{min-width:0;color:#fff;font-size:15px;font-weight:800;overflow-wrap:anywhere}
-
 .id-line{display:flex;align-items:center;justify-content:space-between;gap:10px}
 #betInsightId{color:var(--green);font-size:18px}
 
@@ -497,8 +497,7 @@ button,.btn-link{
   align-items:center;
   min-height:66px;
   padding:14px 16px;
-  cursor:pointer;
-}
+  cursor:pointer;}
 .level-number{
   display:flex;
   align-items:center;
@@ -1319,6 +1318,154 @@ input{
   .membership-info-dialog .membership-info-tier{min-height:0}
 }
 
+
+/* v2026.08.14-01 · Referral-Units aufs Tippkonto buchen */
+.referral-transfer-overlay{
+  position:fixed;
+  inset:0;
+  z-index:22000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(0,8,13,.82);
+  backdrop-filter:blur(11px);
+}
+.referral-transfer-overlay[hidden]{display:none!important}
+
+.referral-transfer-dialog{
+  position:relative;
+  width:min(540px,100%);
+  max-height:90vh;
+  overflow:auto;
+  padding:24px;
+  border:1px solid rgba(14,220,166,.28);
+  border-radius:22px;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(14,220,166,.10),transparent 38%),
+    linear-gradient(155deg,rgba(12,48,64,.99),rgba(5,29,43,.99));
+  box-shadow:0 30px 90px rgba(0,0,0,.52);
+}
+
+.referral-transfer-close{
+  position:absolute;
+  top:12px;
+  right:14px;
+  width:38px;
+  height:38px;
+  min-height:38px;
+  padding:0;
+  border-radius:50%;
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  font-size:24px;
+  line-height:1;
+}
+
+.referral-transfer-eyebrow{
+  color:var(--green);
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.8px;
+  text-transform:uppercase;
+}
+
+.referral-transfer-dialog h3{
+  margin:7px 42px 6px 0;
+  font-size:24px;
+}
+
+.referral-transfer-summary{
+  margin:0 0 18px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
+}
+
+.referral-transfer-balance-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:16px;
+}
+
+.referral-transfer-balance{
+  padding:14px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;
+  background:rgba(0,0,0,.18);
+}
+.referral-transfer-balance span{
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:800;
+}
+.referral-transfer-balance strong{
+  display:block;
+  margin-top:6px;
+  color:var(--green);
+  font-size:26px;
+}
+.referral-transfer-balance.remaining strong{color:#63b8ff}
+
+.referral-transfer-label{
+  display:block;
+  margin-bottom:7px;
+  color:var(--soft);
+  font-size:12px;
+  font-weight:900;
+}
+
+#referralTransferAmount{
+  margin:0;
+  border-color:rgba(14,220,166,.65);
+}
+
+.referral-transfer-note{
+  margin:10px 0 0;
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.45;
+}
+
+.referral-transfer-message{
+  min-height:18px;
+  margin-top:12px;
+  padding:10px 12px;
+  border-radius:11px;
+  background:rgba(255,255,255,.035);
+  color:#ffcf33;
+  font-size:11px;
+  line-height:1.45;
+  text-align:center;
+}
+.referral-transfer-message.error{
+  background:rgba(201,74,74,.10);
+  color:#ff8d8d;
+}
+.referral-transfer-message.success{
+  background:rgba(14,220,166,.08);
+  color:#7af0ce;
+}
+
+.referral-transfer-actions{
+  display:grid;
+  grid-template-columns:1fr 1.25fr;
+  gap:10px;
+  margin-top:16px;
+}
+.referral-transfer-actions button:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+@media(max-width:520px){
+  .referral-transfer-balance-grid,
+  .referral-transfer-actions{grid-template-columns:1fr}
+  .referral-transfer-dialog{padding:22px 16px}
+}
+
 </style>
 </head>
 
@@ -1806,6 +1953,58 @@ input{
   </div>
 </div>
 
+
+<div id="referralTransferOverlay" class="referral-transfer-overlay" hidden>
+  <div class="referral-transfer-dialog" role="dialog" aria-modal="true" aria-labelledby="referralTransferTitle">
+    <button class="referral-transfer-close" type="button" onclick="closeReferralTransfer()" aria-label="Schließen">×</button>
+
+    <div class="referral-transfer-eyebrow">BetInsight Referral-Units</div>
+    <h3 id="referralTransferTitle">Units aufs Tippkonto buchen</h3>
+    <p class="referral-transfer-summary">
+      Buche freigegebene Referral-Units auf dein Tippkonto. Geschenk- und Kauf-Units werden dabei nicht verändert.
+    </p>
+
+    <div class="referral-transfer-balance-grid">
+      <div class="referral-transfer-balance">
+        <span>Verfügbare Referral-Units</span>
+        <strong id="referralTransferAvailable">0</strong>
+      </div>
+      <div class="referral-transfer-balance remaining">
+        <span>Danach noch verfügbar</span>
+        <strong id="referralTransferRemaining">0</strong>
+      </div>
+    </div>
+
+    <label class="referral-transfer-label" for="referralTransferAmount">
+      Wie viele Units möchtest du aufs Tippkonto buchen?
+    </label>
+    <input
+      id="referralTransferAmount"
+      type="number"
+      min="0.01"
+      step="0.01"
+      inputmode="decimal"
+      placeholder="z. B. 5"
+      autocomplete="off"
+    >
+
+    <p class="referral-transfer-note">
+      Die Umbuchung wird serverseitig geprüft und durch eine eindeutige Anfrage-ID gegen Doppelklicks abgesichert.
+    </p>
+
+    <div id="referralTransferMessage" class="referral-transfer-message" aria-live="polite"></div>
+
+    <div class="referral-transfer-actions">
+      <button id="referralTransferCancelButton" class="btn-gray" type="button" onclick="closeReferralTransfer()">
+        Abbrechen
+      </button>
+      <button id="referralTransferConfirmButton" class="btn-green" type="button" onclick="confirmReferralTransfer()">
+        ⭐ Jetzt umbuchen
+      </button>
+    </div>
+  </div>
+</div>
+
 <div id="debug" class="debug"></div>
 <footer class="footer">© 2026 BetInsight Club</footer>
 
@@ -1823,6 +2022,9 @@ const REQUEST_LINK_WEBHOOK_URL =
 const EMPFEHLUNGEN_WEBHOOK_URL =
   "https://hook.eu1.make.com/j883clzukqghxg9iiq91wxetue9wgoul";
 
+const REFERRAL_ACCOUNT_WEBHOOK_URL =
+  "https://hook.eu1.make.com/7skk3ar1t9690ewfdono994ue3maxyat";
+
 const TOKEN_STORAGE_KEY = "betinsight_profile_token";
 
 let profilePrivacyActive = false;
@@ -1830,7 +2032,7 @@ let accountPrivacyActive = false;
 let referralPrivacyActive = false;
 
 let currentProfileData = {
-  email:"",units:0,refCode:"",dashboardToken:"",refLink:"",
+  email:"",units:0,referralAvailable:0,refCode:"",dashboardToken:"",refLink:"",
   consumedUnits:null,unlockedTips:0,membershipLevel:0,membership:"Basis",
   premiumStart:null,premiumUntil:null,graceUntil:null,premiumStatus:"",
   autoRenew:"NEIN",tariffCode:""
@@ -1867,6 +2069,9 @@ function normalizeMembership(level, membership){
 let premiumCountdownInterval = null;
 let premiumManagerMode = "MANAGE";
 let requestLinkInFlight = false;
+let referralTransferInFlight = false;
+let referralTransferRequestId = "";
+let referralTransferRequestAmount = null;
 
 function parseDateValue(value){
   if(value===undefined || value===null || value==="") return null;
@@ -2539,6 +2744,7 @@ function fetchProfileByToken(variants,index){
 
       const finalToken=data.token || token;
       const total=safeNumber(data.einsetzbare_units);
+      const referralAvailable=safeNumber(firstDefined(data,["ref_verfuegbar","referral_available","available_ref_units"],0));
       const consumed=firstDefined(data,["verbrauchte_units","consumed_units","used_units"],null);
       const unlocked=safeNumber(firstDefined(data,["freigeschaltete_tipps","unlocked_tips","unlock_count"],0));
       const membershipLevel=safeNumber(firstDefined(data,["mitgliedschaft_level","membership_level","premium_level"],0));
@@ -2551,7 +2757,7 @@ function fetchProfileByToken(variants,index){
       const tariffCode=String(firstDefined(data,["tarif_code","tariff_code"],"")).trim();
 
       currentProfileData={
-        email:data.email||"",units:total,refCode:String(data.ref_code||"").trim(),
+        email:data.email||"",units:total,referralAvailable,refCode:String(data.ref_code||"").trim(),
         dashboardToken:String(data.dashboard_token||"").trim(),refLink:String(data.ref_link||"").trim(),
         consumedUnits:consumed,unlockedTips:unlocked,membershipLevel,membership,
         premiumStart,premiumUntil,graceUntil,premiumStatus,autoRenew,tariffCode
@@ -2641,15 +2847,213 @@ function goFreigeschaltet(){const token=getActiveToken();if(token) location.href
 function goUnitExchange(){const token=getActiveToken();if(token) location.href="https://betinsightclub.github.io/profil/wechselboerse/?token="+encodeURIComponent(token)}
 function goBackoffice(){location.href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726"}
 
+function roundReferralUnits(value){
+  return Math.round((safeNumber(value)+Number.EPSILON)*100)/100;
+}
+
+function createReferralTransferRequestId(){
+  if(window.crypto?.randomUUID){
+    return "REF-KONTO-"+window.crypto.randomUUID();
+  }
+  return "REF-KONTO-"+Date.now()+"-"+Math.random().toString(36).slice(2,10);
+}
+
+function setReferralTransferMessage(text,type=""){
+  const el=document.getElementById("referralTransferMessage");
+  if(!el) return;
+  el.classList.remove("error","success");
+  if(type) el.classList.add(type);
+  el.innerText=text||"";
+}
+
+function getReferralAvailable(){
+  return Math.max(0,roundReferralUnits(currentProfileData.referralAvailable));
+}
+
+function updateReferralTransferPreview(){
+  const input=document.getElementById("referralTransferAmount");
+  const available=getReferralAvailable();
+  const raw=String(input?.value??"").trim();
+  const amount=roundReferralUnits(raw||0);
+  const remaining=Math.max(0,roundReferralUnits(available-amount));
+
+  document.getElementById("referralTransferAvailable").innerText=formatNumber(available);
+  document.getElementById("referralTransferRemaining").innerText=formatNumber(remaining);
+
+  if(!raw){
+    setReferralTransferMessage(
+      available>0 ? "Bitte gib die gewünschte Menge ein." : "Derzeit sind keine Referral-Units zum Umbuchen verfügbar.",
+      available>0 ? "" : "error"
+    );
+    return false;
+  }
+  if(amount<=0){
+    setReferralTransferMessage("Bitte gib eine Menge größer als 0 ein.","error");
+    return false;
+  }
+  if(amount>available){
+    setReferralTransferMessage("Nicht genügend verfügbare Referral-Units.","error");
+    return false;
+  }
+
+  setReferralTransferMessage(`${formatNumber(amount)} Units werden aufs Tippkonto gebucht.`);
+  return true;
+}
+
 function referralUnitsToAccount(){
-  document.getElementById("referralStatus").innerText="Diese Funktion wird später mit dem Referral-Ledger in Make verbunden.";
+  const overlay=document.getElementById("referralTransferOverlay");
+  const input=document.getElementById("referralTransferAmount");
+  const confirmButton=document.getElementById("referralTransferConfirmButton");
+  const cancelButton=document.getElementById("referralTransferCancelButton");
+  if(!overlay || !input || !confirmButton || !cancelButton) return;
+
+  referralTransferRequestId="";
+  referralTransferRequestAmount=null;
+  referralTransferInFlight=false;
+
+  input.value="";
+  input.disabled=false;
+  confirmButton.disabled=false;
+  confirmButton.innerText="⭐ Jetzt umbuchen";
+  cancelButton.disabled=false;
+
+  document.getElementById("referralTransferAvailable").innerText=formatNumber(getReferralAvailable());
+  document.getElementById("referralTransferRemaining").innerText=formatNumber(getReferralAvailable());
+  updateReferralTransferPreview();
+
+  overlay.hidden=false;
+  setTimeout(()=>input.focus(),0);
+}
+
+function closeReferralTransfer(){
+  if(referralTransferInFlight) return;
+  const overlay=document.getElementById("referralTransferOverlay");
+  if(overlay) overlay.hidden=true;
+}
+
+async function confirmReferralTransfer(){
+  const overlay=document.getElementById("referralTransferOverlay");
+  const input=document.getElementById("referralTransferAmount");
+  const confirmButton=document.getElementById("referralTransferConfirmButton");
+  const cancelButton=document.getElementById("referralTransferCancelButton");
+  const token=String(getActiveToken()||"").trim();
+  if(!overlay || !input || !confirmButton || !cancelButton) return;
+
+  if(!token){
+    setReferralTransferMessage("Dein Profilzugang ist nicht verfügbar. Bitte lade dein Profil neu.","error");
+    return;
+  }
+  if(referralTransferInFlight || !updateReferralTransferPreview()) return;
+
+  const amount=roundReferralUnits(input.value);
+  if(!referralTransferRequestId || referralTransferRequestAmount!==amount){
+    referralTransferRequestId=createReferralTransferRequestId();
+    referralTransferRequestAmount=amount;
+  }
+
+  referralTransferInFlight=true;
+  input.disabled=true;
+  confirmButton.disabled=true;
+  cancelButton.disabled=true;
+  const oldConfirmText=confirmButton.innerText;
+  confirmButton.innerText="⏳ Wird gebucht...";
+  setReferralTransferMessage("Umbuchung wird geprüft und ausgeführt.");
+
+  let keepLocked=false;
+
+  try{
+    const url=REFERRAL_ACCOUNT_WEBHOOK_URL+
+      "?token="+encodeURIComponent(token)+
+      "&menge="+encodeURIComponent(String(amount))+
+      "&request_id="+encodeURIComponent(referralTransferRequestId);
+
+    const response=await fetch(url,{method:"GET",cache:"no-store"});
+    if(!response.ok) throw new Error("HTTP "+response.status);
+    const data=await response.json();
+
+    if(data.status==="success"){
+      const moved=roundReferralUnits(data.moved!==undefined ? data.moved : amount);
+      currentProfileData.referralAvailable=roundReferralUnits(
+        data.ref_verfuegbar!==undefined ? data.ref_verfuegbar : getReferralAvailable()-moved
+      );
+
+      if(data.einsetzbare_units!==undefined){
+        currentProfileData.units=roundReferralUnits(data.einsetzbare_units);
+        document.getElementById("units").innerText=formatUnitsTwoDecimals(currentProfileData.units);
+        document.getElementById("accountUnits").innerText=formatNumber(currentProfileData.units);
+        setUnitColor(currentProfileData.units);
+      }
+
+      document.getElementById("referralTransferAvailable").innerText=formatNumber(getReferralAvailable());
+      document.getElementById("referralTransferRemaining").innerText=formatNumber(getReferralAvailable());
+      setReferralTransferMessage(`${formatNumber(moved)} Units wurden erfolgreich aufs Tippkonto gebucht.`,"success");
+      document.getElementById("referralStatus").innerText=`${formatNumber(moved)} Referral-Units wurden erfolgreich aufs Tippkonto gebucht.`;
+
+      referralTransferRequestId="";
+      referralTransferRequestAmount=null;
+      keepLocked=true;
+      setTimeout(()=>{
+        referralTransferInFlight=false;
+        overlay.hidden=true;
+        loadUnits();
+      },1200);
+      return;
+    }
+
+    if(data.status==="duplicate_request"){
+      if(data.available!==undefined){
+        currentProfileData.referralAvailable=roundReferralUnits(data.available);
+      }
+      document.getElementById("referralTransferAvailable").innerText=formatNumber(getReferralAvailable());
+      document.getElementById("referralTransferRemaining").innerText=formatNumber(getReferralAvailable());
+      setReferralTransferMessage("Diese Umbuchungsanfrage wurde bereits verarbeitet. Es wurde nichts doppelt gebucht.","success");
+
+      keepLocked=true;
+      setTimeout(()=>{
+        referralTransferInFlight=false;
+        overlay.hidden=true;
+        loadUnits();
+      },1400);
+      return;
+    }
+
+    if(data.available!==undefined){
+      currentProfileData.referralAvailable=roundReferralUnits(data.available);
+      document.getElementById("referralTransferAvailable").innerText=formatNumber(getReferralAvailable());
+      document.getElementById("referralTransferRemaining").innerText=formatNumber(getReferralAvailable());
+    }
+
+    const messages={
+      invalid_amount:"Bitte gib eine Menge größer als 0 ein.",
+      insufficient_ref_units:"Nicht genügend verfügbare Referral-Units.",
+      missing_request_id:"Die Umbuchung konnte nicht eindeutig abgesichert werden. Bitte versuche es erneut."
+    };
+    setReferralTransferMessage(
+      messages[data.status] || data.message || "Die Umbuchung konnte nicht durchgeführt werden.",
+      "error"
+    );
+  }catch(e){
+    console.error(e);
+    setReferralTransferMessage(
+      "Die Antwort konnte nicht sicher empfangen werden. Bitte versuche dieselbe Umbuchung erneut; der Dublettenschutz bleibt aktiv.",
+      "error"
+    );
+  }finally{
+    if(!keepLocked){
+      referralTransferInFlight=false;
+      input.disabled=false;
+      confirmButton.disabled=false;
+      cancelButton.disabled=false;
+      confirmButton.innerText=oldConfirmText;
+    }
+  }
 }
 
 function forgetToken(){
   localStorage.removeItem(TOKEN_STORAGE_KEY);
   localStorage.removeItem("betinsight_email");
   currentProfileData={
-    email:"",units:0,refCode:"",dashboardToken:"",refLink:"",consumedUnits:null,unlockedTips:0,
+    email:"",units:0,referralAvailable:0,refCode:"",dashboardToken:"",refLink:"",consumedUnits:null,unlockedTips:0,
     membershipLevel:0,membership:"Basis",premiumStart:null,premiumUntil:null,graceUntil:null,
     premiumStatus:"",autoRenew:"NEIN",tariffCode:""
   };
@@ -2661,6 +3065,7 @@ document.addEventListener("keydown",event=>{
   if(event.key==="Escape"){
     closePremiumManager();
     closeMembershipInfo();
+    closeReferralTransfer();
   }
 });
 
@@ -2670,6 +3075,27 @@ document.getElementById("membershipInfoOverlay")?.addEventListener("click",event
 
 document.getElementById("premiumManagerOverlay")?.addEventListener("click",event=>{
   if(event.target.id==="premiumManagerOverlay") closePremiumManager();
+});
+
+document.getElementById("referralTransferOverlay")?.addEventListener("click",event=>{
+  if(event.target.id==="referralTransferOverlay") closeReferralTransfer();
+});
+
+document.getElementById("referralTransferAmount")?.addEventListener("input",()=>{
+  if(referralTransferInFlight) return;
+  const amount=roundReferralUnits(document.getElementById("referralTransferAmount").value||0);
+  if(referralTransferRequestAmount!==null && amount!==referralTransferRequestAmount){
+    referralTransferRequestId="";
+    referralTransferRequestAmount=null;
+  }
+  updateReferralTransferPreview();
+});
+
+document.getElementById("referralTransferAmount")?.addEventListener("keydown",event=>{
+  if(event.key==="Enter"){
+    event.preventDefault();
+    confirmReferralTransfer();
+  }
 });
 
 loadUnits();
