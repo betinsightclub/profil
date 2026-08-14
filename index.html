@@ -171,6 +171,56 @@ button{border:0}
   text-shadow:0 0 24px rgba(14,220,166,.24);
 }
 
+/* Zusatzanzeige oben: Tippkonto und noch verfügbare Referral-Units bleiben klar getrennt. */
+.header-balance-group{
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns:minmax(238px,1fr) minmax(180px,.78fr);
+  gap:10px;
+  align-items:stretch;
+}
+
+.header-balance-group .header-balance{
+  position:relative;
+  z-index:auto;
+  min-width:0;
+}
+
+.header-referral-balance{
+  min-width:180px;
+  padding:13px 16px;
+  border:1px solid rgba(24,201,243,.30);
+  border-radius:16px;
+  background:linear-gradient(145deg,rgba(6,20,29,.78),rgba(13,52,59,.72));
+  text-align:center;
+}
+
+.header-referral-label{
+  display:block;
+  color:var(--soft);
+  font-size:12px;
+  font-weight:700;
+}
+
+#headerReferralUnits{
+  display:block;
+  margin-top:6px;
+  color:var(--cyan);
+  font-size:31px;
+  font-weight:900;
+  line-height:1;
+  text-shadow:0 0 22px rgba(24,201,243,.20);
+}
+
+.header-referral-note{
+  display:block;
+  margin-top:5px;
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.25;
+}
+
 .profile-box,.request-box,.referral-section{display:none}
 
 .profile-grid{
@@ -574,7 +624,8 @@ input{
 @media(max-width:760px){
   .page{padding:16px 14px 104px}
   .dashboard-header{grid-template-columns:auto 1fr}
-  .header-balance{grid-column:1/-1}
+  .header-balance-group{grid-column:1/-1;grid-template-columns:1fr 1fr}
+  .header-balance-group .header-balance{grid-column:auto}
   .request-grid{grid-template-columns:1fr}
   .referral-footer-actions{grid-template-columns:1fr}
   .referral-link-row{grid-template-columns:1fr}
@@ -586,7 +637,8 @@ input{
   .dashboard-header{display:block;text-align:center}
   .logo{margin:0 auto 11px}
   .header-main{display:block}
-  .header-balance{margin-top:13px}
+  .header-balance-group{margin-top:13px;grid-template-columns:1fr 1fr}
+  .header-balance-group .header-balance{margin-top:0}
   .account-stat-grid,.account-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
   .data-row{grid-template-columns:1fr;gap:4px}
   .id-line{flex-direction:column;align-items:stretch}
@@ -600,6 +652,7 @@ input{
 }
 
 @media(max-width:390px){
+  .header-balance-group{grid-template-columns:1fr}
   .account-stat-grid,.account-actions{grid-template-columns:1fr}
 }
 
@@ -1488,9 +1541,17 @@ input{
     </div>
   </div>
 
-  <div id="headerUnitsBox" class="header-balance">
-    <span class="header-balance-label">Gesamte verfügbare Units</span>
-    <span id="units">0,00</span>
+  <div id="headerBalanceGroup" class="header-balance-group">
+    <div id="headerUnitsBox" class="header-balance">
+      <span class="header-balance-label">Gesamte verfügbare Units</span>
+      <span id="units">0,00</span>
+    </div>
+
+    <div id="headerReferralBox" class="header-referral-balance">
+      <span class="header-referral-label">Referral verfügbar</span>
+      <span id="headerReferralUnits">0,00</span>
+      <span class="header-referral-note">noch nicht aufs Tippkonto gebucht</span>
+    </div>
   </div>
 </header>
 
@@ -2497,6 +2558,7 @@ function buildTokenVariants(token){
 function showProfileBox(){
   document.getElementById("profileBox").style.display="block";
   document.getElementById("requestBox").style.display="none";
+  document.getElementById("headerBalanceGroup").style.display="";
   document.getElementById("headerUnitsBox").style.display="";
   document.getElementById("referralSection").style.display="block";
 }
@@ -2504,6 +2566,7 @@ function showProfileBox(){
 function showRequestBox(){
   document.getElementById("profileBox").style.display="none";
   document.getElementById("requestBox").style.display="block";
+  document.getElementById("headerBalanceGroup").style.display="none";
   document.getElementById("headerUnitsBox").style.display="none";
   document.getElementById("referralSection").style.display="none";
 }
@@ -2512,6 +2575,11 @@ function setUnitColor(units){
   let color=units===0?"red":(units<10?"orange":"lime");
   document.getElementById("units").style.color=color;
   document.getElementById("accountUnits").style.color=color;
+}
+
+function renderHeaderReferralAvailable(value){
+  const el=document.getElementById("headerReferralUnits");
+  if(el) el.innerText=formatUnitsTwoDecimals(value);
 }
 
 function setDebug(text){document.getElementById("debug").innerText=text}
@@ -2727,6 +2795,7 @@ async function requestCurrentProfileLink(){
 function fetchProfileByToken(variants,index){
   if(index>=variants.length){
     document.getElementById("units").innerText="0,00";
+    renderHeaderReferralAvailable(0);
     document.getElementById("accountUnits").innerText="0";
     document.getElementById("unlockedTips").innerText="0";
     document.getElementById("consumedUnits").innerText="–";
@@ -2766,6 +2835,7 @@ function fetchProfileByToken(variants,index){
       saveToken(finalToken);
       showProfileBox();
       document.getElementById("units").innerText=formatUnitsTwoDecimals(total);
+      renderHeaderReferralAvailable(referralAvailable);
       document.getElementById("accountUnits").innerText=formatNumber(total);
       document.getElementById("unlockedTips").innerText=formatNumber(unlocked);
       document.getElementById("consumedUnits").innerText=formatOptionalNumber(consumed);
@@ -2787,6 +2857,7 @@ function loadUnits(){
   showProfileBox();
   document.getElementById("message").innerText="Kontostand wird geladen...";
   document.getElementById("units").innerText="0,00";
+  renderHeaderReferralAvailable(0);
   document.getElementById("accountUnits").innerText="0";
   document.getElementById("unlockedTips").innerText="0";
   document.getElementById("consumedUnits").innerText="–";
@@ -2984,6 +3055,7 @@ async function confirmReferralTransfer(){
         setUnitColor(currentProfileData.units);
       }
 
+      renderHeaderReferralAvailable(getReferralAvailable());
       document.getElementById("referralTransferAvailable").innerText=formatNumber(getReferralAvailable());
       document.getElementById("referralTransferRemaining").innerText=formatNumber(getReferralAvailable());
       setReferralTransferMessage(`${formatNumber(moved)} Units wurden erfolgreich aufs Tippkonto gebucht.`,"success");
@@ -3004,6 +3076,7 @@ async function confirmReferralTransfer(){
       if(data.available!==undefined){
         currentProfileData.referralAvailable=roundReferralUnits(data.available);
       }
+      renderHeaderReferralAvailable(getReferralAvailable());
       document.getElementById("referralTransferAvailable").innerText=formatNumber(getReferralAvailable());
       document.getElementById("referralTransferRemaining").innerText=formatNumber(getReferralAvailable());
       setReferralTransferMessage("Diese Umbuchungsanfrage wurde bereits verarbeitet. Es wurde nichts doppelt gebucht.","success");
@@ -3019,6 +3092,7 @@ async function confirmReferralTransfer(){
 
     if(data.available!==undefined){
       currentProfileData.referralAvailable=roundReferralUnits(data.available);
+      renderHeaderReferralAvailable(getReferralAvailable());
       document.getElementById("referralTransferAvailable").innerText=formatNumber(getReferralAvailable());
       document.getElementById("referralTransferRemaining").innerText=formatNumber(getReferralAvailable());
     }
