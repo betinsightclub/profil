@@ -171,56 +171,6 @@ button{border:0}
   text-shadow:0 0 24px rgba(14,220,166,.24);
 }
 
-/* Zusatzanzeige oben: Tippkonto und noch verfügbare Referral-Units bleiben klar getrennt. */
-.header-balance-group{
-  position:relative;
-  z-index:1;
-  display:grid;
-  grid-template-columns:minmax(238px,1fr) minmax(180px,.78fr);
-  gap:10px;
-  align-items:stretch;
-}
-
-.header-balance-group .header-balance{
-  position:relative;
-  z-index:auto;
-  min-width:0;
-}
-
-.header-referral-balance{
-  min-width:180px;
-  padding:13px 16px;
-  border:1px solid rgba(24,201,243,.30);
-  border-radius:16px;
-  background:linear-gradient(145deg,rgba(6,20,29,.78),rgba(13,52,59,.72));
-  text-align:center;
-}
-
-.header-referral-label{
-  display:block;
-  color:var(--soft);
-  font-size:12px;
-  font-weight:700;
-}
-
-#headerReferralUnits{
-  display:block;
-  margin-top:6px;
-  color:var(--cyan);
-  font-size:31px;
-  font-weight:900;
-  line-height:1;
-  text-shadow:0 0 22px rgba(24,201,243,.20);
-}
-
-.header-referral-note{
-  display:block;
-  margin-top:5px;
-  color:var(--muted);
-  font-size:10px;
-  line-height:1.25;
-}
-
 .profile-box,.request-box,.referral-section{display:none}
 
 .profile-grid{
@@ -365,14 +315,15 @@ button{border:0}
 
 .account-stat-grid{
   display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-columns:repeat(4,minmax(0,1fr));
   gap:12px;
 }
 
 .account-stat{
   position:relative;
   overflow:hidden;
-  min-height:112px;
+  min-width:0;
+  height:112px;
   padding:15px;
   border:1px solid rgba(126,194,220,.12);
   border-radius:15px;
@@ -392,7 +343,18 @@ button{border:0}
 }
 
 .account-stat-label{color:var(--muted);font-size:12px;font-weight:700}
-.account-stat-value{margin-top:12px;font-size:31px;font-weight:900}
+.account-stat-value{
+  margin-top:12px;
+  min-width:0;
+  max-width:100%;
+  font-size:clamp(21px,1.85vw,31px);
+  font-weight:900;
+  line-height:1;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-variant-numeric:tabular-nums;
+}
 .value-green{color:var(--green)}
 .value-cyan{color:var(--cyan)}
 .value-orange{color:var(--orange)}
@@ -584,7 +546,7 @@ button,.btn-link{
 
 .referral-footer-actions{
   display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-columns:repeat(4,minmax(0,1fr));
   gap:12px;
   margin-top:17px;
   padding-top:17px;
@@ -624,8 +586,7 @@ input{
 @media(max-width:760px){
   .page{padding:16px 14px 104px}
   .dashboard-header{grid-template-columns:auto 1fr}
-  .header-balance-group{grid-column:1/-1;grid-template-columns:1fr 1fr}
-  .header-balance-group .header-balance{grid-column:auto}
+  .header-balance{grid-column:1/-1}
   .request-grid{grid-template-columns:1fr}
   .referral-footer-actions{grid-template-columns:1fr}
   .referral-link-row{grid-template-columns:1fr}
@@ -637,8 +598,7 @@ input{
   .dashboard-header{display:block;text-align:center}
   .logo{margin:0 auto 11px}
   .header-main{display:block}
-  .header-balance-group{margin-top:13px;grid-template-columns:1fr 1fr}
-  .header-balance-group .header-balance{margin-top:0}
+  .header-balance{margin-top:13px}
   .account-stat-grid,.account-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
   .data-row{grid-template-columns:1fr;gap:4px}
   .id-line{flex-direction:column;align-items:stretch}
@@ -652,7 +612,6 @@ input{
 }
 
 @media(max-width:390px){
-  .header-balance-group{grid-template-columns:1fr}
   .account-stat-grid,.account-actions{grid-template-columns:1fr}
 }
 
@@ -852,7 +811,7 @@ input{
 }
 
 .account-stat-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-.account-stat{min-height:110px}
+.account-stat{height:112px;min-height:112px}
 
 .membership-card{
   grid-column:1 / -1;
@@ -1346,7 +1305,7 @@ input{
 .membership-info-dialog.info-level-0 .membership-info-grid,
 .membership-info-dialog.info-level-1 .membership-info-grid,
 .membership-info-dialog.info-level-2 .membership-info-grid{
-  grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-columns:repeat(4,minmax(0,1fr));
   gap:15px;
 }
 .membership-info-dialog .basis-info-tier{display:block!important;border-color:rgba(22,156,255,.24)}
@@ -1541,17 +1500,9 @@ input{
     </div>
   </div>
 
-  <div id="headerBalanceGroup" class="header-balance-group">
-    <div id="headerUnitsBox" class="header-balance">
-      <span class="header-balance-label">Gesamte verfügbare Units</span>
-      <span id="units">0,00</span>
-    </div>
-
-    <div id="headerReferralBox" class="header-referral-balance">
-      <span class="header-referral-label">Referral verfügbar</span>
-      <span id="headerReferralUnits">0,00</span>
-      <span class="header-referral-note">noch nicht aufs Tippkonto gebucht</span>
-    </div>
+  <div id="headerUnitsBox" class="header-balance">
+    <span class="header-balance-label">Gesamte verfügbare Units</span>
+    <span id="units">0,00</span>
   </div>
 </header>
 
@@ -1638,6 +1589,11 @@ input{
           <div class="account-stat">
             <div class="account-stat-label">Verbrauchte Units</div>
             <div id="consumedUnits" class="account-stat-value value-cyan account-private-value">–</div>
+          </div>
+
+          <div class="account-stat">
+            <div class="account-stat-label">Referral verfügbar</div>
+            <div id="accountReferralUnits" class="account-stat-value value-blue account-private-value">0</div>
           </div>
 
           <div class="account-stat membership-card">
@@ -2558,7 +2514,6 @@ function buildTokenVariants(token){
 function showProfileBox(){
   document.getElementById("profileBox").style.display="block";
   document.getElementById("requestBox").style.display="none";
-  document.getElementById("headerBalanceGroup").style.display="";
   document.getElementById("headerUnitsBox").style.display="";
   document.getElementById("referralSection").style.display="block";
 }
@@ -2566,7 +2521,6 @@ function showProfileBox(){
 function showRequestBox(){
   document.getElementById("profileBox").style.display="none";
   document.getElementById("requestBox").style.display="block";
-  document.getElementById("headerBalanceGroup").style.display="none";
   document.getElementById("headerUnitsBox").style.display="none";
   document.getElementById("referralSection").style.display="none";
 }
@@ -2578,7 +2532,7 @@ function setUnitColor(units){
 }
 
 function renderHeaderReferralAvailable(value){
-  const el=document.getElementById("headerReferralUnits");
+  const el=document.getElementById("accountReferralUnits");
   if(el) el.innerText=formatUnitsTwoDecimals(value);
 }
 
