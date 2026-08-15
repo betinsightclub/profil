@@ -2,21 +2,18 @@
 <!--
 Projekt: BetInsight
 Pfad: /profil/wechselboerse/angebote/index.html
-Update: 2026.08.15-04
-Anwendungs-Version: 1.3.0
+Update: 2026.08.16-01
+Anwendungs-Version: 1.3.1 SECURITY
 
 Änderungen:
-- Bestehendes Design beibehalten
-- Aktive Angebote weiterhin über Make/listOffers laden
-- "Angebot auswählen" bleibt an sicheren Kaufstart angebunden
-- Aktive Reservierung wird im Browser gespeichert und nach Seiten-Neuladen wiederhergestellt
-- Sichtbarer 15-Minuten-Countdown im Reservierungsbereich
-- Countdown wird unter 5 Minuten deutlich hervorgehoben
-- Nach Ablauf erscheint klar "Reservierung abgelaufen – automatische Freigabe läuft"
-- Verkäufer-Wallet wird weiterhin nur dem reservierenden Käufer angezeigt
-- payment_enabled bleibt FALSE: noch keine echte USDT/USDC-Zahlung auslösen
-- Dashboard-Token wird unverändert weitergegeben
-- Geschenk-Units bleiben vom Verkauf ausgeschlossen
+- SECURITY: Serverzeit ist allein maßgeblich für Reservierungsablauf
+- Countdown wird aus server_now + reserviert_bis berechnet
+- Bei serverseitigem Ablauf werden Wallet-/Zahlungsdaten sofort verborgen
+- Abgelaufene Reservierung kann keine purchase_ready-Antwort mehr erhalten
+- localStorage speichert keine Wallet-/Kaufdetails mehr
+- Nach Reload wird Reservierung ausschließlich über Make erneut validiert
+- Bestehendes Design und übrige Kauf-/Angebotslogik bleiben unverändert
+- payment_enabled bleibt FALSE: noch keine echte USDT/USDC-Zahlung
 -->
 <html lang="de">
 <head>
@@ -823,7 +820,7 @@ Anwendungs-Version: 1.3.0
 
     const TOKEN_STORAGE_KEY = "betinsight_profile_token";
     const RESERVATION_STORAGE_KEY = "betinsight_active_purchase_reservation";
-    const RESERVATION_DURATION_MS = 15 * 60 * 1000;
+    const RESERVATION_DURATION_MS = 15 * 60 * 1000; // nur Fallback; Serverzeit ist maßgeblich
     const DEMO_MODE = new URLSearchParams(window.location.search).get("demo") === "1";
 
     const DEMO_OFFERS = [
@@ -1072,23 +1069,11 @@ Anwendungs-Version: 1.3.0
       }
     }
 
-    function saveReservation(token, offerId, purchaseData) {
-      const previous = getStoredReservation();
-      const sameReservation =
-        previous &&
-        previous.token === token &&
-        previous.offerId === offerId &&
-        Number.isFinite(Number(previous.expiresAt));
-
-      const expiresAt = sameReservation
-        ? Number(previous.expiresAt)
-        : Date.now() + RESERVATION_DURATION_MS;
-
+    function saveReservation(token, offerId, expiresAt) {
       const state = {
         token,
         offerId,
-        expiresAt,
-        purchaseData: purchaseData || null
+        expiresAt: Number(expiresAt) || 0
       };
 
       try {
@@ -1102,6 +1087,34 @@ Anwendungs-Version: 1.3.0
       try {
         localStorage.removeItem(RESERVATION_STORAGE_KEY);
       } catch (_) {}
+    }
+
+    function parseMakeDateTime(value) {
+      const match = String(value || "").trim().match(
+        /^(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$/
+      );
+      if (!match) return null;
+
+      return Date.UTC(
+        Number(match[3]),
+        Number(match[2]) - 1,
+        Number(match[1]),
+        Number(match[4]),
+        Number(match[5]),
+        Number(match[6])
+      );
+    }
+
+    function calculateLocalExpiryFromServer(data) {
+      const reservedServer = parseMakeDateTime(data?.reserviert_bis);
+      const nowServer = parseMakeDateTime(data?.server_now);
+
+      if (!reservedServer || !nowServer) {
+        return Date.now() + RESERVATION_DURATION_MS;
+      }
+
+      const remainingMs = Math.max(0, reservedServer - nowServer);
+      return Date.now() + remainingMs;
     }
 
     function formatCountdown(milliseconds) {
@@ -1131,7 +1144,10 @@ Anwendungs-Version: 1.3.0
           "Die 15 Minuten sind vorbei. Das Angebot wird automatisch wieder für andere Mitglieder freigegeben.";
         elements.reservationTimerValue.textContent = "00:00";
         elements.paymentStop.textContent =
-          "Reservierung abgelaufen. Bitte jetzt keine Zahlung senden. Warte, bis das Angebot wieder als verfügbar angezeigt wird.";
+          "Reservierung abgelaufen. Bitte jetzt keine Zahlung senden. Die serverseitige Freigabe läuft.";
+        elements.purchaseWallet.textContent = "Nicht mehr verfügbar";
+        elements.purchaseNetwork.textContent = "–";
+        clearStoredReservation();
         stopReservationCountdown();
         return;
       }
@@ -1173,7 +1189,10 @@ Anwendungs-Version: 1.3.0
       elements.paymentStop.textContent =
         "Noch keine Zahlung senden. Die echte USDT/USDC-Zahlung ist in diesem Testschritt weiterhin deaktiviert.";
 
-      const expiresAt = reservationState?.expiresAt || (Date.now() + RESERVATION_DURATION_MS);
+      const expiresAt =
+        reservationState?.expiresAt ||
+        calculateLocalExpiryFromServer(data);
+
       startReservationCountdown(expiresAt);
 
       elements.purchasePanel.classList.add("visible");
@@ -1218,14 +1237,17 @@ Anwendungs-Version: 1.3.0
         const { response, data } = await fetchPurchaseStatus(token, stored.offerId);
 
         if (data.status === "purchase_ready") {
-          const refreshed = saveReservation(token, stored.offerId, data);
-          refreshed.expiresAt = Number(stored.expiresAt) || refreshed.expiresAt;
-
-          try {
-            localStorage.setItem(RESERVATION_STORAGE_KEY, JSON.stringify(refreshed));
-          } catch (_) {}
-
+          const serverExpiry = calculateLocalExpiryFromServer(data);
+          const refreshed = saveReservation(token, stored.offerId, serverExpiry);
           showPurchaseDetails(data, refreshed);
+          return;
+        }
+
+        if (data.status === "reservation_expired") {
+          clearStoredReservation();
+          elements.purchasePanel.classList.remove("visible");
+          showToast(data.message || "Die Reservierung ist abgelaufen.");
+          await loadOffers();
           return;
         }
 
@@ -1288,9 +1310,18 @@ Anwendungs-Version: 1.3.0
           lastData = data;
 
           if (data.status === "purchase_ready") {
-            const reservationState = saveReservation(token, offerId, data);
+            const serverExpiry = calculateLocalExpiryFromServer(data);
+            const reservationState = saveReservation(token, offerId, serverExpiry);
             showPurchaseDetails(data, reservationState);
             showToast("Angebot wurde für dich reserviert.");
+            await loadOffers();
+            return;
+          }
+
+          if (data.status === "reservation_expired") {
+            clearStoredReservation();
+            elements.purchasePanel.classList.remove("visible");
+            showToast(data.message || "Die Reservierung ist abgelaufen.");
             await loadOffers();
             return;
           }
