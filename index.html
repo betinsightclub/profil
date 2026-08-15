@@ -5,9 +5,11 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.15-01
+Version: 2026.08.15-02
 
 Änderungen:
+- Token-ROBUST-Fix: Ein gültig gefundenes Profil fällt bei einem späteren Anzeige-/JavaScriptfehler nicht mehr fälschlich auf die Anmeldeseite zurück.
+- UUID-Dashboard-Tokens werden nur noch exakt geprüft; unsinnige BI-/BI--Varianten für UUIDs entfallen.
 - Kontostand & Aktivitäten: Referral verfügbar kompakt im Feld „Verfügbare Units“ integriert; drei gleich große Hauptfelder bleiben in einer Reihe.
 - „Units aufs Konto buchen“ mit sicherem Dialog, lokaler Mengenprüfung und Anbindung an den getesteten Referral-Umbuchungs-Webhook aktiviert.
 - Profil-Link-Anforderung zeigt bei öffentlichen E-Mail-Eingaben eine neutrale Antwort; nicht registrierte Adressen werden nicht offengelegt.
@@ -2525,6 +2527,13 @@ function getActiveToken(){
 function buildTokenVariants(token){
   if(!token) return [];
   const clean=String(token).trim();
+
+  // Dashboard-Token (UUID): nur exakt diesen Token prüfen.
+  // BI-/BI--Varianten sind für UUIDs nicht sinnvoll und erzeugen nur unnötige Fehlversuche.
+  if(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(clean)){
+    return [clean];
+  }
+
   const variants=[clean];
   if(clean.startsWith("BI-")){
     const p=clean.substring(3);variants.push(p,"BI"+p);
@@ -2771,7 +2780,7 @@ async function requestCurrentProfileLink(){
   }
 }
 
-function fetchProfileByToken(variants,index){
+async function fetchProfileByToken(variants,index){
   if(index>=variants.length){
     document.getElementById("units").innerText="0,00";
     renderHeaderReferralAvailable(0);
@@ -2785,49 +2794,81 @@ function fetchProfileByToken(variants,index){
   }
 
   const token=variants[index];
-  fetch(PROFILE_WEBHOOK_URL+"?token="+encodeURIComponent(token),{cache:"no-store"})
-    .then(r=>r.json())
-    .then(data=>{
-      if(!data || data.found===false || !data.email){fetchProfileByToken(variants,index+1);return}
+  let data=null;
 
-      const finalToken=data.token || token;
-      const total=safeNumber(data.einsetzbare_units);
-      const referralAvailable=safeNumber(firstDefined(data,["ref_verfuegbar","referral_available","available_ref_units"],0));
-      const consumed=firstDefined(data,["verbrauchte_units","consumed_units","used_units"],null);
-      const unlocked=safeNumber(firstDefined(data,["freigeschaltete_tipps","unlocked_tips","unlock_count"],0));
-      const membershipLevel=safeNumber(firstDefined(data,["mitgliedschaft_level","membership_level","premium_level"],0));
-      const membership=String(firstDefined(data,["mitgliedschaft","membership"],"Basis")).trim() || "Basis";
-      const premiumStart=firstDefined(data,["premium_start","premium_von","periode_von"],null);
-      const premiumUntil=firstDefined(data,["premium_bis","premium_until","periode_bis"],null);
-      const graceUntil=firstDefined(data,["kulanz_bis","grace_until"],null);
-      const premiumStatus=String(firstDefined(data,["premium_status","membership_status"],"")).trim();
-      const autoRenew=String(firstDefined(data,["auto_verlaengerung","auto_renew"],"NEIN")).trim().toUpperCase();
-      const tariffCode=String(firstDefined(data,["tarif_code","tariff_code"],"")).trim();
+  // Nur echte Abruf-/JSON-Fehler dürfen zum nächsten Token-Fallback führen.
+  try{
+    const response=await fetch(
+      PROFILE_WEBHOOK_URL+"?token="+encodeURIComponent(token),
+      {cache:"no-store"}
+    );
 
-      currentProfileData={
-        email:data.email||"",units:total,referralAvailable,refCode:String(data.ref_code||"").trim(),
-        dashboardToken:String(data.dashboard_token||"").trim(),refLink:String(data.ref_link||"").trim(),
-        consumedUnits:consumed,unlockedTips:unlocked,membershipLevel,membership,
-        premiumStart,premiumUntil,graceUntil,premiumStatus,autoRenew,tariffCode
-      };
+    if(!response.ok){
+      throw new Error("Profilabruf HTTP "+response.status);
+    }
 
-      saveToken(finalToken);
-      showProfileBox();
-      document.getElementById("units").innerText=formatUnitsTwoDecimals(total);
-      renderHeaderReferralAvailable(referralAvailable);
-      document.getElementById("accountUnits").innerText=formatNumber(total);
-      document.getElementById("unlockedTips").innerText=formatNumber(unlocked);
-      document.getElementById("consumedUnits").innerText=formatOptionalNumber(consumed);
-      document.getElementById("email").innerText=data.email;
-      renderMembership(membershipLevel, membership);
-      setBetInsightId(data.ref_code);
-      setMaskedToken(finalToken);
-      setUnitColor(total);
-      setReferralLinks(data);
-      prepareNetworkSection();
-      document.getElementById("message").innerText="Kontostand wurde aktualisiert.";
-    })
-    .catch(()=>fetchProfileByToken(variants,index+1));
+    const raw=await response.text();
+    data=JSON.parse(raw.trim());
+  }catch(error){
+    console.error("Profilabruf fehlgeschlagen:",token,error);
+    fetchProfileByToken(variants,index+1);
+    return;
+  }
+
+  if(!data || data.found===false || !data.email){
+    fetchProfileByToken(variants,index+1);
+    return;
+  }
+
+  // Ab hier ist der Token serverseitig eindeutig gültig.
+  // Ein späterer Darstellungsfehler darf deshalb NICHT mehr als "Token ungültig"
+  // behandelt werden und darf NICHT auf die Anmeldeseite zurückfallen.
+  try{
+    const finalToken=data.token || token;
+    const total=safeNumber(data.einsetzbare_units);
+    const referralAvailable=safeNumber(firstDefined(data,["ref_verfuegbar","referral_available","available_ref_units"],0));
+    const consumed=firstDefined(data,["verbrauchte_units","consumed_units","used_units"],null);
+    const unlocked=safeNumber(firstDefined(data,["freigeschaltete_tipps","unlocked_tips","unlock_count"],0));
+    const membershipLevel=safeNumber(firstDefined(data,["mitgliedschaft_level","membership_level","premium_level"],0));
+    const membership=String(firstDefined(data,["mitgliedschaft","membership"],"Basis")).trim() || "Basis";
+    const premiumStart=firstDefined(data,["premium_start","premium_von","periode_von"],null);
+    const premiumUntil=firstDefined(data,["premium_bis","premium_until","periode_bis"],null);
+    const graceUntil=firstDefined(data,["kulanz_bis","grace_until"],null);
+    const premiumStatus=String(firstDefined(data,["premium_status","membership_status"],"")).trim();
+    const autoRenew=String(firstDefined(data,["auto_verlaengerung","auto_renew"],"NEIN")).trim().toUpperCase();
+    const tariffCode=String(firstDefined(data,["tarif_code","tariff_code"],"")).trim();
+
+    currentProfileData={
+      email:data.email||"",units:total,referralAvailable,refCode:String(data.ref_code||"").trim(),
+      dashboardToken:String(data.dashboard_token||"").trim(),refLink:String(data.ref_link||"").trim(),
+      consumedUnits:consumed,unlockedTips:unlocked,membershipLevel,membership,
+      premiumStart,premiumUntil,graceUntil,premiumStatus,autoRenew,tariffCode
+    };
+
+    saveToken(finalToken);
+    showProfileBox();
+    document.getElementById("units").innerText=formatUnitsTwoDecimals(total);
+    renderHeaderReferralAvailable(referralAvailable);
+    document.getElementById("accountUnits").innerText=formatNumber(total);
+    document.getElementById("unlockedTips").innerText=formatNumber(unlocked);
+    document.getElementById("consumedUnits").innerText=formatOptionalNumber(consumed);
+    document.getElementById("email").innerText=data.email;
+    renderMembership(membershipLevel,membership);
+    setBetInsightId(data.ref_code);
+    setMaskedToken(finalToken);
+    setUnitColor(total);
+    setReferralLinks(data);
+    prepareNetworkSection();
+    document.getElementById("message").innerText="Kontostand wurde aktualisiert.";
+  }catch(error){
+    console.error("Profil wurde gefunden, aber die Anzeige hatte einen Fehler:",error);
+
+    // Gültiges Profil sichtbar lassen – niemals wegen eines Anzeigeproblems ausloggen.
+    showProfileBox();
+    document.getElementById("email").innerText=data.email || "Profil gefunden";
+    document.getElementById("message").innerText=
+      "Profil wurde gefunden. Einzelne Anzeigen konnten noch nicht vollständig aufgebaut werden.";
+  }
 }
 
 function loadUnits(){
