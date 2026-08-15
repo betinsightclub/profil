@@ -1,10 +1,24 @@
 <!DOCTYPE html>
+<!--
+Projekt: BetInsight
+Pfad: /profil/wechselboerse/angebote/index.html
+Update: 2026.08.15-02
+Anwendungs-Version: 1.1.0
+
+Änderungen:
+- Bestehendes Design unverändert beibehalten
+- listOffers mit Make-Webhook verbunden
+- Dashboard-Token wird unverändert weitergegeben; kein automatisches BI- Präfix
+- Texte an neue Verkaufsregel angepasst: verdiente + gekaufte Units verkaufbar
+- Geschenk-Units bleiben vom Verkauf ausgeschlossen
+- beginPurchase bleibt vorerst leer; noch keine echte Kauf-/USDT-Auslösung
+-->
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#061923">
-  <meta name="description" content="Verfügbare Referral Units in der BetInsight Unit-Wechselstube ansehen und kaufen.">
+  <meta name="description" content="Verfügbare Units in der BetInsight Unit-Wechselstube ansehen und kaufen.">
 
   <title>BetInsight – Units kaufen</title>
   <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
@@ -545,7 +559,7 @@
 
     <section class="hero" aria-labelledby="pageTitle">
       <div class="hero-icon" aria-hidden="true">🛒</div>
-      <h2 id="pageTitle">Referral Units <span>kaufen</span></h2>
+      <h2 id="pageTitle">Units <span>kaufen</span></h2>
       <p>Wähle ein verfügbares Angebot. Die Zahlung erfolgt in USDT/USDC direkt an die Wallet des Verkäufers. Die Units werden erst nach bestätigtem Zahlungseingang übertragen.</p>
       <div class="trust-row" aria-label="Sicherheitsmerkmale">
         <span class="trust-chip">✓ Reservierte Units</span>
@@ -582,13 +596,13 @@
       <div id="loadingState" class="state-panel visible" role="status">
         <div class="state-icon" aria-hidden="true">⌛</div>
         <h3>Angebote werden geladen</h3>
-        <p>Einen Moment bitte. Die verfügbaren und reservierten Referral Units werden geprüft.</p>
+        <p>Einen Moment bitte. Die verfügbaren und reservierten Units werden geprüft.</p>
       </div>
 
       <div id="emptyState" class="state-panel">
         <div class="state-icon" aria-hidden="true">📭</div>
         <h3>Zurzeit keine Angebote</h3>
-        <p>Aktuell stehen keine Referral Units zum Kauf bereit. Bitte schaue später noch einmal vorbei.</p>
+        <p>Aktuell stehen keine Units zum Kauf bereit. Bitte schaue später noch einmal vorbei.</p>
       </div>
 
       <div id="errorState" class="state-panel">
@@ -601,7 +615,7 @@
 
     <aside class="info-note">
       <span aria-hidden="true">ℹ️</span>
-      <div><strong>Wichtig:</strong> Kaufbar sind ausschließlich freigegebene Referral Units. Die Wallet-Adresse und der genaue USDT/USDC-Betrag werden erst im geschützten Kaufvorgang angezeigt.</div>
+      <div><strong>Wichtig:</strong> Angebote können aus verdienten oder gekauften Units stammen. Geschenk-Units sind vom Verkauf ausgeschlossen. Die Wallet-Adresse und der genaue USDT/USDC-Betrag werden erst im geschützten Kaufvorgang angezeigt.</div>
     </aside>
 
     <footer>© 2026 BetInsight Club</footer>
@@ -614,12 +628,11 @@
 
     /*
       DATENVERBINDUNG:
-      listOffers wird mit der URL eines kleinen Google-Apps-Scripts verbunden.
-      Das spart Make-Operationen: Apps Script liest die aktiven Angebote aus Google Sheets.
-      beginPurchase bleibt ein getrennter Make-Webhook für Prüfung, Reservierung und Kaufstart.
+      listOffers liest die aktiven Verkaufsangebote über Make aus VERKAUFSANGEBOTE.
+      beginPurchase bleibt vorerst leer und wird im nächsten Schritt separat angebunden.
     */
     const API_ENDPOINTS = {
-      listOffers: "",
+      listOffers: "https://hook.eu1.make.com/c09vltke6d7gr7tvlpaspvugw13yfg32",
       beginPurchase: ""
     };
 
@@ -661,9 +674,7 @@
     };
 
     function normalizeToken(token) {
-      const cleaned = String(token || "").trim();
-      if (!cleaned) return "";
-      return cleaned.startsWith("BI-") ? cleaned : "BI-" + cleaned;
+      return String(token || "").trim();
     }
 
     function getActiveToken() {
@@ -760,7 +771,7 @@
           <div class="offer-head">
             <div class="unit-count">
               <strong>${formatNumber(offer.units, 0)}</strong>
-              <span>Referral Units</span>
+              <span>Units</span>
             </div>
             <span class="status-badge">Verfügbar</span>
           </div>
