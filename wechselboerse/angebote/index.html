@@ -2,16 +2,18 @@
 <!--
 Projekt: BetInsight
 Pfad: /profil/wechselboerse/angebote/index.html
-Update: 2026.08.15-03
-Anwendungs-Version: 1.2.0
+Update: 2026.08.15-04
+Anwendungs-Version: 1.3.0
 
 Änderungen:
 - Bestehendes Design beibehalten
 - Aktive Angebote weiterhin über Make/listOffers laden
-- "Angebot auswählen" an sicheren Kaufstart angebunden
-- Kaufstart reserviert das Angebot serverseitig für 15 Minuten
-- Kaufstatus wird danach serverseitig geprüft
-- Verkäufer-Wallet wird nur dem reservierenden Käufer angezeigt
+- "Angebot auswählen" bleibt an sicheren Kaufstart angebunden
+- Aktive Reservierung wird im Browser gespeichert und nach Seiten-Neuladen wiederhergestellt
+- Sichtbarer 15-Minuten-Countdown im Reservierungsbereich
+- Countdown wird unter 5 Minuten deutlich hervorgehoben
+- Nach Ablauf erscheint klar "Reservierung abgelaufen – automatische Freigabe läuft"
+- Verkäufer-Wallet wird weiterhin nur dem reservierenden Käufer angezeigt
 - payment_enabled bleibt FALSE: noch keine echte USDT/USDC-Zahlung auslösen
 - Dashboard-Token wird unverändert weitergegeben
 - Geschenk-Units bleiben vom Verkauf ausgeschlossen
@@ -522,6 +524,71 @@ Anwendungs-Version: 1.2.0
       line-height: 1.55;
     }
 
+
+    .reservation-timer {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 16px;
+      margin: 0 0 14px;
+      padding: 14px 16px;
+      border: 1px solid rgba(17, 214, 160, 0.34);
+      border-radius: 12px;
+      background: rgba(17, 214, 160, 0.08);
+    }
+
+    .reservation-timer-copy strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 14px;
+    }
+
+    .reservation-timer-copy span {
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .reservation-timer-value {
+      min-width: 92px;
+      color: var(--green);
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .reservation-timer.warning {
+      border-color: rgba(241, 163, 19, 0.48);
+      background: rgba(241, 163, 19, 0.09);
+    }
+
+    .reservation-timer.warning .reservation-timer-value {
+      color: var(--orange);
+    }
+
+    .reservation-timer.expired {
+      border-color: rgba(255, 118, 133, 0.48);
+      background: rgba(255, 118, 133, 0.08);
+    }
+
+    .reservation-timer.expired .reservation-timer-value {
+      color: var(--danger);
+    }
+
+    @media (max-width: 520px) {
+      .reservation-timer {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .reservation-timer-value {
+        min-width: 0;
+        text-align: center;
+      }
+    }
+
     .purchase-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0,1fr));
@@ -697,6 +764,15 @@ Anwendungs-Version: 1.2.0
       <h3 id="purchaseTitle">Angebot reserviert</h3>
       <p id="purchaseSub" class="purchase-sub">Die Reservierung wurde serverseitig geprüft.</p>
 
+
+      <div id="reservationTimer" class="reservation-timer">
+        <div class="reservation-timer-copy">
+          <strong id="reservationTimerTitle">Reservierung läuft</strong>
+          <span id="reservationTimerText">Dieses Angebot ist während des Countdowns nur für dich reserviert.</span>
+        </div>
+        <div id="reservationTimerValue" class="reservation-timer-value">15:00</div>
+      </div>
+
       <div class="purchase-grid">
         <div class="purchase-item">
           <span>Units</span>
@@ -746,6 +822,8 @@ Anwendungs-Version: 1.2.0
     };
 
     const TOKEN_STORAGE_KEY = "betinsight_profile_token";
+    const RESERVATION_STORAGE_KEY = "betinsight_active_purchase_reservation";
+    const RESERVATION_DURATION_MS = 15 * 60 * 1000;
     const DEMO_MODE = new URLSearchParams(window.location.search).get("demo") === "1";
 
     const DEMO_OFFERS = [
@@ -766,6 +844,7 @@ Anwendungs-Version: 1.2.0
     const PAGE_SIZE = 8;
     let visibleCount = PAGE_SIZE;
     let toastTimer;
+    let reservationTimerInterval = null;
 
     const elements = {
       grid: document.getElementById("offersGrid"),
@@ -787,7 +866,11 @@ Anwendungs-Version: 1.2.0
       purchaseTotal: document.getElementById("purchaseTotal"),
       purchaseWallet: document.getElementById("purchaseWallet"),
       purchaseNetwork: document.getElementById("purchaseNetwork"),
-      paymentStop: document.getElementById("paymentStop")
+      paymentStop: document.getElementById("paymentStop"),
+      reservationTimer: document.getElementById("reservationTimer"),
+      reservationTimerTitle: document.getElementById("reservationTimerTitle"),
+      reservationTimerText: document.getElementById("reservationTimerText"),
+      reservationTimerValue: document.getElementById("reservationTimerValue")
     };
 
     function normalizeToken(token) {
@@ -976,7 +1059,107 @@ Anwendungs-Version: 1.2.0
       });
     }
 
-    function showPurchaseDetails(data) {
+
+    function getStoredReservation() {
+      try {
+        const raw = localStorage.getItem(RESERVATION_STORAGE_KEY);
+        if (!raw) return null;
+        const data = JSON.parse(raw);
+        if (!data || !data.offerId || !data.token) return null;
+        return data;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function saveReservation(token, offerId, purchaseData) {
+      const previous = getStoredReservation();
+      const sameReservation =
+        previous &&
+        previous.token === token &&
+        previous.offerId === offerId &&
+        Number.isFinite(Number(previous.expiresAt));
+
+      const expiresAt = sameReservation
+        ? Number(previous.expiresAt)
+        : Date.now() + RESERVATION_DURATION_MS;
+
+      const state = {
+        token,
+        offerId,
+        expiresAt,
+        purchaseData: purchaseData || null
+      };
+
+      try {
+        localStorage.setItem(RESERVATION_STORAGE_KEY, JSON.stringify(state));
+      } catch (_) {}
+
+      return state;
+    }
+
+    function clearStoredReservation() {
+      try {
+        localStorage.removeItem(RESERVATION_STORAGE_KEY);
+      } catch (_) {}
+    }
+
+    function formatCountdown(milliseconds) {
+      const safeMs = Math.max(0, milliseconds);
+      const totalSeconds = Math.ceil(safeMs / 1000);
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    }
+
+    function stopReservationCountdown() {
+      if (reservationTimerInterval) {
+        clearInterval(reservationTimerInterval);
+        reservationTimerInterval = null;
+      }
+    }
+
+    function renderReservationCountdown(expiresAt) {
+      const remaining = Number(expiresAt) - Date.now();
+
+      elements.reservationTimer.classList.remove("warning", "expired");
+
+      if (remaining <= 0) {
+        elements.reservationTimer.classList.add("expired");
+        elements.reservationTimerTitle.textContent = "Reservierung abgelaufen";
+        elements.reservationTimerText.textContent =
+          "Die 15 Minuten sind vorbei. Das Angebot wird automatisch wieder für andere Mitglieder freigegeben.";
+        elements.reservationTimerValue.textContent = "00:00";
+        elements.paymentStop.textContent =
+          "Reservierung abgelaufen. Bitte jetzt keine Zahlung senden. Warte, bis das Angebot wieder als verfügbar angezeigt wird.";
+        stopReservationCountdown();
+        return;
+      }
+
+      if (remaining <= 5 * 60 * 1000) {
+        elements.reservationTimer.classList.add("warning");
+        elements.reservationTimerTitle.textContent = "Reservierung läuft bald ab";
+      } else {
+        elements.reservationTimerTitle.textContent = "Reservierung läuft";
+      }
+
+      elements.reservationTimerText.textContent =
+        "Dieses Angebot ist während des Countdowns nur für dich reserviert.";
+      elements.reservationTimerValue.textContent = formatCountdown(remaining);
+    }
+
+    function startReservationCountdown(expiresAt) {
+      stopReservationCountdown();
+      renderReservationCountdown(expiresAt);
+
+      if (Number(expiresAt) <= Date.now()) return;
+
+      reservationTimerInterval = setInterval(() => {
+        renderReservationCountdown(expiresAt);
+      }, 1000);
+    }
+
+    function showPurchaseDetails(data, reservationState = null) {
       elements.purchaseTitle.textContent = "Angebot für dich reserviert";
       elements.purchaseSub.textContent =
         `Angebot ${data.angebot_id || ""} wurde serverseitig deinem Konto zugeordnet.`;
@@ -989,6 +1172,10 @@ Anwendungs-Version: 1.2.0
         String(data.wallet_netzwerk || "–");
       elements.paymentStop.textContent =
         "Noch keine Zahlung senden. Die echte USDT/USDC-Zahlung ist in diesem Testschritt weiterhin deaktiviert.";
+
+      const expiresAt = reservationState?.expiresAt || (Date.now() + RESERVATION_DURATION_MS);
+      startReservationCountdown(expiresAt);
+
       elements.purchasePanel.classList.add("visible");
       elements.purchasePanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
@@ -1011,6 +1198,57 @@ Anwendungs-Version: 1.2.0
       }
 
       return { response, data };
+    }
+
+
+    async function restoreReservationFromStorage() {
+      if (DEMO_MODE) return;
+
+      const token = getActiveToken();
+      const stored = getStoredReservation();
+
+      if (!stored) return;
+
+      if (!token || stored.token !== token) {
+        clearStoredReservation();
+        return;
+      }
+
+      try {
+        const { response, data } = await fetchPurchaseStatus(token, stored.offerId);
+
+        if (data.status === "purchase_ready") {
+          const refreshed = saveReservation(token, stored.offerId, data);
+          refreshed.expiresAt = Number(stored.expiresAt) || refreshed.expiresAt;
+
+          try {
+            localStorage.setItem(RESERVATION_STORAGE_KEY, JSON.stringify(refreshed));
+          } catch (_) {}
+
+          showPurchaseDetails(data, refreshed);
+          return;
+        }
+
+        if (data.status === "pending" && Number(stored.expiresAt) <= Date.now()) {
+          clearStoredReservation();
+          elements.purchasePanel.classList.remove("visible");
+          await loadOffers();
+          return;
+        }
+
+        if (
+          data.status === "unavailable" ||
+          data.status === "self_purchase_blocked" ||
+          response.status === 403 ||
+          response.status === 409
+        ) {
+          clearStoredReservation();
+          elements.purchasePanel.classList.remove("visible");
+        }
+      } catch (error) {
+        console.warn("Gespeicherte Reservierung konnte nicht wiederhergestellt werden:", error);
+        // Nicht löschen: Bei einem kurzen Netzwerkfehler soll die lokale Reservierung erhalten bleiben.
+      }
     }
 
     async function beginPurchase(offerId) {
@@ -1050,18 +1288,21 @@ Anwendungs-Version: 1.2.0
           lastData = data;
 
           if (data.status === "purchase_ready") {
-            showPurchaseDetails(data);
+            const reservationState = saveReservation(token, offerId, data);
+            showPurchaseDetails(data, reservationState);
             showToast("Angebot wurde für dich reserviert.");
             await loadOffers();
             return;
           }
 
           if (data.status === "self_purchase_blocked") {
+            clearStoredReservation();
             showToast(data.message || "Du kannst dein eigenes Verkaufsangebot nicht kaufen.");
             return;
           }
 
           if (data.status === "unavailable") {
+            clearStoredReservation();
             showToast(data.message || "Dieses Angebot ist nicht mehr verfügbar.");
             await loadOffers();
             return;
@@ -1095,8 +1336,13 @@ Anwendungs-Version: 1.2.0
       if (button) beginPurchase(button.dataset.offerId);
     });
 
-    addTokenToBackLink();
-    loadOffers();
+    async function initPage() {
+      addTokenToBackLink();
+      await loadOffers();
+      await restoreReservationFromStorage();
+    }
+
+    initPage();
   </script>
 </body>
 </html>
