@@ -2,16 +2,19 @@
 <!--
 Projekt: BetInsight
 Pfad: /profil/wechselboerse/angebote/index.html
-Update: 2026.08.15-02
-Anwendungs-Version: 1.1.0
+Update: 2026.08.15-03
+Anwendungs-Version: 1.2.0
 
 Änderungen:
-- Bestehendes Design unverändert beibehalten
-- listOffers mit Make-Webhook verbunden
-- Dashboard-Token wird unverändert weitergegeben; kein automatisches BI- Präfix
-- Texte an neue Verkaufsregel angepasst: verdiente + gekaufte Units verkaufbar
+- Bestehendes Design beibehalten
+- Aktive Angebote weiterhin über Make/listOffers laden
+- "Angebot auswählen" an sicheren Kaufstart angebunden
+- Kaufstart reserviert das Angebot serverseitig für 15 Minuten
+- Kaufstatus wird danach serverseitig geprüft
+- Verkäufer-Wallet wird nur dem reservierenden Käufer angezeigt
+- payment_enabled bleibt FALSE: noch keine echte USDT/USDC-Zahlung auslösen
+- Dashboard-Token wird unverändert weitergegeben
 - Geschenk-Units bleiben vom Verkauf ausgeschlossen
-- beginPurchase bleibt vorerst leer; noch keine echte Kauf-/USDT-Auslösung
 -->
 <html lang="de">
 <head>
@@ -494,6 +497,82 @@ Anwendungs-Version: 1.1.0
 
     .info-note strong { color: #fff1cb; }
 
+
+    .purchase-panel {
+      display: none;
+      margin-top: 18px;
+      padding: 20px;
+      border: 1px solid rgba(17, 214, 160, 0.32);
+      border-radius: 18px;
+      background: linear-gradient(145deg, rgba(11, 45, 58, 0.98), rgba(7, 28, 39, 0.98));
+      box-shadow: 0 18px 40px rgba(0,0,0,.24);
+    }
+
+    .purchase-panel.visible { display: block; }
+
+    .purchase-panel h3 {
+      margin: 0 0 6px;
+      font-size: 21px;
+    }
+
+    .purchase-panel .purchase-sub {
+      margin: 0 0 16px;
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .purchase-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 10px;
+    }
+
+    .purchase-item {
+      padding: 12px 13px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: rgba(0,0,0,.11);
+    }
+
+    .purchase-item span {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .purchase-item strong {
+      display: block;
+      overflow-wrap: anywhere;
+      font-size: 15px;
+    }
+
+    .payment-stop {
+      margin-top: 14px;
+      padding: 13px 14px;
+      border: 1px solid rgba(241, 163, 19, 0.35);
+      border-radius: 11px;
+      color: #ffe8b6;
+      background: rgba(241, 163, 19, 0.08);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .buy-button[disabled] {
+      opacity: .58;
+      cursor: wait;
+      transform: none;
+      filter: none;
+    }
+
+    @media (max-width: 640px) {
+      .purchase-grid { grid-template-columns: 1fr; }
+    }
+
     footer {
       margin-top: 34px;
       color: rgba(201, 230, 244, 0.48);
@@ -613,6 +692,35 @@ Anwendungs-Version: 1.1.0
       </div>
     </section>
 
+
+    <section id="purchasePanel" class="purchase-panel" aria-live="polite">
+      <h3 id="purchaseTitle">Angebot reserviert</h3>
+      <p id="purchaseSub" class="purchase-sub">Die Reservierung wurde serverseitig geprüft.</p>
+
+      <div class="purchase-grid">
+        <div class="purchase-item">
+          <span>Units</span>
+          <strong id="purchaseUnits">–</strong>
+        </div>
+        <div class="purchase-item">
+          <span>Gesamtpreis</span>
+          <strong id="purchaseTotal">–</strong>
+        </div>
+        <div class="purchase-item">
+          <span>Wallet / Coin</span>
+          <strong id="purchaseWallet">–</strong>
+        </div>
+        <div class="purchase-item">
+          <span>Netzwerk</span>
+          <strong id="purchaseNetwork">–</strong>
+        </div>
+      </div>
+
+      <div id="paymentStop" class="payment-stop">
+        Noch keine Zahlung senden. Die echte USDT/USDC-Zahlung ist in diesem Testschritt weiterhin deaktiviert.
+      </div>
+    </section>
+
     <aside class="info-note">
       <span aria-hidden="true">ℹ️</span>
       <div><strong>Wichtig:</strong> Angebote können aus verdienten oder gekauften Units stammen. Geschenk-Units sind vom Verkauf ausgeschlossen. Die Wallet-Adresse und der genaue USDT/USDC-Betrag werden erst im geschützten Kaufvorgang angezeigt.</div>
@@ -633,7 +741,8 @@ Anwendungs-Version: 1.1.0
     */
     const API_ENDPOINTS = {
       listOffers: "https://hook.eu1.make.com/c09vltke6d7gr7tvlpaspvugw13yfg32",
-      beginPurchase: ""
+      beginPurchase: "https://hook.eu1.make.com/aeb7cfn9k13yr942i5nba9eigt2j1lgq",
+      purchaseStatus: "https://hook.eu1.make.com/r7hfgt6sb73j8e63ss5nlioiirbi8eyp"
     };
 
     const TOKEN_STORAGE_KEY = "betinsight_profile_token";
@@ -670,7 +779,15 @@ Anwendungs-Version: 1.1.0
       loadMoreButton: document.getElementById("loadMoreButton"),
       banner: document.getElementById("demoBanner"),
       backLink: document.getElementById("backLink"),
-      toast: document.getElementById("toast")
+      toast: document.getElementById("toast"),
+      purchasePanel: document.getElementById("purchasePanel"),
+      purchaseTitle: document.getElementById("purchaseTitle"),
+      purchaseSub: document.getElementById("purchaseSub"),
+      purchaseUnits: document.getElementById("purchaseUnits"),
+      purchaseTotal: document.getElementById("purchaseTotal"),
+      purchaseWallet: document.getElementById("purchaseWallet"),
+      purchaseNetwork: document.getElementById("purchaseNetwork"),
+      paymentStop: document.getElementById("paymentStop")
     };
 
     function normalizeToken(token) {
@@ -849,14 +966,56 @@ Anwendungs-Version: 1.1.0
       }
     }
 
-    async function beginPurchase(offerId) {
-      if (DEMO_MODE) {
-        showToast("Vorschau: Der echte Kauf wird erst nach Anschluss des Reservierungs-Webhooks aktiviert.");
-        return;
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function setOfferButtonsDisabled(disabled) {
+      elements.grid.querySelectorAll(".buy-button").forEach(button => {
+        button.disabled = disabled;
+      });
+    }
+
+    function showPurchaseDetails(data) {
+      elements.purchaseTitle.textContent = "Angebot für dich reserviert";
+      elements.purchaseSub.textContent =
+        `Angebot ${data.angebot_id || ""} wurde serverseitig deinem Konto zugeordnet.`;
+      elements.purchaseUnits.textContent = `${formatNumber(numberValue(data.units), 0)} Units`;
+      elements.purchaseTotal.textContent =
+        `${formatNumber(numberValue(data.gesamtpreis_eur), 2)} €`;
+      elements.purchaseWallet.textContent =
+        `${String(data.wallet_adresse || "–")} · ${String(data.wallet_coin || "USDT")}`;
+      elements.purchaseNetwork.textContent =
+        String(data.wallet_netzwerk || "–");
+      elements.paymentStop.textContent =
+        "Noch keine Zahlung senden. Die echte USDT/USDC-Zahlung ist in diesem Testschritt weiterhin deaktiviert.";
+      elements.purchasePanel.classList.add("visible");
+      elements.purchasePanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    async function fetchPurchaseStatus(token, offerId) {
+      const statusUrl = new URL(API_ENDPOINTS.purchaseStatus);
+      statusUrl.searchParams.set("dashboard_token", token);
+      statusUrl.searchParams.set("angebot_id", offerId);
+
+      const response = await fetch(statusUrl.toString(), {
+        method: "GET",
+        cache: "no-store"
+      });
+
+      let data = {};
+      try {
+        data = await response.json();
+      } catch (_) {
+        throw new Error("Der Kaufstatus konnte nicht gelesen werden.");
       }
 
-      if (!API_ENDPOINTS.beginPurchase) {
-        showToast("Der geschützte Kaufvorgang wird im nächsten Schritt angebunden.");
+      return { response, data };
+    }
+
+    async function beginPurchase(offerId) {
+      if (DEMO_MODE) {
+        showToast("Vorschau: Es wird keine Reservierung ausgelöst.");
         return;
       }
 
@@ -866,10 +1025,60 @@ Anwendungs-Version: 1.1.0
         return;
       }
 
-      const url = new URL(API_ENDPOINTS.beginPurchase);
-      url.searchParams.set("token", token);
-      url.searchParams.set("angebot_id", offerId);
-      window.location.href = url.toString();
+      setOfferButtonsDisabled(true);
+      elements.purchasePanel.classList.remove("visible");
+
+      try {
+        const reserveUrl = new URL(API_ENDPOINTS.beginPurchase);
+        reserveUrl.searchParams.set("dashboard_token", token);
+        reserveUrl.searchParams.set("angebot_id", offerId);
+
+        // Das sequentielle Reservierungsszenario nutzt absichtlich die
+        // Make-Standardantwort. no-cors vermeidet dabei einen Browser-CORS-Fehler.
+        await fetch(reserveUrl.toString(), {
+          method: "GET",
+          mode: "no-cors",
+          cache: "no-store"
+        });
+
+        let lastData = null;
+
+        for (let attempt = 0; attempt < 6; attempt += 1) {
+          await sleep(attempt === 0 ? 650 : 850);
+
+          const { response, data } = await fetchPurchaseStatus(token, offerId);
+          lastData = data;
+
+          if (data.status === "purchase_ready") {
+            showPurchaseDetails(data);
+            showToast("Angebot wurde für dich reserviert.");
+            await loadOffers();
+            return;
+          }
+
+          if (data.status === "self_purchase_blocked") {
+            showToast(data.message || "Du kannst dein eigenes Verkaufsangebot nicht kaufen.");
+            return;
+          }
+
+          if (data.status === "unavailable") {
+            showToast(data.message || "Dieses Angebot ist nicht mehr verfügbar.");
+            await loadOffers();
+            return;
+          }
+
+          if (!response.ok && response.status !== 202) {
+            throw new Error(data.message || "Kaufstart fehlgeschlagen.");
+          }
+        }
+
+        throw new Error(lastData?.message || "Die Reservierung konnte noch nicht bestätigt werden.");
+      } catch (error) {
+        console.error("Kaufstart fehlgeschlagen:", error);
+        showToast(error.message || "Kaufstart fehlgeschlagen. Bitte erneut versuchen.");
+      } finally {
+        setOfferButtonsDisabled(false);
+      }
     }
 
     elements.sort.addEventListener("change", () => {
