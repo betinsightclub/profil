@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<!--
+GitHub-Ziel: betinsightclub/profil/support/index.html
+Live-Seite nach Upload: https://betinsightclub.github.io/profil/support/
+
+Projekt: BetInsight
+Datei: profil/support/index.html
+Version: 2026.08.16-01
+Anwendungs-Version: 1.0.0
+Status: VORBEREITET – Apps-Script-Leseweg getestet; diese HTML-Version noch nicht live getestet
+
+Änderungen:
+- Neue BetInsight Support-Zentrale im Design der bestehenden Profil-/Wallet-/Verkaufsseiten erstellt.
+- BetInsight-Logo und vorhandenes Favicon eingebunden.
+- Sicheren Apps-Script-Reader für Ticketliste und Gesprächsverlauf eingebunden.
+- Keine Make-Operationen für Ticketliste oder Gesprächsverlauf; kein automatisches Polling.
+- Ticket-Erstellung bleibt über Make; maximal 2 gleichzeitig offene Tickets werden berücksichtigt.
+- Antworten innerhalb eines offenen Tickets bleiben über Make und sind nicht auf zwei Antworten begrenzt.
+- Nur normaler externer USER.token wird für Support verwendet; dashboard_token/UUID wird ausdrücklich nicht an Support-Endpunkte gesendet.
+- Alter numerischer USER.token wird für den Apps-Script-Reader zu BI-... normalisiert; für Make bleibt der ursprüngliche USER.token erhalten.
+- Profil-Token wird nicht sichtbar auf der Seite ausgegeben.
+- Token aus der URL wird nach Übernahme aus der sichtbaren Adresszeile entfernt.
+- Doppelklick-/Mehrfachsendeschutz für Ticket-Erstellung und Antworten eingebaut.
+- Serverseitige Antworten werden geprüft; unerwartete Make-Endpunkte/Antwortversionen werden nicht als Erfolg ausgegeben.
+- Mobile und Desktop-Ansicht responsive aufgebaut.
+
+WICHTIG:
+- Diese Datei niemals im Repository-Hauptverzeichnis als /profil/index.html hochladen.
+- Ziel ist ausschließlich /profil/support/index.html.
+- dashboard_token darf in dieser Support-Seite nicht als Authentifizierung verwendet werden.
+-->
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#071019">
+  <meta name="application-version" content="1.0.0">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Support | BetInsight Club</title>
+
+  <style>
+    :root{
+      --bg:#071019;
+      --bg-deep:#041018;
+      --panel:#0d1a26;
+      --panel-2:#122433;
+      --panel-3:#0a1722;
+      --text:#f4f8fb;
+      --muted:#91a6b7;
+      --line:rgba(145,166,183,.18);
+      --line-strong:rgba(145,166,183,.30);
+      --accent:#25e6a7;
+      --accent-dark:#11bb83;
+      --blue:#59a8ff;
+      --blue-dark:#2787eb;
+      --warning:#ffc857;
+      --danger:#ff6b7d;
+      --support:#67c7ff;
+      --shadow:0 24px 70px rgba(0,0,0,.34);
+      --radius:22px;
+    }
+
+    *{box-sizing:border-box}
+    html{color-scheme:dark;scroll-behavior:smooth}
+    body{
+      min-height:100vh;
+      margin:0;
+      color:var(--text);
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:
+        radial-gradient(circle at 12% 0%,rgba(37,230,167,.12),transparent 30rem),
+        radial-gradient(circle at 92% 12%,rgba(89,168,255,.13),transparent 30rem),
+        linear-gradient(180deg,var(--bg) 0%,var(--bg-deep) 100%);
+      background-attachment:fixed;
+    }
+
+    button,input,select,textarea{font:inherit}
+    button{border:0}
+    button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
+      outline:3px solid rgba(89,168,255,.32);
+      outline-offset:2px;
+    }
+
+    .page{
+      width:min(100% - 32px,980px);
+      margin:0 auto;
+      padding:34px 0 54px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+      margin-bottom:28px;
+    }
+
+    .logo{
+      width:170px;
+      max-width:54vw;
+      height:auto;
+      display:block;
+    }
+
+    .top-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .back-link,.ghost-button,.refresh-button{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:42px;
+      padding:0 15px;
+      color:var(--text);
+      text-decoration:none;
+      background:rgba(13,26,38,.84);
+      border:1px solid var(--line);
+      border-radius:12px;
+      cursor:pointer;
+      transition:160ms ease;
+    }
+
+    .back-link:hover,.ghost-button:hover,.refresh-button:hover:not(:disabled){
+      border-color:rgba(37,230,167,.55);
+      transform:translateY(-1px);
+    }
+
+    .refresh-button:disabled,.ghost-button:disabled{opacity:.52;cursor:not-allowed}
+
+    .hero{margin-bottom:22px}
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin:0 0 12px;
+      color:var(--accent);
+      font-size:.8rem;
+      font-weight:800;
+      letter-spacing:.1em;
+      text-transform:uppercase;
+    }
+    .eyebrow::before{content:"";width:22px;height:2px;background:var(--accent);border-radius:2px}
+    h1{margin:0;font-size:clamp(2rem,6vw,3.15rem);line-height:1.05;letter-spacing:-.045em}
+    .intro{max-width:760px;margin:15px 0 0;color:var(--muted);font-size:1.02rem;line-height:1.65}
+
+    .security-strip{
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      align-items:center;
+      gap:14px;
+      margin:0 0 20px;
+      padding:16px 18px;
+      border:1px solid rgba(37,230,167,.22);
+      border-radius:18px;
+      background:linear-gradient(135deg,rgba(37,230,167,.08),rgba(13,26,38,.92));
+    }
+    .security-icon{
+      display:grid;
+      place-items:center;
+      width:38px;height:38px;border-radius:50%;
+      color:#04140f;background:var(--accent);font-weight:900;
+    }
+    .security-copy strong{display:block;margin-bottom:4px}
+    .security-copy span{color:var(--muted);font-size:.86rem;line-height:1.45}
+    .connection-badge{
+      padding:7px 11px;
+      color:var(--accent);
+      font-size:.75rem;font-weight:900;
+      border:1px solid rgba(37,230,167,.28);
+      background:rgba(37,230,167,.08);
+      border-radius:999px;
+      white-space:nowrap;
+    }
+    .connection-badge.error{color:#ffd9de;border-color:rgba(255,107,125,.35);background:rgba(255,107,125,.10)}
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-bottom:20px;
+    }
+    .stat-card,.card,.ticket-card,.thread-panel,.empty-state{
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .stat-card{
+      min-height:126px;
+      padding:19px;
+      background:rgba(13,26,38,.9);
+      box-shadow:none;
+    }
+    .stat-label{display:block;color:var(--muted);font-size:.82rem;font-weight:750;line-height:1.4}
+    .stat-value{display:block;margin-top:12px;font-size:2rem;font-weight:900;letter-spacing:-.04em}
+    .stat-card.open .stat-value{color:var(--blue)}
+    .stat-card.free .stat-value{color:var(--accent)}
+    .stat-card.limit .stat-value{color:var(--warning)}
+    .stat-note{display:block;margin-top:7px;color:#708798;font-size:.75rem;line-height:1.35}
+
+    .card{
+      margin-bottom:20px;
+      padding:clamp(20px,5vw,30px);
+      background:linear-gradient(155deg,rgba(18,36,51,.95),rgba(13,26,38,.98));
+    }
+    .card-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:18px;
+      margin-bottom:20px;
+    }
+    h2{margin:0 0 6px;font-size:1.35rem}
+    .card-head p{margin:0;color:var(--muted);line-height:1.5}
+
+    .primary-button{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      min-height:48px;
+      padding:0 18px;
+      color:#04140f;
+      font-weight:900;
+      background:linear-gradient(135deg,var(--accent),#7af2c8);
+      border-radius:13px;
+      box-shadow:0 12px 28px rgba(37,230,167,.18);
+      cursor:pointer;
+      transition:160ms ease;
+      white-space:nowrap;
+    }
+    .primary-button:hover:not(:disabled){transform:translateY(-1px)}
+    .primary-button:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+    .blue-button{
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      min-height:48px;padding:0 18px;color:#fff;font-weight:900;
+      background:linear-gradient(135deg,var(--blue-dark),var(--blue));
+      border-radius:13px;cursor:pointer;transition:160ms ease;
+    }
+    .blue-button:hover:not(:disabled){transform:translateY(-1px)}
+    .blue-button:disabled{opacity:.48;cursor:not-allowed}
+
+    .ticket-list{display:grid;gap:13px}
+    .ticket-card{
+      width:100%;
+      padding:17px 18px;
+      text-align:left;
+      color:var(--text);
+      background:linear-gradient(145deg,rgba(8,24,35,.96),rgba(15,38,52,.92));
+      box-shadow:none;
+      cursor:pointer;
+      transition:160ms ease;
+    }
+    .ticket-card:hover{transform:translateY(-1px);border-color:rgba(89,168,255,.42)}
+    .ticket-card.active{border-color:rgba(37,230,167,.55);box-shadow:0 0 0 3px rgba(37,230,167,.07)}
+    .ticket-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+    .ticket-title{margin:0;font-size:1rem;font-weight:900;line-height:1.35;overflow-wrap:anywhere}
+    .ticket-id{display:block;margin-top:5px;color:#6f8797;font-size:.72rem;overflow-wrap:anywhere}
+    .status-pill{
+      flex:0 0 auto;padding:6px 9px;border-radius:999px;
+      color:var(--accent);font-size:.7rem;font-weight:900;
+      border:1px solid rgba(37,230,167,.28);background:rgba(37,230,167,.08);
+    }
+    .ticket-meta{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:14px;color:var(--muted);font-size:.78rem}
+    .ticket-meta span{display:inline-flex;align-items:center;gap:5px}
+    .unread-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--warning);box-shadow:0 0 12px rgba(255,200,87,.5)}
+
+    .empty-state{
+      padding:28px 20px;
+      color:var(--muted);
+      text-align:center;
+      background:rgba(7,16,25,.48);
+      box-shadow:none;
+    }
+    .empty-state strong{display:block;margin-bottom:7px;color:var(--text)}
+
+    .thread-wrap{display:none;margin-top:20px}
+    .thread-wrap.show{display:block}
+    .thread-panel{
+      overflow:hidden;
+      background:linear-gradient(155deg,rgba(18,36,51,.96),rgba(13,26,38,.99));
+    }
+    .thread-head{
+      display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+      padding:20px 22px;border-bottom:1px solid var(--line);
+    }
+    .thread-head h2{margin:0 0 5px}
+    .thread-sub{color:var(--muted);font-size:.8rem;line-height:1.45;overflow-wrap:anywhere}
+    .close-thread{
+      flex:0 0 auto;width:38px;height:38px;border-radius:11px;
+      color:var(--text);background:rgba(7,16,25,.62);border:1px solid var(--line);cursor:pointer;
+    }
+    .messages{
+      display:flex;flex-direction:column;gap:13px;
+      max-height:560px;overflow:auto;padding:22px;
+      background:rgba(4,14,21,.42);
+    }
+    .message-row{display:flex;width:100%}
+    .message-row.user{justify-content:flex-end}
+    .message-row.support{justify-content:flex-start}
+    .bubble{
+      max-width:min(78%,660px);
+      padding:13px 15px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      line-height:1.55;
+      overflow-wrap:anywhere;
+      white-space:pre-wrap;
+    }
+    .message-row.user .bubble{
+      background:linear-gradient(135deg,rgba(37,230,167,.16),rgba(10,47,43,.78));
+      border-color:rgba(37,230,167,.22);
+      border-bottom-right-radius:5px;
+    }
+    .message-row.support .bubble{
+      background:linear-gradient(135deg,rgba(89,168,255,.15),rgba(19,47,68,.82));
+      border-color:rgba(89,168,255,.25);
+      border-bottom-left-radius:5px;
+    }
+    .bubble-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+    .bubble-sender{font-size:.72rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
+    .message-row.user .bubble-sender{color:var(--accent)}
+    .message-row.support .bubble-sender{color:var(--support)}
+    .bubble-time{color:#718795;font-size:.68rem;white-space:nowrap}
+    .attachment-link{display:inline-flex;margin-top:9px;color:var(--blue);font-size:.78rem;font-weight:800;text-decoration:none}
+
+    .reply-area{padding:20px 22px;border-top:1px solid var(--line)}
+    .reply-area label,.field label{display:block;margin-bottom:8px;font-size:.88rem;font-weight:800}
+    textarea,input[type="text"],select{
+      width:100%;
+      color:var(--text);
+      background:rgba(7,16,25,.82);
+      border:1px solid rgba(145,166,183,.25);
+      border-radius:13px;
+      transition:160ms ease;
+    }
+    input[type="text"],select{min-height:52px;padding:0 14px}
+    textarea{min-height:130px;padding:13px 14px;resize:vertical;line-height:1.5}
+    textarea:focus,input[type="text"]:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(37,230,167,.08);outline:none}
+    .counter{margin-top:6px;color:#718795;font-size:.75rem;text-align:right}
+    .reply-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:13px}
+    .reply-help{color:var(--muted);font-size:.78rem;line-height:1.4}
+
+    .feedback{display:none;margin-top:14px;padding:13px 15px;border-radius:12px;line-height:1.5;font-size:.87rem}
+    .feedback.show{display:block}
+    .feedback.info{color:#dcecff;background:rgba(89,168,255,.10);border:1px solid rgba(89,168,255,.30)}
+    .feedback.success{color:#d9fff1;background:rgba(37,230,167,.10);border:1px solid rgba(37,230,167,.30)}
+    .feedback.error{color:#ffd9de;background:rgba(255,107,125,.10);border:1px solid rgba(255,107,125,.30)}
+    .feedback.warning{color:#fff0c7;background:rgba(255,200,87,.10);border:1px solid rgba(255,200,87,.30)}
+
+    .modal-backdrop{
+      position:fixed;inset:0;z-index:10000;
+      display:none;align-items:center;justify-content:center;
+      padding:20px;background:rgba(0,0,0,.70);backdrop-filter:blur(5px);
+    }
+    .modal-backdrop.show{display:flex}
+    .modal{
+      width:min(100%,650px);max-height:min(90vh,820px);overflow:auto;
+      border:1px solid var(--line-strong);border-radius:22px;
+      background:linear-gradient(155deg,#122433,#0d1a26);
+      box-shadow:0 30px 90px rgba(0,0,0,.55);
+    }
+    .modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:21px 22px;border-bottom:1px solid var(--line)}
+    .modal-head h2{margin:0 0 5px}
+    .modal-head p{margin:0;color:var(--muted);font-size:.84rem;line-height:1.45}
+    .modal-close{width:38px;height:38px;border-radius:11px;color:var(--text);background:rgba(7,16,25,.62);border:1px solid var(--line);cursor:pointer}
+    .modal-body{padding:22px}
+    .field{margin-bottom:18px}
+    .modal-actions{display:grid;grid-template-columns:1fr auto;gap:11px;align-items:center;margin-top:8px}
+    .cancel-button{
+      min-height:48px;padding:0 16px;color:var(--text);font-weight:800;
+      background:rgba(7,16,25,.62);border:1px solid var(--line);border-radius:13px;cursor:pointer;
+    }
+
+    .loading-line{display:none;align-items:center;gap:10px;color:var(--muted);font-size:.84rem}
+    .loading-line.show{display:flex}
+    .spinner{width:17px;height:17px;border:2px solid rgba(145,166,183,.24);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .fatal-access{
+      display:none;
+      margin-top:20px;
+      padding:24px;
+      text-align:center;
+      border:1px solid rgba(255,107,125,.30);
+      border-radius:22px;
+      background:linear-gradient(145deg,rgba(255,107,125,.08),rgba(13,26,38,.95));
+    }
+    .fatal-access.show{display:block}
+    .fatal-access h2{margin:0 0 8px}
+    .fatal-access p{margin:0 auto 16px;max-width:600px;color:var(--muted);line-height:1.55}
+
+    .footer-note{margin:22px 0 0;color:#657b8a;font-size:.76rem;line-height:1.55;text-align:center}
+
+    @media (max-width:760px){
+      .page{width:min(100% - 22px,980px);padding-top:20px}
+      .topbar{align-items:flex-start;margin-bottom:30px}
+      .top-actions{gap:7px}
+      .back-link,.refresh-button{min-height:40px;padding:0 11px;font-size:.78rem}
+      .security-strip{grid-template-columns:auto 1fr}
+      .connection-badge{grid-column:1/-1;width:max-content;margin-left:52px}
+      .stats{grid-template-columns:1fr}
+      .stat-card{min-height:auto}
+      .card-head{display:grid;grid-template-columns:1fr}
+      .primary-button{width:100%}
+      .ticket-top{display:grid;grid-template-columns:1fr auto}
+      .thread-head{padding:17px}
+      .messages{padding:16px;max-height:500px}
+      .bubble{max-width:92%}
+      .reply-area{padding:17px}
+      .reply-actions{display:grid;grid-template-columns:1fr}
+      .blue-button{width:100%}
+      .modal-actions{grid-template-columns:1fr}
+      .cancel-button{order:2}
+    }
+
+    @media (max-width:520px){
+      .topbar{display:grid;grid-template-columns:1fr;gap:14px}
+      .logo{width:155px}
+      .top-actions{justify-content:flex-start}
+      .security-strip{padding:14px}
+      .connection-badge{margin-left:0}
+      .ticket-top{grid-template-columns:1fr}
+      .status-pill{width:max-content}
+      .bubble{max-width:96%}
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header class="topbar">
+      <img class="logo" src="https://betinsightclub.github.io/profil/logo_betisight.club.png" alt="BetInsight Club">
+      <div class="top-actions">
+        <button class="refresh-button" id="refreshButton" type="button">↻ Aktualisieren</button>
+        <a class="back-link" id="backLink" href="https://betinsightclub.github.io/profil/">← Zum Profil</a>
+      </div>
+    </header>
+
+    <section class="hero">
+      <p class="eyebrow">Hilfe & Kontakt</p>
+      <h1>BetInsight Support</h1>
+      <p class="intro">
+        Hier kannst du ein Support-Ticket eröffnen, deine offenen Tickets ansehen und innerhalb eines Tickets weiter antworten.
+        Du kannst gleichzeitig höchstens zwei offene Tickets haben.
+      </p>
+    </section>
+
+    <section class="security-strip" aria-label="Sicherheitsstatus">
+      <span class="security-icon">✓</span>
+      <div class="security-copy">
+        <strong>Sicherer Support-Zugang</strong>
+        <span>Ticketliste und Gesprächsverlauf werden über den isolierten BetInsight Support-Reader geladen. Dein Zugangscode wird auf dieser Seite nicht angezeigt.</span>
+      </div>
+      <span class="connection-badge" id="connectionBadge">Verbindung wird geprüft</span>
+    </section>
+
+    <section id="supportContent">
+      <div class="stats" aria-label="Support-Übersicht">
+        <article class="stat-card open">
+          <span class="stat-label">Offene Tickets</span>
+          <strong class="stat-value" id="openTicketCount">–</strong>
+          <span class="stat-note">Aktuell gleichzeitig geöffnet</span>
+        </article>
+        <article class="stat-card free">
+          <span class="stat-label">Noch frei</span>
+          <strong class="stat-value" id="remainingSlots">–</strong>
+          <span class="stat-note">Weitere Ticketplätze</span>
+        </article>
+        <article class="stat-card limit">
+          <span class="stat-label">Maximal gleichzeitig</span>
+          <strong class="stat-value">2</strong>
+          <span class="stat-note">Antworten im offenen Ticket sind weiterhin möglich</span>
+        </article>
+      </div>
+
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2>Meine offenen Tickets</h2>
+            <p>Klicke auf ein Ticket, um den vollständigen Gesprächsverlauf zu öffnen.</p>
+          </div>
+          <button class="primary-button" id="newTicketButton" type="button">＋ Neues Ticket</button>
+        </div>
+
+        <div class="loading-line" id="listLoading">
+          <span class="spinner" aria-hidden="true"></span>
+          <span>Tickets werden geladen …</span>
+        </div>
+
+        <div class="feedback" id="listFeedback" role="status" aria-live="polite"></div>
+        <div class="ticket-list" id="ticketList"></div>
+
+        <div class="empty-state" id="emptyTickets" hidden>
+          <strong>Keine offenen Support-Tickets</strong>
+          Du kannst über „Neues Ticket“ eine Anfrage an den BetInsight Support senden.
+        </div>
+      </section>
+
+      <section class="thread-wrap" id="threadWrap" aria-live="polite">
+        <div class="thread-panel">
+          <header class="thread-head">
+            <div>
+              <h2 id="threadTitle">Ticket</h2>
+              <div class="thread-sub" id="threadMeta"></div>
+            </div>
+            <button class="close-thread" id="closeThreadButton" type="button" aria-label="Ticket schließen">✕</button>
+          </header>
+
+          <div class="messages" id="messages">
+            <div class="loading-line show" id="threadLoading">
+              <span class="spinner" aria-hidden="true"></span>
+              <span>Gespräch wird geladen …</span>
+            </div>
+          </div>
+
+          <div class="reply-area" id="replyArea">
+            <label for="replyMessage">Antwort schreiben</label>
+            <textarea id="replyMessage" maxlength="4000" placeholder="Deine Antwort an den BetInsight Support …"></textarea>
+            <div class="counter"><span id="replyCounter">0</span> / 4000 Zeichen</div>
+            <div class="reply-actions">
+              <span class="reply-help">Antworten werden diesem bestehenden Ticket hinzugefügt und eröffnen kein neues Ticket.</span>
+              <button class="blue-button" id="replyButton" type="button">Antwort senden</button>
+            </div>
+            <div class="feedback" id="replyFeedback" role="status" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section class="fatal-access" id="fatalAccess">
+      <h2>Support-Zugang nicht verfügbar</h2>
+      <p id="fatalAccessText">
+        Auf diesem Gerät wurde kein gültiger normaler BetInsight-Zugang gefunden. Öffne zuerst dein persönliches BetInsight-Profil und danach den Support erneut.
+      </p>
+      <a class="back-link" id="fatalBackLink" href="https://betinsightclub.github.io/profil/">Zum BetInsight Profil</a>
+    </section>
+
+    <p class="footer-note">
+      © 2026 BetInsight Club · Support-Zentrale · Lesezugriff über isolierten Support-Reader · Keine automatische Aktualisierung im Hintergrund
+    </p>
+  </main>
+
+  <div class="modal-backdrop" id="newTicketModal" role="dialog" aria-modal="true" aria-labelledby="newTicketTitle">
+    <div class="modal">
+      <header class="modal-head">
+        <div>
+          <h2 id="newTicketTitle">Neues Support-Ticket</h2>
+          <p>Beschreibe dein Anliegen möglichst klar. Pro Nutzer sind höchstens zwei gleichzeitig offene Tickets möglich.</p>
+        </div>
+        <button class="modal-close" id="modalCloseButton" type="button" aria-label="Fenster schließen">✕</button>
+      </header>
+
+      <div class="modal-body">
+        <div class="field">
+          <label for="ticketSubject">Betreff</label>
+          <input id="ticketSubject" type="text" maxlength="160" placeholder="Worum geht es?" autocomplete="off">
+        </div>
+
+        <div class="field">
+          <label for="ticketCategory">Kategorie</label>
+          <select id="ticketCategory">
+            <option value="Allgemein">Allgemein</option>
+            <option value="Konto & Profil">Konto & Profil</option>
+            <option value="Units">Units</option>
+            <option value="Tipps">Tipps</option>
+            <option value="Premium">Premium</option>
+            <option value="Wechselstube">Wechselstube</option>
+            <option value="Zahlung">Zahlung</option>
+            <option value="Technik">Technik</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="ticketMessage">Nachricht</label>
+          <textarea id="ticketMessage" maxlength="4000" placeholder="Beschreibe dein Anliegen …"></textarea>
+          <div class="counter"><span id="ticketCounter">0</span> / 4000 Zeichen</div>
+        </div>
+
+        <div class="feedback" id="createFeedback" role="status" aria-live="polite"></div>
+
+        <div class="modal-actions">
+          <button class="primary-button" id="createTicketButton" type="button">Ticket absenden</button>
+          <button class="cancel-button" id="cancelTicketButton" type="button">Abbrechen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
+    const SUPPORT_READER_URL =
+      "https://script.google.com/macros/s/AKfycbwgL2fh-4oBoaWBbtkSXaaKaEhcSIxtjPCENRObyfkMS0luNunCnjqSVt0PFTnGhZ9P/exec";
+
+    // Make bleibt ausschließlich für Schreibvorgänge aktiv.
+    // Zuordnung entsprechend dem zuletzt getesteten Support-Aufbau:
+    const SUPPORT_CREATE_WEBHOOK_URL =
+      "https://hook.eu1.make.com/oexw0yy7zfb5lacqw2vjyrm5ud4wa7ls";
+
+    const SUPPORT_REPLY_WEBHOOK_URL =
+      "https://hook.eu1.make.com/dcoj4dms0ec1kvt4uy6f2a5dk7lcryrk";
+
+    const TOKEN_STORAGE_KEY = "betinsight_profile_token";
+    const MAX_OPEN_TICKETS = 2;
+    const MAX_MESSAGE_LENGTH = 4000;
+
+    let rawUserToken = "";
+    let readerToken = "";
+    let currentTickets = [];
+    let currentTicketId = "";
+    let currentThreadTicket = null;
+    let listRequestInFlight = false;
+    let threadRequestInFlight = false;
+    let createRequestInFlight = false;
+    let replyRequestInFlight = false;
+
+    const $ = (id) => document.getElementById(id);
+
+    function cleanTokenInput(value){
+      const clean = String(value || "").trim();
+      if(!clean) return "";
+
+      try{
+        const url = new URL(clean);
+        return String(url.searchParams.get("token") || "").trim();
+      }catch(_){ }
+
+      if(clean.includes("token=")){
+        try{
+          return decodeURIComponent(clean.split("token=")[1].split("&")[0]).trim();
+        }catch(_){
+          return clean.split("token=")[1].split("&")[0].trim();
+        }
+      }
+
+      return clean;
+    }
+
+    function isDashboardUuid(value){
+      return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || "").trim());
+    }
+
+    function isAcceptedExternalToken(value){
+      const clean = String(value || "").trim();
+      return /^\d{6,15}$/.test(clean) || /^BI-?\d{6,15}$/i.test(clean);
+    }
+
+    function canonicalReaderToken(value){
+      const clean = String(value || "").trim();
+      if(/^\d{6,15}$/.test(clean)) return "BI-" + clean;
+      if(/^BI\d{6,15}$/i.test(clean)) return "BI-" + clean.slice(2);
+      if(/^BI-\d{6,15}$/i.test(clean)) return clean.toUpperCase();
+      return "";
+    }
+
+    function canonicalMakeToken(value){
+      const clean = String(value || "").trim();
+      if(/^\d{6,15}$/.test(clean)) return clean;
+      if(/^BI\d{6,15}$/i.test(clean)) return "BI-" + clean.slice(2);
+      if(/^BI-\d{6,15}$/i.test(clean)) return clean.toUpperCase();
+      return "";
+    }
+
+    function resolveTokens(){
+      const urlToken = cleanTokenInput(new URLSearchParams(location.search).get("token") || "");
+      const savedToken = cleanTokenInput(localStorage.getItem(TOKEN_STORAGE_KEY) || "");
+
+      // Ein UUID/dashboard_token wird im Support niemals an einen Endpunkt gesendet.
+      // Wenn ein normaler USER.token gespeichert ist, hat dieser Vorrang vor einer UUID in der URL.
+      let chosen = "";
+
+      if(isAcceptedExternalToken(urlToken)) chosen = urlToken;
+      else if(isAcceptedExternalToken(savedToken)) chosen = savedToken;
+
+      if(!chosen){
+        rawUserToken = "";
+        readerToken = "";
+        return false;
+      }
+
+      rawUserToken = canonicalMakeToken(chosen);
+      readerToken = canonicalReaderToken(chosen);
+
+      if(!rawUserToken || !readerToken) return false;
+
+      localStorage.setItem(TOKEN_STORAGE_KEY, rawUserToken);
+
+      // Persönlichen Zugang nach Übernahme nicht dauerhaft sichtbar in der Adresszeile lassen.
+      if(location.search){
+        try{
+          history.replaceState({}, document.title, location.pathname + location.hash);
+        }catch(_){ }
+      }
+
+      return true;
+    }
+
+    function updateProfileLinks(){
+      const profileBase = "https://betinsightclub.github.io/profil/";
+      const backLink = $("backLink");
+      const fatalBackLink = $("fatalBackLink");
+
+      if(rawUserToken){
+        const target = profileBase + "?token=" + encodeURIComponent(rawUserToken);
+        backLink.href = target;
+        fatalBackLink.href = target;
+      }else{
+        backLink.href = profileBase;
+        fatalBackLink.href = profileBase;
+      }
+    }
+
+    function escapeHtml(value){
+      return String(value ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function safeText(value,fallback="–"){
+      return value === null || value === undefined || String(value).trim() === ""
+        ? fallback
+        : String(value);
+    }
+
+    function formatDateTime(value){
+      if(!value) return "–";
+      const date = new Date(value);
+      if(Number.isNaN(date.getTime())) return safeText(value);
+      return new Intl.DateTimeFormat("de-DE",{
+        day:"2-digit",month:"2-digit",year:"numeric",
+        hour:"2-digit",minute:"2-digit"
+      }).format(date);
+    }
+
+    function setFeedback(element,type,message){
+      element.className = "feedback";
+      element.textContent = "";
+      if(!message) return;
+      element.classList.add("show",type || "info");
+      element.textContent = message;
+    }
+
+    function setConnectionState(ok,text){
+      const badge = $("connectionBadge");
+      badge.classList.toggle("error",!ok);
+      badge.textContent = text;
+    }
+
+    function parseJsonText(rawText){
+      const cleaned = String(rawText || "").replace(/^\uFEFF/,"").trim();
+      if(!cleaned) throw new Error("Der Server hat keine Antwort zurückgegeben.");
+      if(cleaned === "Accepted" || cleaned.startsWith("Accepted")){
+        throw new Error("Make hat die Anfrage nur angenommen, aber noch keine fertige JSON-Antwort geliefert.");
+      }
+      try{
+        return JSON.parse(cleaned);
+      }catch(_){
+        throw new Error("Die Serverantwort konnte nicht gelesen werden.");
+      }
+    }
+
+    async function readerRequest(payload){
+      const response = await fetch(SUPPORT_READER_URL,{
+        method:"POST",
+        // text/plain ist absichtlich gewählt: JSON-Inhalt ohne unnötigen CORS-Preflight.
+        headers:{"Content-Type":"text/plain;charset=UTF-8"},
+        body:JSON.stringify(payload),
+        cache:"no-store",
+        redirect:"follow",
+        credentials:"omit"
+      });
+
+      const rawText = await response.text();
+      const data = parseJsonText(rawText);
+
+      if(!data || data.success !== true){
+        const message = data?.public_message || data?.message || "Der sichere Support-Reader hat die Anfrage abgelehnt.";
+        const error = new Error(message);
+        error.code = data?.error || data?.code || "READER_ERROR";
+        throw error;
+      }
+
+      return data;
+    }
+
+    async function makeRequest(url,payload){
+      const body = new URLSearchParams();
+      Object.entries(payload).forEach(([key,value]) => body.set(key,String(value ?? "")));
+
+      const response = await fetch(url,{
+        method:"POST",
+        headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},
+        body:body.toString(),
+        cache:"no-store",
+        credentials:"omit"
+      });
+
+      const rawText = await response.text();
+      const data = parseJsonText(rawText);
+
+      if(!response.ok || data?.success !== true){
+        const error = new Error(data?.message || "Der Support-Server hat die Anfrage abgelehnt.");
+        error.code = data?.error || "MAKE_ERROR";
+        error.httpStatus = response.status;
+        throw error;
+      }
+
+      return data;
+    }
+
+    function updateStats(openCount,remaining){
+      const open = Math.max(0,Number(openCount) || 0);
+      const free = Math.max(0,Math.min(MAX_OPEN_TICKETS,Number(remaining ?? (MAX_OPEN_TICKETS-open)) || 0));
+
+      $("openTicketCount").textContent = String(open);
+      $("remainingSlots").textContent = String(free);
+
+      const button = $("newTicketButton");
+      button.disabled = free <= 0 || !rawUserToken;
+      button.textContent = free <= 0 ? "Maximal 2 Tickets offen" : "＋ Neues Ticket";
+    }
+
+    function renderTickets(tickets){
+      const list = $("ticketList");
+      const empty = $("emptyTickets");
+      list.innerHTML = "";
+
+      const safeTickets = Array.isArray(tickets) ? tickets.filter(Boolean) : [];
+      currentTickets = safeTickets;
+      empty.hidden = safeTickets.length !== 0;
+
+      safeTickets.forEach(ticket => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "ticket-card" + (ticket.ticket_id === currentTicketId ? " active" : "");
+        button.dataset.ticketId = safeText(ticket.ticket_id,"");
+
+        const unread = Number(ticket.user_ungelesen || 0) > 0;
+        const dateValue = ticket.letzte_nachricht_am || ticket.aktualisiert_am || ticket.erstellt_am;
+
+        button.innerHTML = `
+          <div class="ticket-top">
+            <div>
+              <h3 class="ticket-title">${escapeHtml(safeText(ticket.betreff,"Support-Ticket"))}</h3>
+              <span class="ticket-id">${escapeHtml(safeText(ticket.ticket_id,""))}</span>
+            </div>
+            <span class="status-pill">${escapeHtml(safeText(ticket.status,"OFFEN"))}</span>
+          </div>
+          <div class="ticket-meta">
+            <span>📁 ${escapeHtml(safeText(ticket.kategorie,"Allgemein"))}</span>
+            <span>🕒 ${escapeHtml(formatDateTime(dateValue))}</span>
+            <span>${unread ? '<i class="unread-dot" aria-hidden="true"></i> Neue Antwort' : 'Gespräch öffnen'}</span>
+          </div>
+        `;
+
+        button.addEventListener("click",() => openThread(button.dataset.ticketId));
+        list.appendChild(button);
+      });
+    }
+
+    async function loadTickets(options={}){
+      if(listRequestInFlight || !readerToken) return;
+      listRequestInFlight = true;
+      $("refreshButton").disabled = true;
+      $("listLoading").classList.add("show");
+      setFeedback($("listFeedback"),"","");
+
+      try{
+        const data = await readerRequest({action:"list",token:readerToken});
+        const tickets = Array.isArray(data.tickets) ? data.tickets : [];
+        renderTickets(tickets);
+        updateStats(data.open_ticket_count ?? tickets.length,data.remaining_open_slots);
+        setConnectionState(true,"Sicher verbunden");
+
+        if(options.successMessage){
+          setFeedback($("listFeedback"),"success",options.successMessage);
+        }
+      }catch(error){
+        console.error("Support-Liste:",error);
+        setConnectionState(false,"Verbindung fehlgeschlagen");
+        setFeedback($("listFeedback"),"error",error.message || "Tickets konnten nicht geladen werden.");
+      }finally{
+        listRequestInFlight = false;
+        $("refreshButton").disabled = false;
+        $("listLoading").classList.remove("show");
+      }
+    }
+
+    function renderMessages(messages){
+      const container = $("messages");
+      container.innerHTML = "";
+
+      const safeMessages = Array.isArray(messages) ? messages.filter(Boolean) : [];
+      if(!safeMessages.length){
+        container.innerHTML = '<div class="empty-state"><strong>Noch kein sichtbarer Verlauf</strong>Für dieses Ticket wurden keine sichtbaren Nachrichten gefunden.</div>';
+        return;
+      }
+
+      safeMessages.forEach(message => {
+        const senderRaw = String(message.absender_typ || "").toUpperCase();
+        const isUser = senderRaw === "USER";
+        const row = document.createElement("div");
+        row.className = "message-row " + (isUser ? "user" : "support");
+
+        const attachment = String(message.anhang_url || "").trim();
+        const attachmentHtml = attachment && /^https:\/\//i.test(attachment)
+          ? `<a class="attachment-link" href="${escapeHtml(attachment)}" target="_blank" rel="noopener noreferrer">📎 Anhang öffnen</a>`
+          : "";
+
+        row.innerHTML = `
+          <div class="bubble">
+            <div class="bubble-head">
+              <span class="bubble-sender">${isUser ? "Du" : "BetInsight Support"}</span>
+              <span class="bubble-time">${escapeHtml(formatDateTime(message.erstellt_am))}</span>
+            </div>
+            <div>${escapeHtml(safeText(message.nachricht,""))}</div>
+            ${attachmentHtml}
+          </div>
+        `;
+        container.appendChild(row);
+      });
+
+      requestAnimationFrame(() => { container.scrollTop = container.scrollHeight; });
+    }
+
+    async function openThread(ticketId){
+      const cleanId = String(ticketId || "").trim();
+      if(!cleanId || threadRequestInFlight || !readerToken) return;
+
+      currentTicketId = cleanId;
+      threadRequestInFlight = true;
+      $("threadWrap").classList.add("show");
+      $("messages").innerHTML = `
+        <div class="loading-line show" id="threadLoadingDynamic">
+          <span class="spinner" aria-hidden="true"></span>
+          <span>Gespräch wird geladen …</span>
+        </div>`;
+      setFeedback($("replyFeedback"),"","");
+      renderTickets(currentTickets);
+      $("threadWrap").scrollIntoView({behavior:"smooth",block:"start"});
+
+      try{
+        const data = await readerRequest({action:"thread",token:readerToken,ticket_id:cleanId});
+        const ticket = data.ticket || currentTickets.find(item => item.ticket_id === cleanId) || {};
+        currentThreadTicket = ticket;
+
+        $("threadTitle").textContent = safeText(ticket.betreff,"Support-Ticket");
+        $("threadMeta").textContent = [
+          safeText(ticket.ticket_id,cleanId),
+          safeText(ticket.kategorie,"Allgemein"),
+          safeText(ticket.status,"OFFEN")
+        ].join(" · ");
+
+        renderMessages(data.messages || []);
+
+        const open = ticket.offen === true || String(ticket.status || "").toUpperCase() === "OFFEN";
+        $("replyArea").style.display = open ? "block" : "none";
+      }catch(error){
+        console.error("Support-Verlauf:",error);
+        $("messages").innerHTML = '<div class="empty-state"><strong>Gespräch konnte nicht geladen werden.</strong>' + escapeHtml(error.message || "Unbekannter Fehler") + '</div>';
+      }finally{
+        threadRequestInFlight = false;
+      }
+    }
+
+    function closeThread(){
+      currentTicketId = "";
+      currentThreadTicket = null;
+      $("threadWrap").classList.remove("show");
+      $("replyMessage").value = "";
+      updateReplyCounter();
+      setFeedback($("replyFeedback"),"","");
+      renderTickets(currentTickets);
+    }
+
+    function openNewTicketModal(){
+      if($("newTicketButton").disabled) return;
+      setFeedback($("createFeedback"),"","");
+      $("newTicketModal").classList.add("show");
+      setTimeout(() => $("ticketSubject").focus(),50);
+    }
+
+    function closeNewTicketModal(force=false){
+      if(createRequestInFlight && !force) return;
+      $("newTicketModal").classList.remove("show");
+    }
+
+    function resetNewTicketForm(){
+      $("ticketSubject").value = "";
+      $("ticketCategory").value = "Allgemein";
+      $("ticketMessage").value = "";
+      updateTicketCounter();
+      setFeedback($("createFeedback"),"","");
+    }
+
+    async function createTicket(){
+      if(createRequestInFlight || !rawUserToken) return;
+
+      const subject = $("ticketSubject").value.trim();
+      const category = $("ticketCategory").value.trim() || "Allgemein";
+      const message = $("ticketMessage").value.trim();
+
+      if(subject.length < 2){
+        setFeedback($("createFeedback"),"warning","Bitte gib einen Betreff mit mindestens 2 Zeichen ein.");
+        $("ticketSubject").focus();
+        return;
+      }
+      if(message.length < 2){
+        setFeedback($("createFeedback"),"warning","Bitte beschreibe dein Anliegen mit mindestens 2 Zeichen.");
+        $("ticketMessage").focus();
+        return;
+      }
+      if(message.length > MAX_MESSAGE_LENGTH){
+        setFeedback($("createFeedback"),"warning","Die Nachricht ist zu lang. Maximal 4000 Zeichen sind erlaubt.");
+        return;
+      }
+
+      createRequestInFlight = true;
+      const button = $("createTicketButton");
+      button.disabled = true;
+      button.textContent = "Ticket wird gesendet …";
+      setFeedback($("createFeedback"),"info","Dein Ticket wird sicher übermittelt …");
+
+      try{
+        const data = await makeRequest(SUPPORT_CREATE_WEBHOOK_URL,{
+          token:rawUserToken,
+          betreff:subject,
+          kategorie:category,
+          nachricht:message,
+          quelle:"CLUB_SUPPORT_HTML"
+        });
+
+        if(!String(data.version || "").startsWith("SUPPORT-TICKET-CREATE")){
+          throw new Error("Der Make-Endpunkt hat eine unerwartete Antwort geliefert. Es wird kein weiterer Versuch automatisch gestartet.");
+        }
+
+        resetNewTicketForm();
+        closeNewTicketModal(true);
+        await loadTickets({successMessage:"Dein Support-Ticket wurde erstellt."});
+
+        if(data.ticket_id){
+          await openThread(data.ticket_id);
+        }
+      }catch(error){
+        console.error("Support-Ticket erstellen:",error);
+        const messageText = error.code === "OPEN_TICKET_LIMIT"
+          ? "Du hast bereits zwei offene Support-Tickets. Bitte nutze eines der vorhandenen Tickets für weitere Antworten."
+          : (error.message || "Das Ticket konnte nicht erstellt werden.");
+        setFeedback($("createFeedback"),"error",messageText);
+      }finally{
+        createRequestInFlight = false;
+        button.disabled = false;
+        button.textContent = "Ticket absenden";
+      }
+    }
+
+    async function sendReply(){
+      if(replyRequestInFlight || !rawUserToken || !currentTicketId) return;
+
+      const message = $("replyMessage").value.trim();
+      if(message.length < 2){
+        setFeedback($("replyFeedback"),"warning","Bitte schreibe mindestens 2 Zeichen.");
+        $("replyMessage").focus();
+        return;
+      }
+      if(message.length > MAX_MESSAGE_LENGTH){
+        setFeedback($("replyFeedback"),"warning","Die Antwort ist zu lang. Maximal 4000 Zeichen sind erlaubt.");
+        return;
+      }
+
+      replyRequestInFlight = true;
+      const button = $("replyButton");
+      button.disabled = true;
+      button.textContent = "Antwort wird gesendet …";
+      setFeedback($("replyFeedback"),"info","Antwort wird dem Ticket hinzugefügt …");
+
+      try{
+        const data = await makeRequest(SUPPORT_REPLY_WEBHOOK_URL,{
+          token:rawUserToken,
+          ticket_id:currentTicketId,
+          nachricht:message,
+          quelle:"CLUB_SUPPORT_HTML"
+        });
+
+        if(!String(data.version || "").startsWith("SUPPORT-TICKET-REPLY")){
+          throw new Error("Der Make-Endpunkt hat eine unerwartete Antwort geliefert. Es wird kein weiterer Versuch automatisch gestartet.");
+        }
+
+        $("replyMessage").value = "";
+        updateReplyCounter();
+        setFeedback($("replyFeedback"),"success","Deine Antwort wurde gesendet.");
+        await openThread(currentTicketId);
+        await loadTickets();
+      }catch(error){
+        console.error("Support-Antwort:",error);
+        setFeedback($("replyFeedback"),"error",error.message || "Die Antwort konnte nicht gesendet werden.");
+      }finally{
+        replyRequestInFlight = false;
+        button.disabled = false;
+        button.textContent = "Antwort senden";
+      }
+    }
+
+    function updateTicketCounter(){
+      $("ticketCounter").textContent = String($("ticketMessage").value.length);
+    }
+
+    function updateReplyCounter(){
+      $("replyCounter").textContent = String($("replyMessage").value.length);
+    }
+
+    function showFatalAccess(message){
+      $("supportContent").style.display = "none";
+      $("fatalAccess").classList.add("show");
+      $("fatalAccessText").textContent = message;
+      setConnectionState(false,"Kein Support-Zugang");
+    }
+
+    async function initialize(){
+      const ok = resolveTokens();
+      updateProfileLinks();
+
+      if(!ok){
+        const urlToken = cleanTokenInput(new URLSearchParams(location.search).get("token") || "");
+        const reason = isDashboardUuid(urlToken)
+          ? "Der Support verwendet aus Sicherheitsgründen keinen dashboard_token/UUID. Öffne zuerst dein BetInsight-Profil vollständig; dort wird der normale Zugang auf diesem Gerät gespeichert. Öffne danach den Support erneut."
+          : "Auf diesem Gerät wurde kein gültiger normaler BetInsight-Zugang gefunden. Öffne zuerst dein persönliches BetInsight-Profil und danach den Support erneut.";
+        showFatalAccess(reason);
+        return;
+      }
+
+      $("supportContent").style.display = "block";
+      $("fatalAccess").classList.remove("show");
+      await loadTickets();
+    }
+
+    $("refreshButton").addEventListener("click",async() => {
+      await loadTickets();
+      if(currentTicketId) await openThread(currentTicketId);
+    });
+
+    $("newTicketButton").addEventListener("click",openNewTicketModal);
+    $("modalCloseButton").addEventListener("click",() => closeNewTicketModal());
+    $("cancelTicketButton").addEventListener("click",() => closeNewTicketModal());
+    $("createTicketButton").addEventListener("click",createTicket);
+    $("replyButton").addEventListener("click",sendReply);
+    $("closeThreadButton").addEventListener("click",closeThread);
+
+    $("ticketMessage").addEventListener("input",updateTicketCounter);
+    $("replyMessage").addEventListener("input",updateReplyCounter);
+
+    $("newTicketModal").addEventListener("click",event => {
+      if(event.target === $("newTicketModal")) closeNewTicketModal();
+    });
+
+    document.addEventListener("keydown",event => {
+      if(event.key === "Escape"){
+        if($("newTicketModal").classList.contains("show")) closeNewTicketModal();
+        else if($("threadWrap").classList.contains("show")) closeThread();
+      }
+    });
+
+    initialize();
+  </script>
+</body>
+</html>
