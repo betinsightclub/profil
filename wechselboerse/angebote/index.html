@@ -2,17 +2,19 @@
 <!--
 Projekt: BetInsight
 Pfad: /profil/wechselboerse/angebote/index.html
-Update: 2026.08.16-01
-Anwendungs-Version: 1.3.1 SECURITY
+Update: 2026.08.16-02
+Anwendungs-Version: 1.4.0 EPOCH SAFE
 
 Änderungen:
-- SECURITY: Serverzeit ist allein maßgeblich für Reservierungsablauf
-- Countdown wird aus server_now + reserviert_bis berechnet
-- Bei serverseitigem Ablauf werden Wallet-/Zahlungsdaten sofort verborgen
-- Abgelaufene Reservierung kann keine purchase_ready-Antwort mehr erhalten
-- localStorage speichert keine Wallet-/Kaufdetails mehr
-- Nach Reload wird Reservierung ausschließlich über Make erneut validiert
-- Bestehendes Design und übrige Kauf-/Angebotslogik bleiben unverändert
+- Kaufstart auf v1.3 EPOCH SAFE umgestellt
+- Kaufstatus auf v1.3 EPOCH SAFE umgestellt
+- sichtbare Buchungsnummer BIK-... im geschützten Kaufbereich
+- Countdown wird ausschließlich aus serverseitig gespeicherten Unix-Epoch-Werten berechnet
+- keine Rückumwandlung von Berlin-Textzeiten für Security oder Countdown
+- bei Ablauf des 15-Minuten-Zahlungsfensters Wallet sofort verborgen
+- Hinweis auf zusätzlichen 5-Minuten-Sicherheitsnachlauf
+- Reload validiert die Reservierung weiterhin vollständig serverseitig
+- Bestehendes Design und Angebotsdarstellung bleiben unverändert
 - payment_enabled bleibt FALSE: noch keine echte USDT/USDC-Zahlung
 -->
 <html lang="de">
@@ -599,6 +601,17 @@ Anwendungs-Version: 1.3.1 SECURITY
       background: rgba(0,0,0,.11);
     }
 
+    .purchase-item.booking-ref {
+      grid-column: 1 / -1;
+      border-color: rgba(20, 224, 178, 0.34);
+      background: rgba(20, 224, 178, 0.055);
+    }
+
+    .purchase-item.booking-ref strong {
+      color: var(--accent);
+      letter-spacing: .02em;
+    }
+
     .purchase-item span {
       display: block;
       margin-bottom: 5px;
@@ -771,6 +784,10 @@ Anwendungs-Version: 1.3.1 SECURITY
       </div>
 
       <div class="purchase-grid">
+        <div class="purchase-item booking-ref">
+          <span>Buchungsnummer</span>
+          <strong id="purchaseBooking">–</strong>
+        </div>
         <div class="purchase-item">
           <span>Units</span>
           <strong id="purchaseUnits">–</strong>
@@ -809,18 +826,18 @@ Anwendungs-Version: 1.3.1 SECURITY
 
     /*
       DATENVERBINDUNG:
-      listOffers liest die aktiven Verkaufsangebote über Make aus VERKAUFSANGEBOTE.
-      beginPurchase bleibt vorerst leer und wird im nächsten Schritt separat angebunden.
+      listOffers: aktive Verkaufsangebote
+      beginPurchase: Kaufstart v1.3 EPOCH SAFE
+      purchaseStatus: Kaufstatus v1.3 EPOCH SAFE
     */
     const API_ENDPOINTS = {
       listOffers: "https://hook.eu1.make.com/c09vltke6d7gr7tvlpaspvugw13yfg32",
-      beginPurchase: "https://hook.eu1.make.com/aeb7cfn9k13yr942i5nba9eigt2j1lgq",
-      purchaseStatus: "https://hook.eu1.make.com/r7hfgt6sb73j8e63ss5nlioiirbi8eyp"
+      beginPurchase: "https://hook.eu1.make.com/b6hhj5qs7sd3xymp8nad5d105cug375r",
+      purchaseStatus: "https://hook.eu1.make.com/7ykyk5lm4djtlfhr7fyp9jhj84gavc07"
     };
 
     const TOKEN_STORAGE_KEY = "betinsight_profile_token";
     const RESERVATION_STORAGE_KEY = "betinsight_active_purchase_reservation";
-    const RESERVATION_DURATION_MS = 15 * 60 * 1000; // nur Fallback; Serverzeit ist maßgeblich
     const DEMO_MODE = new URLSearchParams(window.location.search).get("demo") === "1";
 
     const DEMO_OFFERS = [
@@ -859,6 +876,7 @@ Anwendungs-Version: 1.3.1 SECURITY
       purchasePanel: document.getElementById("purchasePanel"),
       purchaseTitle: document.getElementById("purchaseTitle"),
       purchaseSub: document.getElementById("purchaseSub"),
+      purchaseBooking: document.getElementById("purchaseBooking"),
       purchaseUnits: document.getElementById("purchaseUnits"),
       purchaseTotal: document.getElementById("purchaseTotal"),
       purchaseWallet: document.getElementById("purchaseWallet"),
@@ -1089,31 +1107,22 @@ Anwendungs-Version: 1.3.1 SECURITY
       } catch (_) {}
     }
 
-    function parseMakeDateTime(value) {
-      const match = String(value || "").trim().match(
-        /^(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$/
-      );
-      if (!match) return null;
+    function calculateLocalExpiryFromEpoch(data) {
+      const expiresEpoch = Number(data?.expires_epoch);
+      const nowEpoch = Number(data?.now_epoch);
 
-      return Date.UTC(
-        Number(match[3]),
-        Number(match[2]) - 1,
-        Number(match[1]),
-        Number(match[4]),
-        Number(match[5]),
-        Number(match[6])
-      );
-    }
-
-    function calculateLocalExpiryFromServer(data) {
-      const reservedServer = parseMakeDateTime(data?.reserviert_bis);
-      const nowServer = parseMakeDateTime(data?.server_now);
-
-      if (!reservedServer || !nowServer) {
-        return Date.now() + RESERVATION_DURATION_MS;
+      // Fail closed: Ohne gültige serverseitige Epoch-Werte wird kein
+      // neues 15-Minuten-Fenster im Browser erfunden.
+      if (
+        !Number.isFinite(expiresEpoch) ||
+        !Number.isFinite(nowEpoch) ||
+        expiresEpoch <= 0 ||
+        nowEpoch <= 0
+      ) {
+        return 0;
       }
 
-      const remainingMs = Math.max(0, reservedServer - nowServer);
+      const remainingMs = Math.max(0, (expiresEpoch - nowEpoch) * 1000);
       return Date.now() + remainingMs;
     }
 
@@ -1141,10 +1150,10 @@ Anwendungs-Version: 1.3.1 SECURITY
         elements.reservationTimer.classList.add("expired");
         elements.reservationTimerTitle.textContent = "Reservierung abgelaufen";
         elements.reservationTimerText.textContent =
-          "Die 15 Minuten sind vorbei. Das Angebot wird automatisch wieder für andere Mitglieder freigegeben.";
+          "Das 15-Minuten-Zahlungsfenster ist beendet. Danach läuft der zusätzliche 5-Minuten-Sicherheitsnachlauf.";
         elements.reservationTimerValue.textContent = "00:00";
         elements.paymentStop.textContent =
-          "Reservierung abgelaufen. Bitte jetzt keine Zahlung senden. Die serverseitige Freigabe läuft.";
+          "Zahlungsfenster abgelaufen. Bitte keine Zahlung mehr senden. Das Angebot bleibt während des Sicherheitsnachlaufs gesperrt.";
         elements.purchaseWallet.textContent = "Nicht mehr verfügbar";
         elements.purchaseNetwork.textContent = "–";
         clearStoredReservation();
@@ -1179,6 +1188,8 @@ Anwendungs-Version: 1.3.1 SECURITY
       elements.purchaseTitle.textContent = "Angebot für dich reserviert";
       elements.purchaseSub.textContent =
         `Angebot ${data.angebot_id || ""} wurde serverseitig deinem Konto zugeordnet.`;
+      elements.purchaseBooking.textContent =
+        String(data.buchungsnummer || "–");
       elements.purchaseUnits.textContent = `${formatNumber(numberValue(data.units), 0)} Units`;
       elements.purchaseTotal.textContent =
         `${formatNumber(numberValue(data.gesamtpreis_eur), 2)} €`;
@@ -1191,7 +1202,7 @@ Anwendungs-Version: 1.3.1 SECURITY
 
       const expiresAt =
         reservationState?.expiresAt ||
-        calculateLocalExpiryFromServer(data);
+        calculateLocalExpiryFromEpoch(data);
 
       startReservationCountdown(expiresAt);
 
@@ -1237,7 +1248,7 @@ Anwendungs-Version: 1.3.1 SECURITY
         const { response, data } = await fetchPurchaseStatus(token, stored.offerId);
 
         if (data.status === "purchase_ready") {
-          const serverExpiry = calculateLocalExpiryFromServer(data);
+          const serverExpiry = calculateLocalExpiryFromEpoch(data);
           const refreshed = saveReservation(token, stored.offerId, serverExpiry);
           showPurchaseDetails(data, refreshed);
           return;
@@ -1310,7 +1321,7 @@ Anwendungs-Version: 1.3.1 SECURITY
           lastData = data;
 
           if (data.status === "purchase_ready") {
-            const serverExpiry = calculateLocalExpiryFromServer(data);
+            const serverExpiry = calculateLocalExpiryFromEpoch(data);
             const reservationState = saveReservation(token, offerId, serverExpiry);
             showPurchaseDetails(data, reservationState);
             showToast("Angebot wurde für dich reserviert.");
