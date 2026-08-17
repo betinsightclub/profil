@@ -5,11 +5,16 @@ Live-Seite: https://betinsightclub.github.io/profil/support/
 
 Projekt: BetInsight
 Datei: profil/support/index.html
-Version: 2026.08.17-01
-Anwendungs-Version: 1.2.0
+Version: 2026.08.17-02
+Anwendungs-Version: 1.2.1
 Stand: 17.08.2026
 
 GEÄNDERT GEGENÜBER 2026.08.16-02:
+- FEHLERBEHEBUNG 1.2.1:
+  - reader() korrigiert zu readerRequest().
+  - tickets korrigiert zu currentTickets.
+  - selectedTicketId korrigiert zu cleanId.
+  - Dadurch bleibt der geladene Gesprächsverlauf sichtbar und „Neue Antwort“ kann korrekt auf gelesen gesetzt werden.
 - Ungelesene Support-Antworten werden weiterhin mit „Neue Antwort“ markiert.
 - Erst beim tatsächlichen Öffnen des betreffenden Ticketverlaufs wird die Support-Antwort als gelesen markiert.
 - Neue Apps-Script-Aktion mark_read verwendet; kein Make-Lesevorgang und keine Make-Operation für „gelesen“.
@@ -30,7 +35,7 @@ WICHTIG:
   <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#071019">
-  <meta name="application-version" content="1.2.0">
+  <meta name="application-version" content="1.2.1">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Support | BetInsight Club</title>
 
@@ -1454,7 +1459,7 @@ WICHTIG:
 
     async function markThreadRead(ticketId){
       try{
-        const data = await reader({
+        const data = await readerRequest({
           action:"mark_read",
           token:readerToken,
           ticket_id:ticketId
@@ -1464,7 +1469,7 @@ WICHTIG:
           throw new Error("Unerwartete Gelesen-Antwort.");
         }
 
-        tickets = tickets.map(ticket=>{
+        currentTickets = currentTickets.map(ticket=>{
           if(String(ticket.ticket_id || "") === String(ticketId || "")){
             return {...ticket,user_ungelesen:0};
           }
@@ -1532,7 +1537,7 @@ WICHTIG:
         renderMessages(data.messages || []);
 
         if(Number(data.ticket?.user_ungelesen || 0) > 0){
-          await markThreadRead(selectedTicketId);
+          await markThreadRead(cleanId);
         }
 
         const open =
