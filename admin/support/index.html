@@ -1,33 +1,30 @@
 <!DOCTYPE html>
 <!--
 GitHub-Ziel: betinsightclub/profil/admin/support/index.html
-Live-Seite nach Upload: https://betinsightclub.github.io/profil/admin/support/
+Live-Seite: https://betinsightclub.github.io/profil/admin/support/
 
 Projekt: BetInsight
 Datei: profil/admin/support/index.html
-Version: 2026.08.16-01
-Anwendungs-Version: 1.0.0
-Stand: 16.08.2026
-Status: MASTER-LESEANSICHT – Antworten und Schließen folgen nach sicherem Schreibweg
+Version: 2026.08.17-01
+Anwendungs-Version: 1.1.0
+Stand: 17.08.2026
+Status: MASTER-SUPPORT – sichere Antworten aktiviert
 
-GEÄNDERT / NEU:
-- Neue Master-Support-Zentrale für den bestehenden BetInsight Admin-Zugang.
-- Kein zweiter Login: verwendet die bestehende Session aus betinsight_admin_session_v1.
-- Nur Master-Admin wird akzeptiert; normale Admin-/Tippgeber-Sessions werden abgewiesen.
-- Browser sendet niemals den Admin-Code und auch nicht den rohen Session-Token an den Support-Reader.
-- Der rohe Session-Token wird lokal im Browser mit SHA-256 gehasht.
-- Der Apps-Script-Reader prüft den Session-Hash serverseitig gegen den bestehenden Admin-Auth-Weg.
-- Ticketdaten selbst werden direkt aus dem isolierten BetInsight Support-System gelesen.
-- Ticketliste aller Nutzer, offene/geschlossene Tickets, ungelesene Support-Nachrichten, Nutzer-ID, Kategorie und Priorität.
-- Vollständiger Master-Gesprächsverlauf pro Ticket, einschließlich Sichtbarkeitskennzeichnung.
-- Suchfeld und Statusfilter integriert.
-- Modernes BetInsight-Design mit Logo und Favicon.
-- Responsive für Desktop und Mobilgeräte.
+GEÄNDERT GEGENÜBER 2026.08.16-01:
+- „Antwort schreiben“ im geöffneten Master-Ticket aktiviert.
+- Antwort wird über den abgesicherten Apps-Script-Master-Endpunkt gesendet.
+- Kein neuer öffentlicher Make-Webhook für Master-Antworten.
+- Bestehende Master-Session wird weiterverwendet; Admin-Code und roher Session-Token werden nicht gesendet.
+- Doppelsendeschutz über eindeutige request_id.
+- Antwort erscheint als „BetInsight Support“ im Kundenverlauf.
+- Bearbeiter wird aus der geprüften Master-Session übernommen.
+- Geschlossene Tickets können nicht beantwortet werden.
+- Ticket schließen bleibt bewusst noch deaktiviert und folgt im nächsten Schritt.
+- Bestehende Ticketliste, Suche, Filter, Logo, Favicon und responsive Darstellung bleiben erhalten.
 
 WICHTIG:
 - Vollständige HTML-Datei, kein Codeschnipsel.
 - Ziel ausschließlich: betinsightclub/profil/admin/support/index.html
-- Diese Version ist absichtlich READ-ONLY. Admin-Antworten und Ticket-Schließen werden erst nach einem getrennt abgesicherten Schreibweg aktiviert.
 -->
 <html lang="de">
 <head>
@@ -35,7 +32,7 @@ WICHTIG:
   <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#061d2a">
-  <meta name="application-version" content="1.0.0">
+  <meta name="application-version" content="1.1.0">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Master Support | BetInsight Club</title>
 
@@ -181,7 +178,22 @@ WICHTIG:
     .bubble-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:5px}.sender{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}.message-row.user .sender{color:#75cfff}.message-row.support .sender{color:#78e6bd}.message-row.internal .sender{color:#ffe49a}.time{color:#6f93a5;font-size:9px;white-space:nowrap}
     .message-text{font-size:13px;line-height:1.48;white-space:pre-line;overflow-wrap:anywhere}.visibility{margin-top:7px;color:#7fa6b9;font-size:9px}
 
-    .readonly-note{margin:0;padding:13px 18px;border-top:1px solid rgba(185,216,232,.12);color:#d9c67f;background:rgba(255,218,118,.045);font-size:11px;line-height:1.5}
+    .reply-area{padding:15px 18px 17px;border-top:1px solid rgba(185,216,232,.12);background:rgba(1,12,19,.18)}
+    .reply-area.hidden{display:none}
+    .reply-label{display:block;margin-bottom:8px;color:#eaf7fd;font-size:12px;font-weight:900}
+    .reply-textarea{width:100%;min-height:108px;padding:12px 13px;resize:vertical;color:#fff;line-height:1.5;outline:none;border:1px solid rgba(185,216,232,.24);border-radius:11px;background:rgba(1,14,21,.72)}
+    .reply-textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(0,212,138,.10)}
+    .reply-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:9px}
+    .reply-meta{color:#7699aa;font-size:10px;line-height:1.4}
+    .reply-button{min-height:42px;padding:10px 16px;border:0;border-radius:10px;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;font-weight:900;cursor:pointer}
+    .reply-button:disabled{opacity:.48;cursor:not-allowed}
+    .reply-feedback{display:none;margin-top:10px;padding:10px 11px;border-radius:9px;font-size:11px;line-height:1.45}
+    .reply-feedback.show{display:block}
+    .reply-feedback.success{color:#cffff0;border:1px solid rgba(0,212,138,.28);background:rgba(0,212,138,.07)}
+    .reply-feedback.error{color:#ffc6ca;border:1px solid rgba(255,125,134,.32);background:rgba(255,125,134,.08)}
+    .reply-feedback.info{color:#c9eaff;border:1px solid rgba(22,168,245,.25);background:rgba(22,168,245,.07)}
+    .closed-note{display:none;margin:0;padding:13px 18px;border-top:1px solid rgba(185,216,232,.12);color:#d9c67f;background:rgba(255,218,118,.045);font-size:11px;line-height:1.5}
+    .closed-note.show{display:block}
 
     .access-denied{display:none;max-width:650px;margin:70px auto 0;padding:28px;text-align:center;border:1px solid rgba(255,125,134,.32);border-radius:18px;background:rgba(70,20,28,.40);box-shadow:var(--shadow)}
     .access-denied.show{display:block}.access-denied p{color:var(--muted);line-height:1.55}
@@ -190,7 +202,7 @@ WICHTIG:
     .footer{margin-top:20px;text-align:center;color:rgba(255,255,255,.42);font-size:11px}
 
     @media(max-width:920px){.workspace{grid-template-columns:1fr}.ticket-list{max-height:430px}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media(max-width:650px){body{padding:14px 9px 32px}.topbar{align-items:flex-start;padding:15px}.brand-group{align-items:flex-start}.logo{width:92px}.top-actions{width:100%;justify-content:flex-start}.topbar{flex-direction:column}.status-strip{grid-template-columns:auto 1fr}.status-badge{grid-column:1/-1;width:max-content;margin-left:49px}.toolbar{grid-template-columns:1fr}.ticket-details{grid-template-columns:repeat(2,minmax(0,1fr))}.bubble{max-width:91%}}
+    @media(max-width:650px){body{padding:14px 9px 32px}.topbar{align-items:flex-start;padding:15px}.brand-group{align-items:flex-start}.logo{width:92px}.top-actions{width:100%;justify-content:flex-start}.topbar{flex-direction:column}.status-strip{grid-template-columns:auto 1fr}.status-badge{grid-column:1/-1;width:max-content;margin-left:49px}.toolbar{grid-template-columns:1fr}.ticket-details{grid-template-columns:repeat(2,minmax(0,1fr))}.bubble{max-width:91%}.reply-bottom{align-items:stretch;flex-direction:column}.reply-button{width:100%}}
   </style>
 </head>
 <body>
@@ -259,7 +271,27 @@ WICHTIG:
             <div class="detail"><span>Bearbeiter</span><strong id="detailAgent">–</strong></div>
           </div>
           <div class="messages" id="messages"></div>
-          <p class="readonly-note">Diese erste Master-Version ist absichtlich nur lesend. Antworten und „Ticket schließen“ werden erst aktiviert, nachdem der getrennte Admin-Schreibweg sicher geprüft ist.</p>
+
+          <div class="reply-area hidden" id="replyArea">
+            <label class="reply-label" for="replyMessage">Antwort als BetInsight Support</label>
+            <textarea
+              class="reply-textarea"
+              id="replyMessage"
+              maxlength="4000"
+              placeholder="Antwort an den Kunden schreiben …"
+            ></textarea>
+            <div class="reply-bottom">
+              <div class="reply-meta">
+                <span id="replyCounter">0</span> / 4000 Zeichen · Die Antwort ist für den Kunden sichtbar.
+              </div>
+              <button class="reply-button" id="replyButton" type="button">Antwort senden</button>
+            </div>
+            <div class="reply-feedback" id="replyFeedback" role="status" aria-live="polite"></div>
+          </div>
+
+          <p class="closed-note" id="closedNote">
+            Dieses Ticket ist geschlossen und kann nicht mehr beantwortet werden. „Ticket schließen“ wird im nächsten Schritt ergänzt.
+          </p>
         </div>
       </article>
     </section>
@@ -284,7 +316,9 @@ WICHTIG:
     let sessionHash = "";
     let tickets = [];
     let selectedTicketId = "";
+    let selectedTicket = null;
     let busy = false;
+    let replyBusy = false;
 
     const $ = id => document.getElementById(id);
 
@@ -344,6 +378,29 @@ WICHTIG:
       el.classList.toggle("error",!ok);
       el.textContent = text;
     }
+
+    function replyFeedback(type,message){
+      const el = $("replyFeedback");
+      el.className = "reply-feedback";
+      el.textContent = "";
+      if(!message) return;
+      el.classList.add("show",type || "info");
+      el.textContent = message;
+    }
+
+    function updateReplyCounter(){
+      $("replyCounter").textContent = String($("replyMessage").value.length);
+    }
+
+    function createRequestId(){
+      if(window.crypto && typeof crypto.randomUUID === "function"){
+        return crypto.randomUUID();
+      }
+      const bytes = new Uint8Array(16);
+      crypto.getRandomValues(bytes);
+      return Array.from(bytes,b=>b.toString(16).padStart(2,"0")).join("");
+    }
+
 
     async function reader(payload){
       const response = await fetch(SUPPORT_READER_URL,{
@@ -473,9 +530,80 @@ WICHTIG:
         $("detailPriority").textContent = t.prioritaet || "–";
         $("detailMembership").textContent = t.mitgliedschaft_bei_eroeffnung || "–";
         $("detailAgent").textContent = t.bearbeiter || "Noch nicht zugewiesen";
+        selectedTicket = t;
         renderMessages(data.messages || []);
+
+        const isOpen = t.offen === true || String(t.status || "").toUpperCase() === "OFFEN";
+        $("replyArea").classList.toggle("hidden", !isOpen);
+        $("closedNote").classList.toggle("show", !isOpen);
+        $("replyMessage").disabled = !isOpen;
+        $("replyButton").disabled = !isOpen;
+        replyFeedback("","");
       }catch(error){
         $("messages").innerHTML = '<div class="empty">'+escapeHtml(error.message || "Gespräch konnte nicht geladen werden.")+'</div>';
+      }
+    }
+
+    async function sendMasterReply(){
+      if(replyBusy || !selectedTicketId || !sessionHash) return;
+
+      const message = String($("replyMessage").value || "").trim();
+
+      if(message.length < 2){
+        replyFeedback("error","Bitte schreibe mindestens 2 Zeichen.");
+        $("replyMessage").focus();
+        return;
+      }
+
+      if(message.length > 4000){
+        replyFeedback("error","Die Antwort ist zu lang. Maximal 4000 Zeichen sind erlaubt.");
+        return;
+      }
+
+      replyBusy = true;
+      const button = $("replyButton");
+      button.disabled = true;
+      button.textContent = "Wird gesendet …";
+      replyFeedback("info","Antwort wird sicher gespeichert …");
+
+      const requestId = createRequestId();
+
+      try{
+        const data = await reader({
+          action:"admin_reply",
+          session_hash:sessionHash,
+          ticket_id:selectedTicketId,
+          message:message,
+          request_id:requestId
+        });
+
+        if(String(data.write_version || "") !== "SUPPORT-ADMIN-REPLY-v1.0"){
+          throw new Error("Der Support-Server hat eine unerwartete Schreibantwort geliefert.");
+        }
+
+        $("replyMessage").value = "";
+        updateReplyCounter();
+        replyFeedback(
+          "success",
+          data.deduplicated === true
+            ? "Die Antwort war bereits gespeichert und wurde nicht doppelt angelegt."
+            : "Antwort wurde als BetInsight Support gespeichert."
+        );
+
+        await loadTickets();
+        await openThread(selectedTicketId);
+
+      }catch(error){
+        console.error(error);
+        replyFeedback("error",error.message || "Die Antwort konnte nicht gespeichert werden.");
+
+        if(["MASTER_ACCESS_REQUIRED","ADMIN_SESSION_EXPIRED","INVALID_ADMIN_SESSION"].includes(error.code)){
+          showDenied("Deine Master-Sitzung ist nicht mehr gültig. Bitte im Admin Center erneut anmelden.");
+        }
+      }finally{
+        replyBusy = false;
+        button.disabled = false;
+        button.textContent = "Antwort senden";
       }
     }
 
@@ -499,6 +627,8 @@ WICHTIG:
     $("refreshButton").addEventListener("click",async()=>{await loadTickets();if(selectedTicketId) await openThread(selectedTicketId)});
     $("statusFilter").addEventListener("change",async()=>{selectedTicketId="";$("thread").classList.remove("show");$("threadPlaceholder").style.display="grid";await loadTickets()});
     $("searchInput").addEventListener("input",renderTickets);
+    $("replyMessage").addEventListener("input",updateReplyCounter);
+    $("replyButton").addEventListener("click",sendMasterReply);
 
     init();
   </script>
