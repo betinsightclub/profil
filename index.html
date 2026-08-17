@@ -5,9 +5,16 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.15-02
+Version: 2026.08.18-01
 
 Änderungen:
+- SUPPORT-INTEGRATION 2026.08.18-01:
+  - Neuer fester Button „🛟 Support & Tickets“ im normalen Profil.
+  - Rote Zahl zeigt die Summe ungelesener Support-Antworten.
+  - Support-Zähler wird ausschließlich über den sicheren Apps-Script-Reader geladen; keine Make-Leseoperation.
+  - Support-Link übergibt keinen Token in der URL; der bereits sicher gespeicherte normale Profilzugang wird auf derselben Domain verwendet.
+  - Nach Rückkehr aus dem Support wird der Zähler erneut gelesen, damit gelesene Antworten verschwinden.
+  - Dashboard-UUID bleibt ausdrücklich von der Support-Authentifizierung ausgeschlossen.
 - Token-ROBUST-Fix: Ein gültig gefundenes Profil fällt bei einem späteren Anzeige-/JavaScriptfehler nicht mehr fälschlich auf die Anmeldeseite zurück.
 - UUID-Dashboard-Tokens werden nur noch exakt geprüft; unsinnige BI-/BI--Varianten für UUIDs entfallen.
 - Kontostand & Aktivitäten: Referral verfügbar kompakt im Feld „Verfügbare Units“ integriert; drei gleich große Hauptfelder bleiben in einer Reihe.
@@ -393,6 +400,40 @@ button{border:0}
   grid-template-columns:repeat(2,minmax(0,1fr));
   gap:10px;
 }
+
+.support-button{
+  position:relative;
+  grid-column:1/-1;
+  overflow:visible;
+  border:1px solid rgba(103,199,255,.30);
+  background:linear-gradient(105deg,#0b6fae,#1297c9);
+  box-shadow:0 12px 28px rgba(18,151,201,.16);
+}
+.support-button:hover{
+  filter:brightness(1.06);
+}
+.support-unread-badge{
+  position:absolute;
+  top:50%;
+  right:14px;
+  transform:translateY(-50%);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:28px;
+  height:28px;
+  padding:0 8px;
+  border:2px solid rgba(255,255,255,.88);
+  border-radius:999px;
+  background:#e5484d;
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+  line-height:1;
+  box-shadow:0 0 0 4px rgba(229,72,77,.14),0 8px 20px rgba(0,0,0,.24);
+  font-variant-numeric:tabular-nums;
+}
+.support-unread-badge[hidden]{display:none}
 
 button,.btn-link{
   display:inline-flex;
@@ -1756,6 +1797,10 @@ input{
           <button class="btn-blue" type="button" onclick="goTipps()">🔥 Neue Tipps</button>
           <button class="btn-green" type="button" onclick="goFreigeschaltet()">✅ Freigeschaltet</button>
           <button class="btn-green" type="button" onclick="goBuyUnits()">💎 Units kaufen</button>
+          <button id="supportButton" class="support-button" type="button" onclick="goSupport()" title="Support & Tickets öffnen">
+            🛟 Support & Tickets
+            <span id="supportUnreadBadge" class="support-unread-badge" hidden aria-label="0 ungelesene Support-Antworten">0</span>
+          </button>
         </div>
 
         <div class="security-box">
@@ -2069,6 +2114,9 @@ const EMPFEHLUNGEN_WEBHOOK_URL =
 const REFERRAL_ACCOUNT_WEBHOOK_URL =
   "https://hook.eu1.make.com/7skk3ar1t9690ewfdono994ue3maxyat";
 
+const SUPPORT_READER_URL =
+  "https://script.google.com/macros/s/AKfycbwgL2fh-4oBoaWBbtkSXaaKaEhcSIxtjPCENRObyfkMS0luNunCnjqSVt0PFTnGhZ9P/exec";
+
 const TOKEN_STORAGE_KEY = "betinsight_profile_token";
 
 let profilePrivacyActive = false;
@@ -2116,6 +2164,7 @@ let requestLinkInFlight = false;
 let referralTransferInFlight = false;
 let referralTransferRequestId = "";
 let referralTransferRequestAmount = null;
+let supportUnreadRequestInFlight = false;
 
 function parseDateValue(value){
   if(value===undefined || value===null || value==="") return null;
@@ -2524,6 +2573,90 @@ function getActiveToken(){
   return getSavedToken();
 }
 
+function isAcceptedSupportToken(value){
+  const clean=String(value||"").trim();
+  return /^\d{6,15}$/.test(clean) || /^BI-?\d{6,15}$/i.test(clean);
+}
+
+function canonicalSupportReaderToken(value){
+  const clean=String(value||"").trim();
+  if(/^\d{6,15}$/.test(clean)) return "BI-"+clean;
+  if(/^BI\d{6,15}$/i.test(clean)) return "BI-"+clean.slice(2);
+  if(/^BI-\d{6,15}$/i.test(clean)) return clean.toUpperCase();
+  return "";
+}
+
+function renderSupportUnread(count){
+  const badge=document.getElementById("supportUnreadBadge");
+  const button=document.getElementById("supportButton");
+  if(!badge || !button) return;
+
+  const unread=Math.max(0,Math.floor(Number(count)||0));
+  if(unread>0){
+    badge.hidden=false;
+    badge.textContent=unread>99 ? "99+" : String(unread);
+    badge.setAttribute("aria-label",unread+" ungelesene Support-Antworten");
+    button.title=unread===1
+      ? "1 neue Support-Antwort"
+      : unread+" neue Support-Antworten";
+  }else{
+    badge.hidden=true;
+    badge.textContent="0";
+    badge.setAttribute("aria-label","0 ungelesene Support-Antworten");
+    button.title="Support & Tickets öffnen";
+  }
+}
+
+async function refreshSupportUnread(tokenOverride=""){
+  if(supportUnreadRequestInFlight) return;
+
+  const candidate=String(tokenOverride || getSavedToken() || "").trim();
+  if(!isAcceptedSupportToken(candidate)){
+    renderSupportUnread(0);
+    return;
+  }
+
+  const readerToken=canonicalSupportReaderToken(candidate);
+  if(!readerToken){
+    renderSupportUnread(0);
+    return;
+  }
+
+  supportUnreadRequestInFlight=true;
+  try{
+    const response=await fetch(SUPPORT_READER_URL,{
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=UTF-8"},
+      body:JSON.stringify({action:"list",token:readerToken}),
+      cache:"no-store",
+      redirect:"follow",
+      credentials:"omit"
+    });
+
+    const raw=String(await response.text() || "").replace(/^\uFEFF/,"").trim();
+    if(!raw) throw new Error("Leere Support-Antwort");
+
+    const data=JSON.parse(raw);
+    if(!response.ok || data?.success!==true){
+      throw new Error(data?.public_message || data?.message || "Support-Zähler nicht verfügbar");
+    }
+
+    const tickets=Array.isArray(data.tickets) ? data.tickets : [];
+    const unread=tickets.reduce((sum,ticket)=>{
+      const value=Math.max(0,Math.floor(Number(ticket?.user_ungelesen)||0));
+      return sum+value;
+    },0);
+
+    renderSupportUnread(unread);
+  }catch(error){
+    console.warn("Support-Zähler konnte nicht geladen werden:",error);
+    // Ein vorübergehender Reader-Fehler darf das Profil niemals blockieren.
+    renderSupportUnread(0);
+  }finally{
+    supportUnreadRequestInFlight=false;
+  }
+}
+
 function buildTokenVariants(token){
   if(!token) return [];
   const clean=String(token).trim();
@@ -2859,6 +2992,7 @@ async function fetchProfileByToken(variants,index){
     setUnitColor(total);
     setReferralLinks(data);
     prepareNetworkSection();
+    refreshSupportUnread(finalToken);
     document.getElementById("message").innerText="Kontostand wurde aktualisiert.";
   }catch(error){
     console.error("Profil wurde gefunden, aber die Anzeige hatte einen Fehler:",error);
@@ -2936,6 +3070,7 @@ function goBuyUnits(){const token=getActiveToken();if(token) location.href="http
 function goTipps(){const token=getActiveToken();if(token) location.href="https://betinsightclub.github.io/profil/tipps/?token="+encodeURIComponent(token)}
 function goFreigeschaltet(){const token=getActiveToken();if(token) location.href="https://betinsightclub.github.io/profil/freigeschaltet/?token="+encodeURIComponent(token)}
 function goUnitExchange(){const token=getActiveToken();if(token) location.href="https://betinsightclub.github.io/profil/wechselboerse/?token="+encodeURIComponent(token)}
+function goSupport(){location.href="https://betinsightclub.github.io/profil/support/"}
 function goBackoffice(){location.href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726"}
 
 function roundReferralUnits(value){
@@ -3146,6 +3281,7 @@ async function confirmReferralTransfer(){
 function forgetToken(){
   localStorage.removeItem(TOKEN_STORAGE_KEY);
   localStorage.removeItem("betinsight_email");
+  renderSupportUnread(0);
   currentProfileData={
     email:"",units:0,referralAvailable:0,refCode:"",dashboardToken:"",refLink:"",consumedUnits:null,unlockedTips:0,
     membershipLevel:0,membership:"Basis",premiumStart:null,premiumUntil:null,graceUntil:null,
@@ -3189,6 +3325,12 @@ document.getElementById("referralTransferAmount")?.addEventListener("keydown",ev
   if(event.key==="Enter"){
     event.preventDefault();
     confirmReferralTransfer();
+  }
+});
+
+window.addEventListener("pageshow",event=>{
+  if(event.persisted){
+    refreshSupportUnread();
   }
 });
 
