@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<!--
+GitHub-Ziel: betinsightclub/profil/admin/support/index.html
+Live-Seite: https://betinsightclub.github.io/profil/admin/support/
+
+Projekt: BetInsight
+Datei: profil/admin/support/index.html
+Version: 2026.08.17-01
+Anwendungs-Version: 1.1.0
+Stand: 17.08.2026
+Status: MASTER-SUPPORT – sichere Antworten aktiviert
+
+GEÄNDERT GEGENÜBER 2026.08.16-01:
+- „Antwort schreiben“ im geöffneten Master-Ticket aktiviert.
+- Antwort wird über den abgesicherten Apps-Script-Master-Endpunkt gesendet.
+- Kein neuer öffentlicher Make-Webhook für Master-Antworten.
+- Bestehende Master-Session wird weiterverwendet; Admin-Code und roher Session-Token werden nicht gesendet.
+- Doppelsendeschutz über eindeutige request_id.
+- Antwort erscheint als „BetInsight Support“ im Kundenverlauf.
+- Bearbeiter wird aus der geprüften Master-Session übernommen.
+- Geschlossene Tickets können nicht beantwortet werden.
+- Ticket schließen bleibt bewusst noch deaktiviert und folgt im nächsten Schritt.
+- Bestehende Ticketliste, Suche, Filter, Logo, Favicon und responsive Darstellung bleiben erhalten.
+
+WICHTIG:
+- Vollständige HTML-Datei, kein Codeschnipsel.
+- Ziel ausschließlich: betinsightclub/profil/admin/support/index.html
+-->
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#061d2a">
+  <meta name="application-version" content="1.1.0">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Master Support | BetInsight Club</title>
+
+  <style>
+    :root{
+      color-scheme:dark;
+      --bg-top:#0b3b55;
+      --bg-middle:#061d2a;
+      --bg-bottom:#031018;
+      --panel:rgba(9,45,64,.96);
+      --panel-soft:rgba(6,29,42,.90);
+      --panel-deep:rgba(3,19,28,.96);
+      --border:rgba(0,218,255,.26);
+      --border-strong:rgba(0,218,255,.58);
+      --text:#fff;
+      --muted:#a9c8d8;
+      --blue:#16a8f5;
+      --blue-dark:#0879bb;
+      --green:#00d48a;
+      --green-dark:#079663;
+      --yellow:#ffda76;
+      --red:#ff7d86;
+      --shadow:0 20px 54px rgba(0,0,0,.34);
+    }
+
+    *{box-sizing:border-box}
+    html{min-height:100%;scroll-behavior:smooth}
+    body{
+      min-height:100vh;
+      margin:0;
+      padding:24px 14px 48px;
+      color:var(--text);
+      font-family:Inter,Arial,Helvetica,sans-serif;
+      background:
+        radial-gradient(circle at 15% 0%,rgba(0,212,138,.09),transparent 28rem),
+        radial-gradient(circle at 88% 8%,rgba(22,168,245,.13),transparent 32rem),
+        linear-gradient(180deg,var(--bg-top) 0%,var(--bg-middle) 44%,var(--bg-bottom) 100%);
+      background-attachment:fixed;
+    }
+
+    button,input,select,a{font:inherit}
+    button,a{-webkit-tap-highlight-color:transparent}
+
+    .app{width:100%;max-width:1200px;margin:0 auto}
+
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;gap:18px;
+      margin-bottom:18px;padding:18px 20px;border:1px solid var(--border);
+      border-radius:20px;background:var(--panel);box-shadow:var(--shadow);
+    }
+
+    .brand-group{display:flex;align-items:center;gap:18px;min-width:0}
+    .logo{width:120px;max-width:28vw;height:auto;display:block;flex:0 0 auto}
+    .brand-wrap{min-width:0}
+    .eyebrow{margin-bottom:5px;color:var(--green);font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+    h1,h2,h3,p{margin-top:0}
+    h1{margin-bottom:6px;font-size:clamp(27px,4vw,38px);line-height:1.1}
+    h2{margin-bottom:8px;font-size:clamp(21px,3vw,28px)}
+    h3{margin-bottom:5px;font-size:17px}
+    .admin-line,.muted{color:var(--muted)}
+    .admin-name{color:#fff;font-weight:900}
+    .role-badge{
+      display:inline-flex;align-items:center;margin-left:7px;padding:4px 9px;
+      border:1px solid rgba(0,212,138,.38);border-radius:999px;
+      background:rgba(0,212,138,.10);color:#82f5c8;font-size:12px;font-weight:800;
+    }
+
+    .top-actions{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}
+    .button,.link-button{
+      display:inline-flex;align-items:center;justify-content:center;gap:7px;
+      min-height:42px;padding:10px 14px;border-radius:11px;cursor:pointer;
+      color:#fff;font-weight:800;text-decoration:none;border:1px solid rgba(185,216,232,.23);
+      background:rgba(255,255,255,.06);transition:150ms ease;
+    }
+    .button:hover:not(:disabled),.link-button:hover{transform:translateY(-1px);filter:brightness(1.06);border-color:var(--border-strong)}
+    .button:disabled{opacity:.48;cursor:not-allowed}
+    .button-primary{border:0;background:linear-gradient(135deg,var(--blue),var(--blue-dark))}
+
+    .status-strip{
+      display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:13px;
+      margin-bottom:18px;padding:14px 16px;border:1px solid rgba(0,212,138,.25);
+      border-radius:16px;background:linear-gradient(135deg,rgba(0,212,138,.08),rgba(6,29,42,.92));
+    }
+    .status-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--green);color:#04251a;font-weight:900}
+    .status-copy strong{display:block;margin-bottom:3px}.status-copy span{color:var(--muted);font-size:12px;line-height:1.45}
+    .status-badge{padding:6px 10px;border-radius:999px;border:1px solid rgba(0,212,138,.28);color:#88f1cc;background:rgba(0,212,138,.08);font-size:11px;font-weight:900;white-space:nowrap}
+    .status-badge.error{color:#ffc6ca;border-color:rgba(255,125,134,.38);background:rgba(255,125,134,.08)}
+
+    .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+    .kpi{padding:16px;border:1px solid rgba(185,216,232,.14);border-radius:15px;background:rgba(6,29,42,.86)}
+    .kpi span{display:block;color:var(--muted);font-size:11px;font-weight:800}.kpi strong{display:block;margin-top:8px;font-size:28px;line-height:1;font-weight:900}
+    .kpi.open strong{color:var(--blue)}.kpi.unread strong{color:var(--yellow)}.kpi.closed strong{color:#9db1bd}.kpi.all strong{color:var(--green)}
+
+    .workspace{display:grid;grid-template-columns:minmax(340px,.9fr) minmax(0,1.35fr);gap:18px;align-items:start}
+    .panel{overflow:hidden;border:1px solid var(--border);border-radius:19px;background:var(--panel);box-shadow:var(--shadow)}
+    .panel-head{padding:17px 18px;border-bottom:1px solid rgba(185,216,232,.12)}
+    .panel-head p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
+
+    .toolbar{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:9px;margin-top:13px}
+    .input,.select{
+      width:100%;min-height:42px;padding:0 12px;color:#fff;outline:none;
+      border:1px solid rgba(185,216,232,.22);border-radius:10px;background:rgba(1,14,21,.66);
+    }
+    .input:focus,.select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(22,168,245,.12)}
+
+    .ticket-list{display:grid;gap:9px;max-height:640px;overflow:auto;padding:12px}
+    .ticket-card{
+      width:100%;padding:13px;border:1px solid rgba(185,216,232,.14);border-radius:13px;
+      background:linear-gradient(145deg,rgba(3,24,35,.94),rgba(9,47,64,.84));
+      color:#fff;text-align:left;cursor:pointer;transition:140ms ease;
+    }
+    .ticket-card:hover{border-color:rgba(22,168,245,.48);transform:translateY(-1px)}
+    .ticket-card.active{border-color:rgba(0,212,138,.65);box-shadow:0 0 0 2px rgba(0,212,138,.08)}
+    .ticket-card.unread{border-left:3px solid var(--yellow)}
+    .ticket-top{display:flex;align-items:flex-start;justify-content:space-between;gap:9px}
+    .ticket-subject{font-size:14px;font-weight:900;line-height:1.35;overflow-wrap:anywhere}
+    .ticket-user{margin-top:4px;color:#8db7ca;font-size:11px;font-weight:800}
+    .pill{flex:0 0 auto;padding:4px 7px;border-radius:999px;border:1px solid rgba(0,212,138,.28);color:#85efca;background:rgba(0,212,138,.08);font-size:9px;font-weight:900}
+    .pill.closed{color:#bdcbd3;border-color:rgba(185,216,232,.20);background:rgba(185,216,232,.06)}
+    .ticket-meta{display:flex;flex-wrap:wrap;gap:5px 10px;margin-top:10px;color:var(--muted);font-size:10px}
+    .unread-badge{color:#ffe49a;font-weight:900}
+
+    .empty{padding:24px;text-align:center;color:var(--muted);font-size:13px}
+    .feedback{display:none;margin:12px;padding:11px 12px;border-radius:10px;font-size:12px;line-height:1.45}
+    .feedback.show{display:block}.feedback.error{color:#ffc6ca;border:1px solid rgba(255,125,134,.32);background:rgba(255,125,134,.08)}
+    .feedback.info{color:#c9eaff;border:1px solid rgba(22,168,245,.25);background:rgba(22,168,245,.07)}
+
+    .thread-placeholder{display:grid;place-items:center;min-height:420px;padding:30px;text-align:center;color:var(--muted)}
+    .thread{display:none}.thread.show{display:block}
+    .thread-head{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;padding:17px 18px;border-bottom:1px solid rgba(185,216,232,.12)}
+    .thread-title{margin:0 0 4px;font-size:20px}.thread-id{color:#7fa6b9;font-size:10px;overflow-wrap:anywhere}
+    .thread-user{margin-top:7px;color:#d8eef8;font-size:12px}.thread-user strong{color:var(--green)}
+    .thread-status{padding:5px 8px;border-radius:999px;color:#84efca;border:1px solid rgba(0,212,138,.25);background:rgba(0,212,138,.07);font-size:10px;font-weight:900}
+
+    .ticket-details{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:12px 18px;border-bottom:1px solid rgba(185,216,232,.10);background:rgba(1,12,19,.22)}
+    .detail{padding:9px;border-radius:9px;background:rgba(255,255,255,.025)}.detail span{display:block;color:var(--muted);font-size:9px;margin-bottom:3px}.detail strong{font-size:11px;overflow-wrap:anywhere}
+
+    .messages{display:flex;flex-direction:column;gap:10px;max-height:510px;overflow:auto;padding:18px;background:rgba(1,12,19,.28)}
+    .message-row{display:flex;width:100%}.message-row.user{justify-content:flex-start}.message-row.support{justify-content:flex-end}.message-row.internal{justify-content:center}
+    .bubble{max-width:min(76%,650px);padding:10px 12px;border-radius:14px;border:1px solid rgba(185,216,232,.14);background:rgba(12,50,68,.86);box-shadow:0 8px 20px rgba(0,0,0,.12)}
+    .message-row.support .bubble{background:rgba(7,73,57,.86);border-color:rgba(0,212,138,.20)}
+    .message-row.internal .bubble{max-width:90%;background:rgba(255,218,118,.06);border-color:rgba(255,218,118,.20)}
+    .bubble-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:5px}.sender{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}.message-row.user .sender{color:#75cfff}.message-row.support .sender{color:#78e6bd}.message-row.internal .sender{color:#ffe49a}.time{color:#6f93a5;font-size:9px;white-space:nowrap}
+    .message-text{font-size:13px;line-height:1.48;white-space:pre-line;overflow-wrap:anywhere}.visibility{margin-top:7px;color:#7fa6b9;font-size:9px}
+
+    .reply-area{padding:15px 18px 17px;border-top:1px solid rgba(185,216,232,.12);background:rgba(1,12,19,.18)}
+    .reply-area.hidden{display:none}
+    .reply-label{display:block;margin-bottom:8px;color:#eaf7fd;font-size:12px;font-weight:900}
+    .reply-textarea{width:100%;min-height:108px;padding:12px 13px;resize:vertical;color:#fff;line-height:1.5;outline:none;border:1px solid rgba(185,216,232,.24);border-radius:11px;background:rgba(1,14,21,.72)}
+    .reply-textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(0,212,138,.10)}
+    .reply-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:9px}
+    .reply-meta{color:#7699aa;font-size:10px;line-height:1.4}
+    .reply-button{min-height:42px;padding:10px 16px;border:0;border-radius:10px;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;font-weight:900;cursor:pointer}
+    .reply-button:disabled{opacity:.48;cursor:not-allowed}
+    .reply-feedback{display:none;margin-top:10px;padding:10px 11px;border-radius:9px;font-size:11px;line-height:1.45}
+    .reply-feedback.show{display:block}
+    .reply-feedback.success{color:#cffff0;border:1px solid rgba(0,212,138,.28);background:rgba(0,212,138,.07)}
+    .reply-feedback.error{color:#ffc6ca;border:1px solid rgba(255,125,134,.32);background:rgba(255,125,134,.08)}
+    .reply-feedback.info{color:#c9eaff;border:1px solid rgba(22,168,245,.25);background:rgba(22,168,245,.07)}
+    .closed-note{display:none;margin:0;padding:13px 18px;border-top:1px solid rgba(185,216,232,.12);color:#d9c67f;background:rgba(255,218,118,.045);font-size:11px;line-height:1.5}
+    .closed-note.show{display:block}
+
+    .access-denied{display:none;max-width:650px;margin:70px auto 0;padding:28px;text-align:center;border:1px solid rgba(255,125,134,.32);border-radius:18px;background:rgba(70,20,28,.40);box-shadow:var(--shadow)}
+    .access-denied.show{display:block}.access-denied p{color:var(--muted);line-height:1.55}
+
+    .loading{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}.spinner{width:15px;height:15px;border:2px solid rgba(185,216,232,.18);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    .footer{margin-top:20px;text-align:center;color:rgba(255,255,255,.42);font-size:11px}
+
+    @media(max-width:920px){.workspace{grid-template-columns:1fr}.ticket-list{max-height:430px}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:650px){body{padding:14px 9px 32px}.topbar{align-items:flex-start;padding:15px}.brand-group{align-items:flex-start}.logo{width:92px}.top-actions{width:100%;justify-content:flex-start}.topbar{flex-direction:column}.status-strip{grid-template-columns:auto 1fr}.status-badge{grid-column:1/-1;width:max-content;margin-left:49px}.toolbar{grid-template-columns:1fr}.ticket-details{grid-template-columns:repeat(2,minmax(0,1fr))}.bubble{max-width:91%}.reply-bottom{align-items:stretch;flex-direction:column}.reply-button{width:100%}}
+  </style>
+</head>
+<body>
+  <main class="app" id="app" hidden>
+    <header class="topbar">
+      <div class="brand-group">
+        <img class="logo" src="/profil/logo_betisight.club.png" alt="BetInsight Club">
+        <div class="brand-wrap">
+          <div class="eyebrow">BetInsight Control Center</div>
+          <h1>Master Support</h1>
+          <div class="admin-line">Angemeldet als <span class="admin-name" id="adminName">Master</span><span class="role-badge">Master-Admin</span></div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="button button-primary" id="refreshButton" type="button">↻ Aktualisieren</button>
+        <a class="link-button" href="/profil/admin/">← Admin Center</a>
+      </div>
+    </header>
+
+    <section class="status-strip">
+      <span class="status-icon">✓</span>
+      <div class="status-copy"><strong>Sicherer Master-Zugang</strong><span>Die bestehende Admin-Session wird verwendet. Ticketdaten werden aus dem isolierten Support-System gelesen.</span></div>
+      <span class="status-badge" id="statusBadge">Verbindung wird geprüft</span>
+    </section>
+
+    <section class="kpis">
+      <article class="kpi all"><span>Tickets gesamt</span><strong id="countAll">–</strong></article>
+      <article class="kpi open"><span>Offene Tickets</span><strong id="countOpen">–</strong></article>
+      <article class="kpi unread"><span>Für Support ungelesen</span><strong id="countUnread">–</strong></article>
+      <article class="kpi closed"><span>Geschlossene Tickets</span><strong id="countClosed">–</strong></article>
+    </section>
+
+    <section class="workspace">
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Support-Tickets</h2>
+          <p>Alle Nutzeranfragen an einer Stelle. Neue Kundennachrichten werden hervorgehoben.</p>
+          <div class="toolbar">
+            <input class="input" id="searchInput" type="search" placeholder="Ticket, Nutzer-ID oder Betreff suchen …" autocomplete="off">
+            <select class="select" id="statusFilter">
+              <option value="ALL">Alle Tickets</option>
+              <option value="OFFEN" selected>Nur offen</option>
+              <option value="GESCHLOSSEN">Geschlossen</option>
+            </select>
+          </div>
+        </div>
+        <div class="feedback" id="listFeedback"></div>
+        <div class="ticket-list" id="ticketList"><div class="empty"><span class="loading"><i class="spinner"></i>Tickets werden geladen …</span></div></div>
+      </article>
+
+      <article class="panel">
+        <div class="thread-placeholder" id="threadPlaceholder"><div><h2>Ticket auswählen</h2><p>Links ein Ticket anklicken, um den vollständigen Verlauf zu öffnen.</p></div></div>
+        <div class="thread" id="thread">
+          <header class="thread-head">
+            <div>
+              <h2 class="thread-title" id="threadTitle">Support-Ticket</h2>
+              <div class="thread-id" id="threadId"></div>
+              <div class="thread-user">Nutzer: <strong id="threadUser">–</strong></div>
+            </div>
+            <span class="thread-status" id="threadStatus">OFFEN</span>
+          </header>
+          <div class="ticket-details">
+            <div class="detail"><span>Kategorie</span><strong id="detailCategory">–</strong></div>
+            <div class="detail"><span>Priorität</span><strong id="detailPriority">–</strong></div>
+            <div class="detail"><span>Mitgliedschaft</span><strong id="detailMembership">–</strong></div>
+            <div class="detail"><span>Bearbeiter</span><strong id="detailAgent">–</strong></div>
+          </div>
+          <div class="messages" id="messages"></div>
+
+          <div class="reply-area hidden" id="replyArea">
+            <label class="reply-label" for="replyMessage">Antwort als BetInsight Support</label>
+            <textarea
+              class="reply-textarea"
+              id="replyMessage"
+              maxlength="4000"
+              placeholder="Antwort an den Kunden schreiben …"
+            ></textarea>
+            <div class="reply-bottom">
+              <div class="reply-meta">
+                <span id="replyCounter">0</span> / 4000 Zeichen · Die Antwort ist für den Kunden sichtbar.
+              </div>
+              <button class="reply-button" id="replyButton" type="button">Antwort senden</button>
+            </div>
+            <div class="reply-feedback" id="replyFeedback" role="status" aria-live="polite"></div>
+          </div>
+
+          <p class="closed-note" id="closedNote">
+            Dieses Ticket ist geschlossen und kann nicht mehr beantwortet werden. „Ticket schließen“ wird im nächsten Schritt ergänzt.
+          </p>
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer">© 2026 BetInsight Club · Master Support · isolierter Support-Reader · Admin-Sitzung v2.1</footer>
+  </main>
+
+  <section class="access-denied" id="accessDenied">
+    <img class="logo" src="/profil/logo_betisight.club.png" alt="BetInsight Club" style="margin:0 auto 18px;max-width:145px">
+    <h1>Master-Zugang erforderlich</h1>
+    <p id="accessDeniedText">Bitte melde dich zuerst im BetInsight Admin Center als Master-Admin an.</p>
+    <a class="link-button" href="/profil/admin/">Zum Admin Center</a>
+  </section>
+
+  <script>
+    "use strict";
+
+    const SUPPORT_READER_URL = "https://script.google.com/macros/s/AKfycbwgL2fh-4oBoaWBbtkSXaaKaEhcSIxtjPCENRObyfkMS0luNunCnjqSVt0PFTnGhZ9P/exec";
+    const SESSION_KEY = "betinsight_admin_session_v1";
+
+    let session = null;
+    let sessionHash = "";
+    let tickets = [];
+    let selectedTicketId = "";
+    let selectedTicket = null;
+    let busy = false;
+    let replyBusy = false;
+
+    const $ = id => document.getElementById(id);
+
+    function readSession(){
+      try{
+        const raw = sessionStorage.getItem(SESSION_KEY);
+        if(!raw) return null;
+        const parsed = JSON.parse(raw);
+        return parsed && parsed.token && parsed.adminId ? parsed : null;
+      }catch(_){return null}
+    }
+
+    function locallyExpired(value){
+      const expires = Number(value?.expiresMs || 0);
+      return !expires || Date.now() >= expires;
+    }
+
+    function isMaster(value){
+      return String(value?.master || "").toUpperCase() === "JA" || String(value?.role || "").toUpperCase() === "MASTER";
+    }
+
+    function bytesToHex(bytes){return Array.from(bytes,b=>b.toString(16).padStart(2,"0")).join("")}
+    async function sha256Hex(text){
+      const data = new TextEncoder().encode(String(text || ""));
+      const digest = await crypto.subtle.digest("SHA-256",data);
+      return bytesToHex(new Uint8Array(digest));
+    }
+
+    function showDenied(message){
+      $("app").hidden = true;
+      $("accessDenied").classList.add("show");
+      $("accessDeniedText").textContent = message || "Bitte melde dich zuerst als Master-Admin an.";
+    }
+
+    function escapeHtml(value){
+      return String(value ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+    }
+
+    function dateTime(value){
+      if(!value) return "–";
+      const d = new Date(value);
+      if(Number.isNaN(d.getTime())) return String(value);
+      return new Intl.DateTimeFormat("de-DE",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(d);
+    }
+
+    function feedback(type,message){
+      const el = $("listFeedback");
+      el.className = "feedback";
+      el.textContent = "";
+      if(!message) return;
+      el.classList.add("show",type || "info");
+      el.textContent = message;
+    }
+
+    function status(ok,text){
+      const el = $("statusBadge");
+      el.classList.toggle("error",!ok);
+      el.textContent = text;
+    }
+
+    function replyFeedback(type,message){
+      const el = $("replyFeedback");
+      el.className = "reply-feedback";
+      el.textContent = "";
+      if(!message) return;
+      el.classList.add("show",type || "info");
+      el.textContent = message;
+    }
+
+    function updateReplyCounter(){
+      $("replyCounter").textContent = String($("replyMessage").value.length);
+    }
+
+    function createRequestId(){
+      if(window.crypto && typeof crypto.randomUUID === "function"){
+        return crypto.randomUUID();
+      }
+      const bytes = new Uint8Array(16);
+      crypto.getRandomValues(bytes);
+      return Array.from(bytes,b=>b.toString(16).padStart(2,"0")).join("");
+    }
+
+
+    async function reader(payload){
+      const response = await fetch(SUPPORT_READER_URL,{
+        method:"POST",
+        headers:{"Content-Type":"text/plain;charset=UTF-8"},
+        body:JSON.stringify(payload),
+        cache:"no-store",
+        redirect:"follow",
+        credentials:"omit"
+      });
+      const raw = await response.text();
+      let data;
+      try{data = raw ? JSON.parse(raw) : {}}catch(_){throw new Error("Support-Reader hat keine gültige JSON-Antwort geliefert.")}
+      if(!data || data.success !== true){
+        const err = new Error(data?.message || "Master-Support konnte nicht geladen werden.");
+        err.code = data?.error || "READER_ERROR";
+        throw err;
+      }
+      return data;
+    }
+
+    function setCounts(counts={}){
+      $("countAll").textContent = String(Number(counts.all || 0));
+      $("countOpen").textContent = String(Number(counts.open || 0));
+      $("countClosed").textContent = String(Number(counts.closed || 0));
+      $("countUnread").textContent = String(Number(counts.support_unread || 0));
+    }
+
+    function renderTickets(){
+      const list = $("ticketList");
+      const query = $("searchInput").value.trim().toLowerCase();
+      list.innerHTML = "";
+
+      const filtered = tickets.filter(ticket => {
+        if(!query) return true;
+        return [ticket.ticket_id,ticket.user_id,ticket.betreff,ticket.kategorie,ticket.status].some(v=>String(v||"").toLowerCase().includes(query));
+      });
+
+      if(!filtered.length){
+        list.innerHTML = '<div class="empty">Keine passenden Tickets gefunden.</div>';
+        return;
+      }
+
+      filtered.forEach(ticket=>{
+        const unread = Number(ticket.support_ungelesen || 0) > 0;
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "ticket-card" + (unread ? " unread" : "") + (ticket.ticket_id === selectedTicketId ? " active" : "");
+        const open = ticket.offen === true || String(ticket.status||"").toUpperCase() === "OFFEN";
+        button.innerHTML = `
+          <div class="ticket-top">
+            <div>
+              <div class="ticket-subject">${escapeHtml(ticket.betreff || "Support-Ticket")}</div>
+              <div class="ticket-user">BI-ID ${escapeHtml(ticket.user_id || "–")}</div>
+            </div>
+            <span class="pill ${open ? "" : "closed"}">${escapeHtml(ticket.status || (open ? "OFFEN" : "GESCHLOSSEN"))}</span>
+          </div>
+          <div class="ticket-meta">
+            <span>📁 ${escapeHtml(ticket.kategorie || "Allgemein")}</span>
+            <span>⚑ ${escapeHtml(ticket.prioritaet || "NORMAL")}</span>
+            <span>🕒 ${escapeHtml(dateTime(ticket.letzte_nachricht_am || ticket.aktualisiert_am || ticket.erstellt_am))}</span>
+            ${unread ? `<span class="unread-badge">● ${Number(ticket.support_ungelesen)} neu</span>` : ""}
+          </div>`;
+        button.addEventListener("click",()=>openThread(ticket.ticket_id));
+        list.appendChild(button);
+      });
+    }
+
+    async function loadTickets(){
+      if(busy) return;
+      busy = true;
+      $("refreshButton").disabled = true;
+      feedback("","");
+      $("ticketList").innerHTML = '<div class="empty"><span class="loading"><i class="spinner"></i>Tickets werden geladen …</span></div>';
+
+      try{
+        const data = await reader({action:"admin_list",session_hash:sessionHash,status:$("statusFilter").value,limit:200});
+        tickets = Array.isArray(data.tickets) ? data.tickets : [];
+        setCounts(data.counts || {});
+        status(true,"Master verbunden");
+        if(data.admin?.name) $("adminName").textContent = data.admin.name;
+        renderTickets();
+      }catch(error){
+        console.error(error);
+        status(false,"Zugriff fehlgeschlagen");
+        feedback("error",error.message || "Tickets konnten nicht geladen werden.");
+        $("ticketList").innerHTML = '<div class="empty">Keine Ticketdaten verfügbar.</div>';
+        if(["MASTER_ACCESS_REQUIRED","ADMIN_SESSION_EXPIRED","INVALID_ADMIN_SESSION"].includes(error.code)) showDenied("Deine Master-Sitzung ist nicht mehr gültig. Bitte im Admin Center erneut anmelden.");
+      }finally{
+        busy = false;
+        $("refreshButton").disabled = false;
+      }
+    }
+
+    function renderMessages(messages){
+      const box = $("messages");
+      box.innerHTML = "";
+      const list = Array.isArray(messages) ? messages : [];
+      if(!list.length){box.innerHTML='<div class="empty">Keine Nachrichten im Ticket.</div>';return}
+      list.forEach(message=>{
+        const sender = String(message.absender_typ||"").toUpperCase();
+        const internal = String(message.sichtbar_fuer_user||"").toUpperCase() !== "JA";
+        const row = document.createElement("div");
+        row.className = "message-row " + (internal ? "internal" : sender === "USER" ? "user" : "support");
+        const senderLabel = internal ? "Interne Notiz" : sender === "USER" ? "Kunde" : "BetInsight Support";
+        row.innerHTML = `<div class="bubble"><div class="bubble-head"><span class="sender">${senderLabel}</span><span class="time">${escapeHtml(dateTime(message.erstellt_am))}</span></div><div class="message-text">${escapeHtml(String(message.nachricht||"").trim())}</div><div class="visibility">${internal ? "Nur intern sichtbar" : "Für Nutzer sichtbar"}${message.bearbeiter ? " · Bearbeiter: "+escapeHtml(message.bearbeiter) : ""}</div></div>`;
+        box.appendChild(row);
+      });
+      requestAnimationFrame(()=>{box.scrollTop=box.scrollHeight});
+    }
+
+    async function openThread(ticketId){
+      selectedTicketId = String(ticketId||"");
+      renderTickets();
+      $("threadPlaceholder").style.display = "none";
+      $("thread").classList.add("show");
+      $("messages").innerHTML = '<div class="empty"><span class="loading"><i class="spinner"></i>Gespräch wird geladen …</span></div>';
+
+      try{
+        const data = await reader({action:"admin_thread",session_hash:sessionHash,ticket_id:selectedTicketId});
+        const t = data.ticket || {};
+        $("threadTitle").textContent = t.betreff || "Support-Ticket";
+        $("threadId").textContent = t.ticket_id || selectedTicketId;
+        $("threadUser").textContent = t.user_id || "–";
+        $("threadStatus").textContent = t.status || "–";
+        $("detailCategory").textContent = t.kategorie || "–";
+        $("detailPriority").textContent = t.prioritaet || "–";
+        $("detailMembership").textContent = t.mitgliedschaft_bei_eroeffnung || "–";
+        $("detailAgent").textContent = t.bearbeiter || "Noch nicht zugewiesen";
+        selectedTicket = t;
+        renderMessages(data.messages || []);
+
+        const isOpen = t.offen === true || String(t.status || "").toUpperCase() === "OFFEN";
+        $("replyArea").classList.toggle("hidden", !isOpen);
+        $("closedNote").classList.toggle("show", !isOpen);
+        $("replyMessage").disabled = !isOpen;
+        $("replyButton").disabled = !isOpen;
+        replyFeedback("","");
+      }catch(error){
+        $("messages").innerHTML = '<div class="empty">'+escapeHtml(error.message || "Gespräch konnte nicht geladen werden.")+'</div>';
+      }
+    }
+
+    async function sendMasterReply(){
+      if(replyBusy || !selectedTicketId || !sessionHash) return;
+
+      const message = String($("replyMessage").value || "").trim();
+
+      if(message.length < 2){
+        replyFeedback("error","Bitte schreibe mindestens 2 Zeichen.");
+        $("replyMessage").focus();
+        return;
+      }
+
+      if(message.length > 4000){
+        replyFeedback("error","Die Antwort ist zu lang. Maximal 4000 Zeichen sind erlaubt.");
+        return;
+      }
+
+      replyBusy = true;
+      const button = $("replyButton");
+      button.disabled = true;
+      button.textContent = "Wird gesendet …";
+      replyFeedback("info","Antwort wird sicher gespeichert …");
+
+      const requestId = createRequestId();
+
+      try{
+        const data = await reader({
+          action:"admin_reply",
+          session_hash:sessionHash,
+          ticket_id:selectedTicketId,
+          message:message,
+          request_id:requestId
+        });
+
+        if(String(data.write_version || "") !== "SUPPORT-ADMIN-REPLY-v1.0"){
+          throw new Error("Der Support-Server hat eine unerwartete Schreibantwort geliefert.");
+        }
+
+        $("replyMessage").value = "";
+        updateReplyCounter();
+        replyFeedback(
+          "success",
+          data.deduplicated === true
+            ? "Die Antwort war bereits gespeichert und wurde nicht doppelt angelegt."
+            : "Antwort wurde als BetInsight Support gespeichert."
+        );
+
+        await loadTickets();
+        await openThread(selectedTicketId);
+
+      }catch(error){
+        console.error(error);
+        replyFeedback("error",error.message || "Die Antwort konnte nicht gespeichert werden.");
+
+        if(["MASTER_ACCESS_REQUIRED","ADMIN_SESSION_EXPIRED","INVALID_ADMIN_SESSION"].includes(error.code)){
+          showDenied("Deine Master-Sitzung ist nicht mehr gültig. Bitte im Admin Center erneut anmelden.");
+        }
+      }finally{
+        replyBusy = false;
+        button.disabled = false;
+        button.textContent = "Antwort senden";
+      }
+    }
+
+    async function init(){
+      session = readSession();
+      if(!session || locallyExpired(session)){
+        showDenied("Bitte melde dich zuerst im BetInsight Admin Center an.");
+        return;
+      }
+      if(!isMaster(session)){
+        showDenied("Dieser Bereich ist ausschließlich für den Master-Admin freigegeben.");
+        return;
+      }
+      sessionHash = await sha256Hex(session.token);
+      $("adminName").textContent = session.name || "Master";
+      $("app").hidden = false;
+      $("accessDenied").classList.remove("show");
+      await loadTickets();
+    }
+
+    $("refreshButton").addEventListener("click",async()=>{await loadTickets();if(selectedTicketId) await openThread(selectedTicketId)});
+    $("statusFilter").addEventListener("change",async()=>{selectedTicketId="";$("thread").classList.remove("show");$("threadPlaceholder").style.display="grid";await loadTickets()});
+    $("searchInput").addEventListener("input",renderTickets);
+    $("replyMessage").addEventListener("input",updateReplyCounter);
+    $("replyButton").addEventListener("click",sendMasterReply);
+
+    init();
+  </script>
+</body>
+</html>
