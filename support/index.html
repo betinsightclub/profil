@@ -2,14 +2,22 @@
 <!--
 GitHub-Ziel: betinsightclub/profil/support/index.html
 Live-Seite: https://betinsightclub.github.io/profil/support/
-Deploy-Neustart 17.08.2026
+
 Projekt: BetInsight
 Datei: profil/support/index.html
-Version: 2026.08.17-02
-Anwendungs-Version: 1.2.1
-Stand: 17.08.2026
+Version: 2026.08.18-01
+Anwendungs-Version: 1.3.0
+Stand: 18.08.2026
 
-GEÄNDERT GEGENÜBER 2026.08.16-02:
+GEÄNDERT GEGENÜBER 2026.08.17-02:
+- Neuer Bereich „Geschlossene Tickets“ ergänzt.
+- Geschlossene Tickets bleiben für den jeweiligen Eigentümer vollständig lesbar.
+- Geschlossene Tickets können nicht mehr beantwortet werden.
+- Eine letzte ungelesene Support-Antwort kann auch nach dem Schließen noch als gelesen markiert werden.
+- Offene und geschlossene Ticketlisten werden getrennt verwaltet.
+- Der bestehende 2-Ticket-Limit-Zähler bezieht sich weiterhin nur auf offene Tickets.
+- Kein zusätzlicher Make-Lesevorgang; geschlossene Historie kommt aus dem bestehenden Apps-Script-Reader.
+- Kleine Korrektur: Nach mark_read werden Ticketlisten nicht mehr versehentlich geleert.
 - FEHLERBEHEBUNG 1.2.1:
   - reader() korrigiert zu readerRequest().
   - tickets korrigiert zu currentTickets.
@@ -20,7 +28,7 @@ GEÄNDERT GEGENÜBER 2026.08.16-02:
 - Neue Apps-Script-Aktion mark_read verwendet; kein Make-Lesevorgang und keine Make-Operation für „gelesen“.
 - Nach erfolgreichem Öffnen verschwindet „Neue Antwort“ in der Ticketliste.
 - Ticketinhalt wird auch dann angezeigt, wenn das reine Gelesen-Markieren vorübergehend fehlschlägt.
-- Kunden können weiterhin nur ihre eigenen offenen Tickets sehen.
+- Kunden können ausschließlich ihre eigenen offenen und geschlossenen Tickets sehen.
 - Ticket erstellen und Antworten bleiben unverändert über die bestehenden Make-Webhooks.
 - Logo, Favicon, Chat-Bubbles, Antwortzeit-Hinweis und responsive Darstellung bleiben erhalten.
 
@@ -35,7 +43,7 @@ WICHTIG:
   <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#071019">
-  <meta name="application-version" content="1.2.1">
+  <meta name="application-version" content="1.3.0">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Support | BetInsight Club</title>
 
@@ -223,7 +231,7 @@ WICHTIG:
 
     .stats{
       display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
+      grid-template-columns:repeat(4,minmax(0,1fr));
       gap:14px;
       margin-bottom:20px;
     }
@@ -264,6 +272,7 @@ WICHTIG:
     .stat-card.open .stat-value{color:var(--blue)}
     .stat-card.free .stat-value{color:var(--accent)}
     .stat-card.limit .stat-value{color:var(--warning)}
+    .stat-card.closed .stat-value{color:#aebdca}
 
     .stat-note{
       display:block;
@@ -383,6 +392,24 @@ WICHTIG:
       font-weight:900;
       border:1px solid rgba(37,230,167,.28);
       background:rgba(37,230,167,.08);
+    }
+
+    .status-pill.closed{
+      color:#c2ced7;
+      border-color:rgba(194,206,215,.22);
+      background:rgba(194,206,215,.07);
+    }
+
+    .ticket-card.closed{
+      opacity:.92;
+      background:linear-gradient(145deg,rgba(8,20,29,.94),rgba(13,31,42,.90));
+    }
+
+    .closed-history-note{
+      margin-top:10px;
+      color:#748999;
+      font-size:.76rem;
+      line-height:1.45;
     }
 
     .ticket-meta{
@@ -893,6 +920,12 @@ WICHTIG:
           <strong class="stat-value">2</strong>
           <span class="stat-note">Antworten im offenen Ticket sind weiterhin möglich</span>
         </article>
+
+        <article class="stat-card closed">
+          <span class="stat-label">Geschlossene Tickets</span>
+          <strong class="stat-value" id="closedTicketCount">0</strong>
+          <span class="stat-note">Verlauf bleibt weiterhin lesbar</span>
+        </article>
       </div>
 
       <section class="card">
@@ -915,6 +948,23 @@ WICHTIG:
         <div class="empty-state" id="emptyTickets" hidden>
           <strong>Keine offenen Support-Tickets</strong>
           Du kannst über „Neues Ticket“ eine Anfrage an den BetInsight Support senden.
+        </div>
+      </section>
+
+      <section class="card" id="closedTicketsCard">
+        <div class="card-head">
+          <div>
+            <h2>Geschlossene Tickets</h2>
+            <p>Abgeschlossene Supportfälle bleiben als Verlauf erhalten.</p>
+            <div class="closed-history-note">Geschlossene Tickets können nicht mehr beantwortet werden.</div>
+          </div>
+        </div>
+
+        <div class="ticket-list" id="closedTicketList"></div>
+
+        <div class="empty-state" id="emptyClosedTickets">
+          <strong>Noch keine geschlossenen Tickets</strong>
+          Abgeschlossene Supportfälle erscheinen später hier.
         </div>
       </section>
 
@@ -971,7 +1021,7 @@ WICHTIG:
     </section>
 
     <p class="footer-note">
-      © 2026 BetInsight Club · Support-Zentrale · Lesezugriff über isolierten Support-Reader · Keine automatische Aktualisierung im Hintergrund
+      © 2026 BetInsight Club · Support-Zentrale · Offene & geschlossene Ticketverläufe über isolierten Support-Reader
     </p>
   </main>
 
@@ -1041,6 +1091,7 @@ WICHTIG:
     let rawUserToken = "";
     let readerToken = "";
     let currentTickets = [];
+    let currentClosedTickets = [];
     let currentTicketId = "";
     let currentThreadTicket = null;
     let listRequestInFlight = false;
@@ -1272,7 +1323,7 @@ WICHTIG:
       return data;
     }
 
-    function updateStats(openCount,remaining){
+    function updateStats(openCount,remaining,closedCount=0){
       const open = Math.max(0,Number(openCount) || 0);
 
       const free = Math.max(
@@ -1285,6 +1336,7 @@ WICHTIG:
 
       $("openTicketCount").textContent = String(open);
       $("remainingSlots").textContent = String(free);
+      $("closedTicketCount").textContent = String(Math.max(0,Number(closedCount) || 0));
 
       const button = $("newTicketButton");
       button.disabled = free <= 0 || !rawUserToken;
@@ -1293,7 +1345,57 @@ WICHTIG:
         : "＋ Neues Ticket";
     }
 
-    function renderTickets(tickets){
+    function buildTicketButton(ticket,isClosed=false){
+      const button = document.createElement("button");
+      button.type = "button";
+
+      button.className =
+        "ticket-card" +
+        (isClosed ? " closed" : "") +
+        (ticket.ticket_id === currentTicketId ? " active" : "");
+
+      button.dataset.ticketId = safeText(ticket.ticket_id,"");
+
+      const unread = Number(ticket.user_ungelesen || 0) > 0;
+
+      const dateValue =
+        (isClosed ? ticket.geschlossen_am : "") ||
+        ticket.letzte_nachricht_am ||
+        ticket.aktualisiert_am ||
+        ticket.erstellt_am;
+
+      const statusText = isClosed
+        ? "GESCHLOSSEN"
+        : safeText(ticket.status,"OFFEN");
+
+      button.innerHTML = `
+        <div class="ticket-top">
+          <div>
+            <h3 class="ticket-title">${escapeHtml(safeText(ticket.betreff,"Support-Ticket"))}</h3>
+            <span class="ticket-id">${escapeHtml(safeText(ticket.ticket_id,""))}</span>
+          </div>
+
+          <span class="status-pill${isClosed ? " closed" : ""}">${escapeHtml(statusText)}</span>
+        </div>
+
+        <div class="ticket-meta">
+          <span>📁 ${escapeHtml(safeText(ticket.kategorie,"Allgemein"))}</span>
+          <span>🕒 ${escapeHtml(formatDateTime(dateValue))}</span>
+          <span>${unread
+            ? '<i class="unread-dot" aria-hidden="true"></i> Neue Antwort'
+            : 'Gespräch öffnen'
+          }</span>
+        </div>
+      `;
+
+      button.addEventListener("click",() => {
+        openThread(button.dataset.ticketId);
+      });
+
+      return button;
+    }
+
+    function renderTickets(tickets=currentTickets){
       const list = $("ticketList");
       const empty = $("emptyTickets");
 
@@ -1307,47 +1409,25 @@ WICHTIG:
       empty.hidden = safeTickets.length !== 0;
 
       safeTickets.forEach(ticket => {
-        const button = document.createElement("button");
-        button.type = "button";
+        list.appendChild(buildTicketButton(ticket,false));
+      });
+    }
 
-        button.className =
-          "ticket-card" +
-          (ticket.ticket_id === currentTicketId ? " active" : "");
+    function renderClosedTickets(tickets=currentClosedTickets){
+      const list = $("closedTicketList");
+      const empty = $("emptyClosedTickets");
 
-        button.dataset.ticketId = safeText(ticket.ticket_id,"");
+      list.innerHTML = "";
 
-        const unread = Number(ticket.user_ungelesen || 0) > 0;
+      const safeTickets = Array.isArray(tickets)
+        ? tickets.filter(Boolean)
+        : [];
 
-        const dateValue =
-          ticket.letzte_nachricht_am ||
-          ticket.aktualisiert_am ||
-          ticket.erstellt_am;
+      currentClosedTickets = safeTickets;
+      empty.hidden = safeTickets.length !== 0;
 
-        button.innerHTML = `
-          <div class="ticket-top">
-            <div>
-              <h3 class="ticket-title">${escapeHtml(safeText(ticket.betreff,"Support-Ticket"))}</h3>
-              <span class="ticket-id">${escapeHtml(safeText(ticket.ticket_id,""))}</span>
-            </div>
-
-            <span class="status-pill">${escapeHtml(safeText(ticket.status,"OFFEN"))}</span>
-          </div>
-
-          <div class="ticket-meta">
-            <span>📁 ${escapeHtml(safeText(ticket.kategorie,"Allgemein"))}</span>
-            <span>🕒 ${escapeHtml(formatDateTime(dateValue))}</span>
-            <span>${unread
-              ? '<i class="unread-dot" aria-hidden="true"></i> Neue Antwort'
-              : 'Gespräch öffnen'
-            }</span>
-          </div>
-        `;
-
-        button.addEventListener("click",() => {
-          openThread(button.dataset.ticketId);
-        });
-
-        list.appendChild(button);
+      safeTickets.forEach(ticket => {
+        list.appendChild(buildTicketButton(ticket,true));
       });
     }
 
@@ -1369,11 +1449,17 @@ WICHTIG:
           ? data.tickets
           : [];
 
+        const closedTickets = Array.isArray(data.closed_tickets)
+          ? data.closed_tickets
+          : [];
+
         renderTickets(tickets);
+        renderClosedTickets(closedTickets);
 
         updateStats(
           data.open_ticket_count ?? tickets.length,
-          data.remaining_open_slots
+          data.remaining_open_slots,
+          data.closed_ticket_count ?? closedTickets.length
         );
 
         setConnectionState(true,"Sicher verbunden");
@@ -1476,7 +1562,16 @@ WICHTIG:
           return ticket;
         });
 
-        renderTickets();
+        currentClosedTickets = currentClosedTickets.map(ticket=>{
+          if(String(ticket.ticket_id || "") === String(ticketId || "")){
+            return {...ticket,user_ungelesen:0};
+          }
+          return ticket;
+        });
+
+        renderTickets(currentTickets);
+      renderClosedTickets(currentClosedTickets);
+        renderClosedTickets(currentClosedTickets);
         return true;
       }catch(error){
         // Der Gesprächsverlauf bleibt sichtbar.
@@ -1521,6 +1616,7 @@ WICHTIG:
         const ticket =
           data.ticket ||
           currentTickets.find(item => item.ticket_id === cleanId) ||
+          currentClosedTickets.find(item => item.ticket_id === cleanId) ||
           {};
 
         currentThreadTicket = ticket;
@@ -1536,7 +1632,14 @@ WICHTIG:
 
         renderMessages(data.messages || []);
 
-        if(Number(data.ticket?.user_ungelesen || 0) > 0){
+        const unreadBeforeOpen = Number(
+          data.ticket?.user_ungelesen ??
+          currentTickets.find(item => item.ticket_id === cleanId)?.user_ungelesen ??
+          currentClosedTickets.find(item => item.ticket_id === cleanId)?.user_ungelesen ??
+          0
+        );
+
+        if(unreadBeforeOpen > 0){
           await markThreadRead(cleanId);
         }
 
@@ -1568,6 +1671,7 @@ WICHTIG:
       updateReplyCounter();
       setFeedback($("replyFeedback"),"","");
       renderTickets(currentTickets);
+      renderClosedTickets(currentClosedTickets);
     }
 
     function openNewTicketModal(){
