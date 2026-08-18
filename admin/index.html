@@ -5,11 +5,18 @@ Live-Seite: https://betinsightclub.github.io/profil/admin/
 
 Projekt: BetInsight
 Datei: profil/admin/index.html
-Version: 2026.08.16-01
-Anwendungs-Version: 2.2.0
-Stand: 16.08.2026
+Version: 2026.08.18-01
+Anwendungs-Version: 2.3.0
+Stand: 18.08.2026
 
 GEÄNDERT:
+- SESSION-HÄRTUNG v2.3:
+  - Bei vorübergehendem Netzwerk-/Make-/Serverfehler während „verify“ wird die vorhandene Admin-Session NICHT mehr gelöscht.
+  - Session wird nur bei eindeutig ungültiger/abgelaufener Authentifizierung entfernt.
+  - Bei temporärem Prüfproblem bleibt die Session gespeichert; Seite kann einfach neu geladen werden.
+  - Fehlermeldung unterscheidet jetzt zwischen „Session ungültig“ und „Session-Prüfung vorübergehend nicht möglich“.
+- Login-Beschriftung präzisiert: „Persönlicher Admin-Code – nicht Profil-/Dashboard-Token“.
+- Bestehende 8-Stunden-Session, Master-Erkennung, Logout und Support-Navigation bleiben unverändert.
 - Dritten Bereich „Support & Tickets“ für Master-Admin ergänzt.
 - Support-Karte wird ausschließlich angezeigt, wenn master = JA oder role = MASTER ist.
 - Normale Admins sehen weiterhin nur die bisherigen zwei Bereiche.
@@ -29,7 +36,7 @@ WICHTIG:
 <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="theme-color" content="#061d2a">
-<meta name="application-version" content="2.2.0">
+<meta name="application-version" content="2.3.0">
 <title>BetInsight Admin Center</title>
 <style>
 :root{
@@ -90,8 +97,8 @@ h2{margin:0 0 12px;font-size:clamp(22px,3vw,28px)}p{margin:0}
 <section id="loginArea" class="card login-card" aria-labelledby="loginTitle">
 <h1 id="loginTitle">BetInsight Admin Center</h1>
 <p class="subtitle">Melde dich mit deinem persönlichen Admin-Code an.</p>
-<label class="login-label" for="adminCode">Admin-Code</label>
-<input id="adminCode" class="login-input" type="password" inputmode="text" autocomplete="current-password" autocapitalize="characters" spellcheck="false" maxlength="20" placeholder="Bitte Admin-Code eingeben">
+<label class="login-label" for="adminCode">Persönlicher Admin-Code <span style="color:#91a6b7;font-weight:600">– nicht Profil-/Dashboard-Token</span></label>
+<input id="adminCode" class="login-input" type="password" inputmode="text" autocomplete="current-password" autocapitalize="characters" spellcheck="false" maxlength="20" placeholder="Persönlichen Admin-Code eingeben">
 <button id="loginButton" class="primary-button" type="button">Anmelden</button>
 <div id="loginMessage" class="message" role="status" aria-live="polite"></div>
 </section>
@@ -138,7 +145,7 @@ h2{margin:0 0 12px;font-size:clamp(22px,3vw,28px)}p{margin:0}
 <div class="security-note">Dein Admin-Code wird weder im HTML noch im Browser noch in Make gespeichert. Vor dem Versand wird er lokal im Browser gehasht. Danach arbeitet der Browser ausschließlich mit einer zufälligen, zeitlich begrenzten Session.</div>
 </section>
 
-<footer class="footer">© 2026 BetInsight Club · Admin Center · Session-Sicherheit v2.2</footer>
+<footer class="footer">© 2026 BetInsight Club · Admin Center · Session-Sicherheit v2.3</footer>
 </main>
 
 <script>
@@ -176,10 +183,35 @@ async function sha256Hex(text){const data=new TextEncoder().encode(String(text||
 function createRandomSessionToken(){const bytes=new Uint8Array(32);crypto.getRandomValues(bytes);return bytesToHex(bytes)}
 
 async function authRequest(payload){
- const response=await fetch(AUTH_API_URL,{method:"POST",headers:{"Content-Type":"application/json"},cache:"no-store",credentials:"omit",body:JSON.stringify(payload)});
+ let response;
+ try{
+  response=await fetch(AUTH_API_URL,{method:"POST",headers:{"Content-Type":"application/json"},cache:"no-store",credentials:"omit",body:JSON.stringify(payload)})
+ }catch(networkError){
+  const error=new Error("Auth-Server ist vorübergehend nicht erreichbar.");
+  error.code="NETWORK_ERROR";
+  error.transient=true;
+  throw error
+ }
+
  const raw=await response.text();let data;
- try{data=raw?JSON.parse(raw):{}}catch(error){const parseError=new Error("Auth-Server hat keine gültige JSON-Antwort geliefert. Make-Antwort: "+(raw||"(leer)"));parseError.raw=raw;throw parseError}
- if(!response.ok||data?.ok!==true)throw new Error(data?.message||data?.error||("Anmeldung abgelehnt (HTTP "+response.status+")."));
+ try{
+  data=raw?JSON.parse(raw):{}
+ }catch(parseCause){
+  const error=new Error("Auth-Server hat vorübergehend keine gültige Antwort geliefert.");
+  error.code="INVALID_SERVER_RESPONSE";
+  error.httpStatus=response.status;
+  error.transient=true;
+  error.raw=raw;
+  throw error
+ }
+
+ if(!response.ok||data?.ok!==true){
+  const error=new Error(data?.message||data?.error||("Anmeldung abgelehnt (HTTP "+response.status+")."));
+  error.code=String(data?.code||data?.error_code||data?.error||"AUTH_REJECTED").trim().toUpperCase();
+  error.httpStatus=response.status;
+  error.transient=response.status>=500||response.status===429;
+  throw error
+ }
  return data
 }
 function saveSession(result,rawToken){
@@ -190,6 +222,25 @@ function saveSession(result,rawToken){
 function readSession(){try{const raw=sessionStorage.getItem(SESSION_KEY);if(!raw)return null;const session=JSON.parse(raw);return session?.token&&session?.adminId?session:null}catch(error){return null}}
 function clearSession(){try{sessionStorage.removeItem(SESSION_KEY)}catch(error){}}
 function sessionIsLocallyExpired(session){const expiresMs=Number(session?.expiresMs||0);return !expiresMs||Date.now()>=expiresMs}
+function isDefinitiveSessionFailure(error){
+ const status=Number(error?.httpStatus||0);
+ const code=String(error?.code||"").trim().toUpperCase();
+ const message=String(error?.message||"").trim().toUpperCase();
+
+ if(status===401||status===403)return true;
+
+ const definitiveCodes=[
+  "INVALID_SESSION",
+  "INVALID_ADMIN_SESSION",
+  "ADMIN_SESSION_EXPIRED",
+  "SESSION_EXPIRED",
+  "SESSION_NOT_FOUND",
+  "UNAUTHORIZED",
+  "FORBIDDEN"
+ ];
+
+ return definitiveCodes.some(value=>code.includes(value)||message.includes(value.replaceAll("_"," ")))
+}
 function isMasterSession(session){const master=String(session?.master||"").trim().toUpperCase();const role=String(session?.role||"").trim().toUpperCase();return master==="JA"||role==="MASTER"}
 function updateMasterNavigation(session){
  const master=isMasterSession(session);
@@ -243,9 +294,23 @@ async function verifyStoredSession(){
    role:String(result.role||session.role||"ADMIN"),
    master:String(result.master||session.master||"NEIN")
   };
-  sessionStorage.setItem(SESSION_KEY,JSON.stringify(verified));showDashboard(verified)
- }catch(error){clearSession();showLogin("Deine Sitzung ist nicht mehr gültig. Bitte erneut anmelden.")}
- finally{authBusy=false;updateLockState()}
+  sessionStorage.setItem(SESSION_KEY,JSON.stringify(verified));
+  showDashboard(verified)
+ }catch(error){
+  console.error("Admin-Session-Prüfung fehlgeschlagen:",error);
+
+  if(isDefinitiveSessionFailure(error)){
+   clearSession();
+   showLogin("Deine Admin-Sitzung ist abgelaufen oder ungültig. Bitte erneut mit deinem persönlichen Admin-Code anmelden.")
+  }else{
+   // WICHTIG: Bei einem temporären Transport-/Serverfehler bleibt die vorhandene
+   // Session erhalten. Zugriff bleibt fail-closed, bis die Prüfung wieder klappt.
+   showLogin("Die sichere Session-Prüfung ist vorübergehend nicht möglich. Deine bestehende Sitzung wurde NICHT gelöscht. Bitte die Seite in Kürze neu laden.")
+  }
+ }finally{
+  authBusy=false;
+  updateLockState()
+ }
 }
 async function logoutAdmin(){
  const session=readSession();clearSession();
