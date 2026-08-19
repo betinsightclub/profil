@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- BetInsight Landingpage v2.3 · moderner Header · Mobile-Optimierung · Referral-Persistenz -->
+<!-- BetInsight Landingpage v2.4 | PFAD: /profil/betinsightcommunity/index.html | GEÄNDERT: Partnerprogramm klar vom Premium Network getrennt, Premium E1-E6 / Premium Plus E1-E8 ergänzt, neues WebP eingebunden, Referral-Code wird zu betinsight.network weitergegeben -->
 <html lang="de">
 <head>
   <meta charset="utf-8">
@@ -7,1209 +7,1230 @@
   <meta name="theme-color" content="#041823">
   <meta name="description" content="BetInsight ist eine Mitgliederplattform für strukturierte Sportanalysen, klare Unit-Gewichtungen und kontrolliertes Bankroll-Management.">
   <title>BetInsight.club – Sportanalysen mit System</title>
+
   <link rel="icon" type="image/x-icon" href="https://betinsightclub.github.io/profil/favicon.ico">
   <link rel="preload" as="image" href="assets/hero-fussball-dunkel.png">
+
   <style>
-    :root {
-      --bg: #031720;
-      --bg-deep: #020f16;
-      --panel: #072432;
-      --panel-2: #0a2b3b;
-      --line: rgba(126, 211, 255, .18);
-      --line-strong: rgba(0, 225, 164, .42);
-      --text: #f5fbff;
-      --muted: #aac0cc;
-      --blue: #1687ff;
-      --blue-2: #0a69d8;
-      --green: #00d99b;
-      --green-dark: #008e69;
-      --red: #ff5f65;
-      --gold: #f7c950;
-      --shadow: 0 22px 70px rgba(0, 0, 0, .34);
-      --radius: 24px;
-      --max: 1200px;
+    :root{
+      --bg:#031720;
+      --bg-deep:#020f16;
+      --panel:#072432;
+      --panel-2:#0a2b3b;
+      --line:rgba(126,211,255,.18);
+      --line-strong:rgba(0,225,164,.42);
+      --text:#f5fbff;
+      --muted:#aac0cc;
+      --blue:#1687ff;
+      --blue-2:#0a69d8;
+      --green:#00d99b;
+      --green-dark:#008e69;
+      --red:#ff5f65;
+      --gold:#f7c950;
+      --shadow:0 22px 70px rgba(0,0,0,.34);
+      --radius:24px;
+      --max:1200px;
     }
 
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      color: var(--text);
+    *{box-sizing:border-box}
+    html{
+      scroll-behavior:smooth;
+      scroll-padding-top:96px;
+      overflow-x:hidden;
+    }
+    body{
+      margin:0;
+      overflow-x:hidden;
+      color:var(--text);
       background:
-        radial-gradient(circle at 15% 12%, rgba(0, 126, 191, .12), transparent 32rem),
-        radial-gradient(circle at 88% 52%, rgba(0, 217, 155, .08), transparent 28rem),
+        radial-gradient(circle at 15% 12%,rgba(0,126,191,.12),transparent 32rem),
+        radial-gradient(circle at 88% 52%,rgba(0,217,155,.08),transparent 28rem),
         var(--bg);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      line-height: 1.6;
-      text-rendering: optimizeLegibility;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      line-height:1.6;
+      text-rendering:optimizeLegibility;
     }
 
-    img { display: block; max-width: 100%; }
-    a { color: inherit; }
-    button, a { -webkit-tap-highlight-color: transparent; }
+    img{display:block;max-width:100%}
+    a{color:inherit}
+    button,a{-webkit-tap-highlight-color:transparent}
+    figure{margin:0}
+    h1,h2,h3,p{margin-top:0}
+    section[id]{scroll-margin-top:96px}
 
-    .container {
-      width: min(calc(100% - 36px), var(--max));
-      margin-inline: auto;
+    .container{
+      width:min(calc(100% - 36px),var(--max));
+      margin-inline:auto;
     }
 
-    .skip-link {
-      position: fixed;
-      left: 16px;
-      top: -80px;
-      z-index: 9999;
-      padding: 12px 16px;
-      border-radius: 12px;
-      background: white;
-      color: #001b29;
-      font-weight: 800;
+    .skip-link{
+      position:fixed;
+      left:16px;
+      top:-80px;
+      z-index:9999;
+      padding:12px 16px;
+      border-radius:12px;
+      background:white;
+      color:#001b29;
+      font-weight:800;
     }
-    .skip-link:focus { top: 16px; }
+    .skip-link:focus{top:16px}
 
-    .site-header {
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      background: rgba(2, 15, 22, .84);
-      border-bottom: 1px solid rgba(255,255,255,.08);
-      backdrop-filter: blur(18px);
-    }
-
-    .nav-wrap {
-      min-height: 78px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
+    .site-header{
+      position:sticky;
+      top:0;
+      z-index:1000;
+      background:rgba(2,15,22,.84);
+      border-bottom:1px solid rgba(255,255,255,.08);
+      backdrop-filter:blur(18px);
     }
 
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      text-decoration: none;
-      flex: 0 0 auto;
+    .site-header .container{position:relative}
+
+    .nav-wrap{
+      min-height:82px;
+      display:grid;
+      grid-template-columns:auto minmax(0,1fr) auto;
+      align-items:center;
+      gap:18px;
     }
 
-    .brand img {
-      width: 198px;
-      height: auto;
+    .brand{
+      display:inline-flex;
+      align-items:center;
+      text-decoration:none;
+      flex:0 0 auto;
     }
 
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      margin-left: auto;
+    .brand img{width:174px;height:auto}
+
+    .nav-links{
+      display:flex;
+      align-items:center;
+      justify-self:center;
+      gap:3px;
+      padding:5px;
+      border:1px solid rgba(255,255,255,.075);
+      border-radius:999px;
+      background:rgba(255,255,255,.025);
     }
 
-    .nav-links a {
-      color: #d8e9f1;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 750;
-      transition: color .2s ease;
-    }
-    .nav-links a:hover { color: white; }
-
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .nav-links a{
+      padding:10px 12px;
+      border-radius:999px;
+      color:#d8e9f1;
+      text-decoration:none;
+      font-size:13px;
+      font-weight:750;
+      line-height:1;
+      white-space:nowrap;
+      transition:.2s ease;
     }
 
-    .mobile-menu { display: none; }
-
-    .menu-button {
-      display: none;
-      width: 46px;
-      height: 46px;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      color: white;
-      background: rgba(255,255,255,.04);
-      font-size: 22px;
-      cursor: pointer;
+    .nav-links a:hover,
+    .nav-links a:focus-visible{
+      color:#fff;
+      background:rgba(105,184,255,.11);
+      outline:none;
     }
 
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 9px;
-      min-height: 50px;
-      padding: 13px 21px;
-      border: 1px solid transparent;
-      border-radius: 14px;
-      text-decoration: none;
-      font-weight: 850;
-      line-height: 1.15;
-      text-align: center;
-      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    .nav-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-shrink:0;
     }
 
-    .btn:hover {
-      transform: translateY(-2px);
+    .menu-button{
+      display:none;
+      width:46px;
+      height:46px;
+      align-items:center;
+      justify-content:center;
+      border:1px solid var(--line);
+      border-radius:14px;
+      color:white;
+      background:rgba(255,255,255,.04);
+      font-size:22px;
+      cursor:pointer;
     }
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--blue), var(--blue-2));
-      box-shadow: 0 14px 30px rgba(22, 135, 255, .28);
-    }
-    .btn-primary:hover { box-shadow: 0 18px 38px rgba(22, 135, 255, .4); }
-
-    .btn-secondary {
-      color: white;
-      background: rgba(255,255,255,.055);
-      border-color: rgba(255,255,255,.16);
-    }
-    .btn-secondary:hover { border-color: rgba(126,211,255,.55); }
-
-    .btn-green {
-      color: #00251a;
-      background: linear-gradient(135deg, #22efb2, #00bf86);
-      box-shadow: 0 14px 30px rgba(0, 217, 155, .22);
+    .mobile-menu{
+      display:none;
+      position:absolute;
+      top:calc(100% + 8px);
+      left:0;
+      right:0;
+      z-index:1100;
+      padding:12px;
+      border:1px solid rgba(126,211,255,.18);
+      border-radius:18px;
+      background:rgba(3,23,32,.985);
+      box-shadow:0 24px 65px rgba(0,0,0,.52);
+      backdrop-filter:blur(18px);
     }
 
-    .hero {
-      position: relative;
-      min-height: 730px;
-      overflow: hidden;
-      border-bottom: 1px solid rgba(255,255,255,.07);
-      isolation: isolate;
+    .mobile-menu.open{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:8px;
     }
 
-    .hero::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: -3;
-      background-image: url("assets/hero-fussball-dunkel.png");
-      background-size: cover;
-      background-position: center 58%;
-      transform: scale(1.01);
+    .mobile-menu a{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:48px;
+      padding:13px 15px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      color:#d9e7ee;
+      background:rgba(255,255,255,.035);
+      text-decoration:none;
+      font-weight:750;
+      text-align:center;
+      white-space:nowrap;
     }
 
-    .hero::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: -2;
+    .mobile-menu .mobile-login{
+      border-color:rgba(255,255,255,.18);
+      background:rgba(255,255,255,.06);
+    }
+
+    .mobile-menu .mobile-register{
+      color:white;
+      border-color:transparent;
+      background:linear-gradient(135deg,var(--blue),var(--blue-2));
+      box-shadow:0 12px 28px rgba(22,135,255,.24);
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:9px;
+      min-height:50px;
+      max-width:100%;
+      padding:13px 21px;
+      border:1px solid transparent;
+      border-radius:14px;
+      color:white;
+      text-decoration:none;
+      font-weight:850;
+      line-height:1.15;
+      text-align:center;
+      transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease,background .2s ease;
+    }
+
+    .btn:hover{transform:translateY(-2px)}
+
+    .nav-actions .btn{
+      min-height:44px;
+      padding:11px 16px;
+      border-radius:12px;
+      font-size:14px;
+      white-space:nowrap;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg,var(--blue),var(--blue-2));
+      box-shadow:0 14px 30px rgba(22,135,255,.28);
+    }
+    .btn-primary:hover{box-shadow:0 18px 38px rgba(22,135,255,.4)}
+
+    .btn-secondary{
+      color:white;
+      background:rgba(255,255,255,.055);
+      border-color:rgba(255,255,255,.16);
+    }
+    .btn-secondary:hover{border-color:rgba(126,211,255,.55)}
+
+    .btn-green{
+      color:#00251a;
+      background:linear-gradient(135deg,#22efb2,#00bf86);
+      box-shadow:0 14px 30px rgba(0,217,155,.22);
+    }
+
+    .hero{
+      position:relative;
+      min-height:730px;
+      overflow:hidden;
+      border-bottom:1px solid rgba(255,255,255,.07);
+      isolation:isolate;
+    }
+
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:-3;
+      background-image:url("assets/hero-fussball-dunkel.png");
+      background-size:cover;
+      background-position:center 58%;
+      transform:scale(1.01);
+    }
+
+    .hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:-2;
       background:
-        linear-gradient(90deg, rgba(2,15,22,.97) 0%, rgba(2,15,22,.84) 43%, rgba(2,15,22,.40) 72%, rgba(2,15,22,.58) 100%),
-        linear-gradient(0deg, var(--bg) 0%, transparent 34%);
+        linear-gradient(90deg,rgba(2,15,22,.97) 0%,rgba(2,15,22,.84) 43%,rgba(2,15,22,.40) 72%,rgba(2,15,22,.58) 100%),
+        linear-gradient(0deg,var(--bg) 0%,transparent 34%);
     }
 
-    .hero-inner {
-      min-height: 730px;
-      display: grid;
-      grid-template-columns: minmax(0, 760px) 1fr;
-      align-items: center;
-      padding: 82px 0 124px;
+    .hero-inner{
+      min-height:730px;
+      display:grid;
+      grid-template-columns:minmax(0,760px) 1fr;
+      align-items:center;
+      padding:82px 0 124px;
     }
 
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 9px;
-      margin-bottom: 18px;
-      padding: 7px 12px;
-      border: 1px solid rgba(0, 217, 155, .32);
-      border-radius: 999px;
-      color: #aef9dc;
-      background: rgba(0, 217, 155, .09);
-      font-size: 12px;
-      font-weight: 900;
-      letter-spacing: .14em;
-      text-transform: uppercase;
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:9px;
+      margin-bottom:18px;
+      padding:7px 12px;
+      border:1px solid rgba(0,217,155,.32);
+      border-radius:999px;
+      color:#aef9dc;
+      background:rgba(0,217,155,.09);
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.14em;
+      text-transform:uppercase;
     }
 
-    .eyebrow-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 16px var(--green);
+    .eyebrow-dot{
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:var(--green);
+      box-shadow:0 0 16px var(--green);
     }
 
-    h1, h2, h3, p { margin-top: 0; }
-
-    h1 {
-      max-width: 760px;
-      margin-bottom: 22px;
-      font-size: clamp(42px, 6vw, 76px);
-      line-height: 1.03;
-      letter-spacing: -.045em;
-      text-wrap: balance;
+    h1{
+      max-width:760px;
+      margin-bottom:22px;
+      font-size:clamp(42px,6vw,76px);
+      line-height:1.03;
+      letter-spacing:-.045em;
+      text-wrap:balance;
     }
 
-    .accent { color: #69b8ff; }
+    .accent{color:#69b8ff}
 
-    .hero-copy {
-      max-width: 690px;
-      margin-bottom: 28px;
-      color: #d1e0e8;
-      font-size: clamp(18px, 2vw, 22px);
-      line-height: 1.65;
+    .hero-copy{
+      max-width:690px;
+      margin-bottom:28px;
+      color:#d1e0e8;
+      font-size:clamp(18px,2vw,22px);
+      line-height:1.65;
     }
 
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 28px;
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-bottom:28px;
     }
 
-    .hero-note {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 11px 20px;
-      color: #b8cbd5;
-      font-size: 14px;
+    .hero-note{
+      display:flex;
+      flex-wrap:wrap;
+      gap:11px 20px;
+      color:#b8cbd5;
+      font-size:14px;
     }
-    .hero-note span::before {
-      content: "✓";
-      margin-right: 7px;
-      color: var(--green);
-      font-weight: 900;
-    }
-
-    .trust-strip {
-      position: relative;
-      z-index: 3;
-      margin-top: -74px;
+    .hero-note span::before{
+      content:"✓";
+      margin-right:7px;
+      color:var(--green);
+      font-weight:900;
     }
 
-    .trust-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      overflow: hidden;
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      background: rgba(6, 33, 45, .92);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
+    .trust-strip{
+      position:relative;
+      z-index:3;
+      margin-top:-74px;
     }
 
-    .trust-item {
-      padding: 22px 20px;
-      text-align: center;
-      border-right: 1px solid var(--line);
-    }
-    .trust-item:last-child { border-right: 0; }
-    .trust-item strong { display: block; font-size: 18px; }
-    .trust-item span { color: var(--muted); font-size: 13px; }
-
-    section { padding: 104px 0; }
-
-    .section-head {
-      max-width: 760px;
-      margin: 0 auto 52px;
-      text-align: center;
+    .trust-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:rgba(6,33,45,.92);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(14px);
     }
 
-    .section-label {
-      margin-bottom: 10px;
-      color: var(--green);
-      font-size: 12px;
-      font-weight: 900;
-      letter-spacing: .15em;
-      text-transform: uppercase;
+    .trust-item{
+      padding:22px 20px;
+      text-align:center;
+      border-right:1px solid var(--line);
+    }
+    .trust-item:last-child{border-right:0}
+    .trust-item strong{display:block;font-size:18px}
+    .trust-item span{color:var(--muted);font-size:13px}
+
+    section{padding:104px 0}
+
+    .section-head{
+      max-width:760px;
+      margin:0 auto 52px;
+      text-align:center;
+    }
+
+    .section-label{
+      margin-bottom:10px;
+      color:var(--green);
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.15em;
+      text-transform:uppercase;
     }
 
     .section-head h2,
-    .content-copy h2 {
-      margin-bottom: 16px;
-      font-size: clamp(32px, 4.4vw, 52px);
-      line-height: 1.1;
-      letter-spacing: -.03em;
-      text-wrap: balance;
+    .content-copy h2{
+      margin-bottom:16px;
+      font-size:clamp(32px,4.4vw,52px);
+      line-height:1.1;
+      letter-spacing:-.03em;
+      text-wrap:balance;
     }
 
     .section-head p,
-    .content-copy > p {
-      color: var(--muted);
-      font-size: 18px;
-    }
-
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 18px;
-    }
-
-    .card {
-      padding: 26px;
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      background: linear-gradient(180deg, rgba(10,43,59,.96), rgba(6,31,43,.96));
-      box-shadow: 0 18px 45px rgba(0,0,0,.16);
-    }
-
-    .card-icon {
-      width: 46px;
-      height: 46px;
-      display: grid;
-      place-items: center;
-      margin-bottom: 18px;
-      border-radius: 14px;
-      color: white;
-      background: rgba(255,95,101,.14);
-      border: 1px solid rgba(255,95,101,.24);
-      font-size: 22px;
-    }
-
-    .card h3 { margin-bottom: 8px; font-size: 19px; }
-    .card p { margin: 0; color: var(--muted); font-size: 15px; }
-
-    .split {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 70px;
-      align-items: center;
-    }
-
-    .media-card {
-      position: relative;
-      overflow: hidden;
-      min-height: 450px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: var(--panel);
-      box-shadow: var(--shadow);
-    }
-
-    .media-card img {
-      width: 100%;
-      height: 100%;
-      min-height: 450px;
-      object-fit: cover;
-    }
-
-    .media-card::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background: linear-gradient(180deg, transparent 54%, rgba(2,15,22,.56));
-    }
-
-    .steps {
-      display: grid;
-      gap: 15px;
-      margin: 30px 0 0;
-    }
-
-    .step {
-      display: grid;
-      grid-template-columns: 48px 1fr;
-      gap: 15px;
-      align-items: start;
-      padding: 19px;
-      border: 1px solid var(--line);
-      border-radius: 17px;
-      background: rgba(255,255,255,.025);
-    }
-
-    .step-number {
-      width: 48px;
-      height: 48px;
-      display: grid;
-      place-items: center;
-      border-radius: 15px;
-      color: #00291e;
-      background: linear-gradient(135deg, #27efb5, #00bd85);
-      font-weight: 950;
-    }
-
-    .step h3 { margin-bottom: 3px; font-size: 18px; }
-    .step p { margin: 0; color: var(--muted); font-size: 15px; }
-
-    .calculator-section {
-      position: relative;
-      overflow: hidden;
-      background:
-        radial-gradient(circle at 83% 18%, rgba(0,217,155,.13), transparent 25rem),
-        linear-gradient(180deg, #041b26, #031720);
-      border-block: 1px solid rgba(255,255,255,.06);
-    }
-
-    .calculator-preview {
-      padding: 14px;
-      border: 1px solid rgba(0,217,155,.32);
-      border-radius: 24px;
-      background: rgba(2,15,22,.82);
-      box-shadow: 0 24px 70px rgba(0,0,0,.44), 0 0 42px rgba(0,217,155,.06);
-    }
-
-    .calculator-section .split {
-      grid-template-columns: minmax(0, 1.08fr) minmax(360px, .92fr);
-    }
-
-    .calculator-preview {
-      width: 100%;
-      max-width: 560px;
-      justify-self: end;
-    }
-
-    .calculator-preview img {
-      width: 100%;
-      height: auto;
-      aspect-ratio: 4 / 3;
-      object-fit: contain;
-      border-radius: 15px;
-      background: #02131c;
-    }
-
-    .network-section {
-      background:
-        radial-gradient(circle at 18% 32%, rgba(0,217,155,.11), transparent 25rem),
-        linear-gradient(180deg, #031720, #041b26);
-      border-block: 1px solid rgba(255,255,255,.06);
-    }
-
-    .network-visual {
-      overflow: hidden;
-      padding: 12px;
-      border: 1px solid rgba(0,217,155,.28);
-      border-radius: 24px;
-      background: rgba(2,15,22,.72);
-      box-shadow: var(--shadow);
-    }
-
-    .network-visual img {
-      width: 100%;
-      height: auto;
-      border-radius: 15px;
-    }
-
-    .start-units-box {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 16px;
-      align-items: center;
-      margin: 24px 0;
-      padding: 18px;
-      border: 1px solid rgba(0,217,155,.30);
-      border-radius: 16px;
-      background: rgba(0,217,155,.06);
-    }
-
-    .start-units-number {
-      min-width: 72px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      color: #00251a;
-      background: linear-gradient(135deg, #93ff65, #20e7a8);
-      font-size: 30px;
-      font-weight: 950;
-      line-height: 1;
-      text-align: center;
-    }
-
-    .start-units-box strong { display: block; margin-bottom: 2px; }
-    .start-units-box span { color: var(--muted); font-size: 14px; }
-
-    .info-box {
-      margin: 24px 0;
-      padding: 18px 19px;
-      border: 1px solid rgba(0,217,155,.30);
-      border-left: 4px solid var(--green);
-      border-radius: 14px;
-      color: #cbe2dc;
-      background: rgba(0,217,155,.055);
-      font-size: 14px;
-    }
-
-    .microcopy {
-      margin-top: 10px;
-      color: #91aab7;
-      font-size: 12px;
-    }
-
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
-    }
-
-    .feature-card {
-      min-height: 250px;
-      padding: 28px;
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      background: linear-gradient(180deg, rgba(9,43,59,.95), rgba(5,27,38,.95));
-    }
-
-    .feature-card .tag {
-      display: inline-block;
-      margin-bottom: 34px;
-      padding: 5px 9px;
-      border-radius: 999px;
-      color: #bcebdc;
-      background: rgba(0,217,155,.09);
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-    }
-
-    .feature-card h3 { font-size: 23px; line-height: 1.25; }
-    .feature-card p { margin-bottom: 0; color: var(--muted); }
-
-    .package-area {
-      display: grid;
-      grid-template-columns: .82fr 1.18fr;
-      gap: 60px;
-      align-items: center;
-      padding: 40px;
-      border: 1px solid var(--line);
-      border-radius: 28px;
-      background:
-        radial-gradient(circle at 15% 28%, rgba(139, 85, 255, .17), transparent 22rem),
-        linear-gradient(135deg, #071f2b, #03151e);
-      box-shadow: var(--shadow);
-    }
-
-    .package-visual {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 360px;
-    }
-
-    .package-visual img {
-      width: min(100%, 360px);
-      max-height: 330px;
-      object-fit: contain;
-      filter: drop-shadow(0 20px 30px rgba(0,0,0,.38));
-    }
-
-    .package-visual.missing-image::after {
-      content: "Paketbild konnte nicht geladen werden.";
-      display: grid;
-      place-items: center;
-      min-height: 240px;
-      width: min(100%, 420px);
-      padding: 24px;
-      border: 1px dashed rgba(126,211,255,.36);
-      border-radius: 20px;
-      color: var(--muted);
-      background: rgba(255,255,255,.025);
-      text-align: center;
-    }
-
-    .bullet-list {
-      display: grid;
-      gap: 12px;
-      margin: 26px 0 30px;
-      padding: 0;
-      list-style: none;
-    }
-
-    .bullet-list li {
-      display: flex;
-      gap: 10px;
-      color: #d6e6ed;
-    }
-    .bullet-list li::before {
-      content: "✓";
-      flex: 0 0 auto;
-      color: var(--green);
-      font-weight: 900;
-    }
-
-    .trust-section {
-      position: relative;
-      min-height: 610px;
-      display: flex;
-      align-items: center;
-      overflow: hidden;
-      isolation: isolate;
-    }
-
-    .trust-section::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: -2;
-      background: url("assets/stadion-community.webp") center/cover no-repeat;
-    }
-    .trust-section::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: -1;
-      background: linear-gradient(90deg, rgba(2,15,22,.97), rgba(2,15,22,.73) 62%, rgba(2,15,22,.54));
-    }
-
-    .trust-copy {
-      max-width: 720px;
-      padding: 80px 0;
-    }
-
-    .trust-copy h2 {
-      margin-bottom: 18px;
-      font-size: clamp(36px, 5vw, 58px);
-      line-height: 1.08;
-      letter-spacing: -.035em;
-    }
-
-    .trust-copy p { color: #d0e0e8; font-size: 18px; }
-
-    .disclaimer {
-      padding: 25px;
-      border: 1px solid rgba(247,201,80,.3);
-      border-radius: 18px;
-      color: #dfd6b8;
-      background: rgba(247,201,80,.07);
-      font-size: 14px;
-    }
-
-    .final-cta {
-      text-align: center;
-      background: linear-gradient(180deg, var(--bg), var(--bg-deep));
-    }
-
-    .cta-box {
-      padding: 58px 34px;
-      border: 1px solid rgba(22,135,255,.3);
-      border-radius: 28px;
-      background:
-        radial-gradient(circle at 50% 0%, rgba(22,135,255,.16), transparent 28rem),
-        linear-gradient(180deg, rgba(8,39,54,.96), rgba(3,23,32,.96));
-      box-shadow: var(--shadow);
-    }
-
-    .cta-box h2 {
-      max-width: 800px;
-      margin: 0 auto 16px;
-      font-size: clamp(34px, 4.8vw, 56px);
-      line-height: 1.1;
-      letter-spacing: -.035em;
-    }
-
-    .cta-box p {
-      max-width: 680px;
-      margin: 0 auto 28px;
-      color: var(--muted);
-      font-size: 18px;
-    }
-
-    .cta-actions {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 12px;
-    }
-
-    .site-footer {
-      padding: 50px 0 26px;
-      border-top: 1px solid rgba(255,255,255,.07);
-      background: #020f16;
-    }
-
-    .footer-grid {
-      display: grid;
-      grid-template-columns: 1.25fr .75fr .75fr;
-      gap: 48px;
-      padding-bottom: 34px;
-    }
-
-    .footer-logo { width: 210px; margin-bottom: 16px; }
-    .footer-copy { max-width: 440px; color: #91a9b5; font-size: 14px; }
-    .footer-title { margin-bottom: 12px; font-size: 14px; text-transform: uppercase; letter-spacing: .11em; }
-    .footer-links { display: grid; gap: 9px; }
-    .footer-links a { color: #a8bcc6; text-decoration: none; font-size: 14px; }
-    .footer-links a:hover { color: white; }
-
-    .imprint {
-      padding: 18px;
-      border: 1px solid var(--line);
-      border-radius: 15px;
-      color: #9db1bb;
-      background: rgba(255,255,255,.025);
-      font-size: 13px;
-    }
-    .imprint strong { color: white; }
-
-    .footer-bottom {
-      display: flex;
-      justify-content: space-between;
-      gap: 18px;
-      padding-top: 22px;
-      border-top: 1px solid rgba(255,255,255,.07);
-      color: #718a96;
-      font-size: 12px;
-    }
-
-    @media (max-width: 1050px) {
-      .nav-links { display: none; }
-      .card-grid { grid-template-columns: repeat(2, 1fr); }
-      .split { gap: 42px; }
-      .package-area { gap: 30px; }
-    }
-
-    @media (max-width: 780px) {
-      .container { width: min(calc(100% - 24px), var(--max)); }
-      .site-header { position: sticky; }
-      .nav-wrap { min-height: 68px; }
-      .brand img { width: 164px; }
-      .nav-actions .btn-secondary { display: none; }
-      .nav-actions .btn-primary { display: none; }
-      .menu-button { display: inline-flex; }
-
-      .mobile-menu {
-        display: none;
-        padding: 0 0 16px;
-      }
-      .mobile-menu.open { display: grid; gap: 8px; }
-      .mobile-menu a {
-        padding: 13px 15px;
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        color: #d9e7ee;
-        background: rgba(255,255,255,.035);
-        text-decoration: none;
-        font-weight: 750;
-      }
-
-      .hero, .hero-inner { min-height: 700px; }
-      .hero::before { background-position: 58% 64%; }
-      .hero::after {
-        background:
-          linear-gradient(180deg, rgba(2,15,22,.74), rgba(2,15,22,.90) 45%, rgba(2,15,22,.99) 100%),
-          linear-gradient(90deg, rgba(2,15,22,.52), rgba(2,15,22,.25));
-      }
-      .hero-inner {
-        grid-template-columns: 1fr;
-        align-items: end;
-        padding: 92px 0 118px;
-      }
-      h1 { font-size: clamp(39px, 12vw, 58px); }
-      .hero-copy { font-size: 18px; }
-      .hero-actions { display: grid; }
-      .hero-actions .btn { width: 100%; }
-      .hero-note { display: grid; gap: 8px; }
-
-      .trust-grid { grid-template-columns: repeat(2, 1fr); }
-      .trust-item:nth-child(2) { border-right: 0; }
-      .trust-item:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
-
-      section { padding: 78px 0; }
-      .section-head { margin-bottom: 38px; }
-      .card-grid, .feature-grid { grid-template-columns: 1fr; }
-      .split { grid-template-columns: 1fr; }
-      .split .media-card { order: -1; }
-      .media-card, .media-card img { min-height: 300px; }
-      .calculator-section .split .calculator-preview { order: -1; justify-self: center; max-width: 620px; }
-      .package-area { grid-template-columns: 1fr; padding: 24px; }
-      .package-visual { min-height: 300px; }
-      .package-visual img { width: min(100%, 300px); max-height: 280px; }
-      .footer-grid { grid-template-columns: 1fr; gap: 28px; }
-      .footer-bottom { flex-direction: column; }
-    }
-
-    @media (max-width: 480px) {
-      .trust-item { padding: 17px 10px; }
-      .trust-item strong { font-size: 15px; }
-      .trust-item span { font-size: 11px; }
-      .card { padding: 22px; }
-      .step { grid-template-columns: 42px 1fr; padding: 16px; }
-      .step-number { width: 42px; height: 42px; }
-      .cta-box { padding: 42px 20px; }
-      .cta-actions { display: grid; }
-      .cta-actions .btn { width: 100%; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      *, *::before, *::after { transition: none !important; }
-    }
-  
-
-    /* v2.3: moderner Header und konsequente Mobile-Optimierung */
-    html {
-      scroll-padding-top: 96px;
-      overflow-x: hidden;
-    }
-
-    body {
-      overflow-x: hidden;
-    }
-
-    figure {
-      margin: 0;
-    }
-
-    section[id] {
-      scroll-margin-top: 96px;
+    .content-copy>p{
+      color:var(--muted);
+      font-size:18px;
     }
 
     .content-copy,
     .section-head,
-    .split > * {
-      min-width: 0;
+    .split>*{min-width:0}
+
+    .card-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:18px;
     }
 
-    .site-header .container {
-      position: relative;
+    .card{
+      padding:26px;
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:linear-gradient(180deg,rgba(10,43,59,.96),rgba(6,31,43,.96));
+      box-shadow:0 18px 45px rgba(0,0,0,.16);
     }
 
-    .nav-wrap {
-      min-height: 82px;
-      display: grid;
-      grid-template-columns: auto minmax(0, 1fr) auto;
-      align-items: center;
-      gap: 18px;
+    .card-icon{
+      width:46px;
+      height:46px;
+      display:grid;
+      place-items:center;
+      margin-bottom:18px;
+      border-radius:14px;
+      color:white;
+      background:rgba(255,95,101,.14);
+      border:1px solid rgba(255,95,101,.24);
+      font-size:22px;
     }
 
-    .brand img {
-      width: 174px;
+    .card h3{margin-bottom:8px;font-size:19px}
+    .card p{margin:0;color:var(--muted);font-size:15px}
+
+    .split{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+      gap:70px;
+      align-items:center;
     }
 
-    .nav-links {
-      justify-self: center;
-      margin-left: 0;
-      gap: 3px;
-      padding: 5px;
-      border: 1px solid rgba(255,255,255,.075);
-      border-radius: 999px;
-      background: rgba(255,255,255,.025);
+    .media-card{
+      position:relative;
+      overflow:hidden;
+      min-height:450px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:var(--panel);
+      box-shadow:var(--shadow);
     }
 
-    .nav-links a {
-      padding: 10px 12px;
-      border-radius: 999px;
-      font-size: 13px;
-      line-height: 1;
-      white-space: nowrap;
+    .media-card img{
+      width:100%;
+      height:100%;
+      min-height:450px;
+      object-fit:cover;
     }
 
-    .nav-links a:hover,
-    .nav-links a:focus-visible {
-      color: #fff;
-      background: rgba(105,184,255,.11);
-      outline: none;
+    .media-card::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background:linear-gradient(180deg,transparent 54%,rgba(2,15,22,.56));
     }
 
-    .nav-actions {
-      flex-shrink: 0;
+    .steps{
+      display:grid;
+      gap:15px;
+      margin:30px 0 0;
     }
 
-    .nav-actions .btn {
-      min-height: 44px;
-      padding: 11px 16px;
-      border-radius: 12px;
-      font-size: 14px;
-      white-space: nowrap;
+    .step{
+      display:grid;
+      grid-template-columns:48px 1fr;
+      gap:15px;
+      align-items:start;
+      padding:19px;
+      border:1px solid var(--line);
+      border-radius:17px;
+      background:rgba(255,255,255,.025);
     }
 
-    .mobile-menu {
-      position: absolute;
-      top: calc(100% + 8px);
-      left: 0;
-      right: 0;
-      z-index: 1100;
-      padding: 12px;
-      border: 1px solid rgba(126,211,255,.18);
-      border-radius: 18px;
-      background: rgba(3,23,32,.985);
-      box-shadow: 0 24px 65px rgba(0,0,0,.52);
-      backdrop-filter: blur(18px);
+    .step-number{
+      width:48px;
+      height:48px;
+      display:grid;
+      place-items:center;
+      border-radius:15px;
+      color:#00291e;
+      background:linear-gradient(135deg,#27efb5,#00bd85);
+      font-weight:950;
     }
 
-    .mobile-menu.open {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
+    .step h3{margin-bottom:3px;font-size:18px}
+    .step p{margin:0;color:var(--muted);font-size:15px}
+
+    .calculator-section{
+      position:relative;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 83% 18%,rgba(0,217,155,.13),transparent 25rem),
+        linear-gradient(180deg,#041b26,#031720);
+      border-block:1px solid rgba(255,255,255,.06);
     }
 
-    .mobile-menu a {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 48px;
-      text-align: center;
-      white-space: nowrap;
+    .calculator-section .split{
+      grid-template-columns:minmax(0,1.04fr) minmax(0,.96fr);
     }
 
-    .mobile-menu .mobile-login {
-      border-color: rgba(255,255,255,.18);
-      background: rgba(255,255,255,.06);
+    .calculator-preview{
+      width:100%;
+      max-width:560px;
+      justify-self:end;
+      padding:14px;
+      border:1px solid rgba(0,217,155,.32);
+      border-radius:24px;
+      background:rgba(2,15,22,.82);
+      box-shadow:0 24px 70px rgba(0,0,0,.44),0 0 42px rgba(0,217,155,.06);
     }
 
-    .mobile-menu .mobile-register {
-      color: white;
-      border-color: transparent;
-      background: linear-gradient(135deg, var(--blue), var(--blue-2));
-      box-shadow: 0 12px 28px rgba(22,135,255,.24);
+    .calculator-preview img{
+      width:100%;
+      height:auto;
+      aspect-ratio:4/3;
+      object-fit:contain;
+      border-radius:15px;
+      background:#02131c;
     }
 
-    .calculator-section .split {
-      grid-template-columns: minmax(0, 1.04fr) minmax(0, .96fr);
+    .start-units-box{
+      display:grid;
+      grid-template-columns:auto 1fr;
+      gap:16px;
+      align-items:center;
+      margin:24px 0;
+      padding:18px;
+      border:1px solid rgba(0,217,155,.30);
+      border-radius:16px;
+      background:rgba(0,217,155,.06);
     }
 
-    .calculator-preview {
-      min-width: 0;
+    .start-units-number{
+      min-width:72px;
+      padding:10px 12px;
+      border-radius:14px;
+      color:#00251a;
+      background:linear-gradient(135deg,#93ff65,#20e7a8);
+      font-size:30px;
+      font-weight:950;
+      line-height:1;
+      text-align:center;
     }
 
-    @media (max-width: 1120px) {
-      .nav-links {
-        display: none;
-      }
+    .start-units-box strong{display:block;margin-bottom:2px}
+    .start-units-box span{color:var(--muted);font-size:14px}
 
-      .menu-button {
-        display: inline-flex;
-      }
+    .info-box{
+      margin:24px 0;
+      padding:18px 19px;
+      border:1px solid rgba(0,217,155,.30);
+      border-left:4px solid var(--green);
+      border-radius:14px;
+      color:#cbe2dc;
+      background:rgba(0,217,155,.055);
+      font-size:14px;
     }
 
-    @media (max-width: 780px) {
-      html {
-        scroll-padding-top: 82px;
+    .microcopy{
+      margin-top:10px;
+      color:#91aab7;
+      font-size:12px;
+    }
+
+    .feature-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:18px;
+    }
+
+    .feature-card{
+      min-height:250px;
+      padding:28px;
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:linear-gradient(180deg,rgba(9,43,59,.95),rgba(5,27,38,.95));
+    }
+
+    .feature-card .tag{
+      display:inline-block;
+      margin-bottom:34px;
+      padding:5px 9px;
+      border-radius:999px;
+      color:#bcebdc;
+      background:rgba(0,217,155,.09);
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.1em;
+      text-transform:uppercase;
+    }
+
+    .feature-card h3{font-size:23px;line-height:1.25}
+    .feature-card p{margin-bottom:0;color:var(--muted)}
+
+    .bullet-list{
+      display:grid;
+      gap:12px;
+      margin:26px 0 30px;
+      padding:0;
+      list-style:none;
+    }
+
+    .bullet-list li{
+      display:flex;
+      gap:10px;
+      color:#d6e6ed;
+    }
+
+    .bullet-list li::before{
+      content:"✓";
+      flex:0 0 auto;
+      color:var(--green);
+      font-weight:900;
+    }
+
+    /* Partnerprogramm + Premium Network */
+    .network-section{
+      position:relative;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 18% 20%,rgba(0,217,155,.11),transparent 25rem),
+        radial-gradient(circle at 86% 78%,rgba(22,135,255,.10),transparent 28rem),
+        linear-gradient(180deg,#031720,#041b26);
+      border-block:1px solid rgba(255,255,255,.06);
+    }
+
+    .network-intro{
+      max-width:850px;
+      margin:0 auto 50px;
+      text-align:center;
+    }
+
+    .network-intro h2{
+      margin-bottom:16px;
+      font-size:clamp(34px,4.8vw,56px);
+      line-height:1.08;
+      letter-spacing:-.035em;
+      text-wrap:balance;
+    }
+
+    .network-intro p{
+      max-width:730px;
+      margin:0 auto;
+      color:var(--muted);
+      font-size:18px;
+    }
+
+    .network-base{
+      display:grid;
+      grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);
+      gap:54px;
+      align-items:center;
+      padding:30px;
+      border:1px solid rgba(0,217,155,.21);
+      border-radius:26px;
+      background:linear-gradient(145deg,rgba(6,38,51,.88),rgba(3,23,32,.88));
+      box-shadow:var(--shadow);
+    }
+
+    .network-visual{
+      overflow:hidden;
+      padding:12px;
+      border:1px solid rgba(0,217,155,.28);
+      border-radius:22px;
+      background:rgba(2,15,22,.72);
+    }
+
+    .network-visual img{
+      width:100%;
+      height:auto;
+      border-radius:14px;
+    }
+
+    .system-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:15px;
+      padding:7px 11px;
+      border:1px solid rgba(0,217,155,.24);
+      border-radius:999px;
+      color:#b7f4df;
+      background:rgba(0,217,155,.07);
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.1em;
+      text-transform:uppercase;
+    }
+
+    .system-pill::before{
+      content:"";
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:var(--green);
+      box-shadow:0 0 12px rgba(0,217,155,.85);
+    }
+
+    .network-base h3{
+      margin-bottom:12px;
+      font-size:clamp(28px,3.6vw,42px);
+      line-height:1.12;
+      letter-spacing:-.025em;
+    }
+
+    .network-base p{
+      color:var(--muted);
+      font-size:17px;
+    }
+
+    .membership-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin:20px 0 4px;
+    }
+
+    .membership-chip{
+      padding:7px 10px;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:999px;
+      color:#d8e9f1;
+      background:rgba(255,255,255,.035);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .premium-wrap{
+      margin-top:22px;
+      padding:34px;
+      border:1px solid rgba(22,135,255,.25);
+      border-radius:28px;
+      background:
+        radial-gradient(circle at 82% 13%,rgba(0,217,155,.10),transparent 24rem),
+        radial-gradient(circle at 13% 82%,rgba(22,135,255,.12),transparent 26rem),
+        linear-gradient(145deg,rgba(4,29,42,.94),rgba(3,20,30,.94));
+      box-shadow:var(--shadow);
+    }
+
+    .premium-head{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:28px;
+      align-items:end;
+      margin-bottom:26px;
+    }
+
+    .premium-head h3{
+      margin-bottom:10px;
+      font-size:clamp(30px,4vw,46px);
+      line-height:1.1;
+      letter-spacing:-.03em;
+    }
+
+    .premium-head p{
+      max-width:760px;
+      margin:0;
+      color:var(--muted);
+      font-size:17px;
+    }
+
+    .premium-levels{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px;
+      min-width:330px;
+    }
+
+    .premium-level{
+      padding:16px 17px;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:17px;
+      background:rgba(255,255,255,.035);
+    }
+
+    .premium-level.plus{
+      border-color:rgba(0,217,155,.24);
+      background:rgba(0,217,155,.055);
+    }
+
+    .premium-level strong{
+      display:block;
+      margin-bottom:3px;
+      font-size:15px;
+    }
+
+    .premium-level span{
+      color:#93b7c5;
+      font-size:12px;
+    }
+
+    .premium-level b{
+      color:#69d9ff;
+      font-weight:900;
+    }
+
+    .premium-level.plus b{color:#55ebb6}
+
+    .premium-visual{
+      overflow:hidden;
+      padding:10px;
+      border:1px solid rgba(0,217,155,.24);
+      border-radius:24px;
+      background:rgba(2,15,22,.74);
+    }
+
+    .premium-visual img{
+      width:100%;
+      height:auto;
+      border-radius:15px;
+    }
+
+    .network-note{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+      margin:20px 0 0;
+      padding:16px 17px;
+      border:1px solid rgba(247,201,80,.18);
+      border-radius:16px;
+      color:#d9d0b2;
+      background:rgba(247,201,80,.045);
+      font-size:13px;
+      line-height:1.6;
+    }
+
+    .network-note strong{color:#f7e5a7}
+
+    .network-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:11px;
+      margin-top:22px;
+    }
+
+    .package-area{
+      display:grid;
+      grid-template-columns:.82fr 1.18fr;
+      gap:60px;
+      align-items:center;
+      padding:40px;
+      border:1px solid var(--line);
+      border-radius:28px;
+      background:
+        radial-gradient(circle at 15% 28%,rgba(139,85,255,.17),transparent 22rem),
+        linear-gradient(135deg,#071f2b,#03151e);
+      box-shadow:var(--shadow);
+    }
+
+    .package-visual{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:360px;
+    }
+
+    .package-visual img{
+      width:min(100%,360px);
+      max-height:330px;
+      object-fit:contain;
+      filter:drop-shadow(0 20px 30px rgba(0,0,0,.38));
+    }
+
+    .package-visual.missing-image::after{
+      content:"Paketbild konnte nicht geladen werden.";
+      display:grid;
+      place-items:center;
+      min-height:240px;
+      width:min(100%,420px);
+      padding:24px;
+      border:1px dashed rgba(126,211,255,.36);
+      border-radius:20px;
+      color:var(--muted);
+      background:rgba(255,255,255,.025);
+      text-align:center;
+    }
+
+    .trust-section{
+      position:relative;
+      min-height:610px;
+      display:flex;
+      align-items:center;
+      overflow:hidden;
+      isolation:isolate;
+    }
+
+    .trust-section::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:-2;
+      background:url("assets/stadion-community.webp") center/cover no-repeat;
+    }
+
+    .trust-section::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:-1;
+      background:linear-gradient(90deg,rgba(2,15,22,.97),rgba(2,15,22,.73) 62%,rgba(2,15,22,.54));
+    }
+
+    .trust-copy{
+      max-width:720px;
+      padding:80px 0;
+    }
+
+    .trust-copy h2{
+      margin-bottom:18px;
+      font-size:clamp(36px,5vw,58px);
+      line-height:1.08;
+      letter-spacing:-.035em;
+    }
+
+    .trust-copy p{color:#d0e0e8;font-size:18px}
+
+    .disclaimer{
+      padding:25px;
+      border:1px solid rgba(247,201,80,.3);
+      border-radius:18px;
+      color:#dfd6b8;
+      background:rgba(247,201,80,.07);
+      font-size:14px;
+    }
+
+    .final-cta{
+      text-align:center;
+      background:linear-gradient(180deg,var(--bg),var(--bg-deep));
+    }
+
+    .cta-box{
+      padding:58px 34px;
+      border:1px solid rgba(22,135,255,.3);
+      border-radius:28px;
+      background:
+        radial-gradient(circle at 50% 0%,rgba(22,135,255,.16),transparent 28rem),
+        linear-gradient(180deg,rgba(8,39,54,.96),rgba(3,23,32,.96));
+      box-shadow:var(--shadow);
+    }
+
+    .cta-box h2{
+      max-width:800px;
+      margin:0 auto 16px;
+      font-size:clamp(34px,4.8vw,56px);
+      line-height:1.1;
+      letter-spacing:-.035em;
+    }
+
+    .cta-box p{
+      max-width:680px;
+      margin:0 auto 28px;
+      color:var(--muted);
+      font-size:18px;
+    }
+
+    .cta-actions{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:center;
+      gap:12px;
+    }
+
+    .site-footer{
+      padding:50px 0 26px;
+      border-top:1px solid rgba(255,255,255,.07);
+      background:#020f16;
+    }
+
+    .footer-grid{
+      display:grid;
+      grid-template-columns:1.25fr .75fr .75fr;
+      gap:48px;
+      padding-bottom:34px;
+    }
+
+    .footer-logo{width:210px;margin-bottom:16px}
+    .footer-copy{max-width:440px;color:#91a9b5;font-size:14px}
+    .footer-title{margin-bottom:12px;font-size:14px;text-transform:uppercase;letter-spacing:.11em}
+    .footer-links{display:grid;gap:9px}
+    .footer-links a{color:#a8bcc6;text-decoration:none;font-size:14px}
+    .footer-links a:hover{color:white}
+
+    .imprint{
+      padding:18px;
+      border:1px solid var(--line);
+      border-radius:15px;
+      color:#9db1bb;
+      background:rgba(255,255,255,.025);
+      font-size:13px;
+    }
+
+    .imprint strong{color:white}
+
+    .footer-bottom{
+      display:flex;
+      justify-content:space-between;
+      gap:18px;
+      padding-top:22px;
+      border-top:1px solid rgba(255,255,255,.07);
+      color:#718a96;
+      font-size:12px;
+    }
+
+    @media(max-width:1120px){
+      .nav-links{display:none}
+      .menu-button{display:inline-flex}
+      .card-grid{grid-template-columns:repeat(2,1fr)}
+      .split{gap:42px}
+      .package-area{gap:30px}
+      .premium-head{grid-template-columns:1fr}
+      .premium-levels{min-width:0;max-width:520px}
+    }
+
+    @media(max-width:780px){
+      html{scroll-padding-top:82px}
+      section[id]{scroll-margin-top:82px}
+
+      .container{width:min(calc(100% - 28px),var(--max))}
+      .nav-wrap{
+        min-height:72px;
+        grid-template-columns:minmax(0,1fr) auto;
+        gap:12px;
       }
 
-      section[id] {
-        scroll-margin-top: 82px;
+      .brand img{width:160px}
+      .nav-actions .btn-secondary,
+      .nav-actions .btn-primary{display:none}
+
+      .menu-button{
+        width:48px;
+        height:48px;
+        border-radius:15px;
+        font-size:24px;
       }
 
-      .container {
-        width: min(calc(100% - 28px), var(--max));
+      .hero,.hero-inner{min-height:630px}
+      .hero::before{background-position:55% 68%}
+      .hero::after{
+        background:
+          linear-gradient(180deg,rgba(2,15,22,.74),rgba(2,15,22,.90) 45%,rgba(2,15,22,.99) 100%),
+          linear-gradient(90deg,rgba(2,15,22,.52),rgba(2,15,22,.25));
       }
 
-      .nav-wrap {
-        min-height: 72px;
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 12px;
+      .hero-inner{
+        grid-template-columns:1fr;
+        align-items:end;
+        padding:84px 0 96px;
       }
 
-      .brand img {
-        width: 160px;
+      h1{
+        max-width:100%;
+        font-size:clamp(38px,11vw,54px);
+        line-height:1.04;
       }
 
-      .menu-button {
-        width: 48px;
-        height: 48px;
-        border-radius: 15px;
-        font-size: 24px;
+      .hero-copy{
+        max-width:100%;
+        font-size:17px;
+        line-height:1.62;
       }
 
-      .mobile-menu {
-        left: 0;
-        right: 0;
-      }
+      .hero-actions{display:grid}
+      .hero-actions .btn{width:100%}
+      .hero-note{display:grid;gap:8px;font-size:13px}
+      .trust-strip{margin-top:-48px}
 
-      .hero,
-      .hero-inner {
-        min-height: 630px;
-      }
+      .trust-grid{grid-template-columns:repeat(2,1fr)}
+      .trust-item:nth-child(2){border-right:0}
+      .trust-item:nth-child(-n+2){border-bottom:1px solid var(--line)}
 
-      .hero-inner {
-        align-items: end;
-        padding: 84px 0 96px;
-      }
-
-      .hero::before {
-        background-position: 55% 68%;
-      }
-
-      h1 {
-        max-width: 100%;
-        font-size: clamp(38px, 11vw, 54px);
-        line-height: 1.04;
-      }
-
-      .hero-copy {
-        max-width: 100%;
-        font-size: 17px;
-        line-height: 1.62;
-      }
-
-      .hero-note {
-        font-size: 13px;
-      }
-
-      .trust-strip {
-        margin-top: -48px;
-      }
-
-      section {
-        padding: 66px 0;
-      }
-
-      .section-head {
-        margin-bottom: 32px;
-      }
+      section{padding:66px 0}
+      .section-head{margin-bottom:32px}
 
       .section-head h2,
-      .content-copy h2 {
-        max-width: 100%;
-        font-size: clamp(30px, 9vw, 40px);
-        line-height: 1.12;
-        letter-spacing: -.025em;
-        overflow-wrap: break-word;
+      .content-copy h2{
+        max-width:100%;
+        font-size:clamp(30px,9vw,40px);
+        line-height:1.12;
+        letter-spacing:-.025em;
+        overflow-wrap:break-word;
       }
 
       .section-head p,
-      .content-copy > p {
-        font-size: 16px;
-        line-height: 1.65;
-        overflow-wrap: break-word;
+      .content-copy>p{
+        font-size:16px;
+        line-height:1.65;
+        overflow-wrap:break-word;
       }
 
-      .split {
-        grid-template-columns: minmax(0, 1fr);
-        gap: 32px;
+      .card-grid,.feature-grid{grid-template-columns:1fr}
+      .split{grid-template-columns:minmax(0,1fr);gap:32px}
+      .split .media-card{order:-1}
+
+      .media-card,.media-card img{min-height:260px}
+
+      .calculator-section .split{grid-template-columns:minmax(0,1fr)!important;gap:30px}
+      .calculator-section .split .content-copy{order:1}
+      .calculator-section .split .calculator-preview{
+        order:2!important;
+        width:100%;
+        max-width:100%;
+        justify-self:stretch;
+        padding:8px;
       }
 
-      .calculator-section .split {
-        grid-template-columns: minmax(0, 1fr) !important;
-        gap: 30px;
+      .calculator-preview img{
+        width:100%;
+        height:auto;
+        aspect-ratio:auto;
+        object-fit:contain;
+        border-radius:12px;
       }
 
-      .calculator-section .split .content-copy {
-        order: 1;
+      .calculator-section .btn-green{width:100%}
+      .calculator-section .microcopy{text-align:center}
+
+      .network-base{
+        grid-template-columns:1fr;
+        gap:28px;
+        padding:22px;
       }
 
-      .calculator-section .split .calculator-preview {
-        order: 2 !important;
-        width: 100%;
-        max-width: 100%;
-        justify-self: stretch;
-        padding: 8px;
+      .network-base .network-visual{order:-1}
+
+      .premium-wrap{padding:22px}
+
+      .premium-head{
+        grid-template-columns:1fr;
+        gap:20px;
       }
 
-      .calculator-preview img {
-        width: 100%;
-        height: auto;
-        aspect-ratio: auto;
-        object-fit: contain;
-        border-radius: 12px;
+      .premium-levels{
+        grid-template-columns:1fr 1fr;
+        max-width:none;
       }
 
-      .calculator-section .btn-green {
-        width: 100%;
+      .network-actions{display:grid}
+      .network-actions .btn{width:100%}
+
+      .package-area{
+        grid-template-columns:1fr;
+        width:100%;
+        padding:22px;
+        gap:26px;
       }
 
-      .calculator-section .microcopy {
-        text-align: center;
-      }
+      .package-visual{min-height:300px}
+      .package-visual img{width:min(100%,300px);max-height:280px}
 
-      .info-box {
-        width: 100%;
-        margin: 20px 0;
-        padding: 16px;
-        font-size: 14px;
-        line-height: 1.6;
-        overflow-wrap: break-word;
-      }
-
-      .media-card,
-      .media-card img {
-        min-height: 260px;
-      }
-
-      .package-area {
-        width: 100%;
-        padding: 22px;
-        gap: 26px;
-      }
-
-      .network-visual,
-      .calculator-preview,
-      .media-card {
-        width: 100%;
-        max-width: 100%;
-      }
-
-      .btn {
-        max-width: 100%;
-      }
+      .footer-grid{grid-template-columns:1fr;gap:28px}
+      .footer-bottom{flex-direction:column}
     }
 
-    @media (max-width: 520px) {
-      .mobile-menu.open {
-        grid-template-columns: 1fr;
-      }
+    @media(max-width:520px){
+      .mobile-menu.open{grid-template-columns:1fr}
+      .mobile-menu a{white-space:normal}
 
-      .mobile-menu a {
-        white-space: normal;
-      }
+      .hero,.hero-inner{min-height:590px}
+      .hero-inner{padding-top:70px;padding-bottom:86px}
 
-      .hero,
-      .hero-inner {
-        min-height: 590px;
-      }
+      .eyebrow{font-size:10px;letter-spacing:.1em}
+      h1{font-size:clamp(36px,12vw,48px)}
 
-      .hero-inner {
-        padding-top: 70px;
-        padding-bottom: 86px;
-      }
-
-      .eyebrow {
-        font-size: 10px;
-        letter-spacing: .1em;
-      }
-
-      h1 {
-        font-size: clamp(36px, 12vw, 48px);
-      }
-
-      .hero-actions {
-        gap: 10px;
-      }
-
+      .hero-actions{gap:10px}
       .hero-actions .btn,
-      .cta-actions .btn {
-        min-height: 52px;
-        padding-inline: 16px;
+      .cta-actions .btn{
+        min-height:52px;
+        padding-inline:16px;
       }
 
-      .trust-grid {
-        border-radius: 17px;
+      .trust-grid{border-radius:17px}
+      .trust-item{
+        min-height:84px;
+        display:grid;
+        align-content:center;
+        padding:17px 10px;
       }
+      .trust-item strong{font-size:15px}
+      .trust-item span{font-size:11px}
 
-      .trust-item {
-        min-height: 84px;
-        display: grid;
-        align-content: center;
-      }
+      .card,.feature-card{padding:21px}
+      .start-units-box{grid-template-columns:1fr;text-align:center}
+      .start-units-number{justify-self:center}
 
-      .card,
-      .feature-card {
-        padding: 21px;
+      .step{
+        grid-template-columns:40px minmax(0,1fr);
+        gap:12px;
+        padding:16px;
       }
+      .step-number{width:40px;height:40px}
 
-      .start-units-box {
-        grid-template-columns: 1fr;
-        text-align: center;
-      }
+      .premium-levels{grid-template-columns:1fr}
+      .network-intro p{font-size:16px}
+      .network-base h3{font-size:30px}
+      .premium-head h3{font-size:30px}
 
-      .start-units-number {
-        justify-self: center;
-      }
+      .package-visual{min-height:250px}
+      .package-visual img{max-height:250px}
 
-      .step {
-        grid-template-columns: 40px minmax(0, 1fr);
-        gap: 12px;
-      }
-
-      .step-number {
-        width: 40px;
-        height: 40px;
-      }
-
-      .package-visual {
-        min-height: 250px;
-      }
-
-      .package-visual img {
-        max-height: 250px;
-      }
+      .cta-box{padding:42px 20px}
+      .cta-actions{display:grid}
+      .cta-actions .btn{width:100%}
     }
-</style>
+
+    @media(prefers-reduced-motion:reduce){
+      html{scroll-behavior:auto}
+      *,*::before,*::after{transition:none!important}
+    }
+  </style>
 </head>
+
 <body>
   <a class="skip-link" href="#main">Zum Inhalt springen</a>
 
@@ -1258,10 +1279,12 @@
           <p class="hero-copy">
             BetInsight ist eine Mitgliederplattform für strukturierte Sportanalysen, nachvollziehbare Unit-Gewichtungen und kontrolliertes Bankroll-Management. Du entscheidest selbst, welchen Tipp du freischaltest und wie du ihn umsetzt.
           </p>
+
           <div class="hero-actions">
             <a class="btn btn-primary" href="https://betinsight.systeme.io/registrierung?ref=POOL" data-registration-link>Jetzt kostenlos testen</a>
             <a class="btn btn-secondary" href="https://betinsightclub.github.io/profil/rechner/" data-preserve-ref>Beispiel kostenlos berechnen</a>
           </div>
+
           <div class="hero-note">
             <span>5 kostenlose Start-Units</span>
             <span>Keine Registrierung für den Rechner</span>
@@ -1287,22 +1310,26 @@
           <h2 id="problem-title">Ohne klare Regeln wird jede Wette zur Einzelentscheidung.</h2>
           <p>BetInsight ersetzt spontane Entscheidungen nicht durch Versprechen, sondern durch einen nachvollziehbaren Ablauf.</p>
         </div>
+
         <div class="card-grid">
           <article class="card">
             <div class="card-icon">×</div>
             <h3>Emotionale Wetten</h3>
             <p>Bauchgefühl ersetzt die Prüfung von Informationen, Quote und Risiko.</p>
           </article>
+
           <article class="card">
             <div class="card-icon">×</div>
             <h3>Zu hohe Einsätze</h3>
             <p>Eine einzelne Entscheidung erhält zu viel Gewicht und gefährdet das Kapital.</p>
           </article>
+
           <article class="card">
             <div class="card-icon">×</div>
             <h3>Keine feste Struktur</h3>
             <p>Ohne wiederholbaren Prozess lassen sich Entscheidungen kaum vergleichen.</p>
           </article>
+
           <article class="card">
             <div class="card-icon">×</div>
             <h3>Kein Bankroll-Plan</h3>
@@ -1321,7 +1348,10 @@
 
           <div class="start-units-box">
             <div class="start-units-number">5</div>
-            <div><strong>Kostenlose Start-Units</strong><span>Nach der Registrierung kannst du den Mitgliederbereich und die Tippfreischaltung ohne vorherigen Paketkauf kennenlernen.</span></div>
+            <div>
+              <strong>Kostenlose Start-Units</strong>
+              <span>Nach der Registrierung kannst du den Mitgliederbereich und die Tippfreischaltung ohne vorherigen Paketkauf kennenlernen.</span>
+            </div>
           </div>
 
           <div class="steps">
@@ -1329,16 +1359,19 @@
               <div class="step-number">1</div>
               <div><h3>Analyse ansehen</h3><p>Du siehst zunächst die wichtigsten Eckdaten und die benötigten Units.</p></div>
             </div>
+
             <div class="step">
               <div class="step-number">2</div>
               <div><h3>Bewusst freischalten</h3><p>Du entscheidest selbst, ob du deine Units für den vollständigen Tipp einsetzen möchtest.</p></div>
             </div>
+
             <div class="step">
               <div class="step-number">3</div>
               <div><h3>Eigenständig umsetzen</h3><p>BetInsight nimmt kein Wettkapital entgegen. Einsatz, Anbieter und Umsetzung bleiben vollständig bei dir.</p></div>
             </div>
           </div>
         </div>
+
         <figure class="media-card">
           <img src="assets/analyse-control-room.webp" alt="Sportanalyst vor mehreren Bildschirmen mit Fußballstatistiken" loading="lazy" width="1408" height="768">
         </figure>
@@ -1350,18 +1383,23 @@
         <div class="content-copy">
           <div class="section-label">Kostenlose Beispielrechnung</div>
           <h2 id="calculator-title">Wie könnte sich dein Wettkapital mathematisch entwickeln?</h2>
+
           <p>
             Teste mit wenigen Klicks, wie sich Startkapital, Einsatzhöhe, durchschnittliche Quote, Trefferquote und Gewinnverwendung in einer mathematischen Simulation auswirken können.
           </p>
+
           <p>
             Vergleiche die Varianten „Gewinne auszahlen“ und „im Stammkapital lassen“. Der Rechner zeigt zusätzlich den benötigten Unit- und Paketbedarf für dein gewähltes Beispiel.
           </p>
+
           <div class="info-box">
             Die auswählbaren Werte von 7 oder 8 richtigen Tipps aus 10 orientieren sich an unserer dokumentierten internen Auswertung von Martins Tipps aus den vergangenen fünf Jahren. Vergangene Ergebnisse sind keine Garantie für zukünftige Treffer oder Gewinne.
           </div>
+
           <a class="btn btn-green" href="https://betinsightclub.github.io/profil/rechner/" data-preserve-ref>Jetzt kostenlos berechnen</a>
           <div class="microcopy">Keine Registrierung erforderlich · unverbindliche Simulation</div>
         </div>
+
         <a class="calculator-preview" href="https://betinsightclub.github.io/profil/rechner/" data-preserve-ref aria-label="BetInsight Kundenrechner öffnen">
           <img src="assets/kundenrechner-vorschau.png" alt="Vorschau des BetInsight Kundenrechners mit mathematischer Beispielrechnung" loading="lazy" width="1448" height="1086">
         </a>
@@ -1375,17 +1413,20 @@
           <h2 id="benefits-title">Alles Wichtige an einem Ort.</h2>
           <p>Die Plattform verbindet Tippzugang, Unit-Verwaltung und persönliche Übersicht in einem klaren Mitgliederbereich.</p>
         </div>
+
         <div class="feature-grid">
           <article class="feature-card">
             <span class="tag">Tipps</span>
             <h3>Strukturierte Empfehlungen statt unübersichtlicher Einzelinformationen</h3>
             <p>Jeder Tipp erhält eine klare Gewichtung. Vollständige Inhalte werden erst nach deiner bewussten Freischaltung sichtbar.</p>
           </article>
+
           <article class="feature-card">
             <span class="tag">Units</span>
             <h3>Transparenter Kontostand und nachvollziehbare Nutzung</h3>
             <p>Du siehst deine verfügbaren Units, deine freigeschalteten Tipps und deine Aktivitäten zentral im Profil.</p>
           </article>
+
           <article class="feature-card">
             <span class="tag">Kontrolle</span>
             <h3>Du entscheidest über Anbieter, Kapital und Umsetzung</h3>
@@ -1400,10 +1441,12 @@
         <figure class="media-card">
           <img src="assets/analyse-tipster.webp" alt="Handschriftliche Fußballanalyse mit Notizen und Taktikskizze" loading="lazy" width="1408" height="768">
         </figure>
+
         <div class="content-copy">
           <div class="section-label">Nachvollziehbare Vorbereitung</div>
           <h2 id="analysis-title">Nicht nur ein Ergebnis, sondern eine begründete Einschätzung.</h2>
           <p>Unser Ansatz basiert auf Vorbereitung, Statistik, Spielkontext und klarer Gewichtung. Die Analyse unterstützt deine Entscheidung, ersetzt sie aber nicht.</p>
+
           <ul class="bullet-list">
             <li>Klare Einordnung statt bloßer Ergebnisbehauptung</li>
             <li>Unit-Gewichtung als Orientierung für das Risiko</li>
@@ -1414,7 +1457,6 @@
       </div>
     </section>
 
-
     <section id="team" aria-labelledby="team-title">
       <div class="container">
         <div class="section-head">
@@ -1422,17 +1464,20 @@
           <h2 id="team-title">Erfahrung, Vorbereitung und klare Rollen.</h2>
           <p>BetInsight wird von zwei Tippgebern getragen, die ihre Analysen gemeinsam vorbereiten und nach einem einheitlichen Unit-System einordnen.</p>
         </div>
+
         <div class="feature-grid">
           <article class="feature-card">
             <span class="tag">Tippgeber 1</span>
             <h3>11 Jahre praktische Erfahrung</h3>
             <p>Davon arbeitet dieser Tippgeber seit 5 Jahren hauptberuflich in der Analyse und Vorbereitung von Sporttipps.</p>
           </article>
+
           <article class="feature-card">
             <span class="tag">Tippgeber 2</span>
             <h3>3 Jahre praktische Erfahrung</h3>
             <p>Der zweite Tippgeber ergänzt das Team mit aktueller Analysearbeit, zusätzlicher Prüfung und einer zweiten Perspektive.</p>
           </article>
+
           <article class="feature-card">
             <span class="tag">Gemeinsamer Standard</span>
             <h3>Jeder Tipp wird strukturiert eingeordnet</h3>
@@ -1442,22 +1487,91 @@
       </div>
     </section>
 
+    <!-- NEU v2.4: Partnerprogramm und Premium Network sauber getrennt -->
     <section class="network-section" id="netzwerk" aria-labelledby="network-title">
-      <div class="container split">
-        <figure class="network-visual">
-          <img src="assets/netzwerk-3-ebenen.webp" alt="Darstellung des BetInsight Partnernetzwerks über drei Ebenen" loading="lazy" width="1400" height="933">
-        </figure>
-        <div class="content-copy">
+      <div class="container">
+        <div class="network-intro">
           <div class="section-label">BetInsight Partnerprogramm</div>
-          <h2 id="network-title">Teile deinen persönlichen Link und baue dir ein kleines Netzwerk auf.</h2>
-          <p>Jedes Mitglied erhält einen eigenen öffentlichen Empfehlungslink. Registriert sich darüber ein neuer Nutzer, bleibt die Zuordnung zum werbenden Partner erhalten.</p>
-          <ul class="bullet-list">
-            <li>Persönlicher Landingpage-Link mit deinem Referral-Code</li>
-            <li>Direkter Registrierungslink für eine schnelle Anmeldung</li>
-            <li>Übersichtliche Struktur bis zur aktuell vorgesehenen dritten Ebene</li>
-            <li>Referral-Units nur nach den im Mitgliederbereich festgelegten Regeln</li>
-          </ul>
-          <a class="btn btn-secondary" href="https://betinsight.systeme.io/registrierung?ref=POOL" data-registration-link>Mit 5 Start-Units registrieren</a>
+          <h2 id="network-title">Ein Netzwerk. Zwei getrennte Möglichkeiten zu verdienen.</h2>
+          <p>
+            Das bestehende BetInsight-Partnerprogramm gilt für alle Mitglieder. Premium und Premium Plus ergänzen dieses System um eine separate Provision auf bezahlte Premium-Mitgliedschaften.
+          </p>
+        </div>
+
+        <!-- System 1: Referral-Units für alle -->
+        <div class="network-base">
+          <figure class="network-visual">
+            <img src="assets/netzwerk-3-ebenen.webp" alt="BetInsight Partnerprogramm mit Referral-Units bis zur dritten Ebene" loading="lazy" width="1400" height="933">
+          </figure>
+
+          <div>
+            <div class="system-pill">Partnerprogramm für alle Mitglieder</div>
+            <h3>Referral-Units bis zur 3. Ebene.</h3>
+            <p>
+              Jedes Mitglied erhält einen persönlichen öffentlichen Empfehlungslink. Registriert sich darüber ein neuer Nutzer, bleibt die Zuordnung zum werbenden Partner erhalten.
+            </p>
+
+            <ul class="bullet-list">
+              <li>Gilt für Basis, Premium und Premium Plus</li>
+              <li>Persönlicher Landingpage-Link mit deinem Referral-Code</li>
+              <li>Referral-Units bis zur 3. Ebene nach den geltenden BetInsight-Regeln</li>
+              <li>Das bestehende Partnerprogramm bleibt auch bei einem Premium-Upgrade erhalten</li>
+            </ul>
+
+            <div class="membership-row" aria-label="Teilnahme am Basis-Partnerprogramm">
+              <span class="membership-chip">Basis ✓</span>
+              <span class="membership-chip">Premium ✓</span>
+              <span class="membership-chip">Premium Plus ✓</span>
+            </div>
+
+            <div class="network-actions">
+              <a class="btn btn-secondary" href="https://betinsight.systeme.io/registrierung?ref=POOL" data-registration-link>Mit 5 Start-Units registrieren</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- System 2: Premium-Mitgliedschaftsprovision -->
+        <div class="premium-wrap">
+          <div class="premium-head">
+            <div>
+              <div class="system-pill">Zusätzliches Premium Network</div>
+              <h3>Zusätzliche Provision auf bezahlte Premium-Mitgliedschaften.</h3>
+              <p>
+                Dieser Bereich ist vom Referral-Unit-System getrennt. Hier geht es nicht um Unit-Provisionen, sondern um eine zusätzliche Gruppenprovision aus bezahlten Premium- und Premium-Plus-Mitgliedschaften im eigenen Network.
+              </p>
+            </div>
+
+            <div class="premium-levels" aria-label="Premium Network Ebenen">
+              <div class="premium-level">
+                <strong>Premium</strong>
+                <span>Premium Network bis zur <b>6. Ebene</b></span>
+              </div>
+              <div class="premium-level plus">
+                <strong>Premium Plus</strong>
+                <span>Premium Network bis zur <b>8. Ebene</b></span>
+              </div>
+            </div>
+          </div>
+
+          <figure class="premium-visual">
+            <img src="assets/premium-network-ebenenvergleich.webp" alt="Vergleich des BetInsight Premium Networks: Premium bis zur sechsten Ebene und Premium Plus bis zur achten Ebene" loading="lazy" width="1448" height="1086">
+          </figure>
+
+          <div class="network-note">
+            <span>ℹ️</span>
+            <div>
+              <strong>Wichtig:</strong> Das Premium Network ersetzt das normale Partnerprogramm nicht. Es kommt zusätzlich dazu. Die Berechtigung und Auszahlung richten sich nach dem jeweils aktiven Premium-Status und den im Mitgliederbereich festgelegten Regeln.
+            </div>
+          </div>
+
+          <div class="network-actions">
+            <a class="btn btn-green" href="https://betinsight.network/" data-preserve-ref>Premium Network entdecken →</a>
+            <a class="btn btn-secondary" href="https://betinsight.systeme.io/registrierung?ref=POOL" data-registration-link>BetInsight kostenlos starten</a>
+          </div>
+
+          <div class="microcopy">
+            Dein öffentlicher Referral-Code wird beim Wechsel zu BetInsight Network automatisch mitgenommen. Kein geschützter Dashboard-Token wird übertragen.
+          </div>
         </div>
       </div>
     </section>
@@ -1465,17 +1579,20 @@
     <section aria-labelledby="packages-title">
       <div class="container package-area">
         <div class="package-visual">
-          <img src="assets/unit-pakete-aktuell.png" alt="BetInsight PRO Paket mit 199 Units und 41 Bonus-Units" loading="lazy" width="503" height="720" onerror="this.hidden=true; this.parentElement.classList.add('missing-image');">
+          <img src="assets/unit-pakete-aktuell.png" alt="BetInsight PRO Paket mit 199 Units und 41 Bonus-Units" loading="lazy" width="503" height="720" onerror="this.hidden=true;this.parentElement.classList.add('missing-image');">
         </div>
+
         <div class="content-copy">
           <div class="section-label">Unit-Pakete</div>
           <h2 id="packages-title">Wähle nur den Umfang, der zu deiner Nutzung passt.</h2>
           <p>Units dienen ausschließlich innerhalb von BetInsight zur Freischaltung digitaler Inhalte. Die aktuellen Pakete ermöglichen einen passenden Einstieg oder einen höheren langfristigen Bedarf. Preise und enthaltene Units werden auf der Kaufseite aktuell angezeigt.</p>
+
           <ul class="bullet-list">
             <li>Klare Paketgrößen ohne automatische Wetteinsätze</li>
             <li>Units werden deinem registrierten BetInsight-Konto gutgeschrieben</li>
             <li>Du entscheidest bei jedem Tipp erneut über die Freischaltung</li>
           </ul>
+
           <a class="btn btn-primary" href="https://betinsight.systeme.io/registrierung?ref=POOL" data-registration-link>Mit 5 Start-Units kostenlos testen</a>
         </div>
       </div>
@@ -1487,6 +1604,7 @@
           <div class="section-label">Keine Versprechen</div>
           <h2 id="trust-title">Ein System schafft Struktur – aber keine garantierten Ergebnisse.</h2>
           <p>Sport bleibt unvorhersehbar. BetInsight soll dir helfen, Informationen, Gewichtung und eigenes Risiko geordneter zu betrachten. Jede Entscheidung und jeder mögliche Verlust bleiben in deiner Verantwortung.</p>
+
           <div class="disclaimer">
             Die Inhalte und Simulationen auf BetInsight dienen ausschließlich Informations- und Beispielzwecken. Sie stellen keine Finanz-, Anlage- oder Gewinnberatung dar. Vergangene Trefferquoten und mathematische Modellrechnungen sind keine Zusage für zukünftige Ergebnisse.
           </div>
@@ -1499,6 +1617,7 @@
         <div class="section-label">Bereit für einen klareren Ablauf?</div>
         <h2 id="cta-title">Erstelle deinen kostenlosen BetInsight-Zugang.</h2>
         <p>Registriere dich, erhalte 5 kostenlose Start-Units und lerne den Mitgliederbereich ohne vorherigen Paketkauf kennen.</p>
+
         <div class="cta-actions">
           <a class="btn btn-primary" href="https://betinsight.systeme.io/registrierung?ref=POOL" data-registration-link>Jetzt kostenlosen Zugang erstellen</a>
           <a class="btn btn-secondary" href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726">Bereits Mitglied? Anmelden</a>
@@ -1514,6 +1633,7 @@
           <img class="footer-logo" src="assets/betinsight-logo.png" alt="BetInsight.club">
           <p class="footer-copy">Mitgliederplattform für Sportanalysen, Unit-Gewichtungen und eine klar strukturierte Tippfreischaltung.</p>
         </div>
+
         <div>
           <h2 class="footer-title">Navigation</h2>
           <div class="footer-links">
@@ -1521,10 +1641,12 @@
             <a href="#rechner">Kundenrechner</a>
             <a href="#team">Tippgeber-Team</a>
             <a href="#netzwerk">Partnerprogramm</a>
+            <a href="https://betinsight.network/" data-preserve-ref>Premium Network</a>
             <a href="https://betinsight.systeme.io/registrierung?ref=POOL" data-registration-link>Registrierung</a>
             <a href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726">Anmeldung</a>
           </div>
         </div>
+
         <div>
           <h2 class="footer-title">Rechtliches</h2>
           <div class="footer-links">
@@ -1536,7 +1658,8 @@
       </div>
 
       <div class="imprint" id="impressum">
-        <strong>Impressum:</strong> LucMedia LTDA · Av 33 850 · CEP 14780-192 Barretos, SP · Brasilien · E-Mail: <a href="mailto:betinsight.club@gmail.com">betinsight.club@gmail.com</a>
+        <strong>Impressum:</strong> LucMedia LTDA · Av 33 850 · CEP 14780-192 Barretos, SP · Brasilien · E-Mail:
+        <a href="mailto:betinsight.club@gmail.com">betinsight.club@gmail.com</a>
       </div>
 
       <div class="footer-bottom">
@@ -1550,62 +1673,128 @@
     const REF_STORAGE_KEY = 'betinsight_ref_code';
     const DEFAULT_REF_CODE = 'POOL';
 
-    function cleanReferralCode(value) {
-      if (!value) return '';
+    function cleanReferralCode(value){
+      if(!value) return '';
       const cleaned = String(value).trim();
       return /^[A-Za-z0-9_-]{2,50}$/.test(cleaned) ? cleaned : '';
     }
 
-    function getActiveReferralCode() {
+    function getCookieReferralCode(){
+      const match = document.cookie
+        .split('; ')
+        .find(row => row.startsWith(REF_STORAGE_KEY + '='));
+
+      if(!match) return '';
+
+      try{
+        return cleanReferralCode(decodeURIComponent(match.split('=').slice(1).join('=')));
+      }catch(e){
+        return '';
+      }
+    }
+
+    function saveReferralCode(refCode){
+      if(!refCode || refCode === DEFAULT_REF_CODE) return;
+
+      try{
+        localStorage.setItem(REF_STORAGE_KEY, refCode);
+      }catch(e){}
+
+      document.cookie =
+        `${REF_STORAGE_KEY}=${encodeURIComponent(refCode)}; Max-Age=15552000; Path=/; SameSite=Lax; Secure`;
+    }
+
+    function getActiveReferralCode(){
       const params = new URLSearchParams(window.location.search);
       const fromUrl = cleanReferralCode(params.get('ref') || params.get('ref_code'));
 
-      if (fromUrl) {
-        localStorage.setItem(REF_STORAGE_KEY, fromUrl);
-        document.cookie = `${REF_STORAGE_KEY}=${encodeURIComponent(fromUrl)}; Max-Age=15552000; Path=/; SameSite=Lax; Secure`;
+      if(fromUrl){
+        saveReferralCode(fromUrl);
         return fromUrl;
       }
 
-      return cleanReferralCode(localStorage.getItem(REF_STORAGE_KEY)) || DEFAULT_REF_CODE;
+      let fromStorage = '';
+      try{
+        fromStorage = cleanReferralCode(localStorage.getItem(REF_STORAGE_KEY));
+      }catch(e){}
+
+      return fromStorage || getCookieReferralCode() || DEFAULT_REF_CODE;
     }
 
     const activeReferralCode = getActiveReferralCode();
 
+    /*
+      Registrierungslinks:
+      Es wird IMMER ein ref-Parameter gesetzt.
+      Ohne persönlichen Referral-Code bleibt POOL als Standard erhalten.
+    */
     document.querySelectorAll('[data-registration-link]').forEach(link => {
-      const target = new URL(link.href);
-      target.searchParams.set('ref', activeReferralCode);
-      link.href = target.toString();
+      try{
+        const target = new URL(link.href, window.location.href);
+        target.searchParams.set('ref', activeReferralCode);
+        link.href = target.toString();
+      }catch(e){}
     });
 
+    /*
+      Öffentliche interne Links:
+      Persönlichen Referral-Code nur weitergeben, wenn wirklich einer vorhanden ist.
+      Dazu gehört jetzt ausdrücklich auch https://betinsight.network/
+      Geschützte Dashboard-Tokens werden hier NICHT verarbeitet oder weitergegeben.
+    */
     document.querySelectorAll('[data-preserve-ref]').forEach(link => {
-      const target = new URL(link.href);
-      if (activeReferralCode !== DEFAULT_REF_CODE) {
-        target.searchParams.set('ref', activeReferralCode);
-      }
-      link.href = target.toString();
+      try{
+        const target = new URL(link.href, window.location.href);
+
+        if(activeReferralCode !== DEFAULT_REF_CODE){
+          target.searchParams.set('ref', activeReferralCode);
+        }else{
+          target.searchParams.delete('ref');
+          target.searchParams.delete('ref_code');
+        }
+
+        link.href = target.toString();
+      }catch(e){}
     });
 
     const menuButton = document.querySelector('.menu-button');
     const mobileMenu = document.getElementById('mobileMenu');
 
-    if (menuButton && mobileMenu) {
-      menuButton.addEventListener('click', () => {
+    if(menuButton && mobileMenu){
+      menuButton.addEventListener('click',() => {
         const isOpen = mobileMenu.classList.toggle('open');
-        menuButton.setAttribute('aria-expanded', String(isOpen));
+        menuButton.setAttribute('aria-expanded',String(isOpen));
         menuButton.textContent = isOpen ? '×' : '☰';
-        menuButton.setAttribute('aria-label', isOpen ? 'Menü schließen' : 'Menü öffnen');
+        menuButton.setAttribute('aria-label',isOpen ? 'Menü schließen' : 'Menü öffnen');
       });
 
       mobileMenu.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
+        link.addEventListener('click',() => {
           mobileMenu.classList.remove('open');
-          menuButton.setAttribute('aria-expanded', 'false');
+          menuButton.setAttribute('aria-expanded','false');
           menuButton.textContent = '☰';
+          menuButton.setAttribute('aria-label','Menü öffnen');
         });
+      });
+
+      document.addEventListener('click',event => {
+        if(
+          mobileMenu.classList.contains('open') &&
+          !mobileMenu.contains(event.target) &&
+          !menuButton.contains(event.target)
+        ){
+          mobileMenu.classList.remove('open');
+          menuButton.setAttribute('aria-expanded','false');
+          menuButton.textContent = '☰';
+          menuButton.setAttribute('aria-label','Menü öffnen');
+        }
       });
     }
 
-    document.getElementById('year').textContent = new Date().getFullYear();
+    const yearEl = document.getElementById('year');
+    if(yearEl){
+      yearEl.textContent = new Date().getFullYear();
+    }
   </script>
 </body>
 </html>
