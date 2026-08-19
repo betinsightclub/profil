@@ -1,28 +1,46 @@
 <!DOCTYPE html>
 <!--
 Projekt: BetInsight
-Pfad: /profil/wechselboerse/angebote/index.html
-Update: 2026.08.16-02
-Anwendungs-Version: 1.4.0 EPOCH SAFE
+Pfad nach Freigabe: /profil/wechselboerse/angebote/index.html
+Update: 2026.08.19-01
+Anwendungs-Version: 1.5.0 PRE-LIVE v2.3 SAFE
+
+Basis:
+- aktuelle GitHub-Version 1.4.0 EPOCH SAFE
+- bestehender Kaufstart v1.3 EPOCH SAFE bleibt unverändert
+- bestehender Kaufstatus v1.3 EPOCH SAFE bleibt unverändert
+- PRE-LIVE Zahlungsbetrag v2.3 wird nach bestätigter Reservierung automatisch aufgerufen
 
 Änderungen:
-- Kaufstart auf v1.3 EPOCH SAFE umgestellt
-- Kaufstatus auf v1.3 EPOCH SAFE umgestellt
-- sichtbare Buchungsnummer BIK-... im geschützten Kaufbereich
-- Countdown wird ausschließlich aus serverseitig gespeicherten Unix-Epoch-Werten berechnet
-- keine Rückumwandlung von Berlin-Textzeiten für Security oder Countdown
-- bei Ablauf des 15-Minuten-Zahlungsfensters Wallet sofort verborgen
-- Hinweis auf zusätzlichen 5-Minuten-Sicherheitsnachlauf
-- Reload validiert die Reservierung weiterhin vollständig serverseitig
-- Bestehendes Design und Angebotsdarstellung bleiben unverändert
-- payment_enabled bleibt FALSE: noch keine echte USDT/USDC-Zahlung
+- neuer PRE-LIVE-Endpunkt für EUR/USDT-Kurs + eindeutigen Zahlungs-Fingerprint
+- exakter USDT-Betrag wird nach der Reservierung automatisch geladen
+- Quote wird lokal zur Anzeige zwischengespeichert; Reload prüft zuerst den Serverstatus
+- bei vorhandenem lokalem Quote-Snapshot kein unnötiger zweiter PRE-LIVE-Aufruf
+- bei neuem Gerät/gelöschtem Speicher liefert v2.3 dieselbe eingefrorene Quote idempotent zurück
+- Verkäufer-Wallet bleibt in dieser PRE-LIVE-Stufe vollständig verborgen
+- kein Jetzt-bezahlen-Button
+- keine TXID-Eingabe
+- keine Blockchain-Prüfung über diese Seite
+- keine Unit-Übertragung über diese Seite
+- payment_enabled bleibt hart FALSE
+- units_transfer bleibt hart FALSE
+- 15-Minuten-Countdown bleibt ausschließlich server-Epoch-basiert
+- nach Ablauf wird auch der angezeigte USDT-Betrag gesperrt
+- 5-Minuten-Sicherheitsnachlauf bleibt unverändert
+- BIK bleibt sichtbar
+- Token-Weitergabe und Reload-Wiederherstellung bleiben erhalten
+- bestehender LocalStorage-Schlüssel bleibt identisch, damit laufende Reservierungen beim Update nicht verloren gehen
+- Angebotsdarstellung und 8er-Pagination bleiben erhalten
+
+WICHTIG:
+Diese Datei ist PRE-LIVE. Sie darf noch keine echte Zahlung auslösen.
 -->
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#061923">
-  <meta name="description" content="Verfügbare Units in der BetInsight Unit-Wechselstube ansehen und kaufen.">
+  <meta name="description" content="Verfügbare Units in der BetInsight Unit-Wechselstube ansehen und reservieren.">
 
   <title>BetInsight – Units kaufen</title>
   <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
@@ -50,6 +68,7 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
       --orange: #f1a313;
       --danger: #ff7685;
       --focus: #ffcf33;
+      --accent: #14e0b2;
     }
 
     html { min-height: 100%; }
@@ -168,7 +187,7 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
     .hero h2 span { color: var(--green); }
 
     .hero p {
-      max-width: 670px;
+      max-width: 720px;
       margin: 13px auto 0;
       color: var(--text-soft);
       font-size: 16px;
@@ -196,8 +215,8 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
       font-weight: 700;
     }
 
+    .prelive-banner,
     .demo-banner {
-      display: none;
       margin-top: 16px;
       padding: 11px 14px;
       border: 1px solid rgba(241, 163, 19, 0.36);
@@ -209,6 +228,7 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
       text-align: center;
     }
 
+    .demo-banner { display: none; }
     .demo-banner.visible { display: block; }
 
     .market-section { margin-top: 20px; }
@@ -260,7 +280,8 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
     .sort-wrap select:focus-visible,
     .buy-button:focus-visible,
     .back-link:focus-visible,
-    .retry-button:focus-visible {
+    .retry-button:focus-visible,
+    .load-more-button:focus-visible {
       outline: 3px solid var(--focus);
       outline-offset: 3px;
     }
@@ -384,6 +405,7 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
     .crypto-total strong {
       color: var(--text);
       font-size: 15px;
+      text-align: right;
     }
 
     .buy-button {
@@ -405,6 +427,13 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
     }
 
     .buy-button:hover { filter: brightness(1.05); transform: translateY(-1px); }
+
+    .buy-button[disabled] {
+      opacity: .58;
+      cursor: wait;
+      transform: none;
+      filter: none;
+    }
 
     .state-panel {
       display: none;
@@ -482,23 +511,6 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
       background: rgba(22, 199, 243, 0.13);
     }
 
-    .info-note {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 12px;
-      margin-top: 18px;
-      padding: 15px 17px;
-      border: 1px solid rgba(241, 163, 19, 0.25);
-      border-radius: 14px;
-      color: #ffe8b6;
-      background: rgba(241, 163, 19, 0.06);
-      font-size: 13px;
-      line-height: 1.55;
-    }
-
-    .info-note strong { color: #fff1cb; }
-
-
     .purchase-panel {
       display: none;
       margin-top: 18px;
@@ -516,13 +528,12 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
       font-size: 21px;
     }
 
-    .purchase-panel .purchase-sub {
+    .purchase-sub {
       margin: 0 0 16px;
       color: var(--text-muted);
       font-size: 13px;
       line-height: 1.55;
     }
-
 
     .reservation-timer {
       display: grid;
@@ -563,30 +574,14 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
       background: rgba(241, 163, 19, 0.09);
     }
 
-    .reservation-timer.warning .reservation-timer-value {
-      color: var(--orange);
-    }
+    .reservation-timer.warning .reservation-timer-value { color: var(--orange); }
 
     .reservation-timer.expired {
       border-color: rgba(255, 118, 133, 0.48);
       background: rgba(255, 118, 133, 0.08);
     }
 
-    .reservation-timer.expired .reservation-timer-value {
-      color: var(--danger);
-    }
-
-    @media (max-width: 520px) {
-      .reservation-timer {
-        grid-template-columns: 1fr;
-        text-align: center;
-      }
-
-      .reservation-timer-value {
-        min-width: 0;
-        text-align: center;
-      }
-    }
+    .reservation-timer.expired .reservation-timer-value { color: var(--danger); }
 
     .purchase-grid {
       display: grid;
@@ -601,15 +596,25 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
       background: rgba(0,0,0,.11);
     }
 
-    .purchase-item.booking-ref {
+    .purchase-item.booking-ref,
+    .purchase-item.exact-amount {
       grid-column: 1 / -1;
+    }
+
+    .purchase-item.booking-ref {
       border-color: rgba(20, 224, 178, 0.34);
       background: rgba(20, 224, 178, 0.055);
     }
 
-    .purchase-item.booking-ref strong {
-      color: var(--accent);
-      letter-spacing: .02em;
+    .purchase-item.exact-amount {
+      border-color: rgba(22, 199, 243, 0.36);
+      background: rgba(22, 199, 243, 0.065);
+    }
+
+    .purchase-item.exact-amount strong {
+      color: #dcf8ff;
+      font-size: clamp(18px, 4vw, 23px);
+      font-variant-numeric: tabular-nums;
     }
 
     .purchase-item span {
@@ -627,8 +632,24 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
       font-size: 15px;
     }
 
-    .payment-stop {
+    .prelive-lock {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
       margin-top: 14px;
+      padding: 13px 14px;
+      border: 1px solid rgba(22, 199, 243, 0.28);
+      border-radius: 11px;
+      color: #d9f5ff;
+      background: rgba(22, 199, 243, 0.06);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .prelive-lock strong { color: #fff; }
+
+    .payment-stop {
+      margin-top: 12px;
       padding: 13px 14px;
       border: 1px solid rgba(241, 163, 19, 0.35);
       border-radius: 11px;
@@ -639,16 +660,21 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
       line-height: 1.5;
     }
 
-    .buy-button[disabled] {
-      opacity: .58;
-      cursor: wait;
-      transform: none;
-      filter: none;
+    .info-note {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      margin-top: 18px;
+      padding: 15px 17px;
+      border: 1px solid rgba(241, 163, 19, 0.25);
+      border-radius: 14px;
+      color: #ffe8b6;
+      background: rgba(241, 163, 19, 0.06);
+      font-size: 13px;
+      line-height: 1.55;
     }
 
-    @media (max-width: 640px) {
-      .purchase-grid { grid-template-columns: 1fr; }
-    }
+    .info-note strong { color: #fff1cb; }
 
     footer {
       margin-top: 34px;
@@ -694,10 +720,28 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
       .sort-wrap { justify-content: space-between; }
       .sort-wrap select { flex: 1; min-width: 0; }
       .offers-grid { grid-template-columns: 1fr; }
+      .purchase-grid { grid-template-columns: 1fr; }
+      .purchase-item.booking-ref,
+      .purchase-item.exact-amount { grid-column: auto; }
+    }
+
+    @media (max-width: 520px) {
+      .reservation-timer {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .reservation-timer-value {
+        min-width: 0;
+        text-align: center;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+      }
     }
   </style>
 </head>
@@ -716,15 +760,28 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
     <section class="hero" aria-labelledby="pageTitle">
       <div class="hero-icon" aria-hidden="true">🛒</div>
       <h2 id="pageTitle">Units <span>kaufen</span></h2>
-      <p>Wähle ein verfügbares Angebot. Die Zahlung erfolgt in USDT/USDC direkt an die Wallet des Verkäufers. Die Units werden erst nach bestätigtem Zahlungseingang übertragen.</p>
+      <p>
+        Wähle ein verfügbares Angebot. Nach der sicheren Reservierung wird der
+        exakte USDT-Betrag für deine BIK eingefroren. In dieser PRE-LIVE-Stufe
+        bleibt die echte Zahlung weiterhin vollständig deaktiviert.
+      </p>
+
       <div class="trust-row" aria-label="Sicherheitsmerkmale">
-        <span class="trust-chip">✓ Reservierte Units</span>
-        <span class="trust-chip">✓ Blockchain-Prüfung</span>
-        <span class="trust-chip">✓ Geschützter Mitgliederbereich</span>
+        <span class="trust-chip">✓ Serverseitige Reservierung</span>
+        <span class="trust-chip">✓ Eindeutiger USDT-Betrag</span>
+        <span class="trust-chip">✓ Epoch-Zeitfenster</span>
+        <span class="trust-chip">✓ Zahlung noch gesperrt</span>
       </div>
     </section>
 
-    <div id="demoBanner" class="demo-banner" role="status">Vorschau mit Testangeboten – es wird kein echter Kauf ausgelöst.</div>
+    <div class="prelive-banner" role="status">
+      PRE-LIVE v1.5.0 – Exakter USDT-Betrag wird vorbereitet, aber Verkäufer-Wallet,
+      TXID-Eingabe, Blockchain-Zahlungsprüfung und Unit-Übertragung sind noch nicht freigeschaltet.
+    </div>
+
+    <div id="demoBanner" class="demo-banner" role="status">
+      Vorschau mit Testangeboten – es wird kein echter Kauf ausgelöst.
+    </div>
 
     <section class="market-section" aria-labelledby="offerHeading">
       <div class="market-toolbar">
@@ -732,6 +789,7 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
           <strong id="offerHeading">Aktuelle Verkaufsangebote</strong>
           <span id="offerCount">Angebote werden geladen …</span>
         </div>
+
         <label class="sort-wrap" for="sortOffers">
           Sortieren
           <select id="sortOffers">
@@ -746,7 +804,9 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
       <div id="offersGrid" class="offers-grid" aria-live="polite"></div>
 
       <div id="loadMoreWrap" class="load-more-wrap" hidden>
-        <button id="loadMoreButton" class="load-more-button" type="button">Weitere 8 anzeigen ↓</button>
+        <button id="loadMoreButton" class="load-more-button" type="button">
+          Weitere 8 anzeigen ↓
+        </button>
       </div>
 
       <div id="loadingState" class="state-panel visible" role="status">
@@ -769,16 +829,18 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
       </div>
     </section>
 
-
     <section id="purchasePanel" class="purchase-panel" aria-live="polite">
       <h3 id="purchaseTitle">Angebot reserviert</h3>
-      <p id="purchaseSub" class="purchase-sub">Die Reservierung wurde serverseitig geprüft.</p>
-
+      <p id="purchaseSub" class="purchase-sub">
+        Die Reservierung und der PRE-LIVE-Zahlungsbetrag werden serverseitig geprüft.
+      </p>
 
       <div id="reservationTimer" class="reservation-timer">
         <div class="reservation-timer-copy">
           <strong id="reservationTimerTitle">Reservierung läuft</strong>
-          <span id="reservationTimerText">Dieses Angebot ist während des Countdowns nur für dich reserviert.</span>
+          <span id="reservationTimerText">
+            Dieses Angebot ist während des Countdowns nur für dich reserviert.
+          </span>
         </div>
         <div id="reservationTimerValue" class="reservation-timer-value">15:00</div>
       </div>
@@ -788,32 +850,55 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
           <span>Buchungsnummer</span>
           <strong id="purchaseBooking">–</strong>
         </div>
+
         <div class="purchase-item">
           <span>Units</span>
           <strong id="purchaseUnits">–</strong>
         </div>
+
         <div class="purchase-item">
           <span>Gesamtpreis</span>
           <strong id="purchaseTotal">–</strong>
         </div>
-        <div class="purchase-item">
-          <span>Wallet / Coin</span>
-          <strong id="purchaseWallet">–</strong>
+
+        <div class="purchase-item exact-amount">
+          <span>Exakter PRE-LIVE-Zahlungsbetrag</span>
+          <strong id="purchaseCryptoAmount">Wird sicher berechnet …</strong>
         </div>
+
         <div class="purchase-item">
-          <span>Netzwerk</span>
-          <strong id="purchaseNetwork">–</strong>
+          <span>Coin / Netzwerk</span>
+          <strong id="purchaseNetwork">USDT · TRON</strong>
+        </div>
+
+        <div class="purchase-item">
+          <span>Verkäufer-Wallet</span>
+          <strong id="purchaseWallet">Noch gesperrt</strong>
+        </div>
+      </div>
+
+      <div class="prelive-lock">
+        <span aria-hidden="true">🔒</span>
+        <div>
+          <strong>Wallet bleibt verborgen.</strong><br>
+          Der Betrag wird bereits eindeutig deiner BIK zugeordnet. Die Wallet wird erst
+          in einer späteren, separat geprüften Zahlungsstufe freigeschaltet.
         </div>
       </div>
 
       <div id="paymentStop" class="payment-stop">
-        Noch keine Zahlung senden. Die echte USDT/USDC-Zahlung ist in diesem Testschritt weiterhin deaktiviert.
+        Noch keine Zahlung senden. payment_enabled=false · units_transfer=false
       </div>
     </section>
 
     <aside class="info-note">
       <span aria-hidden="true">ℹ️</span>
-      <div><strong>Wichtig:</strong> Angebote können aus verdienten oder gekauften Units stammen. Geschenk-Units sind vom Verkauf ausgeschlossen. Die Wallet-Adresse und der genaue USDT/USDC-Betrag werden erst im geschützten Kaufvorgang angezeigt.</div>
+      <div>
+        <strong>Wichtig:</strong> Angebote können aus verdienten oder gekauften Units stammen.
+        Geschenk-Units sind vom Verkauf ausgeschlossen. In dieser PRE-LIVE-Stufe wird nach
+        der Reservierung nur der exakte USDT-Betrag eingefroren. Es kann noch keine echte
+        Zahlung ausgelöst werden.
+      </div>
     </aside>
 
     <footer>© 2026 BetInsight Club</footer>
@@ -825,39 +910,54 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
     "use strict";
 
     /*
-      DATENVERBINDUNG:
-      listOffers: aktive Verkaufsangebote
-      beginPurchase: Kaufstart v1.3 EPOCH SAFE
-      purchaseStatus: Kaufstatus v1.3 EPOCH SAFE
+      AKTIVE DATENVERBINDUNGEN
+
+      listOffers:
+        bestehende aktive Verkaufsangebote
+
+      beginPurchase:
+        bestehender Kaufstart v1.3 EPOCH SAFE
+        erzeugt sichere Reservierung + BIK + serverseitige Epoch-Zeiten
+
+      purchaseStatus:
+        bestehender Kaufstatus v1.3 EPOCH SAFE
+        validiert Eigentümer, Reservierung und Zeitfenster
+
+      preLiveQuote:
+        v2.3 PRE-LIVE SAFE
+        friert EUR/USDT-Kurs + eindeutigen Fingerprint für die BIK ein
+        payment_enabled=false
+        units_transfer=false
     */
     const API_ENDPOINTS = {
       listOffers: "https://hook.eu1.make.com/c09vltke6d7gr7tvlpaspvugw13yfg32",
       beginPurchase: "https://hook.eu1.make.com/b6hhj5qs7sd3xymp8nad5d105cug375r",
-      purchaseStatus: "https://hook.eu1.make.com/7ykyk5lm4djtlfhr7fyp9jhj84gavc07"
+      purchaseStatus: "https://hook.eu1.make.com/7ykyk5lm4djtlfhr7fyp9jhj84gavc07",
+      preLiveQuote: "https://hook.eu1.make.com/bl7s6ju8f2j7cjootg2fice4ffk2o2wb"
     };
 
     const TOKEN_STORAGE_KEY = "betinsight_profile_token";
     const RESERVATION_STORAGE_KEY = "betinsight_active_purchase_reservation";
     const DEMO_MODE = new URLSearchParams(window.location.search).get("demo") === "1";
+    const PAGE_SIZE = 8;
 
     const DEMO_OFFERS = [
-      { id: "DEMO-101", units: 10, unitPriceEur: 0.85, totalEur: 8.50, cryptoAmount: 9.23, currency: "USDT", network: "TRC20", createdAt: "2026-07-31T13:30:00Z" },
-      { id: "DEMO-102", units: 15, unitPriceEur: 0.95, totalEur: 14.25, cryptoAmount: 15.48, currency: "USDC", network: "TRC20", createdAt: "2026-07-31T14:00:00Z" },
-      { id: "DEMO-103", units: 20, unitPriceEur: 1.00, totalEur: 20.00, cryptoAmount: 21.72, currency: "USDT", network: "TRC20", createdAt: "2026-07-31T14:40:00Z" },
-      { id: "DEMO-104", units: 25, unitPriceEur: 0.80, totalEur: 20.00, cryptoAmount: 21.72, currency: "USDT", network: "TRC20", createdAt: "2026-07-31T15:30:00Z" },
-      { id: "DEMO-105", units: 30, unitPriceEur: 0.90, totalEur: 27.00, cryptoAmount: 29.32, currency: "USDC", network: "TRC20", createdAt: "2026-07-31T15:45:00Z" },
-      { id: "DEMO-106", units: 40, unitPriceEur: 0.85, totalEur: 34.00, cryptoAmount: 36.93, currency: "USDT", network: "TRC20", createdAt: "2026-07-31T16:00:00Z" },
-      { id: "DEMO-107", units: 50, unitPriceEur: 0.90, totalEur: 45.00, cryptoAmount: 48.87, currency: "USDC", network: "TRC20", createdAt: "2026-07-31T16:10:00Z" },
-      { id: "DEMO-108", units: 60, unitPriceEur: 0.95, totalEur: 57.00, cryptoAmount: 61.90, currency: "USDT", network: "TRC20", createdAt: "2026-07-31T16:25:00Z" },
-      { id: "DEMO-109", units: 75, unitPriceEur: 0.85, totalEur: 63.75, cryptoAmount: 69.24, currency: "USDC", network: "TRC20", createdAt: "2026-07-31T16:40:00Z" },
-      { id: "DEMO-110", units: 80, unitPriceEur: 0.90, totalEur: 72.00, cryptoAmount: 78.20, currency: "USDT", network: "TRC20", createdAt: "2026-07-31T16:55:00Z" },
-      { id: "DEMO-111", units: 100, unitPriceEur: 1.00, totalEur: 100.00, cryptoAmount: 108.60, currency: "USDT", network: "TRC20", createdAt: "2026-07-31T17:05:00Z" }
+      { id: "DEMO-101", units: 10, unitPriceEur: 0.85, totalEur: 8.50, currency: "USDT", network: "TRON", createdAt: "2026-07-31T13:30:00Z" },
+      { id: "DEMO-102", units: 15, unitPriceEur: 0.95, totalEur: 14.25, currency: "USDT", network: "TRON", createdAt: "2026-07-31T14:00:00Z" },
+      { id: "DEMO-103", units: 20, unitPriceEur: 1.00, totalEur: 20.00, currency: "USDT", network: "TRON", createdAt: "2026-07-31T14:40:00Z" },
+      { id: "DEMO-104", units: 25, unitPriceEur: 0.80, totalEur: 20.00, currency: "USDT", network: "TRON", createdAt: "2026-07-31T15:30:00Z" },
+      { id: "DEMO-105", units: 30, unitPriceEur: 0.90, totalEur: 27.00, currency: "USDT", network: "TRON", createdAt: "2026-07-31T15:45:00Z" },
+      { id: "DEMO-106", units: 40, unitPriceEur: 0.85, totalEur: 34.00, currency: "USDT", network: "TRON", createdAt: "2026-07-31T16:00:00Z" },
+      { id: "DEMO-107", units: 50, unitPriceEur: 0.90, totalEur: 45.00, currency: "USDT", network: "TRON", createdAt: "2026-07-31T16:10:00Z" },
+      { id: "DEMO-108", units: 60, unitPriceEur: 0.95, totalEur: 57.00, currency: "USDT", network: "TRON", createdAt: "2026-07-31T16:25:00Z" },
+      { id: "DEMO-109", units: 75, unitPriceEur: 0.85, totalEur: 63.75, currency: "USDT", network: "TRON", createdAt: "2026-07-31T16:40:00Z" },
+      { id: "DEMO-110", units: 80, unitPriceEur: 0.90, totalEur: 72.00, currency: "USDT", network: "TRON", createdAt: "2026-07-31T16:55:00Z" },
+      { id: "DEMO-111", units: 100, unitPriceEur: 1.00, totalEur: 100.00, currency: "USDT", network: "TRON", createdAt: "2026-07-31T17:05:00Z" }
     ];
 
     let offers = [];
-    const PAGE_SIZE = 8;
     let visibleCount = PAGE_SIZE;
-    let toastTimer;
+    let toastTimer = null;
     let reservationTimerInterval = null;
 
     const elements = {
@@ -873,15 +973,18 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
       banner: document.getElementById("demoBanner"),
       backLink: document.getElementById("backLink"),
       toast: document.getElementById("toast"),
+
       purchasePanel: document.getElementById("purchasePanel"),
       purchaseTitle: document.getElementById("purchaseTitle"),
       purchaseSub: document.getElementById("purchaseSub"),
       purchaseBooking: document.getElementById("purchaseBooking"),
       purchaseUnits: document.getElementById("purchaseUnits"),
       purchaseTotal: document.getElementById("purchaseTotal"),
+      purchaseCryptoAmount: document.getElementById("purchaseCryptoAmount"),
       purchaseWallet: document.getElementById("purchaseWallet"),
       purchaseNetwork: document.getElementById("purchaseNetwork"),
       paymentStop: document.getElementById("paymentStop"),
+
       reservationTimer: document.getElementById("reservationTimer"),
       reservationTimerTitle: document.getElementById("reservationTimerTitle"),
       reservationTimerText: document.getElementById("reservationTimerText"),
@@ -895,19 +998,38 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
     function getActiveToken() {
       const params = new URLSearchParams(window.location.search);
       const tokenFromUrl = normalizeToken(params.get("token"));
+
       if (tokenFromUrl) {
-        localStorage.setItem(TOKEN_STORAGE_KEY, tokenFromUrl);
+        try {
+          localStorage.setItem(TOKEN_STORAGE_KEY, tokenFromUrl);
+        } catch (_) {}
+
         return tokenFromUrl;
       }
-      return normalizeToken(localStorage.getItem(TOKEN_STORAGE_KEY));
+
+      try {
+        return normalizeToken(localStorage.getItem(TOKEN_STORAGE_KEY));
+      } catch (_) {
+        return "";
+      }
     }
 
     function addTokenToBackLink() {
       const token = getActiveToken();
       if (!token) return;
+
       const url = new URL("../", window.location.href);
       url.searchParams.set("token", token);
       elements.backLink.href = url.toString();
+    }
+
+    function showToast(message) {
+      clearTimeout(toastTimer);
+      elements.toast.textContent = String(message || "");
+      elements.toast.classList.add("visible");
+      toastTimer = setTimeout(() => {
+        elements.toast.classList.remove("visible");
+      }, 4400);
     }
 
     function setState(name) {
@@ -917,37 +1039,13 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
       elements.grid.hidden = name !== "ready";
     }
 
-    function showToast(message) {
-      clearTimeout(toastTimer);
-      elements.toast.textContent = message;
-      elements.toast.classList.add("visible");
-      toastTimer = setTimeout(() => elements.toast.classList.remove("visible"), 4200);
-    }
-
     function numberValue(value, fallback = 0) {
-      if (typeof value === "string") value = value.replace(",", ".");
-      const number = Number(value);
-      return Number.isFinite(number) ? number : fallback;
-    }
+      if (typeof value === "string") {
+        value = value.replace(",", ".");
+      }
 
-    function normalizeOffer(raw, index) {
-      const units = numberValue(raw.units ?? raw.anzahl ?? raw.menge);
-      const unitPriceEur = numberValue(raw.unitPriceEur ?? raw.preis_pro_unit ?? raw.preis);
-      const totalEur = numberValue(raw.totalEur ?? raw.gesamtpreis, units * unitPriceEur);
-      return {
-        id: String(raw.id ?? raw.angebot_id ?? raw.offer_id ?? "ANGEBOT-" + (index + 1)),
-        units,
-        unitPriceEur,
-        totalEur,
-        cryptoAmount: numberValue(raw.cryptoAmount ?? raw.krypto_betrag ?? raw.usdt_betrag ?? raw.usdc_betrag),
-        currency: String(raw.currency ?? raw.waehrung ?? "USDT").toUpperCase(),
-        network: String(raw.network ?? "TRC20").toUpperCase(),
-        createdAt: String(raw.createdAt ?? raw.erstellt_am ?? "")
-      };
-    }
-
-    function isValidOffer(offer) {
-      return offer.id && offer.units > 0 && offer.unitPriceEur > 0 && offer.totalEur > 0;
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : fallback;
     }
 
     function formatNumber(value, digits = 2) {
@@ -955,6 +1053,16 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
         minimumFractionDigits: digits,
         maximumFractionDigits: digits
       }).format(value);
+    }
+
+    function formatCrypto(value) {
+      const parsed = numberValue(value, NaN);
+      if (!Number.isFinite(parsed) || parsed <= 0) return "Nicht verfügbar";
+
+      return new Intl.NumberFormat("de-DE", {
+        minimumFractionDigits: 6,
+        maximumFractionDigits: 6
+      }).format(parsed) + " USDT";
     }
 
     function escapeHtml(value) {
@@ -966,21 +1074,55 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
         .replaceAll("'", "&#039;");
     }
 
+    function normalizeOffer(raw, index) {
+      const units = numberValue(raw.units ?? raw.anzahl ?? raw.menge);
+      const unitPriceEur = numberValue(raw.unitPriceEur ?? raw.preis_pro_unit ?? raw.preis);
+      const totalEur = numberValue(raw.totalEur ?? raw.gesamtpreis, units * unitPriceEur);
+
+      return {
+        id: String(raw.id ?? raw.angebot_id ?? raw.offer_id ?? ("ANGEBOT-" + (index + 1))),
+        units,
+        unitPriceEur,
+        totalEur,
+        currency: String(raw.currency ?? raw.waehrung ?? "USDT").toUpperCase(),
+        network: String(raw.network ?? raw.zahlung_netzwerk ?? "TRON").toUpperCase(),
+        createdAt: String(raw.createdAt ?? raw.erstellt_am ?? "")
+      };
+    }
+
+    function isValidOffer(offer) {
+      return Boolean(
+        offer &&
+        offer.id &&
+        offer.units > 0 &&
+        offer.unitPriceEur > 0 &&
+        offer.totalEur > 0
+      );
+    }
+
     function sortedOffers() {
       const sorted = [...offers];
+
       switch (elements.sort.value) {
-        case "units-asc": return sorted.sort((a, b) => a.units - b.units);
-        case "units-desc": return sorted.sort((a, b) => b.units - a.units);
-        case "newest": return sorted.sort((a, b) => Date.parse(b.createdAt || 0) - Date.parse(a.createdAt || 0));
-        default: return sorted.sort((a, b) => a.unitPriceEur - b.unitPriceEur || a.units - b.units);
+        case "units-asc":
+          return sorted.sort((a, b) => a.units - b.units);
+
+        case "units-desc":
+          return sorted.sort((a, b) => b.units - a.units);
+
+        case "newest":
+          return sorted.sort(
+            (a, b) => Date.parse(b.createdAt || 0) - Date.parse(a.createdAt || 0)
+          );
+
+        default:
+          return sorted.sort(
+            (a, b) => a.unitPriceEur - b.unitPriceEur || a.units - b.units
+          );
       }
     }
 
     function offerTemplate(offer) {
-      const cryptoText = offer.cryptoAmount > 0
-        ? `${formatNumber(offer.cryptoAmount, 2)} ${escapeHtml(offer.currency)}`
-        : "wird beim Kauf berechnet";
-
       return `
         <article class="offer-card">
           <div class="offer-head">
@@ -990,24 +1132,35 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
             </div>
             <span class="status-badge">Verfügbar</span>
           </div>
+
           <div class="price-box">
             <div class="price-item">
               <span class="price-label">Preis je Unit</span>
               <span class="price-value">${formatNumber(offer.unitPriceEur)} €</span>
             </div>
+
             <div class="price-item">
               <span class="price-label">Gesamtpreis</span>
               <span class="price-value">${formatNumber(offer.totalEur)} €</span>
             </div>
           </div>
+
           <div class="offer-body">
             <div class="crypto-total">
-              <span>USDT/USDC (${escapeHtml(offer.network)})</span>
-              <strong>${cryptoText}</strong>
+              <span>USDT (${escapeHtml(offer.network)})</span>
+              <strong>wird nach Reservierung exakt berechnet</strong>
             </div>
-            <button class="buy-button" type="button" data-offer-id="${escapeHtml(offer.id)}">Angebot auswählen →</button>
+
+            <button
+              class="buy-button"
+              type="button"
+              data-offer-id="${escapeHtml(offer.id)}"
+            >
+              Angebot auswählen →
+            </button>
           </div>
-        </article>`;
+        </article>
+      `;
     }
 
     function renderOffers() {
@@ -1021,8 +1174,12 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
 
       const sorted = sortedOffers();
       const visibleOffers = sorted.slice(0, visibleCount);
+
       elements.grid.innerHTML = visibleOffers.map(offerTemplate).join("");
-      elements.count.textContent = `${visibleOffers.length} von ${offers.length} ${offers.length === 1 ? "Angebot" : "Angeboten"} angezeigt`;
+      elements.count.textContent =
+        `${visibleOffers.length} von ${offers.length} ` +
+        `${offers.length === 1 ? "Angebot" : "Angeboten"} angezeigt`;
+
       elements.loadMoreWrap.hidden = visibleOffers.length >= offers.length;
       setState("ready");
     }
@@ -1040,21 +1197,28 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
         return;
       }
 
-      if (!API_ENDPOINTS.listOffers) {
-        offers = [];
-        renderOffers();
-        return;
-      }
-
       try {
         const token = getActiveToken();
         const url = new URL(API_ENDPOINTS.listOffers);
-        if (token) url.searchParams.set("token", token);
 
-        const response = await fetch(url.toString(), { method: "GET", cache: "no-store" });
-        if (!response.ok) throw new Error("HTTP " + response.status);
+        if (token) {
+          url.searchParams.set("token", token);
+        }
+
+        const response = await fetch(url.toString(), {
+          method: "GET",
+          cache: "no-store"
+        });
+
+        if (!response.ok) {
+          throw new Error("HTTP " + response.status);
+        }
+
         const data = await response.json();
-        const rows = Array.isArray(data) ? data : (data.offers ?? data.angebote ?? []);
+        const rows = Array.isArray(data)
+          ? data
+          : (data.offers ?? data.angebote ?? []);
+
         offers = rows.map(normalizeOffer).filter(isValidOffer);
         renderOffers();
       } catch (error) {
@@ -1074,31 +1238,40 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
       });
     }
 
-
     function getStoredReservation() {
       try {
         const raw = localStorage.getItem(RESERVATION_STORAGE_KEY);
         if (!raw) return null;
+
         const data = JSON.parse(raw);
-        if (!data || !data.offerId || !data.token) return null;
+
+        if (!data || !data.offerId || !data.token) {
+          return null;
+        }
+
         return data;
       } catch (_) {
         return null;
       }
     }
 
-    function saveReservation(token, offerId, expiresAt) {
-      const state = {
-        token,
-        offerId,
-        expiresAt: Number(expiresAt) || 0
+    function saveReservation(state) {
+      const normalized = {
+        token: normalizeToken(state?.token),
+        offerId: String(state?.offerId || ""),
+        expiresAt: Number(state?.expiresAt) || 0,
+        bookingNumber: String(state?.bookingNumber || ""),
+        quote: state?.quote || null
       };
 
       try {
-        localStorage.setItem(RESERVATION_STORAGE_KEY, JSON.stringify(state));
+        localStorage.setItem(
+          RESERVATION_STORAGE_KEY,
+          JSON.stringify(normalized)
+        );
       } catch (_) {}
 
-      return state;
+      return normalized;
     }
 
     function clearStoredReservation() {
@@ -1111,8 +1284,11 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
       const expiresEpoch = Number(data?.expires_epoch);
       const nowEpoch = Number(data?.now_epoch);
 
-      // Fail closed: Ohne gültige serverseitige Epoch-Werte wird kein
-      // neues 15-Minuten-Fenster im Browser erfunden.
+      /*
+        FAIL CLOSED:
+        Ohne gültige serverseitige Epoch-Werte wird im Browser
+        kein neues 15-Minuten-Fenster erfunden.
+      */
       if (
         !Number.isFinite(expiresEpoch) ||
         !Number.isFinite(nowEpoch) ||
@@ -1131,7 +1307,12 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
       const totalSeconds = Math.ceil(safeMs / 1000);
       const minutes = Math.floor(totalSeconds / 60);
       const seconds = totalSeconds % 60;
-      return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+
+      return (
+        String(minutes).padStart(2, "0") +
+        ":" +
+        String(seconds).padStart(2, "0")
+      );
     }
 
     function stopReservationCountdown() {
@@ -1152,10 +1333,13 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
         elements.reservationTimerText.textContent =
           "Das 15-Minuten-Zahlungsfenster ist beendet. Danach läuft der zusätzliche 5-Minuten-Sicherheitsnachlauf.";
         elements.reservationTimerValue.textContent = "00:00";
-        elements.paymentStop.textContent =
-          "Zahlungsfenster abgelaufen. Bitte keine Zahlung mehr senden. Das Angebot bleibt während des Sicherheitsnachlaufs gesperrt.";
-        elements.purchaseWallet.textContent = "Nicht mehr verfügbar";
+
+        elements.purchaseCryptoAmount.textContent = "Nicht mehr gültig";
+        elements.purchaseWallet.textContent = "Nicht verfügbar";
         elements.purchaseNetwork.textContent = "–";
+        elements.paymentStop.textContent =
+          "Zahlungsfenster abgelaufen. Bitte keine Zahlung senden. Das Angebot bleibt während des Sicherheitsnachlaufs noch gesperrt.";
+
         clearStoredReservation();
         stopReservationCountdown();
         return;
@@ -1163,7 +1347,8 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
 
       if (remaining <= 5 * 60 * 1000) {
         elements.reservationTimer.classList.add("warning");
-        elements.reservationTimerTitle.textContent = "Reservierung läuft bald ab";
+        elements.reservationTimerTitle.textContent =
+          "Reservierung läuft bald ab";
       } else {
         elements.reservationTimerTitle.textContent = "Reservierung läuft";
       }
@@ -1177,37 +1362,215 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
       stopReservationCountdown();
       renderReservationCountdown(expiresAt);
 
-      if (Number(expiresAt) <= Date.now()) return;
+      if (Number(expiresAt) <= Date.now()) {
+        return;
+      }
 
       reservationTimerInterval = setInterval(() => {
         renderReservationCountdown(expiresAt);
       }, 1000);
     }
 
-    function showPurchaseDetails(data, reservationState = null) {
+    function isValidCachedQuote(quote, bookingNumber) {
+      if (!quote) return false;
+
+      const statusOk =
+        quote.status === "prelive_quote_ready" ||
+        quote.status === "prelive_quote_already_ready";
+
+      const bookingOk =
+        String(quote.buchungsnummer || "") === String(bookingNumber || "");
+
+      const amountOk =
+        numberValue(quote.expected_crypto_betrag, 0) > 0;
+
+      const paymentStillOff = quote.payment_enabled === false;
+      const transferStillOff = quote.units_transfer === false;
+
+      return Boolean(
+        statusOk &&
+        bookingOk &&
+        amountOk &&
+        paymentStillOff &&
+        transferStillOff
+      );
+    }
+
+    async function fetchPreLiveQuote(token, bookingNumber) {
+      const quoteUrl = new URL(API_ENDPOINTS.preLiveQuote);
+      quoteUrl.searchParams.set("dashboard_token", token);
+      quoteUrl.searchParams.set("buchungsnummer", bookingNumber);
+
+      const response = await fetch(quoteUrl.toString(), {
+        method: "GET",
+        cache: "no-store"
+      });
+
+      let data = {};
+
+      try {
+        data = await response.json();
+      } catch (_) {
+        throw new Error(
+          "Der PRE-LIVE-Zahlungsbetrag konnte nicht gelesen werden."
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "PRE-LIVE-Zahlungsbetrag konnte nicht vorbereitet werden."
+        );
+      }
+
+      /*
+        PRE-LIVE HARD STOP:
+        Diese Seite akzeptiert niemals einen Endpoint-Zustand,
+        der Zahlung oder Unit-Transfer freischaltet.
+      */
+      if (data.payment_enabled !== false || data.units_transfer !== false) {
+        throw new Error(
+          "Sicherheitsstopp: PRE-LIVE-Endpunkt meldet einen unerwarteten Freigabestatus."
+        );
+      }
+
+      const allowedStatus =
+        data.status === "prelive_quote_ready" ||
+        data.status === "prelive_quote_already_ready";
+
+      if (!allowedStatus) {
+        throw new Error(
+          data.message || "PRE-LIVE-Zahlungsbetrag ist noch nicht bereit."
+        );
+      }
+
+      if (
+        String(data.buchungsnummer || "") !== String(bookingNumber || "")
+      ) {
+        throw new Error(
+          "Sicherheitsstopp: PRE-LIVE-Buchungsnummer stimmt nicht überein."
+        );
+      }
+
+      if (numberValue(data.expected_crypto_betrag, 0) <= 0) {
+        throw new Error(
+          "Sicherheitsstopp: Kein gültiger USDT-Betrag vorhanden."
+        );
+      }
+
+      return data;
+    }
+
+    async function ensurePreLiveQuote(token, purchaseData, reservationState) {
+      const bookingNumber = String(purchaseData?.buchungsnummer || "");
+
+      if (!bookingNumber) {
+        throw new Error(
+          "Die Reservierung besitzt noch keine gültige Buchungsnummer."
+        );
+      }
+
+      if (
+        reservationState &&
+        reservationState.bookingNumber === bookingNumber &&
+        isValidCachedQuote(reservationState.quote, bookingNumber)
+      ) {
+        return {
+          quote: reservationState.quote,
+          state: reservationState,
+          source: "cache"
+        };
+      }
+
+      const quote = await fetchPreLiveQuote(token, bookingNumber);
+
+      const state = saveReservation({
+        token,
+        offerId: String(purchaseData?.angebot_id || reservationState?.offerId || ""),
+        expiresAt:
+          Number(reservationState?.expiresAt) ||
+          calculateLocalExpiryFromEpoch(purchaseData),
+        bookingNumber,
+        quote
+      });
+
+      return {
+        quote,
+        state,
+        source: "server"
+      };
+    }
+
+    function showPurchaseDetails(data, reservationState, quote) {
       elements.purchaseTitle.textContent = "Angebot für dich reserviert";
       elements.purchaseSub.textContent =
-        `Angebot ${data.angebot_id || ""} wurde serverseitig deinem Konto zugeordnet.`;
+        `Angebot ${data.angebot_id || ""} wurde serverseitig deinem Konto zugeordnet. ` +
+        "Der exakte PRE-LIVE-USDT-Betrag ist für diese BIK eingefroren.";
+
       elements.purchaseBooking.textContent =
         String(data.buchungsnummer || "–");
-      elements.purchaseUnits.textContent = `${formatNumber(numberValue(data.units), 0)} Units`;
+
+      elements.purchaseUnits.textContent =
+        `${formatNumber(numberValue(data.units), 0)} Units`;
+
       elements.purchaseTotal.textContent =
         `${formatNumber(numberValue(data.gesamtpreis_eur), 2)} €`;
-      elements.purchaseWallet.textContent =
-        `${String(data.wallet_adresse || "–")} · ${String(data.wallet_coin || "USDT")}`;
-      elements.purchaseNetwork.textContent =
-        String(data.wallet_netzwerk || "–");
+
+      elements.purchaseCryptoAmount.textContent =
+        formatCrypto(quote?.expected_crypto_betrag);
+
+      elements.purchaseNetwork.textContent = "USDT · TRON";
+      elements.purchaseWallet.textContent = "Noch gesperrt";
+
       elements.paymentStop.textContent =
-        "Noch keine Zahlung senden. Die echte USDT/USDC-Zahlung ist in diesem Testschritt weiterhin deaktiviert.";
+        "Noch keine Zahlung senden. payment_enabled=false · units_transfer=false";
 
       const expiresAt =
-        reservationState?.expiresAt ||
+        Number(reservationState?.expiresAt) ||
         calculateLocalExpiryFromEpoch(data);
 
       startReservationCountdown(expiresAt);
 
       elements.purchasePanel.classList.add("visible");
-      elements.purchasePanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      elements.purchasePanel.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+      });
+    }
+
+    function showReservedButQuoteUnavailable(data, reservationState, error) {
+      elements.purchaseTitle.textContent = "Angebot reserviert – Betrag noch gesperrt";
+      elements.purchaseSub.textContent =
+        `Angebot ${data.angebot_id || ""} ist reserviert. ` +
+        "Der PRE-LIVE-Zahlungsbetrag konnte aber noch nicht sicher bestätigt werden.";
+
+      elements.purchaseBooking.textContent =
+        String(data.buchungsnummer || "–");
+
+      elements.purchaseUnits.textContent =
+        `${formatNumber(numberValue(data.units), 0)} Units`;
+
+      elements.purchaseTotal.textContent =
+        `${formatNumber(numberValue(data.gesamtpreis_eur), 2)} €`;
+
+      elements.purchaseCryptoAmount.textContent = "Noch nicht verfügbar";
+      elements.purchaseNetwork.textContent = "USDT · TRON";
+      elements.purchaseWallet.textContent = "Gesperrt";
+
+      elements.paymentStop.textContent =
+        "Sicherheitsstopp: Keine Zahlung senden. " +
+        (error?.message || "PRE-LIVE-Betrag konnte nicht bestätigt werden.");
+
+      const expiresAt =
+        Number(reservationState?.expiresAt) ||
+        calculateLocalExpiryFromEpoch(data);
+
+      startReservationCountdown(expiresAt);
+
+      elements.purchasePanel.classList.add("visible");
+      elements.purchasePanel.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+      });
     }
 
     async function fetchPurchaseStatus(token, offerId) {
@@ -1221,15 +1584,69 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
       });
 
       let data = {};
+
       try {
         data = await response.json();
       } catch (_) {
-        throw new Error("Der Kaufstatus konnte nicht gelesen werden.");
+        throw new Error(
+          "Der Kaufstatus konnte nicht gelesen werden."
+        );
       }
 
       return { response, data };
     }
 
+    async function processReadyReservation(token, offerId, data, previousState = null) {
+      const serverExpiry = calculateLocalExpiryFromEpoch(data);
+
+      if (!serverExpiry || serverExpiry <= Date.now()) {
+        throw new Error(
+          "Die Reservierung besitzt kein gültiges aktives Server-Zeitfenster."
+        );
+      }
+
+      const bookingNumber = String(data.buchungsnummer || "");
+
+      let state = saveReservation({
+        token,
+        offerId,
+        expiresAt: serverExpiry,
+        bookingNumber,
+        quote:
+          previousState?.bookingNumber === bookingNumber
+            ? previousState.quote
+            : null
+      });
+
+      try {
+        const prepared = await ensurePreLiveQuote(token, data, state);
+        state = prepared.state;
+
+        showPurchaseDetails(
+          data,
+          state,
+          prepared.quote
+        );
+
+        return {
+          ok: true,
+          quoteSource: prepared.source
+        };
+      } catch (error) {
+        console.error("PRE-LIVE Quote konnte nicht bestätigt werden:", error);
+
+        showReservedButQuoteUnavailable(
+          data,
+          state,
+          error
+        );
+
+        return {
+          ok: false,
+          error
+        };
+      }
+    }
 
     async function restoreReservationFromStorage() {
       if (DEMO_MODE) return;
@@ -1245,12 +1662,23 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
       }
 
       try {
-        const { response, data } = await fetchPurchaseStatus(token, stored.offerId);
+        const { response, data } =
+          await fetchPurchaseStatus(token, stored.offerId);
 
         if (data.status === "purchase_ready") {
-          const serverExpiry = calculateLocalExpiryFromEpoch(data);
-          const refreshed = saveReservation(token, stored.offerId, serverExpiry);
-          showPurchaseDetails(data, refreshed);
+          const result = await processReadyReservation(
+            token,
+            stored.offerId,
+            data,
+            stored
+          );
+
+          if (!result.ok) {
+            showToast(
+              "Reservierung aktiv, aber PRE-LIVE-Betrag noch nicht sicher verfügbar."
+            );
+          }
+
           return;
         }
 
@@ -1262,7 +1690,10 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
           return;
         }
 
-        if (data.status === "pending" && Number(stored.expiresAt) <= Date.now()) {
+        if (
+          data.status === "pending" &&
+          Number(stored.expiresAt) <= Date.now()
+        ) {
           clearStoredReservation();
           elements.purchasePanel.classList.remove("visible");
           await loadOffers();
@@ -1279,8 +1710,16 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
           elements.purchasePanel.classList.remove("visible");
         }
       } catch (error) {
-        console.warn("Gespeicherte Reservierung konnte nicht wiederhergestellt werden:", error);
-        // Nicht löschen: Bei einem kurzen Netzwerkfehler soll die lokale Reservierung erhalten bleiben.
+        console.warn(
+          "Gespeicherte Reservierung konnte nicht wiederhergestellt werden:",
+          error
+        );
+
+        /*
+          Bei kurzem Netzwerkfehler NICHT löschen.
+          Server bleibt Source of Truth; lokale Daten werden nicht
+          als Zahlungsfreigabe verwendet.
+        */
       }
     }
 
@@ -1291,8 +1730,11 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
       }
 
       const token = getActiveToken();
+
       if (!token) {
-        showToast("Kein gültiger Zugang erkannt. Bitte öffne die Wechselstube erneut über dein Profil.");
+        showToast(
+          "Kein gültiger Zugang erkannt. Bitte öffne die Wechselstube erneut über dein Profil."
+        );
         return;
       }
 
@@ -1304,8 +1746,10 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
         reserveUrl.searchParams.set("dashboard_token", token);
         reserveUrl.searchParams.set("angebot_id", offerId);
 
-        // Das sequentielle Reservierungsszenario nutzt absichtlich die
-        // Make-Standardantwort. no-cors vermeidet dabei einen Browser-CORS-Fehler.
+        /*
+          Kaufstart v1.3 läuft sequentiell und nutzt absichtlich
+          die Make-Standardantwort. no-cors vermeidet den Browser-CORS-Fehler.
+        */
         await fetch(reserveUrl.toString(), {
           method: "GET",
           mode: "no-cors",
@@ -1317,14 +1761,31 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
         for (let attempt = 0; attempt < 6; attempt += 1) {
           await sleep(attempt === 0 ? 650 : 850);
 
-          const { response, data } = await fetchPurchaseStatus(token, offerId);
+          const { response, data } =
+            await fetchPurchaseStatus(token, offerId);
+
           lastData = data;
 
           if (data.status === "purchase_ready") {
-            const serverExpiry = calculateLocalExpiryFromEpoch(data);
-            const reservationState = saveReservation(token, offerId, serverExpiry);
-            showPurchaseDetails(data, reservationState);
-            showToast("Angebot wurde für dich reserviert.");
+            const result = await processReadyReservation(
+              token,
+              offerId,
+              data,
+              null
+            );
+
+            if (result.ok) {
+              showToast(
+                result.quoteSource === "cache"
+                  ? "Reservierung bestätigt. Gespeicherter PRE-LIVE-Betrag geladen."
+                  : "Angebot reserviert und PRE-LIVE-USDT-Betrag sicher eingefroren."
+              );
+            } else {
+              showToast(
+                "Angebot reserviert. Zahlungsbetrag bleibt aus Sicherheitsgründen gesperrt."
+              );
+            }
+
             await loadOffers();
             return;
           }
@@ -1332,33 +1793,49 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
           if (data.status === "reservation_expired") {
             clearStoredReservation();
             elements.purchasePanel.classList.remove("visible");
-            showToast(data.message || "Die Reservierung ist abgelaufen.");
+            showToast(
+              data.message || "Die Reservierung ist abgelaufen."
+            );
             await loadOffers();
             return;
           }
 
           if (data.status === "self_purchase_blocked") {
             clearStoredReservation();
-            showToast(data.message || "Du kannst dein eigenes Verkaufsangebot nicht kaufen.");
+            showToast(
+              data.message ||
+              "Du kannst dein eigenes Verkaufsangebot nicht kaufen."
+            );
             return;
           }
 
           if (data.status === "unavailable") {
             clearStoredReservation();
-            showToast(data.message || "Dieses Angebot ist nicht mehr verfügbar.");
+            showToast(
+              data.message ||
+              "Dieses Angebot ist nicht mehr verfügbar."
+            );
             await loadOffers();
             return;
           }
 
           if (!response.ok && response.status !== 202) {
-            throw new Error(data.message || "Kaufstart fehlgeschlagen.");
+            throw new Error(
+              data.message || "Kaufstart fehlgeschlagen."
+            );
           }
         }
 
-        throw new Error(lastData?.message || "Die Reservierung konnte noch nicht bestätigt werden.");
+        throw new Error(
+          lastData?.message ||
+          "Die Reservierung konnte noch nicht bestätigt werden."
+        );
       } catch (error) {
         console.error("Kaufstart fehlgeschlagen:", error);
-        showToast(error.message || "Kaufstart fehlgeschlagen. Bitte erneut versuchen.");
+        showToast(
+          error.message ||
+          "Kaufstart fehlgeschlagen. Bitte erneut versuchen."
+        );
       } finally {
         setOfferButtonsDisabled(false);
       }
@@ -1368,14 +1845,20 @@ Anwendungs-Version: 1.4.0 EPOCH SAFE
       visibleCount = PAGE_SIZE;
       renderOffers();
     });
+
     elements.loadMoreButton.addEventListener("click", () => {
       visibleCount += PAGE_SIZE;
       renderOffers();
     });
+
     elements.retry.addEventListener("click", loadOffers);
+
     elements.grid.addEventListener("click", event => {
       const button = event.target.closest("[data-offer-id]");
-      if (button) beginPurchase(button.dataset.offerId);
+
+      if (button) {
+        beginPurchase(button.dataset.offerId);
+      }
     });
 
     async function initPage() {
