@@ -1,26 +1,26 @@
 <!DOCTYPE html>
 <!--
 Projekt: BetInsight
-GitHub-Repo-Pfad: marketing-center/index.html
-URL-Pfad: /profil/marketing-center/
-Version: 2026.08.20-01
-Anwendungs-Version: 1.0.0
-Änderungen:
-- Neues deutsches BetInsight Marketing-Center angelegt
-- Bereiche für Bilder/Grafiken und kopierbare Werbetexte vorbereitet
-- Download-Struktur für Bilder und Dokumente vorgesehen
-- Bereich "Demnächst" für Videos, Reels, Banner, QR-Codes und weitere Sprachen
-- Token wird beim Zurück-Link automatisch mitgeführt
-- Responsive Darstellung für Desktop, Tablet und Smartphone
-- BetInsight Logo und vorhandenes Favicon eingebunden
+Datei: profil/marketing-center/index.html
+Version: 2026.08.20-03
+Anwendungs-Version: 1.2.0
+
+WICHTIG:
+- Die Bildergalerie wird automatisch aus dem öffentlichen GitHub-Ordner
+  marketing-center/downloads/bilder geladen.
+- Neue Bilddateien erscheinen nach dem GitHub-Commit automatisch in der Galerie.
+- Keine HTML-Änderung pro neuem Bild nötig.
+- Passende Vorschau wird automatisch unter assets/previews/<dateiname>-preview.jpg gesucht.
+- Fehlt eine Vorschau, wird automatisch das Originalbild angezeigt.
+- Exakte Bild-Dubletten werden anhand des GitHub-SHA nur einmal angezeigt.
 -->
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#071019">
-  <meta name="application-version" content="1.0.0">
-  <meta name="description" content="BetInsight Marketing-Center – freigegebene Bilder, Texte und Vorlagen für Partner.">
+  <meta name="application-version" content="1.2.0">
+  <meta name="description" content="BetInsight Marketing-Center – Werbematerial für Partner.">
   <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
   <title>Marketing-Center | BetInsight Club</title>
 
@@ -29,13 +29,13 @@ Anwendungs-Version: 1.0.0
       --bg: #071019;
       --panel: #0d1a26;
       --panel-2: #122433;
-      --panel-3: #0a1620;
       --text: #f4f8fb;
       --muted: #91a6b7;
       --line: rgba(145, 166, 183, 0.18);
       --accent: #25e6a7;
       --blue: #59a8ff;
       --warning: #ffc857;
+      --danger: #ff6b7d;
       --shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
     }
 
@@ -54,161 +54,480 @@ Anwendungs-Version: 1.0.0
     }
 
     button, a { font: inherit; }
-    .page { width: min(100% - 32px, 1080px); margin: 0 auto; padding: 34px 0 52px; }
+
+    .page {
+      width: min(100% - 32px, 1180px);
+      margin: 0 auto;
+      padding: 34px 0 52px;
+    }
 
     .topbar {
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 18px; margin-bottom: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 34px;
     }
 
-    .logo { width: 180px; max-width: 54vw; height: auto; display: block; }
+    .logo {
+      width: 180px;
+      max-width: 54vw;
+      height: auto;
+      display: block;
+    }
 
     .back-link {
-      display: inline-flex; align-items: center; justify-content: center;
-      min-height: 44px; padding: 0 16px; color: var(--text); text-decoration: none;
-      background: rgba(13, 26, 38, 0.82); border: 1px solid var(--line);
-      border-radius: 12px; transition: 160ms ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 16px;
+      color: var(--text);
+      text-decoration: none;
+      background: rgba(13, 26, 38, 0.82);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      transition: 160ms ease;
     }
-    .back-link:hover { border-color: rgba(37, 230, 167, 0.55); transform: translateY(-1px); }
+
+    .back-link:hover {
+      border-color: rgba(37, 230, 167, 0.55);
+      transform: translateY(-1px);
+    }
 
     .hero { margin-bottom: 26px; }
-    .eyebrow {
-      display: inline-flex; align-items: center; gap: 8px; margin: 0 0 12px;
-      color: var(--accent); font-size: .8rem; font-weight: 800;
-      letter-spacing: .1em; text-transform: uppercase;
-    }
-    .eyebrow::before { content: ""; width: 22px; height: 2px; background: var(--accent); border-radius: 2px; }
 
-    h1 { margin: 0; font-size: clamp(2.15rem, 7vw, 4rem); line-height: 1.02; letter-spacing: -.05em; }
-    .intro { max-width: 780px; margin: 17px 0 0; color: var(--muted); font-size: 1.04rem; line-height: 1.7; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 12px;
+      color: var(--accent);
+      font-size: .8rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 22px;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.15rem, 7vw, 4rem);
+      line-height: 1.02;
+      letter-spacing: -.05em;
+    }
+
+    .intro {
+      max-width: 760px;
+      margin: 17px 0 0;
+      color: var(--muted);
+      font-size: 1.04rem;
+      line-height: 1.7;
+    }
 
     .quick-nav {
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 14px; margin: 28px 0 34px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin: 28px 0 34px;
     }
+
     .quick-nav a {
-      min-height: 86px; padding: 18px; color: var(--text); text-decoration: none;
+      min-height: 86px;
+      padding: 18px;
+      color: var(--text);
+      text-decoration: none;
       background: linear-gradient(155deg, rgba(18, 36, 51, .95), rgba(13, 26, 38, .98));
-      border: 1px solid var(--line); border-radius: 18px;
-      box-shadow: 0 14px 34px rgba(0, 0, 0, .16); transition: 160ms ease;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, .16);
+      transition: 160ms ease;
     }
-    .quick-nav a:hover { transform: translateY(-2px); border-color: rgba(89, 168, 255, .42); }
-    .quick-nav strong { display: block; margin-bottom: 5px; font-size: 1rem; }
-    .quick-nav span { color: var(--muted); font-size: .84rem; line-height: 1.45; }
+
+    .quick-nav a:hover {
+      transform: translateY(-2px);
+      border-color: rgba(89, 168, 255, .42);
+    }
+
+    .quick-nav strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 1rem;
+    }
+
+    .quick-nav span {
+      color: var(--muted);
+      font-size: .84rem;
+      line-height: 1.45;
+    }
 
     .section { margin-top: 34px; }
+
     .section-head {
-      display: flex; align-items: end; justify-content: space-between;
-      gap: 20px; margin-bottom: 16px;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 18px;
     }
-    .section-head h2 { margin: 0; font-size: clamp(1.45rem, 4vw, 2rem); letter-spacing: -.025em; }
-    .section-head p { max-width: 560px; margin: 6px 0 0; color: var(--muted); line-height: 1.55; }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: clamp(1.45rem, 4vw, 2rem);
+      letter-spacing: -.025em;
+    }
+
+    .section-head p {
+      max-width: 650px;
+      margin: 6px 0 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
 
     .status-pill {
-      flex: 0 0 auto; padding: 7px 11px; color: #d9fff1; font-size: .76rem; font-weight: 850;
-      background: rgba(37, 230, 167, .1); border: 1px solid rgba(37, 230, 167, .3);
+      flex: 0 0 auto;
+      padding: 7px 11px;
+      color: #d9fff1;
+      font-size: .76rem;
+      font-weight: 850;
+      background: rgba(37, 230, 167, .1);
+      border: 1px solid rgba(37, 230, 167, .3);
       border-radius: 999px;
     }
 
-    .media-grid, .text-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    /* AUTOMATISCHE BILDERGALERIE */
+    .gallery-shell {
+      min-height: 240px;
+    }
 
-    .media-card, .text-card, .future-card, .info-card {
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .media-card {
+      position: relative;
+      overflow: hidden;
+      min-width: 0;
+      background: #050d14;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      isolation: isolate;
+    }
+
+    .media-card img {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #050d14;
+      transition: transform 220ms ease, opacity 220ms ease;
+    }
+
+    .media-card:hover img {
+      transform: scale(1.015);
+    }
+
+    .media-card.is-loading img {
+      opacity: .45;
+    }
+
+    .download-fab {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      z-index: 2;
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      color: #04140f;
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--accent), #7af2c8);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 50%;
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .download-fab:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 14px 30px rgba(0,0,0,.42);
+    }
+
+    .download-fab svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.1;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .gallery-state {
+      display: grid;
+      place-items: center;
+      min-height: 220px;
+      padding: 28px;
+      color: var(--muted);
+      text-align: center;
+      background: linear-gradient(155deg, rgba(18,36,51,.72), rgba(13,26,38,.82));
+      border: 1px solid var(--line);
+      border-radius: 20px;
+    }
+
+    .gallery-state strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .spinner {
+      width: 34px;
+      height: 34px;
+      margin: 0 auto 14px;
+      border: 3px solid rgba(145,166,183,.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* TEXTE */
+    .text-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .text-card,
+    .future-card,
+    .info-card {
       overflow: hidden;
       background: linear-gradient(155deg, rgba(18, 36, 51, .95), rgba(13, 26, 38, .98));
-      border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow);
-    }
-
-    .media-preview {
-      position: relative; display: grid; place-items: center; min-height: 230px; padding: 24px;
-      color: var(--muted); text-align: center;
-      background: linear-gradient(145deg, rgba(89,168,255,.1), rgba(37,230,167,.06)), var(--panel-3);
-      border-bottom: 1px solid var(--line);
-    }
-    .media-preview::after {
-      content: "VORSCHAU"; position: absolute; top: 14px; right: 14px; padding: 6px 8px;
-      color: rgba(244,248,251,.58); font-size: .62rem; font-weight: 900; letter-spacing: .1em;
-      background: rgba(7,16,25,.7); border: 1px solid var(--line); border-radius: 999px;
-    }
-    .preview-icon { display: block; margin-bottom: 10px; font-size: 2.4rem; }
-    .media-body { padding: 18px; }
-    .media-body h3, .text-card h3, .future-card h3 { margin: 0 0 8px; font-size: 1.04rem; }
-    .media-body p, .future-card p { margin: 0; color: var(--muted); font-size: .86rem; line-height: 1.55; }
-
-    .button {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 100%; min-height: 48px; margin-top: 16px; padding: 0 16px;
-      color: #04140f; font-weight: 900; text-decoration: none;
-      background: linear-gradient(135deg, var(--accent), #7af2c8);
-      border: 0; border-radius: 12px; cursor: pointer; transition: 160ms ease;
-    }
-    .button:hover { transform: translateY(-1px); }
-    .button.disabled {
-      color: #7f909e; background: rgba(145,166,183,.07); border: 1px solid var(--line);
-      cursor: not-allowed; pointer-events: none;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
     }
 
     .text-card {
-      display: flex; flex-direction: column; min-height: 100%; padding: 20px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      padding: 20px;
       box-shadow: 0 16px 38px rgba(0,0,0,.2);
     }
-    .text-type {
-      width: max-content; margin-bottom: 13px; padding: 6px 9px; color: var(--blue);
-      font-size: .72rem; font-weight: 850; background: rgba(89,168,255,.09);
-      border: 1px solid rgba(89,168,255,.23); border-radius: 999px;
-    }
-    .copy-text {
-      flex: 1; margin: 10px 0 0; padding: 15px; color: #dce7ef; font-size: .9rem;
-      line-height: 1.62; white-space: pre-line; background: rgba(7,16,25,.55);
-      border: 1px solid var(--line); border-radius: 14px;
-    }
-    .copy-feedback { min-height: 20px; margin-top: 8px; color: var(--accent); font-size: .78rem; font-weight: 750; }
 
-    .future-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-    .future-card { min-height: 170px; padding: 18px; box-shadow: 0 14px 32px rgba(0,0,0,.16); }
-    .future-icon {
-      display: grid; place-items: center; width: 42px; height: 42px; margin-bottom: 18px;
-      font-size: 1.25rem; background: rgba(255,200,87,.1);
-      border: 1px solid rgba(255,200,87,.25); border-radius: 12px;
+    .text-card h3,
+    .future-card h3 {
+      margin: 0 0 8px;
+      font-size: 1.04rem;
     }
+
+    .text-type {
+      width: max-content;
+      margin-bottom: 13px;
+      padding: 6px 9px;
+      color: var(--blue);
+      font-size: .72rem;
+      font-weight: 850;
+      background: rgba(89,168,255,.09);
+      border: 1px solid rgba(89,168,255,.23);
+      border-radius: 999px;
+    }
+
+    .copy-text {
+      flex: 1;
+      margin: 10px 0 0;
+      padding: 15px;
+      color: #dce7ef;
+      font-size: .9rem;
+      line-height: 1.62;
+      white-space: pre-line;
+      background: rgba(7,16,25,.55);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 48px;
+      margin-top: 16px;
+      padding: 0 16px;
+      color: #04140f;
+      font-weight: 900;
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--accent), #7af2c8);
+      border: 0;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: 160ms ease;
+    }
+
+    .button:hover { transform: translateY(-1px); }
+
+    .copy-feedback {
+      min-height: 20px;
+      margin-top: 8px;
+      color: var(--accent);
+      font-size: .78rem;
+      font-weight: 750;
+    }
+
+    /* DEMNÄCHST */
+    .future-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .future-card {
+      min-height: 170px;
+      padding: 18px;
+      box-shadow: 0 14px 32px rgba(0,0,0,.16);
+    }
+
+    .future-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: .86rem;
+      line-height: 1.55;
+    }
+
+    .future-icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      margin-bottom: 18px;
+      font-size: 1.25rem;
+      background: rgba(255,200,87,.1);
+      border: 1px solid rgba(255,200,87,.25);
+      border-radius: 12px;
+    }
+
     .future-label {
-      display: inline-block; margin-top: 12px; color: var(--warning);
-      font-size: .72rem; font-weight: 850; letter-spacing: .04em; text-transform: uppercase;
+      display: inline-block;
+      margin-top: 12px;
+      color: var(--warning);
+      font-size: .72rem;
+      font-weight: 850;
+      letter-spacing: .04em;
+      text-transform: uppercase;
     }
 
     .info-card {
-      display: grid; grid-template-columns: auto 1fr; gap: 15px; margin-top: 34px; padding: 20px;
-      background: linear-gradient(135deg, rgba(89,168,255,.08), rgba(13,26,38,.96)); box-shadow: none;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 15px;
+      margin-top: 34px;
+      padding: 20px;
+      background: linear-gradient(135deg, rgba(89,168,255,.08), rgba(13,26,38,.96));
+      box-shadow: none;
     }
+
     .info-icon {
-      display: grid; place-items: center; width: 40px; height: 40px; color: #061525;
-      font-weight: 950; background: var(--blue); border-radius: 50%;
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      color: #061525;
+      font-weight: 950;
+      background: var(--blue);
+      border-radius: 50%;
     }
-    .info-card strong { display: block; margin-bottom: 6px; }
-    .info-card p { margin: 0; color: #c8d5df; line-height: 1.6; }
+
+    .info-card strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .info-card p {
+      margin: 0;
+      color: #c8d5df;
+      line-height: 1.6;
+    }
 
     .footer {
-      margin-top: 52px; padding-top: 22px; color: #728797; font-size: .8rem;
-      line-height: 1.55; text-align: center; border-top: 1px solid var(--line);
+      margin-top: 52px;
+      padding-top: 22px;
+      color: #728797;
+      font-size: .8rem;
+      line-height: 1.55;
+      text-align: center;
+      border-top: 1px solid var(--line);
     }
 
     @media (max-width: 900px) {
-      .media-grid, .text-grid { grid-template-columns: 1fr 1fr; }
-      .future-grid { grid-template-columns: 1fr 1fr; }
-      .quick-nav { grid-template-columns: 1fr; }
+      .gallery,
+      .text-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .future-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .quick-nav {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 620px) {
-      .page { width: min(100% - 22px, 1080px); padding-top: 20px; }
-      .topbar { align-items: flex-start; margin-bottom: 34px; }
+      .page {
+        width: min(100% - 22px, 1180px);
+        padding-top: 20px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        margin-bottom: 34px;
+      }
+
       .logo { width: 155px; }
-      .back-link { min-height: 40px; padding: 0 12px; font-size: .8rem; }
+
+      .back-link {
+        min-height: 40px;
+        padding: 0 12px;
+        font-size: .8rem;
+      }
+
       .intro { font-size: .96rem; }
+
       .section-head { display: block; }
-      .status-pill { display: inline-block; margin-top: 11px; }
-      .media-grid, .text-grid, .future-grid { grid-template-columns: 1fr; }
-      .media-preview { min-height: 210px; }
-      .info-card { grid-template-columns: 1fr; }
-      .info-icon { width: 34px; height: 34px; }
+
+      .status-pill {
+        display: inline-block;
+        margin-top: 11px;
+      }
+
+      .gallery,
+      .text-grid,
+      .future-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .info-card {
+        grid-template-columns: 1fr;
+      }
+
+      .info-icon {
+        width: 34px;
+        height: 34px;
+      }
     }
   </style>
 </head>
@@ -217,7 +536,11 @@ Anwendungs-Version: 1.0.0
 <main class="page">
 
   <header class="topbar">
-    <img class="logo" src="https://betinsightclub.github.io/profil/logo_betisight.club.png" alt="BetInsight Club">
+    <img
+      class="logo"
+      src="https://betinsightclub.github.io/profil/logo_betisight.club.png"
+      alt="BetInsight Club"
+    >
     <a class="back-link" id="backLink" href="../">← Zurück zum Profil</a>
   </header>
 
@@ -231,33 +554,37 @@ Anwendungs-Version: 1.0.0
   </section>
 
   <nav class="quick-nav" aria-label="Marketing-Center Bereiche">
-    <a href="#bilder"><strong>📱 Bilder & Grafiken</strong><span>Freigegebene Motive ansehen und herunterladen.</span></a>
-    <a href="#texte"><strong>✍️ Texte & Vorlagen</strong><span>Vorbereitete Texte direkt mit einem Klick kopieren.</span></a>
-    <a href="#demnaechst"><strong>🚀 Demnächst</strong><span>Videos, Reels, Banner, QR-Codes und weitere Sprachen.</span></a>
+    <a href="#bilder">
+      <strong>📱 Bilder & Grafiken</strong>
+      <span>Freigegebene Motive ansehen und herunterladen.</span>
+    </a>
+    <a href="#texte">
+      <strong>✍️ Texte & Vorlagen</strong>
+      <span>Vorbereitete Texte direkt mit einem Klick kopieren.</span>
+    </a>
+    <a href="#demnaechst">
+      <strong>🚀 Demnächst</strong>
+      <span>Videos, Reels, Banner, QR-Codes und weitere Sprachen.</span>
+    </a>
   </nav>
 
   <section class="section" id="bilder">
     <div class="section-head">
       <div>
         <h2>Bilder & Grafiken</h2>
-        <p>Hier stellen wir nach und nach die offiziellen BetInsight-Motive bereit. Jedes Motiv erhält eine Vorschau und einen direkten Download.</p>
+        <p>Die Galerie aktualisiert sich automatisch nach neuen Bild-Uploads bei GitHub.</p>
       </div>
-      <span class="status-pill">Wird aufgebaut</span>
+      <span class="status-pill" id="imageCount">Lädt …</span>
     </div>
 
-    <div class="media-grid">
-      <article class="media-card">
-        <div class="media-preview"><div><span class="preview-icon">🖼️</span><strong>Social-Media-Motiv 01</strong><br><small>Bild wird als Nächstes ergänzt</small></div></div>
-        <div class="media-body"><h3>BetInsight Social Post</h3><p>Vorgesehen für WhatsApp, Telegram und Social Media.</p><span class="button disabled">Download folgt</span></div>
-      </article>
-      <article class="media-card">
-        <div class="media-preview"><div><span class="preview-icon">📲</span><strong>Story-Motiv 01</strong><br><small>Bild wird als Nächstes ergänzt</small></div></div>
-        <div class="media-body"><h3>BetInsight Story</h3><p>Hochformat für Story- und Status-Bereiche.</p><span class="button disabled">Download folgt</span></div>
-      </article>
-      <article class="media-card">
-        <div class="media-preview"><div><span class="preview-icon">⚽</span><strong>BetInsight Motiv 02</strong><br><small>Bild wird als Nächstes ergänzt</small></div></div>
-        <div class="media-body"><h3>Allgemeines Werbemotiv</h3><p>Neutrales Motiv für die Vorstellung von BetInsight.</p><span class="button disabled">Download folgt</span></div>
-      </article>
+    <div class="gallery-shell">
+      <div class="gallery-state" id="galleryState">
+        <div>
+          <div class="spinner"></div>
+          <strong>Werbematerial wird geladen</strong>
+        </div>
+      </div>
+      <div class="gallery" id="gallery" hidden></div>
     </div>
   </section>
 
@@ -265,7 +592,7 @@ Anwendungs-Version: 1.0.0
     <div class="section-head">
       <div>
         <h2>Texte & Vorlagen</h2>
-        <p>Die ersten Vorlagen sind bewusst neutral formuliert. Sie können später jederzeit durch neue freigegebene Texte ersetzt oder erweitert werden.</p>
+        <p>Freigegebene Vorlagen zum direkten Kopieren.</p>
       </div>
       <span class="status-pill">Direkt nutzbar</span>
     </div>
@@ -301,15 +628,38 @@ Anwendungs-Version: 1.0.0
     <div class="section-head">
       <div>
         <h2>Demnächst im Marketing-Center</h2>
-        <p>Diese Bereiche sind bereits eingeplant und können später ergänzt werden, ohne die Grundstruktur der Seite zu ändern.</p>
+        <p>Weitere Materialien werden schrittweise ergänzt.</p>
       </div>
     </div>
 
     <div class="future-grid">
-      <article class="future-card"><div class="future-icon">🎬</div><h3>Videos & Reels</h3><p>Kurze Werbevideos und Social-Media-Clips.</p><span class="future-label">In Vorbereitung</span></article>
-      <article class="future-card"><div class="future-icon">🖥️</div><h3>Banner</h3><p>Verschiedene Formate für Webseiten und Social Media.</p><span class="future-label">In Vorbereitung</span></article>
-      <article class="future-card"><div class="future-icon">🔳</div><h3>QR & Empfehlungslink</h3><p>Später persönliche Materialien mit individuellem Ref-Code.</p><span class="future-label">In Vorbereitung</span></article>
-      <article class="future-card"><div class="future-icon">🌍</div><h3>Weitere Sprachen</h3><p>Englisch, Spanisch, Portugiesisch, Italienisch und weitere.</p><span class="future-label">Später verfügbar</span></article>
+      <article class="future-card">
+        <div class="future-icon">🎬</div>
+        <h3>Videos & Reels</h3>
+        <p>Kurze Werbevideos und Social-Media-Clips.</p>
+        <span class="future-label">In Vorbereitung</span>
+      </article>
+
+      <article class="future-card">
+        <div class="future-icon">🖥️</div>
+        <h3>Banner</h3>
+        <p>Weitere Formate für Webseiten und Social Media.</p>
+        <span class="future-label">In Vorbereitung</span>
+      </article>
+
+      <article class="future-card">
+        <div class="future-icon">🔳</div>
+        <h3>QR & Empfehlungslink</h3>
+        <p>Später persönliche Materialien mit individuellem Ref-Code.</p>
+        <span class="future-label">In Vorbereitung</span>
+      </article>
+
+      <article class="future-card">
+        <div class="future-icon">🌍</div>
+        <h3>Weitere Sprachen</h3>
+        <p>Englisch, Spanisch, Portugiesisch, Italienisch und weitere.</p>
+        <span class="future-label">Später verfügbar</span>
+      </article>
     </div>
   </section>
 
@@ -317,39 +667,204 @@ Anwendungs-Version: 1.0.0
     <span class="info-icon">i</span>
     <div>
       <strong>Bitte nur freigegebenes BetInsight-Material verwenden.</strong>
-      <p>Aussagen zu sicheren Gewinnen, garantierten Trefferquoten oder garantierten Einnahmen gehören nicht in eigene Werbetexte. Das Marketing-Center soll deshalb nach und nach die offiziell freigegebenen Vorlagen an einem Ort bündeln.</p>
+      <p>
+        Aussagen zu sicheren Gewinnen, garantierten Trefferquoten oder garantierten Einnahmen
+        gehören nicht in eigene Werbetexte.
+      </p>
     </div>
   </aside>
 
-  <footer class="footer">© 2026 BetInsight Club · Marketing-Center · Version 1.0</footer>
+  <footer class="footer">
+    © 2026 BetInsight Club · Marketing-Center · Version 1.2
+  </footer>
+
 </main>
 
 <script>
   const TOKEN_STORAGE_KEY = "betinsight_profile_token";
 
+  /* Öffentlicher GitHub-Ordner mit den Originalbildern */
+  const GITHUB_IMAGES_API =
+    "https://api.github.com/repos/betinsightclub/profil/contents/marketing-center/downloads/bilder?ref=main";
+
+  const ALLOWED_EXTENSIONS = /\.(png|jpe?g|webp)$/i;
+
   function getToken() {
     const params = new URLSearchParams(window.location.search);
     const fromUrl = String(params.get("token") || "").trim();
+
     if (fromUrl) {
       localStorage.setItem(TOKEN_STORAGE_KEY, fromUrl);
       return fromUrl;
     }
+
     return String(localStorage.getItem(TOKEN_STORAGE_KEY) || "").trim();
   }
 
   function applyTokenToBackLink() {
     const token = getToken();
     const link = document.getElementById("backLink");
+
     if (!link || !token) return;
+
     const target = new URL(link.getAttribute("href"), window.location.href);
     target.searchParams.set("token", token);
     link.href = target.toString();
   }
 
+  function baseName(filename) {
+    return filename.replace(/\.[^.]+$/, "");
+  }
+
+  function previewPath(filename) {
+    return "assets/previews/" + baseName(filename) + "-preview.jpg";
+  }
+
+  function originalPath(filename) {
+    return "downloads/bilder/" + encodeURIComponent(filename);
+  }
+
+  function sortImages(a, b) {
+    const order = (name) => {
+      const n = name.toLowerCase();
+      if (n.includes("hochformat")) return 1;
+      if (n.includes("quadrat")) return 2;
+      if (n.includes("querformat")) return 3;
+      return 4;
+    };
+
+    const diff = order(a.name) - order(b.name);
+    return diff || a.name.localeCompare(b.name, "de");
+  }
+
+  function uniqueBySha(files) {
+    const seen = new Set();
+
+    return files.filter((file) => {
+      const key = file.sha || file.name;
+
+      if (seen.has(key)) return false;
+
+      seen.add(key);
+      return true;
+    });
+  }
+
+  function createDownloadIcon() {
+    return `
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 3v12"></path>
+        <path d="m7 10 5 5 5-5"></path>
+        <path d="M5 21h14"></path>
+      </svg>
+    `;
+  }
+
+  function buildCard(file) {
+    const card = document.createElement("article");
+    card.className = "media-card is-loading";
+
+    const img = document.createElement("img");
+    img.loading = "lazy";
+    img.decoding = "async";
+    img.alt = "BetInsight Werbematerial";
+    img.src = previewPath(file.name);
+
+    /*
+      Wenn die kleine Vorschau noch nicht hochgeladen wurde,
+      zeigt die Seite automatisch das große Original.
+    */
+    img.onerror = () => {
+      if (img.dataset.fallbackUsed === "1") return;
+      img.dataset.fallbackUsed = "1";
+      img.src = originalPath(file.name);
+    };
+
+    img.onload = () => {
+      card.classList.remove("is-loading");
+    };
+
+    const download = document.createElement("a");
+    download.className = "download-fab";
+    download.href = originalPath(file.name);
+    download.setAttribute("download", file.name);
+    download.setAttribute("aria-label", "Originalbild herunterladen");
+    download.setAttribute("title", "Originalbild herunterladen");
+    download.innerHTML = createDownloadIcon();
+
+    card.append(img, download);
+    return card;
+  }
+
+  async function loadGallery() {
+    const gallery = document.getElementById("gallery");
+    const state = document.getElementById("galleryState");
+    const count = document.getElementById("imageCount");
+
+    try {
+      const response = await fetch(GITHUB_IMAGES_API, {
+        headers: {
+          "Accept": "application/vnd.github+json"
+        },
+        cache: "no-store"
+      });
+
+      if (!response.ok) {
+        throw new Error("GitHub API " + response.status);
+      }
+
+      const data = await response.json();
+
+      const imageFiles = uniqueBySha(
+        data
+          .filter((item) =>
+            item &&
+            item.type === "file" &&
+            ALLOWED_EXTENSIONS.test(item.name)
+          )
+          .sort(sortImages)
+      );
+
+      gallery.innerHTML = "";
+
+      imageFiles.forEach((file) => {
+        gallery.appendChild(buildCard(file));
+      });
+
+      if (!imageFiles.length) {
+        state.innerHTML = "<div><strong>Noch keine Bilder vorhanden</strong></div>";
+        count.textContent = "0 Bilder";
+        return;
+      }
+
+      count.textContent =
+        imageFiles.length === 1
+          ? "1 Bild"
+          : imageFiles.length + " Bilder";
+
+      state.hidden = true;
+      gallery.hidden = false;
+
+    } catch (error) {
+      console.error("Marketing-Center Galerie:", error);
+
+      state.innerHTML = `
+        <div>
+          <strong>Bilder konnten gerade nicht geladen werden.</strong>
+          <span>Bitte die Seite in einem Moment neu laden.</span>
+        </div>
+      `;
+
+      count.textContent = "Nicht erreichbar";
+    }
+  }
+
   async function copyText(targetId, feedbackId, button) {
     const target = document.getElementById(targetId);
     const feedback = document.getElementById(feedbackId);
+
     if (!target) return;
+
     const text = target.innerText.trim();
 
     try {
@@ -367,8 +882,10 @@ Anwendungs-Version: 1.0.0
     }
 
     feedback.textContent = "✓ Text kopiert";
+
     const oldText = button.textContent;
     button.textContent = "Kopiert ✓";
+
     setTimeout(() => {
       feedback.textContent = "";
       button.textContent = oldText;
@@ -376,14 +893,17 @@ Anwendungs-Version: 1.0.0
   }
 
   document.querySelectorAll(".copy-button").forEach((button) => {
-    button.addEventListener("click", () => copyText(
-      button.dataset.copyTarget,
-      button.dataset.feedback,
-      button
-    ));
+    button.addEventListener("click", () => {
+      copyText(
+        button.dataset.copyTarget,
+        button.dataset.feedback,
+        button
+      );
+    });
   });
 
   applyTokenToBackLink();
+  loadGallery();
 </script>
 </body>
 </html>
