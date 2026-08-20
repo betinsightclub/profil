@@ -2,14 +2,15 @@
 <!--
 Projekt: BetInsight
 Pfad nach Freigabe: /profil/wechselboerse/angebote/index.html
-Update: 2026.08.19-01
-Anwendungs-Version: 1.5.0 PRE-LIVE v2.3 SAFE
+Update: 2026.08.20-01
+Anwendungs-Version: 1.6.0 PRE-LIVE v2.4.1 TXID READONLY SAFE
 
 Basis:
 - aktuelle GitHub-Version 1.4.0 EPOCH SAFE
 - bestehender Kaufstart v1.3 EPOCH SAFE bleibt unverändert
 - bestehender Kaufstatus v1.3 EPOCH SAFE bleibt unverändert
 - PRE-LIVE Zahlungsbetrag v2.3 wird nach bestätigter Reservierung automatisch aufgerufen
+- PRE-LIVE TXID/Blockchain v2.4.1 READONLY wird nur nach bewusstem TXID-Prüfklick aufgerufen
 
 Änderungen:
 - neuer PRE-LIVE-Endpunkt für EUR/USDT-Kurs + eindeutigen Zahlungs-Fingerprint
@@ -19,8 +20,11 @@ Basis:
 - bei neuem Gerät/gelöschtem Speicher liefert v2.3 dieselbe eingefrorene Quote idempotent zurück
 - Verkäufer-Wallet bleibt in dieser PRE-LIVE-Stufe vollständig verborgen
 - kein Jetzt-bezahlen-Button
-- keine TXID-Eingabe
-- keine Blockchain-Prüfung über diese Seite
+- TXID-Eingabe nur als PRE-LIVE READONLY-Prüfung
+- 64-Hex-Prüfung bereits im Browser, damit ungültige TXIDs keine Make-Credits verbrauchen
+- Blockchain-Prüfung über v2.4.1 erst nach bewusstem Klick
+- Blockchain-Ergebnis wird nur angezeigt, niemals als Zahlungsfreigabe behandelt
+- keine TXID-Speicherung über diese Seite
 - keine Unit-Übertragung über diese Seite
 - payment_enabled bleibt hart FALSE
 - units_transfer bleibt hart FALSE
@@ -281,7 +285,9 @@ Diese Datei ist PRE-LIVE. Sie darf noch keine echte Zahlung auslösen.
     .buy-button:focus-visible,
     .back-link:focus-visible,
     .retry-button:focus-visible,
-    .load-more-button:focus-visible {
+    .load-more-button:focus-visible,
+.txid-input:focus-visible,
+.txid-button:focus-visible {
       outline: 3px solid var(--focus);
       outline-offset: 3px;
     }
@@ -660,6 +666,107 @@ Diese Datei ist PRE-LIVE. Sie darf noch keine echte Zahlung auslösen.
       line-height: 1.5;
     }
 
+
+    .txid-prelive {
+      margin-top: 14px;
+      padding: 16px;
+      border: 1px solid rgba(22, 199, 243, 0.34);
+      border-radius: 13px;
+      background: rgba(22, 199, 243, 0.055);
+    }
+
+    .txid-prelive h4 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .txid-prelive p {
+      margin: 7px 0 0;
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .txid-form {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-top: 13px;
+    }
+
+    .txid-input {
+      width: 100%;
+      min-width: 0;
+      min-height: 46px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      outline: 0;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.18);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+    }
+
+    .txid-input::placeholder {
+      color: rgba(201, 230, 244, 0.42);
+    }
+
+    .txid-button {
+      min-height: 46px;
+      padding: 10px 17px;
+      border-radius: 10px;
+      color: #032017;
+      background: linear-gradient(135deg, var(--green), #2be9b2);
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .txid-button[disabled] {
+      opacity: .48;
+      cursor: not-allowed;
+      filter: none;
+    }
+
+    .txid-helper {
+      margin-top: 8px;
+      color: var(--text-muted);
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .txid-result {
+      display: none;
+      margin-top: 12px;
+      padding: 12px 13px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(0,0,0,.12);
+      font-size: 12px;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+    }
+
+    .txid-result.visible { display: block; }
+
+    .txid-result.ok {
+      border-color: rgba(17, 214, 160, 0.38);
+      color: #c9ffef;
+      background: rgba(17, 214, 160, 0.07);
+    }
+
+    .txid-result.warn {
+      border-color: rgba(241, 163, 19, 0.38);
+      color: #ffe8b6;
+      background: rgba(241, 163, 19, 0.07);
+    }
+
+    .txid-result.error {
+      border-color: rgba(255, 118, 133, 0.42);
+      color: #ffd4da;
+      background: rgba(255, 118, 133, 0.07);
+    }
+
     .info-note {
       display: grid;
       grid-template-columns: auto 1fr;
@@ -725,6 +832,11 @@ Diese Datei ist PRE-LIVE. Sie darf noch keine echte Zahlung auslösen.
       .purchase-item.exact-amount { grid-column: auto; }
     }
 
+    @media (max-width: 640px) {
+      .txid-form { grid-template-columns: 1fr; }
+      .txid-button { width: 100%; }
+    }
+
     @media (max-width: 520px) {
       .reservation-timer {
         grid-template-columns: 1fr;
@@ -775,8 +887,7 @@ Diese Datei ist PRE-LIVE. Sie darf noch keine echte Zahlung auslösen.
     </section>
 
     <div class="prelive-banner" role="status">
-      PRE-LIVE v1.5.0 – Exakter USDT-Betrag wird vorbereitet, aber Verkäufer-Wallet,
-      TXID-Eingabe, Blockchain-Zahlungsprüfung und Unit-Übertragung sind noch nicht freigeschaltet.
+      PRE-LIVE v1.6.0 – Exakter USDT-Betrag und READONLY-TXID-Prüfung sind vorbereitet. Verkäufer-Wallet, echte Zahlungsfreigabe, TXID-Speicherung und Unit-Übertragung bleiben gesperrt.
     </div>
 
     <div id="demoBanner" class="demo-banner" role="status">
@@ -889,6 +1000,39 @@ Diese Datei ist PRE-LIVE. Sie darf noch keine echte Zahlung auslösen.
       <div id="paymentStop" class="payment-stop">
         Noch keine Zahlung senden. payment_enabled=false · units_transfer=false
       </div>
+
+      <section id="txidPrelive" class="txid-prelive" hidden aria-labelledby="txidPreliveTitle">
+        <h4 id="txidPreliveTitle">TXID prüfen – PRE-LIVE READONLY</h4>
+        <p>
+          Dieses Feld prüft nur eine vorhandene TRON-TXID gegen deine aktuelle BIK.
+          Es löst keine Zahlung aus, speichert keine TXID und überträgt keine Units.
+        </p>
+
+        <div class="txid-form">
+          <input
+            id="txidInput"
+            class="txid-input"
+            type="text"
+            maxlength="64"
+            minlength="64"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            placeholder="64-stellige TRON-TXID einfügen"
+            aria-describedby="txidHelper"
+          >
+          <button id="txidCheckButton" class="txid-button" type="button" disabled>
+            TXID prüfen
+          </button>
+        </div>
+
+        <div id="txidHelper" class="txid-helper">
+          Erst bei exakt 64 Hex-Zeichen wird der Prüfklick freigeschaltet.
+          Dadurch erzeugen Tippfehler keinen unnötigen Make-/TronGrid-Aufruf.
+        </div>
+
+        <div id="txidResult" class="txid-result" role="status" aria-live="polite"></div>
+      </section>
     </section>
 
     <aside class="info-note">
@@ -896,8 +1040,8 @@ Diese Datei ist PRE-LIVE. Sie darf noch keine echte Zahlung auslösen.
       <div>
         <strong>Wichtig:</strong> Angebote können aus verdienten oder gekauften Units stammen.
         Geschenk-Units sind vom Verkauf ausgeschlossen. In dieser PRE-LIVE-Stufe wird nach
-        der Reservierung nur der exakte USDT-Betrag eingefroren. Es kann noch keine echte
-        Zahlung ausgelöst werden.
+        der Reservierung der exakte USDT-Betrag eingefroren und eine TXID nur READONLY geprüft.
+        Es kann weiterhin keine echte Zahlung freigeschaltet oder Unit übertragen werden.
       </div>
     </aside>
 
@@ -933,7 +1077,8 @@ Diese Datei ist PRE-LIVE. Sie darf noch keine echte Zahlung auslösen.
       listOffers: "https://hook.eu1.make.com/c09vltke6d7gr7tvlpaspvugw13yfg32",
       beginPurchase: "https://hook.eu1.make.com/b6hhj5qs7sd3xymp8nad5d105cug375r",
       purchaseStatus: "https://hook.eu1.make.com/7ykyk5lm4djtlfhr7fyp9jhj84gavc07",
-      preLiveQuote: "https://hook.eu1.make.com/bl7s6ju8f2j7cjootg2fice4ffk2o2wb"
+      preLiveQuote: "https://hook.eu1.make.com/bl7s6ju8f2j7cjootg2fice4ffk2o2wb",
+      txidCheck: "https://hook.eu1.make.com/28a83ibd79gf79oihryyxrzqh3obtnz9"
     };
 
     const TOKEN_STORAGE_KEY = "betinsight_profile_token";
@@ -984,6 +1129,11 @@ Diese Datei ist PRE-LIVE. Sie darf noch keine echte Zahlung auslösen.
       purchaseWallet: document.getElementById("purchaseWallet"),
       purchaseNetwork: document.getElementById("purchaseNetwork"),
       paymentStop: document.getElementById("paymentStop"),
+
+      txidPrelive: document.getElementById("txidPrelive"),
+      txidInput: document.getElementById("txidInput"),
+      txidCheckButton: document.getElementById("txidCheckButton"),
+      txidResult: document.getElementById("txidResult"),
 
       reservationTimer: document.getElementById("reservationTimer"),
       reservationTimerTitle: document.getElementById("reservationTimerTitle"),
@@ -1302,6 +1452,198 @@ Diese Datei ist PRE-LIVE. Sie darf noch keine echte Zahlung auslösen.
       return Date.now() + remainingMs;
     }
 
+
+    function normalizeTxid(value) {
+      return String(value || "").trim().toLowerCase();
+    }
+
+    function isValidTxidSyntax(value) {
+      return /^[0-9a-f]{64}$/i.test(String(value || "").trim());
+    }
+
+    function resetTxidUi(options = {}) {
+      const keepValue = options.keepValue === true;
+
+      if (!keepValue) {
+        elements.txidInput.value = "";
+      }
+
+      elements.txidResult.textContent = "";
+      elements.txidResult.className = "txid-result";
+      elements.txidCheckButton.disabled =
+        !isValidTxidSyntax(elements.txidInput.value);
+    }
+
+    function setTxidResult(kind, message) {
+      elements.txidResult.textContent = String(message || "");
+      elements.txidResult.className = "txid-result visible " + kind;
+    }
+
+    function setTxidUiAvailable(available) {
+      elements.txidPrelive.hidden = !available;
+
+      if (!available) {
+        elements.txidCheckButton.disabled = true;
+        return;
+      }
+
+      elements.txidCheckButton.disabled =
+        !isValidTxidSyntax(elements.txidInput.value);
+    }
+
+    function txidStatusMessage(data) {
+      const status = String(data?.status || "");
+
+      const messages = {
+        prelive_txid_validation_failed:
+          "TXID-Prüfung abgelehnt: BIK, Eigentümer, Zeitfenster oder Eingabedaten sind nicht gültig.",
+        prelive_txid_not_found:
+          "Diese TXID wurde nicht als bestätigte USDT/TRON-Transaktion gefunden.",
+        prelive_token_event_or_time_mismatch:
+          "Die TXID existiert, passt aber nicht als bestätigter USDT-TRC20-Transfer im Zeitfenster dieser BIK.",
+        prelive_recipient_not_match:
+          "Die Transaktion passt nicht zur für diese BIK hinterlegten Verkäufer-Wallet.",
+        prelive_txid_recipient_mismatch:
+          "Die gefundene Empfänger-Transaktion stimmt nicht exakt mit dieser TXID überein.",
+        prelive_expected_amount_missing:
+          "Für diese BIK fehlt ein sicher eingefrorener USDT-Betrag.",
+        prelive_amount_mismatch:
+          "Die Transaktion wurde gefunden, aber der USDT-Betrag stimmt nicht exakt mit dieser BIK überein.",
+        prelive_recipient_timestamp_collision:
+          "Mehrere Eingänge liegen im gleichen Blockchain-Zeitpunkt. Automatische Zuordnung bleibt gesperrt.",
+        prelive_trongrid_lookup_error:
+          "TronGrid konnte die TXID-Abfrage nicht normal beantworten. Bitte später erneut prüfen.",
+        prelive_trongrid_recipient_lookup_error:
+          "TronGrid konnte die Empfänger-/Betragsprüfung nicht normal beantworten. Bitte später erneut prüfen.",
+        prelive_blockchain_match_readonly:
+          "PRE-LIVE MATCH: TXID, USDT-Token, Empfänger, Betrag und Zeitfenster passen. READONLY – es wurde nichts gespeichert und keine Unit übertragen."
+      };
+
+      return data?.message || messages[status] || "Unbekannte PRE-LIVE-Antwort.";
+    }
+
+    function txidStatusKind(data) {
+      const status = String(data?.status || "");
+
+      if (status === "prelive_blockchain_match_readonly") {
+        return "ok";
+      }
+
+      if (
+        status === "prelive_txid_not_found" ||
+        status === "prelive_token_event_or_time_mismatch" ||
+        status === "prelive_recipient_not_match" ||
+        status === "prelive_txid_recipient_mismatch" ||
+        status === "prelive_expected_amount_missing" ||
+        status === "prelive_amount_mismatch" ||
+        status === "prelive_recipient_timestamp_collision"
+      ) {
+        return "warn";
+      }
+
+      return "error";
+    }
+
+    async function checkTxidPreLive() {
+      const token = getActiveToken();
+      const state = getStoredReservation();
+      const txid = normalizeTxid(elements.txidInput.value);
+
+      if (!token || !state || !state.bookingNumber) {
+        setTxidResult(
+          "error",
+          "Keine aktive, bestätigte Reservierung gefunden. Bitte reserviere das Angebot erneut."
+        );
+        return;
+      }
+
+      if (!isValidTxidSyntax(txid)) {
+        setTxidResult(
+          "error",
+          "Die TXID muss exakt 64 Hex-Zeichen (0–9, a–f) besitzen."
+        );
+        return;
+      }
+
+      /*
+        PRE-LIVE UI:
+        Nur während des sichtbaren 15-Minuten-Countdowns wird ein Prüfklick
+        von dieser Seite ausgelöst. Der Backend-Endpunkt besitzt zusätzlich
+        seine eigene serverseitige Zeit-/Nachlaufprüfung.
+      */
+      if (!Number(state.expiresAt) || Number(state.expiresAt) <= Date.now()) {
+        setTxidResult(
+          "error",
+          "Das sichtbare Reservierungsfenster ist abgelaufen. Von dieser PRE-LIVE-Seite wird kein neuer TXID-Prüflauf gestartet."
+        );
+        setTxidUiAvailable(false);
+        return;
+      }
+
+      elements.txidCheckButton.disabled = true;
+      elements.txidInput.disabled = true;
+      setTxidResult("warn", "TXID wird READONLY auf der Blockchain geprüft …");
+
+      try {
+        const url = new URL(API_ENDPOINTS.txidCheck);
+        url.searchParams.set("dashboard_token", token);
+        url.searchParams.set("buchungsnummer", state.bookingNumber);
+        url.searchParams.set("txid", txid);
+
+        const response = await fetch(url.toString(), {
+          method: "GET",
+          cache: "no-store"
+        });
+
+        let data = {};
+
+        try {
+          data = await response.json();
+        } catch (_) {
+          throw new Error(
+            "Der PRE-LIVE-Endpunkt hat keine gültige JSON-Antwort geliefert."
+          );
+        }
+
+        /*
+          HARTE CLIENT-SEITIGE SICHERHEITSKONTROLLE:
+          Auch eine erfolgreiche Blockchain-Antwort darf in v1.6.0
+          niemals Zahlung, Speicherung oder Unit-Transfer freischalten.
+        */
+        if (
+          data.payment_enabled !== false ||
+          data.units_transfer !== false ||
+          data.sheet_saved !== false ||
+          data.txid_saved !== false
+        ) {
+          throw new Error(
+            "Sicherheitsstopp: Der PRE-LIVE-Endpunkt meldet einen unerwarteten Schreib- oder Freigabestatus."
+          );
+        }
+
+        setTxidResult(
+          txidStatusKind(data),
+          txidStatusMessage(data)
+        );
+      } catch (error) {
+        console.error("PRE-LIVE TXID-Prüfung fehlgeschlagen:", error);
+        setTxidResult(
+          "error",
+          error?.message || "TXID-Prüfung konnte nicht abgeschlossen werden."
+        );
+      } finally {
+        elements.txidInput.disabled = false;
+
+        const latestState = getStoredReservation();
+        const stillActive =
+          latestState &&
+          Number(latestState.expiresAt) > Date.now();
+
+        elements.txidCheckButton.disabled =
+          !stillActive || !isValidTxidSyntax(elements.txidInput.value);
+      }
+    }
+
     function formatCountdown(milliseconds) {
       const safeMs = Math.max(0, milliseconds);
       const totalSeconds = Math.ceil(safeMs / 1000);
@@ -1339,6 +1681,12 @@ Diese Datei ist PRE-LIVE. Sie darf noch keine echte Zahlung auslösen.
         elements.purchaseNetwork.textContent = "–";
         elements.paymentStop.textContent =
           "Zahlungsfenster abgelaufen. Bitte keine Zahlung senden. Das Angebot bleibt während des Sicherheitsnachlaufs noch gesperrt.";
+
+        setTxidUiAvailable(false);
+        setTxidResult(
+          "warn",
+          "Der sichtbare 15-Minuten-Countdown ist beendet. Von dieser PRE-LIVE-Seite wird kein neuer TXID-Prüflauf gestartet."
+        );
 
         clearStoredReservation();
         stopReservationCountdown();
@@ -1524,6 +1872,9 @@ Diese Datei ist PRE-LIVE. Sie darf noch keine echte Zahlung auslösen.
       elements.paymentStop.textContent =
         "Noch keine Zahlung senden. payment_enabled=false · units_transfer=false";
 
+      resetTxidUi();
+      setTxidUiAvailable(true);
+
       const expiresAt =
         Number(reservationState?.expiresAt) ||
         calculateLocalExpiryFromEpoch(data);
@@ -1559,6 +1910,9 @@ Diese Datei ist PRE-LIVE. Sie darf noch keine echte Zahlung auslösen.
       elements.paymentStop.textContent =
         "Sicherheitsstopp: Keine Zahlung senden. " +
         (error?.message || "PRE-LIVE-Betrag konnte nicht bestätigt werden.");
+
+      resetTxidUi();
+      setTxidUiAvailable(false);
 
       const expiresAt =
         Number(reservationState?.expiresAt) ||
@@ -1740,6 +2094,8 @@ Diese Datei ist PRE-LIVE. Sie darf noch keine echte Zahlung auslösen.
 
       setOfferButtonsDisabled(true);
       elements.purchasePanel.classList.remove("visible");
+      resetTxidUi();
+      setTxidUiAvailable(false);
 
       try {
         const reserveUrl = new URL(API_ENDPOINTS.beginPurchase);
@@ -1852,6 +2208,31 @@ Diese Datei ist PRE-LIVE. Sie darf noch keine echte Zahlung auslösen.
     });
 
     elements.retry.addEventListener("click", loadOffers);
+
+    elements.txidInput.addEventListener("input", () => {
+      const cleaned = normalizeTxid(elements.txidInput.value)
+        .replace(/[^0-9a-f]/gi, "")
+        .slice(0, 64);
+
+      if (elements.txidInput.value !== cleaned) {
+        elements.txidInput.value = cleaned;
+      }
+
+      const state = getStoredReservation();
+      const active =
+        state &&
+        Number(state.expiresAt) > Date.now();
+
+      elements.txidCheckButton.disabled =
+        !active || !isValidTxidSyntax(cleaned);
+
+      if (!isValidTxidSyntax(cleaned)) {
+        elements.txidResult.className = "txid-result";
+        elements.txidResult.textContent = "";
+      }
+    });
+
+    elements.txidCheckButton.addEventListener("click", checkTxidPreLive);
 
     elements.grid.addEventListener("click", event => {
       const button = event.target.closest("[data-offer-id]");
