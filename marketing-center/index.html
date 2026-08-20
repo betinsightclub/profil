@@ -2,25 +2,28 @@
 <!--
 Projekt: BetInsight
 Datei: profil/marketing-center/index.html
-Version: 2026.08.20-03
-Anwendungs-Version: 1.2.0
+Version: 2026.08.21-01
+Anwendungs-Version: 1.3.0
 
-WICHTIG:
-- Die Bildergalerie wird automatisch aus dem öffentlichen GitHub-Ordner
-  marketing-center/downloads/bilder geladen.
-- Neue Bilddateien erscheinen nach dem GitHub-Commit automatisch in der Galerie.
-- Keine HTML-Änderung pro neuem Bild nötig.
-- Passende Vorschau wird automatisch unter assets/previews/<dateiname>-preview.jpg gesucht.
-- Fehlt eine Vorschau, wird automatisch das Originalbild angezeigt.
-- Exakte Bild-Dubletten werden anhand des GitHub-SHA nur einmal angezeigt.
+Änderungen v1.3:
+- Dauerhaft sichtbaren Ladebereich behoben
+- Bilder werden automatisch anhand ihres tatsächlichen Seitenverhältnisses erkannt
+- Automatische Sortierung in Hochformat, Quadrat und Querformat
+- Hochformat und Quadrat: 3 Spalten auf Desktop
+- Querformat: 2 Spalten auf Desktop, damit Banner nicht zu klein erscheinen
+- Keine Titel/Beschreibungen pro Bild, nur Bild + Download-Button
+- Kleine JPG-Vorschau wird bevorzugt verwendet
+- Falls keine Vorschau vorhanden ist, wird automatisch das Original geladen
+- Exakte Dubletten werden anhand des GitHub-SHA nur einmal angezeigt
+- Token wird beim Zurück-Link mitgeführt
 -->
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#071019">
-  <meta name="application-version" content="1.2.0">
-  <meta name="description" content="BetInsight Marketing-Center – Werbematerial für Partner.">
+  <meta name="application-version" content="1.3.0">
+  <meta name="description" content="BetInsight Marketing-Center – freigegebenes Werbematerial.">
   <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
   <title>Marketing-Center | BetInsight Club</title>
 
@@ -31,16 +34,19 @@ WICHTIG:
       --panel-2: #122433;
       --text: #f4f8fb;
       --muted: #91a6b7;
-      --line: rgba(145, 166, 183, 0.18);
+      --line: rgba(145,166,183,.18);
       --accent: #25e6a7;
       --blue: #59a8ff;
       --warning: #ffc857;
-      --danger: #ff6b7d;
-      --shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+      --shadow: 0 24px 70px rgba(0,0,0,.34);
     }
 
     * { box-sizing: border-box; }
-    html { color-scheme: dark; scroll-behavior: smooth; }
+
+    html {
+      color-scheme: dark;
+      scroll-behavior: smooth;
+    }
 
     body {
       min-height: 100vh;
@@ -48,12 +54,14 @@ WICHTIG:
       color: var(--text);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:
-        radial-gradient(circle at 12% 0%, rgba(37, 230, 167, 0.12), transparent 30rem),
-        radial-gradient(circle at 92% 12%, rgba(89, 168, 255, 0.12), transparent 30rem),
+        radial-gradient(circle at 12% 0%, rgba(37,230,167,.12), transparent 30rem),
+        radial-gradient(circle at 92% 12%, rgba(89,168,255,.12), transparent 30rem),
         var(--bg);
     }
 
     button, a { font: inherit; }
+
+    [hidden] { display: none !important; }
 
     .page {
       width: min(100% - 32px, 1180px);
@@ -84,14 +92,14 @@ WICHTIG:
       padding: 0 16px;
       color: var(--text);
       text-decoration: none;
-      background: rgba(13, 26, 38, 0.82);
+      background: rgba(13,26,38,.82);
       border: 1px solid var(--line);
       border-radius: 12px;
       transition: 160ms ease;
     }
 
     .back-link:hover {
-      border-color: rgba(37, 230, 167, 0.55);
+      border-color: rgba(37,230,167,.55);
       transform: translateY(-1px);
     }
 
@@ -119,7 +127,7 @@ WICHTIG:
 
     h1 {
       margin: 0;
-      font-size: clamp(2.15rem, 7vw, 4rem);
+      font-size: clamp(2.15rem,7vw,4rem);
       line-height: 1.02;
       letter-spacing: -.05em;
     }
@@ -134,7 +142,7 @@ WICHTIG:
 
     .quick-nav {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(3,1fr);
       gap: 14px;
       margin: 28px 0 34px;
     }
@@ -144,16 +152,16 @@ WICHTIG:
       padding: 18px;
       color: var(--text);
       text-decoration: none;
-      background: linear-gradient(155deg, rgba(18, 36, 51, .95), rgba(13, 26, 38, .98));
+      background: linear-gradient(155deg,rgba(18,36,51,.95),rgba(13,26,38,.98));
       border: 1px solid var(--line);
       border-radius: 18px;
-      box-shadow: 0 14px 34px rgba(0, 0, 0, .16);
+      box-shadow: 0 14px 34px rgba(0,0,0,.16);
       transition: 160ms ease;
     }
 
     .quick-nav a:hover {
       transform: translateY(-2px);
-      border-color: rgba(89, 168, 255, .42);
+      border-color: rgba(89,168,255,.42);
     }
 
     .quick-nav strong {
@@ -180,7 +188,7 @@ WICHTIG:
 
     .section-head h2 {
       margin: 0;
-      font-size: clamp(1.45rem, 4vw, 2rem);
+      font-size: clamp(1.45rem,4vw,2rem);
       letter-spacing: -.025em;
     }
 
@@ -197,20 +205,94 @@ WICHTIG:
       color: #d9fff1;
       font-size: .76rem;
       font-weight: 850;
-      background: rgba(37, 230, 167, .1);
-      border: 1px solid rgba(37, 230, 167, .3);
+      background: rgba(37,230,167,.1);
+      border: 1px solid rgba(37,230,167,.3);
       border-radius: 999px;
     }
 
-    /* AUTOMATISCHE BILDERGALERIE */
-    .gallery-shell {
-      min-height: 240px;
+    .loading-box,
+    .error-box,
+    .empty-box {
+      display: grid;
+      place-items: center;
+      min-height: 180px;
+      padding: 28px;
+      color: var(--muted);
+      text-align: center;
+      background: linear-gradient(155deg,rgba(18,36,51,.72),rgba(13,26,38,.82));
+      border: 1px solid var(--line);
+      border-radius: 20px;
     }
 
-    .gallery {
+    .loading-box strong,
+    .error-box strong,
+    .empty-box strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .spinner {
+      width: 34px;
+      height: 34px;
+      margin: 0 auto 14px;
+      border: 3px solid rgba(145,166,183,.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .gallery-groups {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 34px;
+    }
+
+    .format-group {
+      min-width: 0;
+    }
+
+    .format-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 13px;
+    }
+
+    .format-title {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 850;
+      letter-spacing: -.01em;
+    }
+
+    .format-count {
+      padding: 5px 9px;
+      color: var(--muted);
+      font-size: .72rem;
+      font-weight: 800;
+      background: rgba(13,26,38,.75);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+    }
+
+    .gallery-grid {
+      display: grid;
       gap: 16px;
+      align-items: start;
+    }
+
+    .gallery-grid.portrait,
+    .gallery-grid.square {
+      grid-template-columns: repeat(3,minmax(0,1fr));
+    }
+
+    .gallery-grid.landscape {
+      grid-template-columns: repeat(2,minmax(0,1fr));
     }
 
     .media-card {
@@ -233,11 +315,11 @@ WICHTIG:
     }
 
     .media-card:hover img {
-      transform: scale(1.015);
+      transform: scale(1.012);
     }
 
     .media-card.is-loading img {
-      opacity: .45;
+      opacity: .55;
     }
 
     .download-fab {
@@ -251,7 +333,7 @@ WICHTIG:
       height: 44px;
       color: #04140f;
       text-decoration: none;
-      background: linear-gradient(135deg, var(--accent), #7af2c8);
+      background: linear-gradient(135deg,var(--accent),#7af2c8);
       border: 1px solid rgba(255,255,255,.14);
       border-radius: 50%;
       box-shadow: 0 10px 28px rgba(0,0,0,.35);
@@ -273,40 +355,9 @@ WICHTIG:
       stroke-linejoin: round;
     }
 
-    .gallery-state {
-      display: grid;
-      place-items: center;
-      min-height: 220px;
-      padding: 28px;
-      color: var(--muted);
-      text-align: center;
-      background: linear-gradient(155deg, rgba(18,36,51,.72), rgba(13,26,38,.82));
-      border: 1px solid var(--line);
-      border-radius: 20px;
-    }
-
-    .gallery-state strong {
-      display: block;
-      margin-bottom: 6px;
-      color: var(--text);
-    }
-
-    .spinner {
-      width: 34px;
-      height: 34px;
-      margin: 0 auto 14px;
-      border: 3px solid rgba(145,166,183,.2);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin .8s linear infinite;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* TEXTE */
     .text-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(3,1fr);
       gap: 16px;
     }
 
@@ -314,7 +365,7 @@ WICHTIG:
     .future-card,
     .info-card {
       overflow: hidden;
-      background: linear-gradient(155deg, rgba(18, 36, 51, .95), rgba(13, 26, 38, .98));
+      background: linear-gradient(155deg,rgba(18,36,51,.95),rgba(13,26,38,.98));
       border: 1px solid var(--line);
       border-radius: 22px;
       box-shadow: var(--shadow);
@@ -370,7 +421,7 @@ WICHTIG:
       color: #04140f;
       font-weight: 900;
       text-decoration: none;
-      background: linear-gradient(135deg, var(--accent), #7af2c8);
+      background: linear-gradient(135deg,var(--accent),#7af2c8);
       border: 0;
       border-radius: 12px;
       cursor: pointer;
@@ -387,10 +438,9 @@ WICHTIG:
       font-weight: 750;
     }
 
-    /* DEMNÄCHST */
     .future-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(4,1fr);
       gap: 14px;
     }
 
@@ -435,7 +485,7 @@ WICHTIG:
       gap: 15px;
       margin-top: 34px;
       padding: 20px;
-      background: linear-gradient(135deg, rgba(89,168,255,.08), rgba(13,26,38,.96));
+      background: linear-gradient(135deg,rgba(89,168,255,.08),rgba(13,26,38,.96));
       box-shadow: none;
     }
 
@@ -472,9 +522,11 @@ WICHTIG:
     }
 
     @media (max-width: 900px) {
-      .gallery,
+      .gallery-grid.portrait,
+      .gallery-grid.square,
+      .gallery-grid.landscape,
       .text-grid {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(2,minmax(0,1fr));
       }
 
       .future-grid {
@@ -488,7 +540,7 @@ WICHTIG:
 
     @media (max-width: 620px) {
       .page {
-        width: min(100% - 22px, 1180px);
+        width: min(100% - 22px,1180px);
         padding-top: 20px;
       }
 
@@ -514,7 +566,9 @@ WICHTIG:
         margin-top: 11px;
       }
 
-      .gallery,
+      .gallery-grid.portrait,
+      .gallery-grid.square,
+      .gallery-grid.landscape,
       .text-grid,
       .future-grid {
         grid-template-columns: 1fr;
@@ -572,19 +626,57 @@ WICHTIG:
     <div class="section-head">
       <div>
         <h2>Bilder & Grafiken</h2>
-        <p>Die Galerie aktualisiert sich automatisch nach neuen Bild-Uploads bei GitHub.</p>
+        <p>Neue Motive werden automatisch erkannt und passend nach Bildformat einsortiert.</p>
       </div>
       <span class="status-pill" id="imageCount">Lädt …</span>
     </div>
 
-    <div class="gallery-shell">
-      <div class="gallery-state" id="galleryState">
-        <div>
-          <div class="spinner"></div>
-          <strong>Werbematerial wird geladen</strong>
-        </div>
+    <div class="loading-box" id="loadingBox">
+      <div>
+        <div class="spinner"></div>
+        <strong>Werbematerial wird geladen</strong>
       </div>
-      <div class="gallery" id="gallery" hidden></div>
+    </div>
+
+    <div class="error-box" id="errorBox" hidden>
+      <div>
+        <strong>Bilder konnten gerade nicht geladen werden.</strong>
+        <span>Bitte die Seite in einem Moment neu laden.</span>
+      </div>
+    </div>
+
+    <div class="empty-box" id="emptyBox" hidden>
+      <div>
+        <strong>Noch keine Bilder vorhanden.</strong>
+      </div>
+    </div>
+
+    <div class="gallery-groups" id="galleryGroups" hidden>
+
+      <section class="format-group" id="portraitGroup" hidden>
+        <div class="format-head">
+          <h3 class="format-title">Hochformat</h3>
+          <span class="format-count" id="portraitCount"></span>
+        </div>
+        <div class="gallery-grid portrait" id="portraitGrid"></div>
+      </section>
+
+      <section class="format-group" id="squareGroup" hidden>
+        <div class="format-head">
+          <h3 class="format-title">Quadrat</h3>
+          <span class="format-count" id="squareCount"></span>
+        </div>
+        <div class="gallery-grid square" id="squareGrid"></div>
+      </section>
+
+      <section class="format-group" id="landscapeGroup" hidden>
+        <div class="format-head">
+          <h3 class="format-title">Querformat</h3>
+          <span class="format-count" id="landscapeCount"></span>
+        </div>
+        <div class="gallery-grid landscape" id="landscapeGrid"></div>
+      </section>
+
     </div>
   </section>
 
@@ -675,7 +767,7 @@ WICHTIG:
   </aside>
 
   <footer class="footer">
-    © 2026 BetInsight Club · Marketing-Center · Version 1.2
+    © 2026 BetInsight Club · Marketing-Center · Version 1.3
   </footer>
 
 </main>
@@ -683,7 +775,6 @@ WICHTIG:
 <script>
   const TOKEN_STORAGE_KEY = "betinsight_profile_token";
 
-  /* Öffentlicher GitHub-Ordner mit den Originalbildern */
   const GITHUB_IMAGES_API =
     "https://api.github.com/repos/betinsightclub/profil/contents/marketing-center/downloads/bilder?ref=main";
 
@@ -717,24 +808,11 @@ WICHTIG:
   }
 
   function previewPath(filename) {
-    return "assets/previews/" + baseName(filename) + "-preview.jpg";
+    return "assets/previews/" + encodeURIComponent(baseName(filename) + "-preview.jpg");
   }
 
   function originalPath(filename) {
     return "downloads/bilder/" + encodeURIComponent(filename);
-  }
-
-  function sortImages(a, b) {
-    const order = (name) => {
-      const n = name.toLowerCase();
-      if (n.includes("hochformat")) return 1;
-      if (n.includes("quadrat")) return 2;
-      if (n.includes("querformat")) return 3;
-      return 4;
-    };
-
-    const diff = order(a.name) - order(b.name);
-    return diff || a.name.localeCompare(b.name, "de");
   }
 
   function uniqueBySha(files) {
@@ -750,6 +828,26 @@ WICHTIG:
     });
   }
 
+  function categoryFromDimensions(width, height) {
+    if (!width || !height) return "square";
+
+    const ratio = width / height;
+
+    if (ratio < 0.82) return "portrait";
+    if (ratio > 1.22) return "landscape";
+    return "square";
+  }
+
+  function categoryFromFilename(filename) {
+    const name = filename.toLowerCase();
+
+    if (name.includes("hochformat")) return "portrait";
+    if (name.includes("querformat")) return "landscape";
+    if (name.includes("quadrat")) return "square";
+
+    return "";
+  }
+
   function createDownloadIcon() {
     return `
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -760,7 +858,52 @@ WICHTIG:
     `;
   }
 
-  function buildCard(file) {
+  function loadImageData(file) {
+    return new Promise((resolve) => {
+      const previewUrl = previewPath(file.name);
+      const originalUrl = originalPath(file.name);
+      const probe = new Image();
+
+      let fallbackUsed = false;
+
+      probe.onload = () => {
+        const detected =
+          categoryFromDimensions(probe.naturalWidth, probe.naturalHeight);
+
+        const filenameCategory = categoryFromFilename(file.name);
+
+        resolve({
+          file,
+          previewUrl: probe.src,
+          originalUrl,
+          category: detected || filenameCategory || "square",
+          width: probe.naturalWidth,
+          height: probe.naturalHeight
+        });
+      };
+
+      probe.onerror = () => {
+        if (!fallbackUsed) {
+          fallbackUsed = true;
+          probe.src = originalUrl;
+          return;
+        }
+
+        resolve({
+          file,
+          previewUrl: originalUrl,
+          originalUrl,
+          category: categoryFromFilename(file.name) || "square",
+          width: 0,
+          height: 0
+        });
+      };
+
+      probe.src = previewUrl;
+    });
+  }
+
+  function buildCard(item) {
     const card = document.createElement("article");
     card.className = "media-card is-loading";
 
@@ -768,17 +911,7 @@ WICHTIG:
     img.loading = "lazy";
     img.decoding = "async";
     img.alt = "BetInsight Werbematerial";
-    img.src = previewPath(file.name);
-
-    /*
-      Wenn die kleine Vorschau noch nicht hochgeladen wurde,
-      zeigt die Seite automatisch das große Original.
-    */
-    img.onerror = () => {
-      if (img.dataset.fallbackUsed === "1") return;
-      img.dataset.fallbackUsed = "1";
-      img.src = originalPath(file.name);
-    };
+    img.src = item.previewUrl;
 
     img.onload = () => {
       card.classList.remove("is-loading");
@@ -786,8 +919,8 @@ WICHTIG:
 
     const download = document.createElement("a");
     download.className = "download-fab";
-    download.href = originalPath(file.name);
-    download.setAttribute("download", file.name);
+    download.href = item.originalUrl;
+    download.setAttribute("download", item.file.name);
     download.setAttribute("aria-label", "Originalbild herunterladen");
     download.setAttribute("title", "Originalbild herunterladen");
     download.innerHTML = createDownloadIcon();
@@ -796,17 +929,35 @@ WICHTIG:
     return card;
   }
 
+  function renderGroup(category, items) {
+    if (!items.length) return;
+
+    const group = document.getElementById(category + "Group");
+    const grid = document.getElementById(category + "Grid");
+    const count = document.getElementById(category + "Count");
+
+    items
+      .sort((a,b) => a.file.name.localeCompare(b.file.name, "de"))
+      .forEach((item) => grid.appendChild(buildCard(item)));
+
+    count.textContent =
+      items.length === 1 ? "1 Bild" : items.length + " Bilder";
+
+    group.hidden = false;
+  }
+
   async function loadGallery() {
-    const gallery = document.getElementById("gallery");
-    const state = document.getElementById("galleryState");
-    const count = document.getElementById("imageCount");
+    const loadingBox = document.getElementById("loadingBox");
+    const errorBox = document.getElementById("errorBox");
+    const emptyBox = document.getElementById("emptyBox");
+    const groups = document.getElementById("galleryGroups");
+    const imageCount = document.getElementById("imageCount");
 
     try {
       const response = await fetch(GITHUB_IMAGES_API, {
         headers: {
           "Accept": "application/vnd.github+json"
-        },
-        cache: "no-store"
+        }
       });
 
       if (!response.ok) {
@@ -815,47 +966,48 @@ WICHTIG:
 
       const data = await response.json();
 
-      const imageFiles = uniqueBySha(
-        data
-          .filter((item) =>
-            item &&
-            item.type === "file" &&
-            ALLOWED_EXTENSIONS.test(item.name)
-          )
-          .sort(sortImages)
+      const files = uniqueBySha(
+        data.filter((item) =>
+          item &&
+          item.type === "file" &&
+          ALLOWED_EXTENSIONS.test(item.name)
+        )
       );
 
-      gallery.innerHTML = "";
-
-      imageFiles.forEach((file) => {
-        gallery.appendChild(buildCard(file));
-      });
-
-      if (!imageFiles.length) {
-        state.innerHTML = "<div><strong>Noch keine Bilder vorhanden</strong></div>";
-        count.textContent = "0 Bilder";
+      if (!files.length) {
+        loadingBox.hidden = true;
+        emptyBox.hidden = false;
+        imageCount.textContent = "0 Bilder";
         return;
       }
 
-      count.textContent =
-        imageFiles.length === 1
-          ? "1 Bild"
-          : imageFiles.length + " Bilder";
+      /*
+        Die tatsächlichen Abmessungen werden aus der geladenen Vorschau
+        bzw. aus dem Original ermittelt. Damit funktioniert die Sortierung
+        auch dann, wenn ein Dateiname einmal nicht perfekt benannt ist.
+      */
+      const items = await Promise.all(files.map(loadImageData));
 
-      state.hidden = true;
-      gallery.hidden = false;
+      const portrait = items.filter((item) => item.category === "portrait");
+      const square = items.filter((item) => item.category === "square");
+      const landscape = items.filter((item) => item.category === "landscape");
+
+      renderGroup("portrait", portrait);
+      renderGroup("square", square);
+      renderGroup("landscape", landscape);
+
+      imageCount.textContent =
+        items.length === 1 ? "1 Bild" : items.length + " Bilder";
+
+      loadingBox.hidden = true;
+      groups.hidden = false;
 
     } catch (error) {
       console.error("Marketing-Center Galerie:", error);
 
-      state.innerHTML = `
-        <div>
-          <strong>Bilder konnten gerade nicht geladen werden.</strong>
-          <span>Bitte die Seite in einem Moment neu laden.</span>
-        </div>
-      `;
-
-      count.textContent = "Nicht erreichbar";
+      loadingBox.hidden = true;
+      errorBox.hidden = false;
+      imageCount.textContent = "Nicht erreichbar";
     }
   }
 
