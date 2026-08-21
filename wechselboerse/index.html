@@ -2,8 +2,8 @@
 <!--
 Projekt: BetInsight
 GitHub-Ziel: /profil/wechselboerse/index.html
-Version: 2026.08.21-02
-Änderung: TOKEN-KOMPATIBILITÄT ALT + UUID – SCHRITT 1
+Version: 2026.08.21-03
+Änderung: TOKEN-KOMPATIBILITÄT ALT + UUID – RESPONSE ROBUST FIX
 
 Ziel:
 - Alte direkte Wechselstuben-Links mit numerischem/BI-Token bleiben gültig.
@@ -690,17 +690,47 @@ Ziel:
 
           if (!response.ok) continue;
 
-          const data = await response.json();
+          /*
+            Genauso robust lesen wie die funktionierende Profilseite:
+            Make kann die JSON-Antwort als Text liefern. BOM/Leerraum werden
+            entfernt, bevor geparst wird.
+          */
+          const raw = String(await response.text() || "")
+            .replace(/^\uFEFF/, "")
+            .trim();
+
+          if (!raw) continue;
+
+          let data = null;
+
+          try {
+            data = JSON.parse(raw);
+          } catch (_) {
+            continue;
+          }
+
+          /*
+            Für die reine Alt->UUID-Auflösung brauchen wir keine E-Mail.
+            Entscheidend ist ausschließlich ein gültiger dashboard_token.
+          */
+          if (Array.isArray(data)) {
+            data = data[0] || null;
+          }
+
+          const dashboardCandidate = cleanToken(
+            data?.dashboard_token ||
+            data?.dashboardToken ||
+            data?.dashboard_uuid ||
+            ""
+          );
 
           if (
             data &&
             data.found !== false &&
-            data.email &&
-            isDashboardUuid(data.dashboard_token)
+            isDashboardUuid(dashboardCandidate)
           ) {
-            const dashboardToken = cleanToken(data.dashboard_token);
-            saveDashboardMap(source, dashboardToken);
-            return dashboardToken;
+            saveDashboardMap(source, dashboardCandidate);
+            return dashboardCandidate;
           }
         } catch (error) {
           console.warn(
@@ -786,8 +816,8 @@ Ziel:
         buyLink.setAttribute("aria-disabled", "true");
 
         document.getElementById("tokenWarning").textContent =
-          "Dein Zugang wurde erkannt, konnte aber nicht sicher für die Kaufbörse zugeordnet werden. " +
-          "Bitte öffne dein Profil erneut oder versuche es später noch einmal.";
+          "Dein alter Profilzugang ist weiterhin gültig, konnte aber noch nicht auf den neuen Wechselstuben-Zugang abgebildet werden. " +
+          "Bitte öffne die Wechselstube erneut oder nutze vorübergehend deinen aktuellen Profil-Link.";
 
         document.getElementById("tokenWarning").classList.add("visible");
         setCompatibilityStatus("");
