@@ -2,15 +2,16 @@
 <!--
 Projekt: BetInsight
 Datei: profil/verkaufen/index.html
-Version: 2026.08.15-01
-Anwendungs-Version: 1.3.0
+Version: 2026.08.21-01
+Anwendungs-Version: 1.4.0
 Änderungen:
-- Einheitliche Verkaufsregel mit Make v1.3: verdiente + gekaufte Units sind verkaufbar
-- Geschenk-Units sind für Verkauf und Verkaufsgebühr vollständig ausgeschlossen
-- Backend-Statuscheck bestätigt Wallet und Bestand vor Freischaltung des Buttons
-- Finaler Klick prüft Wallet und Bestand erneut serverseitig
-- Alte numerische Profil-Tokens werden über den Profil-Webhook auf den canonical dashboard_token normalisiert
-- Keine automatischen Wiederholungen beim Erstellen eines Angebots
+- Verkaufsseite verwendet ausschließlich den canonical dashboard_token als UUID.
+- Der zusätzliche Profil-Webhook-Aufruf zur Alt-Token-Normalisierung wurde entfernt.
+- Der bestehende Make-Statuscheck bleibt alleinige serverseitige Quelle für Wallet- und Verkaufsbestand.
+- Fehlende/nicht bestätigte Wallet ist ein normaler Status und kein Ladefehler.
+- 0 verkaufbare Units werden sauber als 0 angezeigt; der Verkaufsbutton bleibt gesperrt.
+- Alte numerische/BI-Tokens werden nicht mehr selbst aufgelöst; der Einstieg erfolgt über Profil → Wechselstube.
+- Reservierungs-, Gebühren-, Unit- und Verkaufslogik bleiben unverändert.
 -->
 <html lang="de">
 <head>
@@ -18,7 +19,7 @@ Anwendungs-Version: 1.3.0
   <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#071019">
-  <meta name="application-version" content="1.3.0">
+  <meta name="application-version" content="1.4.0">
   <title>Units verkaufen | BetInsight Club</title>
   <style>
     :root {
@@ -267,7 +268,7 @@ Anwendungs-Version: 1.3.0
     </ul>
   </section>
 
-  <p class="footer-note">BetInsight Wechselbörse · Verkaufsangebot Version 1.3.0</p>
+  <p class="footer-note">BetInsight Wechselbörse · Verkaufsangebot Version 1.4.0</p>
 </main>
 
 <script>
@@ -275,17 +276,13 @@ Anwendungs-Version: 1.3.0
 
 const MIN_SALE_UNITS = 10;
 const MAX_SALE_UNITS = 100;
-const PROFILE_WEBHOOK_URL = "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
 const CREATE_OFFER_WEBHOOK_URL = "https://hook.eu1.make.com/jko03sdy1qaw8i1fgn0x1j61pkfdjti1";
-const TOKEN_STORAGE_KEY = "betinsight_profile_token";
 const OFFER_FEES = Object.freeze({10:1,20:1,30:2,40:2,50:3,60:3,70:4,80:4,90:5,100:5});
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const query = new URLSearchParams(window.location.search);
 const tokenFromUrl = String(query.get("token") || query.get("id") || "").trim();
-if (tokenFromUrl) localStorage.setItem(TOKEN_STORAGE_KEY, tokenFromUrl);
-
-let accessToken = tokenFromUrl || String(localStorage.getItem(TOKEN_STORAGE_KEY) || "").trim();
-let canonicalDashboardToken = "";
+const canonicalDashboardToken = UUID_RE.test(tokenFromUrl) ? tokenFromUrl : "";
 
 const form = document.getElementById("saleForm");
 const unitAmount = document.getElementById("unitAmount");
@@ -335,11 +332,9 @@ function newRequestId() {
   if (window.crypto && typeof window.crypto.randomUUID === "function") return window.crypto.randomUUID();
   return "sale-" + Date.now() + "-" + Math.random().toString(16).slice(2);
 }
-function effectiveToken() { return canonicalDashboardToken || accessToken; }
 function updateLinks() {
-  const token = effectiveToken();
-  if (!token) return;
-  const encoded = encodeURIComponent(token);
+  if (!canonicalDashboardToken) return;
+  const encoded = encodeURIComponent(canonicalDashboardToken);
   backLink.href = "../wechselboerse/?token=" + encoded;
   walletLink.href = "../wallet/?token=" + encoded;
 }
@@ -414,6 +409,7 @@ function refreshCreateButton() {
   );
 }
 async function backendStatusCheck() {
+  accountState.loaded = false;
   accountState.walletChecked = false;
   accountState.walletReady = false;
   refreshCreateButton();
@@ -427,7 +423,7 @@ async function backendStatusCheck() {
       preis_pro_unit_eur:0
     })
   });
-  const text = await response.text();
+  const text = String(await response.text() || "").replace(/^\uFEFF/,"").trim();
   let result = {};
   try { result = text ? JSON.parse(text) : {}; } catch (_) { result = {message:text}; }
 
@@ -435,24 +431,30 @@ async function backendStatusCheck() {
     throw new Error(result.message || "Wallet- und Bestandsprüfung konnte nicht abgeschlossen werden.");
   }
 
+  accountState.loaded = true;
   accountState.walletChecked = true;
   accountState.walletReady = result.wallet_ready === true || String(result.wallet_ready).toLowerCase() === "true";
-
-  // Make is authoritative for the sellable-pool rule.
-  if (result.sellable_units !== undefined) accountState.totalSellable = safeNumber(result.sellable_units);
-  if (result.earned_units !== undefined) accountState.earnedUnits = safeNumber(result.earned_units);
-  if (result.purchased_units !== undefined) accountState.purchasedUnits = safeNumber(result.purchased_units);
-  if (result.ref_free !== undefined) accountState.refFree = safeNumber(result.ref_free);
-  if (result.ref_on_account !== undefined) accountState.refOnAccount = safeNumber(result.ref_on_account);
+  accountState.totalSellable = safeNumber(result.sellable_units);
+  accountState.earnedUnits = safeNumber(result.earned_units);
+  accountState.purchasedUnits = safeNumber(result.purchased_units);
+  accountState.refFree = safeNumber(result.ref_free);
+  accountState.refOnAccount = safeNumber(result.ref_on_account);
 
   renderBalances();
   refreshCreateButton();
 }
 async function loadBalances() {
-  if (!accessToken) {
+  updateLinks();
+
+  if (!canonicalDashboardToken) {
     sellableBalance.textContent = earnedBalance.textContent = purchasedBalance.textContent = "–";
-    offerStatus.textContent = "Zugang fehlt";
-    showFeedback("Dein persönlicher Zugang fehlt. Öffne diese Seite bitte über die Unit-Wechselstube.","error");
+    offerStatus.textContent = tokenFromUrl ? "Veralteter Zugang" : "Zugang fehlt";
+    showFeedback(
+      tokenFromUrl
+        ? "Dieser Verkaufslink verwendet noch einen alten Zugang. Öffne die Verkaufsseite bitte über dein Profil und anschließend über die Unit-Wechselstube."
+        : "Dein persönlicher dashboard_token fehlt. Öffne diese Seite bitte über die Unit-Wechselstube.",
+      "error"
+    );
     return;
   }
 
@@ -460,30 +462,6 @@ async function loadBalances() {
   offerStatus.textContent = "Kontoprüfung";
 
   try {
-    const response = await fetch(PROFILE_WEBHOOK_URL+"?token="+encodeURIComponent(accessToken),{cache:"no-store"});
-    if (!response.ok) throw new Error("Kontostand konnte nicht geladen werden.");
-    const data = await response.json();
-    if (!data || data.found === false || !data.email) throw new Error("Profil wurde nicht gefunden.");
-
-    canonicalDashboardToken = String(data.dashboard_token || "").trim();
-    if (!canonicalDashboardToken) throw new Error("Der sichere dashboard_token fehlt im Profil.");
-
-    const refFree = safeNumber(data.ref_verfuegbar);
-    const refOnAccount = safeNumber(data.ref_aufs_konto);
-    const purchased = safeNumber(data.gekaufte_units_rest);
-
-    accountState.loaded = true;
-    accountState.refFree = refFree;
-    accountState.refOnAccount = refOnAccount;
-    accountState.earnedUnits = refFree + refOnAccount;
-    accountState.purchasedUnits = purchased;
-    accountState.totalSellable = refFree + refOnAccount + purchased;
-
-    localStorage.setItem(TOKEN_STORAGE_KEY,canonicalDashboardToken);
-    updateLinks();
-    renderBalances();
-
-    offerStatus.textContent = "Wallet-Prüfung";
     await backendStatusCheck();
   } catch (error) {
     console.error(error);
@@ -493,7 +471,10 @@ async function loadBalances() {
     sellableBalance.textContent = earnedBalance.textContent = purchasedBalance.textContent = "–";
     offerStatus.textContent = "Ladefehler";
     refreshCreateButton();
-    showFeedback("Der Verkaufsbestand konnte nicht sicher geladen werden. Gehe bitte zurück zur Wechselstube und öffne „Units verkaufen“ erneut.","error");
+    showFeedback(
+      error.message || "Der Verkaufsbestand konnte nicht sicher geladen werden. Bitte versuche es erneut.",
+      "error"
+    );
   }
 }
 function updateSummary() {
@@ -545,7 +526,7 @@ form.addEventListener("submit",async function(event){
       signal:controller.signal
     });
 
-    const responseText = await response.text();
+    const responseText = String(await response.text() || "").replace(/^\uFEFF/,"").trim();
     let result = {};
     try { result = responseText ? JSON.parse(responseText) : {}; }
     catch (_) { result = {message:responseText}; }
