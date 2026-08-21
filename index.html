@@ -5,9 +5,14 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.21-05
+Version: 2026.08.21-06
 
 Änderungen:
+- WECHSELSTUBE-DASHBOARD-TOKEN 2026.08.21-06:
+  - Der interne Profil-Button zur Unit-Wechselstube übergibt jetzt ausschließlich den bestätigten dashboard_token.
+  - Dadurch entfällt die fehleranfällige Alt-Token-Auflösung in der Wechselstube bei einem korrekt geladenen Profil.
+  - Fehlt ausnahmsweise ein dashboard_token, bleibt der Nutzer im Profil und erhält eine verständliche Meldung.
+  - Alle übrigen Token-, Premium-, Netzwerk-, Support-, Kauf-, Tipp- und Marketing-Center-Funktionen bleiben unverändert.
 - TOKEN-ROUTING 2026.08.21-05:
   - Freigeschaltete Tipps werden aus dem Profil bevorzugt mit dem bestätigten dashboard_token geöffnet.
   - Gilt sowohl für #freigeschaltet aus der Systeme.io-Zentrale als auch für den internen Profil-Button.
@@ -1198,7 +1203,7 @@ function openReceivedProfileLink(){const token=extractTokenFromInput(document.ge
 function goBuyUnits(){const token=getActiveToken();if(token)location.href="https://betinsightclub.github.io/profil/kaufen/?token="+encodeURIComponent(token)}
 function goTipps(){const token=getActiveToken();if(token)location.href="https://betinsightclub.github.io/profil/tipps/?token="+encodeURIComponent(token)}
 function goFreigeschaltet(){const dashboardToken=String(currentProfileData.dashboardToken||"").trim();if(dashboardToken){location.href="https://betinsightclub.github.io/profil/freigeschaltet/?token="+encodeURIComponent(dashboardToken);return}const msg=document.getElementById("message");if(msg)msg.innerText="Freigeschaltete Tipps konnten noch nicht geöffnet werden, weil der persönliche Dashboard-Zugang fehlt."}
-function goUnitExchange(){const token=getActiveToken();if(token)location.href="https://betinsightclub.github.io/profil/wechselboerse/?token="+encodeURIComponent(token)}
+function goUnitExchange(){const dashboardToken=String(currentProfileData.dashboardToken||"").trim();if(dashboardToken){location.href="https://betinsightclub.github.io/profil/wechselboerse/?token="+encodeURIComponent(dashboardToken);return}const msg=document.getElementById("message");if(msg)msg.innerText="Die Unit-Wechselstube konnte noch nicht geöffnet werden, weil der persönliche Dashboard-Zugang fehlt."}
 function goMarketingCenter(){const token=getActiveToken();const base="https://betinsightclub.github.io/profil/marketing-center/";location.href=token?base+"?token="+encodeURIComponent(token):base}
 function goSupport(){location.href="https://betinsightclub.github.io/profil/support/"}
 function goBackoffice(){location.href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726"}
