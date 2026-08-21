@@ -5,9 +5,14 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.21-03
+Version: 2026.08.21-04
 
 Änderungen:
+- BACKOFFICE-ROUTING 2026.08.21-04:
+  - Sichere Backoffice-Einstiege für Neue Tipps (#tipps), Units kaufen (#kaufen) und Freigeschaltete Tipps (#freigeschaltet) ergänzt.
+  - Das Profil wird zuerst geladen und geprüft; anschließend wird der bestätigte persönliche Profil-Token an die jeweilige Unterseite übergeben.
+  - Damit muss Systeme.io keinen persönlichen Token kennen oder dynamisch einsetzen.
+  - Bestehende Deep-Links für Premium, Netzwerk und Wallet bleiben erhalten.
 - DEEP-LINK-NAVIGATION 2026.08.21-03:
   - Direkte Sprungziele für Premium (#premium) und Netzwerk & Provisionen (#netzwerk) ergänzt.
   - Neuer sicherer Wallet-Einstieg über #wallet: Das Profil wird zuerst geladen und geprüft; anschließend wird ausschließlich der bestätigte dashboard_token an die Wallet-Verwaltung übergeben.
@@ -1048,7 +1053,7 @@ function getDeepLinkTarget(){
 
 function preserveSupportedHash(){
   const hash=getDeepLinkTarget();
-  return ["premium","netzwerk","wallet"].includes(hash)?"#"+hash:"";
+  return ["premium","netzwerk","wallet","tipps","kaufen","freigeschaltet"].includes(hash)?"#"+hash:"";
 }
 
 function scrollToDeepLinkTarget(id){
@@ -1072,6 +1077,23 @@ function handleDeepLinkAfterProfileLoad(){
     }
     deepLinkHandled=true;
     location.replace("https://betinsightclub.github.io/profil/wallet/?id="+encodeURIComponent(dashboardToken));
+    return;
+  }
+
+  if(["tipps","kaufen","freigeschaltet"].includes(target)){
+    const profileToken=String(getActiveToken()||"").trim();
+    if(!profileToken){
+      const msg=document.getElementById("message");
+      if(msg)msg.innerText="Der persönliche Profilzugang konnte für diese Seite nicht bereitgestellt werden.";
+      return;
+    }
+    const routeMap={
+      tipps:"https://betinsightclub.github.io/profil/tipps/",
+      kaufen:"https://betinsightclub.github.io/profil/kaufen/",
+      freigeschaltet:"https://betinsightclub.github.io/profil/freigeschaltet/"
+    };
+    deepLinkHandled=true;
+    location.replace(routeMap[target]+"?token="+encodeURIComponent(profileToken));
     return;
   }
 
