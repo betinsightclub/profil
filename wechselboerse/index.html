@@ -2,20 +2,18 @@
 <!--
 Projekt: BetInsight
 GitHub-Ziel: /profil/wechselboerse/index.html
-Version: 2026.08.21-03
-Änderung: TOKEN-KOMPATIBILITÄT ALT + UUID – RESPONSE ROBUST FIX
+Version: 2026.08.21-04
+Änderung: ZENTRALE TOKEN-KANONISIERUNG ÜBER DAS PROFIL
 
 Ziel:
-- Alte direkte Wechselstuben-Links mit numerischem/BI-Token bleiben gültig.
-- Neue Links mit dashboard_token-UUID funktionieren direkt.
-- Für "Units kaufen" wird ein alter Zugang serverseitig über den bestehenden
-  Profil-Reader auf den zugehörigen dashboard_token aufgelöst.
-- Direkte UUIDs erzeugen keinen zusätzlichen Profil-Reader-Aufruf.
-- Erfolgreiche Alt->UUID-Zuordnung wird lokal an den exakten Ausgangstoken
-  gebunden zwischengespeichert, um Make-Aufrufe zu sparen.
-- Verkaufen, Wallet und Rückweg zum Profil bleiben in diesem Schritt bewusst
-  auf ihrer bisherigen Token-Weitergabe, bis ihre Zielseiten separat geprüft sind.
-- Keine Zahlungs-, Unit-, Wallet- oder Blockchain-Logik wird verändert.
+- dashboard_token-UUIDs funktionieren weiterhin direkt und ohne Zusatzaufruf.
+- Alte numerische/BI-Zugänge werden nicht mehr in der Wechselstube selbst gegen Make ausprobiert.
+- Stattdessen wird einmal unsichtbar die bereits funktionierende Profil-Authentifizierung auf derselben Domain verwendet.
+- Das Profil liefert über seine bestehende Funktion getConfirmedDashboardToken() ausschließlich einen bestätigten dashboard_token.
+- Nach erfolgreicher Zuordnung wird die Wechselstube sofort mit der UUID neu geöffnet; dadurch ist die URL kanonisch.
+- Kaufen, Verkaufen, Wallet und Rückweg zum Profil erhalten danach denselben bestätigten dashboard_token.
+- Alte Tokens werden niemals direkt an Kauf-, Verkaufs- oder Wallet-Funktionen weitergereicht.
+- Keine Zahlungs-, Unit-, Wallet-, Blockchain- oder Reservierungslogik wird verändert.
 -->
 <html lang="de">
 <head>
@@ -23,812 +21,237 @@ Ziel:
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#061923">
   <meta name="description" content="BetInsight Unit-Wechselstube: Units kaufen, verkaufen und Auszahlungs-Wallet verwalten.">
-
   <title>BetInsight Unit-Wechselstube</title>
   <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
   <link rel="shortcut icon" href="/profil/favicon.ico">
 
   <style>
-    * { box-sizing: border-box; }
-
-    :root {
-      --bg-1: #061923;
-      --bg-2: #071d2b;
-      --bg-3: #04131c;
-      --panel: rgba(9, 34, 49, 0.95);
-      --panel-soft: rgba(14, 45, 63, 0.92);
-      --border: rgba(80, 168, 214, 0.24);
-      --text: #ffffff;
-      --text-soft: #c9e6f4;
-      --text-muted: #84a9bc;
-      --blue: #1d9bf0;
-      --cyan: #16c7f3;
-      --green: #11d6a0;
-      --green-dark: #08aa7e;
-      --orange: #f1a313;
-      --focus: #ffcf33;
+    *{box-sizing:border-box}
+    :root{
+      --bg-1:#061923;--bg-2:#071d2b;--bg-3:#04131c;
+      --panel:rgba(9,34,49,.95);--panel-soft:rgba(14,45,63,.92);
+      --border:rgba(80,168,214,.24);--text:#fff;--text-soft:#c9e6f4;
+      --text-muted:#84a9bc;--blue:#1d9bf0;--cyan:#16c7f3;
+      --green:#11d6a0;--green-dark:#08aa7e;--orange:#f1a313;--focus:#ffcf33;
     }
-
-    html { min-height: 100%; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      color: var(--text);
-      font-family: Arial, Helvetica, sans-serif;
+    html{min-height:100%}
+    body{
+      margin:0;min-height:100vh;color:var(--text);
+      font-family:Arial,Helvetica,sans-serif;
       background:
-        radial-gradient(circle at 50% -10%, rgba(22, 199, 243, 0.16), transparent 38%),
-        radial-gradient(circle at 8% 76%, rgba(17, 214, 160, 0.08), transparent 26%),
-        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
+        radial-gradient(circle at 50% -10%,rgba(22,199,243,.16),transparent 38%),
+        radial-gradient(circle at 8% 76%,rgba(17,214,160,.08),transparent 26%),
+        linear-gradient(180deg,var(--bg-1) 0%,var(--bg-2) 48%,var(--bg-3) 100%);
     }
-
-    button, a { font: inherit; }
-    a { color: inherit; }
-
-    .page {
-      width: min(100% - 32px, 1040px);
-      min-height: 100vh;
-      margin: 0 auto;
-      padding: 24px 0 92px;
+    button,a{font:inherit}a{color:inherit}
+    .page{width:min(100% - 32px,1040px);min-height:100vh;margin:0 auto;padding:24px 0 92px}
+    .topbar{
+      display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:18px;
+      padding:16px 20px;border:1px solid var(--border);border-radius:18px;
+      background:rgba(8,31,45,.9);box-shadow:0 16px 36px rgba(0,0,0,.28);backdrop-filter:blur(12px)
     }
-
-    .topbar {
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      align-items: center;
-      gap: 18px;
-      padding: 16px 20px;
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      background: rgba(8, 31, 45, 0.9);
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
-      backdrop-filter: blur(12px);
+    .logo{display:block;width:118px;height:auto}.topbar-copy{min-width:0}
+    .eyebrow{display:block;margin-bottom:4px;color:var(--green);font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+    .topbar h1{margin:0;font-size:clamp(22px,4vw,30px);line-height:1.15}
+    .secure-badge{display:inline-flex;align-items:center;gap:7px;padding:9px 12px;border:1px solid rgba(17,214,160,.28);border-radius:999px;background:rgba(17,214,160,.08);color:#b9f8e6;font-size:12px;font-weight:800;white-space:nowrap}
+    .hero{
+      position:relative;overflow:hidden;margin-top:20px;padding:clamp(28px,6vw,56px);
+      border:1px solid var(--border);border-radius:24px;
+      background:linear-gradient(145deg,var(--panel-soft),var(--panel));
+      box-shadow:0 22px 54px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.04)
     }
-
-    .logo {
-      display: block;
-      width: 118px;
-      height: auto;
+    .hero::after{content:"";position:absolute;top:-110px;right:-90px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(22,199,243,.12),transparent 68%);pointer-events:none}
+    .hero-intro{position:relative;z-index:1;max-width:700px;margin:0 auto 30px;text-align:center}
+    .hero-icon{display:grid;place-items:center;width:58px;height:58px;margin:0 auto 15px;border:1px solid rgba(22,199,243,.28);border-radius:18px;background:rgba(22,199,243,.08);font-size:29px;box-shadow:0 12px 28px rgba(0,0,0,.2)}
+    .hero h2{margin:0;font-size:clamp(28px,5vw,42px);line-height:1.08}.hero h2 span{color:var(--green)}
+    .hero-intro p{max-width:620px;margin:13px auto 0;color:var(--text-soft);font-size:16px;line-height:1.6}
+    .main-actions{position:relative;z-index:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .action-card{
+      position:relative;display:flex;min-height:174px;padding:24px;overflow:hidden;
+      border:1px solid rgba(255,255,255,.12);border-radius:18px;color:#fff;text-decoration:none;
+      box-shadow:0 14px 30px rgba(0,0,0,.22);
+      transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,opacity .18s ease
     }
-
-    .topbar-copy { min-width: 0; }
-
-    .eyebrow {
-      display: block;
-      margin-bottom: 4px;
-      color: var(--green);
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .topbar h1 {
-      margin: 0;
-      font-size: clamp(22px, 4vw, 30px);
-      line-height: 1.15;
-    }
-
-    .secure-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 9px 12px;
-      border: 1px solid rgba(17, 214, 160, 0.28);
-      border-radius: 999px;
-      background: rgba(17, 214, 160, 0.08);
-      color: #b9f8e6;
-      font-size: 12px;
-      font-weight: 800;
-      white-space: nowrap;
-    }
-
-    .hero {
-      position: relative;
-      overflow: hidden;
-      margin-top: 20px;
-      padding: clamp(28px, 6vw, 56px);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      background: linear-gradient(145deg, var(--panel-soft), var(--panel));
-      box-shadow:
-        0 22px 54px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.04);
-    }
-
-    .hero::after {
-      content: "";
-      position: absolute;
-      top: -110px;
-      right: -90px;
-      width: 300px;
-      height: 300px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(22, 199, 243, 0.12), transparent 68%);
-      pointer-events: none;
-    }
-
-    .hero-intro {
-      position: relative;
-      z-index: 1;
-      max-width: 700px;
-      margin: 0 auto 30px;
-      text-align: center;
-    }
-
-    .hero-icon {
-      display: grid;
-      place-items: center;
-      width: 58px;
-      height: 58px;
-      margin: 0 auto 15px;
-      border: 1px solid rgba(22, 199, 243, 0.28);
-      border-radius: 18px;
-      background: rgba(22, 199, 243, 0.08);
-      font-size: 29px;
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
-    }
-
-    .hero h2 {
-      margin: 0;
-      font-size: clamp(28px, 5vw, 42px);
-      line-height: 1.08;
-    }
-
-    .hero h2 span { color: var(--green); }
-
-    .hero-intro p {
-      max-width: 620px;
-      margin: 13px auto 0;
-      color: var(--text-soft);
-      font-size: 16px;
-      line-height: 1.6;
-    }
-
-    .main-actions {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-    }
-
-    .action-card {
-      position: relative;
-      display: flex;
-      min-height: 174px;
-      padding: 24px;
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 18px;
-      color: #ffffff;
-      text-decoration: none;
-      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
-      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, opacity .18s ease;
-    }
-
-    .action-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(255, 255, 255, 0.3);
-      box-shadow: 0 19px 38px rgba(0, 0, 0, 0.3);
-    }
-
-    .action-card:focus-visible,
-    .wallet-action:focus-visible,
-    .back-link:focus-visible {
-      outline: 3px solid var(--focus);
-      outline-offset: 3px;
-    }
-
-    .action-card.link-loading {
-      opacity: .60;
-      pointer-events: none;
-      cursor: wait;
-    }
-
-    .buy-card { background: linear-gradient(135deg, #087dbd, #0fb8d2); }
-    .sell-card { background: linear-gradient(135deg, var(--green-dark), #12c08d); }
-
-    .action-content {
-      display: flex;
-      flex: 1;
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    .action-icon {
-      display: grid;
-      place-items: center;
-      width: 44px;
-      height: 44px;
-      margin-bottom: 18px;
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      border-radius: 13px;
-      background: rgba(0, 0, 0, 0.12);
-      font-size: 22px;
-    }
-
-    .action-card h3 {
-      margin: 0;
-      font-size: 22px;
-      line-height: 1.2;
-    }
-
-    .action-card p {
-      margin: 7px 0 0;
-      color: rgba(255, 255, 255, 0.88);
-      font-size: 14px;
-      line-height: 1.45;
-    }
-
-    .action-arrow {
-      align-self: center;
-      margin-left: 12px;
-      font-size: 26px;
-      font-weight: 800;
-      transition: transform 0.18s ease;
-    }
-
-    .action-card:hover .action-arrow { transform: translateX(4px); }
-
-    .wallet-section {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-      margin-top: 16px;
-      padding: 18px 20px;
-      border: 1px solid rgba(80, 168, 214, 0.2);
-      border-radius: 16px;
-      background: rgba(4, 22, 32, 0.55);
-    }
-
-    .wallet-copy {
-      display: flex;
-      align-items: center;
-      gap: 13px;
-      min-width: 0;
-    }
-
-    .wallet-icon {
-      display: grid;
-      flex: 0 0 auto;
-      place-items: center;
-      width: 42px;
-      height: 42px;
-      border: 1px solid rgba(241, 163, 19, 0.26);
-      border-radius: 12px;
-      background: rgba(241, 163, 19, 0.09);
-      font-size: 20px;
-    }
-
-    .wallet-copy h3 {
-      margin: 0;
-      font-size: 16px;
-    }
-
-    .wallet-copy p {
-      margin: 4px 0 0;
-      color: var(--text-muted);
-      font-size: 13px;
-      line-height: 1.4;
-    }
-
-    .wallet-action {
-      flex: 0 0 auto;
-      padding: 11px 16px;
-      border: 1px solid rgba(241, 163, 19, 0.38);
-      border-radius: 11px;
-      background: rgba(241, 163, 19, 0.12);
-      color: #ffd985;
-      font-size: 14px;
-      font-weight: 800;
-      text-decoration: none;
-      transition: background 0.18s ease, transform 0.18s ease;
-    }
-
-    .wallet-action:hover {
-      transform: translateY(-2px);
-      background: rgba(241, 163, 19, 0.2);
-    }
-
-    .info-line {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin: 18px 0 0;
-      color: var(--text-muted);
-      font-size: 12px;
-      line-height: 1.5;
-      text-align: center;
-    }
-
-    .footer {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: 22px;
-    }
-
-    .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 11px 17px;
-      border: 1px solid rgba(255, 255, 255, 0.13);
-      border-radius: 999px;
-      background: rgba(8, 31, 45, 0.75);
-      color: var(--text-soft);
-      font-size: 14px;
-      font-weight: 800;
-      text-decoration: none;
-      transition: background 0.18s ease, transform 0.18s ease;
-    }
-
-    .back-link:hover {
-      transform: translateY(-2px);
-      background: rgba(16, 55, 75, 0.92);
-    }
-
-    .token-warning {
-      display: none;
-      margin: 16px 0 0;
-      padding: 12px 16px;
-      border: 1px solid rgba(241, 163, 19, 0.35);
-      border-radius: 12px;
-      background: rgba(241, 163, 19, 0.08);
-      color: #ffe2a3;
-      font-size: 13px;
-      line-height: 1.5;
-      text-align: center;
-    }
-
-    .token-warning.visible { display: block; }
-
-    .compat-status {
-      display: none;
-      margin: 13px 0 0;
-      color: var(--text-muted);
-      font-size: 11px;
-      line-height: 1.45;
-      text-align: center;
-    }
-
-    .compat-status.visible { display: block; }
-
-    @media (max-width: 720px) {
-      .topbar { grid-template-columns: auto 1fr; }
-      .secure-badge {
-        grid-column: 1 / -1;
-        justify-self: center;
-      }
-      .main-actions { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 540px) {
-      .page {
-        width: min(100% - 24px, 1040px);
-        padding-top: 12px;
-      }
-
-      .topbar {
-        display: block;
-        padding: 15px;
-        text-align: center;
-      }
-
-      .logo {
-        width: 100px;
-        margin: 0 auto 11px;
-      }
-
-      .secure-badge { margin-top: 12px; }
-
-      .hero {
-        margin-top: 12px;
-        padding: 25px 15px;
-        border-radius: 19px;
-      }
-
-      .hero-intro { margin-bottom: 23px; }
-
-      .action-card {
-        min-height: 158px;
-        padding: 20px;
-      }
-
-      .wallet-section {
-        align-items: stretch;
-        flex-direction: column;
-      }
-
-      .wallet-action {
-        width: 100%;
-        text-align: center;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        scroll-behavior: auto !important;
-        transition: none !important;
-      }
-    }
+    .action-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.3);box-shadow:0 19px 38px rgba(0,0,0,.3)}
+    .action-card:focus-visible,.wallet-action:focus-visible,.back-link:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+    .action-card.link-loading{opacity:.6;pointer-events:none;cursor:wait}
+    .buy-card{background:linear-gradient(135deg,#087dbd,#0fb8d2)}
+    .sell-card{background:linear-gradient(135deg,var(--green-dark),#12c08d)}
+    .action-content{display:flex;flex:1;flex-direction:column;align-items:flex-start}
+    .action-icon{display:grid;place-items:center;width:44px;height:44px;margin-bottom:18px;border:1px solid rgba(255,255,255,.22);border-radius:13px;background:rgba(0,0,0,.12);font-size:22px}
+    .action-card h3{margin:0;font-size:22px;line-height:1.2}.action-card p{margin:7px 0 0;color:rgba(255,255,255,.88);font-size:14px;line-height:1.45}
+    .action-arrow{align-self:center;margin-left:12px;font-size:26px;font-weight:800;transition:transform .18s ease}.action-card:hover .action-arrow{transform:translateX(4px)}
+    .wallet-section{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:16px;padding:18px 20px;border:1px solid rgba(80,168,214,.2);border-radius:16px;background:rgba(4,22,32,.55)}
+    .wallet-copy{display:flex;align-items:center;gap:13px;min-width:0}.wallet-icon{display:grid;flex:0 0 auto;place-items:center;width:42px;height:42px;border:1px solid rgba(241,163,19,.26);border-radius:12px;background:rgba(241,163,19,.09);font-size:20px}
+    .wallet-copy h3{margin:0;font-size:16px}.wallet-copy p{margin:4px 0 0;color:var(--text-muted);font-size:13px;line-height:1.4}
+    .wallet-action{flex:0 0 auto;padding:11px 16px;border:1px solid rgba(241,163,19,.38);border-radius:11px;background:rgba(241,163,19,.12);color:#ffd985;font-size:14px;font-weight:800;text-decoration:none;transition:background .18s ease,transform .18s ease}
+    .wallet-action:hover{transform:translateY(-2px);background:rgba(241,163,19,.2)}
+    .info-line{display:flex;align-items:center;justify-content:center;gap:8px;margin:18px 0 0;color:var(--text-muted);font-size:12px;line-height:1.5;text-align:center}
+    .footer{display:flex;align-items:center;justify-content:center;margin-top:22px}.back-link{display:inline-flex;align-items:center;gap:8px;padding:11px 17px;border:1px solid rgba(255,255,255,.13);border-radius:999px;background:rgba(8,31,45,.75);color:var(--text-soft);font-size:14px;font-weight:800;text-decoration:none;transition:background .18s ease,transform .18s ease}.back-link:hover{transform:translateY(-2px);background:rgba(16,55,75,.92)}
+    .token-warning{display:none;margin:16px 0 0;padding:12px 16px;border:1px solid rgba(241,163,19,.35);border-radius:12px;background:rgba(241,163,19,.08);color:#ffe2a3;font-size:13px;line-height:1.5;text-align:center}.token-warning.visible{display:block}
+    .compat-status{display:none;margin:13px 0 0;color:var(--text-muted);font-size:11px;line-height:1.45;text-align:center}.compat-status.visible{display:block}
+    .resolver-frame{position:absolute!important;width:1px!important;height:1px!important;left:-10000px!important;top:-10000px!important;opacity:0!important;pointer-events:none!important;border:0!important}
+    @media(max-width:720px){.topbar{grid-template-columns:auto 1fr}.secure-badge{grid-column:1/-1;justify-self:center}.main-actions{grid-template-columns:1fr}}
+    @media(max-width:540px){.page{width:min(100% - 24px,1040px);padding-top:12px}.topbar{display:block;padding:15px;text-align:center}.logo{width:100px;margin:0 auto 11px}.secure-badge{margin-top:12px}.hero{margin-top:12px;padding:25px 15px;border-radius:19px}.hero-intro{margin-bottom:23px}.action-card{min-height:158px;padding:20px}.wallet-section{align-items:stretch;flex-direction:column}.wallet-action{width:100%;text-align:center}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
   </style>
 </head>
-
 <body>
   <main class="page">
     <header class="topbar">
-      <img
-        class="logo"
-        src="/profil/logo_betisight.club.png"
-        alt="BetInsight Club"
-      >
-
-      <div class="topbar-copy">
-        <span class="eyebrow">Mitgliederbereich</span>
-        <h1>Unit-Wechselstube</h1>
-      </div>
-
-      <div class="secure-badge" aria-label="Geschützter Mitgliederzugang">
-        <span aria-hidden="true">🔒</span>
-        Geschützter Zugang
-      </div>
+      <img class="logo" src="/profil/logo_betisight.club.png" alt="BetInsight Club">
+      <div class="topbar-copy"><span class="eyebrow">Mitgliederbereich</span><h1>Unit-Wechselstube</h1></div>
+      <div class="secure-badge" aria-label="Geschützter Mitgliederzugang"><span aria-hidden="true">🔒</span>Geschützter Zugang</div>
     </header>
 
     <section class="hero" aria-labelledby="pageTitle">
       <div class="hero-intro">
         <div class="hero-icon" aria-hidden="true">🔄</div>
         <h2 id="pageTitle">Was möchtest du <span>tun?</span></h2>
-        <p>
-          Kaufe verfügbare Referral Units oder biete deine freigegebenen Units
-          anderen BetInsight-Mitgliedern zum Kauf an.
-        </p>
+        <p>Kaufe verfügbare Referral Units oder biete deine freigegebenen Units anderen BetInsight-Mitgliedern zum Kauf an.</p>
       </div>
 
       <div class="main-actions">
-        <a id="buyLink" class="action-card buy-card" href="./angebote/">
-          <span class="action-content">
-            <span class="action-icon" aria-hidden="true">🛒</span>
-            <h3>Units kaufen</h3>
-            <p>Verfügbare Verkaufsangebote ansehen und ein Angebot auswählen.</p>
-          </span>
+        <a id="buyLink" class="action-card buy-card link-loading" href="/profil/wechselboerse/angebote/" aria-disabled="true">
+          <span class="action-content"><span class="action-icon" aria-hidden="true">🛒</span><h3>Units kaufen</h3><p>Verfügbare Verkaufsangebote ansehen und ein Angebot auswählen.</p></span>
           <span class="action-arrow" aria-hidden="true">→</span>
         </a>
-
-        <a id="sellLink" class="action-card sell-card" href="/profil/verkaufen/index.html">
-          <span class="action-content">
-            <span class="action-icon" aria-hidden="true">🏷️</span>
-            <h3>Units verkaufen</h3>
-            <p>Freigegebene Referral Units als neues Verkaufsangebot einstellen.</p>
-          </span>
+        <a id="sellLink" class="action-card sell-card link-loading" href="/profil/verkaufen/index.html" aria-disabled="true">
+          <span class="action-content"><span class="action-icon" aria-hidden="true">🏷️</span><h3>Units verkaufen</h3><p>Freigegebene Referral Units als neues Verkaufsangebot einstellen.</p></span>
           <span class="action-arrow" aria-hidden="true">→</span>
         </a>
       </div>
 
       <div class="wallet-section">
-        <div class="wallet-copy">
-          <span class="wallet-icon" aria-hidden="true">👛</span>
-          <div>
-            <h3>Auszahlungs-Wallet</h3>
-            <p>USDT/USDC-Wallet für den direkten Zahlungseingang verwalten.</p>
-          </div>
-        </div>
-
-        <a id="walletLink" class="wallet-action" href="/profil/wallet/index.html">
-          Wallet verwalten
-        </a>
+        <div class="wallet-copy"><span class="wallet-icon" aria-hidden="true">👛</span><div><h3>Auszahlungs-Wallet</h3><p>USDT/USDC-Wallet für den direkten Zahlungseingang verwalten.</p></div></div>
+        <a id="walletLink" class="wallet-action" href="/profil/wallet/index.html" aria-disabled="true">Wallet verwalten</a>
       </div>
 
-      <div id="tokenWarning" class="token-warning" role="status">
-        Dein persönlicher Zugang konnte nicht erkannt werden. Bitte öffne die
-        Wechselstube erneut über dein BetInsight-Profil.
-      </div>
-
+      <div id="tokenWarning" class="token-warning" role="status"></div>
       <div id="compatStatus" class="compat-status" role="status" aria-live="polite"></div>
-
-      <p class="info-line">
-        <span aria-hidden="true">🛡️</span>
-        Verkaufbar sind ausschließlich freigegebene Referral Units.
-      </p>
+      <p class="info-line"><span aria-hidden="true">🛡️</span>Verkaufbar sind ausschließlich freigegebene Referral Units.</p>
     </section>
 
-    <footer class="footer">
-      <a id="profileLink" class="back-link" href="/profil/">
-        <span aria-hidden="true">←</span>
-        Zurück zu meinem Profil
-      </a>
-    </footer>
+    <footer class="footer"><a id="profileLink" class="back-link" href="/profil/"><span aria-hidden="true">←</span>Zurück zu meinem Profil</a></footer>
   </main>
+
+  <iframe id="profileResolver" class="resolver-frame" title="" aria-hidden="true"></iframe>
 
   <script>
     "use strict";
 
-    /*
-      TOKEN-KOMPATIBILITÄT – SCHRITT 1
-
-      Wichtig:
-      - Der alte Profil-/Zugangstoken bleibt gültig.
-      - Eine bereits übergebene dashboard_token-UUID wird direkt verwendet.
-      - Nur "Units kaufen" benötigt in diesem Schritt zwingend die UUID.
-      - Verkaufen/Wallet/Profil erhalten weiterhin den bisherigen Zugang,
-        bis ihre Seiten separat geprüft sind.
-    */
-
-    const PAGE_PATHS = {
-      buy: "/profil/wechselboerse/angebote/",
-      sell: "/profil/verkaufen/index.html",
-      wallet: "/profil/wallet/index.html",
-      profile: "/profil/"
+    const PAGE_PATHS={
+      buy:"/profil/wechselboerse/angebote/",
+      sell:"/profil/verkaufen/index.html",
+      wallet:"/profil/wallet/index.html",
+      profile:"/profil/",
+      exchange:"/profil/wechselboerse/"
     };
+    const TOKEN_STORAGE_KEY="betinsight_profile_token";
+    const UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-    const PROFILE_WEBHOOK_URL =
-      "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
+    function cleanToken(value){return String(value||"").trim()}
+    function isDashboardUuid(value){return UUID_RE.test(cleanToken(value))}
+    function addToken(path,token){const url=new URL(path,window.location.origin);if(token)url.searchParams.set("token",token);return url.href}
+    function setStatus(text){const el=document.getElementById("compatStatus");if(!el)return;el.textContent=String(text||"");el.classList.toggle("visible",Boolean(text))}
+    function showWarning(text){const el=document.getElementById("tokenWarning");if(!el)return;el.textContent=String(text||"");el.classList.toggle("visible",Boolean(text))}
 
-    const TOKEN_STORAGE_KEY = "betinsight_profile_token";
-    const DASHBOARD_MAP_STORAGE_KEY = "betinsight_dashboard_token_map_v1";
-
-    const UUID_RE =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-    function cleanToken(value) {
-      return String(value || "").trim();
+    function getAccessToken(){
+      const fromUrl=cleanToken(new URLSearchParams(location.search).get("token"));
+      if(fromUrl){try{localStorage.setItem(TOKEN_STORAGE_KEY,fromUrl)}catch(_){}return fromUrl}
+      try{return cleanToken(localStorage.getItem(TOKEN_STORAGE_KEY))}catch(_){return""}
     }
 
-    function isDashboardUuid(value) {
-      return UUID_RE.test(cleanToken(value));
+    function activateNavigation(dashboardToken){
+      if(!isDashboardUuid(dashboardToken))return false;
+      const links={buyLink:PAGE_PATHS.buy,sellLink:PAGE_PATHS.sell,walletLink:PAGE_PATHS.wallet,profileLink:PAGE_PATHS.profile};
+      Object.entries(links).forEach(([id,path])=>{
+        const el=document.getElementById(id);if(!el)return;
+        el.href=addToken(path,dashboardToken);
+        el.classList.remove("link-loading");
+        el.removeAttribute("aria-disabled");
+      });
+      showWarning("");setStatus("");
+      return true;
     }
 
-    function getActiveToken() {
-      const params = new URLSearchParams(window.location.search);
-      const tokenFromUrl = cleanToken(params.get("token"));
-
-      if (tokenFromUrl) {
-        try {
-          localStorage.setItem(TOKEN_STORAGE_KEY, tokenFromUrl);
-        } catch (_) {}
-
-        return tokenFromUrl;
-      }
-
-      try {
-        return cleanToken(localStorage.getItem(TOKEN_STORAGE_KEY));
-      } catch (_) {
-        return "";
-      }
+    function canonicalizeCurrentUrl(dashboardToken){
+      const canonical=addToken(PAGE_PATHS.exchange,dashboardToken);
+      if(location.href!==canonical)location.replace(canonical);
     }
 
-    function buildTokenVariants(token) {
-      const clean = cleanToken(token);
+    function resolveLegacyThroughProfile(legacyToken){
+      const frame=document.getElementById("profileResolver");
+      if(!frame)return Promise.resolve("");
 
-      if (!clean) return [];
-      if (isDashboardUuid(clean)) return [clean];
+      return new Promise(resolve=>{
+        let done=false;
+        let checks=0;
+        const maxChecks=120;
+        let timer=null;
 
-      const variants = [clean];
+        const finish=value=>{
+          if(done)return;done=true;
+          if(timer)clearInterval(timer);
+          try{frame.src="about:blank"}catch(_){}
+          resolve(cleanToken(value));
+        };
 
-      if (/^BI-\d+$/i.test(clean)) {
-        const numeric = clean.substring(3);
-        variants.push(numeric, "BI" + numeric);
-      } else if (/^BI\d+$/i.test(clean)) {
-        const numeric = clean.substring(2);
-        variants.push(numeric, "BI-" + numeric);
-      } else if (/^\d+$/.test(clean)) {
-        variants.push("BI" + clean, "BI-" + clean);
-      }
+        frame.onload=()=>{
+          if(done)return;
+          try{
+            const win=frame.contentWindow;
+            if(win&&typeof win.getConfirmedDashboardToken==="function"){
+              const candidate=cleanToken(win.getConfirmedDashboardToken());
+              if(isDashboardUuid(candidate)){finish(candidate);return}
+            }
+          }catch(_){}
+        };
 
-      return [...new Set(variants)];
+        timer=setInterval(()=>{
+          if(done)return;
+          checks++;
+          try{
+            const win=frame.contentWindow;
+            if(win&&typeof win.getConfirmedDashboardToken==="function"){
+              const candidate=cleanToken(win.getConfirmedDashboardToken());
+              if(isDashboardUuid(candidate)){finish(candidate);return}
+            }
+          }catch(_){}
+          if(checks>=maxChecks)finish("");
+        },100);
+
+        frame.src=addToken(PAGE_PATHS.profile,legacyToken);
+      });
     }
 
-    function readDashboardMap(sourceToken) {
-      try {
-        const raw = localStorage.getItem(DASHBOARD_MAP_STORAGE_KEY);
-        if (!raw) return "";
+    async function prepareNavigation(){
+      const accessToken=getAccessToken();
 
-        const data = JSON.parse(raw);
-
-        if (
-          cleanToken(data?.sourceToken) === cleanToken(sourceToken) &&
-          isDashboardUuid(data?.dashboardToken)
-        ) {
-          return cleanToken(data.dashboardToken);
-        }
-      } catch (_) {}
-
-      return "";
-    }
-
-    function saveDashboardMap(sourceToken, dashboardToken) {
-      if (!sourceToken || !isDashboardUuid(dashboardToken)) return;
-
-      try {
-        localStorage.setItem(
-          DASHBOARD_MAP_STORAGE_KEY,
-          JSON.stringify({
-            sourceToken: cleanToken(sourceToken),
-            dashboardToken: cleanToken(dashboardToken)
-          })
-        );
-      } catch (_) {}
-    }
-
-    async function resolveDashboardToken(sourceToken) {
-      const source = cleanToken(sourceToken);
-
-      if (!source) return "";
-
-      /*
-        Neue Links: null Zusatzkosten.
-        Eine UUID ist bereits der benötigte dashboard_token.
-      */
-      if (isDashboardUuid(source)) {
-        return source;
-      }
-
-      /*
-        Alte Links: zuerst lokale, exakt an diesen Ausgangstoken gebundene
-        Zuordnung prüfen. Dadurch wird bei wiederholtem Öffnen kein weiterer
-        Make-/Profil-Reader-Aufruf benötigt.
-      */
-      const cached = readDashboardMap(source);
-      if (cached) return cached;
-
-      const variants = buildTokenVariants(source);
-
-      for (const variant of variants) {
-        try {
-          const url = new URL(PROFILE_WEBHOOK_URL);
-          url.searchParams.set("token", variant);
-
-          const response = await fetch(url.toString(), {
-            method: "GET",
-            cache: "no-store"
-          });
-
-          if (!response.ok) continue;
-
-          /*
-            Genauso robust lesen wie die funktionierende Profilseite:
-            Make kann die JSON-Antwort als Text liefern. BOM/Leerraum werden
-            entfernt, bevor geparst wird.
-          */
-          const raw = String(await response.text() || "")
-            .replace(/^\uFEFF/, "")
-            .trim();
-
-          if (!raw) continue;
-
-          let data = null;
-
-          try {
-            data = JSON.parse(raw);
-          } catch (_) {
-            continue;
-          }
-
-          /*
-            Für die reine Alt->UUID-Auflösung brauchen wir keine E-Mail.
-            Entscheidend ist ausschließlich ein gültiger dashboard_token.
-          */
-          if (Array.isArray(data)) {
-            data = data[0] || null;
-          }
-
-          const dashboardCandidate = cleanToken(
-            data?.dashboard_token ||
-            data?.dashboardToken ||
-            data?.dashboard_uuid ||
-            ""
-          );
-
-          if (
-            data &&
-            data.found !== false &&
-            isDashboardUuid(dashboardCandidate)
-          ) {
-            saveDashboardMap(source, dashboardCandidate);
-            return dashboardCandidate;
-          }
-        } catch (error) {
-          console.warn(
-            "Alt-Token konnte mit dieser Variante nicht aufgelöst werden:",
-            variant,
-            error
-          );
-        }
-      }
-
-      return "";
-    }
-
-    function addToken(path, token) {
-      const url = new URL(path, window.location.href);
-
-      if (token) {
-        url.searchParams.set("token", token);
-      }
-
-      return url.href;
-    }
-
-    function setCompatibilityStatus(text) {
-      const element = document.getElementById("compatStatus");
-
-      if (!element) return;
-
-      element.textContent = String(text || "");
-      element.classList.toggle("visible", Boolean(text));
-    }
-
-    function setNormalNavigation(accessToken) {
-      /*
-        Diese drei Links bleiben absichtlich unverändert,
-        bis ihre jeweilige Zielseite separat geprüft wurde.
-      */
-      document.getElementById("sellLink").href =
-        addToken(PAGE_PATHS.sell, accessToken);
-
-      document.getElementById("walletLink").href =
-        addToken(PAGE_PATHS.wallet, accessToken);
-
-      document.getElementById("profileLink").href =
-        addToken(PAGE_PATHS.profile, accessToken);
-    }
-
-    async function prepareNavigation() {
-      const accessToken = getActiveToken();
-      const buyLink = document.getElementById("buyLink");
-
-      if (!accessToken) {
-        setNormalNavigation("");
-        buyLink.href = PAGE_PATHS.buy;
-        buyLink.classList.add("link-loading");
-        document.getElementById("tokenWarning").classList.add("visible");
+      if(!accessToken){
+        showWarning("Dein persönlicher Zugang konnte nicht erkannt werden. Bitte öffne die Wechselstube erneut über dein BetInsight-Profil.");
+        setStatus("");
         return;
       }
 
-      /*
-        Sofort die bisherigen, noch nicht umgestellten Ziele vorbereiten.
-      */
-      setNormalNavigation(accessToken);
-
-      /*
-        Für die Kaufbörse darf bei einem alten Link nicht versehentlich
-        der alte Token weitergereicht werden.
-      */
-      buyLink.classList.add("link-loading");
-      buyLink.setAttribute("aria-disabled", "true");
-
-      if (!isDashboardUuid(accessToken)) {
-        setCompatibilityStatus(
-          "Alter Profilzugang erkannt – sicherer Wechselstuben-Zugang wird einmalig zugeordnet …"
-        );
-      }
-
-      const dashboardToken = await resolveDashboardToken(accessToken);
-
-      if (!dashboardToken) {
-        buyLink.href = PAGE_PATHS.buy;
-        buyLink.classList.add("link-loading");
-        buyLink.setAttribute("aria-disabled", "true");
-
-        document.getElementById("tokenWarning").textContent =
-          "Dein alter Profilzugang ist weiterhin gültig, konnte aber noch nicht auf den neuen Wechselstuben-Zugang abgebildet werden. " +
-          "Bitte öffne die Wechselstube erneut oder nutze vorübergehend deinen aktuellen Profil-Link.";
-
-        document.getElementById("tokenWarning").classList.add("visible");
-        setCompatibilityStatus("");
+      if(isDashboardUuid(accessToken)){
+        activateNavigation(accessToken);
         return;
       }
 
-      buyLink.href = addToken(PAGE_PATHS.buy, dashboardToken);
-      buyLink.classList.remove("link-loading");
-      buyLink.removeAttribute("aria-disabled");
+      setStatus("Alter Profilzugang erkannt – dein sicherer Wechselstuben-Zugang wird automatisch aktualisiert …");
+      const dashboardToken=await resolveLegacyThroughProfile(accessToken);
 
-      setCompatibilityStatus("");
+      if(!dashboardToken){
+        showWarning("Dein alter Profilzugang ist weiterhin gültig, konnte aber noch nicht automatisch auf den sicheren Wechselstuben-Zugang aktualisiert werden. Öffne bitte einmal dein Profil und danach dort die Unit-Wechselstube.");
+        const profileLink=document.getElementById("profileLink");
+        if(profileLink)profileLink.href=addToken(PAGE_PATHS.profile,accessToken);
+        setStatus("");
+        return;
+      }
+
+      setStatus("Zugang bestätigt – Wechselstube wird sicher geöffnet …");
+      canonicalizeCurrentUrl(dashboardToken);
     }
 
     prepareNavigation();
