@@ -5,9 +5,14 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.21-04
+Version: 2026.08.21-05
 
 Änderungen:
+- TOKEN-ROUTING 2026.08.21-05:
+  - Freigeschaltete Tipps werden aus dem Profil bevorzugt mit dem bestätigten dashboard_token geöffnet.
+  - Gilt sowohl für #freigeschaltet aus der Systeme.io-Zentrale als auch für den internen Profil-Button.
+  - Neue Tipps und Units kaufen verwenden weiterhin den normalen persönlichen Profil-Token.
+  - Premium, Netzwerk, Wallet, Support, Marketing-Center und bestehende Unit-/Referral-Logik bleiben unverändert.
 - BACKOFFICE-ROUTING 2026.08.21-04:
   - Sichere Backoffice-Einstiege für Neue Tipps (#tipps), Units kaufen (#kaufen) und Freigeschaltete Tipps (#freigeschaltet) ergänzt.
   - Das Profil wird zuerst geladen und geprüft; anschließend wird der bestätigte persönliche Profil-Token an die jeweilige Unterseite übergeben.
@@ -1080,7 +1085,19 @@ function handleDeepLinkAfterProfileLoad(){
     return;
   }
 
-  if(["tipps","kaufen","freigeschaltet"].includes(target)){
+  if(target==="freigeschaltet"){
+    const dashboardToken=String(currentProfileData.dashboardToken||"").trim();
+    if(!dashboardToken){
+      const msg=document.getElementById("message");
+      if(msg)msg.innerText="Freigeschaltete Tipps konnten noch nicht geöffnet werden, weil der persönliche Dashboard-Zugang fehlt.";
+      return;
+    }
+    deepLinkHandled=true;
+    location.replace("https://betinsightclub.github.io/profil/freigeschaltet/?token="+encodeURIComponent(dashboardToken));
+    return;
+  }
+
+  if(["tipps","kaufen"].includes(target)){
     const profileToken=String(getActiveToken()||"").trim();
     if(!profileToken){
       const msg=document.getElementById("message");
@@ -1089,8 +1106,7 @@ function handleDeepLinkAfterProfileLoad(){
     }
     const routeMap={
       tipps:"https://betinsightclub.github.io/profil/tipps/",
-      kaufen:"https://betinsightclub.github.io/profil/kaufen/",
-      freigeschaltet:"https://betinsightclub.github.io/profil/freigeschaltet/"
+      kaufen:"https://betinsightclub.github.io/profil/kaufen/"
     };
     deepLinkHandled=true;
     location.replace(routeMap[target]+"?token="+encodeURIComponent(profileToken));
@@ -1181,7 +1197,7 @@ function extractTokenFromInput(value){const clean=String(value||"").trim();if(!c
 function openReceivedProfileLink(){const token=extractTokenFromInput(document.getElementById("receivedProfileLink").value);if(!token){document.getElementById("receivedLinkMessage").innerText="Bitte Profil-Link oder Zugangscode eintragen.";return}saveToken(token);location.href="https://betinsightclub.github.io/profil/?token="+encodeURIComponent(token)+preserveSupportedHash()}
 function goBuyUnits(){const token=getActiveToken();if(token)location.href="https://betinsightclub.github.io/profil/kaufen/?token="+encodeURIComponent(token)}
 function goTipps(){const token=getActiveToken();if(token)location.href="https://betinsightclub.github.io/profil/tipps/?token="+encodeURIComponent(token)}
-function goFreigeschaltet(){const token=getActiveToken();if(token)location.href="https://betinsightclub.github.io/profil/freigeschaltet/?token="+encodeURIComponent(token)}
+function goFreigeschaltet(){const dashboardToken=String(currentProfileData.dashboardToken||"").trim();if(dashboardToken){location.href="https://betinsightclub.github.io/profil/freigeschaltet/?token="+encodeURIComponent(dashboardToken);return}const msg=document.getElementById("message");if(msg)msg.innerText="Freigeschaltete Tipps konnten noch nicht geöffnet werden, weil der persönliche Dashboard-Zugang fehlt."}
 function goUnitExchange(){const token=getActiveToken();if(token)location.href="https://betinsightclub.github.io/profil/wechselboerse/?token="+encodeURIComponent(token)}
 function goMarketingCenter(){const token=getActiveToken();const base="https://betinsightclub.github.io/profil/marketing-center/";location.href=token?base+"?token="+encodeURIComponent(token):base}
 function goSupport(){location.href="https://betinsightclub.github.io/profil/support/"}
