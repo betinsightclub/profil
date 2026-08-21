@@ -5,9 +5,15 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.21-01
+Version: 2026.08.21-02
 
 Änderungen:
+- ACTION-BUTTON-DESIGN 2026.08.21-02:
+  - Die vier Aktionen im Bereich „Struktur und Umsätze“ optisch modernisiert.
+  - Jede Funktion erhält eine eigene, klar erkennbare Farbwelt.
+  - Einheitliche Höhe, moderne Icon-Flächen, dezente Glows und Hover-Effekt.
+  - Marketing-Center erhält eine eigene Violett→Cyan-Farbwelt und hebt sich klar vom Netzwerk-Button ab.
+  - Mobile Darstellung bleibt einspaltig und vollständig responsiv.
 - MARKETING-CENTER 2026.08.21-01:
   - Neuer vierter Button „📣 Marketing-Center“ im Bereich „Struktur und Umsätze“.
   - Der vorhandene Profil-Token wird beim Öffnen des Marketing-Centers automatisch mitgegeben.
@@ -512,6 +518,122 @@ button,.btn-link{
   border-top:1px solid rgba(255,255,255,.065);
 }
 
+/* 2026.08.21-02 · moderne Aktionsleiste */
+.referral-footer-actions .footer-action{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  min-height:58px;
+  padding:10px 13px;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:15px;
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.05px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 12px 26px rgba(0,0,0,.18);
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    filter .18s ease,
+    border-color .18s ease;
+}
+
+.referral-footer-actions .footer-action::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  width:120px;
+  height:120px;
+  right:-58px;
+  top:-74px;
+  border-radius:50%;
+  background:rgba(255,255,255,.14);
+  filter:blur(2px);
+  pointer-events:none;
+}
+
+.referral-footer-actions .footer-action::after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:0;
+  background:linear-gradient(115deg,rgba(255,255,255,.10),transparent 42%,rgba(255,255,255,.04));
+  opacity:.75;
+  pointer-events:none;
+}
+
+.referral-footer-actions .footer-action:hover{
+  transform:translateY(-2px);
+  filter:brightness(1.06);
+  border-color:rgba(255,255,255,.26);
+}
+
+.referral-footer-actions .footer-action:active{
+  transform:translateY(0);
+}
+
+.footer-action-icon{
+  flex:0 0 auto;
+  display:grid;
+  place-items:center;
+  width:31px;
+  height:31px;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:10px;
+  background:rgba(2,15,24,.20);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10);
+  font-size:16px;
+  line-height:1;
+}
+
+.footer-action-label{
+  min-width:0;
+  line-height:1.2;
+  text-align:left;
+}
+
+.footer-action-units{
+  background:linear-gradient(115deg,#08745d 0%,#0ab78b 55%,#12d6a2 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 12px 28px rgba(14,220,166,.16);
+}
+
+.footer-action-exchange{
+  background:linear-gradient(115deg,#ad610b 0%,#dc8614 54%,#ffb52f 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 12px 28px rgba(255,171,46,.15);
+}
+
+.footer-action-network{
+  background:linear-gradient(115deg,#0b5e9d 0%,#0d83c7 55%,#18aee8 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 12px 28px rgba(22,156,255,.15);
+}
+
+.footer-action-marketing{
+  background:
+    radial-gradient(circle at 88% 10%,rgba(64,232,255,.24),transparent 35%),
+    linear-gradient(115deg,#5b42d6 0%,#6b55ed 43%,#12a9d3 100%);
+  border-color:rgba(143,128,255,.34);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.12),
+    0 12px 30px rgba(105,82,235,.22),
+    0 0 24px rgba(18,169,211,.08);
+}
+
+.footer-action-marketing:hover{
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    0 16px 34px rgba(105,82,235,.28),
+    0 0 28px rgba(18,169,211,.12);
+}
+
 .request-header{max-width:780px;margin:0 auto 20px;text-align:center}
 .request-header h2{margin:0 0 8px}
 .request-header p{color:var(--muted)}
@@ -806,10 +928,25 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
     <div class="panel-body">
       <div id="levelList" class="level-list"></div>
       <div class="referral-footer-actions">
-        <button class="btn-green" type="button" onclick="referralUnitsToAccount()">⭐ Units aufs Konto buchen</button>
-        <button class="btn-orange" type="button" onclick="goUnitExchange()">🔄 Zur Unit-Wechselstube</button>
-        <button class="btn-blue network-refresh-button" type="button" onclick="refreshNetworkData(true,this)">🔄 Netzwerkdaten laden</button>
-        <button class="btn-blue" type="button" onclick="goMarketingCenter()">📣 Marketing-Center</button>
+        <button class="footer-action footer-action-units" type="button" onclick="referralUnitsToAccount()">
+          <span class="footer-action-icon" aria-hidden="true">⭐</span>
+          <span class="footer-action-label">Units aufs Konto buchen</span>
+        </button>
+
+        <button class="footer-action footer-action-exchange" type="button" onclick="goUnitExchange()">
+          <span class="footer-action-icon" aria-hidden="true">⇄</span>
+          <span class="footer-action-label">Zur Unit-Wechselstube</span>
+        </button>
+
+        <button class="footer-action footer-action-network network-refresh-button" type="button" onclick="refreshNetworkData(true,this)">
+          <span class="footer-action-icon" aria-hidden="true">↻</span>
+          <span class="footer-action-label">Netzwerkdaten laden</span>
+        </button>
+
+        <button class="footer-action footer-action-marketing" type="button" onclick="goMarketingCenter()">
+          <span class="footer-action-icon" aria-hidden="true">📣</span>
+          <span class="footer-action-label">Marketing-Center</span>
+        </button>
       </div>
       <div id="referralStatus" class="referral-status">Netzwerkdaten werden erst geladen, wenn du auf „Netzwerk laden“ klickst.</div>
     </div>
