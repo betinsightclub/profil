@@ -1,4 +1,21 @@
 <!DOCTYPE html>
+<!--
+GitHub-Ziel: betinsightclub/profil/kaufen/index.html
+Live-Seite: https://betinsightclub.github.io/profil/kaufen/
+
+Projekt: BetInsight
+Datei: kaufen/index.html
+Version: 2026.08.21-01
+
+Änderungen:
+- Token wird nicht mehr zwangsweise mit "BI-" überschrieben.
+- Exakter übergebener Token wird immer zuerst geprüft.
+- Bei alten numerischen BI-Zugängen werden automatisch kompatible Varianten getestet:
+  exakt, BI-Nummer, BINummer bzw. reine Nummer.
+- UUID-Zugänge werden ausschließlich exakt geprüft.
+- Ein erfolgreich erkannter Profil-Token wird wieder unter betinsight_profile_token gespeichert.
+- Paket-, Zahlungs- und E-Mail-Logik bleiben ansonsten unverändert.
+-->
 <html lang="de">
 <head>
   <meta charset="UTF-8">
@@ -108,6 +125,8 @@
   </div>
 
   <script>
+    "use strict";
+
     const PROFILE_WEBHOOK_URL = "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
     const PAYMENT_WEBHOOK_URL = "https://hook.eu1.make.com/3dn877cq40zhqb1lswd53t0404s3oddy";
     const TOKEN_STORAGE_KEY = "betinsight_profile_token";
@@ -127,39 +146,51 @@
       wm_boost: {name:"WM Boost", units:"400 Units", preis:"299 €"}
     };
 
-    function normalizeToken(token) {
-      if (!token) {
-        return "";
+    function cleanToken(token) {
+      return String(token || "").trim();
+    }
+
+    function isUuidToken(token) {
+      return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanToken(token));
+    }
+
+    function buildTokenVariants(token) {
+      const clean = cleanToken(token);
+      if (!clean) return [];
+
+      if (isUuidToken(clean)) {
+        return [clean];
       }
 
-      const cleanedToken = token.trim();
+      const variants = [clean];
 
-      if (cleanedToken === "") {
-        return "";
+      if (/^BI-\d+$/i.test(clean)) {
+        const numberPart = clean.slice(3);
+        variants.push(numberPart, "BI" + numberPart);
+      } else if (/^BI\d+$/i.test(clean)) {
+        const numberPart = clean.slice(2);
+        variants.push(numberPart, "BI-" + numberPart);
+      } else if (/^\d+$/.test(clean)) {
+        variants.push("BI-" + clean, "BI" + clean);
       }
 
-      if (cleanedToken.startsWith("BI-")) {
-        return cleanedToken;
-      }
-
-      return "BI-" + cleanedToken;
+      return [...new Set(variants.filter(Boolean))];
     }
 
     function getTokenFromUrl() {
       const params = new URLSearchParams(window.location.search);
-      return params.get("token");
+      return cleanToken(params.get("token"));
     }
 
     function getActiveToken() {
       const tokenFromUrl = getTokenFromUrl();
 
-      if (tokenFromUrl && tokenFromUrl.trim() !== "") {
-        const normalizedToken = normalizeToken(tokenFromUrl);
-        localStorage.setItem(TOKEN_STORAGE_KEY, normalizedToken);
-        return normalizedToken;
+      if (tokenFromUrl) {
+        localStorage.setItem(TOKEN_STORAGE_KEY, tokenFromUrl);
+        return tokenFromUrl;
       }
 
-      return normalizeToken(localStorage.getItem(TOKEN_STORAGE_KEY));
+      return cleanToken(localStorage.getItem(TOKEN_STORAGE_KEY));
     }
 
     function setEmailStatus(text, color) {
@@ -172,11 +203,24 @@
       document.getElementById("debug").innerText = text;
     }
 
-    function loadEmail() {
-      const token = getActiveToken();
+    async function fetchProfileCandidate(token) {
+      const response = await fetch(
+        PROFILE_WEBHOOK_URL + "?token=" + encodeURIComponent(token),
+        { cache: "no-store" }
+      );
+
+      if (!response.ok) {
+        throw new Error("HTTP " + response.status);
+      }
+
+      return await response.json();
+    }
+
+    async function loadEmail() {
+      const inputToken = getActiveToken();
       const emailInput = document.getElementById("buyerEmail");
 
-      if (!token) {
+      if (!inputToken) {
         emailInput.value = "";
         setEmailStatus(
           "Keine automatische E-Mail erkannt. Bitte trage deine registrierte E-Mail manuell ein.",
@@ -186,23 +230,23 @@
         return;
       }
 
-      fetch(PROFILE_WEBHOOK_URL + "?token=" + encodeURIComponent(token))
-        .then(response => response.json())
-        .then(data => {
+      const variants = buildTokenVariants(inputToken);
+      let lastError = null;
+
+      for (const candidate of variants) {
+        try {
+          const data = await fetchProfileCandidate(candidate);
+
           if (!data || data.found === false || !data.email) {
-            emailInput.value = "";
-            setEmailStatus(
-              "E-Mail konnte nicht automatisch geladen werden. Bitte trage sie manuell ein.",
-              "#ffcc00"
-            );
-            setDebug("Debug: Token aktiv: " + token + " | API: keine E-Mail gefunden");
-            return;
+            continue;
           }
 
-          const email = data.email.trim().toLowerCase();
+          const email = String(data.email).trim().toLowerCase();
+          const confirmedToken = cleanToken(data.token) || candidate;
 
           emailInput.value = email;
           localStorage.setItem("betinsight_email", email);
+          localStorage.setItem(TOKEN_STORAGE_KEY, confirmedToken);
 
           setEmailStatus(
             "✓ E-Mail automatisch erkannt. Bitte vor dem Kauf prüfen.",
@@ -210,21 +254,32 @@
           );
 
           setDebug(
-            "Debug: Token aktiv: " + token +
-            " | API Token: " + (data.token || "leer") +
-            " | API E-Mail: " + (data.email || "leer")
+            "Debug: Zugang erkannt | Variante: " + candidate +
+            " | API E-Mail: " + email
           );
-        })
-        .catch(error => {
-          console.error(error);
+          return;
 
-          emailInput.value = "";
-          setEmailStatus(
-            "Fehler beim Laden der E-Mail. Bitte trage sie manuell ein.",
-            "#ffcc00"
-          );
-          setDebug("Debug: Fehler beim Laden.");
-        });
+        } catch (error) {
+          console.warn("Profilprüfung fehlgeschlagen:", candidate, error);
+          lastError = error;
+        }
+      }
+
+      emailInput.value = "";
+
+      if (lastError) {
+        setEmailStatus(
+          "E-Mail konnte nicht automatisch geladen werden. Bitte trage sie manuell ein.",
+          "#ffcc00"
+        );
+        setDebug("Debug: Keine passende Token-Variante gefunden.");
+      } else {
+        setEmailStatus(
+          "E-Mail konnte nicht automatisch geladen werden. Bitte trage sie manuell ein.",
+          "#ffcc00"
+        );
+        setDebug("Debug: Token vorhanden, aber kein Profil gefunden.");
+      }
     }
 
     function updatePreview() {
