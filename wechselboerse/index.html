@@ -1,4 +1,22 @@
 <!DOCTYPE html>
+<!--
+Projekt: BetInsight
+GitHub-Ziel: /profil/wechselboerse/index.html
+Version: 2026.08.21-02
+Änderung: TOKEN-KOMPATIBILITÄT ALT + UUID – SCHRITT 1
+
+Ziel:
+- Alte direkte Wechselstuben-Links mit numerischem/BI-Token bleiben gültig.
+- Neue Links mit dashboard_token-UUID funktionieren direkt.
+- Für "Units kaufen" wird ein alter Zugang serverseitig über den bestehenden
+  Profil-Reader auf den zugehörigen dashboard_token aufgelöst.
+- Direkte UUIDs erzeugen keinen zusätzlichen Profil-Reader-Aufruf.
+- Erfolgreiche Alt->UUID-Zuordnung wird lokal an den exakten Ausgangstoken
+  gebunden zwischengespeichert, um Make-Aufrufe zu sparen.
+- Verkaufen, Wallet und Rückweg zum Profil bleiben in diesem Schritt bewusst
+  auf ihrer bisherigen Token-Weitergabe, bis ihre Zielseiten separat geprüft sind.
+- Keine Zahlungs-, Unit-, Wallet- oder Blockchain-Logik wird verändert.
+-->
 <html lang="de">
 <head>
   <meta charset="UTF-8">
@@ -7,14 +25,11 @@
   <meta name="description" content="BetInsight Unit-Wechselstube: Units kaufen, verkaufen und Auszahlungs-Wallet verwalten.">
 
   <title>BetInsight Unit-Wechselstube</title>
-  <!-- Exakt dasselbe Favicon wie in der Profil-Startseite -->
   <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
   <link rel="shortcut icon" href="/profil/favicon.ico">
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     :root {
       --bg-1: #061923;
@@ -34,9 +49,7 @@
       --focus: #ffcf33;
     }
 
-    html {
-      min-height: 100%;
-    }
+    html { min-height: 100%; }
 
     body {
       margin: 0;
@@ -49,14 +62,8 @@
         linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
     }
 
-    button,
-    a {
-      font: inherit;
-    }
-
-    a {
-      color: inherit;
-    }
+    button, a { font: inherit; }
+    a { color: inherit; }
 
     .page {
       width: min(100% - 32px, 1040px);
@@ -84,9 +91,7 @@
       height: auto;
     }
 
-    .topbar-copy {
-      min-width: 0;
-    }
+    .topbar-copy { min-width: 0; }
 
     .eyebrow {
       display: block;
@@ -170,9 +175,7 @@
       line-height: 1.08;
     }
 
-    .hero h2 span {
-      color: var(--green);
-    }
+    .hero h2 span { color: var(--green); }
 
     .hero-intro p {
       max-width: 620px;
@@ -201,7 +204,7 @@
       color: #ffffff;
       text-decoration: none;
       box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
-      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, opacity .18s ease;
     }
 
     .action-card:hover {
@@ -217,13 +220,14 @@
       outline-offset: 3px;
     }
 
-    .buy-card {
-      background: linear-gradient(135deg, #087dbd, #0fb8d2);
+    .action-card.link-loading {
+      opacity: .60;
+      pointer-events: none;
+      cursor: wait;
     }
 
-    .sell-card {
-      background: linear-gradient(135deg, var(--green-dark), #12c08d);
-    }
+    .buy-card { background: linear-gradient(135deg, #087dbd, #0fb8d2); }
+    .sell-card { background: linear-gradient(135deg, var(--green-dark), #12c08d); }
 
     .action-content {
       display: flex;
@@ -265,9 +269,7 @@
       transition: transform 0.18s ease;
     }
 
-    .action-card:hover .action-arrow {
-      transform: translateX(4px);
-    }
+    .action-card:hover .action-arrow { transform: translateX(4px); }
 
     .wallet-section {
       position: relative;
@@ -384,23 +386,26 @@
       text-align: center;
     }
 
-    .token-warning.visible {
-      display: block;
+    .token-warning.visible { display: block; }
+
+    .compat-status {
+      display: none;
+      margin: 13px 0 0;
+      color: var(--text-muted);
+      font-size: 11px;
+      line-height: 1.45;
+      text-align: center;
     }
 
-    @media (max-width: 720px) {
-      .topbar {
-        grid-template-columns: auto 1fr;
-      }
+    .compat-status.visible { display: block; }
 
+    @media (max-width: 720px) {
+      .topbar { grid-template-columns: auto 1fr; }
       .secure-badge {
         grid-column: 1 / -1;
         justify-self: center;
       }
-
-      .main-actions {
-        grid-template-columns: 1fr;
-      }
+      .main-actions { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 540px) {
@@ -420,9 +425,7 @@
         margin: 0 auto 11px;
       }
 
-      .secure-badge {
-        margin-top: 12px;
-      }
+      .secure-badge { margin-top: 12px; }
 
       .hero {
         margin-top: 12px;
@@ -430,9 +433,7 @@
         border-radius: 19px;
       }
 
-      .hero-intro {
-        margin-bottom: 23px;
-      }
+      .hero-intro { margin-bottom: 23px; }
 
       .action-card {
         min-height: 158px;
@@ -451,9 +452,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      *,
-      *::before,
-      *::after {
+      *, *::before, *::after {
         scroll-behavior: auto !important;
         transition: none !important;
       }
@@ -530,6 +529,8 @@
         Wechselstube erneut über dein BetInsight-Profil.
       </div>
 
+      <div id="compatStatus" class="compat-status" role="status" aria-live="polite"></div>
+
       <p class="info-line">
         <span aria-hidden="true">🛡️</span>
         Verkaufbar sind ausschließlich freigegebene Referral Units.
@@ -548,10 +549,16 @@
     "use strict";
 
     /*
-      ZIELSEITEN:
-      Falls du später andere Ordnernamen verwendest, müssen nur diese vier
-      Pfade geändert werden. Der persönliche Token wird automatisch angehängt.
+      TOKEN-KOMPATIBILITÄT – SCHRITT 1
+
+      Wichtig:
+      - Der alte Profil-/Zugangstoken bleibt gültig.
+      - Eine bereits übergebene dashboard_token-UUID wird direkt verwendet.
+      - Nur "Units kaufen" benötigt in diesem Schritt zwingend die UUID.
+      - Verkaufen/Wallet/Profil erhalten weiterhin den bisherigen Zugang,
+        bis ihre Seiten separat geprüft sind.
     */
+
     const PAGE_PATHS = {
       buy: "/profil/wechselboerse/angebote/",
       sell: "/profil/verkaufen/index.html",
@@ -559,18 +566,152 @@
       profile: "/profil/"
     };
 
+    const PROFILE_WEBHOOK_URL =
+      "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
+
     const TOKEN_STORAGE_KEY = "betinsight_profile_token";
+    const DASHBOARD_MAP_STORAGE_KEY = "betinsight_dashboard_token_map_v1";
+
+    const UUID_RE =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+    function cleanToken(value) {
+      return String(value || "").trim();
+    }
+
+    function isDashboardUuid(value) {
+      return UUID_RE.test(cleanToken(value));
+    }
 
     function getActiveToken() {
       const params = new URLSearchParams(window.location.search);
-      const tokenFromUrl = String(params.get("token") || "").trim();
+      const tokenFromUrl = cleanToken(params.get("token"));
 
       if (tokenFromUrl) {
-        localStorage.setItem(TOKEN_STORAGE_KEY, tokenFromUrl);
+        try {
+          localStorage.setItem(TOKEN_STORAGE_KEY, tokenFromUrl);
+        } catch (_) {}
+
         return tokenFromUrl;
       }
 
-      return String(localStorage.getItem(TOKEN_STORAGE_KEY) || "").trim();
+      try {
+        return cleanToken(localStorage.getItem(TOKEN_STORAGE_KEY));
+      } catch (_) {
+        return "";
+      }
+    }
+
+    function buildTokenVariants(token) {
+      const clean = cleanToken(token);
+
+      if (!clean) return [];
+      if (isDashboardUuid(clean)) return [clean];
+
+      const variants = [clean];
+
+      if (/^BI-\d+$/i.test(clean)) {
+        const numeric = clean.substring(3);
+        variants.push(numeric, "BI" + numeric);
+      } else if (/^BI\d+$/i.test(clean)) {
+        const numeric = clean.substring(2);
+        variants.push(numeric, "BI-" + numeric);
+      } else if (/^\d+$/.test(clean)) {
+        variants.push("BI" + clean, "BI-" + clean);
+      }
+
+      return [...new Set(variants)];
+    }
+
+    function readDashboardMap(sourceToken) {
+      try {
+        const raw = localStorage.getItem(DASHBOARD_MAP_STORAGE_KEY);
+        if (!raw) return "";
+
+        const data = JSON.parse(raw);
+
+        if (
+          cleanToken(data?.sourceToken) === cleanToken(sourceToken) &&
+          isDashboardUuid(data?.dashboardToken)
+        ) {
+          return cleanToken(data.dashboardToken);
+        }
+      } catch (_) {}
+
+      return "";
+    }
+
+    function saveDashboardMap(sourceToken, dashboardToken) {
+      if (!sourceToken || !isDashboardUuid(dashboardToken)) return;
+
+      try {
+        localStorage.setItem(
+          DASHBOARD_MAP_STORAGE_KEY,
+          JSON.stringify({
+            sourceToken: cleanToken(sourceToken),
+            dashboardToken: cleanToken(dashboardToken)
+          })
+        );
+      } catch (_) {}
+    }
+
+    async function resolveDashboardToken(sourceToken) {
+      const source = cleanToken(sourceToken);
+
+      if (!source) return "";
+
+      /*
+        Neue Links: null Zusatzkosten.
+        Eine UUID ist bereits der benötigte dashboard_token.
+      */
+      if (isDashboardUuid(source)) {
+        return source;
+      }
+
+      /*
+        Alte Links: zuerst lokale, exakt an diesen Ausgangstoken gebundene
+        Zuordnung prüfen. Dadurch wird bei wiederholtem Öffnen kein weiterer
+        Make-/Profil-Reader-Aufruf benötigt.
+      */
+      const cached = readDashboardMap(source);
+      if (cached) return cached;
+
+      const variants = buildTokenVariants(source);
+
+      for (const variant of variants) {
+        try {
+          const url = new URL(PROFILE_WEBHOOK_URL);
+          url.searchParams.set("token", variant);
+
+          const response = await fetch(url.toString(), {
+            method: "GET",
+            cache: "no-store"
+          });
+
+          if (!response.ok) continue;
+
+          const data = await response.json();
+
+          if (
+            data &&
+            data.found !== false &&
+            data.email &&
+            isDashboardUuid(data.dashboard_token)
+          ) {
+            const dashboardToken = cleanToken(data.dashboard_token);
+            saveDashboardMap(source, dashboardToken);
+            return dashboardToken;
+          }
+        } catch (error) {
+          console.warn(
+            "Alt-Token konnte mit dieser Variante nicht aufgelöst werden:",
+            variant,
+            error
+          );
+        }
+      }
+
+      return "";
     }
 
     function addToken(path, token) {
@@ -583,23 +724,81 @@
       return url.href;
     }
 
-    function prepareNavigation() {
-      const token = getActiveToken();
-      const links = {
-        buyLink: PAGE_PATHS.buy,
-        sellLink: PAGE_PATHS.sell,
-        walletLink: PAGE_PATHS.wallet,
-        profileLink: PAGE_PATHS.profile
-      };
+    function setCompatibilityStatus(text) {
+      const element = document.getElementById("compatStatus");
 
-      Object.entries(links).forEach(([id, path]) => {
-        const element = document.getElementById(id);
-        element.href = addToken(path, token);
-      });
+      if (!element) return;
 
-      if (!token) {
+      element.textContent = String(text || "");
+      element.classList.toggle("visible", Boolean(text));
+    }
+
+    function setNormalNavigation(accessToken) {
+      /*
+        Diese drei Links bleiben absichtlich unverändert,
+        bis ihre jeweilige Zielseite separat geprüft wurde.
+      */
+      document.getElementById("sellLink").href =
+        addToken(PAGE_PATHS.sell, accessToken);
+
+      document.getElementById("walletLink").href =
+        addToken(PAGE_PATHS.wallet, accessToken);
+
+      document.getElementById("profileLink").href =
+        addToken(PAGE_PATHS.profile, accessToken);
+    }
+
+    async function prepareNavigation() {
+      const accessToken = getActiveToken();
+      const buyLink = document.getElementById("buyLink");
+
+      if (!accessToken) {
+        setNormalNavigation("");
+        buyLink.href = PAGE_PATHS.buy;
+        buyLink.classList.add("link-loading");
         document.getElementById("tokenWarning").classList.add("visible");
+        return;
       }
+
+      /*
+        Sofort die bisherigen, noch nicht umgestellten Ziele vorbereiten.
+      */
+      setNormalNavigation(accessToken);
+
+      /*
+        Für die Kaufbörse darf bei einem alten Link nicht versehentlich
+        der alte Token weitergereicht werden.
+      */
+      buyLink.classList.add("link-loading");
+      buyLink.setAttribute("aria-disabled", "true");
+
+      if (!isDashboardUuid(accessToken)) {
+        setCompatibilityStatus(
+          "Alter Profilzugang erkannt – sicherer Wechselstuben-Zugang wird einmalig zugeordnet …"
+        );
+      }
+
+      const dashboardToken = await resolveDashboardToken(accessToken);
+
+      if (!dashboardToken) {
+        buyLink.href = PAGE_PATHS.buy;
+        buyLink.classList.add("link-loading");
+        buyLink.setAttribute("aria-disabled", "true");
+
+        document.getElementById("tokenWarning").textContent =
+          "Dein Zugang wurde erkannt, konnte aber nicht sicher für die Kaufbörse zugeordnet werden. " +
+          "Bitte öffne dein Profil erneut oder versuche es später noch einmal.";
+
+        document.getElementById("tokenWarning").classList.add("visible");
+        setCompatibilityStatus("");
+        return;
+      }
+
+      buyLink.href = addToken(PAGE_PATHS.buy, dashboardToken);
+      buyLink.classList.remove("link-loading");
+      buyLink.removeAttribute("aria-disabled");
+
+      setCompatibilityStatus("");
     }
 
     prepareNavigation();
