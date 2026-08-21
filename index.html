@@ -5,9 +5,15 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.21-06
+Version: 2026.08.21-07
 
 Änderungen:
+- UUID-FALLBACK 2026.08.21-07:
+  - Wenn das Profil bereits direkt über einen dashboard_token als UUID geöffnet wurde, wird diese UUID selbst als bestätigter Dashboard-Zugang verwendet.
+  - Behebt dadurch den nicht reagierenden Button „Zur Unit-Wechselstube“, wenn der Profil-Webhook das Feld dashboard_token bei UUID-Aufruf leer zurückliefert.
+  - Derselbe sichere UUID-Fallback wird für Netzwerkdaten, Wallet und Freigeschaltete Tipps verwendet.
+  - Normale alte Profil-Tokens werden weiterhin nicht mit einer UUID verwechselt.
+  - Kauf-, Tipp-, Premium-, Support-, Referral-, Marketing- und Zahlungslogik bleiben unverändert.
 - WECHSELSTUBE-DASHBOARD-TOKEN 2026.08.21-06:
   - Der interne Profil-Button zur Unit-Wechselstube übergibt jetzt ausschließlich den bestätigten dashboard_token.
   - Dadurch entfällt die fehleranfällige Alt-Token-Auflösung in der Wechselstube bei einem korrekt geladenen Profil.
@@ -1079,7 +1085,7 @@ function handleDeepLinkAfterProfileLoad(){
   if(!target)return;
 
   if(target==="wallet"){
-    const dashboardToken=String(currentProfileData.dashboardToken||"").trim();
+    const dashboardToken=getConfirmedDashboardToken();
     if(!dashboardToken){
       const msg=document.getElementById("message");
       if(msg)msg.innerText="Die Wallet konnte noch nicht geöffnet werden, weil der persönliche Wallet-Zugang nicht verfügbar ist.";
@@ -1091,7 +1097,7 @@ function handleDeepLinkAfterProfileLoad(){
   }
 
   if(target==="freigeschaltet"){
-    const dashboardToken=String(currentProfileData.dashboardToken||"").trim();
+    const dashboardToken=getConfirmedDashboardToken();
     if(!dashboardToken){
       const msg=document.getElementById("message");
       if(msg)msg.innerText="Freigeschaltete Tipps konnten noch nicht geöffnet werden, weil der persönliche Dashboard-Zugang fehlt.";
@@ -1165,6 +1171,8 @@ function getTokenFromUrl(){return new URLSearchParams(location.search).get("toke
 function getSavedToken(){return localStorage.getItem(TOKEN_STORAGE_KEY)}
 function saveToken(token){if(token&&String(token).trim())localStorage.setItem(TOKEN_STORAGE_KEY,String(token).trim())}
 function getActiveToken(){const fromUrl=getTokenFromUrl();if(fromUrl&&fromUrl.trim()){saveToken(fromUrl);return fromUrl.trim()}return getSavedToken()}
+function isDashboardUuid(value){const clean=String(value||"").trim();return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(clean)}
+function getConfirmedDashboardToken(){const fromProfile=String(currentProfileData.dashboardToken||"").trim();if(isDashboardUuid(fromProfile))return fromProfile;const active=String(getActiveToken()||"").trim();if(isDashboardUuid(active))return active;return ""}
 function isAcceptedSupportToken(value){const clean=String(value||"").trim();return /^\d{6,15}$/.test(clean)||/^BI-?\d{6,15}$/i.test(clean)}
 function canonicalSupportReaderToken(value){const clean=String(value||"").trim();if(/^\d{6,15}$/.test(clean))return"BI-"+clean;if(/^BI\d{6,15}$/i.test(clean))return"BI-"+clean.slice(2);if(/^BI-\d{6,15}$/i.test(clean))return clean.toUpperCase();return""}
 function renderSupportUnread(count){const badge=document.getElementById("supportUnreadBadge"),button=document.getElementById("supportButton");if(!badge||!button)return;const unread=Math.max(0,Math.floor(Number(count)||0));if(unread>0){badge.hidden=false;badge.textContent=unread>99?"99+":String(unread);badge.setAttribute("aria-label",unread+" ungelesene Support-Antworten");button.title=unread===1?"1 neue Support-Antwort":unread+" neue Support-Antworten"}else{badge.hidden=true;badge.textContent="0";badge.setAttribute("aria-label","0 ungelesene Support-Antworten");button.title="Support & Tickets öffnen"}}
@@ -1189,7 +1197,7 @@ function getLevelSummaryValues(level,data,partners){const partnerCount=optionalN
 function renderLevelCard(level,partners,summary){const rows=partners.length?partners.map(p=>{const bi=partnerValue(p,["bi_nummer","bi_number","ref_code","user_id","7","6"],"-"),sponsor=partnerValue(p,["sponsor","sponsor_ref","sponsor_code","sponsor_ref_code","8","9"],"-"),purchased=partnerValue(p,["gekaufte_units","gekaufte_units_rest","purchased_units","gekauft","35"],0),consumed=partnerValue(p,["verbrauchte_kauf_units","consumed_units","verbraucht"],0),expected=partnerValue(p,["erwartete_referral_units","ref_erwartet","expected_units","erwartet"],0),released=partnerValue(p,["freigegebene_referral_units","ref_verfuegbar","released_units","available_units","freigegeben"],0);return`<tr><td class="partner-id">${escapeHtml(bi)}</td><td>${escapeHtml(sponsor)}</td><td>${formatNumber(purchased)}</td><td>${formatNumber(consumed)}</td><td>${formatNumber(expected)}</td><td>${formatNumber(released)}</td></tr>`}).join(""):`<tr><td colspan="6" class="empty-row">Noch keine Daten vorhanden.</td></tr>`;return`<article class="level-card ${level===1?"open":""}" id="levelCard${level}"><div class="level-head" onclick="toggleLevel(${level})"><div class="level-number">${level}</div><div class="level-name">${level===1?"Ebene 1 – direkte Partner":"Ebene "+level}</div><div class="level-metric"><div class="level-metric-label">Partner</div><div class="level-metric-value">${formatNumber(summary.partnerCount)}</div></div><div class="level-metric"><div class="level-metric-label">Gekauft</div><div class="level-metric-value">${formatNumber(summary.purchased)} Units</div></div><div class="level-metric"><div class="level-metric-label">Erwartet</div><div class="level-metric-value">${formatNumber(summary.expected)}</div></div><div class="level-metric"><div class="level-metric-label">Freigegeben</div><div class="level-metric-value">${formatNumber(summary.released)}</div></div><div class="level-arrow">⌃</div></div><div class="level-body"><div class="table-wrap"><table class="network-table"><thead><tr><th>BI-Nummer</th><th>Sponsor</th><th>Gekaufte Units</th><th>Verbrauchte Kauf-Units</th><th>Erwartete Referral Units</th><th>Freigegebene Referral Units</th></tr></thead><tbody>${rows}</tbody></table></div></div></article>`}
 function toggleLevel(level){document.getElementById("levelCard"+level)?.classList.toggle("open")}
 function renderNetworkPayload(data){const summaries=[];let html="";for(let level=1;level<=3;level++){const partners=normalizePartnerArray(data,level),summary=getLevelSummaryValues(level,data,partners);summaries.push(summary);document.getElementById("networkLevel"+level).innerText=formatNumber(summary.partnerCount);html+=renderLevelCard(level,partners,summary)}document.getElementById("levelList").innerHTML=html;const calculatedPending=summaries.reduce((s,x)=>s+x.expected,0),calculatedReleased=summaries.reduce((s,x)=>s+x.released,0),pending=optionalNumber(firstDefined(data,["ref_noch_nicht_freigegeben","ref_gesamt_erwartet","ref_erwartet_gesamt","pending_ref_units"],null))??calculatedPending,all=optionalNumber(firstDefined(data,["ref_units_insgesamt","ref_gesamt_insgesamt","referral_units_total","total_ref_units"],null))??(pending+calculatedReleased);document.getElementById("referralAllUnits").innerText=formatNumber(all);document.getElementById("referralPendingUnits").innerText=formatNumber(pending);setReferralLinks(data)}
-async function fetchNetworkPayload(){const id=String(currentProfileData.dashboardToken||"").trim();if(!id)throw new Error("dashboard_token fehlt.");const r=await fetch(EMPFEHLUNGEN_WEBHOOK_URL+"?id="+encodeURIComponent(id),{cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);return await r.json()}
+async function fetchNetworkPayload(){const id=getConfirmedDashboardToken();if(!id)throw new Error("dashboard_token fehlt.");const r=await fetch(EMPFEHLUNGEN_WEBHOOK_URL+"?id="+encodeURIComponent(id),{cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);return await r.json()}
 async function refreshNetworkData(showFeedback=false,sourceButton=null){const status=document.getElementById("referralStatus"),old=sourceButton?.innerText;if(sourceButton&&showFeedback){sourceButton.disabled=true;sourceButton.innerText="⏳ Lädt..."}try{status.innerText="Empfehlungsdaten werden geladen...";const data=await fetchNetworkPayload();renderNetworkPayload(data);status.innerText="Empfehlungsübersicht und Strukturdetails wurden erfolgreich geladen.";if(sourceButton)sourceButton.innerText="✅ Aktualisiert"}catch(e){console.error(e);status.innerText="Die Empfehlungsdaten konnten nicht geladen werden. Bitte versuche es erneut.";if(sourceButton)sourceButton.innerText="❌ Fehler"}finally{if(sourceButton)setTimeout(()=>{sourceButton.disabled=false;sourceButton.innerText=old},1800)}}
 function prepareNetworkSection(){document.getElementById("referralSection").style.display="block";setReferralLinks({});document.getElementById("levelList").innerHTML="";document.getElementById("networkLevel1").innerText="–";document.getElementById("networkLevel2").innerText="–";document.getElementById("networkLevel3").innerText="–";document.getElementById("referralAllUnits").innerText="0";document.getElementById("referralPendingUnits").innerText="0"}
 function isValidEmailAddress(email){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email||"").trim())}
@@ -1202,8 +1210,8 @@ function extractTokenFromInput(value){const clean=String(value||"").trim();if(!c
 function openReceivedProfileLink(){const token=extractTokenFromInput(document.getElementById("receivedProfileLink").value);if(!token){document.getElementById("receivedLinkMessage").innerText="Bitte Profil-Link oder Zugangscode eintragen.";return}saveToken(token);location.href="https://betinsightclub.github.io/profil/?token="+encodeURIComponent(token)+preserveSupportedHash()}
 function goBuyUnits(){const token=getActiveToken();if(token)location.href="https://betinsightclub.github.io/profil/kaufen/?token="+encodeURIComponent(token)}
 function goTipps(){const token=getActiveToken();if(token)location.href="https://betinsightclub.github.io/profil/tipps/?token="+encodeURIComponent(token)}
-function goFreigeschaltet(){const dashboardToken=String(currentProfileData.dashboardToken||"").trim();if(dashboardToken){location.href="https://betinsightclub.github.io/profil/freigeschaltet/?token="+encodeURIComponent(dashboardToken);return}const msg=document.getElementById("message");if(msg)msg.innerText="Freigeschaltete Tipps konnten noch nicht geöffnet werden, weil der persönliche Dashboard-Zugang fehlt."}
-function goUnitExchange(){const dashboardToken=String(currentProfileData.dashboardToken||"").trim();if(dashboardToken){location.href="https://betinsightclub.github.io/profil/wechselboerse/?token="+encodeURIComponent(dashboardToken);return}const msg=document.getElementById("message");if(msg)msg.innerText="Die Unit-Wechselstube konnte noch nicht geöffnet werden, weil der persönliche Dashboard-Zugang fehlt."}
+function goFreigeschaltet(){const dashboardToken=getConfirmedDashboardToken();if(dashboardToken){location.href="https://betinsightclub.github.io/profil/freigeschaltet/?token="+encodeURIComponent(dashboardToken);return}const msg=document.getElementById("message");if(msg)msg.innerText="Freigeschaltete Tipps konnten noch nicht geöffnet werden, weil der persönliche Dashboard-Zugang fehlt."}
+function goUnitExchange(){const dashboardToken=getConfirmedDashboardToken();if(dashboardToken){location.href="https://betinsightclub.github.io/profil/wechselboerse/?token="+encodeURIComponent(dashboardToken);return}const msg=document.getElementById("message");if(msg)msg.innerText="Die Unit-Wechselstube konnte noch nicht geöffnet werden, weil der persönliche Dashboard-Zugang fehlt."}
 function goMarketingCenter(){const token=getActiveToken();const base="https://betinsightclub.github.io/profil/marketing-center/";location.href=token?base+"?token="+encodeURIComponent(token):base}
 function goSupport(){location.href="https://betinsightclub.github.io/profil/support/"}
 function goBackoffice(){location.href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726"}
