@@ -1,10 +1,32 @@
 <!DOCTYPE html>
+<!--
+GitHub-Ziel: betinsightclub/profil/admin-tipps/index.html
+Live-Seite: https://betinsightclub.github.io/profil/admin-tipps/
+
+Projekt: BetInsight
+Version: 2026.08.21-02
+Stand: 21.08.2026
+
+GEÄNDERT:
+- Alten separaten Login vollständig entfernt.
+- Keine alten Kurz-Codes mehr im HTML.
+- Zugriff nur noch über die zentrale sichere Admin-Session aus /profil/admin/.
+- Session wird vor Anzeige der Tippmaske serverseitig über den bestehenden Auth-Webhook geprüft.
+- Bei fehlender/abgelaufener Session erfolgt Rückleitung zum zentralen Admin Center.
+- Bei temporärem Netzwerk-/Serverfehler bleibt die vorhandene Session erhalten; Zugriff bleibt gesperrt bis zur erneuten Prüfung.
+- Adminname und Rolle werden ausschließlich aus der verifizierten Session übernommen.
+- Logout beendet die zentrale Admin-Session und führt zurück zum Admin Center.
+- Bestehende Tippmaske, Vorschau und Make-Speicherwebhook bleiben erhalten.
+- Logo und Favicon unverändert.
+-->
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BetInsight Admin Center</title>
+  <meta name="theme-color" content="#061d2a">
+  <meta name="application-version" content="2.0.0">
+  <title>BetInsight – Tippbereich</title>
 
   <style>
     * { box-sizing: border-box; }
@@ -14,11 +36,15 @@
       min-height: 100vh;
       background: radial-gradient(circle at top, #0b3b55 0%, #061d2a 45%, #031018 100%);
       color: #ffffff;
-      font-family: Arial, sans-serif;
-      padding: 28px 16px;
+      font-family: Arial, Helvetica, sans-serif;
+      padding: 28px 16px 48px;
     }
 
+    button, input, select, textarea, a { font: inherit; }
+    button, a, select { -webkit-tap-highlight-color: transparent; }
+
     .page {
+      width: 100%;
       max-width: 1050px;
       margin: 0 auto;
       text-align: center;
@@ -41,17 +67,8 @@
       margin: 0 auto 22px;
     }
 
-    .login-card { max-width: 460px; }
-
-    h1 {
-      margin: 0 0 10px;
-      font-size: 30px;
-    }
-
-    h2 {
-      margin: 0 0 18px;
-      font-size: 24px;
-    }
+    h1 { margin: 0 0 10px; font-size: 30px; }
+    h2 { margin: 0 0 18px; font-size: 24px; }
 
     .subtitle {
       color: #b9d8e8;
@@ -59,82 +76,36 @@
       margin-bottom: 24px;
     }
 
-    label {
-      display: block;
-      text-align: left;
-      margin-bottom: 8px;
-      color: #d8eef8;
-      font-weight: bold;
+    .hidden { display: none !important; }
+
+    .auth-card {
+      max-width: 560px;
+      padding: 34px 28px;
     }
 
-    input, select, textarea {
-      width: 100%;
-      padding: 14px 15px;
-      border-radius: 12px;
-      border: 1px solid rgba(0, 218, 255, 0.35);
-      background: #061d2a;
-      color: #ffffff;
-      font-size: 16px;
-      outline: none;
-      font-family: Arial, sans-serif;
+    .auth-spinner {
+      width: 42px;
+      height: 42px;
+      margin: 0 auto 18px;
+      border: 4px solid rgba(185, 216, 232, 0.22);
+      border-top-color: #16a8f5;
+      border-radius: 50%;
+      animation: spin 0.85s linear infinite;
     }
 
-    textarea {
-      min-height: 150px;
-      resize: vertical;
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .auth-message {
+      color: #b9d8e8;
+      line-height: 1.55;
+      margin: 0;
+    }
+
+    .auth-error {
+      color: #ff9da3;
+      margin-top: 14px;
       line-height: 1.5;
     }
-
-    input:focus, select:focus, textarea:focus {
-      border-color: #16a8f5;
-      box-shadow: 0 0 0 3px rgba(22, 168, 245, 0.16);
-    }
-
-    input:disabled, button:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-    }
-
-    .admin-code-input {
-      text-align: center;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
-    .btn {
-      width: 100%;
-      border: none;
-      border-radius: 999px;
-      padding: 14px 22px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 16px;
-      color: #ffffff;
-      background: #16a8f5;
-    }
-
-    .btn:hover { background: #0797df; }
-
-    .btn-secondary {
-      background: transparent;
-      border: 1px solid rgba(0, 218, 255, 0.4);
-      color: #d8eef8;
-    }
-
-    .btn-secondary:hover { background: rgba(0, 218, 255, 0.1); }
-
-    .message {
-      margin-top: 15px;
-      font-size: 14px;
-      color: #ffcc66;
-      min-height: 20px;
-      line-height: 1.4;
-    }
-
-    .error-message { color: #ff8f8f; }
-    .success-message { color: #7dffb2; }
-    .hidden { display: none; }
 
     .dashboard-header {
       display: flex;
@@ -146,16 +117,71 @@
       text-align: left;
     }
 
-    .admin-name {
-      color: #8fe7ff;
-      font-weight: bold;
+    .admin-name { color: #8fe7ff; font-weight: bold; }
+
+    .role-badge {
+      display: inline-flex;
+      align-items: center;
+      margin-left: 7px;
+      padding: 4px 9px;
+      border: 1px solid rgba(0, 212, 138, 0.38);
+      border-radius: 999px;
+      background: rgba(0, 212, 138, 0.10);
+      color: #82f5c8;
+      font-size: 12px;
+      font-weight: 800;
+      vertical-align: middle;
     }
+
+    .top-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn,
+    .link-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      border-radius: 999px;
+      padding: 14px 22px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #ffffff;
+      background: #16a8f5;
+      text-decoration: none;
+      transition: transform .18s ease, filter .18s ease, background .18s ease;
+    }
+
+    .btn:hover, .link-btn:hover,
+    .btn:focus-visible, .link-btn:focus-visible {
+      transform: translateY(-2px);
+      filter: brightness(1.06);
+      outline: none;
+    }
+
+    .btn-secondary,
+    .link-btn {
+      background: transparent;
+      border: 1px solid rgba(0, 218, 255, 0.4);
+      color: #d8eef8;
+    }
+
+    .btn-secondary:hover, .link-btn:hover { background: rgba(0, 218, 255, 0.10); }
 
     .small-btn {
       width: auto;
       margin: 0;
       padding: 10px 18px;
       font-size: 14px;
+    }
+
+    .logout-btn {
+      background: linear-gradient(135deg, #e95e68, #9d2f39);
     }
 
     .grid {
@@ -174,22 +200,9 @@
       min-height: 135px;
     }
 
-    .tile-icon {
-      font-size: 28px;
-      margin-bottom: 12px;
-    }
-
-    .tile-title {
-      font-size: 19px;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-
-    .tile-text {
-      color: #b9d8e8;
-      line-height: 1.45;
-      font-size: 14px;
-    }
+    .tile-icon { font-size: 28px; margin-bottom: 12px; }
+    .tile-title { font-size: 19px; font-weight: bold; margin-bottom: 8px; }
+    .tile-text { color: #b9d8e8; line-height: 1.45; font-size: 14px; }
 
     .notice {
       margin-top: 22px;
@@ -202,10 +215,7 @@
       text-align: left;
     }
 
-    .form-card {
-      text-align: left;
-      margin-top: 22px;
-    }
+    .form-card { text-align: left; margin-top: 22px; }
 
     .form-grid {
       display: grid;
@@ -215,12 +225,64 @@
 
     .form-group.full { grid-column: 1 / -1; }
 
+    label {
+      display: block;
+      text-align: left;
+      margin-bottom: 8px;
+      color: #d8eef8;
+      font-weight: bold;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 14px 15px;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 218, 255, 0.35);
+      background: #061d2a;
+      color: #ffffff;
+      font-size: 16px;
+      outline: none;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    textarea { min-height: 150px; resize: vertical; line-height: 1.5; }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #16a8f5;
+      box-shadow: 0 0 0 3px rgba(22, 168, 245, 0.16);
+    }
+
+    button:disabled, input:disabled, select:disabled, textarea:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
     .hint {
       color: #83b7ca;
       font-size: 13px;
       margin-top: 6px;
       line-height: 1.4;
     }
+
+    .form-actions {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .form-actions .btn { width: 100%; }
+
+    .message {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #ffcc66;
+      min-height: 20px;
+      line-height: 1.4;
+    }
+
+    .error-message { color: #ff8f8f; }
+    .success-message { color: #7dffb2; }
 
     .preview {
       margin-top: 22px;
@@ -246,10 +308,7 @@
       line-height: 1.6;
     }
 
-    .success-box strong {
-      color: #ffffff;
-      font-size: 19px;
-    }
+    .success-box strong { color: #ffffff; font-size: 19px; }
 
     .version {
       margin-top: 18px;
@@ -258,48 +317,49 @@
       text-align: center;
     }
 
-    @media (max-width: 700px) {
-      body { padding: 22px 12px; }
+    @media (max-width: 760px) {
+      body { padding: 22px 12px 38px; }
       .card { padding: 22px; }
       h1 { font-size: 26px; }
-      .dashboard-header {
-        text-align: center;
-        justify-content: center;
-      }
+      .dashboard-header { text-align: center; justify-content: center; }
+      .top-actions { width: 100%; justify-content: center; }
       .form-grid { grid-template-columns: 1fr; }
+      .form-actions { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 
 <body>
-  <div class="page">
-
+  <main class="page">
     <img src="../logo_betisight.club.png" alt="BetInsight Club" class="logo">
 
-    <div id="loginArea" class="card login-card">
-      <h1>🔐 BetInsight Admin</h1>
-      <p class="subtitle">Bitte melde dich mit deinem Admin-Code an.</p>
-
-      <label for="adminCode">Admin-Code</label>
-      <input id="adminCode" class="admin-code-input" type="text" placeholder="Bitte Admin-Code eingeben" autocomplete="off">
-
-      <button id="loginButton" class="btn" onclick="loginAdmin()">Anmelden</button>
-
-      <div id="loginMessage" class="message"></div>
-      <div class="version">BetInsight Admin Center · Version 1.4</div>
-    </div>
+    <section id="authArea" class="card auth-card">
+      <div class="auth-spinner" id="authSpinner" aria-hidden="true"></div>
+      <h1>🔐 Sichere Sitzung wird geprüft</h1>
+      <p class="auth-message" id="authMessage">
+        Der Tippbereich wird erst nach erfolgreicher Prüfung deiner zentralen Admin-Sitzung geöffnet.
+      </p>
+      <div class="auth-error hidden" id="authError"></div>
+      <a class="link-btn hidden" id="backToAdminButton" href="https://betinsightclub.github.io/profil/admin/" style="margin-top:18px;">
+        ← Zum Admin Center
+      </a>
+    </section>
 
     <div id="dashboardArea" class="hidden">
-      <div class="card">
+      <section class="card">
         <div class="dashboard-header">
           <div>
-            <h1>BetInsight Control Center</h1>
+            <h1>BetInsight Tippbereich</h1>
             <p class="subtitle" style="margin:8px 0 0;">
-              Willkommen, <span id="adminName" class="admin-name">Admin</span>.
+              Angemeldet als <span id="adminName" class="admin-name">Admin</span>
+              <span id="roleBadge" class="role-badge">Admin</span>
             </p>
           </div>
 
-          <button class="btn btn-secondary small-btn" onclick="logoutAdmin()">Abmelden</button>
+          <div class="top-actions">
+            <a class="link-btn small-btn" href="https://betinsightclub.github.io/profil/admin/">← Admin Center</a>
+            <button class="btn small-btn logout-btn" type="button" id="logoutButton">Abmelden</button>
+          </div>
         </div>
 
         <div class="grid">
@@ -326,9 +386,9 @@
           <strong>Wichtig:</strong><br>
           Spieldatum und Anpfiff beziehen sich auf das echte Spiel. Die Speicherzeit wird automatisch vom System gesetzt.
         </div>
-      </div>
+      </section>
 
-      <div class="card form-card">
+      <section class="card form-card">
         <h2>➕ Neuen Tipp erfassen</h2>
 
         <div class="form-grid">
@@ -390,187 +450,227 @@
           </div>
         </div>
 
-        <button id="previewButton" class="btn" onclick="prepareTipPreview()">Vorschau prüfen</button>
-        <button id="saveButton" class="btn" onclick="saveTipToMake()">💾 Tipp speichern</button>
-        <button class="btn btn-secondary" onclick="resetTipForm()">Maske leeren</button>
+        <div class="form-actions">
+          <button id="previewButton" class="btn" type="button">Vorschau prüfen</button>
+          <button id="saveButton" class="btn" type="button">💾 Tipp speichern</button>
+          <button id="resetButton" class="btn btn-secondary" type="button">Maske leeren</button>
+        </div>
 
         <div id="formMessage" class="message"></div>
         <div id="previewBox" class="preview hidden"></div>
         <div id="successBox" class="success-box hidden"></div>
 
-        <div class="version">BetInsight Admin Center · Version 1.4</div>
-      </div>
+        <div class="version">BetInsight Tippbereich · Version 2.0 · zentrale Admin-Session</div>
+      </section>
     </div>
-  </div>
+  </main>
 
   <script>
+    "use strict";
+
     const MAKE_WEBHOOK_URL = "https://hook.eu1.make.com/jnj854h9aeg5iqny6prd3owgt4mpcd51";
+    const AUTH_API_URL = "https://hook.eu1.make.com/rfmhuu4fkr9kjsv7o15r2kir8ezbersl";
+    const SESSION_KEY = "betinsight_admin_session_v1";
+    const ADMIN_CENTER_URL = "https://betinsightclub.github.io/profil/admin/";
 
-    const ADMINS = {
-      "4837LUC": { name: "Luciano", role: "owner" },
-      "6152MAR": { name: "Martin", role: "tipster" },
-      "9084FRA": { name: "Frank", role: "tipster" }
-    };
+    let verifiedSession = null;
 
-    const STORAGE_KEY = "betinsight_admin_login";
-    const FAILED_KEY = "betinsight_admin_failed_attempts";
-    const LOCK_KEY = "betinsight_admin_locked_until";
-
-    const MAX_FAILED_ATTEMPTS = 3;
-    const LOCK_TIME_MINUTES = 5;
-
-    const loginArea = document.getElementById("loginArea");
+    const authArea = document.getElementById("authArea");
+    const authSpinner = document.getElementById("authSpinner");
+    const authMessage = document.getElementById("authMessage");
+    const authError = document.getElementById("authError");
+    const backToAdminButton = document.getElementById("backToAdminButton");
     const dashboardArea = document.getElementById("dashboardArea");
-    const adminCodeInput = document.getElementById("adminCode");
-    const loginButton = document.getElementById("loginButton");
-    const loginMessage = document.getElementById("loginMessage");
     const adminName = document.getElementById("adminName");
+    const roleBadge = document.getElementById("roleBadge");
+    const logoutButton = document.getElementById("logoutButton");
     const formMessage = document.getElementById("formMessage");
     const previewBox = document.getElementById("previewBox");
     const successBox = document.getElementById("successBox");
     const saveButton = document.getElementById("saveButton");
+    const previewButton = document.getElementById("previewButton");
+    const resetButton = document.getElementById("resetButton");
 
-    function normalizeCode(code) {
-      return String(code || "").trim().toUpperCase();
+    function bytesToHex(bytes) {
+      return Array.from(bytes, byte => byte.toString(16).padStart(2, "0")).join("");
     }
 
-    function getFailedAttempts() {
-      return Number(localStorage.getItem(FAILED_KEY) || "0");
+    async function sha256Hex(text) {
+      const data = new TextEncoder().encode(String(text || ""));
+      const digest = await crypto.subtle.digest("SHA-256", data);
+      return bytesToHex(new Uint8Array(digest));
     }
 
-    function setFailedAttempts(count) {
-      localStorage.setItem(FAILED_KEY, String(count));
+    function readSession() {
+      try {
+        const raw = sessionStorage.getItem(SESSION_KEY);
+        if (!raw) return null;
+        const session = JSON.parse(raw);
+        return session?.token && session?.adminId ? session : null;
+      } catch (error) {
+        return null;
+      }
     }
 
-    function clearFailedAttempts() {
-      localStorage.removeItem(FAILED_KEY);
-      localStorage.removeItem(LOCK_KEY);
+    function clearSession() {
+      try { sessionStorage.removeItem(SESSION_KEY); } catch (error) {}
     }
 
-    function getLockedUntil() {
-      return Number(localStorage.getItem(LOCK_KEY) || "0");
+    function sessionIsLocallyExpired(session) {
+      const expiresMs = Number(session?.expiresMs || 0);
+      return !expiresMs || Date.now() >= expiresMs;
     }
 
-    function isLocked() {
-      const lockedUntil = getLockedUntil();
-      return lockedUntil && Date.now() < lockedUntil;
+    function isMasterSession(session) {
+      const master = String(session?.master || "").trim().toUpperCase();
+      const role = String(session?.role || "").trim().toUpperCase();
+      return master === "JA" || role === "MASTER";
     }
 
-    function getRemainingLockSeconds() {
-      const lockedUntil = getLockedUntil();
-      const remaining = Math.ceil((lockedUntil - Date.now()) / 1000);
-      return Math.max(0, remaining);
-    }
+    async function authRequest(payload) {
+      let response;
 
-    function formatRemainingTime(seconds) {
-      const minutes = Math.floor(seconds / 60);
-      const restSeconds = seconds % 60;
-
-      if (minutes <= 0) return restSeconds + " Sekunden";
-      return minutes + " Minuten und " + restSeconds + " Sekunden";
-    }
-
-    function lockLogin() {
-      const lockedUntil = Date.now() + LOCK_TIME_MINUTES * 60 * 1000;
-      localStorage.setItem(LOCK_KEY, String(lockedUntil));
-      updateLockState();
-    }
-
-    function updateLockState() {
-      if (!isLocked()) {
-        adminCodeInput.disabled = false;
-        loginButton.disabled = false;
-
-        if (getLockedUntil()) {
-          clearFailedAttempts();
-          loginMessage.textContent = "";
-          loginMessage.classList.remove("error-message");
-        }
-
-        return;
+      try {
+        response = await fetch(AUTH_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          cache: "no-store",
+          credentials: "omit",
+          body: JSON.stringify(payload)
+        });
+      } catch (error) {
+        const networkError = new Error("Die sichere Session-Prüfung ist vorübergehend nicht erreichbar.");
+        networkError.transient = true;
+        throw networkError;
       }
 
-      const remainingSeconds = getRemainingLockSeconds();
+      const raw = await response.text();
+      let data = {};
 
-      adminCodeInput.disabled = true;
-      loginButton.disabled = true;
-      loginMessage.classList.add("error-message");
-      loginMessage.textContent =
-        "Zu viele ungültige Anmeldeversuche. Bitte versuche es in " +
-        formatRemainingTime(remainingSeconds) +
-        " erneut.";
-    }
-
-    function loginAdmin() {
-      updateLockState();
-      if (isLocked()) return;
-
-      const code = normalizeCode(adminCodeInput.value);
-
-      if (!code) {
-        loginMessage.classList.remove("error-message");
-        loginMessage.textContent = "Bitte Admin-Code eingeben.";
-        adminCodeInput.focus();
-        return;
+      try {
+        data = raw ? JSON.parse(raw) : {};
+      } catch (error) {
+        const parseError = new Error("Der Auth-Server hat keine gültige Antwort geliefert.");
+        parseError.transient = true;
+        throw parseError;
       }
 
-      if (!ADMINS[code]) {
-        const failedAttempts = getFailedAttempts() + 1;
-        setFailedAttempts(failedAttempts);
-        adminCodeInput.value = "";
-
-        if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
-          lockLogin();
-          return;
-        }
-
-        loginMessage.classList.add("error-message");
-        loginMessage.textContent =
-          "Admin-Code nicht erkannt. Verbleibende Versuche: " +
-          (MAX_FAILED_ATTEMPTS - failedAttempts) +
-          ".";
-        adminCodeInput.focus();
-        return;
+      if (!response.ok || data?.ok !== true) {
+        const authError = new Error(data?.message || data?.error || "Admin-Sitzung wurde abgelehnt.");
+        authError.httpStatus = response.status;
+        authError.code = String(data?.code || data?.error_code || data?.error || "AUTH_REJECTED").toUpperCase();
+        authError.transient = response.status >= 500 || response.status === 429;
+        throw authError;
       }
 
-      clearFailedAttempts();
-      localStorage.setItem(STORAGE_KEY, code);
-      showDashboard(code);
-    }
-
-    function showDashboard(code) {
-      const admin = ADMINS[code];
-
-      if (!admin) {
-        localStorage.removeItem(STORAGE_KEY);
-        showLogin();
-        return;
+      if (data.session_valid !== undefined && String(data.session_valid).toUpperCase() !== "JA") {
+        const invalidSessionError = new Error(data?.message || "Admin-Sitzung ist nicht mehr gültig.");
+        invalidSessionError.httpStatus = 401;
+        invalidSessionError.code = "INVALID_SESSION";
+        invalidSessionError.transient = false;
+        throw invalidSessionError;
       }
 
-      adminName.textContent = admin.name;
-      loginArea.classList.add("hidden");
-      dashboardArea.classList.remove("hidden");
-      loginMessage.textContent = "";
-      loginMessage.classList.remove("error-message");
-      adminCodeInput.value = "";
+      return data;
     }
 
-    function showLogin() {
+    function isDefinitiveSessionFailure(error) {
+      const status = Number(error?.httpStatus || 0);
+      const code = String(error?.code || "").toUpperCase();
+      if (status === 401 || status === 403) return true;
+      return ["INVALID_SESSION", "SESSION_EXPIRED", "SESSION_NOT_FOUND", "UNAUTHORIZED", "FORBIDDEN"]
+        .some(value => code.includes(value));
+    }
+
+    function showAuthError(message, allowRetry = true) {
+      authSpinner.classList.add("hidden");
+      authMessage.textContent = message;
+      authError.textContent = allowRetry
+        ? "Bitte lade die Seite erneut. Deine bestehende Sitzung wurde nicht gelöscht."
+        : "Bitte melde dich im zentralen Admin Center erneut an.";
+      authError.classList.remove("hidden");
+      backToAdminButton.classList.remove("hidden");
       dashboardArea.classList.add("hidden");
-      loginArea.classList.remove("hidden");
-      updateLockState();
-
-      if (!isLocked()) adminCodeInput.focus();
+      authArea.classList.remove("hidden");
     }
 
-    function logoutAdmin() {
-      localStorage.removeItem(STORAGE_KEY);
-      showLogin();
+    function showDashboard(session) {
+      verifiedSession = session;
+      adminName.textContent = session.name || "Admin";
+      roleBadge.textContent = isMasterSession(session) ? "Master-Admin" : "Admin";
+      authArea.classList.add("hidden");
+      dashboardArea.classList.remove("hidden");
+    }
+
+    async function verifyStoredSession() {
+      const session = readSession();
+
+      if (!session) {
+        window.location.replace(ADMIN_CENTER_URL);
+        return;
+      }
+
+      if (sessionIsLocallyExpired(session)) {
+        clearSession();
+        window.location.replace(ADMIN_CENTER_URL);
+        return;
+      }
+
+      try {
+        const sessionHash = await sha256Hex(session.token);
+        const result = await authRequest({ action: "verify", session_hash: sessionHash });
+
+        const verified = {
+          token: session.token,
+          expiresMs: Number(result.expires_ms || session.expiresMs || 0),
+          adminId: String(result.admin_id || session.adminId || ""),
+          name: String(result.name || session.name || "Admin"),
+          role: String(result.role || session.role || "ADMIN"),
+          master: String(result.master || session.master || "NEIN")
+        };
+
+        if (!verified.adminId || !verified.expiresMs) {
+          throw new Error("Die geprüfte Admin-Sitzung ist unvollständig.");
+        }
+
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify(verified));
+        showDashboard(verified);
+      } catch (error) {
+        console.error("Admin-Session-Prüfung fehlgeschlagen:", error);
+
+        if (isDefinitiveSessionFailure(error)) {
+          clearSession();
+          showAuthError("Deine Admin-Sitzung ist abgelaufen oder ungültig.", false);
+        } else {
+          showAuthError(error?.message || "Die sichere Session-Prüfung ist vorübergehend nicht möglich.", true);
+        }
+      }
+    }
+
+    async function logoutAdmin() {
+      const session = readSession();
+      clearSession();
+      verifiedSession = null;
+
+      if (session?.token) {
+        try {
+          const sessionHash = await sha256Hex(session.token);
+          await authRequest({ action: "logout", session_hash: sessionHash });
+        } catch (error) {
+          // Die lokale Abmeldung bleibt wirksam.
+        }
+      }
+
+      window.location.replace(ADMIN_CENTER_URL);
     }
 
     function getCurrentAdmin() {
-      const code = localStorage.getItem(STORAGE_KEY);
-      return ADMINS[code] || null;
+      if (!verifiedSession) return null;
+      return {
+        adminId: String(verifiedSession.adminId || ""),
+        name: String(verifiedSession.name || "Admin"),
+        role: isMasterSession(verifiedSession) ? "owner" : "tipster"
+      };
     }
 
     function getValue(id) {
@@ -628,15 +728,16 @@
     }
 
     function createCreatedAt() {
-      const now = new Date();
-      return now.toLocaleString("de-DE");
+      return new Date().toLocaleString("de-DE");
     }
 
     function collectTipData() {
       const admin = getCurrentAdmin();
 
+      if (!admin) throw new Error("Keine verifizierte Admin-Sitzung vorhanden.");
+
       return {
-        tipp_id: createTippId(admin ? admin.name : "Admin"),
+        tipp_id: createTippId(admin.name),
         spiel: getValue("spiel"),
         liga: getValue("liga"),
         markt: getValue("markt"),
@@ -644,7 +745,8 @@
         quote: getValue("quote"),
         preis_units: Number(getValue("preisUnits")),
         status: "entwurf",
-        ersteller: admin ? admin.name : "Unbekannt",
+        ersteller: admin.name,
+        admin_id: admin.adminId,
         spiel_datum: formatDateGerman(getValue("spielDatum")),
         anpfiff: getValue("anpfiff"),
         analyse: getValue("analyse"),
@@ -659,6 +761,12 @@
       successBox.classList.add("hidden");
       previewBox.textContent = "";
       successBox.textContent = "";
+
+      if (!verifiedSession) {
+        formMessage.classList.add("error-message");
+        formMessage.textContent = "Deine Admin-Sitzung ist nicht verifiziert. Bitte über das Admin Center neu öffnen.";
+        return false;
+      }
 
       const validationError = validateTipForm();
 
@@ -684,14 +792,36 @@
         "Spieldatum: " + escapeHtml(tip.spiel_datum) + "<br>" +
         "Anpfiff: " + escapeHtml(tip.anpfiff) + "<br>" +
         "Erstellt am: " + escapeHtml(tip.erstellt_am) + "<br><br>" +
-        "<strong>Analyse:</strong><br>" +
-        escapeHtml(tip.analyse);
+        "<strong>Analyse:</strong><br>" + escapeHtml(tip.analyse);
 
       previewBox.classList.remove("hidden");
       formMessage.classList.add("success-message");
       formMessage.textContent = "Vorschau erstellt. Du kannst den Tipp jetzt speichern.";
-
       return true;
+    }
+
+    async function verifyBeforeSave() {
+      const session = readSession();
+      if (!session || sessionIsLocallyExpired(session)) {
+        clearSession();
+        verifiedSession = null;
+        throw new Error("Deine Admin-Sitzung ist abgelaufen. Bitte erneut anmelden.");
+      }
+
+      const sessionHash = await sha256Hex(session.token);
+      const result = await authRequest({ action: "verify", session_hash: sessionHash });
+
+      verifiedSession = {
+        token: session.token,
+        expiresMs: Number(result.expires_ms || session.expiresMs || 0),
+        adminId: String(result.admin_id || session.adminId || ""),
+        name: String(result.name || session.name || "Admin"),
+        role: String(result.role || session.role || "ADMIN"),
+        master: String(result.master || session.master || "NEIN")
+      };
+
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(verifiedSession));
+      return sessionHash;
     }
 
     async function saveTipToMake() {
@@ -701,16 +831,26 @@
       const isValid = prepareTipPreview();
       if (!isValid) return;
 
-      const tip = collectTipData();
-
       saveButton.disabled = true;
+      previewButton.disabled = true;
+      resetButton.disabled = true;
       saveButton.textContent = "Speichern läuft ...";
 
       try {
+        const sessionHash = await verifyBeforeSave();
+        const tip = collectTipData();
+
+        const payload = {
+          ...tip,
+          admin_session_hash: sessionHash
+        };
+
         const response = await fetch(MAKE_WEBHOOK_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(tip)
+          cache: "no-store",
+          credentials: "omit",
+          body: JSON.stringify(payload)
         });
 
         if (!response.ok) {
@@ -726,16 +866,22 @@
           "Status: <strong>ENTWURF</strong>";
 
         successBox.classList.remove("hidden");
-
         formMessage.classList.add("success-message");
         formMessage.textContent = "Gespeichert. Du kannst jetzt einen weiteren Tipp erfassen.";
-
       } catch (error) {
+        console.error("Tipp speichern fehlgeschlagen:", error);
         formMessage.classList.add("error-message");
-        formMessage.textContent =
-          "❌ Fehler beim Speichern. Bitte Make-Szenario prüfen oder später erneut versuchen.";
+        formMessage.textContent = "❌ " + (error?.message || "Fehler beim Speichern. Bitte später erneut versuchen.");
+
+        if (isDefinitiveSessionFailure(error) || sessionIsLocallyExpired(readSession())) {
+          clearSession();
+          verifiedSession = null;
+          setTimeout(() => window.location.replace(ADMIN_CENTER_URL), 1600);
+        }
       } finally {
         saveButton.disabled = false;
+        previewButton.disabled = false;
+        resetButton.disabled = false;
         saveButton.textContent = "💾 Tipp speichern";
       }
     }
@@ -771,21 +917,12 @@
         .replaceAll("'", "&#039;");
     }
 
-    adminCodeInput.addEventListener("keydown", function(event) {
-      if (event.key === "Enter") loginAdmin();
-    });
+    previewButton.addEventListener("click", prepareTipPreview);
+    saveButton.addEventListener("click", saveTipToMake);
+    resetButton.addEventListener("click", () => resetTipForm(true));
+    logoutButton.addEventListener("click", logoutAdmin);
 
-    window.addEventListener("load", function() {
-      const savedCode = localStorage.getItem(STORAGE_KEY);
-
-      if (savedCode && ADMINS[savedCode]) {
-        showDashboard(savedCode);
-      } else {
-        showLogin();
-      }
-
-      setInterval(updateLockState, 1000);
-    });
+    verifyStoredSession();
   </script>
 </body>
 </html>
