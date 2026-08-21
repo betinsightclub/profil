@@ -1,0 +1,94 @@
+name: BetInsight token compatibility profile v05
+
+on:
+  push:
+    paths:
+      - '.github/workflows/bi-token-compat-profile-v05.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-profile:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Patch profil index safely
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          old_version = 'Version: 2026.08.21-04'
+          if old_version not in s:
+              raise SystemExit('STOP: expected profile version v04 not found')
+          s = s.replace(old_version, 'Version: 2026.08.21-05', 1)
+
+          marker = 'Änderungen:\n'
+          note = '- TOKEN-KOMPATIBILITÄT 2026.08.21-05:\n  - Wechselstube verwendet nach erfolgreichem Profilabruf bevorzugt den bestätigten dashboard_token.\n  - Alter Profilzugang bleibt gültig; #wechselboerse wird als sicherer Deep-Link unterstützt.\n  - Bestehende Tokenlogik für Tipps, Kaufen, Freigeschaltet, Support und Wallet bleibt unverändert.\n'
+          if note not in s:
+              if marker not in s:
+                  raise SystemExit('STOP: change-log marker not found')
+              s = s.replace(marker, marker + note, 1)
+
+          old_hash = 'return ["premium","netzwerk","wallet","tipps","kaufen","freigeschaltet"].includes(hash)?"#"+hash:"";'
+          new_hash = 'return ["premium","netzwerk","wallet","tipps","kaufen","freigeschaltet","wechselboerse"].includes(hash)?"#"+hash:"";'
+          if old_hash not in s:
+              raise SystemExit('STOP: preserveSupportedHash v04 snippet not found')
+          s = s.replace(old_hash, new_hash, 1)
+
+          wallet_marker = '  if(target==="wallet"){\n'
+          exchange_block = '''  if(target==="wechselboerse"){
+    const dashboardToken=String(currentProfileData.dashboardToken||"").trim();
+    if(!dashboardToken){
+      const msg=document.getElementById("message");
+      if(msg)msg.innerText="Die Unit-Wechselstube konnte noch nicht geöffnet werden, weil der bestätigte Dashboard-Zugang nicht verfügbar ist.";
+      return;
+    }
+    deepLinkHandled=true;
+    location.replace("https://betinsightclub.github.io/profil/wechselboerse/?token="+encodeURIComponent(dashboardToken));
+    return;
+  }
+
+'''
+          if exchange_block not in s:
+              if wallet_marker not in s:
+                  raise SystemExit('STOP: wallet deep-link marker not found')
+              s = s.replace(wallet_marker, exchange_block + wallet_marker, 1)
+
+          old_go = 'function goUnitExchange(){const token=getActiveToken();if(token)location.href="https://betinsightclub.github.io/profil/wechselboerse/?token="+encodeURIComponent(token)}'
+          new_go = '''function goUnitExchange(){
+  const dashboardToken=String(currentProfileData.dashboardToken||"").trim();
+  if(dashboardToken){
+    location.href="https://betinsightclub.github.io/profil/wechselboerse/?token="+encodeURIComponent(dashboardToken);
+    return;
+  }
+  const token=String(getActiveToken()||"").trim();
+  if(token)location.href="https://betinsightclub.github.io/profil/?token="+encodeURIComponent(token)+"#wechselboerse";
+}'''
+          if old_go not in s:
+              raise SystemExit('STOP: goUnitExchange v04 snippet not found')
+          s = s.replace(old_go, new_go, 1)
+
+          p.write_text(s, encoding='utf-8')
+          print('Profile token compatibility patch applied safely.')
+          PY
+
+      - name: Commit profile v05
+        shell: bash
+        run: |
+          git config user.name "betinsightclub-bot"
+          git config user.email "betinsight.club@gmail.com"
+          git add index.html
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "Fix profile Wechselstube dashboard token compatibility v05"
+          git push
