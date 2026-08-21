@@ -5,9 +5,13 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.18-01
+Version: 2026.08.21-01
 
 Änderungen:
+- MARKETING-CENTER 2026.08.21-01:
+  - Neuer vierter Button „📣 Marketing-Center“ im Bereich „Struktur und Umsätze“.
+  - Der vorhandene Profil-Token wird beim Öffnen des Marketing-Centers automatisch mitgegeben.
+  - Bestehende Profil-, Support-, Premium-, Referral-, Netzwerk- und Umbuchungslogik bleibt unverändert.
 - SUPPORT-INTEGRATION 2026.08.18-01:
   - Neuer fester Button „🛟 Support & Tickets“ im normalen Profil.
   - Rote Zahl zeigt die Summe ungelesener Support-Antworten.
@@ -409,9 +413,7 @@ button{border:0}
   background:linear-gradient(105deg,#0b6fae,#1297c9);
   box-shadow:0 12px 28px rgba(18,151,201,.16);
 }
-.support-button:hover{
-  filter:brightness(1.06);
-}
+.support-button:hover{filter:brightness(1.06)}
 .support-unread-badge{
   position:absolute;
   top:50%;
@@ -457,157 +459,45 @@ button,.btn-link{
 .btn-red{background:linear-gradient(105deg,#a83b3b,#c94a4a)}
 .btn-gray{background:linear-gradient(105deg,#627f92,#7894a6)}
 
-.security-box{
-  padding-top:12px;
-  border-top:1px solid rgba(255,255,255,.09);
-}
-
-.small-warning{
-  margin:0 0 10px;
-  color:#ffcf33;
-  font-size:11px;
-  line-height:1.45;
-  text-align:center;
-}
-
-.private-row-hidden,.private-token-hidden,.private-value-hidden{
-  position:relative;
-  overflow:hidden;
-}
-
-.private-row-hidden::after{
-  content:"E-Mail geschützt";
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  padding:11px 13px;
-  background:#04141d;
-  color:#fff;
-  font-weight:900;
-}
-
+.security-box{padding-top:12px;border-top:1px solid rgba(255,255,255,.09)}
+.small-warning{margin:0 0 10px;color:#ffcf33;font-size:11px;line-height:1.45;text-align:center}
+.private-row-hidden,.private-token-hidden,.private-value-hidden{position:relative;overflow:hidden}
+.private-row-hidden::after{content:"E-Mail geschützt";position:absolute;inset:0;display:flex;align-items:center;padding:11px 13px;background:#04141d;color:#fff;font-weight:900}
 .private-token-hidden,.private-value-hidden{color:transparent!important;user-select:none}
-.private-token-hidden::after,.private-value-hidden::after{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#fff;
-  font-size:12px;
-  font-weight:900;
-}
+.private-token-hidden::after,.private-value-hidden::after{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:900}
 .private-token-hidden::after{content:"Persönlicher Zugang geschützt"}
 .private-value-hidden::after{content:"Geschützt"}
 
-.referral-overview{
-  display:grid;
-  grid-template-columns:minmax(250px,1.18fr) minmax(190px,.91fr) minmax(190px,.91fr);
-  gap:14px;
-}
-
-.referral-stat{
-  position:relative;
-  min-height:168px;
-  padding:17px;
-  border:1px solid rgba(118,194,224,.13);
-  border-radius:17px;
-  background:linear-gradient(145deg,rgba(3,27,39,.76),rgba(13,54,68,.58));
-}
-
+.referral-overview{display:grid;grid-template-columns:minmax(250px,1.18fr) minmax(190px,.91fr) minmax(190px,.91fr);gap:14px}
+.referral-stat{position:relative;min-height:168px;padding:17px;border:1px solid rgba(118,194,224,.13);border-radius:17px;background:linear-gradient(145deg,rgba(3,27,39,.76),rgba(13,54,68,.58))}
 .referral-stat-label{color:#8bc1d7;font-size:12px;font-weight:800}
-
 .network-levels{display:grid;gap:7px;margin-top:13px}
 .network-level-line{display:flex;justify-content:space-between;color:var(--soft);font-size:14px}
 .network-level-line strong{color:#fff}
-
-.referral-stat-value{
-  margin-top:17px;
-  font-size:36px;
-  font-weight:900;
-}
-
+.referral-stat-value{margin-top:17px;font-size:36px;font-weight:900}
 .referral-stat-note{margin-top:8px;color:var(--muted);font-size:11px}
-
 .referral-link-group{display:grid;gap:12px;margin-top:16px}
 .referral-link-heading{margin-bottom:7px;color:var(--soft);font-size:12px;font-weight:900}
-.referral-link-row{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
-  gap:10px;
-  padding:10px;
-  border:1px solid rgba(112,190,220,.13);
-  border-radius:16px;
-  background:rgba(2,18,27,.44);
-}
-.referral-linkbox{
-  min-height:46px;
-  padding:13px 14px;
-  border-radius:11px;
-  background:rgba(0,0,0,.24);
-  color:#fff;
-  font-size:13px;
-  line-height:1.45;
-  word-break:break-all;
-}
+.referral-link-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:10px;border:1px solid rgba(112,190,220,.13);border-radius:16px;background:rgba(2,18,27,.44)}
+.referral-linkbox{min-height:46px;padding:13px 14px;border-radius:11px;background:rgba(0,0,0,.24);color:#fff;font-size:13px;line-height:1.45;word-break:break-all}
 .referral-link-row button{width:auto;min-width:205px}
 
 .structure-panel{margin-top:24px}
-.structure-hint{
-  padding:8px 11px;
-  border:1px solid rgba(14,220,166,.20);
-  border-radius:999px;
-  background:rgba(14,220,166,.07);
-  color:#8ce9cf;
-  font-size:11px;
-  font-weight:800;
-}
-
+.structure-hint{padding:8px 11px;border:1px solid rgba(14,220,166,.20);border-radius:999px;background:rgba(14,220,166,.07);color:#8ce9cf;font-size:11px;font-weight:800}
 .level-list{display:grid;gap:14px}
-.level-card{
-  overflow:hidden;
-  border:1px solid rgba(14,220,166,.20);
-  border-radius:17px;
-  background:linear-gradient(145deg,rgba(3,29,41,.88),rgba(4,39,48,.72));
-}
-.level-head{
-  display:grid;
-  grid-template-columns:auto minmax(180px,1.2fr) repeat(4,minmax(90px,.7fr)) auto;
-  gap:14px;
-  align-items:center;
-  min-height:66px;
-  padding:14px 16px;
-  cursor:pointer;}
-.level-number{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  width:38px;height:38px;
-  border:1px solid rgba(14,220,166,.30);
-  border-radius:12px;
-  background:linear-gradient(145deg,rgba(14,220,166,.16),rgba(22,156,255,.09));
-  color:var(--green);
-  font-weight:900;
-}
+.level-card{overflow:hidden;border:1px solid rgba(14,220,166,.20);border-radius:17px;background:linear-gradient(145deg,rgba(3,29,41,.88),rgba(4,39,48,.72))}
+.level-head{display:grid;grid-template-columns:auto minmax(180px,1.2fr) repeat(4,minmax(90px,.7fr)) auto;gap:14px;align-items:center;min-height:66px;padding:14px 16px;cursor:pointer}
+.level-number{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border:1px solid rgba(14,220,166,.30);border-radius:12px;background:linear-gradient(145deg,rgba(14,220,166,.16),rgba(22,156,255,.09));color:var(--green);font-weight:900}
 .level-name{font-size:14px;font-weight:900}
 .level-metric{padding-left:10px;border-left:1px solid rgba(255,255,255,.07)}
 .level-metric-label{color:var(--muted);font-size:9px;text-transform:uppercase}
 .level-metric-value{margin-top:5px;font-size:13px;font-weight:900}
-.level-arrow{
-  display:flex;align-items:center;justify-content:center;
-  width:32px;height:32px;border-radius:10px;background:rgba(0,0,0,.18)
-}
+.level-arrow{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:10px;background:rgba(0,0,0,.18)}
 .level-body{display:none;border-top:1px solid rgba(255,255,255,.08)}
 .level-card.open .level-body{display:block}
-
 .table-wrap{width:100%;overflow-x:auto}
 .network-table{width:100%;min-width:880px;border-collapse:collapse}
-.network-table th,.network-table td{
-  padding:13px 12px;
-  border-bottom:1px solid rgba(255,255,255,.07);
-  text-align:left;
-}
+.network-table th,.network-table td{padding:13px 12px;border-bottom:1px solid rgba(255,255,255,.07);text-align:left}
 .network-table th{background:rgba(1,17,25,.72);color:#77b8d2;font-size:9px;text-transform:uppercase}
 .network-table td{font-size:12px}
 .partner-id{color:#3ca8ff;font-weight:900}
@@ -622,724 +512,148 @@ button,.btn-link{
   border-top:1px solid rgba(255,255,255,.065);
 }
 
-.request-header{
-  max-width:780px;
-  margin:0 auto 20px;
-  text-align:center;
-}
+.request-header{max-width:780px;margin:0 auto 20px;text-align:center}
 .request-header h2{margin:0 0 8px}
 .request-header p{color:var(--muted)}
 .request-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-input{
-  width:100%;
-  min-height:47px;
-  padding:12px 14px;
-  border:2px solid var(--blue);
-  border-radius:10px;
-  background:#fff;
-  color:#17242c;
-  text-align:center;
-}
+input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);border-radius:10px;background:#fff;color:#17242c;text-align:center}
 .request-panel input{margin:10px 0}
 .request-actions{display:grid;gap:10px}
 .footer{margin-top:28px;color:rgba(255,255,255,.40);font-size:12px;text-align:center}
 .debug{display:none}
 
-@media(max-width:980px){
-  .profile-grid{grid-template-columns:1fr}
-  .referral-overview{grid-template-columns:1fr}
-  .level-head{grid-template-columns:auto 1fr auto}
-  .level-metric{display:none}
-}
+@media(max-width:980px){.profile-grid{grid-template-columns:1fr}.referral-overview{grid-template-columns:1fr}.level-head{grid-template-columns:auto 1fr auto}.level-metric{display:none}}
+@media(max-width:760px){.page{padding:16px 14px 104px}.dashboard-header{grid-template-columns:auto 1fr}.header-balance{grid-column:1/-1}.request-grid{grid-template-columns:1fr}.referral-footer-actions{grid-template-columns:1fr}.referral-link-row{grid-template-columns:1fr}.referral-link-row button{width:100%}.structure-hint{display:none}}
+@media(max-width:600px){.dashboard-header{display:block;text-align:center}.logo{margin:0 auto 11px}.header-main{display:block}.header-balance{margin-top:13px}.account-stat-grid,.account-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.data-row{grid-template-columns:1fr;gap:4px}.id-line{flex-direction:column;align-items:stretch}.inline-copy-button{width:100%}.floating-back-button{left:50%;bottom:14px;transform:translateX(-50%);max-width:calc(100vw - 28px)}}
+@media(max-width:390px){.account-stat-grid,.account-actions{grid-template-columns:1fr}}
 
-@media(max-width:760px){
-  .page{padding:16px 14px 104px}
-  .dashboard-header{grid-template-columns:auto 1fr}
-  .header-balance{grid-column:1/-1}
-  .request-grid{grid-template-columns:1fr}
-  .referral-footer-actions{grid-template-columns:1fr}
-  .referral-link-row{grid-template-columns:1fr}
-  .referral-link-row button{width:100%}
-  .structure-hint{display:none}
-}
-
-@media(max-width:600px){
-  .dashboard-header{display:block;text-align:center}
-  .logo{margin:0 auto 11px}
-  .header-main{display:block}
-  .header-balance{margin-top:13px}
-  .account-stat-grid,.account-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .data-row{grid-template-columns:1fr;gap:4px}
-  .id-line{flex-direction:column;align-items:stretch}
-  .inline-copy-button{width:100%}
-  .floating-back-button{
-    left:50%;
-    bottom:14px;
-    transform:translateX(-50%);
-    max-width:calc(100vw - 28px);
-  }
-}
-
-@media(max-width:390px){
-  .account-stat-grid,.account-actions{grid-template-columns:1fr}
-}
-
-.membership-card {position:relative}
-
-.membership-value {
-  color:#3ca8ff;
-  font-size:22px;
-  line-height:1.05;
-}
-
-.membership-note {
-  margin-top:8px;
-  color:var(--muted);
-  font-size:11px;
-  line-height:1.35;
-}
-
-.membership-card.membership-premium {border-color:rgba(14,220,166,.30)}
-
-.membership-card.membership-premium .membership-value {
-  color:var(--green);
-  text-shadow:0 0 18px rgba(14,220,166,.18);
-}
-
-.membership-card.membership-premiumplus {
-  border-color:rgba(255,171,46,.32);
-  background:
-    radial-gradient(circle at 100% 0%,rgba(255,171,46,.08),transparent 44%),
-    linear-gradient(145deg,rgba(2,21,31,.74),rgba(13,55,69,.52));
-}
-
-.membership-card.membership-premiumplus .membership-value {
-  color:var(--orange);
-  text-shadow:0 0 18px rgba(255,171,46,.17);
-}
-
+.membership-card{position:relative}
+.membership-value{color:#3ca8ff;font-size:22px;line-height:1.05}
+.membership-note{margin-top:8px;color:var(--muted);font-size:11px;line-height:1.35}
+.membership-card.membership-premium{border-color:rgba(14,220,166,.30)}
+.membership-card.membership-premium .membership-value{color:var(--green);text-shadow:0 0 18px rgba(14,220,166,.18)}
+.membership-card.membership-premiumplus{border-color:rgba(255,171,46,.32);background:radial-gradient(circle at 100% 0%,rgba(255,171,46,.08),transparent 44%),linear-gradient(145deg,rgba(2,21,31,.74),rgba(13,55,69,.52))}
+.membership-card.membership-premiumplus .membership-value{color:var(--orange);text-shadow:0 0 18px rgba(255,171,46,.17)}
 .premium-runtime-box{margin-top:10px}
-
-.premium-countdown{
-  color:var(--soft);
-  font-size:13px;
-  line-height:1.35;
-  font-weight:900;
-}
-
-.premium-progress{
-  width:100%;
-  height:7px;
-  margin-top:9px;
-  overflow:hidden;
-  border-radius:999px;
-  background:rgba(255,255,255,.09);
-}
-
-.premium-progress-bar{
-  width:0%;
-  height:100%;
-  border-radius:inherit;
-  background:linear-gradient(90deg,var(--green),var(--cyan));
-  transition:width .4s ease;
-}
-
-.premium-expiry{
-  margin-top:8px;
-  color:var(--muted);
-  font-size:10px;
-  line-height:1.35;
-}
-
-.premium-runtime-message{
-  margin-top:7px;
-  min-height:14px;
-  color:var(--muted);
-  font-size:10px;
-  line-height:1.35;
-}
-
-.premium-manage-button{
-  margin-top:10px;
-  min-height:36px;
-  padding:8px 10px;
-  border-radius:10px;
-  background:linear-gradient(105deg,#596f82,#748da0);
-  font-size:11px;
-}
-
+.premium-countdown{color:var(--soft);font-size:13px;line-height:1.35;font-weight:900}
+.premium-progress{width:100%;height:7px;margin-top:9px;overflow:hidden;border-radius:999px;background:rgba(255,255,255,.09)}
+.premium-progress-bar{width:0%;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--green),var(--cyan));transition:width .4s ease}
+.premium-expiry{margin-top:8px;color:var(--muted);font-size:10px;line-height:1.35}
+.premium-runtime-message{margin-top:7px;min-height:14px;color:var(--muted);font-size:10px;line-height:1.35}
+.premium-manage-button{margin-top:10px;min-height:36px;padding:8px 10px;border-radius:10px;background:linear-gradient(105deg,#596f82,#748da0);font-size:11px}
 .membership-card.membership-warning{border-color:rgba(255,207,51,.42)}
-.membership-card.membership-warning .premium-countdown,
-.membership-card.membership-warning .premium-runtime-message{color:#ffcf33}
+.membership-card.membership-warning .premium-countdown,.membership-card.membership-warning .premium-runtime-message{color:#ffcf33}
 .membership-card.membership-warning .premium-progress-bar{background:linear-gradient(90deg,#ffcf33,var(--orange))}
-
-.membership-card.membership-grace{
-  border-color:rgba(255,171,46,.55);
-  background:
-    radial-gradient(circle at 100% 0%,rgba(255,171,46,.12),transparent 44%),
-    linear-gradient(145deg,rgba(2,21,31,.74),rgba(13,55,69,.52));
-}
-
-.membership-card.membership-grace .premium-countdown,
-.membership-card.membership-grace .premium-runtime-message{color:var(--orange)}
+.membership-card.membership-grace{border-color:rgba(255,171,46,.55);background:radial-gradient(circle at 100% 0%,rgba(255,171,46,.12),transparent 44%),linear-gradient(145deg,rgba(2,21,31,.74),rgba(13,55,69,.52))}
+.membership-card.membership-grace .premium-countdown,.membership-card.membership-grace .premium-runtime-message{color:var(--orange)}
 .membership-card.membership-grace .premium-progress-bar{background:linear-gradient(90deg,#ffab2e,#e76a3f)}
 
-.premium-manager-overlay{
-  position:fixed;
-  inset:0;
-  z-index:20000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:18px;
-  background:rgba(0,8,13,.76);
-  backdrop-filter:blur(10px);
-}
-
+.premium-manager-overlay{position:fixed;inset:0;z-index:20000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(0,8,13,.76);backdrop-filter:blur(10px)}
 .premium-manager-overlay[hidden]{display:none}
-
-.premium-manager-dialog{
-  position:relative;
-  width:min(620px,100%);
-  max-height:90vh;
-  overflow:auto;
-  padding:24px;
-  border:1px solid rgba(90,180,220,.25);
-  border-radius:22px;
-  background:linear-gradient(155deg,rgba(12,48,64,.99),rgba(5,29,43,.99));
-  box-shadow:0 28px 80px rgba(0,0,0,.48);
-}
-
-.premium-manager-close{
-  position:absolute;
-  right:14px;
-  top:12px;
-  width:38px;
-  min-height:38px;
-  padding:0;
-  border-radius:50%;
-  background:rgba(255,255,255,.08);
-  font-size:24px;
-}
-
-.premium-manager-eyebrow{
-  color:var(--green);
-  font-size:11px;
-  font-weight:900;
-  letter-spacing:.7px;
-  text-transform:uppercase;
-}
-
+.premium-manager-dialog{position:relative;width:min(620px,100%);max-height:90vh;overflow:auto;padding:24px;border:1px solid rgba(90,180,220,.25);border-radius:22px;background:linear-gradient(155deg,rgba(12,48,64,.99),rgba(5,29,43,.99));box-shadow:0 28px 80px rgba(0,0,0,.48)}
+.premium-manager-close{position:absolute;right:14px;top:12px;width:38px;min-height:38px;padding:0;border-radius:50%;background:rgba(255,255,255,.08);font-size:24px}
+.premium-manager-eyebrow{color:var(--green);font-size:11px;font-weight:900;letter-spacing:.7px;text-transform:uppercase}
 .premium-manager-dialog h3{margin:7px 0 7px;font-size:24px}
-
-.premium-manager-summary{
-  margin:0 0 18px;
-  color:var(--muted);
-  font-size:13px;
-  line-height:1.5;
-}
-
-.premium-manager-option{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
-  gap:14px;
-  align-items:center;
-  padding:14px;
-  margin-top:10px;
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:14px;
-  background:rgba(0,0,0,.16);
-}
-
+.premium-manager-summary{margin:0 0 18px;color:var(--muted);font-size:13px;line-height:1.5}
+.premium-manager-option{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px;margin-top:10px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(0,0,0,.16)}
 .premium-manager-option strong{display:block;font-size:13px}
-
-.premium-manager-option span{
-  display:block;
-  margin-top:4px;
-  color:var(--muted);
-  font-size:11px;
-  line-height:1.4;
-}
-
+.premium-manager-option span{display:block;margin-top:4px;color:var(--muted);font-size:11px;line-height:1.4}
 .premium-manager-option button{width:auto;min-width:150px}
-
-.premium-manager-message{
-  margin-top:16px;
-  padding:12px 13px;
-  border:1px solid rgba(255,207,51,.16);
-  border-radius:12px;
-  background:rgba(255,207,51,.05);
-  color:#ffcf33;
-  font-size:11px;
-  line-height:1.45;
-}
-
-@media(max-width:600px){
-  .premium-manager-option{grid-template-columns:1fr}
-  .premium-manager-option button{width:100%}
-}
+.premium-manager-message{margin-top:16px;padding:12px 13px;border:1px solid rgba(255,207,51,.16);border-radius:12px;background:rgba(255,207,51,.05);color:#ffcf33;font-size:11px;line-height:1.45}
+@media(max-width:600px){.premium-manager-option{grid-template-columns:1fr}.premium-manager-option button{width:100%}}
 
 .account-stat-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 .account-stat{height:112px;min-height:112px}
-
-.membership-card{
-  grid-column:1 / -1;
-  min-height:126px;
-  display:grid;
-  grid-template-columns:minmax(180px,.72fr) minmax(0,2.28fr);
-  gap:22px;
-  align-items:center;
-  padding:18px 20px;
-}
-
-.membership-card::after{
-  width:120px;
-  height:120px;
-  right:-46px;
-  bottom:-62px;
-}
-
-.membership-main{
-  position:relative;
-  z-index:1;
-  display:flex;
-  align-items:center;
-  min-width:0;
-  height:100%;
-  padding-right:20px;
-  border-right:1px solid rgba(255,255,255,.08);
-}
-
+.membership-card{grid-column:1 / -1;min-height:126px;display:grid;grid-template-columns:minmax(180px,.72fr) minmax(0,2.28fr);gap:22px;align-items:center;padding:18px 20px}
+.membership-card::after{width:120px;height:120px;right:-46px;bottom:-62px}
+.membership-main{position:relative;z-index:1;display:flex;align-items:center;min-width:0;height:100%;padding-right:20px;border-right:1px solid rgba(255,255,255,.08)}
 .membership-value{margin-top:8px;font-size:26px}
 .membership-note{margin-top:6px;font-size:11px}
-
-.premium-runtime-box{
-  position:relative;
-  z-index:1;
-  display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
-  gap:18px;
-  align-items:center;
-  margin-top:0;
-}
-
+.premium-runtime-box{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center;margin-top:0}
 .premium-runtime-box[hidden]{display:none!important}
 .premium-runtime-content{min-width:0}
-
-.premium-runtime-topline{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:14px;
-}
-
+.premium-runtime-topline{display:flex;align-items:center;justify-content:space-between;gap:14px}
 .premium-countdown{font-size:15px}
 .premium-expiry{margin-top:0;flex:0 0 auto;text-align:right;font-size:10px}
 .premium-progress{height:8px;margin-top:10px}
 .premium-runtime-message{margin-top:7px;min-height:0;font-size:10px}
-
-.premium-manage-button{
-  width:auto;
-  min-width:190px;
-  margin-top:0;
-  min-height:46px;
-  padding:10px 16px;
-  border-radius:12px;
-  white-space:nowrap;
-  background:linear-gradient(105deg,#637e91,#7894a6);
-  box-shadow:0 10px 24px rgba(0,0,0,.16);
-}
-
+.premium-manage-button{width:auto;min-width:190px;margin-top:0;min-height:46px;padding:10px 16px;border-radius:12px;white-space:nowrap;background:linear-gradient(105deg,#637e91,#7894a6);box-shadow:0 10px 24px rgba(0,0,0,.16)}
 .membership-card.membership-premium .premium-manage-button{background:linear-gradient(105deg,#0a9b79,#0ed5a0)}
 .membership-card.membership-premiumplus .premium-manage-button{background:linear-gradient(105deg,#d98608,#ffb229)}
-
-@media(max-width:980px){
-  .account-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .account-stat:nth-child(3){grid-column:1 / -1}
-  .membership-card{grid-column:1 / -1}
-}
-
-@media(max-width:720px){
-  .account-stat-grid{grid-template-columns:1fr}
-  .account-stat:nth-child(3),.membership-card{grid-column:auto}
-  .membership-card{grid-template-columns:1fr;gap:14px}
-  .membership-main{
-    padding-right:0;
-    padding-bottom:13px;
-    border-right:0;
-    border-bottom:1px solid rgba(255,255,255,.08);
-  }
-  .premium-runtime-box{grid-template-columns:1fr;gap:12px}
-  .premium-runtime-topline{align-items:flex-start;flex-direction:column;gap:5px}
-  .premium-expiry{text-align:left}
-  .premium-manage-button{width:100%;min-width:0}
-}
+@media(max-width:980px){.account-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.account-stat:nth-child(3){grid-column:1 / -1}.membership-card{grid-column:1 / -1}}
+@media(max-width:720px){.account-stat-grid{grid-template-columns:1fr}.account-stat:nth-child(3),.membership-card{grid-column:auto}.membership-card{grid-template-columns:1fr;gap:14px}.membership-main{padding-right:0;padding-bottom:13px;border-right:0;border-bottom:1px solid rgba(255,255,255,.08)}.premium-runtime-box{grid-template-columns:1fr;gap:12px}.premium-runtime-topline{align-items:flex-start;flex-direction:column;gap:5px}.premium-expiry{text-align:left}.premium-manage-button{width:100%;min-width:0}}
 
 /* v2026.08.13-09 · Premiumkarte stabil + reduzierter Tarifvergleich */
-.membership-card{
-  grid-template-columns:minmax(165px,.78fr) minmax(0,1.72fr);
-  gap:18px;
-  min-height:120px;
-  align-items:stretch;
-}
-
-.membership-main{
-  align-items:center;
-  padding-right:18px;
-}
-
+.membership-card{grid-template-columns:minmax(165px,.78fr) minmax(0,1.72fr);gap:18px;min-height:120px;align-items:stretch}
+.membership-main{align-items:center;padding-right:18px}
 .membership-main-copy{width:100%}
-
-.membership-title-row{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:10px;
-}
-
-.membership-info-button{
-  flex:0 0 auto;
-  width:31px;
-  height:31px;
-  min-height:31px;
-  padding:0;
-  border:1px solid rgba(125,196,225,.24);
-  border-radius:50%;
-  background:rgba(1,17,25,.52);
-  color:#dff5ff;
-  font-size:15px;
-  font-weight:900;
-  line-height:1;
-  box-shadow:0 8px 18px rgba(0,0,0,.14);
-  transition:.18s ease;
-}
-
-.membership-info-button:hover,
-.membership-info-button.active{
-  border-color:rgba(22,156,255,.52);
-  background:rgba(22,156,255,.13);
-  color:#5db8ff;
-  transform:translateY(-1px);
-}
-
-.membership-action-area{
-  min-width:0;
-  display:flex;
-  align-items:center;
-}
-
-.basis-upgrade-box{
-  width:100%;
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:12px;
-}
-
-.basis-upgrade-box[hidden],
-.membership-upgrade-button[hidden],
-.premium-manager-option[hidden]{display:none!important}
-
-.membership-upgrade-button{
-  min-height:48px;
-  border-radius:13px;
-  font-size:12px;
-  font-weight:900;
-  box-shadow:0 10px 24px rgba(0,0,0,.16);
-}
-
+.membership-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.membership-info-button{flex:0 0 auto;width:31px;height:31px;min-height:31px;padding:0;border:1px solid rgba(125,196,225,.24);border-radius:50%;background:rgba(1,17,25,.52);color:#dff5ff;font-size:15px;font-weight:900;line-height:1;box-shadow:0 8px 18px rgba(0,0,0,.14);transition:.18s ease}
+.membership-info-button:hover,.membership-info-button.active{border-color:rgba(22,156,255,.52);background:rgba(22,156,255,.13);color:#5db8ff;transform:translateY(-1px)}
+.membership-action-area{min-width:0;display:flex;align-items:center}
+.basis-upgrade-box{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.basis-upgrade-box[hidden],.membership-upgrade-button[hidden],.premium-manager-option[hidden]{display:none!important}
+.membership-upgrade-button{min-height:48px;border-radius:13px;font-size:12px;font-weight:900;box-shadow:0 10px 24px rgba(0,0,0,.16)}
 .premium-upgrade{background:linear-gradient(105deg,#079e79,#0ed5a0)}
 .premiumplus-upgrade{background:linear-gradient(105deg,#d98608,#ffb229)}
-
-.premium-runtime-box{
-  width:100%;
-  grid-template-columns:minmax(0,1fr) minmax(160px,188px);
-  gap:14px;
-  align-items:center;
-}
-
-.premium-runtime-content{
-  min-width:0;
-}
-
-.premium-runtime-actions{
-  display:grid;
-  gap:9px;
-  min-width:0;
-}
-
-.premium-runtime-actions .premium-manage-button,
-.premium-runtime-actions .membership-upgrade-button{
-  width:100%;
-  min-width:0;
-}
-
-.premium-manage-button{
-  min-width:0;
-  min-height:44px;
-  padding:10px 14px;
-  white-space:nowrap;
-}
-
-/* Solange premium_bis noch nicht aus dem Backend kommt: ruhiger Status statt Pseudo-Countdown. */
-.premium-runtime-box.runtime-date-pending .premium-progress,
-.premium-runtime-box.runtime-date-pending .premium-expiry{
-  display:none;
-}
-
-.premium-runtime-box.runtime-date-pending .premium-runtime-content{
-  display:block;
-  min-height:58px;
-  padding:10px 12px;
-  border:1px solid rgba(14,220,166,.16);
-  border-radius:13px;
-  background:linear-gradient(145deg,rgba(14,220,166,.055),rgba(22,156,255,.035));
-}
-
-.premium-runtime-box.runtime-date-pending .premium-runtime-topline{
-  display:block;
-}
-
-.premium-runtime-box.runtime-date-pending .premium-countdown{
-  display:block;
-  padding:0;
-  border:0;
-  background:none;
-  color:#b5f5e4;
-  font-size:12px;
-  line-height:1.2;
-  font-weight:900;
-}
-
-.premium-runtime-box.runtime-date-pending .premium-runtime-message{
-  margin:5px 0 0;
-  color:#82adbf;
-  font-size:9px;
-  line-height:1.35;
-  overflow-wrap:anywhere;
-}
-
-.membership-info-panel{
-  grid-column:1 / -1;
-  position:relative;
-  z-index:2;
-  margin-top:6px;
-  padding:16px;
-  border:1px solid rgba(99,184,220,.20);
-  border-radius:18px;
-  background:
-    radial-gradient(circle at 92% -10%,rgba(22,156,255,.12),transparent 34%),
-    radial-gradient(circle at 4% 110%,rgba(14,220,166,.06),transparent 30%),
-    linear-gradient(145deg,rgba(1,19,29,.98),rgba(7,42,55,.95));
-  box-shadow:0 20px 46px rgba(0,0,0,.22);
-}
-
+.premium-runtime-box{width:100%;grid-template-columns:minmax(0,1fr) minmax(160px,188px);gap:14px;align-items:center}
+.premium-runtime-content{min-width:0}
+.premium-runtime-actions{display:grid;gap:9px;min-width:0}
+.premium-runtime-actions .premium-manage-button,.premium-runtime-actions .membership-upgrade-button{width:100%;min-width:0}
+.premium-manage-button{min-width:0;min-height:44px;padding:10px 14px;white-space:nowrap}
+.premium-runtime-box.runtime-date-pending .premium-progress,.premium-runtime-box.runtime-date-pending .premium-expiry{display:none}
+.premium-runtime-box.runtime-date-pending .premium-runtime-content{display:block;min-height:58px;padding:10px 12px;border:1px solid rgba(14,220,166,.16);border-radius:13px;background:linear-gradient(145deg,rgba(14,220,166,.055),rgba(22,156,255,.035))}
+.premium-runtime-box.runtime-date-pending .premium-runtime-topline{display:block}
+.premium-runtime-box.runtime-date-pending .premium-countdown{display:block;padding:0;border:0;background:none;color:#b5f5e4;font-size:12px;line-height:1.2;font-weight:900}
+.premium-runtime-box.runtime-date-pending .premium-runtime-message{margin:5px 0 0;color:#82adbf;font-size:9px;line-height:1.35;overflow-wrap:anywhere}
+.membership-info-panel{grid-column:1 / -1;position:relative;z-index:2;margin-top:6px;padding:16px;border:1px solid rgba(99,184,220,.20);border-radius:18px;background:radial-gradient(circle at 92% -10%,rgba(22,156,255,.12),transparent 34%),radial-gradient(circle at 4% 110%,rgba(14,220,166,.06),transparent 30%),linear-gradient(145deg,rgba(1,19,29,.98),rgba(7,42,55,.95));box-shadow:0 20px 46px rgba(0,0,0,.22)}
 .membership-info-panel[hidden]{display:none!important}
-
-.membership-info-head{
-  display:flex;
-  align-items:flex-end;
-  justify-content:space-between;
-  gap:14px;
-  margin-bottom:12px;
-}
-
+.membership-info-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:12px}
 .membership-info-title-wrap{min-width:0}
-.membership-info-eyebrow{
-  color:#74bedb;
-  font-size:8px;
-  font-weight:900;
-  letter-spacing:1px;
-  text-transform:uppercase;
-}
-.membership-info-head strong{
-  display:block;
-  margin-top:3px;
-  font-size:15px;
-  line-height:1.2;
-  color:#fff;
-}
-.membership-info-head span{
-  max-width:220px;
-  color:#84adbf;
-  font-size:9px;
-  line-height:1.35;
-  text-align:right;
-}
-
-.membership-info-grid{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:12px;
-}
-
-.membership-info-panel.info-level-2 .membership-info-grid{
-  grid-template-columns:minmax(0,1fr);
-  max-width:none;
-}
-
-.membership-info-tier{
-  position:relative;
-  overflow:hidden;
-  min-height:0;
-  padding:15px;
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:15px;
-  background:linear-gradient(155deg,rgba(0,0,0,.20),rgba(255,255,255,.025));
-  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
-}
-
-.membership-info-tier::before{
-  content:"";
-  position:absolute;
-  left:0;right:0;top:0;
-  height:3px;
-}
-
-.membership-info-tier:hover{
-  transform:translateY(-2px);
-  box-shadow:0 14px 30px rgba(0,0,0,.18);
-}
-
+.membership-info-eyebrow{color:#74bedb;font-size:8px;font-weight:900;letter-spacing:1px;text-transform:uppercase}
+.membership-info-head strong{display:block;margin-top:3px;font-size:15px;line-height:1.2;color:#fff}
+.membership-info-head span{max-width:220px;color:#84adbf;font-size:9px;line-height:1.35;text-align:right}
+.membership-info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.membership-info-panel.info-level-2 .membership-info-grid{grid-template-columns:minmax(0,1fr);max-width:none}
+.membership-info-tier{position:relative;overflow:hidden;min-height:0;padding:15px;border:1px solid rgba(255,255,255,.08);border-radius:15px;background:linear-gradient(155deg,rgba(0,0,0,.20),rgba(255,255,255,.025));transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.membership-info-tier::before{content:"";position:absolute;left:0;right:0;top:0;height:3px}
+.membership-info-tier:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(0,0,0,.18)}
 .basis-info-tier{display:none!important}
-
 .premium-info-tier{border-color:rgba(14,220,166,.22)}
 .premium-info-tier::before{background:linear-gradient(90deg,#079e79,#0ed5a0)}
 .premiumplus-info-tier{border-color:rgba(255,171,46,.24)}
 .premiumplus-info-tier::before{background:linear-gradient(90deg,#d98608,#ffb229)}
-
 .membership-info-panel.info-level-2 .premium-info-tier{display:none!important}
-
-.membership-info-tier.current-tier{
-  border-color:rgba(255,255,255,.28);
-  box-shadow:0 0 0 1px rgba(255,255,255,.05),0 14px 30px rgba(0,0,0,.20);
-}
-
-.membership-info-tier.current-tier::after{
-  content:"DEIN TARIF";
-  position:absolute;
-  top:11px;
-  right:11px;
-  padding:4px 7px;
-  border-radius:999px;
-  background:rgba(255,255,255,.10);
-  color:#fff;
-  font-size:7px;
-  font-weight:900;
-  letter-spacing:.65px;
-}
-
-.membership-info-kicker{
-  padding-right:62px;
-  font-size:9px;
-  font-weight:900;
-  text-transform:uppercase;
-  letter-spacing:.75px;
-}
+.membership-info-tier.current-tier{border-color:rgba(255,255,255,.28);box-shadow:0 0 0 1px rgba(255,255,255,.05),0 14px 30px rgba(0,0,0,.20)}
+.membership-info-tier.current-tier::after{content:"DEIN TARIF";position:absolute;top:11px;right:11px;padding:4px 7px;border-radius:999px;background:rgba(255,255,255,.10);color:#fff;font-size:7px;font-weight:900;letter-spacing:.65px}
+.membership-info-kicker{padding-right:62px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.75px}
 .premium-info-tier .membership-info-kicker{color:var(--green)}
 .premiumplus-info-tier .membership-info-kicker{color:var(--orange)}
-
-.membership-info-tier h4{
-  margin:6px 0 11px;
-  padding-right:0;
-  font-size:15px;
-  line-height:1.18;
-}
-
-.membership-info-tier ul{
-  list-style:none;
-  margin:0;
-  padding:0;
-  color:#cde6f2;
-  font-size:10px;
-  line-height:1.42;
-}
-
-.membership-info-tier li{
-  position:relative;
-  padding-left:18px;
-}
-.membership-info-tier li::before{
-  content:"✓";
-  position:absolute;
-  left:0;top:0;
-  font-weight:900;
-}
+.membership-info-tier h4{margin:6px 0 11px;padding-right:0;font-size:15px;line-height:1.18}
+.membership-info-tier ul{list-style:none;margin:0;padding:0;color:#cde6f2;font-size:10px;line-height:1.42}
+.membership-info-tier li{position:relative;padding-left:18px}
+.membership-info-tier li::before{content:"✓";position:absolute;left:0;top:0;font-weight:900}
 .premium-info-tier li::before{color:var(--green)}
 .premiumplus-info-tier li::before{color:var(--orange)}
 .membership-info-tier li + li{margin-top:6px}
-
-.membership-feature-highlight{
-  display:inline-block;
-  padding:1px 6px;
-  margin-left:2px;
-  border-radius:999px;
-  background:rgba(255,255,255,.07);
-  color:#fff;
-  font-size:8px;
-  font-weight:900;
-  white-space:nowrap;
-}
-
-.membership-info-note{
-  margin-top:12px;
-  padding:10px 2px 0;
-  border-top:1px solid rgba(255,255,255,.07);
-  color:#8fb8ca;
-  font-size:9px;
-  line-height:1.45;
-}
+.membership-feature-highlight{display:inline-block;padding:1px 6px;margin-left:2px;border-radius:999px;background:rgba(255,255,255,.07);color:#fff;font-size:8px;font-weight:900;white-space:nowrap}
+.membership-info-note{margin-top:12px;padding:10px 2px 0;border-top:1px solid rgba(255,255,255,.07);color:#8fb8ca;font-size:9px;line-height:1.45}
 .membership-info-note strong{color:#dff5ff}
-
-.premium-plus-switch-option{
-  border-color:rgba(255,171,46,.22);
-  background:
-    radial-gradient(circle at 100% 0%,rgba(255,171,46,.08),transparent 42%),
-    rgba(0,0,0,.16);
-}
-
-@media(max-width:980px){
-  .membership-card{grid-template-columns:minmax(150px,.8fr) minmax(0,1.7fr)}
-  .premium-runtime-box{grid-template-columns:minmax(0,1fr) minmax(150px,178px)}
-}
-
-@media(max-width:720px){
-  .membership-card{grid-template-columns:1fr;gap:14px}
-  .membership-main{
-    padding-right:0;
-    padding-bottom:13px;
-    border-right:0;
-    border-bottom:1px solid rgba(255,255,255,.08);
-  }
-  .membership-action-area{display:block}
-  .basis-upgrade-box{grid-template-columns:1fr}
-  .premium-runtime-box{grid-template-columns:1fr;gap:10px}
-  .premium-runtime-actions{min-width:0}
-  .premium-runtime-actions .premium-manage-button,
-  .premium-runtime-actions .membership-upgrade-button{min-width:0}
-  .membership-info-grid,
-  .membership-info-panel.info-level-2 .membership-info-grid{grid-template-columns:1fr}
-  .membership-info-head{align-items:flex-start;flex-direction:column;gap:4px}
-  .membership-info-head span{max-width:none;text-align:left}
-}
-
+.premium-plus-switch-option{border-color:rgba(255,171,46,.22);background:radial-gradient(circle at 100% 0%,rgba(255,171,46,.08),transparent 42%),rgba(0,0,0,.16)}
+@media(max-width:980px){.membership-card{grid-template-columns:minmax(150px,.8fr) minmax(0,1.7fr)}.premium-runtime-box{grid-template-columns:minmax(0,1fr) minmax(150px,178px)}}
+@media(max-width:720px){.membership-card{grid-template-columns:1fr;gap:14px}.membership-main{padding-right:0;padding-bottom:13px;border-right:0;border-bottom:1px solid rgba(255,255,255,.08)}.membership-action-area{display:block}.basis-upgrade-box{grid-template-columns:1fr}.premium-runtime-box{grid-template-columns:1fr;gap:10px}.premium-runtime-actions{min-width:0}.premium-runtime-actions .premium-manage-button,.premium-runtime-actions .membership-upgrade-button{min-width:0}.membership-info-grid,.membership-info-panel.info-level-2 .membership-info-grid{grid-template-columns:1fr}.membership-info-head{align-items:flex-start;flex-direction:column;gap:4px}.membership-info-head span{max-width:none;text-align:left}}
 
 /* v2026.08.13-10 · Premiumkarte + Tarifinfo-Dialog */
-.membership-card.membership-premium,
-.membership-card.membership-premiumplus{grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:18px;min-height:120px}
-.membership-card.membership-premium .membership-main,
-.membership-card.membership-premiumplus .membership-main{min-width:260px;padding-right:24px}
+.membership-card.membership-premium,.membership-card.membership-premiumplus{grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:18px;min-height:120px}
+.membership-card.membership-premium .membership-main,.membership-card.membership-premiumplus .membership-main{min-width:260px;padding-right:24px}
 .membership-runtime-hint{margin-top:8px;color:#9ec8d8;font-size:10px;line-height:1.35;font-weight:700}
 .membership-runtime-hint[hidden]{display:none!important}
 .membership-card.membership-premium .membership-runtime-hint{color:#91dfca}
 .membership-card.membership-premiumplus .membership-runtime-hint{color:#f1c477}
-.membership-card.membership-premium .membership-action-area,
-.membership-card.membership-premiumplus .membership-action-area{display:flex;justify-content:flex-end;min-width:190px}
-.membership-card.membership-premium .premium-runtime-box,
-.membership-card.membership-premiumplus .premium-runtime-box{display:block;width:190px}
-.membership-card.membership-premium .premium-runtime-content,
-.membership-card.membership-premiumplus .premium-runtime-content{display:none!important}
+.membership-card.membership-premium .membership-action-area,.membership-card.membership-premiumplus .membership-action-area{display:flex;justify-content:flex-end;min-width:190px}
+.membership-card.membership-premium .premium-runtime-box,.membership-card.membership-premiumplus .premium-runtime-box{display:block;width:190px}
+.membership-card.membership-premium .premium-runtime-content,.membership-card.membership-premiumplus .premium-runtime-content{display:none!important}
 .premium-runtime-actions{display:block}.premium-runtime-actions .premium-manage-button{width:100%;min-width:190px}
-
 .membership-info-overlay{position:fixed;inset:0;z-index:21000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,8,13,.80);backdrop-filter:blur(11px)}
 .membership-info-overlay[hidden]{display:none!important}
 .membership-info-dialog{position:relative;width:min(760px,100%);max-height:90vh;overflow:auto;margin:0;padding:24px;border:1px solid rgba(99,184,220,.25);border-radius:22px;background:radial-gradient(circle at 94% -8%,rgba(22,156,255,.14),transparent 34%),radial-gradient(circle at 2% 108%,rgba(14,220,166,.07),transparent 30%),linear-gradient(155deg,rgba(12,48,64,.99),rgba(5,29,43,.99));box-shadow:0 30px 90px rgba(0,0,0,.50)}
@@ -1355,28 +669,11 @@ input{
 .membership-info-dialog .membership-info-tier li + li{margin-top:8px}
 .membership-info-dialog .membership-info-kicker{font-size:9px}
 .membership-info-dialog .membership-info-note{margin-top:16px;padding-top:13px;font-size:10px}
-@media(max-width:720px){
-.membership-card.membership-premium,.membership-card.membership-premiumplus{grid-template-columns:1fr;gap:13px}
-.membership-card.membership-premium .membership-main,.membership-card.membership-premiumplus .membership-main{min-width:0;padding-right:0;padding-bottom:13px;border-right:0;border-bottom:1px solid rgba(255,255,255,.08)}
-.membership-card.membership-premium .membership-action-area,.membership-card.membership-premiumplus .membership-action-area{min-width:0}
-.membership-card.membership-premium .premium-runtime-box,.membership-card.membership-premiumplus .premium-runtime-box{width:100%}
-.premium-runtime-actions .premium-manage-button{min-width:0}
-.membership-info-overlay{padding:12px}.membership-info-dialog{padding:20px 16px}
-.membership-info-dialog .membership-info-head{flex-direction:column;gap:5px;padding-right:40px}
-.membership-info-dialog .membership-info-head span{max-width:none;text-align:left}
-.membership-info-dialog .membership-info-grid{grid-template-columns:1fr}
-}
-
+@media(max-width:720px){.membership-card.membership-premium,.membership-card.membership-premiumplus{grid-template-columns:1fr;gap:13px}.membership-card.membership-premium .membership-main,.membership-card.membership-premiumplus .membership-main{min-width:0;padding-right:0;padding-bottom:13px;border-right:0;border-bottom:1px solid rgba(255,255,255,.08)}.membership-card.membership-premium .membership-action-area,.membership-card.membership-premiumplus .membership-action-area{min-width:0}.membership-card.membership-premium .premium-runtime-box,.membership-card.membership-premiumplus .premium-runtime-box{width:100%}.premium-runtime-actions .premium-manage-button{min-width:0}.membership-info-overlay{padding:12px}.membership-info-dialog{padding:20px 16px}.membership-info-dialog .membership-info-head{flex-direction:column;gap:5px;padding-right:40px}.membership-info-dialog .membership-info-head span{max-width:none;text-align:left}.membership-info-dialog .membership-info-grid{grid-template-columns:1fr}}
 
 /* v2026.08.13-11 · vollständiger 3-Tarif-Vergleich im Popup */
 .membership-info-dialog{width:min(980px,100%)}
-.membership-info-dialog .membership-info-grid,
-.membership-info-dialog.info-level-0 .membership-info-grid,
-.membership-info-dialog.info-level-1 .membership-info-grid,
-.membership-info-dialog.info-level-2 .membership-info-grid{
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:15px;
-}
+.membership-info-dialog .membership-info-grid,.membership-info-dialog.info-level-0 .membership-info-grid,.membership-info-dialog.info-level-1 .membership-info-grid,.membership-info-dialog.info-level-2 .membership-info-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}
 .membership-info-dialog .basis-info-tier{display:block!important;border-color:rgba(22,156,255,.24)}
 .membership-info-dialog .basis-info-tier::before{background:linear-gradient(90deg,#168dff,#08bdec)}
 .membership-info-dialog.info-level-2 .premium-info-tier{display:block!important}
@@ -1385,167 +682,31 @@ input{
 .membership-info-dialog .basis-info-tier .membership-info-kicker{color:#54b7ff}
 .membership-info-dialog .premium-info-tier .membership-info-kicker{color:var(--green)}
 .membership-info-dialog .premiumplus-info-tier .membership-info-kicker{color:var(--orange)}
-.membership-info-dialog .membership-info-note{
-  border:1px solid rgba(99,184,220,.12);
-  border-radius:12px;
-  padding:12px 13px;
-  background:rgba(2,18,27,.35);
-}
-@media(max-width:900px){
-  .membership-info-dialog .membership-info-grid,
-  .membership-info-dialog.info-level-0 .membership-info-grid,
-  .membership-info-dialog.info-level-1 .membership-info-grid,
-  .membership-info-dialog.info-level-2 .membership-info-grid{grid-template-columns:1fr}
-  .membership-info-dialog .membership-info-tier{min-height:0}
-}
-
+.membership-info-dialog .membership-info-note{border:1px solid rgba(99,184,220,.12);border-radius:12px;padding:12px 13px;background:rgba(2,18,27,.35)}
+@media(max-width:900px){.membership-info-dialog .membership-info-grid,.membership-info-dialog.info-level-0 .membership-info-grid,.membership-info-dialog.info-level-1 .membership-info-grid,.membership-info-dialog.info-level-2 .membership-info-grid{grid-template-columns:1fr}.membership-info-dialog .membership-info-tier{min-height:0}}
 
 /* v2026.08.14-01 · Referral-Units aufs Tippkonto buchen */
-.referral-transfer-overlay{
-  position:fixed;
-  inset:0;
-  z-index:22000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:18px;
-  background:rgba(0,8,13,.82);
-  backdrop-filter:blur(11px);
-}
+.referral-transfer-overlay{position:fixed;inset:0;z-index:22000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(0,8,13,.82);backdrop-filter:blur(11px)}
 .referral-transfer-overlay[hidden]{display:none!important}
-
-.referral-transfer-dialog{
-  position:relative;
-  width:min(540px,100%);
-  max-height:90vh;
-  overflow:auto;
-  padding:24px;
-  border:1px solid rgba(14,220,166,.28);
-  border-radius:22px;
-  background:
-    radial-gradient(circle at 100% 0%,rgba(14,220,166,.10),transparent 38%),
-    linear-gradient(155deg,rgba(12,48,64,.99),rgba(5,29,43,.99));
-  box-shadow:0 30px 90px rgba(0,0,0,.52);
-}
-
-.referral-transfer-close{
-  position:absolute;
-  top:12px;
-  right:14px;
-  width:38px;
-  height:38px;
-  min-height:38px;
-  padding:0;
-  border-radius:50%;
-  background:rgba(255,255,255,.08);
-  color:#fff;
-  font-size:24px;
-  line-height:1;
-}
-
-.referral-transfer-eyebrow{
-  color:var(--green);
-  font-size:10px;
-  font-weight:900;
-  letter-spacing:.8px;
-  text-transform:uppercase;
-}
-
-.referral-transfer-dialog h3{
-  margin:7px 42px 6px 0;
-  font-size:24px;
-}
-
-.referral-transfer-summary{
-  margin:0 0 18px;
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.5;
-}
-
-.referral-transfer-balance-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin-bottom:16px;
-}
-
-.referral-transfer-balance{
-  padding:14px;
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:14px;
-  background:rgba(0,0,0,.18);
-}
-.referral-transfer-balance span{
-  display:block;
-  color:var(--muted);
-  font-size:10px;
-  font-weight:800;
-}
-.referral-transfer-balance strong{
-  display:block;
-  margin-top:6px;
-  color:var(--green);
-  font-size:26px;
-}
+.referral-transfer-dialog{position:relative;width:min(540px,100%);max-height:90vh;overflow:auto;padding:24px;border:1px solid rgba(14,220,166,.28);border-radius:22px;background:radial-gradient(circle at 100% 0%,rgba(14,220,166,.10),transparent 38%),linear-gradient(155deg,rgba(12,48,64,.99),rgba(5,29,43,.99));box-shadow:0 30px 90px rgba(0,0,0,.52)}
+.referral-transfer-close{position:absolute;top:12px;right:14px;width:38px;height:38px;min-height:38px;padding:0;border-radius:50%;background:rgba(255,255,255,.08);color:#fff;font-size:24px;line-height:1}
+.referral-transfer-eyebrow{color:var(--green);font-size:10px;font-weight:900;letter-spacing:.8px;text-transform:uppercase}
+.referral-transfer-dialog h3{margin:7px 42px 6px 0;font-size:24px}
+.referral-transfer-summary{margin:0 0 18px;color:var(--muted);font-size:12px;line-height:1.5}
+.referral-transfer-balance-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.referral-transfer-balance{padding:14px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(0,0,0,.18)}
+.referral-transfer-balance span{display:block;color:var(--muted);font-size:10px;font-weight:800}
+.referral-transfer-balance strong{display:block;margin-top:6px;color:var(--green);font-size:26px}
 .referral-transfer-balance.remaining strong{color:#63b8ff}
-
-.referral-transfer-label{
-  display:block;
-  margin-bottom:7px;
-  color:var(--soft);
-  font-size:12px;
-  font-weight:900;
-}
-
-#referralTransferAmount{
-  margin:0;
-  border-color:rgba(14,220,166,.65);
-}
-
-.referral-transfer-note{
-  margin:10px 0 0;
-  color:var(--muted);
-  font-size:10px;
-  line-height:1.45;
-}
-
-.referral-transfer-message{
-  min-height:18px;
-  margin-top:12px;
-  padding:10px 12px;
-  border-radius:11px;
-  background:rgba(255,255,255,.035);
-  color:#ffcf33;
-  font-size:11px;
-  line-height:1.45;
-  text-align:center;
-}
-.referral-transfer-message.error{
-  background:rgba(201,74,74,.10);
-  color:#ff8d8d;
-}
-.referral-transfer-message.success{
-  background:rgba(14,220,166,.08);
-  color:#7af0ce;
-}
-
-.referral-transfer-actions{
-  display:grid;
-  grid-template-columns:1fr 1.25fr;
-  gap:10px;
-  margin-top:16px;
-}
-.referral-transfer-actions button:disabled{
-  opacity:.55;
-  cursor:not-allowed;
-}
-
-@media(max-width:520px){
-  .referral-transfer-balance-grid,
-  .referral-transfer-actions{grid-template-columns:1fr}
-  .referral-transfer-dialog{padding:22px 16px}
-}
+.referral-transfer-label{display:block;margin-bottom:7px;color:var(--soft);font-size:12px;font-weight:900}
+#referralTransferAmount{margin:0;border-color:rgba(14,220,166,.65)}
+.referral-transfer-note{margin:10px 0 0;color:var(--muted);font-size:10px;line-height:1.45}
+.referral-transfer-message{min-height:18px;margin-top:12px;padding:10px 12px;border-radius:11px;background:rgba(255,255,255,.035);color:#ffcf33;font-size:11px;line-height:1.45;text-align:center}
+.referral-transfer-message.error{background:rgba(201,74,74,.10);color:#ff8d8d}
+.referral-transfer-message.success{background:rgba(14,220,166,.08);color:#7af0ce}
+.referral-transfer-actions{display:grid;grid-template-columns:1fr 1.25fr;gap:10px;margin-top:16px}
+.referral-transfer-actions button:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:520px){.referral-transfer-balance-grid,.referral-transfer-actions{grid-template-columns:1fr}.referral-transfer-dialog{padding:22px 16px}}
 
 </style>
 </head>
@@ -1560,7 +721,6 @@ input{
 
 <header class="dashboard-header">
   <img src="logo_betisight.club.png" alt="BetInsight Club" class="logo" onerror="this.style.display='none'">
-
   <div class="header-main">
     <div class="header-icon">👤</div>
     <div class="header-copy">
@@ -1568,7 +728,6 @@ input{
       <p>Kontostand, Tipps, Empfehlungen und persönlicher Profilzugang</p>
     </div>
   </div>
-
   <div id="headerUnitsBox" class="header-balance">
     <span class="header-balance-label">Gesamte verfügbare Units</span>
     <span id="units">0,00</span>
@@ -1577,7 +736,6 @@ input{
 
 <section id="profileBox" class="profile-box">
   <div class="profile-grid">
-
     <section class="panel">
       <div class="panel-head">
         <div>
@@ -1586,401 +744,94 @@ input{
         </div>
         <button id="profilePrivacyButton" class="privacy-toggle" type="button" onclick="toggleProfilePrivacy()">◉ Schützen</button>
       </div>
-
       <div class="panel-body">
         <div class="account-data">
-          <div class="data-row">
-            <span class="data-label">BetInsight-ID</span>
-            <div class="id-line">
-              <span id="betInsightId" class="data-value">Lade...</span>
-              <button class="inline-copy-button" type="button" onclick="copyBetInsightId()">📋 ID kopieren</button>
-            </div>
-          </div>
-
-          <div id="emailDataRow" class="data-row">
-            <span class="data-label">E-Mail</span>
-            <span id="email" class="data-value">Lade...</span>
-          </div>
-
-          <div class="data-row">
-            <span class="data-label">Status</span>
-            <span class="data-value">Profilzugang aktiv</span>
-          </div>
+          <div class="data-row"><span class="data-label">BetInsight-ID</span><div class="id-line"><span id="betInsightId" class="data-value">Lade...</span><button class="inline-copy-button" type="button" onclick="copyBetInsightId()">📋 ID kopieren</button></div></div>
+          <div id="emailDataRow" class="data-row"><span class="data-label">E-Mail</span><span id="email" class="data-value">Lade...</span></div>
+          <div class="data-row"><span class="data-label">Status</span><span class="data-value">Profilzugang aktiv</span></div>
         </div>
-
         <div class="secure-access">
-          <div class="secure-access-head">
-            <span class="secure-access-title">Persönlicher Zugang</span>
-            <span class="secure-access-status">✅ Auf diesem Gerät gespeichert</span>
-          </div>
-
+          <div class="secure-access-head"><span class="secure-access-title">Persönlicher Zugang</span><span class="secure-access-status">✅ Auf diesem Gerät gespeichert</span></div>
           <div id="maskedToken" class="masked-token">Wird geladen...</div>
-
-          <p class="secure-access-note">
-            Der vollständige Zugangscode wird nicht angezeigt und kann hier nicht kopiert werden.
-          </p>
-
-          <button id="resendProfileButton" class="btn-gray" type="button" onclick="requestCurrentProfileLink()">
-            📩 Profil-Link erneut per E-Mail senden
-          </button>
+          <p class="secure-access-note">Der vollständige Zugangscode wird nicht angezeigt und kann hier nicht kopiert werden.</p>
+          <button id="resendProfileButton" class="btn-gray" type="button" onclick="requestCurrentProfileLink()">📩 Profil-Link erneut per E-Mail senden</button>
         </div>
-
-        <p class="privacy-note">
-          Die Privatsphäre blendet nur E-Mail-Adresse und persönlichen Zugang aus.
-          BetInsight-ID, Units und Netzwerkzahlen bleiben sichtbar.
-        </p>
-
+        <p class="privacy-note">Die Privatsphäre blendet nur E-Mail-Adresse und persönlichen Zugang aus. BetInsight-ID, Units und Netzwerkzahlen bleiben sichtbar.</p>
         <div id="message" class="message">Kontostand wird geladen...</div>
       </div>
     </section>
 
     <section class="panel">
-      <div class="panel-head">
-        <div>
-          <h2 class="panel-title">📊 <span class="panel-title-accent">Kontostand & Aktivitäten</span></h2>
-          <p class="panel-subtitle">Deine wichtigsten Kontowerte auf einen Blick.</p>
-        </div>
-        <button id="accountPrivacyButton" class="privacy-toggle" type="button" onclick="toggleAccountPrivacy()">◉ Schützen</button>
-      </div>
-
+      <div class="panel-head"><div><h2 class="panel-title">📊 <span class="panel-title-accent">Kontostand & Aktivitäten</span></h2><p class="panel-subtitle">Deine wichtigsten Kontowerte auf einen Blick.</p></div><button id="accountPrivacyButton" class="privacy-toggle" type="button" onclick="toggleAccountPrivacy()">◉ Schützen</button></div>
       <div class="panel-body account-summary">
         <div class="account-stat-grid">
-          <div class="account-stat account-stat-primary">
-            <div class="account-stat-label">Verfügbare Units</div>
-            <div id="accountUnits" class="account-stat-value value-orange account-private-value">0</div>
-            <div class="account-stat-referral">
-              <span>Referral verfügbar</span>
-              <strong id="accountReferralUnits" class="account-private-value">0,00</strong>
-            </div>
-          </div>
-
-          <div class="account-stat">
-            <div class="account-stat-label">Freigeschaltete Tipps</div>
-            <div id="unlockedTips" class="account-stat-value value-green account-private-value">0</div>
-          </div>
-
-          <div class="account-stat">
-            <div class="account-stat-label">Verbrauchte Units</div>
-            <div id="consumedUnits" class="account-stat-value value-cyan account-private-value">–</div>
-          </div>
-
+          <div class="account-stat account-stat-primary"><div class="account-stat-label">Verfügbare Units</div><div id="accountUnits" class="account-stat-value value-orange account-private-value">0</div><div class="account-stat-referral"><span>Referral verfügbar</span><strong id="accountReferralUnits" class="account-private-value">0,00</strong></div></div>
+          <div class="account-stat"><div class="account-stat-label">Freigeschaltete Tipps</div><div id="unlockedTips" class="account-stat-value value-green account-private-value">0</div></div>
+          <div class="account-stat"><div class="account-stat-label">Verbrauchte Units</div><div id="consumedUnits" class="account-stat-value value-cyan account-private-value">–</div></div>
           <div class="account-stat membership-card">
-            <div class="membership-main">
-              <div class="membership-main-copy">
-                <div class="membership-title-row">
-                  <div>
-                    <div class="account-stat-label">Mitgliedschaft</div>
-                    <div id="membershipStatus" class="account-stat-value membership-value account-private-value">Basis</div>
-                  </div>
-
-                  <button
-                    id="membershipInfoButton"
-                    class="membership-info-button"
-                    type="button"
-                    aria-label="Tarife und Leistungen vergleichen"
-                    aria-expanded="false"
-                    onclick="toggleMembershipInfo(event)"
-                  >?</button>
-                </div>
-
-                <div id="membershipNote" class="membership-note">BetInsight Basis-Zugang</div>
-                <div id="membershipRuntimeHint" class="membership-runtime-hint" hidden></div>
-              </div>
-            </div>
-
+            <div class="membership-main"><div class="membership-main-copy"><div class="membership-title-row"><div><div class="account-stat-label">Mitgliedschaft</div><div id="membershipStatus" class="account-stat-value membership-value account-private-value">Basis</div></div><button id="membershipInfoButton" class="membership-info-button" type="button" aria-label="Tarife und Leistungen vergleichen" aria-expanded="false" onclick="toggleMembershipInfo(event)">?</button></div><div id="membershipNote" class="membership-note">BetInsight Basis-Zugang</div><div id="membershipRuntimeHint" class="membership-runtime-hint" hidden></div></div></div>
             <div class="membership-action-area">
-              <div id="basisUpgradeBox" class="basis-upgrade-box">
-                <button
-                  id="upgradePremiumButton"
-                  class="membership-upgrade-button premium-upgrade"
-                  type="button"
-                  onclick="startMembershipUpgrade('PREMIUM')"
-                >
-                  ⭐ Auf Premium upgraden
-                </button>
-
-                <button
-                  id="upgradePremiumPlusButton"
-                  class="membership-upgrade-button premiumplus-upgrade"
-                  type="button"
-                  onclick="startMembershipUpgrade('PREMIUM_PLUS')"
-                >
-                  ✨ Auf Premium Plus upgraden
-                </button>
-              </div>
-
-              <div id="premiumRuntimeBox" class="premium-runtime-box" hidden>
-                <div class="premium-runtime-content">
-                  <div class="premium-runtime-topline">
-                    <div id="premiumCountdown" class="premium-countdown">–</div>
-                    <div id="premiumExpiry" class="premium-expiry">Gültig bis: –</div>
-                  </div>
-
-                  <div class="premium-progress" aria-hidden="true">
-                    <div id="premiumProgressBar" class="premium-progress-bar"></div>
-                  </div>
-
-                  <div id="premiumRuntimeMessage" class="premium-runtime-message"></div>
-                </div>
-
-                <div class="premium-runtime-actions">
-                  <button
-                    id="premiumPlusUpgradeButton"
-                    class="membership-upgrade-button premiumplus-upgrade"
-                    type="button"
-                    onclick="startMembershipUpgrade('PREMIUM_PLUS')"
-                    hidden
-                  >
-                    ✨ Auf Premium Plus upgraden
-                  </button>
-
-                  <button
-                    id="premiumManageButton"
-                    class="premium-manage-button"
-                    type="button"
-                    onclick="openPremiumManager()"
-                  >
-                    🔄 Abo &amp; Verlängerung
-                  </button>
-                </div>
-              </div>
+              <div id="basisUpgradeBox" class="basis-upgrade-box"><button id="upgradePremiumButton" class="membership-upgrade-button premium-upgrade" type="button" onclick="startMembershipUpgrade('PREMIUM')">⭐ Auf Premium upgraden</button><button id="upgradePremiumPlusButton" class="membership-upgrade-button premiumplus-upgrade" type="button" onclick="startMembershipUpgrade('PREMIUM_PLUS')">✨ Auf Premium Plus upgraden</button></div>
+              <div id="premiumRuntimeBox" class="premium-runtime-box" hidden><div class="premium-runtime-content"><div class="premium-runtime-topline"><div id="premiumCountdown" class="premium-countdown">–</div><div id="premiumExpiry" class="premium-expiry">Gültig bis: –</div></div><div class="premium-progress" aria-hidden="true"><div id="premiumProgressBar" class="premium-progress-bar"></div></div><div id="premiumRuntimeMessage" class="premium-runtime-message"></div></div><div class="premium-runtime-actions"><button id="premiumPlusUpgradeButton" class="membership-upgrade-button premiumplus-upgrade" type="button" onclick="startMembershipUpgrade('PREMIUM_PLUS')" hidden>✨ Auf Premium Plus upgraden</button><button id="premiumManageButton" class="premium-manage-button" type="button" onclick="openPremiumManager()">🔄 Abo &amp; Verlängerung</button></div></div>
             </div>
-
             <div id="membershipInfoPanelLegacy" class="membership-info-panel info-level-0" style="display:none!important" aria-hidden="true">
-              <div class="membership-info-head">
-                <div class="membership-info-title-wrap">
-                  <div class="membership-info-eyebrow">Premium-Vorteile</div>
-                  <strong id="membershipInfoTitleLegacy">Premium wählen</strong>
-                </div>
-                <span id="membershipInfoSublineLegacy">Hier siehst du nur die zusätzlichen Leistungen.</span>
-              </div>
-
-              <div class="membership-info-grid">
-                <article class="membership-info-tier basis-info-tier" data-membership-level="0" aria-hidden="true">
-                  <div class="membership-info-kicker">Basis</div>
-                  <h4>BetInsight Basis</h4>
-                </article>
-
-                <article class="membership-info-tier premium-info-tier" data-membership-level="1">
-                  <div class="membership-info-kicker">Premium · 9,99 € / 30 Tage</div>
-                  <h4>2 Anbieter + Premium bis zur 6. Ebene</h4>
-                  <ul>
-                    <li><strong>2 Anbieter-/Quotenanzeigen</strong> bei freigeschalteten Tipps</li>
-                    <li>Zusätzliche Premium-Provision bis <span class="membership-feature-highlight">Ebene 6</span></li>
-                    <li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li>
-                    <li>Direkte Anbieterlinks gibt es erst mit Premium Plus</li>
-                  </ul>
-                </article>
-
-                <article class="membership-info-tier premiumplus-info-tier" data-membership-level="2">
-                  <div class="membership-info-kicker">Premium Plus · 14,99 € / 30 Tage</div>
-                  <h4>5 Anbieter + Premium bis zur 8. Ebene</h4>
-                  <ul>
-                    <li><strong>Quotenvergleich für bis zu 5 Anbieter</strong></li>
-                    <li>Zusätzliche Premium-Provision bis <span class="membership-feature-highlight">Ebene 8</span></li>
-                    <li>Freigegebene direkte Anbieter-/Affiliate-Links</li>
-                    <li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li>
-                  </ul>
-                </article>
-              </div>
-
-              <div class="membership-info-note">
-                <strong>Bei allen Mitgliedschaften enthalten:</strong> die laufenden Unit-Provisionen aus dem bestehenden Referral-System bis Ebene 3.
-                Premium ergänzt diese Basis um zusätzliche Premium-Leistungen.
-              </div>
+              <div class="membership-info-head"><div class="membership-info-title-wrap"><div class="membership-info-eyebrow">Premium-Vorteile</div><strong id="membershipInfoTitleLegacy">Premium wählen</strong></div><span id="membershipInfoSublineLegacy">Hier siehst du nur die zusätzlichen Leistungen.</span></div>
+              <div class="membership-info-grid"><article class="membership-info-tier basis-info-tier" data-membership-level="0" aria-hidden="true"><div class="membership-info-kicker">Basis</div><h4>BetInsight Basis</h4></article><article class="membership-info-tier premium-info-tier" data-membership-level="1"><div class="membership-info-kicker">Premium · 9,99 € / 30 Tage</div><h4>2 Anbieter + Premium bis zur 6. Ebene</h4><ul><li><strong>2 Anbieter-/Quotenanzeigen</strong> bei freigeschalteten Tipps</li><li>Zusätzliche Premium-Provision bis <span class="membership-feature-highlight">Ebene 6</span></li><li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li><li>Direkte Anbieterlinks gibt es erst mit Premium Plus</li></ul></article><article class="membership-info-tier premiumplus-info-tier" data-membership-level="2"><div class="membership-info-kicker">Premium Plus · 14,99 € / 30 Tage</div><h4>5 Anbieter + Premium bis zur 8. Ebene</h4><ul><li><strong>Quotenvergleich für bis zu 5 Anbieter</strong></li><li>Zusätzliche Premium-Provision bis <span class="membership-feature-highlight">Ebene 8</span></li><li>Freigegebene direkte Anbieter-/Affiliate-Links</li><li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li></ul></article></div>
+              <div class="membership-info-note"><strong>Bei allen Mitgliedschaften enthalten:</strong> die laufenden Unit-Provisionen aus dem bestehenden Referral-System bis Ebene 3. Premium ergänzt diese Basis um zusätzliche Premium-Leistungen.</div>
             </div>
           </div>
         </div>
-
-        <div class="account-actions">
-          <button class="btn-blue" type="button" onclick="loadUnits()">🔄 Aktualisieren</button>
-          <button class="btn-blue" type="button" onclick="goTipps()">🔥 Neue Tipps</button>
-          <button class="btn-green" type="button" onclick="goFreigeschaltet()">✅ Freigeschaltet</button>
-          <button class="btn-green" type="button" onclick="goBuyUnits()">💎 Units kaufen</button>
-          <button id="supportButton" class="support-button" type="button" onclick="goSupport()" title="Support & Tickets öffnen">
-            🛟 Support & Tickets
-            <span id="supportUnreadBadge" class="support-unread-badge" hidden aria-label="0 ungelesene Support-Antworten">0</span>
-          </button>
-        </div>
-
-        <div class="security-box">
-          <p class="small-warning">
-            Zugangscode nur löschen, wenn die angezeigte E-Mail nicht stimmt oder dieses Gerät mit einer anderen Person geteilt wird.
-          </p>
-          <button class="btn-red" type="button" onclick="forgetToken()">Zugangscode auf diesem Gerät löschen</button>
-        </div>
+        <div class="account-actions"><button class="btn-blue" type="button" onclick="loadUnits()">🔄 Aktualisieren</button><button class="btn-blue" type="button" onclick="goTipps()">🔥 Neue Tipps</button><button class="btn-green" type="button" onclick="goFreigeschaltet()">✅ Freigeschaltet</button><button class="btn-green" type="button" onclick="goBuyUnits()">💎 Units kaufen</button><button id="supportButton" class="support-button" type="button" onclick="goSupport()" title="Support & Tickets öffnen">🛟 Support & Tickets<span id="supportUnreadBadge" class="support-unread-badge" hidden aria-label="0 ungelesene Support-Antworten">0</span></button></div>
+        <div class="security-box"><p class="small-warning">Zugangscode nur löschen, wenn die angezeigte E-Mail nicht stimmt oder dieses Gerät mit einer anderen Person geteilt wird.</p><button class="btn-red" type="button" onclick="forgetToken()">Zugangscode auf diesem Gerät löschen</button></div>
       </div>
     </section>
-
   </div>
 </section>
 
 <section id="referralSection" class="referral-section">
-
   <section class="panel">
-    <div class="panel-head">
-      <div>
-        <h2 class="panel-title">🔗 <span class="panel-title-accent">Persönliche Übersicht</span></h2>
-        <p class="panel-subtitle">Dein Netzwerk, deine Referral-Units und deine persönlichen Empfehlungslinks.</p>
-      </div>
-      <button id="referralPrivacyButton" class="privacy-toggle" type="button" onclick="toggleReferralPrivacy()">◉ Schützen</button>
-    </div>
-
+    <div class="panel-head"><div><h2 class="panel-title">🔗 <span class="panel-title-accent">Persönliche Übersicht</span></h2><p class="panel-subtitle">Dein Netzwerk, deine Referral-Units und deine persönlichen Empfehlungslinks.</p></div><button id="referralPrivacyButton" class="privacy-toggle" type="button" onclick="toggleReferralPrivacy()">◉ Schützen</button></div>
     <div class="panel-body">
       <div class="referral-overview">
-        <div class="referral-stat">
-          <div class="referral-stat-label">👥 Netzwerk</div>
-          <div class="network-levels">
-            <div class="network-level-line"><span>Ebene 1</span><strong id="networkLevel1">–</strong></div>
-            <div class="network-level-line"><span>Ebene 2</span><strong id="networkLevel2">–</strong></div>
-            <div class="network-level-line"><span>Ebene 3</span><strong id="networkLevel3">–</strong></div>
-          </div>
-          <button class="btn-blue network-refresh-button" type="button" style="margin-top:13px;min-height:40px" onclick="refreshNetworkData(true,this)">🔄 Netzwerk laden</button>
-        </div>
-
-        <div class="referral-stat">
-          <div class="referral-stat-label">◎ Ref-Units insgesamt</div>
-          <div id="referralAllUnits" class="referral-stat-value">0</div>
-          <div class="referral-stat-note">Gesamtes Netzwerk · Ebenen 1–3</div>
-        </div>
-
-        <div class="referral-stat">
-          <div class="referral-stat-label">◷ Davon noch nicht freigegeben</div>
-          <div id="referralPendingUnits" class="referral-stat-value">0</div>
-          <div class="referral-stat-note">Gesamtes Netzwerk · Ebenen 1–3</div>
-        </div>
+        <div class="referral-stat"><div class="referral-stat-label">👥 Netzwerk</div><div class="network-levels"><div class="network-level-line"><span>Ebene 1</span><strong id="networkLevel1">–</strong></div><div class="network-level-line"><span>Ebene 2</span><strong id="networkLevel2">–</strong></div><div class="network-level-line"><span>Ebene 3</span><strong id="networkLevel3">–</strong></div></div><button class="btn-blue network-refresh-button" type="button" style="margin-top:13px;min-height:40px" onclick="refreshNetworkData(true,this)">🔄 Netzwerk laden</button></div>
+        <div class="referral-stat"><div class="referral-stat-label">◎ Ref-Units insgesamt</div><div id="referralAllUnits" class="referral-stat-value">0</div><div class="referral-stat-note">Gesamtes Netzwerk · Ebenen 1–3</div></div>
+        <div class="referral-stat"><div class="referral-stat-label">◷ Davon noch nicht freigegeben</div><div id="referralPendingUnits" class="referral-stat-value">0</div><div class="referral-stat-note">Gesamtes Netzwerk · Ebenen 1–3</div></div>
       </div>
-
-      <div class="referral-link-group">
-        <div>
-          <div class="referral-link-heading">Direkter Registrierungslink</div>
-          <div class="referral-link-row">
-            <div id="registrationReferralLink" class="referral-linkbox">Registrierungslink wird geladen...</div>
-            <button id="copyRegistrationReferralButton" class="btn-green" type="button" onclick="copyRegistrationReferralLink()">📋 Registrierungslink kopieren</button>
-          </div>
-        </div>
-
-        <div>
-          <div class="referral-link-heading">Persönlicher Landingpage-Link</div>
-          <div class="referral-link-row">
-            <div id="landingpageReferralLink" class="referral-linkbox">Landingpage-Link wird geladen...</div>
-            <button id="copyLandingpageReferralButton" class="btn-blue" type="button" onclick="copyLandingpageReferralLink()">📋 Landingpage-Link kopieren</button>
-          </div>
-        </div>
-      </div>
+      <div class="referral-link-group"><div><div class="referral-link-heading">Direkter Registrierungslink</div><div class="referral-link-row"><div id="registrationReferralLink" class="referral-linkbox">Registrierungslink wird geladen...</div><button id="copyRegistrationReferralButton" class="btn-green" type="button" onclick="copyRegistrationReferralLink()">📋 Registrierungslink kopieren</button></div></div><div><div class="referral-link-heading">Persönlicher Landingpage-Link</div><div class="referral-link-row"><div id="landingpageReferralLink" class="referral-linkbox">Landingpage-Link wird geladen...</div><button id="copyLandingpageReferralButton" class="btn-blue" type="button" onclick="copyLandingpageReferralLink()">📋 Landingpage-Link kopieren</button></div></div></div>
     </div>
   </section>
 
   <section class="panel structure-panel">
-    <div class="panel-head">
-      <div>
-        <h2 class="panel-title">📈 <span class="panel-title-accent">Struktur und Umsätze</span></h2>
-        <p class="panel-subtitle">Deine Netzwerkstruktur und Unit-Entwicklung übersichtlich nach Ebenen.</p>
-      </div>
-      <div class="structure-hint">Ebene antippen für Details</div>
-    </div>
-
+    <div class="panel-head"><div><h2 class="panel-title">📈 <span class="panel-title-accent">Struktur und Umsätze</span></h2><p class="panel-subtitle">Deine Netzwerkstruktur und Unit-Entwicklung übersichtlich nach Ebenen.</p></div><div class="structure-hint">Ebene antippen für Details</div></div>
     <div class="panel-body">
       <div id="levelList" class="level-list"></div>
-
       <div class="referral-footer-actions">
         <button class="btn-green" type="button" onclick="referralUnitsToAccount()">⭐ Units aufs Konto buchen</button>
         <button class="btn-orange" type="button" onclick="goUnitExchange()">🔄 Zur Unit-Wechselstube</button>
         <button class="btn-blue network-refresh-button" type="button" onclick="refreshNetworkData(true,this)">🔄 Netzwerkdaten laden</button>
+        <button class="btn-blue" type="button" onclick="goMarketingCenter()">📣 Marketing-Center</button>
       </div>
-
-      <div id="referralStatus" class="referral-status">
-        Netzwerkdaten werden erst geladen, wenn du auf „Netzwerk laden“ klickst.
-      </div>
+      <div id="referralStatus" class="referral-status">Netzwerkdaten werden erst geladen, wenn du auf „Netzwerk laden“ klickst.</div>
     </div>
   </section>
-
 </section>
 
 <section id="requestBox" class="request-box">
-  <div class="request-header">
-    <h2>Persönliches Profil öffnen</h2>
-    <p>Fordere deinen Profil-Link per E-Mail an oder trage einen bereits erhaltenen Link direkt ein.</p>
-  </div>
-
+  <div class="request-header"><h2>Persönliches Profil öffnen</h2><p>Fordere deinen Profil-Link per E-Mail an oder trage einen bereits erhaltenen Link direkt ein.</p></div>
   <div class="request-grid">
-    <section class="panel request-panel">
-      <div class="panel-head">
-        <div>
-          <h2 class="panel-title panel-title-accent">Profil-Link anfordern</h2>
-          <p class="panel-subtitle">Registrierte E-Mail-Adresse eintragen.</p>
-        </div>
-      </div>
-      <div class="panel-body">
-        <input id="requestEmail" type="email" placeholder="Deine E-Mail-Adresse" autocomplete="email">
-        <div class="request-actions">
-          <button id="requestProfileButton" class="btn-blue" type="button" onclick="requestProfileLink()">📩 Profil-Link anfordern</button>
-          <a class="btn-link btn-gray" href="https://betinsight.systeme.io/profile/user-settings" target="_blank" rel="noopener noreferrer">🔎 Registrierte E-Mail nachsehen</a>
-        </div>
-        <div id="requestMessage" class="message"></div>
-      </div>
-    </section>
-
-    <section class="panel request-panel">
-      <div class="panel-head">
-        <div>
-          <h2 class="panel-title panel-title-accent">Profil-Link eintragen</h2>
-          <p class="panel-subtitle">Link oder Zugangscode aus deiner E-Mail verwenden.</p>
-        </div>
-      </div>
-      <div class="panel-body">
-        <input id="receivedProfileLink" type="text" placeholder="Profil-Link oder Zugangscode" autocomplete="off">
-        <button class="btn-green" type="button" onclick="openReceivedProfileLink()">🔓 Persönliches Profil öffnen</button>
-        <div id="receivedLinkMessage" class="message"></div>
-      </div>
-    </section>
+    <section class="panel request-panel"><div class="panel-head"><div><h2 class="panel-title panel-title-accent">Profil-Link anfordern</h2><p class="panel-subtitle">Registrierte E-Mail-Adresse eintragen.</p></div></div><div class="panel-body"><input id="requestEmail" type="email" placeholder="Deine E-Mail-Adresse" autocomplete="email"><div class="request-actions"><button id="requestProfileButton" class="btn-blue" type="button" onclick="requestProfileLink()">📩 Profil-Link anfordern</button><a class="btn-link btn-gray" href="https://betinsight.systeme.io/profile/user-settings" target="_blank" rel="noopener noreferrer">🔎 Registrierte E-Mail nachsehen</a></div><div id="requestMessage" class="message"></div></div></section>
+    <section class="panel request-panel"><div class="panel-head"><div><h2 class="panel-title panel-title-accent">Profil-Link eintragen</h2><p class="panel-subtitle">Link oder Zugangscode aus deiner E-Mail verwenden.</p></div></div><div class="panel-body"><input id="receivedProfileLink" type="text" placeholder="Profil-Link oder Zugangscode" autocomplete="off"><button class="btn-green" type="button" onclick="openReceivedProfileLink()">🔓 Persönliches Profil öffnen</button><div id="receivedLinkMessage" class="message"></div></div></section>
   </div>
 </section>
 
 <div id="membershipInfoOverlay" class="membership-info-overlay" hidden>
   <div id="membershipInfoPanel" class="membership-info-panel membership-info-dialog info-level-0" role="dialog" aria-modal="true" aria-labelledby="membershipInfoTitle">
     <button class="membership-info-close" type="button" onclick="closeMembershipInfo()" aria-label="Schließen">×</button>
-    <div class="membership-info-head">
-      <div class="membership-info-title-wrap">
-        <div class="membership-info-eyebrow">BetInsight Mitgliedschaft</div>
-        <strong id="membershipInfoTitle">Mitgliedschaften vergleichen</strong>
-      </div>
-      <span id="membershipInfoSubline">Basis, Premium und Premium Plus auf einen Blick. Dein aktueller Tarif ist markiert.</span>
-    </div>
+    <div class="membership-info-head"><div class="membership-info-title-wrap"><div class="membership-info-eyebrow">BetInsight Mitgliedschaft</div><strong id="membershipInfoTitle">Mitgliedschaften vergleichen</strong></div><span id="membershipInfoSubline">Basis, Premium und Premium Plus auf einen Blick. Dein aktueller Tarif ist markiert.</span></div>
     <div class="membership-info-grid">
-      <article class="membership-info-tier basis-info-tier" data-membership-level="0">
-        <div class="membership-info-kicker">Basis · Standardzugang</div>
-        <h4>Alles für den Einstieg</h4>
-        <ul>
-          <li>Zugang zum BetInsight Unit- und Tipp-System</li>
-          <li><strong>Laufende Unit-Provisionen bis zur 3. Ebene</strong> aus dem bestehenden Referral-System</li>
-          <li>Persönliche Empfehlungslinks und Netzwerkübersicht</li>
-          <li>Freigeschaltete Tipps und Unit-Verwaltung im eigenen Profil</li>
-          <li>Keine monatliche Premium-Laufzeit erforderlich</li>
-        </ul>
-      </article>
-      <article class="membership-info-tier premium-info-tier" data-membership-level="1">
-        <div class="membership-info-kicker">Premium · 9,99 € / 30 Tage</div>
-        <h4>2 Anbieter + mehr Provisionstiefe</h4>
-        <ul>
-          <li><strong>Alle Basis-Leistungen inklusive</strong></li>
-          <li><strong>2 Anbieter-/Quotenanzeigen</strong> bei freigeschalteten Tipps</li>
-          <li>Zusätzliche Premium-Provision bis zur <span class="membership-feature-highlight">6. Ebene</span></li>
-          <li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li>
-          <li>Direkte Anbieterlinks gibt es erst mit Premium Plus</li>
-        </ul>
-      </article>
-      <article class="membership-info-tier premiumplus-info-tier" data-membership-level="2">
-        <div class="membership-info-kicker">Premium Plus · 14,99 € / 30 Tage</div>
-        <h4>5 Anbieter + maximale Provisionstiefe</h4>
-        <ul>
-          <li><strong>Alle Premium-Leistungen inklusive</strong></li>
-          <li><strong>Quotenvergleich für bis zu 5 Anbieter</strong></li>
-          <li>Zusätzliche Premium-Provision bis zur <span class="membership-feature-highlight">8. Ebene</span></li>
-          <li>Freigegebene direkte Anbieter-/Affiliate-Links</li>
-          <li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li>
-        </ul>
-      </article>
+      <article class="membership-info-tier basis-info-tier" data-membership-level="0"><div class="membership-info-kicker">Basis · Standardzugang</div><h4>Alles für den Einstieg</h4><ul><li>Zugang zum BetInsight Unit- und Tipp-System</li><li><strong>Laufende Unit-Provisionen bis zur 3. Ebene</strong> aus dem bestehenden Referral-System</li><li>Persönliche Empfehlungslinks und Netzwerkübersicht</li><li>Freigeschaltete Tipps und Unit-Verwaltung im eigenen Profil</li><li>Keine monatliche Premium-Laufzeit erforderlich</li></ul></article>
+      <article class="membership-info-tier premium-info-tier" data-membership-level="1"><div class="membership-info-kicker">Premium · 9,99 € / 30 Tage</div><h4>2 Anbieter + mehr Provisionstiefe</h4><ul><li><strong>Alle Basis-Leistungen inklusive</strong></li><li><strong>2 Anbieter-/Quotenanzeigen</strong> bei freigeschalteten Tipps</li><li>Zusätzliche Premium-Provision bis zur <span class="membership-feature-highlight">6. Ebene</span></li><li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li><li>Direkte Anbieterlinks gibt es erst mit Premium Plus</li></ul></article>
+      <article class="membership-info-tier premiumplus-info-tier" data-membership-level="2"><div class="membership-info-kicker">Premium Plus · 14,99 € / 30 Tage</div><h4>5 Anbieter + maximale Provisionstiefe</h4><ul><li><strong>Alle Premium-Leistungen inklusive</strong></li><li><strong>Quotenvergleich für bis zu 5 Anbieter</strong></li><li>Zusätzliche Premium-Provision bis zur <span class="membership-feature-highlight">8. Ebene</span></li><li>Freigegebene direkte Anbieter-/Affiliate-Links</li><li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li></ul></article>
     </div>
     <div class="membership-info-note"><strong>Klare Trennung:</strong> Die Unit-Provisionen aus dem bestehenden Referral-System laufen bis zur 3. Ebene. Premium und Premium Plus ergänzen diese um zusätzliche Premium-Leistungen und eine größere Provisionstiefe.</div>
   </div>
@@ -1988,1352 +839,145 @@ input{
 
 <div id="premiumManagerOverlay" class="premium-manager-overlay" hidden>
   <div class="premium-manager-dialog" role="dialog" aria-modal="true" aria-labelledby="premiumManagerTitle">
-    <button class="premium-manager-close" type="button" onclick="closePremiumManager()" aria-label="Schließen">×</button>
-
-    <div class="premium-manager-eyebrow">BetInsight Premium</div>
-    <h3 id="premiumManagerTitle">Abo & Verlängerung</h3>
-    <p id="premiumManagerSummary" class="premium-manager-summary">
-      Deine Premium-Mitgliedschaft verwalten.
-    </p>
-
-    <div id="premiumCreditOption" class="premium-manager-option">
-      <div>
-        <strong id="premiumCreditTitle">Mit Provisionsguthaben verlängern</strong>
-        <span id="premiumCreditText">Nur bereits auszahlbares Guthaben wird später verwendet.</span>
-      </div>
-      <button id="premiumCreditButton" type="button" class="btn-green" onclick="premiumActionNotConnected('PROVISIONSGUTHABEN')">
-        Guthaben verwenden
-      </button>
-    </div>
-
-    <div id="premiumExternalOption" class="premium-manager-option">
-      <div>
-        <strong id="premiumExternalTitle">Extern verlängern</strong>
-        <span id="premiumExternalText">Normale Premium-Zahlung über den vorgesehenen Zahlungsweg.</span>
-      </div>
-      <button id="premiumExternalButton" type="button" class="btn-blue" onclick="premiumActionNotConnected('EXTERN')">
-        Jetzt verlängern
-      </button>
-    </div>
-
-    <div id="premiumAutoOption" class="premium-manager-option">
-      <div>
-        <strong>Automatische Verlängerung</strong>
-        <span id="premiumAutoRenewText">Status: nicht aktiviert</span>
-      </div>
-      <button type="button" class="btn-orange" onclick="premiumActionNotConnected('AUTO')">
-        Einstellung ändern
-      </button>
-    </div>
-
-    <div id="premiumPlusSwitchOption" class="premium-manager-option premium-plus-switch-option" hidden>
-      <div>
-        <strong>Zu Premium Plus wechseln</strong>
-        <span>Bis zu 5 Anbieter im Quotenvergleich und zusätzliche Premium-Provisionen bis zur 8. Ebene.</span>
-      </div>
-      <button type="button" class="btn-orange" onclick="premiumActionNotConnected('UPGRADE_PLUS')">
-        Premium Plus ansehen
-      </button>
-    </div>
-
-    <div id="premiumManagerMessage" class="premium-manager-message">
-      Die Oberfläche ist vorbereitet. Die Zahlungs- und Guthabenlogik wird erst nach Freigabe des Premium-v1.2-Backends verbunden.
-    </div>
+    <button class="premium-manager-close" type="button" onclick="closePremiumManager()" aria-label="Schließen">×</button><div class="premium-manager-eyebrow">BetInsight Premium</div><h3 id="premiumManagerTitle">Abo & Verlängerung</h3><p id="premiumManagerSummary" class="premium-manager-summary">Deine Premium-Mitgliedschaft verwalten.</p>
+    <div id="premiumCreditOption" class="premium-manager-option"><div><strong id="premiumCreditTitle">Mit Provisionsguthaben verlängern</strong><span id="premiumCreditText">Nur bereits auszahlbares Guthaben wird später verwendet.</span></div><button id="premiumCreditButton" type="button" class="btn-green" onclick="premiumActionNotConnected('PROVISIONSGUTHABEN')">Guthaben verwenden</button></div>
+    <div id="premiumExternalOption" class="premium-manager-option"><div><strong id="premiumExternalTitle">Extern verlängern</strong><span id="premiumExternalText">Normale Premium-Zahlung über den vorgesehenen Zahlungsweg.</span></div><button id="premiumExternalButton" type="button" class="btn-blue" onclick="premiumActionNotConnected('EXTERN')">Jetzt verlängern</button></div>
+    <div id="premiumAutoOption" class="premium-manager-option"><div><strong>Automatische Verlängerung</strong><span id="premiumAutoRenewText">Status: nicht aktiviert</span></div><button type="button" class="btn-orange" onclick="premiumActionNotConnected('AUTO')">Einstellung ändern</button></div>
+    <div id="premiumPlusSwitchOption" class="premium-manager-option premium-plus-switch-option" hidden><div><strong>Zu Premium Plus wechseln</strong><span>Bis zu 5 Anbieter im Quotenvergleich und zusätzliche Premium-Provisionen bis zur 8. Ebene.</span></div><button type="button" class="btn-orange" onclick="premiumActionNotConnected('UPGRADE_PLUS')">Premium Plus ansehen</button></div>
+    <div id="premiumManagerMessage" class="premium-manager-message">Die Oberfläche ist vorbereitet. Die Zahlungs- und Guthabenlogik wird erst nach Freigabe des Premium-v1.2-Backends verbunden.</div>
   </div>
 </div>
 
-
 <div id="referralTransferOverlay" class="referral-transfer-overlay" hidden>
   <div class="referral-transfer-dialog" role="dialog" aria-modal="true" aria-labelledby="referralTransferTitle">
-    <button class="referral-transfer-close" type="button" onclick="closeReferralTransfer()" aria-label="Schließen">×</button>
-
-    <div class="referral-transfer-eyebrow">BetInsight Referral-Units</div>
-    <h3 id="referralTransferTitle">Units aufs Tippkonto buchen</h3>
-    <p class="referral-transfer-summary">
-      Buche freigegebene Referral-Units auf dein Tippkonto. Geschenk- und Kauf-Units werden dabei nicht verändert.
-    </p>
-
-    <div class="referral-transfer-balance-grid">
-      <div class="referral-transfer-balance">
-        <span>Verfügbare Referral-Units</span>
-        <strong id="referralTransferAvailable">0</strong>
-      </div>
-      <div class="referral-transfer-balance remaining">
-        <span>Danach noch verfügbar</span>
-        <strong id="referralTransferRemaining">0</strong>
-      </div>
-    </div>
-
-    <label class="referral-transfer-label" for="referralTransferAmount">
-      Wie viele Units möchtest du aufs Tippkonto buchen?
-    </label>
-    <input
-      id="referralTransferAmount"
-      type="number"
-      min="0.01"
-      step="0.01"
-      inputmode="decimal"
-      placeholder="z. B. 5"
-      autocomplete="off"
-    >
-
-    <p class="referral-transfer-note">
-      Die Umbuchung wird serverseitig geprüft und durch eine eindeutige Anfrage-ID gegen Doppelklicks abgesichert.
-    </p>
-
-    <div id="referralTransferMessage" class="referral-transfer-message" aria-live="polite"></div>
-
-    <div class="referral-transfer-actions">
-      <button id="referralTransferCancelButton" class="btn-gray" type="button" onclick="closeReferralTransfer()">
-        Abbrechen
-      </button>
-      <button id="referralTransferConfirmButton" class="btn-green" type="button" onclick="confirmReferralTransfer()">
-        ⭐ Jetzt umbuchen
-      </button>
-    </div>
+    <button class="referral-transfer-close" type="button" onclick="closeReferralTransfer()" aria-label="Schließen">×</button><div class="referral-transfer-eyebrow">BetInsight Referral-Units</div><h3 id="referralTransferTitle">Units aufs Tippkonto buchen</h3><p class="referral-transfer-summary">Buche freigegebene Referral-Units auf dein Tippkonto. Geschenk- und Kauf-Units werden dabei nicht verändert.</p>
+    <div class="referral-transfer-balance-grid"><div class="referral-transfer-balance"><span>Verfügbare Referral-Units</span><strong id="referralTransferAvailable">0</strong></div><div class="referral-transfer-balance remaining"><span>Danach noch verfügbar</span><strong id="referralTransferRemaining">0</strong></div></div>
+    <label class="referral-transfer-label" for="referralTransferAmount">Wie viele Units möchtest du aufs Tippkonto buchen?</label><input id="referralTransferAmount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="z. B. 5" autocomplete="off"><p class="referral-transfer-note">Die Umbuchung wird serverseitig geprüft und durch eine eindeutige Anfrage-ID gegen Doppelklicks abgesichert.</p><div id="referralTransferMessage" class="referral-transfer-message" aria-live="polite"></div><div class="referral-transfer-actions"><button id="referralTransferCancelButton" class="btn-gray" type="button" onclick="closeReferralTransfer()">Abbrechen</button><button id="referralTransferConfirmButton" class="btn-green" type="button" onclick="confirmReferralTransfer()">⭐ Jetzt umbuchen</button></div>
   </div>
 </div>
 
 <div id="debug" class="debug"></div>
 <footer class="footer">© 2026 BetInsight Club</footer>
-
 </main>
 
 <script>
 "use strict";
 
-const PROFILE_WEBHOOK_URL =
-  "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
+const PROFILE_WEBHOOK_URL="https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
+const REQUEST_LINK_WEBHOOK_URL="https://hook.eu1.make.com/me8q6ptfnno6qfji4s6348rw6f47i3t5";
+const EMPFEHLUNGEN_WEBHOOK_URL="https://hook.eu1.make.com/j883clzukqghxg9iiq91wxetue9wgoul";
+const REFERRAL_ACCOUNT_WEBHOOK_URL="https://hook.eu1.make.com/7skk3ar1t9690ewfdono994ue3maxyat";
+const SUPPORT_READER_URL="https://script.google.com/macros/s/AKfycbwgL2fh-4oBoaWBbtkSXaaKaEhcSIxtjPCENRObyfkMS0luNunCnjqSVt0PFTnGhZ9P/exec";
+const TOKEN_STORAGE_KEY="betinsight_profile_token";
 
-const REQUEST_LINK_WEBHOOK_URL =
-  "https://hook.eu1.make.com/me8q6ptfnno6qfji4s6348rw6f47i3t5";
+let profilePrivacyActive=false;
+let accountPrivacyActive=false;
+let referralPrivacyActive=false;
+let currentProfileData={email:"",units:0,referralAvailable:0,refCode:"",dashboardToken:"",refLink:"",consumedUnits:null,unlockedTips:0,membershipLevel:0,membership:"Basis",premiumStart:null,premiumUntil:null,graceUntil:null,premiumStatus:"",autoRenew:"NEIN",tariffCode:""};
 
-const EMPFEHLUNGEN_WEBHOOK_URL =
-  "https://hook.eu1.make.com/j883clzukqghxg9iiq91wxetue9wgoul";
+function safeNumber(value){if(value===undefined||value===null||value==="")return 0;const normalized=String(value).replace(",",".");const parsed=Number(normalized);return Number.isFinite(parsed)?parsed:0}
+function formatNumber(value){return new Intl.NumberFormat("de-DE",{maximumFractionDigits:2}).format(safeNumber(value))}
+function formatUnitsTwoDecimals(value){return new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(safeNumber(value))}
+function normalizeMembership(level,membership){const numericLevel=Number(String(level??"0").replace(",","."));const raw=String(membership||"").trim();if(raw==="Premium Plus"||numericLevel>=2)return{level:2,name:"Premium Plus",note:"BetInsight Premium Plus"};if(raw==="Premium"||numericLevel===1)return{level:1,name:"Premium",note:"BetInsight Premium"};return{level:0,name:"Basis",note:"BetInsight Basis-Zugang"}}
 
-const REFERRAL_ACCOUNT_WEBHOOK_URL =
-  "https://hook.eu1.make.com/7skk3ar1t9690ewfdono994ue3maxyat";
-
-const SUPPORT_READER_URL =
-  "https://script.google.com/macros/s/AKfycbwgL2fh-4oBoaWBbtkSXaaKaEhcSIxtjPCENRObyfkMS0luNunCnjqSVt0PFTnGhZ9P/exec";
-
-const TOKEN_STORAGE_KEY = "betinsight_profile_token";
-
-let profilePrivacyActive = false;
-let accountPrivacyActive = false;
-let referralPrivacyActive = false;
-
-let currentProfileData = {
-  email:"",units:0,referralAvailable:0,refCode:"",dashboardToken:"",refLink:"",
-  consumedUnits:null,unlockedTips:0,membershipLevel:0,membership:"Basis",
-  premiumStart:null,premiumUntil:null,graceUntil:null,premiumStatus:"",
-  autoRenew:"NEIN",tariffCode:""
-};
-
-function safeNumber(value){
-  if(value===undefined || value===null || value==="") return 0;
-  const normalized=String(value).replace(",",".");
-  const parsed=Number(normalized);
-  return Number.isFinite(parsed)?parsed:0;
-}
-
-function formatNumber(value){
-  return new Intl.NumberFormat("de-DE",{maximumFractionDigits:2}).format(safeNumber(value));
-}
-
-function formatUnitsTwoDecimals(value){
-  return new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(safeNumber(value));
-}
-
-function normalizeMembership(level, membership){
-  const numericLevel = Number(String(level ?? "0").replace(",", "."));
-  const raw = String(membership || "").trim();
-
-  if(raw === "Premium Plus" || numericLevel >= 2){
-    return {level:2,name:"Premium Plus",note:"BetInsight Premium Plus"};
-  }
-  if(raw === "Premium" || numericLevel === 1){
-    return {level:1,name:"Premium",note:"BetInsight Premium"};
-  }
-  return {level:0,name:"Basis",note:"BetInsight Basis-Zugang"};
-}
-
-let premiumCountdownInterval = null;
-let premiumManagerMode = "MANAGE";
-let requestLinkInFlight = false;
-let referralTransferInFlight = false;
-let referralTransferRequestId = "";
-let referralTransferRequestAmount = null;
-let supportUnreadRequestInFlight = false;
-
-function parseDateValue(value){
-  if(value===undefined || value===null || value==="") return null;
-  const raw=String(value).trim();
-  if(!raw) return null;
-  const isoCandidate=raw.includes("T") ? raw : raw.replace(" ","T");
-  const parsed=new Date(isoCandidate);
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
-}
-
-function formatDateTimeDe(date){
-  if(!(date instanceof Date) || Number.isNaN(date.getTime())) return "–";
-  return new Intl.DateTimeFormat("de-DE",{
-    day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"
-  }).format(date);
-}
-
-function formatCountdown(ms){
-  const safe=Math.max(0,ms);
-  const totalSeconds=Math.floor(safe/1000);
-  const days=Math.floor(totalSeconds/86400);
-  const hours=Math.floor((totalSeconds%86400)/3600);
-  const minutes=Math.floor((totalSeconds%3600)/60);
-  const seconds=totalSeconds%60;
-  if(days>0){
-    return `${days} ${days===1?"Tag":"Tage"} · ${String(hours).padStart(2,"0")}:${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}`;
-  }
-  return `${String(hours).padStart(2,"0")}:${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")} Std.`;
-}
-
-function resolveGraceUntil(premiumUntil, explicitGraceUntil){
-  if(explicitGraceUntil) return explicitGraceUntil;
-  if(!premiumUntil) return null;
-  return new Date(premiumUntil.getTime() + 5*24*60*60*1000);
-}
-
-function stopPremiumCountdown(){
-  if(premiumCountdownInterval){
-    clearInterval(premiumCountdownInterval);
-    premiumCountdownInterval=null;
-  }
-}
+let premiumCountdownInterval=null,premiumManagerMode="MANAGE",requestLinkInFlight=false,referralTransferInFlight=false,referralTransferRequestId="",referralTransferRequestAmount=null,supportUnreadRequestInFlight=false;
+function parseDateValue(value){if(value===undefined||value===null||value==="")return null;const raw=String(value).trim();if(!raw)return null;const parsed=new Date(raw.includes("T")?raw:raw.replace(" ","T"));return Number.isNaN(parsed.getTime())?null:parsed}
+function formatDateTimeDe(date){if(!(date instanceof Date)||Number.isNaN(date.getTime()))return"–";return new Intl.DateTimeFormat("de-DE",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(date)}
+function formatCountdown(ms){const safe=Math.max(0,ms),t=Math.floor(safe/1000),d=Math.floor(t/86400),h=Math.floor((t%86400)/3600),m=Math.floor((t%3600)/60),s=t%60;if(d>0)return`${d} ${d===1?"Tag":"Tage"} · ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;return`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")} Std.`}
+function resolveGraceUntil(premiumUntil,explicitGraceUntil){if(explicitGraceUntil)return explicitGraceUntil;if(!premiumUntil)return null;return new Date(premiumUntil.getTime()+5*24*60*60*1000)}
+function stopPremiumCountdown(){if(premiumCountdownInterval){clearInterval(premiumCountdownInterval);premiumCountdownInterval=null}}
 
 function renderPremiumRuntime(){
-  const box=document.getElementById("premiumRuntimeBox");
-  const countdown=document.getElementById("premiumCountdown");
-  const expiry=document.getElementById("premiumExpiry");
-  const message=document.getElementById("premiumRuntimeMessage");
-  const bar=document.getElementById("premiumProgressBar");
-  const hint=document.getElementById("membershipRuntimeHint");
-  const card=document.querySelector(".membership-card");
-  if(!box || !countdown || !expiry || !message || !bar || !hint || !card) return;
-  stopPremiumCountdown();
-  card.classList.remove("membership-warning","membership-grace");
-  const membership=normalizeMembership(currentProfileData.membershipLevel,currentProfileData.membership);
-  if(membership.level===0){box.hidden=true;hint.hidden=true;hint.innerText="";return}
-  box.hidden=false;hint.hidden=false;
-  const premiumUntil=parseDateValue(currentProfileData.premiumUntil);
-  const graceUntil=resolveGraceUntil(premiumUntil,parseDateValue(currentProfileData.graceUntil));
-  const tick=()=>{
-    const now=new Date();
-    if(!premiumUntil){
-      countdown.innerText=`${membership.name} aktiv`;
-      message.innerText="Laufzeit wird mit Premium v1.2 synchronisiert.";
-      expiry.innerText="";bar.style.width="100%";
-      hint.innerText="● Aktiv · Laufzeit wird mit Premium v1.2 synchronisiert";
-      return;
-    }
-    if(now<premiumUntil){
-      const remaining=premiumUntil-now;
-      countdown.innerText=`Noch ${formatCountdown(remaining)}`;
-      expiry.innerText=`Gültig bis ${formatDateTimeDe(premiumUntil)}`;
-      hint.innerText=`● Aktiv · noch ${formatCountdown(remaining)} · bis ${formatDateTimeDe(premiumUntil)}`;
-      const warningMs=5*24*60*60*1000;
-      if(remaining<=warningMs){card.classList.add("membership-warning");message.innerText="Deine Mitgliedschaft endet in weniger als 5 Tagen."}
-      else{card.classList.remove("membership-warning");message.innerText=currentProfileData.autoRenew==="JA"?"Automatische Verlängerung ist vorgemerkt.":`${membership.name} ist aktiv.`}
-      const periodMs=30*24*60*60*1000;bar.style.width=`${Math.max(0,Math.min(100,(remaining/periodMs)*100))}%`;return;
-    }
-    if(graceUntil && now<graceUntil){
-      const rest=graceUntil-now;card.classList.remove("membership-warning");card.classList.add("membership-grace");
-      countdown.innerText=`Kulanzzeit · noch ${formatCountdown(rest)}`;hint.innerText=`● Kulanz · noch ${formatCountdown(rest)}`;
-      message.innerText="Gruppenprovisionen sind während der Kulanz vorgemerkt, aber nicht auszahlbar.";bar.style.width="0%";return;
-    }
-    card.classList.remove("membership-warning","membership-grace");countdown.innerText="Premium-Zeitraum beendet";hint.innerText="● Premium-Zeitraum beendet";message.innerText="Kulanz beendet.";bar.style.width="0%";
-  };
-  tick();premiumCountdownInterval=setInterval(tick,1000);
+  const box=document.getElementById("premiumRuntimeBox"),countdown=document.getElementById("premiumCountdown"),expiry=document.getElementById("premiumExpiry"),message=document.getElementById("premiumRuntimeMessage"),bar=document.getElementById("premiumProgressBar"),hint=document.getElementById("membershipRuntimeHint"),card=document.querySelector(".membership-card");if(!box||!countdown||!expiry||!message||!bar||!hint||!card)return;stopPremiumCountdown();card.classList.remove("membership-warning","membership-grace");const membership=normalizeMembership(currentProfileData.membershipLevel,currentProfileData.membership);if(membership.level===0){box.hidden=true;hint.hidden=true;hint.innerText="";return}box.hidden=false;hint.hidden=false;const premiumUntil=parseDateValue(currentProfileData.premiumUntil),graceUntil=resolveGraceUntil(premiumUntil,parseDateValue(currentProfileData.graceUntil));const tick=()=>{const now=new Date();if(!premiumUntil){countdown.innerText=`${membership.name} aktiv`;message.innerText="Laufzeit wird mit Premium v1.2 synchronisiert.";expiry.innerText="";bar.style.width="100%";hint.innerText="● Aktiv · Laufzeit wird mit Premium v1.2 synchronisiert";return}if(now<premiumUntil){const remaining=premiumUntil-now;countdown.innerText=`Noch ${formatCountdown(remaining)}`;expiry.innerText=`Gültig bis ${formatDateTimeDe(premiumUntil)}`;hint.innerText=`● Aktiv · noch ${formatCountdown(remaining)} · bis ${formatDateTimeDe(premiumUntil)}`;const warningMs=5*24*60*60*1000;if(remaining<=warningMs){card.classList.add("membership-warning");message.innerText="Deine Mitgliedschaft endet in weniger als 5 Tagen."}else{card.classList.remove("membership-warning");message.innerText=currentProfileData.autoRenew==="JA"?"Automatische Verlängerung ist vorgemerkt.":`${membership.name} ist aktiv.`}bar.style.width=`${Math.max(0,Math.min(100,(remaining/(30*24*60*60*1000))*100))}%`;return}if(graceUntil&&now<graceUntil){const rest=graceUntil-now;card.classList.remove("membership-warning");card.classList.add("membership-grace");countdown.innerText=`Kulanzzeit · noch ${formatCountdown(rest)}`;hint.innerText=`● Kulanz · noch ${formatCountdown(rest)}`;message.innerText="Gruppenprovisionen sind während der Kulanz vorgemerkt, aber nicht auszahlbar.";bar.style.width="0%";return}card.classList.remove("membership-warning","membership-grace");countdown.innerText="Premium-Zeitraum beendet";hint.innerText="● Premium-Zeitraum beendet";message.innerText="Kulanz beendet.";bar.style.width="0%"};tick();premiumCountdownInterval=setInterval(tick,1000)
 }
 
-function openPremiumManager(){
-  const overlay=document.getElementById("premiumManagerOverlay");
-  const summary=document.getElementById("premiumManagerSummary");
-  const autoText=document.getElementById("premiumAutoRenewText");
-  if(!overlay) return;
+function openPremiumManager(){const overlay=document.getElementById("premiumManagerOverlay"),summary=document.getElementById("premiumManagerSummary"),autoText=document.getElementById("premiumAutoRenewText");if(!overlay)return;const membership=normalizeMembership(currentProfileData.membershipLevel,currentProfileData.membership);if(membership.level===0)return;premiumManagerMode="MANAGE";const title=document.getElementById("premiumManagerTitle"),creditOption=document.getElementById("premiumCreditOption"),externalOption=document.getElementById("premiumExternalOption"),autoOption=document.getElementById("premiumAutoOption"),creditTitle=document.getElementById("premiumCreditTitle"),creditText=document.getElementById("premiumCreditText"),creditButton=document.getElementById("premiumCreditButton"),externalTitle=document.getElementById("premiumExternalTitle"),externalText=document.getElementById("premiumExternalText"),externalButton=document.getElementById("premiumExternalButton");if(title)title.innerText="Abo & Verlängerung";if(creditOption)creditOption.hidden=false;if(externalOption)externalOption.hidden=false;if(autoOption)autoOption.hidden=false;if(creditTitle)creditTitle.innerText="Mit Provisionsguthaben verlängern";if(creditText)creditText.innerText="Nur bereits auszahlbares Provisionsguthaben kann für eine Verlängerung verwendet werden.";if(creditButton)creditButton.innerText="Guthaben verwenden";if(externalTitle)externalTitle.innerText="Extern verlängern";if(externalText)externalText.innerText="Normale Premium-Zahlung über den vorgesehenen Zahlungsweg.";if(externalButton)externalButton.innerText="Jetzt verlängern";if(summary)summary.innerText=`${membership.name} verwalten`+(currentProfileData.premiumUntil?` · gültig bis ${formatDateTimeDe(parseDateValue(currentProfileData.premiumUntil))}`:"");if(autoText)autoText.innerText=`Status: ${String(currentProfileData.autoRenew||"NEIN").toUpperCase()==="JA"?"aktiv":"nicht aktiviert"}`;const plusSwitch=document.getElementById("premiumPlusSwitchOption");if(plusSwitch)plusSwitch.hidden=(membership.level!==1);document.getElementById("premiumManagerMessage").innerText="Die Oberfläche ist vorbereitet. Die Zahlungs- und Guthabenlogik wird erst nach Freigabe des Premium-v1.2-Backends verbunden.";overlay.hidden=false}
+function closePremiumManager(){const overlay=document.getElementById("premiumManagerOverlay");if(overlay)overlay.hidden=true}
+function premiumActionNotConnected(type){let text="Diese Funktion wird mit Premium v1.2 verbunden.";if(premiumManagerMode==="UPGRADE_PREMIUM"){if(type==="EXTERN")text="Die erstmalige Premium-Aktivierung wird über den vorgesehenen externen Zahlungsweg mit Premium v1.2 verbunden."}else if(premiumManagerMode==="UPGRADE_PLUS"){if(type==="PROVISIONSGUTHABEN")text="Der Wechsel auf Premium Plus aus bereits auszahlbarem Provisionsguthaben wird mit Premium v1.2 geprüft und verbunden.";if(type==="EXTERN")text="Der externe Wechsel auf Premium Plus wird mit Premium v1.2 verbunden. Die zusätzlichen Leistungen gelten erst ab bestätigter Aktivierung und nicht rückwirkend."}else{const messages={PROVISIONSGUTHABEN:"Verlängerung aus auszahlbarem Provisionsguthaben ist vorbereitet und wird mit Premium v1.2 verbunden.",EXTERN:"Die externe Premium-Verlängerung ist vorbereitet und wird mit Premium v1.2 verbunden.",AUTO:"Die Auto-Verlängerung ist vorbereitet und wird mit Premium v1.2 verbunden.",UPGRADE_PLUS:"Der Wechsel zu Premium Plus wird mit Premium v1.2 verbunden. Ab bestätigter Aktivierung gelten dann die Premium-Plus-Leistungen und die zusätzliche Provisionstiefe bis zur 8. Ebene; keine Rückwirkung."};text=messages[type]||text}document.getElementById("premiumManagerMessage").innerText=text}
+function toggleMembershipInfo(event){if(event)event.stopPropagation();const overlay=document.getElementById("membershipInfoOverlay"),button=document.getElementById("membershipInfoButton");if(!overlay||!button)return;const willOpen=overlay.hidden;overlay.hidden=!willOpen;button.classList.toggle("active",willOpen);button.setAttribute("aria-expanded",willOpen?"true":"false")}
+function closeMembershipInfo(){const overlay=document.getElementById("membershipInfoOverlay"),button=document.getElementById("membershipInfoButton");if(overlay)overlay.hidden=true;if(button){button.classList.remove("active");button.setAttribute("aria-expanded","false")}}
 
-  const membership=normalizeMembership(currentProfileData.membershipLevel,currentProfileData.membership);
-  if(membership.level===0) return;
-
-  premiumManagerMode="MANAGE";
-
-  const title=document.getElementById("premiumManagerTitle");
-  const creditOption=document.getElementById("premiumCreditOption");
-  const externalOption=document.getElementById("premiumExternalOption");
-  const autoOption=document.getElementById("premiumAutoOption");
-  const creditTitle=document.getElementById("premiumCreditTitle");
-  const creditText=document.getElementById("premiumCreditText");
-  const creditButton=document.getElementById("premiumCreditButton");
-  const externalTitle=document.getElementById("premiumExternalTitle");
-  const externalText=document.getElementById("premiumExternalText");
-  const externalButton=document.getElementById("premiumExternalButton");
-
-  if(title) title.innerText="Abo & Verlängerung";
-  if(creditOption) creditOption.hidden=false;
-  if(externalOption) externalOption.hidden=false;
-  if(autoOption) autoOption.hidden=false;
-  if(creditTitle) creditTitle.innerText="Mit Provisionsguthaben verlängern";
-  if(creditText) creditText.innerText="Nur bereits auszahlbares Provisionsguthaben kann für eine Verlängerung verwendet werden.";
-  if(creditButton) creditButton.innerText="Guthaben verwenden";
-  if(externalTitle) externalTitle.innerText="Extern verlängern";
-  if(externalText) externalText.innerText="Normale Premium-Zahlung über den vorgesehenen Zahlungsweg.";
-  if(externalButton) externalButton.innerText="Jetzt verlängern";
-
-  if(summary){
-    summary.innerText=`${membership.name} verwalten`+
-      (currentProfileData.premiumUntil ? ` · gültig bis ${formatDateTimeDe(parseDateValue(currentProfileData.premiumUntil))}` : "");
-  }
-  if(autoText){
-    autoText.innerText=`Status: ${String(currentProfileData.autoRenew||"NEIN").toUpperCase()==="JA" ? "aktiv" : "nicht aktiviert"}`;
-  }
-
-  const plusSwitch=document.getElementById("premiumPlusSwitchOption");
-  if(plusSwitch) plusSwitch.hidden=(membership.level!==1);
-
-  document.getElementById("premiumManagerMessage").innerText=
-    "Die Oberfläche ist vorbereitet. Die Zahlungs- und Guthabenlogik wird erst nach Freigabe des Premium-v1.2-Backends verbunden.";
-  overlay.hidden=false;
-}
-
-function closePremiumManager(){
-  const overlay=document.getElementById("premiumManagerOverlay");
-  if(overlay) overlay.hidden=true;
-}
-
-function premiumActionNotConnected(type){
-  let text="Diese Funktion wird mit Premium v1.2 verbunden.";
-
-  if(premiumManagerMode==="UPGRADE_PREMIUM"){
-    if(type==="EXTERN") text="Die erstmalige Premium-Aktivierung wird über den vorgesehenen externen Zahlungsweg mit Premium v1.2 verbunden.";
-  }else if(premiumManagerMode==="UPGRADE_PLUS"){
-    if(type==="PROVISIONSGUTHABEN") text="Der Wechsel auf Premium Plus aus bereits auszahlbarem Provisionsguthaben wird mit Premium v1.2 geprüft und verbunden.";
-    if(type==="EXTERN") text="Der externe Wechsel auf Premium Plus wird mit Premium v1.2 verbunden. Die zusätzlichen Leistungen gelten erst ab bestätigter Aktivierung und nicht rückwirkend.";
-  }else{
-    const messages={
-      PROVISIONSGUTHABEN:"Verlängerung aus auszahlbarem Provisionsguthaben ist vorbereitet und wird mit Premium v1.2 verbunden.",
-      EXTERN:"Die externe Premium-Verlängerung ist vorbereitet und wird mit Premium v1.2 verbunden.",
-      AUTO:"Die Auto-Verlängerung ist vorbereitet und wird mit Premium v1.2 verbunden.",
-      UPGRADE_PLUS:"Der Wechsel zu Premium Plus wird mit Premium v1.2 verbunden. Ab bestätigter Aktivierung gelten dann die Premium-Plus-Leistungen und die zusätzliche Provisionstiefe bis zur 8. Ebene; keine Rückwirkung."
-    };
-    text=messages[type] || text;
-  }
-
-  document.getElementById("premiumManagerMessage").innerText=text;
-}
-
-function toggleMembershipInfo(event){
-  if(event) event.stopPropagation();
-  const overlay=document.getElementById("membershipInfoOverlay");
-  const button=document.getElementById("membershipInfoButton");
-  if(!overlay || !button) return;
-  const willOpen=overlay.hidden;overlay.hidden=!willOpen;button.classList.toggle("active",willOpen);button.setAttribute("aria-expanded",willOpen?"true":"false");
-}
-
-function closeMembershipInfo(){
-  const overlay=document.getElementById("membershipInfoOverlay");
-  const button=document.getElementById("membershipInfoButton");
-  if(overlay) overlay.hidden=true;
-  if(button){button.classList.remove("active");button.setAttribute("aria-expanded","false")}
-}
-
-function startMembershipUpgrade(target){
-  const box=document.getElementById("premiumManagerOverlay");
-  const title=document.getElementById("premiumManagerTitle");
-  const summary=document.getElementById("premiumManagerSummary");
-  const message=document.getElementById("premiumManagerMessage");
-  if(!box) return;
-
-  const membership=normalizeMembership(currentProfileData.membershipLevel,currentProfileData.membership);
-  const creditOption=document.getElementById("premiumCreditOption");
-  const externalOption=document.getElementById("premiumExternalOption");
-  const autoOption=document.getElementById("premiumAutoOption");
-  const creditTitle=document.getElementById("premiumCreditTitle");
-  const creditText=document.getElementById("premiumCreditText");
-  const creditButton=document.getElementById("premiumCreditButton");
-  const externalTitle=document.getElementById("premiumExternalTitle");
-  const externalText=document.getElementById("premiumExternalText");
-  const externalButton=document.getElementById("premiumExternalButton");
-
-  const plusSwitch=document.getElementById("premiumPlusSwitchOption");
-  if(plusSwitch) plusSwitch.hidden=true;
-  if(externalOption) externalOption.hidden=false;
-
-  if(membership.level===0){
-    // Basis-Mitglieder besitzen noch kein Premium-Provisionsguthaben.
-    // Bei der Erstaktivierung zeigen wir deshalb nur den echten Zahlungsweg.
-    premiumManagerMode=target==="PREMIUM_PLUS" ? "UPGRADE_PLUS" : "UPGRADE_PREMIUM";
-    if(creditOption) creditOption.hidden=true;
-    if(autoOption) autoOption.hidden=true;
-
-    if(target==="PREMIUM_PLUS"){
-      if(title) title.innerText="Premium Plus aktivieren";
-      if(summary) summary.innerText="Bis zu 5 Anbieter im Quotenvergleich und zusätzliche Premium-Provisionen bis zur 8. Ebene.";
-      if(externalTitle) externalTitle.innerText="Premium Plus aktivieren";
-      if(externalText) externalText.innerText="Erstaktivierung über den vorgesehenen externen Zahlungsweg.";
-      if(externalButton) externalButton.innerText="Jetzt aktivieren";
-    }else{
-      if(title) title.innerText="Premium aktivieren";
-      if(summary) summary.innerText="2 Anbieter-/Quotenanzeigen und zusätzliche Premium-Provisionen bis zur 6. Ebene.";
-      if(externalTitle) externalTitle.innerText="Premium aktivieren";
-      if(externalText) externalText.innerText="Erstaktivierung über den vorgesehenen externen Zahlungsweg.";
-      if(externalButton) externalButton.innerText="Jetzt aktivieren";
-    }
-
-    if(message) message.innerText="Nach erfolgreicher Aktivierung stehen Abo-Verwaltung, Verlängerung und – sofern vorhanden – auszahlbares Provisionsguthaben zur Verfügung.";
-    box.hidden=false;
-    return;
-  }
-
-  // Ein bereits aktives Premium-Mitglied kann später auf Premium Plus wechseln.
-  premiumManagerMode="UPGRADE_PLUS";
-  if(creditOption) creditOption.hidden=false;
-  if(autoOption) autoOption.hidden=true;
-  if(creditTitle) creditTitle.innerText="Mit Provisionsguthaben upgraden";
-  if(creditText) creditText.innerText="Nur bereits auszahlbares Provisionsguthaben kann verwendet werden.";
-  if(creditButton) creditButton.innerText="Guthaben verwenden";
-  if(externalTitle) externalTitle.innerText="Extern auf Premium Plus wechseln";
-  if(externalText) externalText.innerText="Tarifwechsel über den vorgesehenen externen Zahlungsweg.";
-  if(externalButton) externalButton.innerText="Premium Plus aktivieren";
-  if(title) title.innerText="Upgrade auf Premium Plus";
-  if(summary) summary.innerText="Bis zu 5 Anbieter im Quotenvergleich und zusätzliche Premium-Provisionen bis zur 8. Ebene.";
-  if(message) message.innerText="Die zusätzlichen Premium-Plus-Leistungen gelten erst ab bestätigter Aktivierung und nicht rückwirkend.";
-  box.hidden=false;
-}
-
-function renderMembershipActions(level){
-  const basisBox=document.getElementById("basisUpgradeBox");
-  const premiumRuntime=document.getElementById("premiumRuntimeBox");
-  const premiumPlusUpgrade=document.getElementById("premiumPlusUpgradeButton");
-  if(!basisBox || !premiumRuntime || !premiumPlusUpgrade) return;
-
-  if(level===0){
-    basisBox.hidden=false;
-    premiumRuntime.hidden=true;
-    premiumPlusUpgrade.hidden=true;
-    return;
-  }
-
-  basisBox.hidden=true;
-  premiumRuntime.hidden=false;
-  premiumPlusUpgrade.hidden=true;
-}
-
-function highlightCurrentMembershipTier(level){
-  const panel=document.getElementById("membershipInfoPanel");
-  if(!panel) return;
-  panel.querySelectorAll(".membership-info-tier").forEach(card=>card.classList.remove("current-tier"));
-  const safeLevel=Math.min(2,Math.max(0,Number(level)||0));
-  panel.querySelector(`.membership-info-tier[data-membership-level="${safeLevel}"]`)?.classList.add("current-tier");
-}
-
-function configureMembershipInfo(level){
-  const panel=document.getElementById("membershipInfoPanel");
-  const title=document.getElementById("membershipInfoTitle");
-  const subline=document.getElementById("membershipInfoSubline");
-  if(!panel) return;
-
-  panel.classList.remove("info-level-0","info-level-1","info-level-2");
-  panel.classList.add("info-level-0");
-
-  if(title) title.innerText="Mitgliedschaften vergleichen";
-  if(subline) subline.innerText="Basis, Premium und Premium Plus auf einen Blick. Dein aktueller Tarif ist markiert.";
-}
-
-function renderMembership(level, membership){
-  const normalized = normalizeMembership(level, membership);
-  const card = document.querySelector(".membership-card");
-  const value = document.getElementById("membershipStatus");
-  const note = document.getElementById("membershipNote");
-  if(!card || !value || !note) return;
-
-  card.classList.remove("membership-premium", "membership-premiumplus");
-  if(normalized.level === 1){card.classList.add("membership-premium")}
-  else if(normalized.level >= 2){card.classList.add("membership-premiumplus")}
-
-  value.innerText = normalized.name;
-  note.innerText = normalized.note;
-  highlightCurrentMembershipTier(normalized.level);
-  configureMembershipInfo(normalized.level);
-  renderMembershipActions(normalized.level);
-  renderPremiumRuntime();
-}
-
-function optionalNumber(value){
-  if(value===undefined || value===null || value==="") return null;
-  const n=safeNumber(value);
-  return Number.isFinite(n)?n:null;
-}
-
-function firstDefined(object,keys,fallback=0){
-  for(const key of keys){
-    if(object && Object.prototype.hasOwnProperty.call(object,key) &&
-       object[key]!==undefined && object[key]!==null && object[key]!==""){
-      return object[key];
-    }
-  }
-  return fallback;
-}
-
-function formatOptionalNumber(value){
-  return value===undefined || value===null || value==="" ? "–" : formatNumber(value);
-}
-
-function escapeHtml(value){
-  return String(value ?? "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
-
-function maskAccessToken(token){
-  const clean=String(token||"").trim();
-  if(!clean) return "Nicht verfügbar";
-  if(clean.length<=8) return clean.substring(0,2)+"••••"+clean.slice(-2);
-  return clean.substring(0,4)+"••••"+clean.slice(-4);
-}
-
-function setMaskedToken(token){
-  const el=document.getElementById("maskedToken");
-  if(!el) return;
-  if(profilePrivacyActive){el.classList.add("private-token-hidden");return}
-  el.classList.remove("private-token-hidden");
-  el.innerText=maskAccessToken(token);
-}
-
-function setBetInsightId(refCode){
-  document.getElementById("betInsightId").innerText=String(refCode||"").trim() || "Nicht verfügbar";
-}
-
-async function copyText(text){
-  if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(text);return}
-  const ta=document.createElement("textarea");
-  ta.value=text;
-  ta.style.position="fixed";
-  ta.style.opacity="0";
-  document.body.appendChild(ta);
-  ta.select();
-  document.execCommand("copy");
-  ta.remove();
-}
-
-function copyBetInsightId(){
-  const value=document.getElementById("betInsightId").innerText.trim();
-  if(value && value!=="Lade..." && value!=="Nicht verfügbar"){
-    copyText(value).then(()=>document.getElementById("message").innerText="BetInsight-ID wurde kopiert.");
-  }
-}
-
-function toggleProfilePrivacy(){
-  profilePrivacyActive=!profilePrivacyActive;
-  document.getElementById("emailDataRow").classList.toggle("private-row-hidden",profilePrivacyActive);
-  document.getElementById("maskedToken").classList.toggle("private-token-hidden",profilePrivacyActive);
-  const b=document.getElementById("profilePrivacyButton");
-  b.classList.toggle("active",profilePrivacyActive);
-  b.innerText=profilePrivacyActive?"◉ Geschützt":"◉ Schützen";
-  if(!profilePrivacyActive) setMaskedToken(getActiveToken());
-}
-
-function toggleAccountPrivacy(){
-  accountPrivacyActive=!accountPrivacyActive;
-  document.querySelectorAll(".account-private-value").forEach(el=>el.classList.toggle("private-value-hidden",accountPrivacyActive));
-  const b=document.getElementById("accountPrivacyButton");
-  b.classList.toggle("active",accountPrivacyActive);
-  b.innerText=accountPrivacyActive?"◉ Geschützt":"◉ Schützen";
-}
-
-function toggleReferralPrivacy(){
-  referralPrivacyActive=!referralPrivacyActive;
-  document.querySelectorAll(
-    "#referralSection .referral-stat-value,"+
-    "#referralSection .network-level-line strong,"+
-    "#referralSection .referral-linkbox,"+
-    "#referralSection .level-metric-value,"+
-    "#referralSection .level-body"
-  ).forEach(el=>el.classList.toggle("private-value-hidden",referralPrivacyActive));
-  const b=document.getElementById("referralPrivacyButton");
-  b.classList.toggle("active",referralPrivacyActive);
-  b.innerText=referralPrivacyActive?"◉ Geschützt":"◉ Schützen";
-}
-
+function startMembershipUpgrade(target){const box=document.getElementById("premiumManagerOverlay"),title=document.getElementById("premiumManagerTitle"),summary=document.getElementById("premiumManagerSummary"),message=document.getElementById("premiumManagerMessage");if(!box)return;const membership=normalizeMembership(currentProfileData.membershipLevel,currentProfileData.membership),creditOption=document.getElementById("premiumCreditOption"),externalOption=document.getElementById("premiumExternalOption"),autoOption=document.getElementById("premiumAutoOption"),creditTitle=document.getElementById("premiumCreditTitle"),creditText=document.getElementById("premiumCreditText"),creditButton=document.getElementById("premiumCreditButton"),externalTitle=document.getElementById("premiumExternalTitle"),externalText=document.getElementById("premiumExternalText"),externalButton=document.getElementById("premiumExternalButton"),plusSwitch=document.getElementById("premiumPlusSwitchOption");if(plusSwitch)plusSwitch.hidden=true;if(externalOption)externalOption.hidden=false;if(membership.level===0){premiumManagerMode=target==="PREMIUM_PLUS"?"UPGRADE_PLUS":"UPGRADE_PREMIUM";if(creditOption)creditOption.hidden=true;if(autoOption)autoOption.hidden=true;if(target==="PREMIUM_PLUS"){if(title)title.innerText="Premium Plus aktivieren";if(summary)summary.innerText="Bis zu 5 Anbieter im Quotenvergleich und zusätzliche Premium-Provisionen bis zur 8. Ebene.";if(externalTitle)externalTitle.innerText="Premium Plus aktivieren";if(externalText)externalText.innerText="Erstaktivierung über den vorgesehenen externen Zahlungsweg.";if(externalButton)externalButton.innerText="Jetzt aktivieren"}else{if(title)title.innerText="Premium aktivieren";if(summary)summary.innerText="2 Anbieter-/Quotenanzeigen und zusätzliche Premium-Provisionen bis zur 6. Ebene.";if(externalTitle)externalTitle.innerText="Premium aktivieren";if(externalText)externalText.innerText="Erstaktivierung über den vorgesehenen externen Zahlungsweg.";if(externalButton)externalButton.innerText="Jetzt aktivieren"}if(message)message.innerText="Nach erfolgreicher Aktivierung stehen Abo-Verwaltung, Verlängerung und – sofern vorhanden – auszahlbares Provisionsguthaben zur Verfügung.";box.hidden=false;return}premiumManagerMode="UPGRADE_PLUS";if(creditOption)creditOption.hidden=false;if(autoOption)autoOption.hidden=true;if(creditTitle)creditTitle.innerText="Mit Provisionsguthaben upgraden";if(creditText)creditText.innerText="Nur bereits auszahlbares Provisionsguthaben kann verwendet werden.";if(creditButton)creditButton.innerText="Guthaben verwenden";if(externalTitle)externalTitle.innerText="Extern auf Premium Plus wechseln";if(externalText)externalText.innerText="Tarifwechsel über den vorgesehenen externen Zahlungsweg.";if(externalButton)externalButton.innerText="Premium Plus aktivieren";if(title)title.innerText="Upgrade auf Premium Plus";if(summary)summary.innerText="Bis zu 5 Anbieter im Quotenvergleich und zusätzliche Premium-Provisionen bis zur 8. Ebene.";if(message)message.innerText="Die zusätzlichen Premium-Plus-Leistungen gelten erst ab bestätigter Aktivierung und nicht rückwirkend.";box.hidden=false}
+function renderMembershipActions(level){const basisBox=document.getElementById("basisUpgradeBox"),premiumRuntime=document.getElementById("premiumRuntimeBox"),premiumPlusUpgrade=document.getElementById("premiumPlusUpgradeButton");if(!basisBox||!premiumRuntime||!premiumPlusUpgrade)return;if(level===0){basisBox.hidden=false;premiumRuntime.hidden=true;premiumPlusUpgrade.hidden=true;return}basisBox.hidden=true;premiumRuntime.hidden=false;premiumPlusUpgrade.hidden=true}
+function highlightCurrentMembershipTier(level){const panel=document.getElementById("membershipInfoPanel");if(!panel)return;panel.querySelectorAll(".membership-info-tier").forEach(card=>card.classList.remove("current-tier"));const safeLevel=Math.min(2,Math.max(0,Number(level)||0));panel.querySelector(`.membership-info-tier[data-membership-level="${safeLevel}"]`)?.classList.add("current-tier")}
+function configureMembershipInfo(level){const panel=document.getElementById("membershipInfoPanel"),title=document.getElementById("membershipInfoTitle"),subline=document.getElementById("membershipInfoSubline");if(!panel)return;panel.classList.remove("info-level-0","info-level-1","info-level-2");panel.classList.add("info-level-0");if(title)title.innerText="Mitgliedschaften vergleichen";if(subline)subline.innerText="Basis, Premium und Premium Plus auf einen Blick. Dein aktueller Tarif ist markiert."}
+function renderMembership(level,membership){const normalized=normalizeMembership(level,membership),card=document.querySelector(".membership-card"),value=document.getElementById("membershipStatus"),note=document.getElementById("membershipNote");if(!card||!value||!note)return;card.classList.remove("membership-premium","membership-premiumplus");if(normalized.level===1)card.classList.add("membership-premium");else if(normalized.level>=2)card.classList.add("membership-premiumplus");value.innerText=normalized.name;note.innerText=normalized.note;highlightCurrentMembershipTier(normalized.level);configureMembershipInfo(normalized.level);renderMembershipActions(normalized.level);renderPremiumRuntime()}
+function optionalNumber(value){if(value===undefined||value===null||value==="")return null;const n=safeNumber(value);return Number.isFinite(n)?n:null}
+function firstDefined(object,keys,fallback=0){for(const key of keys){if(object&&Object.prototype.hasOwnProperty.call(object,key)&&object[key]!==undefined&&object[key]!==null&&object[key]!=="")return object[key]}return fallback}
+function formatOptionalNumber(value){return value===undefined||value===null||value===""?"–":formatNumber(value)}
+function escapeHtml(value){return String(value??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
+function maskAccessToken(token){const clean=String(token||"").trim();if(!clean)return"Nicht verfügbar";if(clean.length<=8)return clean.substring(0,2)+"••••"+clean.slice(-2);return clean.substring(0,4)+"••••"+clean.slice(-4)}
+function setMaskedToken(token){const el=document.getElementById("maskedToken");if(!el)return;if(profilePrivacyActive){el.classList.add("private-token-hidden");return}el.classList.remove("private-token-hidden");el.innerText=maskAccessToken(token)}
+function setBetInsightId(refCode){document.getElementById("betInsightId").innerText=String(refCode||"").trim()||"Nicht verfügbar"}
+async function copyText(text){if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(text);return}const ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove()}
+function copyBetInsightId(){const value=document.getElementById("betInsightId").innerText.trim();if(value&&value!=="Lade..."&&value!=="Nicht verfügbar")copyText(value).then(()=>document.getElementById("message").innerText="BetInsight-ID wurde kopiert.")}
+function toggleProfilePrivacy(){profilePrivacyActive=!profilePrivacyActive;document.getElementById("emailDataRow").classList.toggle("private-row-hidden",profilePrivacyActive);document.getElementById("maskedToken").classList.toggle("private-token-hidden",profilePrivacyActive);const b=document.getElementById("profilePrivacyButton");b.classList.toggle("active",profilePrivacyActive);b.innerText=profilePrivacyActive?"◉ Geschützt":"◉ Schützen";if(!profilePrivacyActive)setMaskedToken(getActiveToken())}
+function toggleAccountPrivacy(){accountPrivacyActive=!accountPrivacyActive;document.querySelectorAll(".account-private-value").forEach(el=>el.classList.toggle("private-value-hidden",accountPrivacyActive));const b=document.getElementById("accountPrivacyButton");b.classList.toggle("active",accountPrivacyActive);b.innerText=accountPrivacyActive?"◉ Geschützt":"◉ Schützen"}
+function toggleReferralPrivacy(){referralPrivacyActive=!referralPrivacyActive;document.querySelectorAll("#referralSection .referral-stat-value,#referralSection .network-level-line strong,#referralSection .referral-linkbox,#referralSection .level-metric-value,#referralSection .level-body").forEach(el=>el.classList.toggle("private-value-hidden",referralPrivacyActive));const b=document.getElementById("referralPrivacyButton");b.classList.toggle("active",referralPrivacyActive);b.innerText=referralPrivacyActive?"◉ Geschützt":"◉ Schützen"}
 function getTokenFromUrl(){return new URLSearchParams(location.search).get("token")}
 function getSavedToken(){return localStorage.getItem(TOKEN_STORAGE_KEY)}
-function saveToken(token){if(token && String(token).trim()) localStorage.setItem(TOKEN_STORAGE_KEY,String(token).trim())}
-function getActiveToken(){
-  const fromUrl=getTokenFromUrl();
-  if(fromUrl && fromUrl.trim()){saveToken(fromUrl);return fromUrl.trim()}
-  return getSavedToken();
-}
-
-function isAcceptedSupportToken(value){
-  const clean=String(value||"").trim();
-  return /^\d{6,15}$/.test(clean) || /^BI-?\d{6,15}$/i.test(clean);
-}
-
-function canonicalSupportReaderToken(value){
-  const clean=String(value||"").trim();
-  if(/^\d{6,15}$/.test(clean)) return "BI-"+clean;
-  if(/^BI\d{6,15}$/i.test(clean)) return "BI-"+clean.slice(2);
-  if(/^BI-\d{6,15}$/i.test(clean)) return clean.toUpperCase();
-  return "";
-}
-
-function renderSupportUnread(count){
-  const badge=document.getElementById("supportUnreadBadge");
-  const button=document.getElementById("supportButton");
-  if(!badge || !button) return;
-
-  const unread=Math.max(0,Math.floor(Number(count)||0));
-  if(unread>0){
-    badge.hidden=false;
-    badge.textContent=unread>99 ? "99+" : String(unread);
-    badge.setAttribute("aria-label",unread+" ungelesene Support-Antworten");
-    button.title=unread===1
-      ? "1 neue Support-Antwort"
-      : unread+" neue Support-Antworten";
-  }else{
-    badge.hidden=true;
-    badge.textContent="0";
-    badge.setAttribute("aria-label","0 ungelesene Support-Antworten");
-    button.title="Support & Tickets öffnen";
-  }
-}
-
-async function refreshSupportUnread(tokenOverride=""){
-  if(supportUnreadRequestInFlight) return;
-
-  const candidate=String(tokenOverride || getSavedToken() || "").trim();
-  if(!isAcceptedSupportToken(candidate)){
-    renderSupportUnread(0);
-    return;
-  }
-
-  const readerToken=canonicalSupportReaderToken(candidate);
-  if(!readerToken){
-    renderSupportUnread(0);
-    return;
-  }
-
-  supportUnreadRequestInFlight=true;
-  try{
-    const response=await fetch(SUPPORT_READER_URL,{
-      method:"POST",
-      headers:{"Content-Type":"text/plain;charset=UTF-8"},
-      body:JSON.stringify({action:"list",token:readerToken}),
-      cache:"no-store",
-      redirect:"follow",
-      credentials:"omit"
-    });
-
-    const raw=String(await response.text() || "").replace(/^\uFEFF/,"").trim();
-    if(!raw) throw new Error("Leere Support-Antwort");
-
-    const data=JSON.parse(raw);
-    if(!response.ok || data?.success!==true){
-      throw new Error(data?.public_message || data?.message || "Support-Zähler nicht verfügbar");
-    }
-
-    const tickets=Array.isArray(data.tickets) ? data.tickets : [];
-    const unread=tickets.reduce((sum,ticket)=>{
-      const value=Math.max(0,Math.floor(Number(ticket?.user_ungelesen)||0));
-      return sum+value;
-    },0);
-
-    renderSupportUnread(unread);
-  }catch(error){
-    console.warn("Support-Zähler konnte nicht geladen werden:",error);
-    // Ein vorübergehender Reader-Fehler darf das Profil niemals blockieren.
-    renderSupportUnread(0);
-  }finally{
-    supportUnreadRequestInFlight=false;
-  }
-}
-
-function buildTokenVariants(token){
-  if(!token) return [];
-  const clean=String(token).trim();
-
-  // Dashboard-Token (UUID): nur exakt diesen Token prüfen.
-  // BI-/BI--Varianten sind für UUIDs nicht sinnvoll und erzeugen nur unnötige Fehlversuche.
-  if(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(clean)){
-    return [clean];
-  }
-
-  const variants=[clean];
-  if(clean.startsWith("BI-")){
-    const p=clean.substring(3);variants.push(p,"BI"+p);
-  }else if(clean.startsWith("BI")){
-    const p=clean.substring(2);variants.push(p,"BI-"+p);
-  }else{
-    variants.push("BI"+clean,"BI-"+clean);
-  }
-  return [...new Set(variants)];
-}
-
-function showProfileBox(){
-  document.getElementById("profileBox").style.display="block";
-  document.getElementById("requestBox").style.display="none";
-  document.getElementById("headerUnitsBox").style.display="";
-  document.getElementById("referralSection").style.display="block";
-}
-
-function showRequestBox(){
-  document.getElementById("profileBox").style.display="none";
-  document.getElementById("requestBox").style.display="block";
-  document.getElementById("headerUnitsBox").style.display="none";
-  document.getElementById("referralSection").style.display="none";
-}
-
-function setUnitColor(units){
-  let color=units===0?"red":(units<10?"orange":"lime");
-  document.getElementById("units").style.color=color;
-  document.getElementById("accountUnits").style.color=color;
-}
-
-function renderHeaderReferralAvailable(value){
-  const el=document.getElementById("accountReferralUnits");
-  if(el) el.innerText=formatUnitsTwoDecimals(value);
-}
-
+function saveToken(token){if(token&&String(token).trim())localStorage.setItem(TOKEN_STORAGE_KEY,String(token).trim())}
+function getActiveToken(){const fromUrl=getTokenFromUrl();if(fromUrl&&fromUrl.trim()){saveToken(fromUrl);return fromUrl.trim()}return getSavedToken()}
+function isAcceptedSupportToken(value){const clean=String(value||"").trim();return /^\d{6,15}$/.test(clean)||/^BI-?\d{6,15}$/i.test(clean)}
+function canonicalSupportReaderToken(value){const clean=String(value||"").trim();if(/^\d{6,15}$/.test(clean))return"BI-"+clean;if(/^BI\d{6,15}$/i.test(clean))return"BI-"+clean.slice(2);if(/^BI-\d{6,15}$/i.test(clean))return clean.toUpperCase();return""}
+function renderSupportUnread(count){const badge=document.getElementById("supportUnreadBadge"),button=document.getElementById("supportButton");if(!badge||!button)return;const unread=Math.max(0,Math.floor(Number(count)||0));if(unread>0){badge.hidden=false;badge.textContent=unread>99?"99+":String(unread);badge.setAttribute("aria-label",unread+" ungelesene Support-Antworten");button.title=unread===1?"1 neue Support-Antwort":unread+" neue Support-Antworten"}else{badge.hidden=true;badge.textContent="0";badge.setAttribute("aria-label","0 ungelesene Support-Antworten");button.title="Support & Tickets öffnen"}}
+async function refreshSupportUnread(tokenOverride=""){if(supportUnreadRequestInFlight)return;const candidate=String(tokenOverride||getSavedToken()||"").trim();if(!isAcceptedSupportToken(candidate)){renderSupportUnread(0);return}const readerToken=canonicalSupportReaderToken(candidate);if(!readerToken){renderSupportUnread(0);return}supportUnreadRequestInFlight=true;try{const response=await fetch(SUPPORT_READER_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({action:"list",token:readerToken}),cache:"no-store",redirect:"follow",credentials:"omit"});const raw=String(await response.text()||"").replace(/^\uFEFF/,"").trim();if(!raw)throw new Error("Leere Support-Antwort");const data=JSON.parse(raw);if(!response.ok||data?.success!==true)throw new Error(data?.public_message||data?.message||"Support-Zähler nicht verfügbar");const tickets=Array.isArray(data.tickets)?data.tickets:[],unread=tickets.reduce((sum,ticket)=>sum+Math.max(0,Math.floor(Number(ticket?.user_ungelesen)||0)),0);renderSupportUnread(unread)}catch(error){console.warn("Support-Zähler konnte nicht geladen werden:",error);renderSupportUnread(0)}finally{supportUnreadRequestInFlight=false}}
+function buildTokenVariants(token){if(!token)return[];const clean=String(token).trim();if(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(clean))return[clean];const variants=[clean];if(clean.startsWith("BI-")){const p=clean.substring(3);variants.push(p,"BI"+p)}else if(clean.startsWith("BI")){const p=clean.substring(2);variants.push(p,"BI-"+p)}else variants.push("BI"+clean,"BI-"+clean);return[...new Set(variants)]}
+function showProfileBox(){document.getElementById("profileBox").style.display="block";document.getElementById("requestBox").style.display="none";document.getElementById("headerUnitsBox").style.display="";document.getElementById("referralSection").style.display="block"}
+function showRequestBox(){document.getElementById("profileBox").style.display="none";document.getElementById("requestBox").style.display="block";document.getElementById("headerUnitsBox").style.display="none";document.getElementById("referralSection").style.display="none"}
+function setUnitColor(units){const color=units===0?"red":units<10?"orange":"lime";document.getElementById("units").style.color=color;document.getElementById("accountUnits").style.color=color}
+function renderHeaderReferralAvailable(value){const el=document.getElementById("accountReferralUnits");if(el)el.innerText=formatUnitsTwoDecimals(value)}
 function setDebug(text){document.getElementById("debug").innerText=text}
-
-function getReferralCode(data={}){return String(data.ref_code || currentProfileData.refCode || "").trim()}
-
-function buildRegistrationReferralLink(data={}){
-  if(data.ref_link && String(data.ref_link).trim()) return String(data.ref_link).trim();
-  if(currentProfileData.refLink) return currentProfileData.refLink;
-  const ref=getReferralCode(data);
-  return ref ? "https://betinsightclub.github.io/profil/ref/?ref="+encodeURIComponent(ref) : "";
-}
-
-function buildLandingpageReferralLink(data={}){
-  const ref=getReferralCode(data);
-  return ref ? "https://betinsightclub.github.io/profil/betinsightcommunity/?ref="+encodeURIComponent(ref) : "";
-}
-
-function setReferralLinks(data={}){
-  document.getElementById("registrationReferralLink").innerText=buildRegistrationReferralLink(data) || "Kein direkter Registrierungslink gefunden.";
-  document.getElementById("landingpageReferralLink").innerText=buildLandingpageReferralLink(data) || "Kein persönlicher Landingpage-Link gefunden.";
-}
-
-async function copyReferralLinkById(linkId,buttonId,success){
-  const value=document.getElementById(linkId).innerText.trim();
-  if(!value || value.includes("gefunden") || value.includes("geladen")){
-    document.getElementById("referralStatus").innerText="Der gewünschte Empfehlungslink ist noch nicht verfügbar.";
-    return;
-  }
-  await copyText(value);
-  const b=document.getElementById(buttonId);
-  const old=b.innerText;
-  b.innerText="✅ Link kopiert";
-  document.getElementById("referralStatus").innerText=success;
-  setTimeout(()=>b.innerText=old,1800);
-}
-
+function getReferralCode(data={}){return String(data.ref_code||currentProfileData.refCode||"").trim()}
+function buildRegistrationReferralLink(data={}){if(data.ref_link&&String(data.ref_link).trim())return String(data.ref_link).trim();if(currentProfileData.refLink)return currentProfileData.refLink;const ref=getReferralCode(data);return ref?"https://betinsightclub.github.io/profil/ref/?ref="+encodeURIComponent(ref):""}
+function buildLandingpageReferralLink(data={}){const ref=getReferralCode(data);return ref?"https://betinsightclub.github.io/profil/betinsightcommunity/?ref="+encodeURIComponent(ref):""}
+function setReferralLinks(data={}){document.getElementById("registrationReferralLink").innerText=buildRegistrationReferralLink(data)||"Kein direkter Registrierungslink gefunden.";document.getElementById("landingpageReferralLink").innerText=buildLandingpageReferralLink(data)||"Kein persönlicher Landingpage-Link gefunden."}
+async function copyReferralLinkById(linkId,buttonId,success){const value=document.getElementById(linkId).innerText.trim();if(!value||value.includes("gefunden")||value.includes("geladen")){document.getElementById("referralStatus").innerText="Der gewünschte Empfehlungslink ist noch nicht verfügbar.";return}await copyText(value);const b=document.getElementById(buttonId),old=b.innerText;b.innerText="✅ Link kopiert";document.getElementById("referralStatus").innerText=success;setTimeout(()=>b.innerText=old,1800)}
 function copyRegistrationReferralLink(){return copyReferralLinkById("registrationReferralLink","copyRegistrationReferralButton","Direkter Registrierungslink wurde kopiert.")}
 function copyLandingpageReferralLink(){return copyReferralLinkById("landingpageReferralLink","copyLandingpageReferralButton","Persönlicher Landingpage-Link wurde kopiert.")}
-
 function partnerValue(partner,keys,fallback=0){return firstDefined(partner,keys,fallback)}
-
-function normalizePartnerArray(data,level){
-  const keys=["level"+level,"ebene"+level,"level_"+level,"ebene_"+level,"partners_level"+level,"partner_ebene"+level];
-  for(const key of keys){
-    const v=data?.[key];
-    if(Array.isArray(v)) return v;
-    if(v && typeof v==="object" && Array.isArray(v.array)) return v.array;
-    if(typeof v==="string" && v.trim()){
-      try{
-        const p=JSON.parse(v);
-        if(Array.isArray(p)) return p;
-        if(p && Array.isArray(p.array)) return p.array;
-      }catch(_){}
-    }
-  }
-  return [];
-}
-
+function normalizePartnerArray(data,level){const keys=["level"+level,"ebene"+level,"level_"+level,"ebene_"+level,"partners_level"+level,"partner_ebene"+level];for(const key of keys){const v=data?.[key];if(Array.isArray(v))return v;if(v&&typeof v==="object"&&Array.isArray(v.array))return v.array;if(typeof v==="string"&&v.trim()){try{const p=JSON.parse(v);if(Array.isArray(p))return p;if(p&&Array.isArray(p.array))return p.array}catch(_){}}}return[]}
 function sumPartnerMetric(partners,keys){return partners.reduce((sum,p)=>sum+safeNumber(partnerValue(p,keys,0)),0)}
-
-function getLevelSummaryValues(level,data,partners){
-  const partnerCount=optionalNumber(firstDefined(data,[
-    "ebene"+level,"level"+level+"_partners","level"+level+"_count","partner_ebene"+level
-  ],null)) ?? partners.length;
-
-  const purchased=sumPartnerMetric(partners,["gekaufte_units","gekaufte_units_rest","purchased_units","gekauft","35"]);
-  const expected=sumPartnerMetric(partners,[
-    "erwartete_referral_units","ref_erwartet","expected_units","erwartet","ref_partner_erwartet_l"+level,"ref_ebene_"+level,"ref_level_"+level
-  ]);
-  const released=sumPartnerMetric(partners,[
-    "freigegebene_referral_units","ref_verfuegbar","released_units","available_units","ref_partner_verfuegbar_l"+level,"freigegeben"
-  ]);
-
-  return{
-    partnerCount,
-    purchased:safeNumber(firstDefined(data,["ebene"+level+"_gekauft","level"+level+"_purchased","gekauft_ebene"+level],purchased)),
-    expected:safeNumber(firstDefined(data,["ref_partner_erwartet_l"+level,"ref_erwartet_l"+level,"ebene"+level+"_erwartet","level"+level+"_expected"],expected)),
-    released:safeNumber(firstDefined(data,["ref_partner_verfuegbar_l"+level,"ref_verfuegbar_l"+level,"ebene"+level+"_freigegeben","level"+level+"_released"],released))
-  };
-}
-
-function renderLevelCard(level,partners,summary){
-  const rows=partners.length ? partners.map(p=>{
-    const bi=partnerValue(p,["bi_nummer","bi_number","ref_code","user_id","7","6"],"-");
-    const sponsor=partnerValue(p,["sponsor","sponsor_ref","sponsor_code","sponsor_ref_code","8","9"],"-");
-    const purchased=partnerValue(p,["gekaufte_units","gekaufte_units_rest","purchased_units","gekauft","35"],0);
-    const consumed=partnerValue(p,["verbrauchte_kauf_units","consumed_units","verbraucht"],0);
-    const expected=partnerValue(p,["erwartete_referral_units","ref_erwartet","expected_units","erwartet"],0);
-    const released=partnerValue(p,["freigegebene_referral_units","ref_verfuegbar","released_units","available_units","freigegeben"],0);
-    return `<tr>
-      <td class="partner-id">${escapeHtml(bi)}</td>
-      <td>${escapeHtml(sponsor)}</td>
-      <td>${formatNumber(purchased)}</td>
-      <td>${formatNumber(consumed)}</td>
-      <td>${formatNumber(expected)}</td>
-      <td>${formatNumber(released)}</td>
-    </tr>`;
-  }).join("") : `<tr><td colspan="6" class="empty-row">Noch keine Daten vorhanden.</td></tr>`;
-
-  return `<article class="level-card ${level===1?"open":""}" id="levelCard${level}">
-    <div class="level-head" onclick="toggleLevel(${level})">
-      <div class="level-number">${level}</div>
-      <div class="level-name">${level===1?"Ebene 1 – direkte Partner":"Ebene "+level}</div>
-      <div class="level-metric"><div class="level-metric-label">Partner</div><div class="level-metric-value">${formatNumber(summary.partnerCount)}</div></div>
-      <div class="level-metric"><div class="level-metric-label">Gekauft</div><div class="level-metric-value">${formatNumber(summary.purchased)} Units</div></div>
-      <div class="level-metric"><div class="level-metric-label">Erwartet</div><div class="level-metric-value">${formatNumber(summary.expected)}</div></div>
-      <div class="level-metric"><div class="level-metric-label">Freigegeben</div><div class="level-metric-value">${formatNumber(summary.released)}</div></div>
-      <div class="level-arrow">⌃</div>
-    </div>
-    <div class="level-body"><div class="table-wrap"><table class="network-table">
-      <thead><tr><th>BI-Nummer</th><th>Sponsor</th><th>Gekaufte Units</th><th>Verbrauchte Kauf-Units</th><th>Erwartete Referral Units</th><th>Freigegebene Referral Units</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table></div></div>
-  </article>`;
-}
-
+function getLevelSummaryValues(level,data,partners){const partnerCount=optionalNumber(firstDefined(data,["ebene"+level,"level"+level+"_partners","level"+level+"_count","partner_ebene"+level],null))??partners.length,purchased=sumPartnerMetric(partners,["gekaufte_units","gekaufte_units_rest","purchased_units","gekauft","35"]),expected=sumPartnerMetric(partners,["erwartete_referral_units","ref_erwartet","expected_units","erwartet","ref_partner_erwartet_l"+level,"ref_ebene_"+level,"ref_level_"+level]),released=sumPartnerMetric(partners,["freigegebene_referral_units","ref_verfuegbar","released_units","available_units","ref_partner_verfuegbar_l"+level,"freigegeben"]);return{partnerCount,purchased:safeNumber(firstDefined(data,["ebene"+level+"_gekauft","level"+level+"_purchased","gekauft_ebene"+level],purchased)),expected:safeNumber(firstDefined(data,["ref_partner_erwartet_l"+level,"ref_erwartet_l"+level,"ebene"+level+"_erwartet","level"+level+"_expected"],expected)),released:safeNumber(firstDefined(data,["ref_partner_verfuegbar_l"+level,"ref_verfuegbar_l"+level,"ebene"+level+"_freigegeben","level"+level+"_released"],released))}}
+function renderLevelCard(level,partners,summary){const rows=partners.length?partners.map(p=>{const bi=partnerValue(p,["bi_nummer","bi_number","ref_code","user_id","7","6"],"-"),sponsor=partnerValue(p,["sponsor","sponsor_ref","sponsor_code","sponsor_ref_code","8","9"],"-"),purchased=partnerValue(p,["gekaufte_units","gekaufte_units_rest","purchased_units","gekauft","35"],0),consumed=partnerValue(p,["verbrauchte_kauf_units","consumed_units","verbraucht"],0),expected=partnerValue(p,["erwartete_referral_units","ref_erwartet","expected_units","erwartet"],0),released=partnerValue(p,["freigegebene_referral_units","ref_verfuegbar","released_units","available_units","freigegeben"],0);return`<tr><td class="partner-id">${escapeHtml(bi)}</td><td>${escapeHtml(sponsor)}</td><td>${formatNumber(purchased)}</td><td>${formatNumber(consumed)}</td><td>${formatNumber(expected)}</td><td>${formatNumber(released)}</td></tr>`}).join(""):`<tr><td colspan="6" class="empty-row">Noch keine Daten vorhanden.</td></tr>`;return`<article class="level-card ${level===1?"open":""}" id="levelCard${level}"><div class="level-head" onclick="toggleLevel(${level})"><div class="level-number">${level}</div><div class="level-name">${level===1?"Ebene 1 – direkte Partner":"Ebene "+level}</div><div class="level-metric"><div class="level-metric-label">Partner</div><div class="level-metric-value">${formatNumber(summary.partnerCount)}</div></div><div class="level-metric"><div class="level-metric-label">Gekauft</div><div class="level-metric-value">${formatNumber(summary.purchased)} Units</div></div><div class="level-metric"><div class="level-metric-label">Erwartet</div><div class="level-metric-value">${formatNumber(summary.expected)}</div></div><div class="level-metric"><div class="level-metric-label">Freigegeben</div><div class="level-metric-value">${formatNumber(summary.released)}</div></div><div class="level-arrow">⌃</div></div><div class="level-body"><div class="table-wrap"><table class="network-table"><thead><tr><th>BI-Nummer</th><th>Sponsor</th><th>Gekaufte Units</th><th>Verbrauchte Kauf-Units</th><th>Erwartete Referral Units</th><th>Freigegebene Referral Units</th></tr></thead><tbody>${rows}</tbody></table></div></div></article>`}
 function toggleLevel(level){document.getElementById("levelCard"+level)?.classList.toggle("open")}
+function renderNetworkPayload(data){const summaries=[];let html="";for(let level=1;level<=3;level++){const partners=normalizePartnerArray(data,level),summary=getLevelSummaryValues(level,data,partners);summaries.push(summary);document.getElementById("networkLevel"+level).innerText=formatNumber(summary.partnerCount);html+=renderLevelCard(level,partners,summary)}document.getElementById("levelList").innerHTML=html;const calculatedPending=summaries.reduce((s,x)=>s+x.expected,0),calculatedReleased=summaries.reduce((s,x)=>s+x.released,0),pending=optionalNumber(firstDefined(data,["ref_noch_nicht_freigegeben","ref_gesamt_erwartet","ref_erwartet_gesamt","pending_ref_units"],null))??calculatedPending,all=optionalNumber(firstDefined(data,["ref_units_insgesamt","ref_gesamt_insgesamt","referral_units_total","total_ref_units"],null))??(pending+calculatedReleased);document.getElementById("referralAllUnits").innerText=formatNumber(all);document.getElementById("referralPendingUnits").innerText=formatNumber(pending);setReferralLinks(data)}
+async function fetchNetworkPayload(){const id=String(currentProfileData.dashboardToken||"").trim();if(!id)throw new Error("dashboard_token fehlt.");const r=await fetch(EMPFEHLUNGEN_WEBHOOK_URL+"?id="+encodeURIComponent(id),{cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);return await r.json()}
+async function refreshNetworkData(showFeedback=false,sourceButton=null){const status=document.getElementById("referralStatus"),old=sourceButton?.innerText;if(sourceButton&&showFeedback){sourceButton.disabled=true;sourceButton.innerText="⏳ Lädt..."}try{status.innerText="Empfehlungsdaten werden geladen...";const data=await fetchNetworkPayload();renderNetworkPayload(data);status.innerText="Empfehlungsübersicht und Strukturdetails wurden erfolgreich geladen.";if(sourceButton)sourceButton.innerText="✅ Aktualisiert"}catch(e){console.error(e);status.innerText="Die Empfehlungsdaten konnten nicht geladen werden. Bitte versuche es erneut.";if(sourceButton)sourceButton.innerText="❌ Fehler"}finally{if(sourceButton)setTimeout(()=>{sourceButton.disabled=false;sourceButton.innerText=old},1800)}}
+function prepareNetworkSection(){document.getElementById("referralSection").style.display="block";setReferralLinks({});document.getElementById("levelList").innerHTML="";document.getElementById("networkLevel1").innerText="–";document.getElementById("networkLevel2").innerText="–";document.getElementById("networkLevel3").innerText="–";document.getElementById("referralAllUnits").innerText="0";document.getElementById("referralPendingUnits").innerText="0"}
+function isValidEmailAddress(email){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email||"").trim())}
+async function requestCurrentProfileLink(){const email=String(currentProfileData.email||"").trim().toLowerCase(),msg=document.getElementById("message"),button=document.getElementById("resendProfileButton");if(!isValidEmailAddress(email)){msg.innerText="Die registrierte E-Mail-Adresse ist nicht verfügbar oder ungültig.";return}if(requestLinkInFlight)return;requestLinkInFlight=true;if(button){button.disabled=true;button.innerText="⏳ Wird gesendet..."}try{const response=await fetch(REQUEST_LINK_WEBHOOK_URL+"?email="+encodeURIComponent(email),{cache:"no-store"});if(!response.ok)throw new Error("HTTP "+response.status);msg.innerText="Der persönliche Profil-Link wurde erneut an deine registrierte E-Mail-Adresse gesendet."}catch(e){console.error(e);msg.innerText="Der Profil-Link konnte nicht gesendet werden. Bitte versuche es später erneut."}finally{requestLinkInFlight=false;if(button){button.disabled=false;button.innerText="📩 Profil-Link erneut per E-Mail senden"}}}
 
-function renderNetworkPayload(data){
-  const summaries=[];
-  let html="";
-  for(let level=1;level<=3;level++){
-    const partners=normalizePartnerArray(data,level);
-    const summary=getLevelSummaryValues(level,data,partners);
-    summaries.push(summary);
-    document.getElementById("networkLevel"+level).innerText=formatNumber(summary.partnerCount);
-    html+=renderLevelCard(level,partners,summary);
-  }
-  document.getElementById("levelList").innerHTML=html;
-
-  const calculatedPending=summaries.reduce((s,x)=>s+x.expected,0);
-  const calculatedReleased=summaries.reduce((s,x)=>s+x.released,0);
-  const pending=optionalNumber(firstDefined(data,["ref_noch_nicht_freigegeben","ref_gesamt_erwartet","ref_erwartet_gesamt","pending_ref_units"],null)) ?? calculatedPending;
-  const all=optionalNumber(firstDefined(data,["ref_units_insgesamt","ref_gesamt_insgesamt","referral_units_total","total_ref_units"],null)) ?? (pending+calculatedReleased);
-
-  document.getElementById("referralAllUnits").innerText=formatNumber(all);
-  document.getElementById("referralPendingUnits").innerText=formatNumber(pending);
-  setReferralLinks(data);
-}
-
-async function fetchNetworkPayload(){
-  const id=String(currentProfileData.dashboardToken||"").trim();
-  if(!id) throw new Error("dashboard_token fehlt.");
-  const r=await fetch(EMPFEHLUNGEN_WEBHOOK_URL+"?id="+encodeURIComponent(id),{cache:"no-store"});
-  if(!r.ok) throw new Error("HTTP "+r.status);
-  return await r.json();
-}
-
-async function refreshNetworkData(showFeedback=false,sourceButton=null){
-  const status=document.getElementById("referralStatus");
-  const old=sourceButton?.innerText;
-  if(sourceButton && showFeedback){sourceButton.disabled=true;sourceButton.innerText="⏳ Lädt..."}
-  try{
-    status.innerText="Empfehlungsdaten werden geladen...";
-    const data=await fetchNetworkPayload();
-    renderNetworkPayload(data);
-    status.innerText="Empfehlungsübersicht und Strukturdetails wurden erfolgreich geladen.";
-    if(sourceButton) sourceButton.innerText="✅ Aktualisiert";
-  }catch(e){
-    console.error(e);
-    status.innerText="Die Empfehlungsdaten konnten nicht geladen werden. Bitte versuche es erneut.";
-    if(sourceButton) sourceButton.innerText="❌ Fehler";
-  }finally{
-    if(sourceButton){
-      setTimeout(()=>{sourceButton.disabled=false;sourceButton.innerText=old},1800);
-    }
-  }
-}
-
-function prepareNetworkSection(){
-  document.getElementById("referralSection").style.display="block";
-  setReferralLinks({});
-  document.getElementById("levelList").innerHTML="";
-  document.getElementById("networkLevel1").innerText="–";
-  document.getElementById("networkLevel2").innerText="–";
-  document.getElementById("networkLevel3").innerText="–";
-  document.getElementById("referralAllUnits").innerText="0";
-  document.getElementById("referralPendingUnits").innerText="0";
-}
-
-function isValidEmailAddress(email){
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email||"").trim());
-}
-
-async function requestCurrentProfileLink(){
-  const email=String(currentProfileData.email||"").trim().toLowerCase();
-  const msg=document.getElementById("message");
-  const button=document.getElementById("resendProfileButton");
-
-  if(!isValidEmailAddress(email)){
-    msg.innerText="Die registrierte E-Mail-Adresse ist nicht verfügbar oder ungültig.";
-    return;
-  }
-  if(requestLinkInFlight) return;
-
-  requestLinkInFlight=true;
-  if(button){button.disabled=true;button.innerText="⏳ Wird gesendet...";}
-
-  try{
-    const response=await fetch(REQUEST_LINK_WEBHOOK_URL+"?email="+encodeURIComponent(email),{cache:"no-store"});
-    if(!response.ok) throw new Error("HTTP "+response.status);
-    msg.innerText="Der persönliche Profil-Link wurde erneut an deine registrierte E-Mail-Adresse gesendet.";
-  }catch(e){
-    console.error(e);
-    msg.innerText="Der Profil-Link konnte nicht gesendet werden. Bitte versuche es später erneut.";
-  }finally{
-    requestLinkInFlight=false;
-    if(button){button.disabled=false;button.innerText="📩 Profil-Link erneut per E-Mail senden";}
-  }
-}
-
-async function fetchProfileByToken(variants,index){
-  if(index>=variants.length){
-    document.getElementById("units").innerText="0,00";
-    renderHeaderReferralAvailable(0);
-    document.getElementById("accountUnits").innerText="0";
-    document.getElementById("unlockedTips").innerText="0";
-    document.getElementById("consumedUnits").innerText="–";
-    document.getElementById("email").innerText="Nicht gefunden";
-    renderMembership(0,"Basis");
-    showRequestBox();
-    return;
-  }
-
-  const token=variants[index];
-  let data=null;
-
-  // Nur echte Abruf-/JSON-Fehler dürfen zum nächsten Token-Fallback führen.
-  try{
-    const response=await fetch(
-      PROFILE_WEBHOOK_URL+"?token="+encodeURIComponent(token),
-      {cache:"no-store"}
-    );
-
-    if(!response.ok){
-      throw new Error("Profilabruf HTTP "+response.status);
-    }
-
-    const raw=await response.text();
-    data=JSON.parse(raw.trim());
-  }catch(error){
-    console.error("Profilabruf fehlgeschlagen:",token,error);
-    fetchProfileByToken(variants,index+1);
-    return;
-  }
-
-  if(!data || data.found===false || !data.email){
-    fetchProfileByToken(variants,index+1);
-    return;
-  }
-
-  // Ab hier ist der Token serverseitig eindeutig gültig.
-  // Ein späterer Darstellungsfehler darf deshalb NICHT mehr als "Token ungültig"
-  // behandelt werden und darf NICHT auf die Anmeldeseite zurückfallen.
-  try{
-    const finalToken=data.token || token;
-    const total=safeNumber(data.einsetzbare_units);
-    const referralAvailable=safeNumber(firstDefined(data,["ref_verfuegbar","referral_available","available_ref_units"],0));
-    const consumed=firstDefined(data,["verbrauchte_units","consumed_units","used_units"],null);
-    const unlocked=safeNumber(firstDefined(data,["freigeschaltete_tipps","unlocked_tips","unlock_count"],0));
-    const membershipLevel=safeNumber(firstDefined(data,["mitgliedschaft_level","membership_level","premium_level"],0));
-    const membership=String(firstDefined(data,["mitgliedschaft","membership"],"Basis")).trim() || "Basis";
-    const premiumStart=firstDefined(data,["premium_start","premium_von","periode_von"],null);
-    const premiumUntil=firstDefined(data,["premium_bis","premium_until","periode_bis"],null);
-    const graceUntil=firstDefined(data,["kulanz_bis","grace_until"],null);
-    const premiumStatus=String(firstDefined(data,["premium_status","membership_status"],"")).trim();
-    const autoRenew=String(firstDefined(data,["auto_verlaengerung","auto_renew"],"NEIN")).trim().toUpperCase();
-    const tariffCode=String(firstDefined(data,["tarif_code","tariff_code"],"")).trim();
-
-    currentProfileData={
-      email:data.email||"",units:total,referralAvailable,refCode:String(data.ref_code||"").trim(),
-      dashboardToken:String(data.dashboard_token||"").trim(),refLink:String(data.ref_link||"").trim(),
-      consumedUnits:consumed,unlockedTips:unlocked,membershipLevel,membership,
-      premiumStart,premiumUntil,graceUntil,premiumStatus,autoRenew,tariffCode
-    };
-
-    saveToken(finalToken);
-    showProfileBox();
-    document.getElementById("units").innerText=formatUnitsTwoDecimals(total);
-    renderHeaderReferralAvailable(referralAvailable);
-    document.getElementById("accountUnits").innerText=formatNumber(total);
-    document.getElementById("unlockedTips").innerText=formatNumber(unlocked);
-    document.getElementById("consumedUnits").innerText=formatOptionalNumber(consumed);
-    document.getElementById("email").innerText=data.email;
-    renderMembership(membershipLevel,membership);
-    setBetInsightId(data.ref_code);
-    setMaskedToken(finalToken);
-    setUnitColor(total);
-    setReferralLinks(data);
-    prepareNetworkSection();
-    refreshSupportUnread(finalToken);
-    document.getElementById("message").innerText="Kontostand wurde aktualisiert.";
-  }catch(error){
-    console.error("Profil wurde gefunden, aber die Anzeige hatte einen Fehler:",error);
-
-    // Gültiges Profil sichtbar lassen – niemals wegen eines Anzeigeproblems ausloggen.
-    showProfileBox();
-    document.getElementById("email").innerText=data.email || "Profil gefunden";
-    document.getElementById("message").innerText=
-      "Profil wurde gefunden. Einzelne Anzeigen konnten noch nicht vollständig aufgebaut werden.";
-  }
-}
-
-function loadUnits(){
-  const token=getActiveToken();
-  if(!token){showRequestBox();return}
-  showProfileBox();
-  document.getElementById("message").innerText="Kontostand wird geladen...";
-  document.getElementById("units").innerText="0,00";
-  renderHeaderReferralAvailable(0);
-  document.getElementById("accountUnits").innerText="0";
-  document.getElementById("unlockedTips").innerText="0";
-  document.getElementById("consumedUnits").innerText="–";
-  document.getElementById("email").innerText="Lade...";
-  renderMembership(0,"Basis");
-  fetchProfileByToken(buildTokenVariants(token),0);
-}
-
-async function requestProfileLink(){
-  const email=document.getElementById("requestEmail").value.trim().toLowerCase();
-  const msg=document.getElementById("requestMessage");
-  const button=document.getElementById("requestProfileButton");
-
-  if(!isValidEmailAddress(email)){
-    msg.innerText="Bitte eine gültige registrierte BetInsight E-Mail-Adresse eingeben.";
-    return;
-  }
-  if(requestLinkInFlight) return;
-
-  requestLinkInFlight=true;
-  msg.innerText="Profil-Link wird angefordert...";
-  if(button){button.disabled=true;button.innerText="⏳ Wird gesendet...";}
-
-  try{
-    const response=await fetch(REQUEST_LINK_WEBHOOK_URL+"?email="+encodeURIComponent(email),{cache:"no-store"});
-    if(!response.ok) throw new Error("HTTP "+response.status);
-    msg.innerText="✅ Wenn diese E-Mail bei BetInsight registriert ist, wurde der Profil-Link versendet. Bitte prüfe dein E-Mail-Postfach.";
-  }catch(e){
-    console.error(e);
-    msg.innerText="Der Profil-Link konnte nicht gesendet werden. Prüfe die E-Mail-Adresse oder versuche es später erneut.";
-  }finally{
-    requestLinkInFlight=false;
-    if(button){button.disabled=false;button.innerText="📩 Profil-Link anfordern";}
-  }
-}
-
-function extractTokenFromInput(value){
-  const clean=String(value||"").trim();
-  if(!clean) return "";
-  try{
-    const url=new URL(clean);
-    return url.searchParams.get("token") || clean;
-  }catch(_){}
-  if(clean.includes("token=")) return decodeURIComponent(clean.split("token=")[1].split("&")[0]).trim();
-  return clean;
-}
-
-function openReceivedProfileLink(){
-  const token=extractTokenFromInput(document.getElementById("receivedProfileLink").value);
-  if(!token){document.getElementById("receivedLinkMessage").innerText="Bitte Profil-Link oder Zugangscode eintragen.";return}
-  saveToken(token);
-  location.href="https://betinsightclub.github.io/profil/?token="+encodeURIComponent(token);
-}
-
-function goBuyUnits(){const token=getActiveToken();if(token) location.href="https://betinsightclub.github.io/profil/kaufen/?token="+encodeURIComponent(token)}
-function goTipps(){const token=getActiveToken();if(token) location.href="https://betinsightclub.github.io/profil/tipps/?token="+encodeURIComponent(token)}
-function goFreigeschaltet(){const token=getActiveToken();if(token) location.href="https://betinsightclub.github.io/profil/freigeschaltet/?token="+encodeURIComponent(token)}
-function goUnitExchange(){const token=getActiveToken();if(token) location.href="https://betinsightclub.github.io/profil/wechselboerse/?token="+encodeURIComponent(token)}
+async function fetchProfileByToken(variants,index){if(index>=variants.length){document.getElementById("units").innerText="0,00";renderHeaderReferralAvailable(0);document.getElementById("accountUnits").innerText="0";document.getElementById("unlockedTips").innerText="0";document.getElementById("consumedUnits").innerText="–";document.getElementById("email").innerText="Nicht gefunden";renderMembership(0,"Basis");showRequestBox();return}const token=variants[index];let data=null;try{const response=await fetch(PROFILE_WEBHOOK_URL+"?token="+encodeURIComponent(token),{cache:"no-store"});if(!response.ok)throw new Error("Profilabruf HTTP "+response.status);const raw=await response.text();data=JSON.parse(raw.trim())}catch(error){console.error("Profilabruf fehlgeschlagen:",token,error);fetchProfileByToken(variants,index+1);return}if(!data||data.found===false||!data.email){fetchProfileByToken(variants,index+1);return}try{const finalToken=data.token||token,total=safeNumber(data.einsetzbare_units),referralAvailable=safeNumber(firstDefined(data,["ref_verfuegbar","referral_available","available_ref_units"],0)),consumed=firstDefined(data,["verbrauchte_units","consumed_units","used_units"],null),unlocked=safeNumber(firstDefined(data,["freigeschaltete_tipps","unlocked_tips","unlock_count"],0)),membershipLevel=safeNumber(firstDefined(data,["mitgliedschaft_level","membership_level","premium_level"],0)),membership=String(firstDefined(data,["mitgliedschaft","membership"],"Basis")).trim()||"Basis",premiumStart=firstDefined(data,["premium_start","premium_von","periode_von"],null),premiumUntil=firstDefined(data,["premium_bis","premium_until","periode_bis"],null),graceUntil=firstDefined(data,["kulanz_bis","grace_until"],null),premiumStatus=String(firstDefined(data,["premium_status","membership_status"],"")).trim(),autoRenew=String(firstDefined(data,["auto_verlaengerung","auto_renew"],"NEIN")).trim().toUpperCase(),tariffCode=String(firstDefined(data,["tarif_code","tariff_code"],"")).trim();currentProfileData={email:data.email||"",units:total,referralAvailable,refCode:String(data.ref_code||"").trim(),dashboardToken:String(data.dashboard_token||"").trim(),refLink:String(data.ref_link||"").trim(),consumedUnits:consumed,unlockedTips:unlocked,membershipLevel,membership,premiumStart,premiumUntil,graceUntil,premiumStatus,autoRenew,tariffCode};saveToken(finalToken);showProfileBox();document.getElementById("units").innerText=formatUnitsTwoDecimals(total);renderHeaderReferralAvailable(referralAvailable);document.getElementById("accountUnits").innerText=formatNumber(total);document.getElementById("unlockedTips").innerText=formatNumber(unlocked);document.getElementById("consumedUnits").innerText=formatOptionalNumber(consumed);document.getElementById("email").innerText=data.email;renderMembership(membershipLevel,membership);setBetInsightId(data.ref_code);setMaskedToken(finalToken);setUnitColor(total);setReferralLinks(data);prepareNetworkSection();refreshSupportUnread(finalToken);document.getElementById("message").innerText="Kontostand wurde aktualisiert."}catch(error){console.error("Profil wurde gefunden, aber die Anzeige hatte einen Fehler:",error);showProfileBox();document.getElementById("email").innerText=data.email||"Profil gefunden";document.getElementById("message").innerText="Profil wurde gefunden. Einzelne Anzeigen konnten noch nicht vollständig aufgebaut werden."}}
+function loadUnits(){const token=getActiveToken();if(!token){showRequestBox();return}showProfileBox();document.getElementById("message").innerText="Kontostand wird geladen...";document.getElementById("units").innerText="0,00";renderHeaderReferralAvailable(0);document.getElementById("accountUnits").innerText="0";document.getElementById("unlockedTips").innerText="0";document.getElementById("consumedUnits").innerText="–";document.getElementById("email").innerText="Lade...";renderMembership(0,"Basis");fetchProfileByToken(buildTokenVariants(token),0)}
+async function requestProfileLink(){const email=document.getElementById("requestEmail").value.trim().toLowerCase(),msg=document.getElementById("requestMessage"),button=document.getElementById("requestProfileButton");if(!isValidEmailAddress(email)){msg.innerText="Bitte eine gültige registrierte BetInsight E-Mail-Adresse eingeben.";return}if(requestLinkInFlight)return;requestLinkInFlight=true;msg.innerText="Profil-Link wird angefordert...";if(button){button.disabled=true;button.innerText="⏳ Wird gesendet..."}try{const response=await fetch(REQUEST_LINK_WEBHOOK_URL+"?email="+encodeURIComponent(email),{cache:"no-store"});if(!response.ok)throw new Error("HTTP "+response.status);msg.innerText="✅ Wenn diese E-Mail bei BetInsight registriert ist, wurde der Profil-Link versendet. Bitte prüfe dein E-Mail-Postfach."}catch(e){console.error(e);msg.innerText="Der Profil-Link konnte nicht gesendet werden. Prüfe die E-Mail-Adresse oder versuche es später erneut."}finally{requestLinkInFlight=false;if(button){button.disabled=false;button.innerText="📩 Profil-Link anfordern"}}}
+function extractTokenFromInput(value){const clean=String(value||"").trim();if(!clean)return"";try{const url=new URL(clean);return url.searchParams.get("token")||clean}catch(_){}if(clean.includes("token="))return decodeURIComponent(clean.split("token=")[1].split("&")[0]).trim();return clean}
+function openReceivedProfileLink(){const token=extractTokenFromInput(document.getElementById("receivedProfileLink").value);if(!token){document.getElementById("receivedLinkMessage").innerText="Bitte Profil-Link oder Zugangscode eintragen.";return}saveToken(token);location.href="https://betinsightclub.github.io/profil/?token="+encodeURIComponent(token)}
+function goBuyUnits(){const token=getActiveToken();if(token)location.href="https://betinsightclub.github.io/profil/kaufen/?token="+encodeURIComponent(token)}
+function goTipps(){const token=getActiveToken();if(token)location.href="https://betinsightclub.github.io/profil/tipps/?token="+encodeURIComponent(token)}
+function goFreigeschaltet(){const token=getActiveToken();if(token)location.href="https://betinsightclub.github.io/profil/freigeschaltet/?token="+encodeURIComponent(token)}
+function goUnitExchange(){const token=getActiveToken();if(token)location.href="https://betinsightclub.github.io/profil/wechselboerse/?token="+encodeURIComponent(token)}
+function goMarketingCenter(){const token=getActiveToken();const base="https://betinsightclub.github.io/profil/marketing-center/";location.href=token?base+"?token="+encodeURIComponent(token):base}
 function goSupport(){location.href="https://betinsightclub.github.io/profil/support/"}
 function goBackoffice(){location.href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726"}
 
-function roundReferralUnits(value){
-  return Math.round((safeNumber(value)+Number.EPSILON)*100)/100;
-}
+function roundReferralUnits(value){return Math.round((safeNumber(value)+Number.EPSILON)*100)/100}
+function createReferralTransferRequestId(){if(window.crypto?.randomUUID)return"REF-KONTO-"+window.crypto.randomUUID();return"REF-KONTO-"+Date.now()+"-"+Math.random().toString(36).slice(2,10)}
+function setReferralTransferMessage(text,type=""){const el=document.getElementById("referralTransferMessage");if(!el)return;el.classList.remove("error","success");if(type)el.classList.add(type);el.innerText=text||""}
+function getReferralAvailable(){return Math.max(0,roundReferralUnits(currentProfileData.referralAvailable))}
+function updateReferralTransferPreview(){const input=document.getElementById("referralTransferAmount"),available=getReferralAvailable(),raw=String(input?.value??"").trim(),amount=roundReferralUnits(raw||0),remaining=Math.max(0,roundReferralUnits(available-amount));document.getElementById("referralTransferAvailable").innerText=formatNumber(available);document.getElementById("referralTransferRemaining").innerText=formatNumber(remaining);if(!raw){setReferralTransferMessage(available>0?"Bitte gib die gewünschte Menge ein.":"Derzeit sind keine Referral-Units zum Umbuchen verfügbar.",available>0?"":"error");return false}if(amount<=0){setReferralTransferMessage("Bitte gib eine Menge größer als 0 ein.","error");return false}if(amount>available){setReferralTransferMessage("Nicht genügend verfügbare Referral-Units.","error");return false}setReferralTransferMessage(`${formatNumber(amount)} Units werden aufs Tippkonto gebucht.`);return true}
+function referralUnitsToAccount(){const overlay=document.getElementById("referralTransferOverlay"),input=document.getElementById("referralTransferAmount"),confirmButton=document.getElementById("referralTransferConfirmButton"),cancelButton=document.getElementById("referralTransferCancelButton");if(!overlay||!input||!confirmButton||!cancelButton)return;referralTransferRequestId="";referralTransferRequestAmount=null;referralTransferInFlight=false;input.value="";input.disabled=false;confirmButton.disabled=false;confirmButton.innerText="⭐ Jetzt umbuchen";cancelButton.disabled=false;document.getElementById("referralTransferAvailable").innerText=formatNumber(getReferralAvailable());document.getElementById("referralTransferRemaining").innerText=formatNumber(getReferralAvailable());updateReferralTransferPreview();overlay.hidden=false;setTimeout(()=>input.focus(),0)}
+function closeReferralTransfer(){if(referralTransferInFlight)return;const overlay=document.getElementById("referralTransferOverlay");if(overlay)overlay.hidden=true}
+async function confirmReferralTransfer(){const overlay=document.getElementById("referralTransferOverlay"),input=document.getElementById("referralTransferAmount"),confirmButton=document.getElementById("referralTransferConfirmButton"),cancelButton=document.getElementById("referralTransferCancelButton"),token=String(getActiveToken()||"").trim();if(!overlay||!input||!confirmButton||!cancelButton)return;if(!token){setReferralTransferMessage("Dein Profilzugang ist nicht verfügbar. Bitte lade dein Profil neu.","error");return}if(referralTransferInFlight||!updateReferralTransferPreview())return;const amount=roundReferralUnits(input.value);if(!referralTransferRequestId||referralTransferRequestAmount!==amount){referralTransferRequestId=createReferralTransferRequestId();referralTransferRequestAmount=amount}referralTransferInFlight=true;input.disabled=true;confirmButton.disabled=true;cancelButton.disabled=true;const oldConfirmText=confirmButton.innerText;confirmButton.innerText="⏳ Wird gebucht...";setReferralTransferMessage("Umbuchung wird geprüft und ausgeführt.");let keepLocked=false;try{const url=REFERRAL_ACCOUNT_WEBHOOK_URL+"?token="+encodeURIComponent(token)+"&menge="+encodeURIComponent(String(amount))+"&request_id="+encodeURIComponent(referralTransferRequestId),response=await fetch(url,{method:"GET",cache:"no-store"});if(!response.ok)throw new Error("HTTP "+response.status);const data=await response.json();if(data.status==="success"){const moved=roundReferralUnits(data.moved!==undefined?data.moved:amount);currentProfileData.referralAvailable=roundReferralUnits(data.ref_verfuegbar!==undefined?data.ref_verfuegbar:getReferralAvailable()-moved);if(data.einsetzbare_units!==undefined){currentProfileData.units=roundReferralUnits(data.einsetzbare_units);document.getElementById("units").innerText=formatUnitsTwoDecimals(currentProfileData.units);document.getElementById("accountUnits").innerText=formatNumber(currentProfileData.units);setUnitColor(currentProfileData.units)}renderHeaderReferralAvailable(getReferralAvailable());document.getElementById("referralTransferAvailable").innerText=formatNumber(getReferralAvailable());document.getElementById("referralTransferRemaining").innerText=formatNumber(getReferralAvailable());setReferralTransferMessage(`${formatNumber(moved)} Units wurden erfolgreich aufs Tippkonto gebucht.`,"success");document.getElementById("referralStatus").innerText=`${formatNumber(moved)} Referral-Units wurden erfolgreich aufs Tippkonto gebucht.`;referralTransferRequestId="";referralTransferRequestAmount=null;keepLocked=true;setTimeout(()=>{referralTransferInFlight=false;overlay.hidden=true;loadUnits()},1200);return}if(data.status==="duplicate_request"){if(data.available!==undefined)currentProfileData.referralAvailable=roundReferralUnits(data.available);renderHeaderReferralAvailable(getReferralAvailable());document.getElementById("referralTransferAvailable").innerText=formatNumber(getReferralAvailable());document.getElementById("referralTransferRemaining").innerText=formatNumber(getReferralAvailable());setReferralTransferMessage("Diese Umbuchungsanfrage wurde bereits verarbeitet. Es wurde nichts doppelt gebucht.","success");keepLocked=true;setTimeout(()=>{referralTransferInFlight=false;overlay.hidden=true;loadUnits()},1400);return}if(data.available!==undefined){currentProfileData.referralAvailable=roundReferralUnits(data.available);renderHeaderReferralAvailable(getReferralAvailable());document.getElementById("referralTransferAvailable").innerText=formatNumber(getReferralAvailable());document.getElementById("referralTransferRemaining").innerText=formatNumber(getReferralAvailable())}const messages={invalid_amount:"Bitte gib eine Menge größer als 0 ein.",insufficient_ref_units:"Nicht genügend verfügbare Referral-Units.",missing_request_id:"Die Umbuchung konnte nicht eindeutig abgesichert werden. Bitte versuche es erneut."};setReferralTransferMessage(messages[data.status]||data.message||"Die Umbuchung konnte nicht durchgeführt werden.","error")}catch(e){console.error(e);setReferralTransferMessage("Die Antwort konnte nicht sicher empfangen werden. Bitte versuche dieselbe Umbuchung erneut; der Dublettenschutz bleibt aktiv.","error")}finally{if(!keepLocked){referralTransferInFlight=false;input.disabled=false;confirmButton.disabled=false;cancelButton.disabled=false;confirmButton.innerText=oldConfirmText}}}
+function forgetToken(){localStorage.removeItem(TOKEN_STORAGE_KEY);localStorage.removeItem("betinsight_email");renderSupportUnread(0);currentProfileData={email:"",units:0,referralAvailable:0,refCode:"",dashboardToken:"",refLink:"",consumedUnits:null,unlockedTips:0,membershipLevel:0,membership:"Basis",premiumStart:null,premiumUntil:null,graceUntil:null,premiumStatus:"",autoRenew:"NEIN",tariffCode:""};renderMembership(0,"Basis");showRequestBox()}
 
-function createReferralTransferRequestId(){
-  if(window.crypto?.randomUUID){
-    return "REF-KONTO-"+window.crypto.randomUUID();
-  }
-  return "REF-KONTO-"+Date.now()+"-"+Math.random().toString(36).slice(2,10);
-}
-
-function setReferralTransferMessage(text,type=""){
-  const el=document.getElementById("referralTransferMessage");
-  if(!el) return;
-  el.classList.remove("error","success");
-  if(type) el.classList.add(type);
-  el.innerText=text||"";
-}
-
-function getReferralAvailable(){
-  return Math.max(0,roundReferralUnits(currentProfileData.referralAvailable));
-}
-
-function updateReferralTransferPreview(){
-  const input=document.getElementById("referralTransferAmount");
-  const available=getReferralAvailable();
-  const raw=String(input?.value??"").trim();
-  const amount=roundReferralUnits(raw||0);
-  const remaining=Math.max(0,roundReferralUnits(available-amount));
-
-  document.getElementById("referralTransferAvailable").innerText=formatNumber(available);
-  document.getElementById("referralTransferRemaining").innerText=formatNumber(remaining);
-
-  if(!raw){
-    setReferralTransferMessage(
-      available>0 ? "Bitte gib die gewünschte Menge ein." : "Derzeit sind keine Referral-Units zum Umbuchen verfügbar.",
-      available>0 ? "" : "error"
-    );
-    return false;
-  }
-  if(amount<=0){
-    setReferralTransferMessage("Bitte gib eine Menge größer als 0 ein.","error");
-    return false;
-  }
-  if(amount>available){
-    setReferralTransferMessage("Nicht genügend verfügbare Referral-Units.","error");
-    return false;
-  }
-
-  setReferralTransferMessage(`${formatNumber(amount)} Units werden aufs Tippkonto gebucht.`);
-  return true;
-}
-
-function referralUnitsToAccount(){
-  const overlay=document.getElementById("referralTransferOverlay");
-  const input=document.getElementById("referralTransferAmount");
-  const confirmButton=document.getElementById("referralTransferConfirmButton");
-  const cancelButton=document.getElementById("referralTransferCancelButton");
-  if(!overlay || !input || !confirmButton || !cancelButton) return;
-
-  referralTransferRequestId="";
-  referralTransferRequestAmount=null;
-  referralTransferInFlight=false;
-
-  input.value="";
-  input.disabled=false;
-  confirmButton.disabled=false;
-  confirmButton.innerText="⭐ Jetzt umbuchen";
-  cancelButton.disabled=false;
-
-  document.getElementById("referralTransferAvailable").innerText=formatNumber(getReferralAvailable());
-  document.getElementById("referralTransferRemaining").innerText=formatNumber(getReferralAvailable());
-  updateReferralTransferPreview();
-
-  overlay.hidden=false;
-  setTimeout(()=>input.focus(),0);
-}
-
-function closeReferralTransfer(){
-  if(referralTransferInFlight) return;
-  const overlay=document.getElementById("referralTransferOverlay");
-  if(overlay) overlay.hidden=true;
-}
-
-async function confirmReferralTransfer(){
-  const overlay=document.getElementById("referralTransferOverlay");
-  const input=document.getElementById("referralTransferAmount");
-  const confirmButton=document.getElementById("referralTransferConfirmButton");
-  const cancelButton=document.getElementById("referralTransferCancelButton");
-  const token=String(getActiveToken()||"").trim();
-  if(!overlay || !input || !confirmButton || !cancelButton) return;
-
-  if(!token){
-    setReferralTransferMessage("Dein Profilzugang ist nicht verfügbar. Bitte lade dein Profil neu.","error");
-    return;
-  }
-  if(referralTransferInFlight || !updateReferralTransferPreview()) return;
-
-  const amount=roundReferralUnits(input.value);
-  if(!referralTransferRequestId || referralTransferRequestAmount!==amount){
-    referralTransferRequestId=createReferralTransferRequestId();
-    referralTransferRequestAmount=amount;
-  }
-
-  referralTransferInFlight=true;
-  input.disabled=true;
-  confirmButton.disabled=true;
-  cancelButton.disabled=true;
-  const oldConfirmText=confirmButton.innerText;
-  confirmButton.innerText="⏳ Wird gebucht...";
-  setReferralTransferMessage("Umbuchung wird geprüft und ausgeführt.");
-
-  let keepLocked=false;
-
-  try{
-    const url=REFERRAL_ACCOUNT_WEBHOOK_URL+
-      "?token="+encodeURIComponent(token)+
-      "&menge="+encodeURIComponent(String(amount))+
-      "&request_id="+encodeURIComponent(referralTransferRequestId);
-
-    const response=await fetch(url,{method:"GET",cache:"no-store"});
-    if(!response.ok) throw new Error("HTTP "+response.status);
-    const data=await response.json();
-
-    if(data.status==="success"){
-      const moved=roundReferralUnits(data.moved!==undefined ? data.moved : amount);
-      currentProfileData.referralAvailable=roundReferralUnits(
-        data.ref_verfuegbar!==undefined ? data.ref_verfuegbar : getReferralAvailable()-moved
-      );
-
-      if(data.einsetzbare_units!==undefined){
-        currentProfileData.units=roundReferralUnits(data.einsetzbare_units);
-        document.getElementById("units").innerText=formatUnitsTwoDecimals(currentProfileData.units);
-        document.getElementById("accountUnits").innerText=formatNumber(currentProfileData.units);
-        setUnitColor(currentProfileData.units);
-      }
-
-      renderHeaderReferralAvailable(getReferralAvailable());
-      document.getElementById("referralTransferAvailable").innerText=formatNumber(getReferralAvailable());
-      document.getElementById("referralTransferRemaining").innerText=formatNumber(getReferralAvailable());
-      setReferralTransferMessage(`${formatNumber(moved)} Units wurden erfolgreich aufs Tippkonto gebucht.`,"success");
-      document.getElementById("referralStatus").innerText=`${formatNumber(moved)} Referral-Units wurden erfolgreich aufs Tippkonto gebucht.`;
-
-      referralTransferRequestId="";
-      referralTransferRequestAmount=null;
-      keepLocked=true;
-      setTimeout(()=>{
-        referralTransferInFlight=false;
-        overlay.hidden=true;
-        loadUnits();
-      },1200);
-      return;
-    }
-
-    if(data.status==="duplicate_request"){
-      if(data.available!==undefined){
-        currentProfileData.referralAvailable=roundReferralUnits(data.available);
-      }
-      renderHeaderReferralAvailable(getReferralAvailable());
-      document.getElementById("referralTransferAvailable").innerText=formatNumber(getReferralAvailable());
-      document.getElementById("referralTransferRemaining").innerText=formatNumber(getReferralAvailable());
-      setReferralTransferMessage("Diese Umbuchungsanfrage wurde bereits verarbeitet. Es wurde nichts doppelt gebucht.","success");
-
-      keepLocked=true;
-      setTimeout(()=>{
-        referralTransferInFlight=false;
-        overlay.hidden=true;
-        loadUnits();
-      },1400);
-      return;
-    }
-
-    if(data.available!==undefined){
-      currentProfileData.referralAvailable=roundReferralUnits(data.available);
-      renderHeaderReferralAvailable(getReferralAvailable());
-      document.getElementById("referralTransferAvailable").innerText=formatNumber(getReferralAvailable());
-      document.getElementById("referralTransferRemaining").innerText=formatNumber(getReferralAvailable());
-    }
-
-    const messages={
-      invalid_amount:"Bitte gib eine Menge größer als 0 ein.",
-      insufficient_ref_units:"Nicht genügend verfügbare Referral-Units.",
-      missing_request_id:"Die Umbuchung konnte nicht eindeutig abgesichert werden. Bitte versuche es erneut."
-    };
-    setReferralTransferMessage(
-      messages[data.status] || data.message || "Die Umbuchung konnte nicht durchgeführt werden.",
-      "error"
-    );
-  }catch(e){
-    console.error(e);
-    setReferralTransferMessage(
-      "Die Antwort konnte nicht sicher empfangen werden. Bitte versuche dieselbe Umbuchung erneut; der Dublettenschutz bleibt aktiv.",
-      "error"
-    );
-  }finally{
-    if(!keepLocked){
-      referralTransferInFlight=false;
-      input.disabled=false;
-      confirmButton.disabled=false;
-      cancelButton.disabled=false;
-      confirmButton.innerText=oldConfirmText;
-    }
-  }
-}
-
-function forgetToken(){
-  localStorage.removeItem(TOKEN_STORAGE_KEY);
-  localStorage.removeItem("betinsight_email");
-  renderSupportUnread(0);
-  currentProfileData={
-    email:"",units:0,referralAvailable:0,refCode:"",dashboardToken:"",refLink:"",consumedUnits:null,unlockedTips:0,
-    membershipLevel:0,membership:"Basis",premiumStart:null,premiumUntil:null,graceUntil:null,
-    premiumStatus:"",autoRenew:"NEIN",tariffCode:""
-  };
-  renderMembership(0,"Basis");
-  showRequestBox();
-}
-
-document.addEventListener("keydown",event=>{
-  if(event.key==="Escape"){
-    closePremiumManager();
-    closeMembershipInfo();
-    closeReferralTransfer();
-  }
-});
-
-document.getElementById("membershipInfoOverlay")?.addEventListener("click",event=>{
-  if(event.target.id==="membershipInfoOverlay") closeMembershipInfo();
-});
-
-document.getElementById("premiumManagerOverlay")?.addEventListener("click",event=>{
-  if(event.target.id==="premiumManagerOverlay") closePremiumManager();
-});
-
-document.getElementById("referralTransferOverlay")?.addEventListener("click",event=>{
-  if(event.target.id==="referralTransferOverlay") closeReferralTransfer();
-});
-
-document.getElementById("referralTransferAmount")?.addEventListener("input",()=>{
-  if(referralTransferInFlight) return;
-  const amount=roundReferralUnits(document.getElementById("referralTransferAmount").value||0);
-  if(referralTransferRequestAmount!==null && amount!==referralTransferRequestAmount){
-    referralTransferRequestId="";
-    referralTransferRequestAmount=null;
-  }
-  updateReferralTransferPreview();
-});
-
-document.getElementById("referralTransferAmount")?.addEventListener("keydown",event=>{
-  if(event.key==="Enter"){
-    event.preventDefault();
-    confirmReferralTransfer();
-  }
-});
-
-window.addEventListener("pageshow",event=>{
-  if(event.persisted){
-    refreshSupportUnread();
-  }
-});
-
+document.addEventListener("keydown",event=>{if(event.key==="Escape"){closePremiumManager();closeMembershipInfo();closeReferralTransfer()}});
+document.getElementById("membershipInfoOverlay")?.addEventListener("click",event=>{if(event.target.id==="membershipInfoOverlay")closeMembershipInfo()});
+document.getElementById("premiumManagerOverlay")?.addEventListener("click",event=>{if(event.target.id==="premiumManagerOverlay")closePremiumManager()});
+document.getElementById("referralTransferOverlay")?.addEventListener("click",event=>{if(event.target.id==="referralTransferOverlay")closeReferralTransfer()});
+document.getElementById("referralTransferAmount")?.addEventListener("input",()=>{if(referralTransferInFlight)return;const amount=roundReferralUnits(document.getElementById("referralTransferAmount").value||0);if(referralTransferRequestAmount!==null&&amount!==referralTransferRequestAmount){referralTransferRequestId="";referralTransferRequestAmount=null}updateReferralTransferPreview()});
+document.getElementById("referralTransferAmount")?.addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();confirmReferralTransfer()}});
+window.addEventListener("pageshow",event=>{if(event.persisted)refreshSupportUnread()});
 loadUnits();
 </script>
 
