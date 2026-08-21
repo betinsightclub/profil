@@ -5,9 +5,17 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.21-02
+Version: 2026.08.21-03
 
 Änderungen:
+- DEEP-LINK-NAVIGATION 2026.08.21-03:
+  - Direkte Sprungziele für Premium (#premium) und Netzwerk & Provisionen (#netzwerk) ergänzt.
+  - Neuer sicherer Wallet-Einstieg über #wallet: Das Profil wird zuerst geladen und geprüft; anschließend wird ausschließlich der bestätigte dashboard_token an die Wallet-Verwaltung übergeben.
+  - Deep-Links werden erst nach erfolgreichem Profilabruf ausgeführt, damit versteckte Bereiche zuverlässig sichtbar sind.
+  - Der Profil-Link-Eingabedialog bewahrt einen vorhandenen Deep-Link (#premium, #netzwerk oder #wallet) beim Öffnen des persönlichen Profils.
+  - Hash-Wechsel innerhalb der bereits geladenen Profilseite werden unterstützt.
+  - Rückkehr zur Mitglieder-Zentrale einheitlich als „Zum Backoffice“ bezeichnet.
+  - Bestehende Premium-, Referral-, Netzwerk-, Support-, Unit-, Umbuchungs- und Marketing-Center-Logik bleibt unverändert.
 - ACTION-BUTTON-DESIGN 2026.08.21-02:
   - Die vier Aktionen im Bereich „Struktur und Umsätze“ optisch modernisiert.
   - Jede Funktion erhält eine eigene, klar erkennbare Farbwelt.
@@ -73,7 +81,7 @@ Version: 2026.08.21-02
   --soft:#d7edf7;
 }
 
-html{min-height:100%}
+html{min-height:100%;scroll-behavior:smooth}
 
 body{
   margin:0;
@@ -95,6 +103,19 @@ button{border:0}
   max-width:1240px;
   margin:0 auto;
   padding:30px 26px 112px;
+}
+
+.deep-link-target,
+#premium,
+#netzwerk{
+  scroll-margin-top:24px;
+}
+
+.deep-link-anchor{
+  width:0;
+  height:0;
+  overflow:hidden;
+  pointer-events:none;
 }
 
 .floating-back-button{
@@ -836,7 +857,7 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
 <body>
 
 <button class="floating-back-button" type="button" onclick="goBackoffice()">
-  ⬅ Mitgliederbereich
+  ⬅ Zum Backoffice
 </button>
 
 <main class="page">
@@ -890,7 +911,7 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
           <div class="account-stat account-stat-primary"><div class="account-stat-label">Verfügbare Units</div><div id="accountUnits" class="account-stat-value value-orange account-private-value">0</div><div class="account-stat-referral"><span>Referral verfügbar</span><strong id="accountReferralUnits" class="account-private-value">0,00</strong></div></div>
           <div class="account-stat"><div class="account-stat-label">Freigeschaltete Tipps</div><div id="unlockedTips" class="account-stat-value value-green account-private-value">0</div></div>
           <div class="account-stat"><div class="account-stat-label">Verbrauchte Units</div><div id="consumedUnits" class="account-stat-value value-cyan account-private-value">–</div></div>
-          <div class="account-stat membership-card">
+          <div id="premium" class="account-stat membership-card deep-link-target">
             <div class="membership-main"><div class="membership-main-copy"><div class="membership-title-row"><div><div class="account-stat-label">Mitgliedschaft</div><div id="membershipStatus" class="account-stat-value membership-value account-private-value">Basis</div></div><button id="membershipInfoButton" class="membership-info-button" type="button" aria-label="Tarife und Leistungen vergleichen" aria-expanded="false" onclick="toggleMembershipInfo(event)">?</button></div><div id="membershipNote" class="membership-note">BetInsight Basis-Zugang</div><div id="membershipRuntimeHint" class="membership-runtime-hint" hidden></div></div></div>
             <div class="membership-action-area">
               <div id="basisUpgradeBox" class="basis-upgrade-box"><button id="upgradePremiumButton" class="membership-upgrade-button premium-upgrade" type="button" onclick="startMembershipUpgrade('PREMIUM')">⭐ Auf Premium upgraden</button><button id="upgradePremiumPlusButton" class="membership-upgrade-button premiumplus-upgrade" type="button" onclick="startMembershipUpgrade('PREMIUM_PLUS')">✨ Auf Premium Plus upgraden</button></div>
@@ -911,6 +932,7 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
 </section>
 
 <section id="referralSection" class="referral-section">
+  <div id="netzwerk" class="deep-link-anchor deep-link-target" aria-hidden="true"></div>
   <section class="panel">
     <div class="panel-head"><div><h2 class="panel-title">🔗 <span class="panel-title-accent">Persönliche Übersicht</span></h2><p class="panel-subtitle">Dein Netzwerk, deine Referral-Units und deine persönlichen Empfehlungslinks.</p></div><button id="referralPrivacyButton" class="privacy-toggle" type="button" onclick="toggleReferralPrivacy()">◉ Schützen</button></div>
     <div class="panel-body">
@@ -1010,6 +1032,7 @@ const TOKEN_STORAGE_KEY="betinsight_profile_token";
 let profilePrivacyActive=false;
 let accountPrivacyActive=false;
 let referralPrivacyActive=false;
+let deepLinkHandled=false;
 let currentProfileData={email:"",units:0,referralAvailable:0,refCode:"",dashboardToken:"",refLink:"",consumedUnits:null,unlockedTips:0,membershipLevel:0,membership:"Basis",premiumStart:null,premiumUntil:null,graceUntil:null,premiumStatus:"",autoRenew:"NEIN",tariffCode:""};
 
 function safeNumber(value){if(value===undefined||value===null||value==="")return 0;const normalized=String(value).replace(",",".");const parsed=Number(normalized);return Number.isFinite(parsed)?parsed:0}
@@ -1018,6 +1041,50 @@ function formatUnitsTwoDecimals(value){return new Intl.NumberFormat("de-DE",{min
 function normalizeMembership(level,membership){const numericLevel=Number(String(level??"0").replace(",","."));const raw=String(membership||"").trim();if(raw==="Premium Plus"||numericLevel>=2)return{level:2,name:"Premium Plus",note:"BetInsight Premium Plus"};if(raw==="Premium"||numericLevel===1)return{level:1,name:"Premium",note:"BetInsight Premium"};return{level:0,name:"Basis",note:"BetInsight Basis-Zugang"}}
 
 let premiumCountdownInterval=null,premiumManagerMode="MANAGE",requestLinkInFlight=false,referralTransferInFlight=false,referralTransferRequestId="",referralTransferRequestAmount=null,supportUnreadRequestInFlight=false;
+
+function getDeepLinkTarget(){
+  return String(location.hash||"").replace(/^#/,"").trim().toLowerCase();
+}
+
+function preserveSupportedHash(){
+  const hash=getDeepLinkTarget();
+  return ["premium","netzwerk","wallet"].includes(hash)?"#"+hash:"";
+}
+
+function scrollToDeepLinkTarget(id){
+  const el=document.getElementById(id);
+  if(!el)return false;
+  requestAnimationFrame(()=>setTimeout(()=>el.scrollIntoView({behavior:"smooth",block:"start"}),80));
+  return true;
+}
+
+function handleDeepLinkAfterProfileLoad(){
+  if(deepLinkHandled)return;
+  const target=getDeepLinkTarget();
+  if(!target)return;
+
+  if(target==="wallet"){
+    const dashboardToken=String(currentProfileData.dashboardToken||"").trim();
+    if(!dashboardToken){
+      const msg=document.getElementById("message");
+      if(msg)msg.innerText="Die Wallet konnte noch nicht geöffnet werden, weil der persönliche Wallet-Zugang nicht verfügbar ist.";
+      return;
+    }
+    deepLinkHandled=true;
+    location.replace("https://betinsightclub.github.io/profil/wallet/?id="+encodeURIComponent(dashboardToken));
+    return;
+  }
+
+  if(target==="premium"){
+    if(scrollToDeepLinkTarget("premium"))deepLinkHandled=true;
+    return;
+  }
+
+  if(target==="netzwerk"){
+    if(scrollToDeepLinkTarget("netzwerk"))deepLinkHandled=true;
+  }
+}
+
 function parseDateValue(value){if(value===undefined||value===null||value==="")return null;const raw=String(value).trim();if(!raw)return null;const parsed=new Date(raw.includes("T")?raw:raw.replace(" ","T"));return Number.isNaN(parsed.getTime())?null:parsed}
 function formatDateTimeDe(date){if(!(date instanceof Date)||Number.isNaN(date.getTime()))return"–";return new Intl.DateTimeFormat("de-DE",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(date)}
 function formatCountdown(ms){const safe=Math.max(0,ms),t=Math.floor(safe/1000),d=Math.floor(t/86400),h=Math.floor((t%86400)/3600),m=Math.floor((t%3600)/60),s=t%60;if(d>0)return`${d} ${d===1?"Tag":"Tage"} · ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;return`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")} Std.`}
@@ -1085,11 +1152,11 @@ function prepareNetworkSection(){document.getElementById("referralSection").styl
 function isValidEmailAddress(email){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email||"").trim())}
 async function requestCurrentProfileLink(){const email=String(currentProfileData.email||"").trim().toLowerCase(),msg=document.getElementById("message"),button=document.getElementById("resendProfileButton");if(!isValidEmailAddress(email)){msg.innerText="Die registrierte E-Mail-Adresse ist nicht verfügbar oder ungültig.";return}if(requestLinkInFlight)return;requestLinkInFlight=true;if(button){button.disabled=true;button.innerText="⏳ Wird gesendet..."}try{const response=await fetch(REQUEST_LINK_WEBHOOK_URL+"?email="+encodeURIComponent(email),{cache:"no-store"});if(!response.ok)throw new Error("HTTP "+response.status);msg.innerText="Der persönliche Profil-Link wurde erneut an deine registrierte E-Mail-Adresse gesendet."}catch(e){console.error(e);msg.innerText="Der Profil-Link konnte nicht gesendet werden. Bitte versuche es später erneut."}finally{requestLinkInFlight=false;if(button){button.disabled=false;button.innerText="📩 Profil-Link erneut per E-Mail senden"}}}
 
-async function fetchProfileByToken(variants,index){if(index>=variants.length){document.getElementById("units").innerText="0,00";renderHeaderReferralAvailable(0);document.getElementById("accountUnits").innerText="0";document.getElementById("unlockedTips").innerText="0";document.getElementById("consumedUnits").innerText="–";document.getElementById("email").innerText="Nicht gefunden";renderMembership(0,"Basis");showRequestBox();return}const token=variants[index];let data=null;try{const response=await fetch(PROFILE_WEBHOOK_URL+"?token="+encodeURIComponent(token),{cache:"no-store"});if(!response.ok)throw new Error("Profilabruf HTTP "+response.status);const raw=await response.text();data=JSON.parse(raw.trim())}catch(error){console.error("Profilabruf fehlgeschlagen:",token,error);fetchProfileByToken(variants,index+1);return}if(!data||data.found===false||!data.email){fetchProfileByToken(variants,index+1);return}try{const finalToken=data.token||token,total=safeNumber(data.einsetzbare_units),referralAvailable=safeNumber(firstDefined(data,["ref_verfuegbar","referral_available","available_ref_units"],0)),consumed=firstDefined(data,["verbrauchte_units","consumed_units","used_units"],null),unlocked=safeNumber(firstDefined(data,["freigeschaltete_tipps","unlocked_tips","unlock_count"],0)),membershipLevel=safeNumber(firstDefined(data,["mitgliedschaft_level","membership_level","premium_level"],0)),membership=String(firstDefined(data,["mitgliedschaft","membership"],"Basis")).trim()||"Basis",premiumStart=firstDefined(data,["premium_start","premium_von","periode_von"],null),premiumUntil=firstDefined(data,["premium_bis","premium_until","periode_bis"],null),graceUntil=firstDefined(data,["kulanz_bis","grace_until"],null),premiumStatus=String(firstDefined(data,["premium_status","membership_status"],"")).trim(),autoRenew=String(firstDefined(data,["auto_verlaengerung","auto_renew"],"NEIN")).trim().toUpperCase(),tariffCode=String(firstDefined(data,["tarif_code","tariff_code"],"")).trim();currentProfileData={email:data.email||"",units:total,referralAvailable,refCode:String(data.ref_code||"").trim(),dashboardToken:String(data.dashboard_token||"").trim(),refLink:String(data.ref_link||"").trim(),consumedUnits:consumed,unlockedTips:unlocked,membershipLevel,membership,premiumStart,premiumUntil,graceUntil,premiumStatus,autoRenew,tariffCode};saveToken(finalToken);showProfileBox();document.getElementById("units").innerText=formatUnitsTwoDecimals(total);renderHeaderReferralAvailable(referralAvailable);document.getElementById("accountUnits").innerText=formatNumber(total);document.getElementById("unlockedTips").innerText=formatNumber(unlocked);document.getElementById("consumedUnits").innerText=formatOptionalNumber(consumed);document.getElementById("email").innerText=data.email;renderMembership(membershipLevel,membership);setBetInsightId(data.ref_code);setMaskedToken(finalToken);setUnitColor(total);setReferralLinks(data);prepareNetworkSection();refreshSupportUnread(finalToken);document.getElementById("message").innerText="Kontostand wurde aktualisiert."}catch(error){console.error("Profil wurde gefunden, aber die Anzeige hatte einen Fehler:",error);showProfileBox();document.getElementById("email").innerText=data.email||"Profil gefunden";document.getElementById("message").innerText="Profil wurde gefunden. Einzelne Anzeigen konnten noch nicht vollständig aufgebaut werden."}}
+async function fetchProfileByToken(variants,index){if(index>=variants.length){document.getElementById("units").innerText="0,00";renderHeaderReferralAvailable(0);document.getElementById("accountUnits").innerText="0";document.getElementById("unlockedTips").innerText="0";document.getElementById("consumedUnits").innerText="–";document.getElementById("email").innerText="Nicht gefunden";renderMembership(0,"Basis");showRequestBox();return}const token=variants[index];let data=null;try{const response=await fetch(PROFILE_WEBHOOK_URL+"?token="+encodeURIComponent(token),{cache:"no-store"});if(!response.ok)throw new Error("Profilabruf HTTP "+response.status);const raw=await response.text();data=JSON.parse(raw.trim())}catch(error){console.error("Profilabruf fehlgeschlagen:",token,error);fetchProfileByToken(variants,index+1);return}if(!data||data.found===false||!data.email){fetchProfileByToken(variants,index+1);return}try{const finalToken=data.token||token,total=safeNumber(data.einsetzbare_units),referralAvailable=safeNumber(firstDefined(data,["ref_verfuegbar","referral_available","available_ref_units"],0)),consumed=firstDefined(data,["verbrauchte_units","consumed_units","used_units"],null),unlocked=safeNumber(firstDefined(data,["freigeschaltete_tipps","unlocked_tips","unlock_count"],0)),membershipLevel=safeNumber(firstDefined(data,["mitgliedschaft_level","membership_level","premium_level"],0)),membership=String(firstDefined(data,["mitgliedschaft","membership"],"Basis")).trim()||"Basis",premiumStart=firstDefined(data,["premium_start","premium_von","periode_von"],null),premiumUntil=firstDefined(data,["premium_bis","premium_until","periode_bis"],null),graceUntil=firstDefined(data,["kulanz_bis","grace_until"],null),premiumStatus=String(firstDefined(data,["premium_status","membership_status"],"")).trim(),autoRenew=String(firstDefined(data,["auto_verlaengerung","auto_renew"],"NEIN")).trim().toUpperCase(),tariffCode=String(firstDefined(data,["tarif_code","tariff_code"],"")).trim();currentProfileData={email:data.email||"",units:total,referralAvailable,refCode:String(data.ref_code||"").trim(),dashboardToken:String(data.dashboard_token||"").trim(),refLink:String(data.ref_link||"").trim(),consumedUnits:consumed,unlockedTips:unlocked,membershipLevel,membership,premiumStart,premiumUntil,graceUntil,premiumStatus,autoRenew,tariffCode};saveToken(finalToken);showProfileBox();document.getElementById("units").innerText=formatUnitsTwoDecimals(total);renderHeaderReferralAvailable(referralAvailable);document.getElementById("accountUnits").innerText=formatNumber(total);document.getElementById("unlockedTips").innerText=formatNumber(unlocked);document.getElementById("consumedUnits").innerText=formatOptionalNumber(consumed);document.getElementById("email").innerText=data.email;renderMembership(membershipLevel,membership);setBetInsightId(data.ref_code);setMaskedToken(finalToken);setUnitColor(total);setReferralLinks(data);prepareNetworkSection();refreshSupportUnread(finalToken);document.getElementById("message").innerText="Kontostand wurde aktualisiert.";handleDeepLinkAfterProfileLoad()}catch(error){console.error("Profil wurde gefunden, aber die Anzeige hatte einen Fehler:",error);showProfileBox();document.getElementById("email").innerText=data.email||"Profil gefunden";document.getElementById("message").innerText="Profil wurde gefunden. Einzelne Anzeigen konnten noch nicht vollständig aufgebaut werden.";handleDeepLinkAfterProfileLoad()}}
 function loadUnits(){const token=getActiveToken();if(!token){showRequestBox();return}showProfileBox();document.getElementById("message").innerText="Kontostand wird geladen...";document.getElementById("units").innerText="0,00";renderHeaderReferralAvailable(0);document.getElementById("accountUnits").innerText="0";document.getElementById("unlockedTips").innerText="0";document.getElementById("consumedUnits").innerText="–";document.getElementById("email").innerText="Lade...";renderMembership(0,"Basis");fetchProfileByToken(buildTokenVariants(token),0)}
 async function requestProfileLink(){const email=document.getElementById("requestEmail").value.trim().toLowerCase(),msg=document.getElementById("requestMessage"),button=document.getElementById("requestProfileButton");if(!isValidEmailAddress(email)){msg.innerText="Bitte eine gültige registrierte BetInsight E-Mail-Adresse eingeben.";return}if(requestLinkInFlight)return;requestLinkInFlight=true;msg.innerText="Profil-Link wird angefordert...";if(button){button.disabled=true;button.innerText="⏳ Wird gesendet..."}try{const response=await fetch(REQUEST_LINK_WEBHOOK_URL+"?email="+encodeURIComponent(email),{cache:"no-store"});if(!response.ok)throw new Error("HTTP "+response.status);msg.innerText="✅ Wenn diese E-Mail bei BetInsight registriert ist, wurde der Profil-Link versendet. Bitte prüfe dein E-Mail-Postfach."}catch(e){console.error(e);msg.innerText="Der Profil-Link konnte nicht gesendet werden. Prüfe die E-Mail-Adresse oder versuche es später erneut."}finally{requestLinkInFlight=false;if(button){button.disabled=false;button.innerText="📩 Profil-Link anfordern"}}}
 function extractTokenFromInput(value){const clean=String(value||"").trim();if(!clean)return"";try{const url=new URL(clean);return url.searchParams.get("token")||clean}catch(_){}if(clean.includes("token="))return decodeURIComponent(clean.split("token=")[1].split("&")[0]).trim();return clean}
-function openReceivedProfileLink(){const token=extractTokenFromInput(document.getElementById("receivedProfileLink").value);if(!token){document.getElementById("receivedLinkMessage").innerText="Bitte Profil-Link oder Zugangscode eintragen.";return}saveToken(token);location.href="https://betinsightclub.github.io/profil/?token="+encodeURIComponent(token)}
+function openReceivedProfileLink(){const token=extractTokenFromInput(document.getElementById("receivedProfileLink").value);if(!token){document.getElementById("receivedLinkMessage").innerText="Bitte Profil-Link oder Zugangscode eintragen.";return}saveToken(token);location.href="https://betinsightclub.github.io/profil/?token="+encodeURIComponent(token)+preserveSupportedHash()}
 function goBuyUnits(){const token=getActiveToken();if(token)location.href="https://betinsightclub.github.io/profil/kaufen/?token="+encodeURIComponent(token)}
 function goTipps(){const token=getActiveToken();if(token)location.href="https://betinsightclub.github.io/profil/tipps/?token="+encodeURIComponent(token)}
 function goFreigeschaltet(){const token=getActiveToken();if(token)location.href="https://betinsightclub.github.io/profil/freigeschaltet/?token="+encodeURIComponent(token)}
@@ -1115,6 +1182,7 @@ document.getElementById("referralTransferOverlay")?.addEventListener("click",eve
 document.getElementById("referralTransferAmount")?.addEventListener("input",()=>{if(referralTransferInFlight)return;const amount=roundReferralUnits(document.getElementById("referralTransferAmount").value||0);if(referralTransferRequestAmount!==null&&amount!==referralTransferRequestAmount){referralTransferRequestId="";referralTransferRequestAmount=null}updateReferralTransferPreview()});
 document.getElementById("referralTransferAmount")?.addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();confirmReferralTransfer()}});
 window.addEventListener("pageshow",event=>{if(event.persisted)refreshSupportUnread()});
+window.addEventListener("hashchange",()=>{deepLinkHandled=false;if(currentProfileData.email)handleDeepLinkAfterProfileLoad()});
 loadUnits();
 </script>
 
