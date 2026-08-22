@@ -2,7 +2,7 @@ name: Patch profile support UUID counter
 
 on:
   issues:
-    types: [opened]
+    types: [opened, edited]
   workflow_dispatch:
 
 permissions:
