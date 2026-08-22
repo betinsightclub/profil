@@ -1,9 +1,8 @@
 name: Patch profile support UUID counter
 
 on:
-  push:
-    paths:
-      - '.github/workflows/patch-profile-support-uuid.yml'
+  issues:
+    types: [opened]
   workflow_dispatch:
 
 permissions:
@@ -11,6 +10,7 @@ permissions:
 
 jobs:
   patch-profile:
+    if: github.event_name != 'issues' || github.event.issue.title == 'RUN PROFILE SUPPORT UUID PATCH'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
