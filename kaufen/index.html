@@ -5,16 +5,18 @@ Live-Seite: https://betinsightclub.github.io/profil/kaufen/
 
 Projekt: BetInsight
 Datei: kaufen/index.html
-Version: 2026.08.21-01
+Version: 2026.08.23-01
 
 Änderungen:
+- Zahlungs-Webhook auf "BetInsight - Rechnung erstellen v2.0 SECURE" umgestellt.
+- Neuer sicherer Unit-Rechnungs-Webhook: uk8zqla4l5b0e1ybeoh5gd8bxbk69bfh.
+- Token-, Paket-, E-Mail- und Darstellungslogik bleiben unverändert.
 - Token wird nicht mehr zwangsweise mit "BI-" überschrieben.
 - Exakter übergebener Token wird immer zuerst geprüft.
 - Bei alten numerischen BI-Zugängen werden automatisch kompatible Varianten getestet:
   exakt, BI-Nummer, BINummer bzw. reine Nummer.
 - UUID-Zugänge werden ausschließlich exakt geprüft.
 - Ein erfolgreich erkannter Profil-Token wird wieder unter betinsight_profile_token gespeichert.
-- Paket-, Zahlungs- und E-Mail-Logik bleiben ansonsten unverändert.
 -->
 <html lang="de">
 <head>
@@ -128,7 +130,7 @@ Version: 2026.08.21-01
     "use strict";
 
     const PROFILE_WEBHOOK_URL = "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
-    const PAYMENT_WEBHOOK_URL = "https://hook.eu1.make.com/3dn877cq40zhqb1lswd53t0404s3oddy";
+    const PAYMENT_WEBHOOK_URL = "https://hook.eu1.make.com/uk8zqla4l5b0e1ybeoh5gd8bxbk69bfh";
     const TOKEN_STORAGE_KEY = "betinsight_profile_token";
 
     const pakete = {
