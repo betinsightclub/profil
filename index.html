@@ -5,9 +5,13 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.23-04
+Version: 2026.08.24-01
 
 Änderungen:
+- TELEGRAM-VERBINDUNG UND MITGLIEDSCHAFTSKARTE 2026.08.24-01:
+  - Der Telegram-Zugang wird serverseitig als eindeutige 1:1-Verbindung zwischen BetInsight-Profil und Telegram-Konto geführt.
+  - Die Mitgliedschaftskarte zeigt Laufzeit und Aktionen wieder vollständig, mit zwei gleichwertigen Schaltflächen auf breiten Ansichten und einer sauberen mobilen Stapelung.
+  - Unit-Käufe, Tippfreischaltungen und Premium-Provisionen bleiben vollständig unverändert.
 - TELEGRAM-PREMIUM-ZUGANG 2026.08.23-04:
   - Premium und Premium Plus können den privaten Telegram-Live-Alarm direkt im Profil verbinden.
   - Die Verbindung verwendet einen kurzlebigen Einmalcode; der dauerhafte Profilzugang wird niemals an Telegram übergeben.
@@ -905,6 +909,96 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
 .referral-transfer-actions button:disabled{opacity:.55;cursor:not-allowed}
 @media(max-width:520px){.referral-transfer-balance-grid,.referral-transfer-actions{grid-template-columns:1fr}.referral-transfer-dialog{padding:22px 16px}}
 
+
+
+/* v2026.08.24-01 · Telegram-Verbindung + saubere Premiumkarte */
+.membership-card.membership-premium,
+.membership-card.membership-premiumplus{
+  height:auto;
+  min-height:205px;
+  grid-template-columns:minmax(170px,.72fr) minmax(0,1.8fr);
+  gap:18px;
+  align-items:stretch;
+}
+.membership-card.membership-premium .membership-action-area,
+.membership-card.membership-premiumplus .membership-action-area{
+  display:flex;
+  align-items:stretch;
+  justify-content:stretch;
+  min-width:0;
+}
+.membership-card.membership-premium .premium-runtime-box,
+.membership-card.membership-premiumplus .premium-runtime-box{
+  display:grid;
+  width:100%;
+  grid-template-columns:minmax(0,1fr);
+  gap:12px;
+  align-content:center;
+}
+.membership-card.membership-premium .premium-runtime-content,
+.membership-card.membership-premiumplus .premium-runtime-content{
+  display:block!important;
+  min-width:0;
+  padding:11px 12px;
+  border:1px solid rgba(125,196,225,.14);
+  border-radius:13px;
+  background:rgba(0,12,20,.22);
+}
+.premium-runtime-actions{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:9px;
+  align-items:stretch;
+}
+.premium-runtime-actions .telegram-live-button{
+  grid-column:1;
+  grid-row:1;
+  min-height:46px;
+  padding:10px 9px;
+  white-space:nowrap;
+}
+.premium-runtime-actions .premium-manage-button{
+  grid-column:2;
+  grid-row:1;
+  min-height:46px;
+  margin-top:0;
+  padding:10px 9px;
+  white-space:nowrap;
+}
+.premium-runtime-actions .membership-upgrade-button{
+  grid-column:1 / -1;
+  grid-row:2;
+}
+.premium-runtime-actions .telegram-live-message{
+  grid-column:1 / -1;
+  min-height:0;
+  margin:0;
+}
+@media(max-width:720px){
+  .membership-card.membership-premium,
+  .membership-card.membership-premiumplus{
+    min-height:0;
+    grid-template-columns:1fr;
+    gap:14px;
+  }
+  .membership-card.membership-premium .membership-main,
+  .membership-card.membership-premiumplus .membership-main{
+    padding-right:0;
+    padding-bottom:13px;
+    border-right:0;
+    border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .premium-runtime-actions{grid-template-columns:1fr}
+  .premium-runtime-actions .telegram-live-button,
+  .premium-runtime-actions .premium-manage-button,
+  .premium-runtime-actions .membership-upgrade-button,
+  .premium-runtime-actions .telegram-live-message{
+    grid-column:1;
+    grid-row:auto;
+    width:100%;
+  }
+}
+
 </style>
 </head>
 
@@ -969,7 +1063,7 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
             <div class="membership-main"><div class="membership-main-copy"><div class="membership-title-row"><div><div class="account-stat-label">Mitgliedschaft</div><div id="membershipStatus" class="account-stat-value membership-value account-private-value">Basis</div></div><button id="membershipInfoButton" class="membership-info-button" type="button" aria-label="Tarife und Leistungen vergleichen" aria-expanded="false" onclick="toggleMembershipInfo(event)">?</button></div><div id="membershipNote" class="membership-note">BetInsight Basis-Zugang</div><div id="membershipRuntimeHint" class="membership-runtime-hint" hidden></div></div></div>
             <div class="membership-action-area">
               <div id="basisUpgradeBox" class="basis-upgrade-box"><button id="upgradePremiumButton" class="membership-upgrade-button premium-upgrade" type="button" onclick="startMembershipUpgrade('PREMIUM')">⭐ Auf Premium upgraden</button><button id="upgradePremiumPlusButton" class="membership-upgrade-button premiumplus-upgrade" type="button" onclick="startMembershipUpgrade('PREMIUM_PLUS')">✨ Auf Premium Plus upgraden</button></div>
-              <div id="premiumRuntimeBox" class="premium-runtime-box" hidden><div class="premium-runtime-content"><div class="premium-runtime-topline"><div id="premiumCountdown" class="premium-countdown">–</div><div id="premiumExpiry" class="premium-expiry">Gültig bis: –</div></div><div class="premium-progress" aria-hidden="true"><div id="premiumProgressBar" class="premium-progress-bar"></div></div><div id="premiumRuntimeMessage" class="premium-runtime-message"></div></div><div class="premium-runtime-actions"><button id="premiumPlusUpgradeButton" class="membership-upgrade-button premiumplus-upgrade" type="button" onclick="startMembershipUpgrade('PREMIUM_PLUS')" hidden>✨ Auf Premium Plus upgraden</button><button id="telegramLiveConnectButton" class="telegram-live-button" type="button" onclick="connectTelegramLiveAlarm()">🔔 Telegram Live-Alarm verbinden</button><div id="telegramLiveMessage" class="telegram-live-message" aria-live="polite"></div><button id="premiumManageButton" class="premium-manage-button" type="button" onclick="openPremiumManager()">🔄 Abo &amp; Verlängerung</button></div></div>
+              <div id="premiumRuntimeBox" class="premium-runtime-box" hidden><div class="premium-runtime-content"><div class="premium-runtime-topline"><div id="premiumCountdown" class="premium-countdown">–</div><div id="premiumExpiry" class="premium-expiry">Gültig bis: –</div></div><div class="premium-progress" aria-hidden="true"><div id="premiumProgressBar" class="premium-progress-bar"></div></div><div id="premiumRuntimeMessage" class="premium-runtime-message"></div></div><div class="premium-runtime-actions"><button id="premiumPlusUpgradeButton" class="membership-upgrade-button premiumplus-upgrade" type="button" onclick="startMembershipUpgrade('PREMIUM_PLUS')" hidden>✨ Auf Premium Plus upgraden</button><button id="telegramLiveConnectButton" class="telegram-live-button" type="button" onclick="connectTelegramLiveAlarm()">🔔 Telegram verbinden</button><div id="telegramLiveMessage" class="telegram-live-message" aria-live="polite"></div><button id="premiumManageButton" class="premium-manage-button" type="button" onclick="openPremiumManager()">🔄 Abo &amp; Verlängerung</button></div></div>
             </div>
             <div id="membershipInfoPanelLegacy" class="membership-info-panel info-level-0" style="display:none!important" aria-hidden="true">
               <div class="membership-info-head"><div class="membership-info-title-wrap"><div class="membership-info-eyebrow">Premium-Vorteile</div><strong id="membershipInfoTitleLegacy">Premium wählen</strong></div><span id="membershipInfoSublineLegacy">Hier siehst du nur die zusätzlichen Leistungen.</span></div>
@@ -1244,7 +1338,7 @@ async function connectTelegramLiveAlarm(){
     if(message){message.className="telegram-live-message error";message.innerText="Die Verbindung konnte nicht vorbereitet werden. Bitte versuche es erneut."}
   }finally{
     telegramConnectInFlight=false;
-    if(button){button.disabled=false;button.innerText="🔔 Telegram Live-Alarm verbinden"}
+    if(button){button.disabled=false;button.innerText="🔔 Telegram verbinden"}
   }
 }
 function renderSupportUnread(count){const badge=document.getElementById("supportUnreadBadge"),button=document.getElementById("supportButton");if(!badge||!button)return;const unread=Math.max(0,Math.floor(Number(count)||0));if(unread>0){badge.hidden=false;badge.textContent=unread>99?"99+":String(unread);badge.setAttribute("aria-label",unread+" ungelesene Support-Antworten");button.title=unread===1?"1 neue Support-Antwort":unread+" neue Support-Antworten"}else{badge.hidden=true;badge.textContent="0";badge.setAttribute("aria-label","0 ungelesene Support-Antworten");button.title="Support & Tickets öffnen"}}
