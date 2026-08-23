@@ -4,20 +4,18 @@ GitHub-Ziel: betinsightclub/profil/admin-tipps/index.html
 Live-Seite: https://betinsightclub.github.io/profil/admin-tipps/
 
 Projekt: BetInsight
-Version: 2026.08.21-02
-Stand: 21.08.2026
+Version: 2026.08.23-01
+Stand: 23.08.2026
 
 GEÄNDERT:
-- Alten separaten Login vollständig entfernt.
-- Keine alten Kurz-Codes mehr im HTML.
-- Zugriff nur noch über die zentrale sichere Admin-Session aus /profil/admin/.
-- Session wird vor Anzeige der Tippmaske serverseitig über den bestehenden Auth-Webhook geprüft.
-- Bei fehlender/abgelaufener Session erfolgt Rückleitung zum zentralen Admin Center.
-- Bei temporärem Netzwerk-/Serverfehler bleibt die vorhandene Session erhalten; Zugriff bleibt gesperrt bis zur erneuten Prüfung.
-- Adminname und Rolle werden ausschließlich aus der verifizierten Session übernommen.
-- Logout beendet die zentrale Admin-Session und führt zurück zum Admin Center.
-- Bestehende Tippmaske, Vorschau und Make-Speicherwebhook bleiben erhalten.
-- Logo und Favicon unverändert.
+- Tippfreigabe für berechtigte Admins auf direkte Veröffentlichung umgestellt.
+- Nur eine gültige, aktive Admin-Sitzung mit tipps_erlaubt = JA darf veröffentlichen.
+- Admin-ID und Erstellername werden serverseitig aus BO_ADMIN_SESSIONS / BO_ADMINS ermittelt.
+- Make schreibt direkt in TIPPS; TIPPS_ENTWURF und ein zusätzlicher Freigabeschritt entfallen.
+- Der Browser akzeptiert nur eine eindeutige JSON-Bestätigung nach erfolgreichem TIPPS-Schreibvorgang.
+- Die doppelte Auth-Prüfung unmittelbar vor jedem Speichern entfällt; Make prüft die Sitzung serverseitig erneut.
+- Quote wird im Make-Szenario für die deutsche Tabellen-Lokalisierung normalisiert.
+- Zentrale Admin-Session, Logout, Logo und Favicon bleiben unverändert.
 -->
 <html lang="de">
 <head>
@@ -25,7 +23,7 @@ GEÄNDERT:
   <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#061d2a">
-  <meta name="application-version" content="2.0.0">
+  <meta name="application-version" content="2.1.0">
   <title>BetInsight – Tippbereich</title>
 
   <style>
@@ -366,25 +364,25 @@ GEÄNDERT:
           <div class="dashboard-tile">
             <div class="tile-icon">➕</div>
             <div class="tile-title">Neuer Tipp</div>
-            <div class="tile-text">Tipp über die Maske eintragen und als Entwurf speichern.</div>
+            <div class="tile-text">Tipp über die Maske eintragen und direkt sicher veröffentlichen.</div>
           </div>
 
           <div class="dashboard-tile">
             <div class="tile-icon">📋</div>
             <div class="tile-title">Tipps verwalten</div>
-            <div class="tile-text">Entwürfe, aktive Tipps und Bearbeitung werden später ergänzt.</div>
+            <div class="tile-text">Veröffentlichte Tipps und Bearbeitungsfunktionen werden hier schrittweise ergänzt.</div>
           </div>
 
           <div class="dashboard-tile">
             <div class="tile-icon">🚀</div>
-            <div class="tile-title">Veröffentlichen</div>
-            <div class="tile-text">Später wird hier per Knopfdruck die öffentliche Tipp-Datei aktualisiert.</div>
+            <div class="tile-title">Direkt veröffentlichen</div>
+            <div class="tile-text">Berechtigte Admins veröffentlichen ohne zusätzlichen Freigabeschritt direkt in TIPPS.</div>
           </div>
         </div>
 
         <div class="notice">
           <strong>Wichtig:</strong><br>
-          Spieldatum und Anpfiff beziehen sich auf das echte Spiel. Die Speicherzeit wird automatisch vom System gesetzt.
+          Spieldatum und Anpfiff beziehen sich auf das echte Spiel. Mit „Tipp veröffentlichen“ wird der Datensatz direkt veröffentlicht; die Veröffentlichungszeit setzt das System.
         </div>
       </section>
 
@@ -446,13 +444,13 @@ GEÄNDERT:
           <div class="form-group full">
             <label for="analyse">Analyse *</label>
             <textarea id="analyse" placeholder="Hier die vollständige Analyse eintragen..."></textarea>
-            <div class="hint">Die Analyse wird später erst nach Freischaltung sichtbar.</div>
+            <div class="hint">Die Analyse wird direkt mit dem Tipp gespeichert und für Kunden erst nach deren Freischaltung sichtbar.</div>
           </div>
         </div>
 
         <div class="form-actions">
           <button id="previewButton" class="btn" type="button">Vorschau prüfen</button>
-          <button id="saveButton" class="btn" type="button">💾 Tipp speichern</button>
+          <button id="saveButton" class="btn" type="button">🚀 Tipp veröffentlichen</button>
           <button id="resetButton" class="btn btn-secondary" type="button">Maske leeren</button>
         </div>
 
@@ -460,7 +458,7 @@ GEÄNDERT:
         <div id="previewBox" class="preview hidden"></div>
         <div id="successBox" class="success-box hidden"></div>
 
-        <div class="version">BetInsight Tippbereich · Version 2.0 · zentrale Admin-Session</div>
+        <div class="version">BetInsight Tippbereich · Version 2.1 · direkte sichere Veröffentlichung</div>
       </section>
     </div>
   </main>
@@ -744,7 +742,7 @@ GEÄNDERT:
         tipp: getValue("tipp"),
         quote: getValue("quote"),
         preis_units: Number(getValue("preisUnits")),
-        status: "entwurf",
+        status: "veröffentlicht",
         ersteller: admin.name,
         admin_id: admin.adminId,
         spiel_datum: formatDateGerman(getValue("spielDatum")),
@@ -796,32 +794,24 @@ GEÄNDERT:
 
       previewBox.classList.remove("hidden");
       formMessage.classList.add("success-message");
-      formMessage.textContent = "Vorschau erstellt. Du kannst den Tipp jetzt speichern.";
+      formMessage.textContent = "Vorschau erstellt. Du kannst den Tipp jetzt direkt veröffentlichen.";
       return true;
     }
 
     async function verifyBeforeSave() {
       const session = readSession();
+
       if (!session || sessionIsLocallyExpired(session)) {
         clearSession();
         verifiedSession = null;
         throw new Error("Deine Admin-Sitzung ist abgelaufen. Bitte erneut anmelden.");
       }
 
-      const sessionHash = await sha256Hex(session.token);
-      const result = await authRequest({ action: "verify", session_hash: sessionHash });
+      if (!verifiedSession || String(verifiedSession.adminId || "") !== String(session.adminId || "")) {
+        throw new Error("Deine Admin-Sitzung ist nicht vollständig verifiziert. Bitte den Tippbereich über das Admin Center neu öffnen.");
+      }
 
-      verifiedSession = {
-        token: session.token,
-        expiresMs: Number(result.expires_ms || session.expiresMs || 0),
-        adminId: String(result.admin_id || session.adminId || ""),
-        name: String(result.name || session.name || "Admin"),
-        role: String(result.role || session.role || "ADMIN"),
-        master: String(result.master || session.master || "NEIN")
-      };
-
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify(verifiedSession));
-      return sessionHash;
+      return sha256Hex(session.token);
     }
 
     async function saveTipToMake() {
@@ -834,7 +824,7 @@ GEÄNDERT:
       saveButton.disabled = true;
       previewButton.disabled = true;
       resetButton.disabled = true;
-      saveButton.textContent = "Speichern läuft ...";
+      saveButton.textContent = "Veröffentlichung läuft ...";
 
       try {
         const sessionHash = await verifyBeforeSave();
@@ -853,25 +843,46 @@ GEÄNDERT:
           body: JSON.stringify(payload)
         });
 
+        const raw = await response.text();
+        let result = null;
+
+        try {
+          result = raw ? JSON.parse(raw) : null;
+        } catch (parseError) {
+          throw new Error("Der Veröffentlichungsserver hat den Schreibvorgang nicht eindeutig bestätigt.");
+        }
+
         if (!response.ok) {
-          throw new Error("Make hat nicht erfolgreich geantwortet.");
+          const publishError = new Error(result?.message || result?.error || "Make hat die Veröffentlichung abgelehnt.");
+          publishError.httpStatus = response.status;
+          publishError.code = String(result?.code || result?.error_code || "PUBLISH_REJECTED").toUpperCase();
+          throw publishError;
+        }
+
+        const confirmed =
+          result?.ok === true &&
+          String(result?.published || "").toUpperCase() === "JA" &&
+          String(result?.tipp_id || "") === String(tip.tipp_id);
+
+        if (!confirmed) {
+          throw new Error("Der Tipp wurde nicht als veröffentlicht bestätigt. Es wurde keine Erfolgsmeldung angezeigt.");
         }
 
         resetTipForm(false);
 
         successBox.innerHTML =
-          "<strong>✅ Tipp erfolgreich gespeichert</strong><br><br>" +
-          "Der Tipp wurde als <strong>Entwurf</strong> gespeichert.<br>" +
+          "<strong>✅ Tipp erfolgreich veröffentlicht</strong><br><br>" +
+          "Der Tipp wurde direkt in <strong>TIPPS</strong> gespeichert.<br>" +
           "Tipp-ID:<br><strong>" + escapeHtml(tip.tipp_id) + "</strong><br><br>" +
-          "Status: <strong>ENTWURF</strong>";
+          "Status: <strong>VERÖFFENTLICHT</strong>";
 
         successBox.classList.remove("hidden");
         formMessage.classList.add("success-message");
-        formMessage.textContent = "Gespeichert. Du kannst jetzt einen weiteren Tipp erfassen.";
+        formMessage.textContent = "Veröffentlicht. Du kannst jetzt einen weiteren Tipp erfassen.";
       } catch (error) {
-        console.error("Tipp speichern fehlgeschlagen:", error);
+        console.error("Tipp veröffentlichen fehlgeschlagen:", error);
         formMessage.classList.add("error-message");
-        formMessage.textContent = "❌ " + (error?.message || "Fehler beim Speichern. Bitte später erneut versuchen.");
+        formMessage.textContent = "❌ " + (error?.message || "Fehler beim Veröffentlichen. Bitte später erneut versuchen.");
 
         if (isDefinitiveSessionFailure(error) || sessionIsLocallyExpired(readSession())) {
           clearSession();
@@ -882,7 +893,7 @@ GEÄNDERT:
         saveButton.disabled = false;
         previewButton.disabled = false;
         resetButton.disabled = false;
-        saveButton.textContent = "💾 Tipp speichern";
+        saveButton.textContent = "🚀 Tipp veröffentlichen";
       }
     }
 
