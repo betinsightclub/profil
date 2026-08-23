@@ -1,8 +1,6 @@
 name: Patch profile support UUID counter
 
 on:
-  issues:
-    types: [opened, edited]
   workflow_dispatch:
 
 permissions:
@@ -10,7 +8,6 @@ permissions:
 
 jobs:
   patch-profile:
-    if: github.event_name != 'issues' || github.event.issue.title == 'RUN PROFILE SUPPORT UUID PATCH'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -20,18 +17,20 @@ jobs:
         shell: python
         run: |
           from pathlib import Path
-          import re
 
           p = Path('index.html')
           html = p.read_text(encoding='utf-8')
 
           old_version = 'Version: 2026.08.21-08'
           new_version = 'Version: 2026.08.23-01'
+
           if new_version in html:
               print('Profile already patched.')
               raise SystemExit(0)
+
           if old_version not in html:
               raise SystemExit('Unexpected profile version; refusing automatic patch.')
+
           html = html.replace(old_version, new_version, 1)
 
           old_header = '''Änderungen:\n- SUPPORT-TOKEN-ERHALT 2026.08.21-08:'''
@@ -46,18 +45,15 @@ jobs:
               raise SystemExit('Old support API constant missing; refusing patch.')
           html = html.replace(old_api, new_api, 1)
 
-          pattern = re.compile(
-              r'function isAcceptedSupportToken\(value\)\{.*?\}\n'
-              r'function canonicalSupportReaderToken\(value\)\{.*?\}\n'
-              r'function renderSupportUnread\(count\)\{.*?\}\n'
-              r'async function refreshSupportUnread\(tokenOverride=""\)\{.*?\}\n'
-              r'function buildTokenVariants',
-              re.S
-          )
-          replacement = '''function renderSupportUnread(count){const badge=document.getElementById("supportUnreadBadge"),button=document.getElementById("supportButton");if(!badge||!button)return;const unread=Math.max(0,Math.floor(Number(count)||0));if(unread>0){badge.hidden=false;badge.textContent=unread>99?"99+":String(unread);badge.setAttribute("aria-label",unread+" ungelesene Support-Antworten");button.title=unread===1?"1 neue Support-Antwort":unread+" neue Support-Antworten"}else{badge.hidden=true;badge.textContent="0";badge.setAttribute("aria-label","0 ungelesene Support-Antworten");button.title="Support & Tickets öffnen"}}\nasync function refreshSupportUnread(tokenOverride=""){if(supportUnreadRequestInFlight)return;const override=String(tokenOverride||"").trim(),candidate=isDashboardUuid(override)?override:getConfirmedDashboardToken();if(!isDashboardUuid(candidate)){renderSupportUnread(0);return}supportUnreadRequestInFlight=true;try{const response=await fetch(SUPPORT_READER_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({action:"list",token:candidate}),cache:"no-store",redirect:"follow",credentials:"omit"});const raw=String(await response.text()||"").replace(/^\\uFEFF/,"").trim();if(!raw)throw new Error("Leere Support-Antwort");const data=JSON.parse(raw);if(data?.success!==true)throw new Error(data?.message||"Support-Zähler nicht verfügbar");const tickets=[...(Array.isArray(data.tickets)?data.tickets:[]),...(Array.isArray(data.closed_tickets)?data.closed_tickets:[])],unread=tickets.reduce((sum,ticket)=>sum+Math.max(0,Math.floor(Number(ticket?.user_ungelesen)||0)),0);renderSupportUnread(unread)}catch(error){console.warn("Support-Zähler konnte nicht geladen werden:",error);renderSupportUnread(0)}finally{supportUnreadRequestInFlight=false}}\nfunction buildTokenVariants'''
-          html, count = pattern.subn(replacement, html, count=1)
-          if count != 1:
-              raise SystemExit(f'Support counter block replacement count={count}; refusing patch.')
+          start_marker = 'function isAcceptedSupportToken(value)'
+          end_marker = 'function buildTokenVariants'
+          start = html.find(start_marker)
+          end = html.find(end_marker, start)
+          if start < 0 or end < 0 or end <= start:
+              raise SystemExit('Legacy support counter block not found; refusing patch.')
+
+          replacement = '''function renderSupportUnread(count){const badge=document.getElementById("supportUnreadBadge"),button=document.getElementById("supportButton");if(!badge||!button)return;const unread=Math.max(0,Math.floor(Number(count)||0));if(unread>0){badge.hidden=false;badge.textContent=unread>99?"99+":String(unread);badge.setAttribute("aria-label",unread+" ungelesene Support-Antworten");button.title=unread===1?"1 neue Support-Antwort":unread+" neue Support-Antworten"}else{badge.hidden=true;badge.textContent="0";badge.setAttribute("aria-label","0 ungelesene Support-Antworten");button.title="Support & Tickets öffnen"}}\nasync function refreshSupportUnread(tokenOverride=""){if(supportUnreadRequestInFlight)return;const override=String(tokenOverride||"").trim(),candidate=isDashboardUuid(override)?override:getConfirmedDashboardToken();if(!isDashboardUuid(candidate)){renderSupportUnread(0);return}supportUnreadRequestInFlight=true;try{const response=await fetch(SUPPORT_READER_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({action:"list",token:candidate}),cache:"no-store",redirect:"follow",credentials:"omit"});const raw=String(await response.text()||"").replace(/^\\uFEFF/,"").trim();if(!raw)throw new Error("Leere Support-Antwort");const data=JSON.parse(raw);if(data?.success!==true)throw new Error(data?.message||"Support-Zähler nicht verfügbar");const tickets=[...(Array.isArray(data.tickets)?data.tickets:[]),...(Array.isArray(data.closed_tickets)?data.closed_tickets:[])],unread=tickets.reduce((sum,ticket)=>sum+Math.max(0,Math.floor(Number(ticket?.user_ungelesen)||0)),0);renderSupportUnread(unread)}catch(error){console.warn("Support-Zähler konnte nicht geladen werden:",error);renderSupportUnread(0)}finally{supportUnreadRequestInFlight=false}}\n'''
+          html = html[:start] + replacement + html[end:]
 
           if 'refreshSupportUnread(finalToken);' not in html:
               raise SystemExit('Profile-load support counter call missing; refusing patch.')
@@ -79,6 +75,7 @@ jobs:
           missing = [c for c in checks if c not in html]
           if missing:
               raise SystemExit('Sanity checks failed: ' + repr(missing))
+
           if 'isAcceptedSupportToken' in html or 'canonicalSupportReaderToken' in html:
               raise SystemExit('Legacy support-token helpers still present.')
 
