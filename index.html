@@ -5,9 +5,13 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.23-03
+Version: 2026.08.23-04
 
 Änderungen:
+- TELEGRAM-PREMIUM-ZUGANG 2026.08.23-04:
+  - Premium und Premium Plus können den privaten Telegram-Live-Alarm direkt im Profil verbinden.
+  - Die Verbindung verwendet einen kurzlebigen Einmalcode; der dauerhafte Profilzugang wird niemals an Telegram übergeben.
+  - Der konkrete Tipp bleibt im geschützten Profil und wird weiterhin getrennt über das bestehende Unit-System freigeschaltet.
 - LIVE-ALARME UND TARIFLAYOUT 2026.08.23-03:
   - Premium und Premium Plus enthalten Live-Popups im Profil für zeitkritische Tipps; Basis erhält diese Alarme nicht.
   - Das Vergleichsfenster verwendet für die drei vorhandenen Tarife jetzt exakt drei gleich breite Spalten.
@@ -786,7 +790,13 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
 .premium-runtime-box{width:100%;grid-template-columns:minmax(0,1fr) minmax(160px,188px);gap:14px;align-items:center}
 .premium-runtime-content{min-width:0}
 .premium-runtime-actions{display:grid;gap:9px;min-width:0}
-.premium-runtime-actions .premium-manage-button,.premium-runtime-actions .membership-upgrade-button{width:100%;min-width:0}
+.premium-runtime-actions .premium-manage-button,.premium-runtime-actions .membership-upgrade-button,.premium-runtime-actions .telegram-live-button{width:100%;min-width:0}
+.telegram-live-button{min-height:44px;padding:10px 14px;border:1px solid rgba(88,197,255,.24);border-radius:10px;background:linear-gradient(105deg,#178fc8,#29a9e6);color:#fff;font-size:11px;font-weight:900;line-height:1.25;cursor:pointer;box-shadow:0 10px 24px rgba(0,120,190,.18)}
+.telegram-live-button:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.telegram-live-button:disabled{cursor:wait;opacity:.72;transform:none}
+.telegram-live-message{min-height:0;color:#87b9cf;font-size:9px;line-height:1.35;overflow-wrap:anywhere}
+.telegram-live-message.success{color:#74e6c6}
+.telegram-live-message.error{color:#ff9c9c}
 .premium-manage-button{min-width:0;min-height:44px;padding:10px 14px;white-space:nowrap}
 .premium-runtime-box.runtime-date-pending .premium-progress,.premium-runtime-box.runtime-date-pending .premium-expiry{display:none}
 .premium-runtime-box.runtime-date-pending .premium-runtime-content{display:block;min-height:58px;padding:10px 12px;border:1px solid rgba(14,220,166,.16);border-radius:13px;background:linear-gradient(145deg,rgba(14,220,166,.055),rgba(22,156,255,.035))}
@@ -959,11 +969,11 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
             <div class="membership-main"><div class="membership-main-copy"><div class="membership-title-row"><div><div class="account-stat-label">Mitgliedschaft</div><div id="membershipStatus" class="account-stat-value membership-value account-private-value">Basis</div></div><button id="membershipInfoButton" class="membership-info-button" type="button" aria-label="Tarife und Leistungen vergleichen" aria-expanded="false" onclick="toggleMembershipInfo(event)">?</button></div><div id="membershipNote" class="membership-note">BetInsight Basis-Zugang</div><div id="membershipRuntimeHint" class="membership-runtime-hint" hidden></div></div></div>
             <div class="membership-action-area">
               <div id="basisUpgradeBox" class="basis-upgrade-box"><button id="upgradePremiumButton" class="membership-upgrade-button premium-upgrade" type="button" onclick="startMembershipUpgrade('PREMIUM')">⭐ Auf Premium upgraden</button><button id="upgradePremiumPlusButton" class="membership-upgrade-button premiumplus-upgrade" type="button" onclick="startMembershipUpgrade('PREMIUM_PLUS')">✨ Auf Premium Plus upgraden</button></div>
-              <div id="premiumRuntimeBox" class="premium-runtime-box" hidden><div class="premium-runtime-content"><div class="premium-runtime-topline"><div id="premiumCountdown" class="premium-countdown">–</div><div id="premiumExpiry" class="premium-expiry">Gültig bis: –</div></div><div class="premium-progress" aria-hidden="true"><div id="premiumProgressBar" class="premium-progress-bar"></div></div><div id="premiumRuntimeMessage" class="premium-runtime-message"></div></div><div class="premium-runtime-actions"><button id="premiumPlusUpgradeButton" class="membership-upgrade-button premiumplus-upgrade" type="button" onclick="startMembershipUpgrade('PREMIUM_PLUS')" hidden>✨ Auf Premium Plus upgraden</button><button id="premiumManageButton" class="premium-manage-button" type="button" onclick="openPremiumManager()">🔄 Abo &amp; Verlängerung</button></div></div>
+              <div id="premiumRuntimeBox" class="premium-runtime-box" hidden><div class="premium-runtime-content"><div class="premium-runtime-topline"><div id="premiumCountdown" class="premium-countdown">–</div><div id="premiumExpiry" class="premium-expiry">Gültig bis: –</div></div><div class="premium-progress" aria-hidden="true"><div id="premiumProgressBar" class="premium-progress-bar"></div></div><div id="premiumRuntimeMessage" class="premium-runtime-message"></div></div><div class="premium-runtime-actions"><button id="premiumPlusUpgradeButton" class="membership-upgrade-button premiumplus-upgrade" type="button" onclick="startMembershipUpgrade('PREMIUM_PLUS')" hidden>✨ Auf Premium Plus upgraden</button><button id="telegramLiveConnectButton" class="telegram-live-button" type="button" onclick="connectTelegramLiveAlarm()">🔔 Telegram Live-Alarm verbinden</button><div id="telegramLiveMessage" class="telegram-live-message" aria-live="polite"></div><button id="premiumManageButton" class="premium-manage-button" type="button" onclick="openPremiumManager()">🔄 Abo &amp; Verlängerung</button></div></div>
             </div>
             <div id="membershipInfoPanelLegacy" class="membership-info-panel info-level-0" style="display:none!important" aria-hidden="true">
               <div class="membership-info-head"><div class="membership-info-title-wrap"><div class="membership-info-eyebrow">Premium-Vorteile</div><strong id="membershipInfoTitleLegacy">Premium wählen</strong></div><span id="membershipInfoSublineLegacy">Hier siehst du nur die zusätzlichen Leistungen.</span></div>
-              <div class="membership-info-grid"><article class="membership-info-tier basis-info-tier" data-membership-level="0" aria-hidden="true"><div class="membership-info-kicker">Basis</div><h4>BetInsight Basis</h4></article><article class="membership-info-tier premium-info-tier" data-membership-level="1"><div class="membership-info-kicker">Premium · 13,49 € / 30 Tage</div><h4>2 Anbieter + Live-Alarme</h4><ul><li><strong>2 Anbieter-/Quotenanzeigen</strong> bei freigeschalteten Tipps</li><li><strong>Live-Popups im Profil</strong> für zeitkritische Tipps</li><li>Zusätzliche Premium-Provision bis <span class="membership-feature-highlight">Ebene 5</span></li><li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li><li>Direkte Anbieterlinks gibt es erst mit Premium Plus</li></ul></article><article class="membership-info-tier premiumplus-info-tier" data-membership-level="2"><div class="membership-info-kicker">Premium Plus · 19,99 € / 30 Tage</div><h4>5 Anbieter + Live-Alarme</h4><ul><li><strong>Quotenvergleich für bis zu 5 Anbieter</strong></li><li><strong>Live-Popups im Profil</strong> für zeitkritische Tipps</li><li>Zusätzliche Premium-Provision bis <span class="membership-feature-highlight">Ebene 8</span></li><li>Freigegebene direkte Anbieter-/Affiliate-Links</li><li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li></ul></article></div>
+              <div class="membership-info-grid"><article class="membership-info-tier basis-info-tier" data-membership-level="0" aria-hidden="true"><div class="membership-info-kicker">Basis</div><h4>BetInsight Basis</h4></article><article class="membership-info-tier premium-info-tier" data-membership-level="1"><div class="membership-info-kicker">Premium · 13,49 € / 30 Tage</div><h4>2 Anbieter + Live-Alarme</h4><ul><li><strong>2 Anbieter-/Quotenanzeigen</strong> bei freigeschalteten Tipps</li><li><strong>Live-Alarme im Profil und per Telegram</strong> für zeitkritische Tipps</li><li>Zusätzliche Premium-Provision bis <span class="membership-feature-highlight">Ebene 5</span></li><li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li><li>Direkte Anbieterlinks gibt es erst mit Premium Plus</li></ul></article><article class="membership-info-tier premiumplus-info-tier" data-membership-level="2"><div class="membership-info-kicker">Premium Plus · 19,99 € / 30 Tage</div><h4>5 Anbieter + Live-Alarme</h4><ul><li><strong>Quotenvergleich für bis zu 5 Anbieter</strong></li><li><strong>Live-Alarme im Profil und per Telegram</strong> für zeitkritische Tipps</li><li>Zusätzliche Premium-Provision bis <span class="membership-feature-highlight">Ebene 8</span></li><li>Freigegebene direkte Anbieter-/Affiliate-Links</li><li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li></ul></article></div>
               <div class="membership-info-note"><strong>Bei allen Mitgliedschaften enthalten:</strong> die laufenden Unit-Provisionen aus dem bestehenden Referral-System bis Ebene 3. Premium ergänzt diese Basis um zusätzliche Premium-Leistungen.</div>
             </div>
           </div>
@@ -1033,8 +1043,8 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
     <div class="membership-info-head"><div class="membership-info-title-wrap"><div class="membership-info-eyebrow">BetInsight Mitgliedschaft</div><strong id="membershipInfoTitle">Mitgliedschaften vergleichen</strong></div><span id="membershipInfoSubline">Basis, Premium und Premium Plus auf einen Blick. Dein aktueller Tarif ist markiert.</span></div>
     <div class="membership-info-grid">
       <article class="membership-info-tier basis-info-tier" data-membership-level="0"><div class="membership-info-kicker">Basis · Standardzugang</div><h4>Alles für den Einstieg</h4><ul><li>Zugang zum BetInsight Unit- und Tipp-System</li><li><strong>Laufende Unit-Provisionen bis zur 3. Ebene</strong> aus dem bestehenden Referral-System</li><li>Persönliche Empfehlungslinks und Netzwerkübersicht</li><li>Freigeschaltete Tipps und Unit-Verwaltung im eigenen Profil</li><li>Keine monatliche Premium-Laufzeit erforderlich</li></ul></article>
-      <article class="membership-info-tier premium-info-tier" data-membership-level="1"><div class="membership-info-kicker">Premium · 13,49 € / 30 Tage</div><h4>2 Anbieter + Live-Alarme</h4><ul><li><strong>Alle Basis-Leistungen inklusive</strong></li><li><strong>2 Anbieter-/Quotenanzeigen</strong> bei freigeschalteten Tipps</li><li><strong>Live-Popups im Profil</strong> für zeitkritische Tipps</li><li>Zusätzliche Premium-Provision bis zur <span class="membership-feature-highlight">5. Ebene</span></li><li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li><li>Direkte Anbieterlinks gibt es erst mit Premium Plus</li></ul></article>
-      <article class="membership-info-tier premiumplus-info-tier" data-membership-level="2"><div class="membership-info-kicker">Premium Plus · 19,99 € / 30 Tage</div><h4>5 Anbieter + Live-Alarme</h4><ul><li><strong>Alle Premium-Leistungen inklusive</strong></li><li><strong>Quotenvergleich für bis zu 5 Anbieter</strong></li><li><strong>Live-Popups im Profil</strong> für zeitkritische Tipps</li><li>Zusätzliche Premium-Provision bis zur <span class="membership-feature-highlight">8. Ebene</span></li><li>Freigegebene direkte Anbieter-/Affiliate-Links</li><li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li></ul></article>
+      <article class="membership-info-tier premium-info-tier" data-membership-level="1"><div class="membership-info-kicker">Premium · 13,49 € / 30 Tage</div><h4>2 Anbieter + Live-Alarme</h4><ul><li><strong>Alle Basis-Leistungen inklusive</strong></li><li><strong>2 Anbieter-/Quotenanzeigen</strong> bei freigeschalteten Tipps</li><li><strong>Live-Alarme im Profil und per Telegram</strong> für zeitkritische Tipps</li><li>Zusätzliche Premium-Provision bis zur <span class="membership-feature-highlight">5. Ebene</span></li><li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li><li>Direkte Anbieterlinks gibt es erst mit Premium Plus</li></ul></article>
+      <article class="membership-info-tier premiumplus-info-tier" data-membership-level="2"><div class="membership-info-kicker">Premium Plus · 19,99 € / 30 Tage</div><h4>5 Anbieter + Live-Alarme</h4><ul><li><strong>Alle Premium-Leistungen inklusive</strong></li><li><strong>Quotenvergleich für bis zu 5 Anbieter</strong></li><li><strong>Live-Alarme im Profil und per Telegram</strong> für zeitkritische Tipps</li><li>Zusätzliche Premium-Provision bis zur <span class="membership-feature-highlight">8. Ebene</span></li><li>Freigegebene direkte Anbieter-/Affiliate-Links</li><li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li></ul></article>
     </div>
     <div class="membership-info-note"><strong>Klare Trennung:</strong> Die Unit-Provisionen aus dem bestehenden Referral-System laufen bis zur 3. Ebene. Premium und Premium Plus enthalten beide Live-Alarme und ergänzen die Basis um eigene Premium-Leistungen sowie eine größere Premium-Provisionstiefe.</div>
   </div>
@@ -1071,6 +1081,7 @@ const REQUEST_LINK_WEBHOOK_URL="https://hook.eu1.make.com/me8q6ptfnno6qfji4s6348
 const EMPFEHLUNGEN_WEBHOOK_URL="https://hook.eu1.make.com/j883clzukqghxg9iiq91wxetue9wgoul";
 const REFERRAL_ACCOUNT_WEBHOOK_URL="https://hook.eu1.make.com/7skk3ar1t9690ewfdono994ue3maxyat";
 const SUPPORT_READER_URL="https://script.google.com/macros/s/AKfycbxI8UhsLynNM5dtjRXJNxnA5Fex6yamwt-X-Z4ca9UyOM8B3AacEOBldvpUO59LmWcs/exec";
+const TELEGRAM_PREPARE_WEBHOOK_URL="https://hook.eu1.make.com/7b3fj9y7bdhwzodcx4xy6jdadsjvbodh";
 const TOKEN_STORAGE_KEY="betinsight_profile_token";
 const DASHBOARD_TOKEN_STORAGE_KEY="betinsight_dashboard_token";
 
@@ -1085,7 +1096,7 @@ function formatNumber(value){return new Intl.NumberFormat("de-DE",{maximumFracti
 function formatUnitsTwoDecimals(value){return new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(safeNumber(value))}
 function normalizeMembership(level,membership){const numericLevel=Number(String(level??"0").replace(",","."));const raw=String(membership||"").trim();if(raw==="Premium Plus"||numericLevel>=2)return{level:2,name:"Premium Plus",note:"BetInsight Premium Plus"};if(raw==="Premium"||numericLevel===1)return{level:1,name:"Premium",note:"BetInsight Premium"};return{level:0,name:"Basis",note:"BetInsight Basis-Zugang"}}
 
-let premiumCountdownInterval=null,premiumManagerMode="MANAGE",requestLinkInFlight=false,referralTransferInFlight=false,referralTransferRequestId="",referralTransferRequestAmount=null,supportUnreadRequestInFlight=false;
+let premiumCountdownInterval=null,premiumManagerMode="MANAGE",requestLinkInFlight=false,referralTransferInFlight=false,referralTransferRequestId="",referralTransferRequestAmount=null,supportUnreadRequestInFlight=false,telegramConnectInFlight=false;
 
 function getDeepLinkTarget(){
   return String(location.hash||"").replace(/^#/,"").trim().toLowerCase();
@@ -1199,6 +1210,43 @@ function saveDashboardToken(token){const clean=String(token||"").trim();if(isDas
 function isDashboardUuid(value){const clean=String(value||"").trim();return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(clean)}
 function getActiveToken(){const fromUrl=String(getTokenFromUrl()||"").trim();if(fromUrl){if(isDashboardUuid(fromUrl))saveDashboardToken(fromUrl);else saveToken(fromUrl);return fromUrl}return getSavedToken()||getSavedDashboardToken()}
 function getConfirmedDashboardToken(){const fromProfile=String(currentProfileData.dashboardToken||"").trim();if(isDashboardUuid(fromProfile)){saveDashboardToken(fromProfile);return fromProfile}const fromUrl=String(getTokenFromUrl()||"").trim();if(isDashboardUuid(fromUrl)){saveDashboardToken(fromUrl);return fromUrl}const saved=String(getSavedDashboardToken()||"").trim();if(isDashboardUuid(saved))return saved;return ""}
+function createSecureUuid(){
+  if(window.crypto&&typeof window.crypto.randomUUID==="function")return window.crypto.randomUUID();
+  const bytes=new Uint8Array(16);
+  window.crypto.getRandomValues(bytes);
+  bytes[6]=(bytes[6]&15)|64;
+  bytes[8]=(bytes[8]&63)|128;
+  const hex=Array.from(bytes,value=>value.toString(16).padStart(2,"0")).join("");
+  return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+}
+async function connectTelegramLiveAlarm(){
+  const membership=normalizeMembership(currentProfileData.membershipLevel,currentProfileData.membership),button=document.getElementById("telegramLiveConnectButton"),message=document.getElementById("telegramLiveMessage");
+  if(membership.level<1){if(message){message.className="telegram-live-message error";message.innerText="Telegram Live-Alarm ist Premium und Premium Plus vorbehalten."}return}
+  if(telegramConnectInFlight)return;
+  const dashboardToken=getConfirmedDashboardToken();
+  if(!isDashboardUuid(dashboardToken)){if(message){message.className="telegram-live-message error";message.innerText="Der sichere Profilzugang fehlt. Bitte öffne deinen aktuellen Profil-Link erneut."}return}
+  telegramConnectInFlight=true;
+  if(button){button.disabled=true;button.innerText="🔔 Verbindung wird vorbereitet …"}
+  if(message){message.className="telegram-live-message";message.innerText="Premium wird serverseitig geprüft."}
+  try{
+    const linkToken=createSecureUuid(),requestId=createSecureUuid(),url=new URL(TELEGRAM_PREPARE_WEBHOOK_URL);
+    url.searchParams.set("token",dashboardToken);
+    url.searchParams.set("link_token",linkToken);
+    url.searchParams.set("request_id",requestId);
+    const response=await fetch(url.toString(),{method:"GET",cache:"no-store",credentials:"omit",redirect:"follow"});
+    if(!response.ok)throw new Error("HTTP "+response.status);
+    const raw=String(await response.text()||"").replace(/^\uFEFF/,"").trim(),data=JSON.parse(raw);
+    if(data?.ok!==true||!/^https:\/\/t\.me\//i.test(String(data.bot_url||"")))throw new Error("Telegram-Link fehlt");
+    if(message){message.className="telegram-live-message success";message.innerText="Telegram wird geöffnet. Sende dort die vorbereitete Start-Nachricht."}
+    window.location.assign(String(data.bot_url));
+  }catch(error){
+    console.error("Telegram Live-Alarm konnte nicht verbunden werden:",error);
+    if(message){message.className="telegram-live-message error";message.innerText="Die Verbindung konnte nicht vorbereitet werden. Bitte versuche es erneut."}
+  }finally{
+    telegramConnectInFlight=false;
+    if(button){button.disabled=false;button.innerText="🔔 Telegram Live-Alarm verbinden"}
+  }
+}
 function renderSupportUnread(count){const badge=document.getElementById("supportUnreadBadge"),button=document.getElementById("supportButton");if(!badge||!button)return;const unread=Math.max(0,Math.floor(Number(count)||0));if(unread>0){badge.hidden=false;badge.textContent=unread>99?"99+":String(unread);badge.setAttribute("aria-label",unread+" ungelesene Support-Antworten");button.title=unread===1?"1 neue Support-Antwort":unread+" neue Support-Antworten"}else{badge.hidden=true;badge.textContent="0";badge.setAttribute("aria-label","0 ungelesene Support-Antworten");button.title="Support & Tickets öffnen"}}
 async function refreshSupportUnread(tokenOverride=""){if(supportUnreadRequestInFlight)return;const override=String(tokenOverride||"").trim(),candidate=isDashboardUuid(override)?override:getConfirmedDashboardToken();if(!isDashboardUuid(candidate)){renderSupportUnread(0);return}supportUnreadRequestInFlight=true;try{const response=await fetch(SUPPORT_READER_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({action:"list",token:candidate}),cache:"no-store",redirect:"follow",credentials:"omit"});const raw=String(await response.text()||"").replace(/^\uFEFF/,"").trim();if(!raw)throw new Error("Leere Support-Antwort");const data=JSON.parse(raw);if(data?.success!==true)throw new Error(data?.message||"Support-Zähler nicht verfügbar");const tickets=[...(Array.isArray(data.tickets)?data.tickets:[]),...(Array.isArray(data.closed_tickets)?data.closed_tickets:[])],unread=tickets.reduce((sum,ticket)=>sum+Math.max(0,Math.floor(Number(ticket?.user_ungelesen)||0)),0);renderSupportUnread(unread)}catch(error){console.warn("Support-Zähler konnte nicht geladen werden:",error);renderSupportUnread(0)}finally{supportUnreadRequestInFlight=false}}
 function buildTokenVariants(token){if(!token)return[];const clean=String(token).trim();if(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(clean))return[clean];const variants=[clean];if(clean.startsWith("BI-")){const p=clean.substring(3);variants.push(p,"BI"+p)}else if(clean.startsWith("BI")){const p=clean.substring(2);variants.push(p,"BI-"+p)}else variants.push("BI"+clean,"BI-"+clean);return[...new Set(variants)]}
