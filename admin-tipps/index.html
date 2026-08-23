@@ -4,10 +4,14 @@ GitHub-Ziel: betinsightclub/profil/admin-tipps/index.html
 Live-Seite: https://betinsightclub.github.io/profil/admin-tipps/
 
 Projekt: BetInsight
-Version: 2026.08.23-01
+Version: 2026.08.23-02
 Stand: 23.08.2026
 
 GEÄNDERT:
+- Live-Alarm-Schalter mit Spielstand, Spielminute und Gültigkeitsdauer ergänzt.
+- Live-Alarme werden gleichzeitig Premium und Premium Plus zugeordnet; Basis ist ausgeschlossen.
+- Analyse ist optional und wird von Browser und Make nicht mehr als Pflichtfeld verlangt.
+- Make speichert die Vorbereitung getrennt in LIVE_ALERTS; Unit- und Referral-Logik bleiben unverändert.
 - Tippfreigabe für berechtigte Admins auf direkte Veröffentlichung umgestellt.
 - Nur eine gültige, aktive Admin-Sitzung mit tipps_erlaubt = JA darf veröffentlichen.
 - Admin-ID und Erstellername werden serverseitig aus BO_ADMIN_SESSIONS / BO_ADMINS ermittelt.
@@ -23,7 +27,7 @@ GEÄNDERT:
   <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#061d2a">
-  <meta name="application-version" content="2.1.0">
+  <meta name="application-version" content="2.2.0">
   <title>BetInsight – Tippbereich</title>
 
   <style>
@@ -213,6 +217,85 @@ GEÄNDERT:
       text-align: left;
     }
 
+    .live-alarm-card {
+      margin-top: 22px;
+      padding: 20px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 91, 103, 0.42);
+      background: radial-gradient(circle at 100% 0%, rgba(255, 70, 87, 0.16), transparent 45%), rgba(34, 10, 18, 0.46);
+    }
+
+    .live-alarm-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .live-alarm-copy { flex: 1 1 360px; }
+
+    .live-alarm-copy h3 {
+      margin: 0 0 7px;
+      color: #ffffff;
+      font-size: 20px;
+    }
+
+    .live-alarm-copy p {
+      margin: 0;
+      color: #ffc5ca;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .live-alarm-toggle {
+      min-width: 220px;
+      min-height: 50px;
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: 999px;
+      padding: 12px 20px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #e8f3f8;
+      font-size: 15px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+    }
+
+    .live-alarm-toggle:hover,
+    .live-alarm-toggle:focus-visible {
+      transform: translateY(-2px);
+      outline: none;
+    }
+
+    .live-alarm-toggle.is-active {
+      border-color: #ff5b67;
+      background: linear-gradient(135deg, #ef3346, #b30f29);
+      color: #ffffff;
+      box-shadow: 0 0 0 4px rgba(255, 70, 87, 0.12), 0 12px 30px rgba(179, 15, 41, 0.28);
+    }
+
+    .live-alarm-fields {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 15px;
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .live-alarm-fields[hidden] { display: none; }
+
+    .live-alarm-recipient {
+      grid-column: 1 / -1;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.07);
+      color: #ffe5e8;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
     .form-card { text-align: left; margin-top: 22px; }
 
     .form-grid {
@@ -323,6 +406,8 @@ GEÄNDERT:
       .top-actions { width: 100%; justify-content: center; }
       .form-grid { grid-template-columns: 1fr; }
       .form-actions { grid-template-columns: 1fr; }
+      .live-alarm-toggle { width: 100%; min-width: 0; }
+      .live-alarm-fields { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -442,11 +527,46 @@ GEÄNDERT:
           </div>
 
           <div class="form-group full">
-            <label for="analyse">Analyse *</label>
-            <textarea id="analyse" placeholder="Hier die vollständige Analyse eintragen..."></textarea>
-            <div class="hint">Die Analyse wird direkt mit dem Tipp gespeichert und für Kunden erst nach deren Freischaltung sichtbar.</div>
+            <label for="analyse">Analyse (optional)</label>
+            <textarea id="analyse" placeholder="Optional: kurze oder vollständige Analyse eintragen..."></textarea>
+            <div class="hint">Kann leer bleiben. Wenn du etwas einträgst, wird es mit dem Tipp gespeichert und erst nach Freischaltung angezeigt.</div>
           </div>
         </div>
+
+        <section class="live-alarm-card" aria-labelledby="liveAlarmTitle">
+          <div class="live-alarm-header">
+            <div class="live-alarm-copy">
+              <h3 id="liveAlarmTitle">🔴 Live-Alarm für Premium-Mitglieder</h3>
+              <p>Aktiviere den Schalter nur bei einem zeitkritischen Live-Tipp. Premium und Premium Plus erhalten denselben Alarm gleichzeitig; Basis erhält keinen Live-Alarm.</p>
+            </div>
+            <button id="liveAlarmToggle" class="live-alarm-toggle" type="button" aria-pressed="false">⚪ LIVE-ALARM AUS</button>
+          </div>
+
+          <div id="liveAlarmFields" class="live-alarm-fields" hidden>
+            <div class="form-group">
+              <label for="liveSpielstand">Aktueller Spielstand *</label>
+              <input id="liveSpielstand" type="text" placeholder="z.B. 0:1" inputmode="text">
+            </div>
+
+            <div class="form-group">
+              <label for="liveSpielminute">Spielminute *</label>
+              <input id="liveSpielminute" type="number" min="1" max="120" step="1" placeholder="z.B. 68">
+            </div>
+
+            <div class="form-group">
+              <label for="liveGueltigMinuten">Alarm gültig für *</label>
+              <select id="liveGueltigMinuten">
+                <option value="3">3 Minuten</option>
+                <option value="5" selected>5 Minuten</option>
+                <option value="10">10 Minuten</option>
+              </select>
+            </div>
+
+            <div class="live-alarm-recipient">
+              <strong>Empfänger:</strong> Premium und Premium Plus · <strong>Anzeige:</strong> Profil-Popup vorbereitet · E-Mail und Telegram als Versandkanäle vorbereitet · Quote gilt zum Veröffentlichungszeitpunkt und kann sich ändern.
+            </div>
+          </div>
+        </section>
 
         <div class="form-actions">
           <button id="previewButton" class="btn" type="button">Vorschau prüfen</button>
@@ -458,7 +578,7 @@ GEÄNDERT:
         <div id="previewBox" class="preview hidden"></div>
         <div id="successBox" class="success-box hidden"></div>
 
-        <div class="version">BetInsight Tippbereich · Version 2.1 · direkte sichere Veröffentlichung</div>
+        <div class="version">BetInsight Tippbereich · Version 2.2 · Live-Alarm vorbereitet · sichere Veröffentlichung</div>
       </section>
     </div>
   </main>
@@ -472,6 +592,7 @@ GEÄNDERT:
     const ADMIN_CENTER_URL = "https://betinsightclub.github.io/profil/admin/";
 
     let verifiedSession = null;
+    let liveAlarmEnabled = false;
 
     const authArea = document.getElementById("authArea");
     const authSpinner = document.getElementById("authSpinner");
@@ -488,6 +609,8 @@ GEÄNDERT:
     const saveButton = document.getElementById("saveButton");
     const previewButton = document.getElementById("previewButton");
     const resetButton = document.getElementById("resetButton");
+    const liveAlarmToggle = document.getElementById("liveAlarmToggle");
+    const liveAlarmFields = document.getElementById("liveAlarmFields");
 
     function bytesToHex(bytes) {
       return Array.from(bytes, byte => byte.toString(16).padStart(2, "0")).join("");
@@ -675,6 +798,22 @@ GEÄNDERT:
       return String(document.getElementById(id).value || "").trim();
     }
 
+    function setLiveAlarmEnabled(enabled) {
+      liveAlarmEnabled = Boolean(enabled);
+      liveAlarmFields.hidden = !liveAlarmEnabled;
+      liveAlarmToggle.classList.toggle("is-active", liveAlarmEnabled);
+      liveAlarmToggle.setAttribute("aria-pressed", liveAlarmEnabled ? "true" : "false");
+      liveAlarmToggle.textContent = liveAlarmEnabled ? "🔴 LIVE-ALARM AN" : "⚪ LIVE-ALARM AUS";
+      saveButton.textContent = liveAlarmEnabled
+        ? "🔴 Tipp + Live-Alarm veröffentlichen"
+        : "🚀 Tipp veröffentlichen";
+    }
+
+    function createLiveValidUntil(minutes) {
+      if (!liveAlarmEnabled) return "";
+      return new Date(Date.now() + Number(minutes || 0) * 60000).toISOString();
+    }
+
     function validateTipForm() {
       const requiredFields = [
         { id: "spiel", label: "Spiel" },
@@ -684,8 +823,7 @@ GEÄNDERT:
         { id: "quote", label: "Quote" },
         { id: "preisUnits", label: "Preis in Units" },
         { id: "spielDatum", label: "Spieldatum" },
-        { id: "anpfiff", label: "Anpfiff" },
-        { id: "analyse", label: "Analyse" }
+        { id: "anpfiff", label: "Anpfiff" }
       ];
 
       for (const field of requiredFields) {
@@ -698,6 +836,18 @@ GEÄNDERT:
       const preisUnits = Number(getValue("preisUnits"));
       if (!Number.isInteger(preisUnits) || preisUnits < 1) {
         return "Bitte einen gültigen Unit-Preis eintragen.";
+      }
+
+      if (liveAlarmEnabled) {
+        if (!getValue("liveSpielstand")) return "Bitte den aktuellen Spielstand für den Live-Alarm eintragen.";
+
+        const minute = Number(getValue("liveSpielminute"));
+        if (!Number.isInteger(minute) || minute < 1 || minute > 120) {
+          return "Bitte eine gültige Spielminute zwischen 1 und 120 eintragen.";
+        }
+
+        const duration = Number(getValue("liveGueltigMinuten"));
+        if (![3, 5, 10].includes(duration)) return "Bitte eine gültige Alarmdauer auswählen.";
       }
 
       return "";
@@ -734,8 +884,11 @@ GEÄNDERT:
 
       if (!admin) throw new Error("Keine verifizierte Admin-Sitzung vorhanden.");
 
+      const tippId = createTippId(admin.name);
+      const duration = liveAlarmEnabled ? Number(getValue("liveGueltigMinuten")) : 0;
+
       return {
-        tipp_id: createTippId(admin.name),
+        tipp_id: tippId,
         spiel: getValue("spiel"),
         liga: getValue("liga"),
         markt: getValue("markt"),
@@ -748,7 +901,14 @@ GEÄNDERT:
         spiel_datum: formatDateGerman(getValue("spielDatum")),
         anpfiff: getValue("anpfiff"),
         analyse: getValue("analyse"),
-        erstellt_am: createCreatedAt()
+        erstellt_am: createCreatedAt(),
+        live_alarm: liveAlarmEnabled ? "JA" : "NEIN",
+        live_alert_id: (liveAlarmEnabled ? "LA-" : "LOG-") + tippId,
+        live_spielstand: liveAlarmEnabled ? getValue("liveSpielstand") : "",
+        live_spielminute: liveAlarmEnabled ? Number(getValue("liveSpielminute")) : "",
+        live_gueltig_minuten: duration || "",
+        live_gueltig_bis: createLiveValidUntil(duration),
+        live_zielgruppe: liveAlarmEnabled ? "PREMIUM_UND_PLUS" : ""
       };
     }
 
@@ -776,6 +936,14 @@ GEÄNDERT:
 
       const tip = collectTipData();
 
+      const livePreview = tip.live_alarm === "JA"
+        ? "<br><br><strong>🔴 LIVE-ALARM:</strong><br>" +
+          "Spielstand: " + escapeHtml(tip.live_spielstand) + "<br>" +
+          "Spielminute: " + escapeHtml(String(tip.live_spielminute)) + "<br>" +
+          "Gültig für: " + escapeHtml(String(tip.live_gueltig_minuten)) + " Minuten<br>" +
+          "Empfänger: Premium und Premium Plus"
+        : "";
+
       previewBox.innerHTML =
         "<strong>Vorschau:</strong><br><br>" +
         "Tipp-ID: " + escapeHtml(tip.tipp_id) + "<br>" +
@@ -789,8 +957,10 @@ GEÄNDERT:
         "Ersteller: " + escapeHtml(tip.ersteller) + "<br>" +
         "Spieldatum: " + escapeHtml(tip.spiel_datum) + "<br>" +
         "Anpfiff: " + escapeHtml(tip.anpfiff) + "<br>" +
-        "Erstellt am: " + escapeHtml(tip.erstellt_am) + "<br><br>" +
-        "<strong>Analyse:</strong><br>" + escapeHtml(tip.analyse);
+        "Erstellt am: " + escapeHtml(tip.erstellt_am) +
+        livePreview +
+        "<br><br><strong>Analyse:</strong><br>" +
+        escapeHtml(tip.analyse || "Keine zusätzliche Analyse.");
 
       previewBox.classList.remove("hidden");
       formMessage.classList.add("success-message");
@@ -821,14 +991,35 @@ GEÄNDERT:
       const isValid = prepareTipPreview();
       if (!isValid) return;
 
+      const tip = collectTipData();
+
+      if (tip.live_alarm === "JA") {
+        const confirmedLive = window.confirm([
+          "LIVE-ALARM wirklich veröffentlichen?",
+          "",
+          tip.spiel + " · " + tip.live_spielstand + " · " + tip.live_spielminute + ". Minute",
+          "Tipp: " + tip.tipp,
+          "Quote: " + tip.quote,
+          "Gültig: " + tip.live_gueltig_minuten + " Minuten",
+          "Empfänger: Premium und Premium Plus",
+          "",
+          "Die Quote kann sich nach dem Versand ändern."
+        ].join("\n"));
+
+        if (!confirmedLive) {
+          formMessage.textContent = "Live-Alarm wurde nicht veröffentlicht. Die Eingaben bleiben erhalten.";
+          return;
+        }
+      }
+
       saveButton.disabled = true;
       previewButton.disabled = true;
       resetButton.disabled = true;
+      liveAlarmToggle.disabled = true;
       saveButton.textContent = "Veröffentlichung läuft ...";
 
       try {
         const sessionHash = await verifyBeforeSave();
-        const tip = collectTipData();
 
         const payload = {
           ...tip,
@@ -862,23 +1053,30 @@ GEÄNDERT:
         const confirmed =
           result?.ok === true &&
           String(result?.published || "").toUpperCase() === "JA" &&
-          String(result?.tipp_id || "") === String(tip.tipp_id);
+          String(result?.tipp_id || "") === String(tip.tipp_id) &&
+          String(result?.live_alert_saved || "").toUpperCase() === "JA";
 
         if (!confirmed) {
-          throw new Error("Der Tipp wurde nicht als veröffentlicht bestätigt. Es wurde keine Erfolgsmeldung angezeigt.");
+          throw new Error("Der Tipp wurde nicht vollständig bestätigt. Es wurde keine Erfolgsmeldung angezeigt.");
         }
 
         resetTipForm(false);
 
+        const liveSuccess = tip.live_alarm === "JA"
+          ? "<br>Der Live-Alarm wurde getrennt in <strong>LIVE_ALERTS</strong> für Premium und Premium Plus vorbereitet.<br><br>Status: <strong>LIVE-ALARM VORBEREITET</strong>"
+          : "<br><br>Status: <strong>VERÖFFENTLICHT</strong>";
+
         successBox.innerHTML =
           "<strong>✅ Tipp erfolgreich veröffentlicht</strong><br><br>" +
           "Der Tipp wurde direkt in <strong>TIPPS</strong> gespeichert.<br>" +
-          "Tipp-ID:<br><strong>" + escapeHtml(tip.tipp_id) + "</strong><br><br>" +
-          "Status: <strong>VERÖFFENTLICHT</strong>";
+          "Tipp-ID:<br><strong>" + escapeHtml(tip.tipp_id) + "</strong>" +
+          liveSuccess;
 
         successBox.classList.remove("hidden");
         formMessage.classList.add("success-message");
-        formMessage.textContent = "Veröffentlicht. Du kannst jetzt einen weiteren Tipp erfassen.";
+        formMessage.textContent = tip.live_alarm === "JA"
+          ? "Veröffentlicht und Live-Alarm vorbereitet. Du kannst jetzt einen weiteren Tipp erfassen."
+          : "Veröffentlicht. Du kannst jetzt einen weiteren Tipp erfassen.";
       } catch (error) {
         console.error("Tipp veröffentlichen fehlgeschlagen:", error);
         formMessage.classList.add("error-message");
@@ -893,7 +1091,8 @@ GEÄNDERT:
         saveButton.disabled = false;
         previewButton.disabled = false;
         resetButton.disabled = false;
-        saveButton.textContent = "🚀 Tipp veröffentlichen";
+        liveAlarmToggle.disabled = false;
+        setLiveAlarmEnabled(liveAlarmEnabled);
       }
     }
 
@@ -907,6 +1106,10 @@ GEÄNDERT:
       document.getElementById("spielDatum").value = "";
       document.getElementById("anpfiff").value = "";
       document.getElementById("analyse").value = "";
+      document.getElementById("liveSpielstand").value = "";
+      document.getElementById("liveSpielminute").value = "";
+      document.getElementById("liveGueltigMinuten").value = "5";
+      setLiveAlarmEnabled(false);
 
       previewBox.classList.add("hidden");
       previewBox.textContent = "";
@@ -931,6 +1134,7 @@ GEÄNDERT:
     previewButton.addEventListener("click", prepareTipPreview);
     saveButton.addEventListener("click", saveTipToMake);
     resetButton.addEventListener("click", () => resetTipForm(true));
+    liveAlarmToggle.addEventListener("click", () => setLiveAlarmEnabled(!liveAlarmEnabled));
     logoutButton.addEventListener("click", logoutAdmin);
 
     verifyStoredSession();

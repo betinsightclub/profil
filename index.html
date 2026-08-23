@@ -5,9 +5,13 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.23-02
+Version: 2026.08.23-03
 
 Änderungen:
+- LIVE-ALARME UND TARIFLAYOUT 2026.08.23-03:
+  - Premium und Premium Plus enthalten Live-Popups im Profil für zeitkritische Tipps; Basis erhält diese Alarme nicht.
+  - Das Vergleichsfenster verwendet für die drei vorhandenen Tarife jetzt exakt drei gleich breite Spalten.
+  - Die getrennte Unit- und Referral-Logik bleibt vollständig unverändert.
 - PREMIUM-TARIFE 2026.08.23-02:
   - Premium kostet 13,49 EUR / 30 Tage; Premium Plus kostet 19,99 EUR / 30 Tage.
   - Die separate Premium-Gruppenprovision reicht bei Premium bis Ebene 5 und bei Premium Plus bis Ebene 8.
@@ -856,7 +860,7 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
 
 /* v2026.08.13-11 · vollständiger 3-Tarif-Vergleich im Popup */
 .membership-info-dialog{width:min(980px,100%)}
-.membership-info-dialog .membership-info-grid,.membership-info-dialog.info-level-0 .membership-info-grid,.membership-info-dialog.info-level-1 .membership-info-grid,.membership-info-dialog.info-level-2 .membership-info-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}
+.membership-info-dialog .membership-info-grid,.membership-info-dialog.info-level-0 .membership-info-grid,.membership-info-dialog.info-level-1 .membership-info-grid,.membership-info-dialog.info-level-2 .membership-info-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
 .membership-info-dialog .basis-info-tier{display:block!important;border-color:rgba(22,156,255,.24)}
 .membership-info-dialog .basis-info-tier::before{background:linear-gradient(90deg,#168dff,#08bdec)}
 .membership-info-dialog.info-level-2 .premium-info-tier{display:block!important}
@@ -959,7 +963,7 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
             </div>
             <div id="membershipInfoPanelLegacy" class="membership-info-panel info-level-0" style="display:none!important" aria-hidden="true">
               <div class="membership-info-head"><div class="membership-info-title-wrap"><div class="membership-info-eyebrow">Premium-Vorteile</div><strong id="membershipInfoTitleLegacy">Premium wählen</strong></div><span id="membershipInfoSublineLegacy">Hier siehst du nur die zusätzlichen Leistungen.</span></div>
-              <div class="membership-info-grid"><article class="membership-info-tier basis-info-tier" data-membership-level="0" aria-hidden="true"><div class="membership-info-kicker">Basis</div><h4>BetInsight Basis</h4></article><article class="membership-info-tier premium-info-tier" data-membership-level="1"><div class="membership-info-kicker">Premium · 13,49 € / 30 Tage</div><h4>2 Anbieter + Premium bis zur 5. Ebene</h4><ul><li><strong>2 Anbieter-/Quotenanzeigen</strong> bei freigeschalteten Tipps</li><li>Zusätzliche Premium-Provision bis <span class="membership-feature-highlight">Ebene 5</span></li><li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li><li>Direkte Anbieterlinks gibt es erst mit Premium Plus</li></ul></article><article class="membership-info-tier premiumplus-info-tier" data-membership-level="2"><div class="membership-info-kicker">Premium Plus · 19,99 € / 30 Tage</div><h4>5 Anbieter + Premium bis zur 8. Ebene</h4><ul><li><strong>Quotenvergleich für bis zu 5 Anbieter</strong></li><li>Zusätzliche Premium-Provision bis <span class="membership-feature-highlight">Ebene 8</span></li><li>Freigegebene direkte Anbieter-/Affiliate-Links</li><li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li></ul></article></div>
+              <div class="membership-info-grid"><article class="membership-info-tier basis-info-tier" data-membership-level="0" aria-hidden="true"><div class="membership-info-kicker">Basis</div><h4>BetInsight Basis</h4></article><article class="membership-info-tier premium-info-tier" data-membership-level="1"><div class="membership-info-kicker">Premium · 13,49 € / 30 Tage</div><h4>2 Anbieter + Live-Alarme</h4><ul><li><strong>2 Anbieter-/Quotenanzeigen</strong> bei freigeschalteten Tipps</li><li><strong>Live-Popups im Profil</strong> für zeitkritische Tipps</li><li>Zusätzliche Premium-Provision bis <span class="membership-feature-highlight">Ebene 5</span></li><li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li><li>Direkte Anbieterlinks gibt es erst mit Premium Plus</li></ul></article><article class="membership-info-tier premiumplus-info-tier" data-membership-level="2"><div class="membership-info-kicker">Premium Plus · 19,99 € / 30 Tage</div><h4>5 Anbieter + Live-Alarme</h4><ul><li><strong>Quotenvergleich für bis zu 5 Anbieter</strong></li><li><strong>Live-Popups im Profil</strong> für zeitkritische Tipps</li><li>Zusätzliche Premium-Provision bis <span class="membership-feature-highlight">Ebene 8</span></li><li>Freigegebene direkte Anbieter-/Affiliate-Links</li><li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li></ul></article></div>
               <div class="membership-info-note"><strong>Bei allen Mitgliedschaften enthalten:</strong> die laufenden Unit-Provisionen aus dem bestehenden Referral-System bis Ebene 3. Premium ergänzt diese Basis um zusätzliche Premium-Leistungen.</div>
             </div>
           </div>
@@ -1029,10 +1033,10 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
     <div class="membership-info-head"><div class="membership-info-title-wrap"><div class="membership-info-eyebrow">BetInsight Mitgliedschaft</div><strong id="membershipInfoTitle">Mitgliedschaften vergleichen</strong></div><span id="membershipInfoSubline">Basis, Premium und Premium Plus auf einen Blick. Dein aktueller Tarif ist markiert.</span></div>
     <div class="membership-info-grid">
       <article class="membership-info-tier basis-info-tier" data-membership-level="0"><div class="membership-info-kicker">Basis · Standardzugang</div><h4>Alles für den Einstieg</h4><ul><li>Zugang zum BetInsight Unit- und Tipp-System</li><li><strong>Laufende Unit-Provisionen bis zur 3. Ebene</strong> aus dem bestehenden Referral-System</li><li>Persönliche Empfehlungslinks und Netzwerkübersicht</li><li>Freigeschaltete Tipps und Unit-Verwaltung im eigenen Profil</li><li>Keine monatliche Premium-Laufzeit erforderlich</li></ul></article>
-      <article class="membership-info-tier premium-info-tier" data-membership-level="1"><div class="membership-info-kicker">Premium · 13,49 € / 30 Tage</div><h4>2 Anbieter + mehr Provisionstiefe</h4><ul><li><strong>Alle Basis-Leistungen inklusive</strong></li><li><strong>2 Anbieter-/Quotenanzeigen</strong> bei freigeschalteten Tipps</li><li>Zusätzliche Premium-Provision bis zur <span class="membership-feature-highlight">5. Ebene</span></li><li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li><li>Direkte Anbieterlinks gibt es erst mit Premium Plus</li></ul></article>
-      <article class="membership-info-tier premiumplus-info-tier" data-membership-level="2"><div class="membership-info-kicker">Premium Plus · 19,99 € / 30 Tage</div><h4>5 Anbieter + maximale Provisionstiefe</h4><ul><li><strong>Alle Premium-Leistungen inklusive</strong></li><li><strong>Quotenvergleich für bis zu 5 Anbieter</strong></li><li>Zusätzliche Premium-Provision bis zur <span class="membership-feature-highlight">8. Ebene</span></li><li>Freigegebene direkte Anbieter-/Affiliate-Links</li><li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li></ul></article>
+      <article class="membership-info-tier premium-info-tier" data-membership-level="1"><div class="membership-info-kicker">Premium · 13,49 € / 30 Tage</div><h4>2 Anbieter + Live-Alarme</h4><ul><li><strong>Alle Basis-Leistungen inklusive</strong></li><li><strong>2 Anbieter-/Quotenanzeigen</strong> bei freigeschalteten Tipps</li><li><strong>Live-Popups im Profil</strong> für zeitkritische Tipps</li><li>Zusätzliche Premium-Provision bis zur <span class="membership-feature-highlight">5. Ebene</span></li><li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li><li>Direkte Anbieterlinks gibt es erst mit Premium Plus</li></ul></article>
+      <article class="membership-info-tier premiumplus-info-tier" data-membership-level="2"><div class="membership-info-kicker">Premium Plus · 19,99 € / 30 Tage</div><h4>5 Anbieter + Live-Alarme</h4><ul><li><strong>Alle Premium-Leistungen inklusive</strong></li><li><strong>Quotenvergleich für bis zu 5 Anbieter</strong></li><li><strong>Live-Popups im Profil</strong> für zeitkritische Tipps</li><li>Zusätzliche Premium-Provision bis zur <span class="membership-feature-highlight">8. Ebene</span></li><li>Freigegebene direkte Anbieter-/Affiliate-Links</li><li>30 Tage Laufzeit je Aktivierung oder Verlängerung</li></ul></article>
     </div>
-    <div class="membership-info-note"><strong>Klare Trennung:</strong> Die Unit-Provisionen aus dem bestehenden Referral-System laufen bis zur 3. Ebene. Premium und Premium Plus ergänzen diese um zusätzliche Premium-Leistungen und eine größere Provisionstiefe.</div>
+    <div class="membership-info-note"><strong>Klare Trennung:</strong> Die Unit-Provisionen aus dem bestehenden Referral-System laufen bis zur 3. Ebene. Premium und Premium Plus enthalten beide Live-Alarme und ergänzen die Basis um eigene Premium-Leistungen sowie eine größere Premium-Provisionstiefe.</div>
   </div>
 </div>
 
