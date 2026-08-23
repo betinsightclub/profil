@@ -2,7 +2,7 @@
 <!--
 Projekt: BetInsight
 Datei auf GitHub: profil/admin/backoffice/index.html
-Version: 2026.08.12-BACKOFFICE-v2.14-HALBKREIS-DESIGN-KONSISTENT
+Version: 2026.08.24-BACKOFFICE-v2.15-ZENTRALE-ERGEBNISSE
 Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro Tipp einer Liefer-LED plus einer Ergebnis-LED, Bonuspunkten für Übererfüllung, Tipp-ID-sicherer Wochenhistorie, getrenntem Testbetrieb, Ergebnisübersicht, Wallet-Zielauswahl und festen Netzwerken.
 -->
 <html lang="de">
@@ -2670,15 +2670,16 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
         <article class="content-card full">
           <div class="panel-heading">
             <div>
-              <h3>Ergebnisse und Nachweise</h3>
-              <p class="muted">Gewonnene, verlorene, stornierte und abgesagte Tipps. Der Master wählt den Status und bestätigt ihn anschließend.</p>
+              <h3>Zentrale Tipp-Ergebnisse und Nachweise</h3>
+              <p class="muted">Eigene BetInsight-Tipps, Tippgeber-Tipps und später KI-Tipps werden hier gemeinsam ausgewertet. Die Tippgeber-ID und Abrechnungszuordnung bleiben dabei getrennt erhalten.</p>
             </div>
+            <a class="button button-primary button-small" href="../../admin-tipps/?mode=historisch">Historischen Tipp erfassen</a>
           </div>
           <div class="table-wrap">
             <table aria-label="Tipp-Ergebnisse im Masterbereich">
               <thead>
                 <tr>
-                  <th>Tippgeber</th>
+                  <th>Quelle / Tippgeber</th>
                   <th>Spiel</th>
                   <th>Quote</th>
                   <th>Ergebnis</th>
@@ -3302,7 +3303,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
           ergebnis_id: p[0] || "", tipp_id: p[1] || "", admin_id: p[2] || "", admin_name: p[3] || "",
           spiel: p[4] || "", quote: p[5] || "", ergebnis_status: p[6] || "OFFEN", bestaetigungsstatus: p[7] || "OFFEN",
           screenshot_url: p[8] || "", nachweis_status: p[9] || "FEHLT", sichtbar_fuer_teilnehmer: p[10] || "NEIN",
-          quelle: p[11] || "", bestaetigt_am: p[12] || ""
+          quelle: p[11] || "", bestaetigt_am: p[12] || "", tipp_quelle: p[13] || ""
         };
       }).filter(Boolean);
     }
@@ -4582,7 +4583,16 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
     }
 
     function renderMasterResults(items) {
-      latestTipResults = Array.isArray(items) ? items : [];
+      latestTipResults = (Array.isArray(items) ? items.slice() : []).sort(function (a, b) {
+        const sourceA = normalizeText(firstDefined(a, ["tipp_quelle", "tip_source"], "")).toUpperCase();
+        const sourceB = normalizeText(firstDefined(b, ["tipp_quelle", "tip_source"], "")).toUpperCase();
+        const testA = sourceA.includes("TEST") ? 1 : 0;
+        const testB = sourceB.includes("TEST") ? 1 : 0;
+        if (testA !== testB) return testA - testB;
+        const openA = canonicalTipResultStatus(firstDefined(a, ["ergebnis_status", "result_status"], "OFFEN")) === "OFFEN" ? 0 : 1;
+        const openB = canonicalTipResultStatus(firstDefined(b, ["ergebnis_status", "result_status"], "OFFEN")) === "OFFEN" ? 0 : 1;
+        return openA - openB;
+      });
       if (!latestTipResults.length) {
         masterResultsTableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state">Noch keine Ergebnisdaten über Make geliefert.</div></td></tr>';
         return;
@@ -4595,13 +4605,20 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
         const proofStatus = normalizeText(firstDefined(item, ["nachweis_status", "proof_status"], "FEHLT"));
         const visible = normalizeText(firstDefined(item, ["sichtbar_fuer_teilnehmer", "visible_for_participants"], "NEIN")).toUpperCase();
         const review = normalizeText(firstDefined(item, ["bestaetigungsstatus", "review_status"], "OFFEN"));
+        const tipSource = normalizeText(firstDefined(item, ["tipp_quelle", "tip_source"], "")).toUpperCase();
+        const sourceLabel = tipSource === "BETINSIGHT_REDAKTION" ? "BetInsight Redaktion"
+          : tipSource === "BETINSIGHT_KI" ? "BetInsight KI"
+          : tipSource === "TIPPGEBER" ? "Tippgeber"
+          : tipSource.includes("TEST") ? "Test · nicht öffentlich"
+          : "BetInsight Bestand";
+        const isTest = tipSource.includes("TEST");
         const currentStatus = canonicalTipResultStatus(firstDefined(item, ["ergebnis_status", "result_status"], "OFFEN"));
         const selectedStatus = pendingResultSelections.get(tipId) || currentStatus;
         const statusButton = function (status, text, cls) {
           return '<button class="button button-small result-status-button ' + cls + (selectedStatus === status ? ' selected' : '') + '" type="button" data-tip-id="' + escapeHtml(tipId) + '" data-status="' + status + '" ' + (tipId ? '' : 'disabled') + '>' + text + '</button>';
         };
         return `<tr>
-          <td>${escapeHtml(firstDefined(item, ["admin_name", "tippgeber_name"], "–"))}</td>
+          <td><strong>${escapeHtml(sourceLabel)}</strong><div class="route-hint">${escapeHtml(firstDefined(item, ["admin_name", "tippgeber_name"], "–"))} · ${escapeHtml(firstDefined(item, ["admin_id", "tippgeber_id"], "–"))}</div></td>
           <td><strong>${escapeHtml(firstDefined(item, ["spiel", "event"], "–"))}</strong><div class="route-hint">${escapeHtml(tipId)}</div></td>
           <td>${escapeHtml(firstDefined(item, ["quote", "odds"], "–"))}</td>
           <td>
@@ -4615,7 +4632,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
             </div>
           </td>
           <td>${screenshot ? '<a class="link-button button-small" target="_blank" rel="noopener" href="' + escapeHtml(screenshot) + '">Nachweis öffnen</a>' : escapeHtml(label(proofStatus))}</td>
-          <td>${escapeHtml(visible === "JA" ? "Sichtbar" : "Nicht sichtbar")}</td>
+          <td>${escapeHtml(isTest ? "Test · verborgen" : (visible === "JA" ? "Sichtbar" : "Nicht sichtbar"))}</td>
           <td>
             <div class="route-hint">Auswahl: <strong>${escapeHtml(resultStatusLabel(selectedStatus))}</strong></div>
             <button class="button button-primary button-small result-confirm-button" type="button" data-tip-id="${escapeHtml(tipId)}" ${tipId && RESULT_SESSION_API_READY ? "" : "disabled"}>Ergebnis bestätigen</button>
