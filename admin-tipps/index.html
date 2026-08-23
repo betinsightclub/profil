@@ -4,10 +4,13 @@ GitHub-Ziel: betinsightclub/profil/admin-tipps/index.html
 Live-Seite: https://betinsightclub.github.io/profil/admin-tipps/
 
 Projekt: BetInsight
-Version: 2026.08.23-02
-Stand: 23.08.2026
+Version: 2026.08.24-03
+Stand: 24.08.2026
 
 GEÄNDERT:
+- Master-Modus für die nachträgliche Erfassung historischer Tipps ergänzt.
+- Historische Tipps erhalten Quelle und bestehende Tippgeber-ID, bleiben aber von rückwirkender Abrechnung ausgeschlossen.
+- Für jeden gespeicherten Tipp wird serverseitig eine offene Ergebniszeile vorbereitet.
 - Live-Alarm-Schalter mit Spielstand, Spielminute und Gültigkeitsdauer ergänzt.
 - Live-Alarme werden gleichzeitig Premium und Premium Plus zugeordnet; Basis ist ausgeschlossen.
 - Analyse ist optional und wird von Browser und Make nicht mehr als Pflichtfeld verlangt.
@@ -27,7 +30,7 @@ GEÄNDERT:
   <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#061d2a">
-  <meta name="application-version" content="2.2.0">
+  <meta name="application-version" content="2.3.0">
   <title>BetInsight – Tippbereich</title>
 
   <style>
@@ -432,7 +435,7 @@ GEÄNDERT:
       <section class="card">
         <div class="dashboard-header">
           <div>
-            <h1>BetInsight Tippbereich</h1>
+            <h1 id="dashboardTitle">BetInsight Tippbereich</h1>
             <p class="subtitle" style="margin:8px 0 0;">
               Angemeldet als <span id="adminName" class="admin-name">Admin</span>
               <span id="roleBadge" class="role-badge">Admin</span>
@@ -465,14 +468,35 @@ GEÄNDERT:
           </div>
         </div>
 
-        <div class="notice">
+        <div id="modeNotice" class="notice">
           <strong>Wichtig:</strong><br>
           Spieldatum und Anpfiff beziehen sich auf das echte Spiel. Mit „Tipp veröffentlichen“ wird der Datensatz direkt veröffentlicht; die Veröffentlichungszeit setzt das System.
         </div>
       </section>
 
       <section class="card form-card">
-        <h2>➕ Neuen Tipp erfassen</h2>
+        <h2 id="tipFormTitle">➕ Neuen Tipp erfassen</h2>
+
+        <div id="historicalModePanel" class="notice hidden" style="margin-bottom:18px;text-align:left;">
+          <strong>🗂️ Historischen Tipp nachtragen</strong><br>
+          Dieser Modus ist nur für den Master-Admin. Der Tipp erscheint nicht als neuer aktueller Tipp und löst keinen Live-Alarm sowie keine rückwirkende Unit- oder Provisionsabrechnung aus.
+          <div class="form-grid" style="margin-top:16px;">
+            <div class="form-group">
+              <label for="historicalTipSource">Quelle / Tippgeber *</label>
+              <select id="historicalTipSource">
+                <option value="ADM-001|BETINSIGHT_REDAKTION|Luciano">Eigener BetInsight-Tipp · Luciano</option>
+                <option value="ADM-002|TIPPGEBER|Martin">Tippgeber · Martin</option>
+                <option value="ADM-003|TIPPGEBER|Frank">Tippgeber · Frank</option>
+                <option value="ADM-001|BETINSIGHT_KI|BetInsight KI">BetInsight KI</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="historicalPublishedAt">Ursprünglich veröffentlicht am *</label>
+              <input id="historicalPublishedAt" type="date">
+              <div class="hint">Das tatsächliche frühere Veröffentlichungsdatum – nicht das heutige Erfassungsdatum.</div>
+            </div>
+          </div>
+        </div>
 
         <div class="form-grid">
           <div class="form-group">
@@ -533,7 +557,7 @@ GEÄNDERT:
           </div>
         </div>
 
-        <section class="live-alarm-card" aria-labelledby="liveAlarmTitle">
+        <section id="liveAlarmSection" class="live-alarm-card" aria-labelledby="liveAlarmTitle">
           <div class="live-alarm-header">
             <div class="live-alarm-copy">
               <h3 id="liveAlarmTitle">🔴 Live-Alarm für Premium-Mitglieder</h3>
@@ -578,7 +602,7 @@ GEÄNDERT:
         <div id="previewBox" class="preview hidden"></div>
         <div id="successBox" class="success-box hidden"></div>
 
-        <div class="version">BetInsight Tippbereich · Version 2.2 · Live-Alarm vorbereitet · sichere Veröffentlichung</div>
+        <div class="version">BetInsight Tippbereich · Version 2.3 · Live-Alarm und historische Master-Erfassung</div>
       </section>
     </div>
   </main>
@@ -590,6 +614,7 @@ GEÄNDERT:
     const AUTH_API_URL = "https://hook.eu1.make.com/rfmhuu4fkr9kjsv7o15r2kir8ezbersl";
     const SESSION_KEY = "betinsight_admin_session_v1";
     const ADMIN_CENTER_URL = "https://betinsightclub.github.io/profil/admin/";
+    const HISTORICAL_MODE = new URLSearchParams(window.location.search).get("mode") === "historisch";
 
     let verifiedSession = null;
     let liveAlarmEnabled = false;
@@ -611,6 +636,13 @@ GEÄNDERT:
     const resetButton = document.getElementById("resetButton");
     const liveAlarmToggle = document.getElementById("liveAlarmToggle");
     const liveAlarmFields = document.getElementById("liveAlarmFields");
+    const liveAlarmSection = document.getElementById("liveAlarmSection");
+    const dashboardTitle = document.getElementById("dashboardTitle");
+    const tipFormTitle = document.getElementById("tipFormTitle");
+    const modeNotice = document.getElementById("modeNotice");
+    const historicalModePanel = document.getElementById("historicalModePanel");
+    const historicalTipSource = document.getElementById("historicalTipSource");
+    const historicalPublishedAt = document.getElementById("historicalPublishedAt");
 
     function bytesToHex(bytes) {
       return Array.from(bytes, byte => byte.toString(16).padStart(2, "0")).join("");
@@ -715,12 +747,42 @@ GEÄNDERT:
       authArea.classList.remove("hidden");
     }
 
+    function getHistoricalSelection() {
+      const parts = String(historicalTipSource?.value || "").split("|");
+      return {
+        adminId: String(parts[0] || ""),
+        source: String(parts[1] || ""),
+        name: String(parts[2] || "")
+      };
+    }
+
+    function configurePageMode() {
+      if (!HISTORICAL_MODE) return;
+
+      document.title = "BetInsight – Historischen Tipp erfassen";
+      dashboardTitle.textContent = "Historische Tipps erfassen";
+      tipFormTitle.textContent = "🗂️ Historischen Tipp nachtragen";
+      modeNotice.innerHTML =
+        "<strong>Historischer Master-Modus:</strong><br>" +
+        "Der Datensatz wird mit seiner ursprünglichen Quelle und Tippgeber-ID gespeichert. Er wird nicht als neuer Tipp angeboten und nicht rückwirkend abgerechnet.";
+      historicalModePanel.classList.remove("hidden");
+      liveAlarmSection.classList.add("hidden");
+      setLiveAlarmEnabled(false);
+    }
+
     function showDashboard(session) {
       verifiedSession = session;
+
+      if (HISTORICAL_MODE && !isMasterSession(session)) {
+        showAuthError("Die historische Tipp-Erfassung ist ausschließlich für den Master-Admin freigegeben.", true);
+        return;
+      }
+
       adminName.textContent = session.name || "Admin";
       roleBadge.textContent = isMasterSession(session) ? "Master-Admin" : "Admin";
       authArea.classList.add("hidden");
       dashboardArea.classList.remove("hidden");
+      configurePageMode();
     }
 
     async function verifyStoredSession() {
@@ -799,14 +861,15 @@ GEÄNDERT:
     }
 
     function setLiveAlarmEnabled(enabled) {
-      liveAlarmEnabled = Boolean(enabled);
+      liveAlarmEnabled = HISTORICAL_MODE ? false : Boolean(enabled);
       liveAlarmFields.hidden = !liveAlarmEnabled;
       liveAlarmToggle.classList.toggle("is-active", liveAlarmEnabled);
       liveAlarmToggle.setAttribute("aria-pressed", liveAlarmEnabled ? "true" : "false");
       liveAlarmToggle.textContent = liveAlarmEnabled ? "🔴 LIVE-ALARM AN" : "⚪ LIVE-ALARM AUS";
-      saveButton.textContent = liveAlarmEnabled
-        ? "🔴 Tipp + Live-Alarm veröffentlichen"
-        : "🚀 Tipp veröffentlichen";
+      liveAlarmToggle.disabled = HISTORICAL_MODE;
+      saveButton.textContent = HISTORICAL_MODE
+        ? "🗂️ Historischen Tipp speichern"
+        : (liveAlarmEnabled ? "🔴 Tipp + Live-Alarm veröffentlichen" : "🚀 Tipp veröffentlichen");
     }
 
     function createLiveValidUntil(minutes) {
@@ -828,6 +891,18 @@ GEÄNDERT:
 
       for (const field of requiredFields) {
         if (!getValue(field.id)) return "Bitte Feld ausfüllen: " + field.label;
+      }
+
+      if (HISTORICAL_MODE) {
+        const historical = getHistoricalSelection();
+        if (!historical.adminId || !historical.source || !historical.name) {
+          return "Bitte Quelle und Tippgeber auswählen.";
+        }
+        const publishedAt = getValue("historicalPublishedAt");
+        if (!publishedAt) return "Bitte das ursprüngliche Veröffentlichungsdatum eintragen.";
+        if (new Date(publishedAt + "T23:59:59").getTime() > Date.now()) {
+          return "Das historische Veröffentlichungsdatum darf nicht in der Zukunft liegen.";
+        }
       }
 
       const quote = Number(getValue("quote"));
@@ -884,7 +959,9 @@ GEÄNDERT:
 
       if (!admin) throw new Error("Keine verifizierte Admin-Sitzung vorhanden.");
 
-      const tippId = createTippId(admin.name);
+      const historical = HISTORICAL_MODE ? getHistoricalSelection() : null;
+      const creatorName = historical?.name || admin.name;
+      const tippId = createTippId(creatorName);
       const duration = liveAlarmEnabled ? Number(getValue("liveGueltigMinuten")) : 0;
 
       return {
@@ -895,13 +972,16 @@ GEÄNDERT:
         tipp: getValue("tipp"),
         quote: getValue("quote"),
         preis_units: Number(getValue("preisUnits")),
-        status: "veröffentlicht",
-        ersteller: admin.name,
+        status: HISTORICAL_MODE ? "historisch" : "veröffentlicht",
+        ersteller: creatorName,
         admin_id: admin.adminId,
+        ziel_tippgeber_id: historical?.adminId || admin.adminId,
+        tipp_quelle: historical?.source || (admin.adminId === "ADM-001" ? "BETINSIGHT_REDAKTION" : "TIPPGEBER"),
+        sportart: "Fussball",
         spiel_datum: formatDateGerman(getValue("spielDatum")),
         anpfiff: getValue("anpfiff"),
         analyse: getValue("analyse"),
-        erstellt_am: createCreatedAt(),
+        erstellt_am: HISTORICAL_MODE ? formatDateGerman(getValue("historicalPublishedAt")) : createCreatedAt(),
         live_alarm: liveAlarmEnabled ? "JA" : "NEIN",
         live_alert_id: (liveAlarmEnabled ? "LA-" : "LOG-") + tippId,
         live_spielstand: liveAlarmEnabled ? getValue("liveSpielstand") : "",
@@ -936,6 +1016,13 @@ GEÄNDERT:
 
       const tip = collectTipData();
 
+      const historicalPreview = HISTORICAL_MODE
+        ? "<br>Quelle: " + escapeHtml(tip.tipp_quelle) +
+          "<br>Zugeordnete Tippgeber-ID: " + escapeHtml(tip.ziel_tippgeber_id) +
+          "<br>Ursprünglich veröffentlicht am: " + escapeHtml(tip.erstellt_am) +
+          "<br><strong>Keine rückwirkende Abrechnung</strong>"
+        : "";
+
       const livePreview = tip.live_alarm === "JA"
         ? "<br><br><strong>🔴 LIVE-ALARM:</strong><br>" +
           "Spielstand: " + escapeHtml(tip.live_spielstand) + "<br>" +
@@ -958,13 +1045,16 @@ GEÄNDERT:
         "Spieldatum: " + escapeHtml(tip.spiel_datum) + "<br>" +
         "Anpfiff: " + escapeHtml(tip.anpfiff) + "<br>" +
         "Erstellt am: " + escapeHtml(tip.erstellt_am) +
+        historicalPreview +
         livePreview +
         "<br><br><strong>Analyse:</strong><br>" +
         escapeHtml(tip.analyse || "Keine zusätzliche Analyse.");
 
       previewBox.classList.remove("hidden");
       formMessage.classList.add("success-message");
-      formMessage.textContent = "Vorschau erstellt. Du kannst den Tipp jetzt direkt veröffentlichen.";
+      formMessage.textContent = HISTORICAL_MODE
+        ? "Vorschau erstellt. Du kannst den historischen Tipp jetzt speichern."
+        : "Vorschau erstellt. Du kannst den Tipp jetzt direkt veröffentlichen.";
       return true;
     }
 
@@ -993,6 +1083,23 @@ GEÄNDERT:
 
       const tip = collectTipData();
 
+      if (HISTORICAL_MODE) {
+        const confirmedHistorical = window.confirm([
+          "Historischen Tipp wirklich speichern?",
+          "",
+          tip.spiel + " · " + tip.tipp,
+          "Quelle/Tippgeber: " + tip.ersteller + " · " + tip.ziel_tippgeber_id,
+          "Ursprünglich veröffentlicht: " + tip.erstellt_am,
+          "",
+          "Der Tipp wird nicht als neu angeboten und nicht rückwirkend abgerechnet."
+        ].join("\n"));
+
+        if (!confirmedHistorical) {
+          formMessage.textContent = "Historische Erfassung abgebrochen. Die Eingaben bleiben erhalten.";
+          return;
+        }
+      }
+
       if (tip.live_alarm === "JA") {
         const confirmedLive = window.confirm([
           "LIVE-ALARM wirklich veröffentlichen?",
@@ -1016,7 +1123,7 @@ GEÄNDERT:
       previewButton.disabled = true;
       resetButton.disabled = true;
       liveAlarmToggle.disabled = true;
-      saveButton.textContent = "Veröffentlichung läuft ...";
+      saveButton.textContent = HISTORICAL_MODE ? "Speicherung läuft ..." : "Veröffentlichung läuft ...";
 
       try {
         const sessionHash = await verifyBeforeSave();
@@ -1066,17 +1173,26 @@ GEÄNDERT:
           ? "<br>Der Live-Alarm wurde getrennt in <strong>LIVE_ALERTS</strong> für Premium und Premium Plus vorbereitet.<br><br>Status: <strong>LIVE-ALARM VORBEREITET</strong>"
           : "<br><br>Status: <strong>VERÖFFENTLICHT</strong>";
 
-        successBox.innerHTML =
-          "<strong>✅ Tipp erfolgreich veröffentlicht</strong><br><br>" +
-          "Der Tipp wurde direkt in <strong>TIPPS</strong> gespeichert.<br>" +
-          "Tipp-ID:<br><strong>" + escapeHtml(tip.tipp_id) + "</strong>" +
-          liveSuccess;
+        if (HISTORICAL_MODE) {
+          successBox.innerHTML =
+            "<strong>✅ Historischer Tipp gespeichert</strong><br><br>" +
+            "Der Tipp wurde in <strong>TIPPS</strong> mit Quelle und Tippgeber-ID gespeichert; die offene Ergebniszeile wurde vorbereitet.<br>" +
+            "Tipp-ID:<br><strong>" + escapeHtml(tip.tipp_id) + "</strong><br><br>" +
+            "Status: <strong>HISTORISCH · NICHT RÜCKWIRKEND ABGERECHNET</strong>";
+          formMessage.textContent = "Historisch gespeichert. Das Ergebnis kannst du jetzt im Master-Backoffice als gewonnen, verloren oder ungültig bestätigen.";
+        } else {
+          successBox.innerHTML =
+            "<strong>✅ Tipp erfolgreich veröffentlicht</strong><br><br>" +
+            "Der Tipp wurde direkt in <strong>TIPPS</strong> gespeichert.<br>" +
+            "Tipp-ID:<br><strong>" + escapeHtml(tip.tipp_id) + "</strong>" +
+            liveSuccess;
+          formMessage.textContent = tip.live_alarm === "JA"
+            ? "Veröffentlicht und Live-Alarm vorbereitet. Du kannst jetzt einen weiteren Tipp erfassen."
+            : "Veröffentlicht. Du kannst jetzt einen weiteren Tipp erfassen.";
+        }
 
         successBox.classList.remove("hidden");
         formMessage.classList.add("success-message");
-        formMessage.textContent = tip.live_alarm === "JA"
-          ? "Veröffentlicht und Live-Alarm vorbereitet. Du kannst jetzt einen weiteren Tipp erfassen."
-          : "Veröffentlicht. Du kannst jetzt einen weiteren Tipp erfassen.";
       } catch (error) {
         console.error("Tipp veröffentlichen fehlgeschlagen:", error);
         formMessage.classList.add("error-message");
@@ -1109,6 +1225,7 @@ GEÄNDERT:
       document.getElementById("liveSpielstand").value = "";
       document.getElementById("liveSpielminute").value = "";
       document.getElementById("liveGueltigMinuten").value = "5";
+      if (historicalPublishedAt) historicalPublishedAt.value = "";
       setLiveAlarmEnabled(false);
 
       previewBox.classList.add("hidden");
