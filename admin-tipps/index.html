@@ -477,6 +477,17 @@ GEÄNDERT:
       <section class="card form-card">
         <h2 id="tipFormTitle">➕ Neuen Tipp erfassen</h2>
 
+        <div id="currentMasterSourcePanel" class="notice hidden" style="margin-bottom:18px;text-align:left;">
+          <strong>Quelle des neuen Tipps</strong>
+          <div class="form-group" style="margin-top:12px;">
+            <label for="currentTipSource">BetInsight-Quelle *</label>
+            <select id="currentTipSource">
+              <option value="BETINSIGHT_REDAKTION">BetInsight Redaktion · eigener Tipp</option>
+              <option value="BETINSIGHT_KI">BetInsight KI · nicht der persönlichen Tippgeberabrechnung zuordnen</option>
+            </select>
+          </div>
+        </div>
+
         <div id="historicalModePanel" class="notice hidden" style="margin-bottom:18px;text-align:left;">
           <strong>🗂️ Historischen Tipp nachtragen</strong><br>
           Dieser Modus ist nur für den Master-Admin. Der Tipp erscheint nicht als neuer aktueller Tipp und löst keinen Live-Alarm sowie keine rückwirkende Unit- oder Provisionsabrechnung aus.
@@ -640,6 +651,8 @@ GEÄNDERT:
     const dashboardTitle = document.getElementById("dashboardTitle");
     const tipFormTitle = document.getElementById("tipFormTitle");
     const modeNotice = document.getElementById("modeNotice");
+    const currentMasterSourcePanel = document.getElementById("currentMasterSourcePanel");
+    const currentTipSource = document.getElementById("currentTipSource");
     const historicalModePanel = document.getElementById("historicalModePanel");
     const historicalTipSource = document.getElementById("historicalTipSource");
     const historicalPublishedAt = document.getElementById("historicalPublishedAt");
@@ -757,7 +770,10 @@ GEÄNDERT:
     }
 
     function configurePageMode() {
-      if (!HISTORICAL_MODE) return;
+      if (!HISTORICAL_MODE) {
+        currentMasterSourcePanel.classList.toggle("hidden", !isMasterSession(verifiedSession));
+        return;
+      }
 
       document.title = "BetInsight – Historischen Tipp erfassen";
       dashboardTitle.textContent = "Historische Tipps erfassen";
@@ -960,7 +976,10 @@ GEÄNDERT:
       if (!admin) throw new Error("Keine verifizierte Admin-Sitzung vorhanden.");
 
       const historical = HISTORICAL_MODE ? getHistoricalSelection() : null;
-      const creatorName = historical?.name || admin.name;
+      const currentSource = !HISTORICAL_MODE && isMasterSession(verifiedSession)
+        ? String(currentTipSource?.value || "BETINSIGHT_REDAKTION")
+        : (admin.adminId === "ADM-001" ? "BETINSIGHT_REDAKTION" : "TIPPGEBER");
+      const creatorName = historical?.name || (currentSource === "BETINSIGHT_KI" ? "BetInsight KI" : admin.name);
       const tippId = createTippId(creatorName);
       const duration = liveAlarmEnabled ? Number(getValue("liveGueltigMinuten")) : 0;
 
@@ -976,7 +995,7 @@ GEÄNDERT:
         ersteller: creatorName,
         admin_id: admin.adminId,
         ziel_tippgeber_id: historical?.adminId || admin.adminId,
-        tipp_quelle: historical?.source || (admin.adminId === "ADM-001" ? "BETINSIGHT_REDAKTION" : "TIPPGEBER"),
+        tipp_quelle: historical?.source || currentSource,
         sportart: "Fussball",
         spiel_datum: formatDateGerman(getValue("spielDatum")),
         anpfiff: getValue("anpfiff"),
@@ -1226,6 +1245,7 @@ GEÄNDERT:
       document.getElementById("liveSpielminute").value = "";
       document.getElementById("liveGueltigMinuten").value = "5";
       if (historicalPublishedAt) historicalPublishedAt.value = "";
+      if (currentTipSource) currentTipSource.value = "BETINSIGHT_REDAKTION";
       setLiveAlarmEnabled(false);
 
       previewBox.classList.add("hidden");
