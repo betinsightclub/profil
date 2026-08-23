@@ -170,3 +170,5 @@ jobs:
           git diff --cached --check
           git commit -m "Backoffice: remove mock activities and live test artifacts"
           git push
+
+# one-time trigger refresh
