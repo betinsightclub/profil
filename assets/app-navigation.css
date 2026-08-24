@@ -1,4 +1,4 @@
-/* BetInsight App Navigation · Prototype v1 · 2026-08-24
+/* BetInsight App Navigation · Prototype v2 · 2026-08-24
    Scope: only bi-nav-* classes. Existing page classes are never restyled directly. */
 
 .bi-nav-sidebar {
@@ -45,18 +45,13 @@
   padding: 4px 0 14px;
 }
 
-.bi-nav-link {
+.bi-nav-link,
+.bi-nav-group-button,
+.bi-nav-sub-link {
   position: relative;
-  display: grid;
-  grid-template-columns: 30px minmax(0, 1fr);
-  gap: 9px;
-  align-items: center;
-  min-height: 43px;
-  padding: 7px 9px;
-  border: 1px solid transparent;
-  border-radius: 11px;
   color: #8faec1;
   text-decoration: none;
+  font-family: inherit;
   font-size: 12px;
   font-weight: 750;
   line-height: 1.2;
@@ -64,27 +59,53 @@
   transition: color .16s ease, background .16s ease, border-color .16s ease, transform .16s ease;
 }
 
+.bi-nav-link,
+.bi-nav-group-button {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) 18px;
+  gap: 9px;
+  align-items: center;
+  width: 100%;
+  min-height: 43px;
+  padding: 7px 9px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  background: transparent;
+  text-align: left;
+}
+
+.bi-nav-link {
+  grid-template-columns: 30px minmax(0, 1fr);
+}
+
 .bi-nav-link:hover,
-.bi-nav-link:focus-visible {
+.bi-nav-link:focus-visible,
+.bi-nav-group-button:hover,
+.bi-nav-group-button:focus-visible,
+.bi-nav-sub-link:hover,
+.bi-nav-sub-link:focus-visible {
   color: #eaf8ff;
   border-color: rgba(54, 169, 238, .16);
   background: rgba(18, 115, 174, .11);
   outline: none;
 }
 
-.bi-nav-link:active {
+.bi-nav-link:active,
+.bi-nav-group-button:active,
+.bi-nav-sub-link:active {
   transform: translateY(1px);
 }
 
-.bi-nav-link-active {
+.bi-nav-link-active,
+.bi-nav-sub-link-active {
   color: #ffffff;
   border-color: rgba(64, 177, 244, .26);
-  background:
-    linear-gradient(90deg, rgba(20, 122, 200, .28), rgba(11, 75, 124, .16));
+  background: linear-gradient(90deg, rgba(20, 122, 200, .28), rgba(11, 75, 124, .16));
   box-shadow: inset 3px 0 0 #199cff, 0 10px 24px rgba(0, 73, 126, .10);
 }
 
-.bi-nav-link-active::after {
+.bi-nav-link-active::after,
+.bi-nav-sub-link-active::after {
   content: "";
   position: absolute;
   right: 8px;
@@ -95,6 +116,83 @@
   border-radius: 50%;
   background: #39b6ff;
   box-shadow: 0 0 10px rgba(57, 182, 255, .9);
+}
+
+.bi-nav-group {
+  display: grid;
+  gap: 2px;
+}
+
+.bi-nav-group-current > .bi-nav-group-button {
+  color: #d9f2ff;
+  background: rgba(18, 115, 174, .075);
+}
+
+.bi-nav-chevron {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  color: #6f98ae;
+  font-size: 14px;
+  line-height: 1;
+  transform: rotate(-90deg);
+  transition: transform .18s ease, color .18s ease;
+}
+
+.bi-nav-group-open > .bi-nav-group-button .bi-nav-chevron {
+  transform: rotate(0deg);
+  color: #56bdff;
+}
+
+.bi-nav-submenu {
+  display: grid;
+  grid-template-rows: 0fr;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  transition: grid-template-rows .18s ease;
+}
+
+.bi-nav-submenu-inner {
+  min-height: 0;
+  display: grid;
+  gap: 3px;
+  padding: 0 0 0 18px;
+}
+
+.bi-nav-group-open > .bi-nav-submenu {
+  grid-template-rows: 1fr;
+}
+
+.bi-nav-group-open > .bi-nav-submenu .bi-nav-submenu-inner {
+  padding-top: 3px;
+  padding-bottom: 4px;
+}
+
+.bi-nav-sub-link {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 7px;
+  align-items: center;
+  min-height: 35px;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  font-size: 11px;
+}
+
+.bi-nav-sub-dot {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  color: #6f98ae;
+  font-size: 11px;
+}
+
+.bi-nav-sub-link-active .bi-nav-sub-dot {
+  color: #56bdff;
 }
 
 .bi-nav-icon {
@@ -108,7 +206,8 @@
   color: #7fa8bd;
 }
 
-.bi-nav-link-active .bi-nav-icon {
+.bi-nav-link-active .bi-nav-icon,
+.bi-nav-group-current > .bi-nav-group-button .bi-nav-icon {
   border-color: rgba(46, 169, 243, .24);
   background: rgba(22, 140, 219, .16);
   color: #56bdff;
@@ -153,11 +252,16 @@
   border-radius: 13px;
   background: linear-gradient(145deg, rgba(7, 48, 72, .98), rgba(4, 27, 43, .98));
   color: #ffffff;
+  font-family: inherit;
   font-size: 23px;
   font-weight: 800;
   line-height: 1;
   cursor: pointer;
   box-shadow: 0 12px 32px rgba(0, 0, 0, .32);
+}
+
+.bi-nav-mobile-toggle-hidden {
+  display: none !important;
 }
 
 .bi-nav-close {
@@ -174,6 +278,7 @@
   border-radius: 11px;
   background: rgba(255, 255, 255, .055);
   color: #dff4ff;
+  font-family: inherit;
   font-size: 25px;
   line-height: 1;
   cursor: pointer;
@@ -263,7 +368,11 @@
 
 @media (prefers-reduced-motion: reduce) {
   .bi-nav-sidebar,
-  .bi-nav-link {
+  .bi-nav-link,
+  .bi-nav-group-button,
+  .bi-nav-sub-link,
+  .bi-nav-chevron,
+  .bi-nav-submenu {
     transition: none;
   }
 }

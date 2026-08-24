@@ -1,16 +1,16 @@
-/* BetInsight App Navigation · Prototype v1 · 2026-08-24
-   Reuses the profile page's existing token helpers. It does not authenticate users. */
+/* BetInsight App Navigation · Prototype v2 · 2026-08-24
+   Reuses existing BetInsight token helpers/storage. It does not authenticate users. */
 (() => {
   "use strict";
 
   const MOBILE_BREAKPOINT = 1179;
   const GITHUB_HOST = "betinsightclub.github.io";
   const PROFILE_STORAGE_KEY = "betinsight_profile_token";
+  const DASHBOARD_STORAGE_KEY = "betinsight_dashboard_token";
 
   const icons = {
     dashboard: '<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M9.5 20v-5.5h5V20"/></svg>',
     tipps: '<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18 9 13l3 3 7-9"/><path d="M14 7h5v5"/></svg>',
-    unlocked: '<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7a5 5 0 0 1 9.7-1.7"/><rect x="5" y="10" width="14" height="10" rx="2"/><path d="m9 15 2 2 4-4"/></svg>',
     buy: '<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M9 10.2c0-1.1 1.1-2 3-2s3 .9 3 2-1 1.8-3 1.8-3 .8-3 1.8 1.1 2 3 2 3-.9 3-2"/><path d="M12 6.5v11"/></svg>',
     exchange: '<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h13"/><path d="m14 5 3 3-3 3"/><path d="M20 16H7"/><path d="m10 13-3 3 3 3"/></svg>',
     wallet: '<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H19v14H6.5A2.5 2.5 0 0 1 4 16.5z"/><path d="M4 8h15"/><path d="M15 12h4v4h-4a2 2 0 0 1 0-4Z"/></svg>',
@@ -19,12 +19,29 @@
     support: '<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13a8 8 0 0 1 16 0"/><path d="M4 13v4a2 2 0 0 0 2 2h2v-7H4Zm16 0v4a2 2 0 0 1-2 2h-2v-7h4Z"/><path d="M16 19c0 1.1-.9 2-2 2h-2"/></svg>'
   };
 
-  const items = [
+  const navigation = [
     { id: "dashboard", label: "Dashboard", icon: icons.dashboard },
-    { id: "tipps", label: "Neue Tipps", icon: icons.tipps },
-    { id: "freigeschaltet", label: "Freigeschaltete Tipps", icon: icons.unlocked },
-    { id: "kaufen", label: "Units kaufen", icon: icons.buy },
-    { id: "wechselboerse", label: "Unit-Wechselstube", icon: icons.exchange },
+    {
+      id: "tipps-group",
+      label: "Tipps",
+      icon: icons.tipps,
+      children: [
+        { id: "tipps", label: "Neue Tipps" },
+        { id: "freigeschaltet", label: "Freigeschaltete Tipps" }
+      ]
+    },
+    { id: "kaufen", label: "Units-Pakete kaufen", icon: icons.buy },
+    {
+      id: "wechselboerse-group",
+      label: "Unit-Wechselstube",
+      icon: icons.exchange,
+      children: [
+        { id: "wechselboerse", label: "Übersicht" },
+        /* /wechselboerse/angebote/ ist noch nicht vorhanden: produktiv vollständig ausblenden. */
+        { id: "angebote", label: "Angebote kaufen", visible: false },
+        { id: "verkaufen", label: "Units verkaufen" }
+      ]
+    },
     { id: "wallet", label: "Wallet", icon: icons.wallet },
     { id: "netzwerk", label: "Netzwerk & Provisionen", icon: icons.network },
     { id: "premium", label: "Mitgliedschaft", icon: icons.membership },
@@ -41,34 +58,42 @@
     return window.matchMedia(`(max-width:${MOBILE_BREAKPOINT}px)`).matches;
   }
 
+  function isUuid(value) {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || "").trim());
+  }
+
   function basePath() {
     return window.location.hostname.toLowerCase() === GITHUB_HOST ? "/profil/" : "/";
   }
 
   function appPath(segment = "") {
     const base = basePath();
-    return segment ? `${base}${segment.replace(/^\/+|\/+$/g, "")}/` : base;
+    const clean = String(segment || "").replace(/^\/+|\/+$/g, "");
+    if (!clean) return base;
+    const looksLikeFile = /\.[a-z0-9]{2,8}$/i.test(clean);
+    return `${base}${clean}${looksLikeFile ? "" : "/"}`;
   }
 
   function currentProfileToken() {
     const saved = typeof window.getSavedToken === "function"
       ? String(window.getSavedToken() || "").trim()
       : String(localStorage.getItem(PROFILE_STORAGE_KEY) || "").trim();
-    if (saved && !(typeof window.isDashboardUuid === "function" && window.isDashboardUuid(saved))) return saved;
+    if (saved && !isUuid(saved)) return saved;
 
     const active = typeof window.getActiveToken === "function"
       ? String(window.getActiveToken() || "").trim()
       : "";
-    if (active && !(typeof window.isDashboardUuid === "function" && window.isDashboardUuid(active))) return active;
+    if (active && !isUuid(active)) return active;
     return "";
   }
 
   function currentDashboardUuid() {
     if (typeof window.getConfirmedDashboardToken === "function") {
       const confirmed = String(window.getConfirmedDashboardToken() || "").trim();
-      if (confirmed) return confirmed;
+      if (isUuid(confirmed)) return confirmed;
     }
-    return "";
+    const stored = String(localStorage.getItem(DASHBOARD_STORAGE_KEY) || "").trim();
+    return isUuid(stored) ? stored : "";
   }
 
   function showMessage(text) {
@@ -100,7 +125,7 @@
 
   function navigateLocalHash(hash) {
     if (window.location.pathname !== appPath()) {
-      const token = currentProfileToken();
+      const token = currentProfileToken() || currentDashboardUuid();
       const query = token ? `?token=${encodeURIComponent(token)}` : "";
       window.location.assign(`${appPath()}${query}#${hash}`);
       return;
@@ -114,23 +139,23 @@
 
   function route(id) {
     switch (id) {
-      case "dashboard":
+      case "dashboard": {
         if (window.location.pathname === appPath()) {
           if (window.location.hash) history.pushState(null, "", window.location.pathname + window.location.search);
           window.scrollTo({ top: 0, behavior: "smooth" });
           updateActiveState();
           closeNavigation();
         } else {
-          const profileToken = currentProfileToken();
-          const dashboardUuid = currentDashboardUuid();
-          const token = profileToken || dashboardUuid;
+          const token = currentProfileToken() || currentDashboardUuid();
           window.location.assign(appPath() + (token ? `?token=${encodeURIComponent(token)}` : ""));
         }
         break;
+      }
       case "tipps": navigateProfileRoute("tipps"); break;
       case "freigeschaltet": navigateDashboardRoute("freigeschaltet"); break;
       case "kaufen": navigateProfileRoute("kaufen"); break;
       case "wechselboerse": navigateDashboardRoute("wechselboerse"); break;
+      case "verkaufen": navigateDashboardRoute("verkaufen"); break;
       case "wallet": navigateDashboardRoute("wallet", "id"); break;
       case "netzwerk": navigateLocalHash("netzwerk"); break;
       case "premium": navigateLocalHash("premium"); break;
@@ -141,26 +166,58 @@
 
   function activeId() {
     const hash = String(window.location.hash || "").replace(/^#/, "").toLowerCase();
-    if (hash === "netzwerk") return "netzwerk";
-    if (hash === "premium") return "premium";
-    if (["wallet", "tipps", "kaufen", "freigeschaltet"].includes(hash)) return hash;
+    if (["netzwerk", "premium", "wallet", "tipps", "kaufen", "freigeschaltet"].includes(hash)) return hash;
 
     const path = window.location.pathname;
     const base = basePath();
     const relative = path.startsWith(base) ? path.slice(base.length) : path.replace(/^\/+/, "");
     const first = relative.split("/").filter(Boolean)[0] || "dashboard";
-    if (items.some(item => item.id === first)) return first;
-    return "dashboard";
+    const known = ["tipps", "freigeschaltet", "kaufen", "wechselboerse", "verkaufen", "wallet", "support"];
+    return known.includes(first) ? first : "dashboard";
+  }
+
+  function groupForRoute(routeId) {
+    if (["tipps", "freigeschaltet"].includes(routeId)) return "tipps-group";
+    if (["wechselboerse", "verkaufen", "angebote"].includes(routeId)) return "wechselboerse-group";
+    return "";
+  }
+
+  function setGroupOpen(group, open, collapseOthers = false) {
+    if (!group) return;
+    if (collapseOthers && open) {
+      document.querySelectorAll(".bi-nav-group-open").forEach(other => {
+        if (other !== group) {
+          other.classList.remove("bi-nav-group-open");
+          other.querySelector(".bi-nav-group-button")?.setAttribute("aria-expanded", "false");
+        }
+      });
+    }
+    group.classList.toggle("bi-nav-group-open", open);
+    group.querySelector(".bi-nav-group-button")?.setAttribute("aria-expanded", open ? "true" : "false");
   }
 
   function updateActiveState() {
     const active = activeId();
-    document.querySelectorAll(".bi-nav-link").forEach(link => {
+    const activeGroup = groupForRoute(active);
+
+    document.querySelectorAll(".bi-nav-link, .bi-nav-sub-link").forEach(link => {
       const selected = link.dataset.biNavRoute === active;
-      link.classList.toggle("bi-nav-link-active", selected);
+      link.classList.toggle("bi-nav-link-active", selected && link.classList.contains("bi-nav-link"));
+      link.classList.toggle("bi-nav-sub-link-active", selected && link.classList.contains("bi-nav-sub-link"));
       if (selected) link.setAttribute("aria-current", "page");
       else link.removeAttribute("aria-current");
     });
+
+    document.querySelectorAll(".bi-nav-group").forEach(group => {
+      const current = group.dataset.biNavGroup === activeGroup;
+      group.classList.toggle("bi-nav-group-current", current);
+      if (current) setGroupOpen(group, true, isMobile());
+    });
+  }
+
+  function toggleGroup(group) {
+    const open = !group.classList.contains("bi-nav-group-open");
+    setGroupOpen(group, open, isMobile());
   }
 
   function openNavigation() {
@@ -169,6 +226,7 @@
     overlay.classList.add("bi-nav-overlay-open");
     overlay.setAttribute("aria-hidden", "false");
     toggle.setAttribute("aria-expanded", "true");
+    toggle.classList.add("bi-nav-mobile-toggle-hidden");
     document.documentElement.classList.add("bi-nav-lock-scroll");
     if (floatingBack) floatingBack.classList.add("bi-nav-obscured-by-drawer");
     window.setTimeout(() => closeButton?.focus(), 0);
@@ -180,8 +238,59 @@
     overlay.classList.remove("bi-nav-overlay-open");
     overlay.setAttribute("aria-hidden", "true");
     toggle.setAttribute("aria-expanded", "false");
+    toggle.classList.remove("bi-nav-mobile-toggle-hidden");
     document.documentElement.classList.remove("bi-nav-lock-scroll");
     if (floatingBack) floatingBack.classList.remove("bi-nav-obscured-by-drawer");
+  }
+
+  function createDirectLink(item) {
+    const link = document.createElement("a");
+    link.className = "bi-nav-link";
+    link.href = "#";
+    link.dataset.biNavRoute = item.id;
+    link.innerHTML = `<span class="bi-nav-icon">${item.icon}</span><span class="bi-nav-label">${item.label}</span>`;
+    link.addEventListener("click", event => {
+      event.preventDefault();
+      if (isMobile()) closeNavigation();
+      route(item.id);
+    });
+    return link;
+  }
+
+  function createGroup(item) {
+    const group = document.createElement("div");
+    group.className = "bi-nav-group";
+    group.dataset.biNavGroup = item.id;
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "bi-nav-group-button";
+    button.setAttribute("aria-expanded", "false");
+    button.innerHTML = `<span class="bi-nav-icon">${item.icon}</span><span class="bi-nav-label">${item.label}</span><span class="bi-nav-chevron" aria-hidden="true">⌄</span>`;
+    button.addEventListener("click", () => toggleGroup(group));
+
+    const submenu = document.createElement("div");
+    submenu.className = "bi-nav-submenu";
+    const inner = document.createElement("div");
+    inner.className = "bi-nav-submenu-inner";
+
+    item.children.filter(child => child.visible !== false).forEach(child => {
+      const link = document.createElement("a");
+      link.className = "bi-nav-sub-link";
+      link.href = "#";
+      link.dataset.biNavRoute = child.id;
+      link.innerHTML = `<span class="bi-nav-sub-dot" aria-hidden="true">•</span><span class="bi-nav-label">${child.label}</span>`;
+      link.addEventListener("click", event => {
+        event.preventDefault();
+        if (isMobile()) closeNavigation();
+        route(child.id);
+      });
+      inner.appendChild(link);
+    });
+
+    submenu.appendChild(inner);
+    group.append(button, submenu);
+    return group;
   }
 
   function buildNavigation() {
@@ -207,7 +316,7 @@
 
     const logo = document.createElement("img");
     logo.className = "bi-nav-logo-image";
-    logo.src = new URL("logo_betisight.club.png", window.location.href).toString();
+    logo.src = new URL(appPath("logo_betisight.club.png"), window.location.origin).toString();
     logo.alt = "BetInsight";
     logo.addEventListener("error", () => { logo.hidden = true; });
 
@@ -223,18 +332,8 @@
     list.className = "bi-nav-list";
     list.setAttribute("aria-label", "Hauptnavigation");
 
-    items.forEach(item => {
-      const link = document.createElement("a");
-      link.className = "bi-nav-link";
-      link.href = "#";
-      link.dataset.biNavRoute = item.id;
-      link.innerHTML = `<span class="bi-nav-icon">${item.icon}</span><span class="bi-nav-label">${item.label}</span>`;
-      link.addEventListener("click", event => {
-        event.preventDefault();
-        if (isMobile()) closeNavigation();
-        route(item.id);
-      });
-      list.appendChild(link);
+    navigation.forEach(item => {
+      list.appendChild(Array.isArray(item.children) ? createGroup(item) : createDirectLink(item));
     });
 
     const footer = document.createElement("div");
@@ -266,6 +365,7 @@
 
     window.addEventListener("resize", () => {
       if (!isMobile()) closeNavigation();
+      updateActiveState();
     });
     window.addEventListener("hashchange", updateActiveState);
     window.addEventListener("popstate", updateActiveState);
