@@ -1,0 +1,257 @@
+name: BetInsight App Navigation Integration Smoke
+
+on:
+  push:
+    branches:
+      - integration/app-navigation-current-main
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout integration branch
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium
+
+      - name: Run desktop and mobile smoke test
+        run: |
+          cat > /tmp/bi-nav-smoke.mjs <<'NODE'
+          import { chromium } from 'playwright';
+          import http from 'node:http';
+          import fs from 'node:fs';
+          import path from 'node:path';
+          import { fileURLToPath } from 'node:url';
+
+          const root = process.cwd();
+          const out = path.join(root, 'smoke-artifacts');
+          fs.mkdirSync(out, { recursive: true });
+
+          const profileToken = 'BI-SMOKE-PROFILE';
+          const dashboardUuid = '7018c9f4-ec1f-465b-8bf2-431bd82af445';
+          const profileWebhookNeedle = 'h51f7yyocer340kadcpp078uwcy2svbq';
+          const results = {};
+          const consoleErrors = [];
+          const pageErrors = [];
+          let profileFetchCount = 0;
+
+          const mime = (file) => {
+            if (file.endsWith('.html')) return 'text/html; charset=utf-8';
+            if (file.endsWith('.js')) return 'application/javascript; charset=utf-8';
+            if (file.endsWith('.css')) return 'text/css; charset=utf-8';
+            if (file.endsWith('.png')) return 'image/png';
+            if (file.endsWith('.ico')) return 'image/x-icon';
+            return 'application/octet-stream';
+          };
+
+          const server = http.createServer((req, res) => {
+            const u = new URL(req.url, 'http://127.0.0.1');
+            let rel = decodeURIComponent(u.pathname).replace(/^\/+/, '');
+            if (!rel) rel = 'index.html';
+            if (rel.endsWith('/')) rel += 'index.html';
+            const full = path.resolve(root, rel);
+            if (!full.startsWith(root + path.sep) && full !== path.join(root, 'index.html')) {
+              res.writeHead(403); res.end('forbidden'); return;
+            }
+            if (!fs.existsSync(full) || !fs.statSync(full).isFile()) {
+              res.writeHead(404); res.end('not found'); return;
+            }
+            res.writeHead(200, { 'Content-Type': mime(full), 'Cache-Control': 'no-store' });
+            fs.createReadStream(full).pipe(res);
+          });
+
+          await new Promise(resolve => server.listen(4173, '127.0.0.1', resolve));
+          const base = 'http://127.0.0.1:4173';
+
+          const browser = await chromium.launch({ headless: true });
+
+          async function mockExternal(page) {
+            await page.route('https://hook.eu1.make.com/**', async route => {
+              const url = route.request().url();
+              if (url.includes(profileWebhookNeedle)) {
+                profileFetchCount += 1;
+                await route.fulfill({
+                  status: 200,
+                  contentType: 'application/json',
+                  body: JSON.stringify({
+                    found: true,
+                    email: 'smoke@betinsight.club',
+                    token: profileToken,
+                    dashboard_token: dashboardUuid,
+                    einsetzbare_units: 63,
+                    ref_verfuegbar: 15.5,
+                    verbrauchte_units: 8,
+                    freigeschaltete_tipps: 6,
+                    ref_code: 'BI260000009',
+                    mitgliedschaft_level: 1,
+                    mitgliedschaft: 'Premium',
+                    premium_status: 'AKTIV',
+                    premium_bis: '2026-09-20T12:00:00',
+                    auto_verlaengerung: 'NEIN'
+                  })
+                });
+                return;
+              }
+              await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+            });
+            await page.route('https://script.google.com/**', async route => {
+              await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, tickets: [], closed_tickets: [] }) });
+            });
+          }
+
+          async function seed(page) {
+            await page.addInitScript(({ profileToken, dashboardUuid }) => {
+              localStorage.setItem('betinsight_profile_token', profileToken);
+              localStorage.setItem('betinsight_dashboard_token', dashboardUuid);
+            }, { profileToken, dashboardUuid });
+          }
+
+          async function openDashboard(page) {
+            await page.goto(base + '/', { waitUntil: 'domcontentloaded' });
+            await page.waitForSelector('.bi-nav-sidebar');
+            await page.waitForFunction(() => document.getElementById('email')?.textContent?.includes('@'));
+          }
+
+          async function openGroup(page, id) {
+            const g = page.locator(`[data-bi-nav-group="${id}"]`);
+            const cls = await g.getAttribute('class') || '';
+            if (!cls.includes('bi-nav-group-open')) await g.locator('.bi-nav-group-button').click();
+            return g;
+          }
+
+          async function routeTarget(routeId, expectedPath, param, value) {
+            const context = await browser.newContext({ viewport: { width: 1100, height: 800 } });
+            const page = await context.newPage();
+            await mockExternal(page); await seed(page); await openDashboard(page);
+            if (['tipps','freigeschaltet'].includes(routeId)) await openGroup(page, 'tipps-group');
+            if (['wechselboerse','verkaufen'].includes(routeId)) await openGroup(page, 'wechselboerse-group');
+            await Promise.all([
+              page.waitForURL(url => url.pathname === expectedPath),
+              page.locator(`[data-bi-nav-route="${routeId}"]`).click()
+            ]);
+            const u = new URL(page.url());
+            const ok = u.pathname === expectedPath && (!param || u.searchParams.get(param) === value);
+            await context.close();
+            return ok;
+          }
+
+          const desktop = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+          const page = await desktop.newPage();
+          page.on('console', msg => { if (msg.type() === 'error') consoleErrors.push(msg.text()); });
+          page.on('pageerror', err => pageErrors.push(String(err)));
+          await mockExternal(page); await seed(page); await openDashboard(page);
+
+          results.profile_loaded = (await page.locator('#email').innerText()) === 'smoke@betinsight.club';
+          results.dashboard_active = (await page.locator('[data-bi-nav-route="dashboard"]').getAttribute('class') || '').includes('bi-nav-link-active');
+          results.premium_display = (await page.locator('#membershipStatus').innerText()).trim() === 'Premium';
+          results.network_visible = await page.locator('#referralSection').isVisible();
+          results.footer_final = (await page.locator('.bi-nav-footer').innerText()).trim() === 'BetInsight App';
+          results.units_packages_label = await page.getByText('Units-Pakete kaufen', { exact: true }).count() === 1;
+          results.angebote_hidden = await page.getByText('Angebote kaufen', { exact: true }).count() === 0;
+          results.logo_root = new URL(await page.locator('.bi-nav-logo-image').getAttribute('src')).pathname === '/logo_betisight.club.png';
+          results.favicon_fix_loaded = await page.evaluate(async () => {
+            const r = await fetch('/profil/favicon.ico', { cache: 'no-store' });
+            return r.ok;
+          });
+
+          const tips = await openGroup(page, 'tipps-group');
+          const exchange = await openGroup(page, 'wechselboerse-group');
+          results.desktop_both_groups_open = (await tips.getAttribute('class') || '').includes('bi-nav-group-open') && (await exchange.getAttribute('class') || '').includes('bi-nav-group-open');
+          results.desktop_no_float_overlap = await page.evaluate(() => {
+            const s = document.querySelector('.bi-nav-sidebar').getBoundingClientRect();
+            const f = document.querySelector('.floating-back-button').getBoundingClientRect();
+            return f.left >= s.right - 1;
+          });
+          results.sidebar_zindex_under_modals = await page.evaluate(() => Number(getComputedStyle(document.querySelector('.bi-nav-sidebar')).zIndex) === 8500);
+
+          const beforeRefresh = profileFetchCount;
+          await page.locator('button[onclick="loadUnits()"]', { hasText: 'Aktualisieren' }).click();
+          await page.waitForFunction(() => document.getElementById('message')?.textContent?.includes('aktualisiert'));
+          results.profile_refresh = profileFetchCount > beforeRefresh;
+
+          await page.locator('[data-bi-nav-route="netzwerk"]').click();
+          results.network_target = new URL(page.url()).hash === '#netzwerk';
+          await page.locator('[data-bi-nav-route="premium"]').click();
+          results.membership_target = new URL(page.url()).hash === '#premium';
+
+          await openGroup(page, 'tipps-group'); await openGroup(page, 'wechselboerse-group');
+          await page.screenshot({ path: path.join(out, 'navigation-integration-desktop.png'), fullPage: true });
+          await desktop.close();
+
+          results.new_tipps_target = await routeTarget('tipps', '/tipps/', 'token', profileToken);
+          results.unlocked_target = await routeTarget('freigeschaltet', '/freigeschaltet/', 'token', dashboardUuid);
+          results.buy_target = await routeTarget('kaufen', '/kaufen/', 'token', profileToken);
+          results.exchange_target = await routeTarget('wechselboerse', '/wechselboerse/', 'token', dashboardUuid);
+          results.sell_target = await routeTarget('verkaufen', '/verkaufen/', 'token', dashboardUuid);
+          results.wallet_target = await routeTarget('wallet', '/wallet/', 'id', dashboardUuid);
+          results.support_target = await routeTarget('support', '/support/', 'token', dashboardUuid);
+
+          const mobile = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true });
+          const mp = await mobile.newPage();
+          mp.on('console', msg => { if (msg.type() === 'error') consoleErrors.push(msg.text()); });
+          mp.on('pageerror', err => pageErrors.push(String(err)));
+          await mockExternal(mp); await seed(mp); await openDashboard(mp);
+          const toggle = mp.locator('.bi-nav-mobile-toggle');
+          const sidebar = mp.locator('.bi-nav-sidebar');
+          results.mobile_initial_closed = !(await sidebar.getAttribute('class') || '').includes('bi-nav-sidebar-open') && await toggle.isVisible();
+          await toggle.click();
+          results.mobile_open = (await sidebar.getAttribute('class') || '').includes('bi-nav-sidebar-open');
+          results.mobile_toggle_hidden = !(await toggle.isVisible()) && (await toggle.getAttribute('class') || '').includes('bi-nav-mobile-toggle-hidden');
+          results.mobile_x_visible = await mp.locator('.bi-nav-close').isVisible();
+          await openGroup(mp, 'tipps-group'); await openGroup(mp, 'wechselboerse-group');
+          results.mobile_accordion = !(await mp.locator('[data-bi-nav-group="tipps-group"]').getAttribute('class') || '').includes('bi-nav-group-open') && (await mp.locator('[data-bi-nav-group="wechselboerse-group"]').getAttribute('class') || '').includes('bi-nav-group-open');
+          results.mobile_no_horizontal_overflow = await mp.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
+          await mp.screenshot({ path: path.join(out, 'navigation-integration-mobile.png'), fullPage: true });
+
+          await mp.locator('.bi-nav-close').click();
+          results.close_x = !(await sidebar.getAttribute('class') || '').includes('bi-nav-sidebar-open') && await toggle.isVisible();
+          await toggle.click(); await mp.locator('.bi-nav-overlay').click({ position: { x: 380, y: 400 } });
+          results.close_overlay = !(await sidebar.getAttribute('class') || '').includes('bi-nav-sidebar-open') && await toggle.isVisible();
+          await toggle.click(); await mp.keyboard.press('Escape');
+          results.close_escape = !(await sidebar.getAttribute('class') || '').includes('bi-nav-sidebar-open') && await toggle.isVisible() && await toggle.getAttribute('aria-expanded') === 'false';
+          await mobile.close();
+
+          const js = fs.readFileSync(path.join(root, 'assets/app-navigation.js'), 'utf8');
+          const css = fs.readFileSync(path.join(root, 'assets/app-navigation.css'), 'utf8');
+          results.dashboard_uuid_fallback = js.includes('localStorage.getItem(DASHBOARD_STORAGE_KEY)') && js.includes('return isUuid(stored) ? stored : ""');
+          results.mobile_toggle_code = js.includes('toggle.classList.add("bi-nav-mobile-toggle-hidden")') && js.includes('toggle.classList.remove("bi-nav-mobile-toggle-hidden")');
+          results.angebote_visible_false = js.includes('{ id: "angebote", label: "Angebote kaufen", visible: false }');
+          results.logo_app_path_code = js.includes('appPath("logo_betisight.club.png")');
+          results.footer_no_prototype = js.includes('footer.textContent = "BetInsight App"') && !js.includes('Navigation Prototype');
+          results.max_two_levels = css.includes('bi-nav-submenu') && !css.includes('bi-nav-sub-sub');
+          results.github_base_logic = js.includes('window.location.hostname.toLowerCase() === GITHUB_HOST ? "/profil/" : "/"');
+          results.cname_present = fs.readFileSync(path.join(root, 'CNAME'), 'utf8').trim() === 'app.betinsight.club';
+          results.console_clean = consoleErrors.length === 0 && pageErrors.length === 0;
+
+          const failed = Object.entries(results).filter(([, v]) => v !== true);
+          results.all_checks_pass = failed.length === 0;
+          const report = { results, consoleErrors, pageErrors, failed: failed.map(([k]) => k) };
+          fs.writeFileSync(path.join(out, 'smoke-results-integration.json'), JSON.stringify(report, null, 2));
+          console.log(JSON.stringify(report, null, 2));
+
+          await browser.close();
+          await new Promise(resolve => server.close(resolve));
+          if (!results.all_checks_pass) process.exit(1);
+          NODE
+          node /tmp/bi-nav-smoke.mjs
+
+      - name: Upload smoke screenshots and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-navigation-integration-smoke
+          path: smoke-artifacts/
+          if-no-files-found: error
