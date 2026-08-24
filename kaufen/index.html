@@ -130,6 +130,7 @@ Version: 2026.08.23-01
     const PROFILE_WEBHOOK_URL = "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
     const PAYMENT_WEBHOOK_URL = "https://hook.eu1.make.com/uk8zqla4l5b0e1ybeoh5gd8bxbk69bfh";
     const TOKEN_STORAGE_KEY = "betinsight_profile_token";
+    const DASHBOARD_TOKEN_STORAGE_KEY = "betinsight_dashboard_token";
 
     const pakete = {
       starter: {name:"Starter Paket", units:"50 Units", preis:"49 €"},
@@ -183,6 +184,10 @@ Version: 2026.08.23-01
       const tokenFromUrl = getTokenFromUrl();
 
       if (tokenFromUrl) {
+        if (isUuidToken(tokenFromUrl)) {
+          localStorage.setItem(DASHBOARD_TOKEN_STORAGE_KEY, tokenFromUrl);
+          return cleanToken(localStorage.getItem(TOKEN_STORAGE_KEY));
+        }
         localStorage.setItem(TOKEN_STORAGE_KEY, tokenFromUrl);
         return tokenFromUrl;
       }
@@ -317,7 +322,8 @@ Version: 2026.08.23-01
     }
 
     function backToPackages() {
-      const token = getActiveToken();
+      const savedDashboardToken = cleanToken(localStorage.getItem(DASHBOARD_TOKEN_STORAGE_KEY));
+      const token = isUuidToken(savedDashboardToken) ? savedDashboardToken : getActiveToken();
       const base = window.location.hostname.toLowerCase() === "betinsightclub.github.io" ? "/profil/" : "/";
       window.location.assign(base + "pakete/" + (token ? "?token=" + encodeURIComponent(token) : ""));
     }

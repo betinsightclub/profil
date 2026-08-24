@@ -488,29 +488,66 @@
       "use strict";
 
       const GITHUB_HOST = "betinsightclub.github.io";
-      const TOKEN_STORAGE_KEY = "betinsight_profile_token";
+      const PROFILE_STORAGE_KEY = "betinsight_profile_token";
+      const DASHBOARD_STORAGE_KEY = "betinsight_dashboard_token";
+
+      function isUuid(value) {
+        return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+          .test(String(value || "").trim());
+      }
+
+      function incomingToken() {
+        return String(new URLSearchParams(window.location.search).get("token") || "").trim();
+      }
+
+      function rememberIncomingToken() {
+        const token = incomingToken();
+        if (!token) return "";
+        if (isUuid(token)) localStorage.setItem(DASHBOARD_STORAGE_KEY, token);
+        else localStorage.setItem(PROFILE_STORAGE_KEY, token);
+        return token;
+      }
 
       function profileToken() {
-        const params = new URLSearchParams(window.location.search);
-        const fromUrl = String(params.get("token") || "").trim();
-        if (fromUrl) {
-          localStorage.setItem(TOKEN_STORAGE_KEY, fromUrl);
-          return fromUrl;
-        }
-        return String(localStorage.getItem(TOKEN_STORAGE_KEY) || "").trim();
+        const stored = String(localStorage.getItem(PROFILE_STORAGE_KEY) || "").trim();
+        return stored && !isUuid(stored) ? stored : "";
+      }
+
+      function dashboardToken() {
+        const fromUrl = incomingToken();
+        if (isUuid(fromUrl)) return fromUrl;
+        const stored = String(localStorage.getItem(DASHBOARD_STORAGE_KEY) || "").trim();
+        return isUuid(stored) ? stored : "";
+      }
+
+      function canonicalizePackageUrl() {
+        const uuid = dashboardToken();
+        if (!uuid || incomingToken() === uuid) return;
+        const url = new URL(window.location.href);
+        url.searchParams.set("token", uuid);
+        history.replaceState(null, "", url.pathname + url.search + url.hash);
       }
 
       function purchaseUrl() {
         const base = window.location.hostname.toLowerCase() === GITHUB_HOST ? "/profil/" : "/";
         const token = profileToken();
-        return `${base}kaufen/${token ? `?token=${encodeURIComponent(token)}` : ""}`;
+        return token ? `${base}kaufen/?token=${encodeURIComponent(token)}` : "";
       }
 
       document.querySelectorAll("[data-purchase]").forEach(button => {
-        button.addEventListener("click", () => window.location.assign(purchaseUrl()));
+        button.addEventListener("click", () => {
+          const target = purchaseUrl();
+          if (target) {
+            window.location.assign(target);
+            return;
+          }
+          document.getElementById("message").textContent =
+            "Der persönliche Kaufzugang fehlt. Bitte öffne zuerst dein Dashboard und aktualisiere den Kontostand.";
+        });
       });
 
-      profileToken();
+      rememberIncomingToken();
+      canonicalizePackageUrl();
     })();
   </script>
   <script src="../assets/app-navigation.js" defer></script>

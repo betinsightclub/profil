@@ -123,9 +123,18 @@
     window.location.assign(`${appPath(segment)}?${parameter}=${encodeURIComponent(dashboardUuid)}`);
   }
 
+  function navigatePackageRoute() {
+    const sessionToken = currentDashboardUuid() || currentProfileToken();
+    if (!sessionToken) {
+      showMessage("Der persönliche Zugang ist für die Paketauswahl noch nicht verfügbar.");
+      return;
+    }
+    window.location.assign(`${appPath("pakete")}?token=${encodeURIComponent(sessionToken)}`);
+  }
+
   function navigateLocalHash(hash) {
     if (window.location.pathname !== appPath()) {
-      const token = currentProfileToken() || currentDashboardUuid();
+      const token = currentDashboardUuid() || currentProfileToken();
       const query = token ? `?token=${encodeURIComponent(token)}` : "";
       window.location.assign(`${appPath()}${query}#${hash}`);
       return;
@@ -146,14 +155,14 @@
           updateActiveState();
           closeNavigation();
         } else {
-          const token = currentProfileToken() || currentDashboardUuid();
+          const token = currentDashboardUuid() || currentProfileToken();
           window.location.assign(appPath() + (token ? `?token=${encodeURIComponent(token)}` : ""));
         }
         break;
       }
       case "tipps": navigateProfileRoute("tipps"); break;
       case "freigeschaltet": navigateDashboardRoute("freigeschaltet"); break;
-      case "kaufen": navigateProfileRoute("pakete"); break;
+      case "kaufen": navigatePackageRoute(); break;
       case "wechselboerse": navigateDashboardRoute("wechselboerse"); break;
       case "verkaufen": navigateDashboardRoute("verkaufen"); break;
       case "wallet": navigateDashboardRoute("wallet", "id"); break;
