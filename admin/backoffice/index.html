@@ -2,7 +2,7 @@
 <!--
 Projekt: BetInsight
 Datei auf GitHub: profil/admin/backoffice/index.html
-Version: 2026.08.24-BACKOFFICE-v2.15-ZENTRALE-ERGEBNISSE
+Version: 2026.08.24-BACKOFFICE-v2.16-LIVE-ACTIVITY-CLEAN
 Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro Tipp einer Liefer-LED plus einer Ergebnis-LED, Bonuspunkten für Übererfüllung, Tipp-ID-sicherer Wochenhistorie, getrenntem Testbetrieb, Ergebnisübersicht, Wallet-Zielauswahl und festen Netzwerken.
 -->
 <html lang="de">
@@ -2152,11 +2152,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
           <h3>Letzte Aktivitäten</h3>
           <p class="muted">Die jüngsten Provisionen, Wallet-Änderungen und Auszahlungsvorgänge.</p>
           <div id="activitySummary" class="activity-list">
-            <div class="activity-item">
-              <div class="activity-date">02.08.2026</div>
-              <div><div class="activity-title">Musteraktivität · Elite-Paket bestätigt</div><div class="muted">Provision wurde dem verfügbaren Guthaben zugeordnet.</div></div>
-              <div class="activity-value privacy-sensitive">113,02 €</div>
-            </div>
+            <div class="empty-state">Noch keine echten Aktivitäten vorhanden.</div>
           </div>
         </article>
       </div>
@@ -2353,8 +2349,8 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
           </div>
 
           <div id="walletSaveMessage" class="warning-box">
-            Nach einer Wallet-Änderung gilt eine Sicherheitswartezeit von 24 Stunden. Die aktuelle Musterseite speichert
-            Änderungen zunächst lokal; die echte Speicherung erfolgt später über eine geschützte Make-Aktion.
+            Nach einer Wallet-Änderung gilt eine Sicherheitswartezeit von 24 Stunden. Die Wallet wird session-gesichert gespeichert.
+            Die tatsächliche Krypto-Auszahlung bleibt bis zur Auszahlungsfreigabe gesperrt.
           </div>
         </article>
 
@@ -3922,15 +3918,19 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
 
       balanceTableBody.innerHTML = items.map(function (item) {
         const possible = item.payout_possible === true || String(item.payout_possible).toLowerCase() === "true";
-        const wallet = findWallet(wallets, item) || {};
-        const address = getWalletAddress(wallet);
+        const internalAccounting =
+          String(item.currency || "").toUpperCase() === "EUR" &&
+          String(item.network || "").toUpperCase() === "INTERN";
+        const wallet = internalAccounting ? {} : (findWallet(wallets, item) || {});
+        const address = internalAccounting ? "Interne Abrechnung" : getWalletAddress(wallet);
+        const minimumDisplay = internalAccounting ? "–" : formatNumber(item.minimum, 8);
         return `<tr>
           <td>${escapeHtml(item.currency || "–")}</td>
           <td>${escapeHtml(item.network || "–")}</td>
           <td><span class="privacy-sensitive">${formatNumber(item.available, 8)}</span></td>
           <td><span class="privacy-sensitive">${formatNumber(item.reserved, 8)}</span></td>
-          <td><span class="privacy-sensitive">${formatNumber(item.minimum, 8)}</span></td>
-          <td><span class="privacy-sensitive">${address ? escapeHtml(address) : "Noch nicht hinterlegt"}</span></td>
+          <td><span class="privacy-sensitive">${minimumDisplay}</span></td>
+          <td><span class="privacy-sensitive">${escapeHtml(address || "Noch nicht hinterlegt")}</span></td>
           <td><span class="status-pill">${possible ? "Ja" : "Nein"}</span></td>
         </tr>`;
       }).join("");
@@ -5092,18 +5092,47 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
 
     function renderActivities(provisions, payouts, wallets) {
       const entries = [];
+
       (provisions || []).slice(0, 3).forEach(function (item) {
-        entries.push({ date: item.date || '–', title: 'Provision · ' + (item.package || 'Paket'), detail: 'Bestätigte Kundenzahlung', value: formatEuro(item.commission_eur || 0) });
+        entries.push({
+          date: item.date || item.zahlung_bestaetigt_am || '–',
+          title: 'Provision · ' + (item.package || item.paket_code || 'Paket'),
+          detail: 'Bestätigte Kundenzahlung',
+          value: formatEuro(item.sofort_person_eur ?? item.commission_eur ?? 0)
+        });
       });
+
       (payouts || []).slice(0, 2).forEach(function (item) {
-        entries.push({ date: item.requested_at || '–', title: 'Auszahlung · ' + (item.currency || ''), detail: label(item.status), value: formatNumber(item.gross || 0, 8) });
+        entries.push({
+          date: item.requested_at || '–',
+          title: 'Auszahlung · ' + (item.currency || ''),
+          detail: label(item.status),
+          value: formatNumber(item.gross || 0, 8)
+        });
       });
-      (wallets || []).slice(0, 1).forEach(function (item) {
-        entries.push({ date: item.changed_at || '–', title: 'Wallet geändert · ' + (item.currency || ''), detail: item.network || '', value: '24-h-Schutz' });
-      });
+
+      (wallets || [])
+        .filter(function (item) {
+          const address = getWalletAddress(item);
+          const status = String(item.status || item.wallet_status || '').trim().toLowerCase();
+          return Boolean(address) && status !== 'nicht hinterlegt';
+        })
+        .slice(0, 1)
+        .forEach(function (item) {
+          entries.push({
+            date: item.changed_at || item.updated_at || '–',
+            title: 'Wallet geändert · ' + (item.currency || ''),
+            detail: item.network || '',
+            value: '24-h-Schutz'
+          });
+        });
+
       if (!entries.length) {
-        entries.push({ date: '02.08.2026', title: 'Musteraktivität · Elite-Paket bestätigt', detail: 'Provision wurde dem verfügbaren Guthaben zugeordnet.', value: '113,02 €' });
+        activitySummary.innerHTML =
+          '<div class="empty-state">Noch keine echten Aktivitäten vorhanden.</div>';
+        return;
       }
+
       activitySummary.innerHTML = entries.map(function (entry) {
         return '<div class="activity-item"><div class="activity-date">' + escapeHtml(entry.date) + '</div><div><div class="activity-title">' + escapeHtml(entry.title) + '</div><div class="muted">' + escapeHtml(entry.detail) + '</div></div><div class="activity-value privacy-sensitive">' + escapeHtml(entry.value) + '</div></div>';
       }).join('');
