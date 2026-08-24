@@ -42,3 +42,5 @@ jobs:
           fi
           git commit -m "Fix route-specific payout minimum refresh"
           git push
+
+# trigger-refresh-2026-08-24
