@@ -1,4 +1,4 @@
-/* BetInsight App Navigation · Prototype v2 · 2026-08-24
+/* BetInsight App Navigation · 2026-08-24
    Reuses existing BetInsight token helpers/storage. It does not authenticate users. */
 (() => {
   "use strict";
@@ -153,7 +153,7 @@
       }
       case "tipps": navigateProfileRoute("tipps"); break;
       case "freigeschaltet": navigateDashboardRoute("freigeschaltet"); break;
-      case "kaufen": navigateProfileRoute("kaufen"); break;
+      case "kaufen": navigateProfileRoute("pakete"); break;
       case "wechselboerse": navigateDashboardRoute("wechselboerse"); break;
       case "verkaufen": navigateDashboardRoute("verkaufen"); break;
       case "wallet": navigateDashboardRoute("wallet", "id"); break;
@@ -173,6 +173,7 @@
     const relative = path.startsWith(base) ? path.slice(base.length) : path.replace(/^\/+/, "");
     const first = relative.split("/").filter(Boolean)[0] || "dashboard";
     const known = ["tipps", "freigeschaltet", "kaufen", "wechselboerse", "verkaufen", "wallet", "support"];
+    if (first === "pakete") return "kaufen";
     return known.includes(first) ? first : "dashboard";
   }
 

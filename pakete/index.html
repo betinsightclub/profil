@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#001824">
+  <meta name="description" content="Wähle dein BetInsight Units-Paket.">
+  <title>Units-Pakete | BetInsight</title>
+  <link rel="icon" href="../favicon.ico">
+  <link rel="stylesheet" href="../assets/app-navigation.css">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bi-bg: #001824;
+      --bi-surface: rgba(5, 42, 61, 0.92);
+      --bi-surface-strong: #062a3d;
+      --bi-line: rgba(31, 195, 255, 0.25);
+      --bi-blue: #10bdf4;
+      --bi-blue-2: #168ff4;
+      --bi-green: #15d59a;
+      --bi-gold: #ffbf3f;
+      --bi-text: #f5fbff;
+      --bi-muted: #a9c2d1;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { background: var(--bi-bg); }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--bi-text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 82% 2%, rgba(16, 189, 244, 0.13), transparent 32rem),
+        radial-gradient(circle at 48% 38%, rgba(27, 113, 203, 0.08), transparent 35rem),
+        linear-gradient(160deg, #00141e 0%, #002333 55%, #00151f 100%);
+    }
+
+    a { color: inherit; }
+
+    .package-page {
+      min-height: 100vh;
+      padding: 42px clamp(18px, 4vw, 64px) 34px;
+    }
+
+    .package-shell {
+      width: min(1240px, 100%);
+      margin: 0 auto;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 28px;
+      align-items: center;
+      padding: clamp(28px, 5vw, 54px);
+      border: 1px solid var(--bi-line);
+      border-radius: 28px;
+      background: linear-gradient(135deg, rgba(7, 49, 71, 0.97), rgba(3, 30, 45, 0.95));
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      right: -125px;
+      bottom: -195px;
+      border-radius: 50%;
+      background: rgba(16, 189, 244, 0.16);
+      border: 1px solid rgba(16, 189, 244, 0.25);
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: #70dcff;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 780px;
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 4.1rem);
+      line-height: 1.02;
+      letter-spacing: -0.045em;
+    }
+
+    .hero-copy {
+      max-width: 750px;
+      margin: 18px 0 0;
+      color: var(--bi-muted);
+      font-size: clamp(1rem, 2vw, 1.18rem);
+      line-height: 1.65;
+    }
+
+    .hero-badge {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      place-items: center;
+      width: 132px;
+      aspect-ratio: 1;
+      border: 1px solid rgba(255, 191, 63, 0.45);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 191, 63, 0.2), rgba(255, 191, 63, 0.03) 65%);
+      color: var(--bi-gold);
+      font-size: 2.6rem;
+      box-shadow: 0 0 42px rgba(255, 191, 63, 0.16);
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 20px 0 30px;
+    }
+
+    .step {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      min-height: 72px;
+      padding: 16px 18px;
+      border: 1px solid rgba(111, 191, 221, 0.16);
+      border-radius: 16px;
+      color: var(--bi-muted);
+      background: rgba(1, 27, 40, 0.72);
+    }
+
+    .step-number {
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      color: #071a23;
+      background: linear-gradient(135deg, #67dcff, #13c6ff);
+      font-weight: 900;
+    }
+
+    .packages {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .package-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      padding: 18px;
+      border: 1px solid var(--bi-line);
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(7, 50, 72, 0.96), rgba(2, 30, 45, 0.97));
+      box-shadow: 0 18px 46px rgba(0, 0, 0, 0.25);
+      transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .package-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(50, 208, 255, 0.56);
+      box-shadow: 0 26px 58px rgba(0, 0, 0, 0.33);
+    }
+
+    .package-card.featured {
+      border-color: rgba(255, 191, 63, 0.52);
+      box-shadow: 0 18px 50px rgba(255, 159, 31, 0.08), 0 18px 46px rgba(0, 0, 0, 0.25);
+    }
+
+    .popular {
+      position: absolute;
+      z-index: 2;
+      top: 14px;
+      right: 14px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      color: #14200d;
+      background: linear-gradient(135deg, #ffe07a, #ffaf1d);
+      font-size: 0.68rem;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .package-image-wrap {
+      display: grid;
+      place-items: center;
+      height: 270px;
+      margin: 8px 0 4px;
+    }
+
+    .package-image {
+      display: block;
+      max-width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.34));
+    }
+
+    .package-name {
+      margin: 10px 0 4px;
+      font-size: 1.35rem;
+    }
+
+    .package-total {
+      margin: 0;
+      color: #7be7ff;
+      font-size: 1.08rem;
+      font-weight: 800;
+    }
+
+    .package-breakdown {
+      min-height: 42px;
+      margin: 8px 0 0;
+      color: var(--bi-muted);
+      font-size: 0.86rem;
+      line-height: 1.45;
+    }
+
+    .price-line {
+      display: flex;
+      align-items: end;
+      gap: 7px;
+      margin: 16px 0;
+    }
+
+    .price {
+      font-size: 2rem;
+      font-weight: 900;
+      letter-spacing: -0.035em;
+    }
+
+    .price-note {
+      padding-bottom: 4px;
+      color: var(--bi-muted);
+      font-size: 0.78rem;
+    }
+
+    .action {
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 14px;
+      border: 0;
+      border-radius: 12px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--bi-blue-2), var(--bi-blue));
+      font: inherit;
+      font-weight: 850;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(16, 157, 235, 0.2);
+      transition: filter 160ms ease, transform 160ms ease;
+    }
+
+    .action:hover { filter: brightness(1.08); }
+    .action:active { transform: translateY(1px); }
+
+    .addon {
+      margin-top: 14px;
+      padding: 13px;
+      border: 1px solid rgba(21, 213, 154, 0.34);
+      border-radius: 15px;
+      background: linear-gradient(135deg, rgba(21, 213, 154, 0.13), rgba(1, 35, 46, 0.68));
+    }
+
+    .addon-badge {
+      display: block;
+      width: min(150px, 72%);
+      height: 58px;
+      margin: -2px auto 5px;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.28));
+    }
+
+    .addon-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: #72f5c9;
+      font-weight: 900;
+    }
+
+    .addon-result {
+      margin: 6px 0 11px;
+      color: var(--bi-muted);
+      font-size: 0.79rem;
+      line-height: 1.4;
+    }
+
+    .addon-button {
+      width: 100%;
+      min-height: 42px;
+      padding: 10px 12px;
+      border: 1px solid rgba(91, 245, 195, 0.42);
+      border-radius: 10px;
+      color: #dffff4;
+      background: rgba(8, 133, 101, 0.32);
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .addon-button:hover { background: rgba(10, 160, 119, 0.42); }
+
+    button:focus-visible,
+    a:focus-visible {
+      outline: 3px solid #9aeaff;
+      outline-offset: 3px;
+    }
+
+    .trust-panel {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 18px;
+      align-items: center;
+      margin-top: 26px;
+      padding: 20px 22px;
+      border: 1px solid rgba(111, 191, 221, 0.18);
+      border-radius: 18px;
+      background: rgba(1, 28, 42, 0.76);
+    }
+
+    .trust-icon {
+      display: grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      color: #89f5d1;
+      background: rgba(21, 213, 154, 0.12);
+      font-size: 1.35rem;
+    }
+
+    .trust-panel strong { display: block; margin-bottom: 4px; }
+    .trust-panel p { margin: 0; color: var(--bi-muted); line-height: 1.55; }
+
+    #message {
+      min-height: 24px;
+      margin: 18px 0 0;
+      text-align: center;
+      color: #ffe084;
+      font-weight: 700;
+    }
+
+    footer {
+      margin-top: 26px;
+      color: rgba(188, 217, 231, 0.58);
+      text-align: center;
+      font-size: 0.78rem;
+    }
+
+    @media (max-width: 1120px) {
+      .packages { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .package-image-wrap { height: 300px; }
+    }
+
+    @media (max-width: 720px) {
+      .package-page { padding: 78px 14px 28px; }
+      .hero { grid-template-columns: 1fr; padding: 28px 22px; border-radius: 21px; }
+      .hero-badge { display: none; }
+      .steps { grid-template-columns: 1fr; }
+      .packages { grid-template-columns: 1fr; }
+      .package-card { padding: 16px; }
+      .package-image-wrap { height: min(92vw, 410px); }
+      .trust-panel { grid-template-columns: 1fr; text-align: center; }
+      .trust-icon { margin: 0 auto; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="package-page">
+    <div class="package-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">BetInsight Units</p>
+          <h1>Wähle das Paket, das zu deiner Strategie passt.</h1>
+          <p class="hero-copy">Mit Units schaltest du BetInsight-Tipps gezielt frei. Alle Preise und enthaltenen Bonus-Units siehst du vor der Weiterleitung transparent auf einen Blick.</p>
+        </div>
+        <div class="hero-badge" aria-hidden="true">◇</div>
+      </header>
+
+      <section class="steps" aria-label="So funktioniert der Kauf">
+        <div class="step"><span class="step-number">1</span><span>Paket und optionale Erweiterung vergleichen</span></div>
+        <div class="step"><span class="step-number">2</span><span>Registrierte E-Mail prüfen und Paket auswählen</span></div>
+        <div class="step"><span class="step-number">3</span><span>Zahlung abschließen und Units erhalten</span></div>
+      </section>
+
+      <section class="packages" aria-label="Verfügbare Units-Pakete">
+        <article class="package-card">
+          <div class="package-image-wrap">
+            <img class="package-image" src="assets/images/starter-50-units-preview.png" alt="Starter Paket mit 49 Units und 1 Bonus-Unit" width="384" height="576">
+          </div>
+          <h2 class="package-name">Starter</h2>
+          <p class="package-total">50 Units gesamt</p>
+          <p class="package-breakdown">49 Units + 1 Bonus-Unit inklusive</p>
+          <div class="price-line"><span class="price">49 €</span><span class="price-note">einmalig</span></div>
+          <button class="action" type="button" data-purchase aria-label="Starter-Paket auf der Kaufseite auswählen">Zur Paketauswahl</button>
+          <div class="addon">
+            <img class="addon-badge" src="assets/images/bonus-20-units-preview.png" alt="Optionale Erweiterung: 20 Units für 15 Euro" width="480" height="320" loading="lazy">
+            <div class="addon-title"><span>+20 Units</span><span>+15 €</span></div>
+            <p class="addon-result">Optional: 70 Units gesamt für 64 €</p>
+            <button class="addon-button" type="button" data-purchase>Mit Erweiterung fortfahren</button>
+          </div>
+        </article>
+
+        <article class="package-card">
+          <div class="package-image-wrap">
+            <img class="package-image" src="assets/images/basic-110-units-preview.png" alt="Basic Paket mit 99 Units und 11 Bonus-Units" width="384" height="576" loading="lazy">
+          </div>
+          <h2 class="package-name">Basic</h2>
+          <p class="package-total">110 Units gesamt</p>
+          <p class="package-breakdown">99 Units + 11 Bonus-Units inklusive</p>
+          <div class="price-line"><span class="price">99 €</span><span class="price-note">einmalig</span></div>
+          <button class="action" type="button" data-purchase aria-label="Basic-Paket auf der Kaufseite auswählen">Zur Paketauswahl</button>
+          <div class="addon">
+            <img class="addon-badge" src="assets/images/bonus-20-units-preview.png" alt="Optionale Erweiterung: 20 Units für 15 Euro" width="480" height="320" loading="lazy">
+            <div class="addon-title"><span>+20 Units</span><span>+15 €</span></div>
+            <p class="addon-result">Optional: 130 Units gesamt für 114 €</p>
+            <button class="addon-button" type="button" data-purchase>Mit Erweiterung fortfahren</button>
+          </div>
+        </article>
+
+        <article class="package-card featured">
+          <span class="popular">Beliebt</span>
+          <div class="package-image-wrap">
+            <img class="package-image" src="assets/images/pro-240-units-preview.png" alt="Pro Paket mit 199 Units und 41 Bonus-Units" width="384" height="576" loading="lazy">
+          </div>
+          <h2 class="package-name">Pro</h2>
+          <p class="package-total">240 Units gesamt</p>
+          <p class="package-breakdown">199 Units + 41 Bonus-Units inklusive</p>
+          <div class="price-line"><span class="price">199 €</span><span class="price-note">einmalig</span></div>
+          <button class="action" type="button" data-purchase aria-label="Pro-Paket auf der Kaufseite auswählen">Zur Paketauswahl</button>
+          <div class="addon">
+            <img class="addon-badge" src="assets/images/bonus-20-units-preview.png" alt="Optionale Erweiterung: 20 Units für 15 Euro" width="480" height="320" loading="lazy">
+            <div class="addon-title"><span>+20 Units</span><span>+15 €</span></div>
+            <p class="addon-result">Optional: 260 Units gesamt für 214 €</p>
+            <button class="addon-button" type="button" data-purchase>Mit Erweiterung fortfahren</button>
+          </div>
+        </article>
+
+        <article class="package-card">
+          <div class="package-image-wrap">
+            <img class="package-image" src="assets/images/elite-365-units-preview.png" alt="Elite Paket mit 299 Units und 66 Bonus-Units" width="384" height="576" loading="lazy">
+          </div>
+          <h2 class="package-name">Elite</h2>
+          <p class="package-total">365 Units gesamt</p>
+          <p class="package-breakdown">299 Units + 66 Bonus-Units inklusive</p>
+          <div class="price-line"><span class="price">299 €</span><span class="price-note">einmalig</span></div>
+          <button class="action" type="button" data-purchase aria-label="Elite-Paket auf der Kaufseite auswählen">Zur Paketauswahl</button>
+          <div class="addon">
+            <img class="addon-badge" src="assets/images/bonus-20-units-preview.png" alt="Optionale Erweiterung: 20 Units für 15 Euro" width="480" height="320" loading="lazy">
+            <div class="addon-title"><span>+20 Units</span><span>+15 €</span></div>
+            <p class="addon-result">Optional: 385 Units gesamt für 314 €</p>
+            <button class="addon-button" type="button" data-purchase>Mit Erweiterung fortfahren</button>
+          </div>
+        </article>
+      </section>
+
+      <section class="trust-panel" aria-label="Hinweis zum nächsten Schritt">
+        <div class="trust-icon" aria-hidden="true">✓</div>
+        <div>
+          <strong>Noch keine Bestellung durch diesen Klick</strong>
+          <p>Auf der nächsten Seite prüfst du deine registrierte E-Mail und wählst das gewünschte Paket noch einmal verbindlich aus. Erst danach geht es zur Zahlung.</p>
+        </div>
+      </section>
+
+      <p id="message" role="status" aria-live="polite"></p>
+      <footer>© 2026 BetInsight Club · Units-Pakete</footer>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const GITHUB_HOST = "betinsightclub.github.io";
+      const TOKEN_STORAGE_KEY = "betinsight_profile_token";
+
+      function profileToken() {
+        const params = new URLSearchParams(window.location.search);
+        const fromUrl = String(params.get("token") || "").trim();
+        if (fromUrl) {
+          localStorage.setItem(TOKEN_STORAGE_KEY, fromUrl);
+          return fromUrl;
+        }
+        return String(localStorage.getItem(TOKEN_STORAGE_KEY) || "").trim();
+      }
+
+      function purchaseUrl() {
+        const base = window.location.hostname.toLowerCase() === GITHUB_HOST ? "/profil/" : "/";
+        const token = profileToken();
+        return `${base}kaufen/${token ? `?token=${encodeURIComponent(token)}` : ""}`;
+      }
+
+      document.querySelectorAll("[data-purchase]").forEach(button => {
+        button.addEventListener("click", () => window.location.assign(purchaseUrl()));
+      });
+
+      profileToken();
+    })();
+  </script>
+  <script src="../assets/app-navigation.js" defer></script>
+</body>
+</html>
