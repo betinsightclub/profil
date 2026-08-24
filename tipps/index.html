@@ -9,7 +9,7 @@ Diese Datei ersetzt die dort vorhandene index.html vollständig.
 
 <!--
 BetInsight Tipps
-Version: 2026.08.12-08
+Version: 2026.08.24-09
 
 - Offene veröffentlichte Tipps oben.
 - Vom Master bestätigte Ergebnisse automatisch unten.
@@ -17,6 +17,7 @@ Version: 2026.08.12-08
 - Bestehende Token- und Freischaltlogik bleibt erhalten.
 - Beendete Tipps können nicht mehr freigeschaltet werden.
 - Moderne BetInsight-Karten mit konsistenten Halbkreis-Zierelementen.
+- Kunden können beendete Tipps nach Datum oder Ergebnis sortieren.
 -->
 <html lang="de">
 <head>
@@ -407,6 +408,46 @@ h1 { margin:4px 0 10px; font-size:36px; }
   margin:0 0 14px;
 }
 
+.result-sort {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:16px auto 0;
+  padding-top:15px;
+  border-top:1px solid rgba(255,255,255,.09);
+}
+
+.result-sort label {
+  color:#d9f4ff;
+  font-size:14px;
+  font-weight:800;
+}
+
+.result-sort select {
+  min-height:42px;
+  min-width:205px;
+  padding:9px 38px 9px 14px;
+  color:#fff;
+  background-color:rgba(3,28,40,.82);
+  border:1px solid rgba(35,190,255,.48);
+  border-radius:12px;
+  font-weight:800;
+  cursor:pointer;
+  outline:none;
+}
+
+.result-sort select:focus {
+  border-color:var(--cyan-light);
+  box-shadow:0 0 0 3px rgba(0,200,255,.15);
+}
+
+.result-sort option {
+  color:#fff;
+  background:#082433;
+}
+
 @media(max-width:700px){
   .floating-back-btn { left:12px; right:12px; bottom:12px; }
   .page { padding:22px 12px 98px; }
@@ -418,6 +459,9 @@ h1 { margin:4px 0 10px; font-size:36px; }
   .meta-item { width:100%; justify-content:flex-start; }
   .btn { width:100%; min-width:0; }
   .price { width:100%; max-width:290px; }
+  .result-sort { align-items:stretch; }
+  .result-sort label { width:100%; }
+  .result-sort select { width:100%; min-width:0; }
 }
 
 .dashboard-columns {
@@ -566,6 +610,15 @@ h1 { margin:4px 0 10px; font-size:36px; }
         <div class="section-head">
           <h2>📊 Beendete Tipps & Ergebnisse</h2>
           <p>Hier siehst du alle von BetInsight bestätigten Ergebnisse auf einen Blick.</p>
+
+          <div class="result-sort">
+            <label for="resultSort">Sortieren nach:</label>
+            <select id="resultSort" aria-label="Beendete Tipps sortieren">
+              <option value="date_desc">Datum: Neueste zuerst</option>
+              <option value="date_asc">Datum: Älteste zuerst</option>
+              <option value="won_first">Ergebnis: Gewonnen zuerst</option>
+            </select>
+          </div>
         </div>
 
         <div id="resultStatus" class="status">Ergebnisse werden geladen...</div>
@@ -593,6 +646,8 @@ const PAGE_SIZE = 10;
 
 let loadedOpenTipps = [];
 let visibleOpenTipCount = 0;
+let loadedResults = [];
+let resultSortMode = "date_desc";
 
 function normalizeToken(value) {
   return String(value || "").trim();
@@ -679,6 +734,65 @@ function resultUi(status) {
   if (s === "ABGESAGT") return { cls:"cancelled", label:"ABGESAGT", icon:"🟠" };
 
   return { cls:"", label:"", icon:"" };
+}
+
+function resultDateTimestamp(item) {
+  const raw = safeText(item.spiel_datum, "").trim();
+  if (!raw) return 0;
+
+  const germanDate = raw.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})(?:\D.*)?$/);
+  if (germanDate) {
+    return Date.UTC(
+      Number(germanDate[3]),
+      Number(germanDate[2]) - 1,
+      Number(germanDate[1])
+    );
+  }
+
+  const parsed = Date.parse(raw);
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
+function resultSortRank(status) {
+  const normalized = canonicalResult(status);
+  if (normalized === "GEWONNEN") return 0;
+  if (normalized === "VERLOREN") return 1;
+  if (normalized === "VOID") return 2;
+  if (normalized === "ABGESAGT") return 3;
+  return 4;
+}
+
+function sortResultItems(items, mode) {
+  return [...items].sort((a, b) => {
+    const dateDifference = resultDateTimestamp(b) - resultDateTimestamp(a);
+
+    if (mode === "date_asc") {
+      return -dateDifference;
+    }
+
+    if (mode === "won_first") {
+      const statusDifference =
+        resultSortRank(a.ergebnis_status) - resultSortRank(b.ergebnis_status);
+
+      return statusDifference || dateDifference;
+    }
+
+    return dateDifference;
+  });
+}
+
+function renderResults() {
+  const resultBox = document.getElementById("resultTips");
+  resultBox.innerHTML = "";
+
+  if (loadedResults.length === 0) {
+    resultBox.innerHTML =
+      '<div class="empty">Noch keine bestätigten Ergebnisse vorhanden.</div>';
+    return;
+  }
+
+  sortResultItems(loadedResults, resultSortMode)
+    .forEach(item => resultBox.appendChild(createResultCard(item)));
 }
 
 function createOpenTipCard(tipp) {
@@ -863,12 +977,8 @@ async function loadPage() {
       renderNextOpenTipps();
     }
 
-    if (validResults.length === 0) {
-      resultBox.innerHTML =
-        '<div class="empty">Noch keine bestätigten Ergebnisse vorhanden.</div>';
-    } else {
-      validResults.forEach(item => resultBox.appendChild(createResultCard(item)));
-    }
+    loadedResults = validResults;
+    renderResults();
 
   } catch (error) {
     openStatus.style.display = "none";
@@ -978,6 +1088,12 @@ async function freischalten(tippId, card, button) {
 
 document.getElementById("loadMoreButton")
   .addEventListener("click", renderNextOpenTipps);
+
+document.getElementById("resultSort")
+  .addEventListener("change", event => {
+    resultSortMode = event.target.value;
+    renderResults();
+  });
 
 loadPage();
 </script>
