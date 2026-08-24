@@ -1,0 +1,61 @@
+name: One-time referral domain update
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-referral-domain-update.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-referral-links:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Update referral and landingpage targets
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+
+          old_registration = 'function buildRegistrationReferralLink(data={}){if(data.ref_link&&String(data.ref_link).trim())return String(data.ref_link).trim();if(currentProfileData.refLink)return currentProfileData.refLink;const ref=getReferralCode(data);return ref?"https://betinsightclub.github.io/profil/ref/?ref="+encodeURIComponent(ref):""}'
+          new_registration = 'function buildRegistrationReferralLink(data={}){const ref=getReferralCode(data);return ref?"https://betinsight.club/ref/?ref="+encodeURIComponent(ref):""}'
+
+          old_landing = 'function buildLandingpageReferralLink(data={}){const ref=getReferralCode(data);return ref?"https://betinsightclub.github.io/profil/betinsightcommunity/?ref="+encodeURIComponent(ref):""}'
+          new_landing = 'function buildLandingpageReferralLink(data={}){const ref=getReferralCode(data);return ref?"https://betinsight.club/?ref="+encodeURIComponent(ref):""}'
+
+          if old_registration not in text:
+              raise SystemExit('Expected registration referral function not found; no changes committed.')
+          if old_landing not in text:
+              raise SystemExit('Expected landingpage referral function not found; no changes committed.')
+
+          text = text.replace(old_registration, new_registration, 1)
+          text = text.replace(old_landing, new_landing, 1)
+
+          text = text.replace('Version: 2026.08.24-02', 'Version: 2026.08.24-03', 1)
+          marker = 'Änderungen:\n'
+          note = ('- REFERRAL-DOMAINUMSTELLUNG 2026.08.24-03:\n'
+                  '  - Direkter Registrierungslink verwendet jetzt https://betinsight.club/ref/?ref=... statt github.io/profil/ref/.\n'
+                  '  - Persönlicher Landingpage-Link verwendet jetzt https://betinsight.club/?ref=... statt github.io/profil/betinsightcommunity/.\n'
+                  '  - Der öffentliche Referral-Code bleibt erhalten; Profil-UUID und Dashboard-Token werden nicht übertragen.\n')
+          if marker in text and note not in text:
+              text = text.replace(marker, marker + note, 1)
+
+          path.write_text(text, encoding='utf-8')
+
+      - name: Commit update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Update referral links for BetInsight domains"
+          git push origin main
