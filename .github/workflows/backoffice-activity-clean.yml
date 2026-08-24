@@ -1,6 +1,7 @@
 name: Backoffice activity cleanup
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - '.backoffice-activity-clean-trigger'
