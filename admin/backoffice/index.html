@@ -2,7 +2,7 @@
 <!--
 Projekt: BetInsight
 Datei auf GitHub: profil/admin/backoffice/index.html
-Version: 2026.08.24-BACKOFFICE-v2.19-BTC-MINIMUM-ROUTE-FIX
+Version: 2026.08.24-BACKOFFICE-v2.20-PAYOUT-STATUS-REASONS
 Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro Tipp einer Liefer-LED plus einer Ergebnis-LED, Bonuspunkten für Übererfüllung, Tipp-ID-sicherer Wochenhistorie, getrenntem Testbetrieb, Ergebnisübersicht, Wallet-Zielauswahl und festen Netzwerken.
 -->
 <html lang="de">
@@ -3946,7 +3946,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
           <td><span class="privacy-sensitive">${formatNumber(item.reserved, 8)}</span></td>
           <td><span class="privacy-sensitive">${minimumDisplay}</span></td>
           <td><span class="privacy-sensitive">${escapeHtml(address || "Noch nicht hinterlegt")}</span></td>
-          <td><span class="status-pill">${possible ? "Ja" : "Nein"}</span></td>
+          <td><span class="status-pill">${escapeHtml(payoutStatusText(item.payout_status, possible))}</span></td>
         </tr>`;
       }).join("");
     }
@@ -3985,6 +3985,23 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       }).join("");
     }
 
+    function payoutStatusText(status, possible) {
+      if (possible) return "Auszahlung möglich";
+
+      const key = String(status || "").trim().toUpperCase();
+      const labels = {
+        WALLET_FEHLT: "Wallet-Adresse fehlt",
+        WALLET_FREIGABE_OFFEN: "Wallet-Freigabe offen",
+        WALLET_24H_SPERRE: "24-h-Sicherheitssperre aktiv",
+        MINDESTWERT_NICHT_ERREICHT: "Mindestwert noch nicht erreicht",
+        ROUTE_SYSTEMSEITIG_GESPERRT: "Route systemseitig gesperrt",
+        GLOBAL_GESPERRT: "Auszahlung systemweit gesperrt",
+        INTERNE_ABRECHNUNG: "Interne Abrechnung"
+      };
+
+      return labels[key] || "Noch nicht möglich";
+    }
+
     function renderPayoutRoutes(balances, wallets) {
       payoutRouteGrid.innerHTML = SUPPORTED_ROUTES.map(function (route) {
         const balance = findBalance(balances, route) || {};
@@ -4017,7 +4034,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
               <div class="route-title">${escapeHtml(route.currency)}</div>
               <div class="route-network">${escapeHtml(route.networkLabel)}</div>
             </div>
-            <span class="status-pill">${possible ? "Auszahlung möglich" : "Noch nicht möglich"}</span>
+            <span class="status-pill">${escapeHtml(payoutStatusText(balance.payout_status, possible))}</span>
           </div>
 
           <div class="payout-balance-grid">
