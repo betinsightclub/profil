@@ -1,0 +1,166 @@
+name: Backoffice activity cleanup
+
+on:
+  push:
+    paths:
+      - '.backoffice-activity-clean-trigger'
+
+permissions:
+  contents: write
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch live backoffice activity rendering
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('admin/backoffice/index.html')
+          text = path.read_text(encoding='utf-8')
+
+          text = re.sub(
+              r'Version: [^\n]*',
+              'Version: 2026.08.24-BACKOFFICE-v2.16-LIVE-ACTIVITY-CLEAN',
+              text,
+              count=1,
+          )
+
+          old_static = '''          <div id="activitySummary" class="activity-list">
+            <div class="activity-item">
+              <div class="activity-date">02.08.2026</div>
+              <div><div class="activity-title">Musteraktivität · Elite-Paket bestätigt</div><div class="muted">Provision wurde dem verfügbaren Guthaben zugeordnet.</div></div>
+              <div class="activity-value privacy-sensitive">113,02 €</div>
+            </div>
+          </div>'''
+          new_static = '''          <div id="activitySummary" class="activity-list">
+            <div class="empty-state">Noch keine echten Aktivitäten vorhanden.</div>
+          </div>'''
+          if old_static not in text:
+              raise SystemExit('Static mock activity block not found')
+          text = text.replace(old_static, new_static, 1)
+
+          old_wallet_note = '''            Nach einer Wallet-Änderung gilt eine Sicherheitswartezeit von 24 Stunden. Die aktuelle Musterseite speichert
+            Änderungen zunächst lokal; die echte Speicherung erfolgt später über eine geschützte Make-Aktion.'''
+          new_wallet_note = '''            Nach einer Wallet-Änderung gilt eine Sicherheitswartezeit von 24 Stunden. Die Wallet wird session-gesichert gespeichert.
+            Die tatsächliche Krypto-Auszahlung bleibt bis zur Auszahlungsfreigabe gesperrt.'''
+          if old_wallet_note in text:
+              text = text.replace(old_wallet_note, new_wallet_note, 1)
+
+          new_balances = r'''    function renderBalances(items, wallets) {
+      if (!Array.isArray(items) || !items.length) {
+        balanceTableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state">Keine Guthaben vorhanden.</div></td></tr>';
+        return;
+      }
+
+      balanceTableBody.innerHTML = items.map(function (item) {
+        const possible = item.payout_possible === true || String(item.payout_possible).toLowerCase() === "true";
+        const internalAccounting =
+          String(item.currency || "").toUpperCase() === "EUR" &&
+          String(item.network || "").toUpperCase() === "INTERN";
+        const wallet = internalAccounting ? {} : (findWallet(wallets, item) || {});
+        const address = internalAccounting ? "Interne Abrechnung" : getWalletAddress(wallet);
+        const minimumDisplay = internalAccounting ? "–" : formatNumber(item.minimum, 8);
+        return `<tr>
+          <td>${escapeHtml(item.currency || "–")}</td>
+          <td>${escapeHtml(item.network || "–")}</td>
+          <td><span class="privacy-sensitive">${formatNumber(item.available, 8)}</span></td>
+          <td><span class="privacy-sensitive">${formatNumber(item.reserved, 8)}</span></td>
+          <td><span class="privacy-sensitive">${minimumDisplay}</span></td>
+          <td><span class="privacy-sensitive">${escapeHtml(address || "Noch nicht hinterlegt")}</span></td>
+          <td><span class="status-pill">${possible ? "Ja" : "Nein"}</span></td>
+        </tr>`;
+      }).join("");
+    }'''
+
+          text, n = re.subn(
+              r'    function renderBalances\(items, wallets\) \{.*?\n    \}\n\n    function renderWallets',
+              new_balances + '\n\n    function renderWallets',
+              text,
+              count=1,
+              flags=re.S,
+          )
+          if n != 1:
+              raise SystemExit('renderBalances block not replaced exactly once')
+
+          new_activities = r'''    function renderActivities(provisions, payouts, wallets) {
+      const entries = [];
+
+      (provisions || []).slice(0, 3).forEach(function (item) {
+        entries.push({
+          date: item.date || item.zahlung_bestaetigt_am || '–',
+          title: 'Provision · ' + (item.package || item.paket_code || 'Paket'),
+          detail: 'Bestätigte Kundenzahlung',
+          value: formatEuro(item.sofort_person_eur ?? item.commission_eur ?? 0)
+        });
+      });
+
+      (payouts || []).slice(0, 2).forEach(function (item) {
+        entries.push({
+          date: item.requested_at || '–',
+          title: 'Auszahlung · ' + (item.currency || ''),
+          detail: label(item.status),
+          value: formatNumber(item.gross || 0, 8)
+        });
+      });
+
+      (wallets || [])
+        .filter(function (item) {
+          const address = getWalletAddress(item);
+          const status = String(item.status || item.wallet_status || '').trim().toLowerCase();
+          return Boolean(address) && status !== 'nicht hinterlegt';
+        })
+        .slice(0, 1)
+        .forEach(function (item) {
+          entries.push({
+            date: item.changed_at || item.updated_at || '–',
+            title: 'Wallet geändert · ' + (item.currency || ''),
+            detail: item.network || '',
+            value: '24-h-Schutz'
+          });
+        });
+
+      if (!entries.length) {
+        activitySummary.innerHTML =
+          '<div class="empty-state">Noch keine echten Aktivitäten vorhanden.</div>';
+        return;
+      }
+
+      activitySummary.innerHTML = entries.map(function (entry) {
+        return '<div class="activity-item"><div class="activity-date">' + escapeHtml(entry.date) + '</div><div><div class="activity-title">' + escapeHtml(entry.title) + '</div><div class="muted">' + escapeHtml(entry.detail) + '</div></div><div class="activity-value privacy-sensitive">' + escapeHtml(entry.value) + '</div></div>';
+      }).join('');
+    }'''
+
+          text, n = re.subn(
+              r'    function renderActivities\(provisions, payouts, wallets\) \{.*?\n    \}\n\n    async function saveWalletSecurely',
+              new_activities + '\n\n    async function saveWalletSecurely',
+              text,
+              count=1,
+              flags=re.S,
+          )
+          if n != 1:
+              raise SystemExit('renderActivities block not replaced exactly once')
+
+          if 'Musteraktivität · Elite-Paket bestätigt' in text:
+              raise SystemExit('Mock activity still present after patch')
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit live cleanup
+        shell: bash
+        run: |
+          git config user.name "BetInsight Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add admin/backoffice/index.html
+          git diff --cached --check
+          git commit -m "Backoffice: remove mock activity and empty-wallet event"
+          git push
