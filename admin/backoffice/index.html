@@ -8,7 +8,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#061d2a">
   <title>BetInsight – Mein Backoffice</title>
@@ -1976,7 +1976,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
     <header class="topbar">
       <div class="brand-group">
         <img
-          src="/profil/logo_betisight.club.png"
+          src="../../logo_betisight.club.png"
           alt="BetInsight Club"
           class="topbar-logo"
           onerror="this.style.display='none'"
@@ -2003,11 +2003,11 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
         >
           🔒 Schutz aktiv · Anzeigen
         </button>
-        <a class="link-button" href="https://betinsightclub.github.io/profil/admin/">
+        <a class="link-button" href="../">
           ← Admin Center
         </a>
         <button class="button button-red" type="button" id="logoutButton">
-          Abmelden
+          Ausloggen
         </button>
       </div>
     </header>
@@ -3029,7 +3029,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       const current = getCurrentAdmin();
 
       if (!current.session) {
-        window.location.replace("https://betinsightclub.github.io/profil/admin/");
+        window.location.replace("../");
         return null;
       }
 
@@ -3078,7 +3078,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       } catch (error) {
         console.error("Session-Prüfung fehlgeschlagen:", error);
         sessionStorage.removeItem(SESSION_KEY);
-        window.location.replace("https://betinsightclub.github.io/profil/admin/");
+        window.location.replace("../");
         return null;
       }
     }
@@ -3087,7 +3087,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       const current = getCurrentAdmin();
 
       if (!current.session) {
-        window.location.replace("https://betinsightclub.github.io/profil/admin/");
+        window.location.replace("../");
         return null;
       }
 
@@ -3129,7 +3129,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
         }
       }
 
-      window.location.replace("https://betinsightclub.github.io/profil/admin/");
+      window.location.replace("../");
     }
 
     function activateTab(tabName) {

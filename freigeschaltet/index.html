@@ -2,9 +2,10 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
+<link rel="icon" type="image/x-icon" href="../favicon.ico">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BetInsight – Freigeschaltete Tipps</title>
+<link rel="stylesheet" href="../assets/app-navigation.css">
 <style>
   * { box-sizing: border-box; }
 
@@ -228,18 +229,14 @@
 </head>
 <body>
 
-<a class="floating-back-btn" href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726">
-  ⬅ Mitgliederbereich
-</a>
-
-<div class="page">
+<main class="page">
   <img src="../logo_betisight.club.png" alt="BetInsight Club" class="logo">
   <h1>✅ Freigeschaltete Tipps</h1>
   <p class="subtitle">Deine freigeschalteten Tipps und – sobald vom Master bestätigt – das jeweilige Ergebnis.</p>
 
   <div id="status" class="status">Freigeschaltete Tipps werden geladen...</div>
   <div id="tips" class="tips-grid"></div>
-</div>
+</main>
 
 <script>
 "use strict";
@@ -467,5 +464,6 @@ async function loadFreigeschalteteTipps() {
 
 loadFreigeschalteteTipps();
 </script>
+<script src="../assets/app-navigation.js" defer></script>
 </body>
 </html>

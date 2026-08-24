@@ -2,12 +2,13 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#071019">
   <meta name="application-version" content="1.1.0">
   <title>Wallet-Verwaltung | BetInsight Club</title>
-  <style>
+  <link rel="stylesheet" href="../assets/app-navigation.css">
+<style>
     :root {
       --bg: #071019;
       --panel: #0d1a26;
@@ -388,8 +389,7 @@
 <body>
   <main class="page">
     <header class="topbar">
-      <img class="logo" src="../logo_betsight.club.png" alt="BetInsight Club">
-      <a class="back-link" id="backLink" href="../">← Zurück zum Profil</a>
+      <img class="logo" src="../logo_betisight.club.png" alt="BetInsight Club">
     </header>
 
     <section class="hero">
@@ -529,14 +529,10 @@
     const walletStatus = document.getElementById("walletStatus");
     const saveButton = document.getElementById("saveButton");
     const feedback = document.getElementById("feedback");
-    const backLink = document.getElementById("backLink");
 
     const query = new URLSearchParams(window.location.search);
     const dashboardToken = query.get("id") || query.get("token") || "";
 
-    if (dashboardToken) {
-      backLink.href = "../?id=" + encodeURIComponent(dashboardToken);
-    }
 
     function showFeedback(message, type) {
       feedback.textContent = message;
@@ -658,5 +654,6 @@
       }
     });
   </script>
+<script src="../assets/app-navigation.js" defer></script>
 </body>
 </html>

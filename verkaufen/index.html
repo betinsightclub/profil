@@ -16,12 +16,13 @@ Anwendungs-Version: 1.4.0
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#071019">
   <meta name="application-version" content="1.4.0">
   <title>Units verkaufen | BetInsight Club</title>
-  <style>
+  <link rel="stylesheet" href="../assets/app-navigation.css">
+<style>
     :root {
       --bg: #071019;
       --panel: #0d1a26;
@@ -163,8 +164,7 @@ Anwendungs-Version: 1.4.0
 <body>
 <main class="page">
   <header class="topbar">
-    <img class="logo" src="https://betinsightclub.github.io/profil/logo_betisight.club.png" alt="BetInsight Club">
-    <a class="back-link" id="backLink" href="../wechselboerse/">← Zur Wechselstube</a>
+    <img class="logo" src="../logo_betisight.club.png" alt="BetInsight Club">
   </header>
 
   <section class="hero">
@@ -295,7 +295,6 @@ const summaryRequired = document.getElementById("summaryRequired");
 const summary = document.querySelector(".summary");
 const availabilityAlert = document.getElementById("availabilityAlert");
 const feedback = document.getElementById("feedback");
-const backLink = document.getElementById("backLink");
 const walletLink = document.getElementById("walletLink");
 const sellableBalance = document.getElementById("sellableBalance");
 const earnedBalance = document.getElementById("earnedBalance");
@@ -335,8 +334,7 @@ function newRequestId() {
 function updateLinks() {
   if (!canonicalDashboardToken) return;
   const encoded = encodeURIComponent(canonicalDashboardToken);
-  backLink.href = "../wechselboerse/?token=" + encoded;
-  walletLink.href = "../wallet/?token=" + encoded;
+  walletLink.href = "../wallet/?id=" + encoded;
 }
 function selectedOffer() {
   const amount = Number.parseInt(unitAmount.value,10) || 0;
@@ -573,5 +571,6 @@ updateLinks();
 updateSummary();
 loadBalances();
 </script>
+<script src="../assets/app-navigation.js" defer></script>
 </body>
 </html>

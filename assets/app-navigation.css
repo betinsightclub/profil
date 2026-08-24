@@ -230,8 +230,43 @@
 
 .bi-nav-footer {
   margin-top: auto;
+  display: grid;
+  gap: 8px;
   padding: 12px 9px 3px;
   border-top: 1px solid rgba(255, 255, 255, .06);
+}
+
+.bi-nav-settings-link {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 42px;
+  padding: 10px 11px;
+  border: 1px solid rgba(89, 189, 239, .18);
+  border-radius: 11px;
+  background: rgba(7, 43, 64, .72);
+  color: #b9d7e7;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-decoration: none;
+  transition: border-color .16s ease, background .16s ease, color .16s ease;
+}
+
+.bi-nav-settings-link:hover,
+.bi-nav-settings-link:focus-visible {
+  border-color: rgba(52, 196, 255, .55);
+  background: rgba(10, 67, 96, .9);
+  color: #ffffff;
+  outline: none;
+}
+
+.bi-nav-settings-icon {
+  color: #55cfff;
+  font-size: 15px;
+}
+
+.bi-nav-footer-caption {
   color: #608398;
   font-size: 9px;
   line-height: 1.45;

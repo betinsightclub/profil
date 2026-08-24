@@ -81,7 +81,22 @@
     return `${base}${clean}${looksLikeFile ? "" : "/"}`;
   }
 
+  function urlAccessValue(...names) {
+    const params = new URLSearchParams(window.location.search);
+    for (const name of names) {
+      const value = String(params.get(name) || "").trim();
+      if (value) return value;
+    }
+    return "";
+  }
+
   function currentProfileToken() {
+    const fromUrl = urlAccessValue("token");
+    if (fromUrl && !isUuid(fromUrl)) {
+      localStorage.setItem(PROFILE_STORAGE_KEY, fromUrl);
+      return fromUrl;
+    }
+
     const saved = typeof window.getSavedToken === "function"
       ? String(window.getSavedToken() || "").trim()
       : String(localStorage.getItem(PROFILE_STORAGE_KEY) || "").trim();
@@ -95,6 +110,12 @@
   }
 
   function currentDashboardUuid() {
+    const fromUrl = urlAccessValue("dashboard_token", "id", "token");
+    if (isUuid(fromUrl)) {
+      localStorage.setItem(DASHBOARD_STORAGE_KEY, fromUrl);
+      return fromUrl;
+    }
+
     if (typeof window.getConfirmedDashboardToken === "function") {
       const confirmed = String(window.getConfirmedDashboardToken() || "").trim();
       if (isUuid(confirmed)) return confirmed;
@@ -355,8 +376,19 @@
 
     const footer = document.createElement("div");
     footer.className = "bi-nav-footer";
-    footer.textContent = "BetInsight App";
 
+    const settingsLink = document.createElement("a");
+    settingsLink.className = "bi-nav-settings-link";
+    settingsLink.href = "https://betinsight.systeme.io/profile/user-settings";
+    settingsLink.target = "_blank";
+    settingsLink.rel = "noopener noreferrer";
+    settingsLink.innerHTML = '<span class="bi-nav-settings-icon" aria-hidden="true">⚙</span><span>Kontoeinstellungen</span>';
+
+    const footerCaption = document.createElement("span");
+    footerCaption.className = "bi-nav-footer-caption";
+    footerCaption.textContent = "BetInsight App";
+
+    footer.append(settingsLink, footerCaption);
     sidebar.append(brand, list, footer);
     document.body.append(overlay, sidebar, toggle);
 

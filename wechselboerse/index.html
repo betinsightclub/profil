@@ -20,10 +20,11 @@ Wichtig:
   <meta name="theme-color" content="#061923">
   <meta name="description" content="BetInsight Unit-Wechselstube: Units kaufen, verkaufen und Auszahlungs-Wallet verwalten.">
   <title>BetInsight Unit-Wechselstube</title>
-  <link rel="icon" type="image/x-icon" href="/profil/favicon.ico">
-  <link rel="shortcut icon" href="/profil/favicon.ico">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+  <link rel="shortcut icon" href="../favicon.ico">
 
-  <style>
+  <link rel="stylesheet" href="../assets/app-navigation.css">
+<style>
     *{box-sizing:border-box}
     :root{
       --bg1:#061923;--bg2:#071d2b;--bg3:#04131c;
@@ -100,7 +101,7 @@ Wichtig:
 <body>
   <main class="page">
     <header class="topbar">
-      <img class="logo" src="/profil/logo_betisight.club.png" alt="BetInsight Club">
+      <img class="logo" src="../logo_betisight.club.png" alt="BetInsight Club">
       <div>
         <span class="eyebrow">Mitgliederbereich</span>
         <h1>Unit-Wechselstube</h1>
@@ -135,7 +136,6 @@ Wichtig:
       <p class="info-line"><span aria-hidden="true">🛡️</span>Verkaufbar sind ausschließlich die dafür freigegebenen Units.</p>
     </section>
 
-    <footer class="footer"><a id="profileLink" class="back-link" href="/profil/"><span aria-hidden="true">←</span>Zurück zu meinem Profil</a></footer>
   </main>
 
   <script>
@@ -148,21 +148,19 @@ Wichtig:
     const buyLink=document.getElementById("buyLink");
     const sellLink=document.getElementById("sellLink");
     const walletLink=document.getElementById("walletLink");
-    const profileLink=document.getElementById("profileLink");
     const warning=document.getElementById("warning");
 
     function enableLink(element,url){element.href=url;element.classList.remove("disabled");element.removeAttribute("aria-disabled")}
 
     if(UUID_RE.test(dashboardToken)){
-      enableLink(buyLink,"/profil/wechselboerse/angebote/?token="+encodeURIComponent(dashboardToken));
-      enableLink(sellLink,"/profil/verkaufen/index.html?token="+encodeURIComponent(dashboardToken));
-      enableLink(walletLink,"/profil/wallet/index.html?id="+encodeURIComponent(dashboardToken));
-      profileLink.href="/profil/?token="+encodeURIComponent(dashboardToken);
+      enableLink(buyLink,"angebote/?token="+encodeURIComponent(dashboardToken));
+      enableLink(sellLink,"../verkaufen/?token="+encodeURIComponent(dashboardToken));
+      enableLink(walletLink,"../wallet/?id="+encodeURIComponent(dashboardToken));
     }else{
       warning.textContent="Dieser alte Direktzugang wird nicht mehr verwendet. Bitte öffne die Unit-Wechselstube über dein aktuelles BetInsight-Profil.";
       warning.classList.add("visible");
-      profileLink.href="/profil/";
     }
   </script>
+<script src="../assets/app-navigation.js" defer></script>
 </body>
 </html>
