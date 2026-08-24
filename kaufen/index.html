@@ -109,15 +109,6 @@ Version: 2026.08.23-01
 
     </div>
 
-    <br><br>
-
-    <button
-      onclick="backToPackages()"
-      style="padding:15px 32px;border:none;border-radius:8px;background:#5f7488;color:white;font-size:18px;cursor:pointer;"
-    >
-      ⬅ Zurück zur Paketauswahl
-    </button>
-
     <div style="margin-top:70px;color:rgba(255,255,255,0.45);font-size:14px;">
       © 2026 BetInsight Club
     </div>
@@ -319,13 +310,6 @@ Version: 2026.08.23-01
         + "&email=" + encodeURIComponent(email);
 
       window.open(paymentUrl, "_blank");
-    }
-
-    function backToPackages() {
-      const savedDashboardToken = cleanToken(localStorage.getItem(DASHBOARD_TOKEN_STORAGE_KEY));
-      const token = isUuidToken(savedDashboardToken) ? savedDashboardToken : getActiveToken();
-      const base = window.location.hostname.toLowerCase() === "betinsightclub.github.io" ? "/profil/" : "/";
-      window.location.assign(base + "pakete/" + (token ? "?token=" + encodeURIComponent(token) : ""));
     }
 
     loadEmail();

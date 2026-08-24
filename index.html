@@ -180,24 +180,6 @@ button{border:0}
   pointer-events:none;
 }
 
-.floating-back-button{
-  position:fixed;
-  left:24px;
-  bottom:22px;
-  z-index:10000;
-  width:auto;
-  min-width:190px;
-  min-height:48px;
-  padding:12px 19px;
-  border:1px solid rgba(255,255,255,.20);
-  border-radius:15px;
-  background:linear-gradient(105deg,#168dff,#08bdec);
-  color:#fff;
-  font-weight:800;
-  cursor:pointer;
-  box-shadow:0 16px 38px rgba(0,135,224,.35);
-}
-
 .dashboard-header{
   position:relative;
   overflow:hidden;
@@ -729,7 +711,7 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
 
 @media(max-width:980px){.profile-grid{grid-template-columns:1fr}.referral-overview{grid-template-columns:1fr}.level-head{grid-template-columns:auto 1fr auto}.level-metric{display:none}}
 @media(max-width:760px){.page{padding:16px 14px 104px}.dashboard-header{grid-template-columns:auto 1fr}.header-balance{grid-column:1/-1}.request-grid{grid-template-columns:1fr}.referral-footer-actions{grid-template-columns:1fr}.referral-link-row{grid-template-columns:1fr}.referral-link-row button{width:100%}.structure-hint{display:none}}
-@media(max-width:600px){.dashboard-header{display:block;text-align:center}.logo{margin:0 auto 11px}.header-main{display:block}.header-balance{margin-top:13px}.account-stat-grid,.account-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.data-row{grid-template-columns:1fr;gap:4px}.id-line{flex-direction:column;align-items:stretch}.inline-copy-button{width:100%}.floating-back-button{left:50%;bottom:14px;transform:translateX(-50%);max-width:calc(100vw - 28px)}}
+@media(max-width:600px){.dashboard-header{display:block;text-align:center}.logo{margin:0 auto 11px}.header-main{display:block}.header-balance{margin-top:13px}.account-stat-grid,.account-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.data-row{grid-template-columns:1fr;gap:4px}.id-line{flex-direction:column;align-items:stretch}.inline-copy-button{width:100%}}
 @media(max-width:390px){.account-stat-grid,.account-actions{grid-template-columns:1fr}}
 
 .membership-card{position:relative}
@@ -1006,10 +988,6 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
 </head>
 
 <body>
-
-<button class="floating-back-button" type="button" onclick="goBackoffice()">
-  ⬅ Zum Backoffice
-</button>
 
 <main class="page">
 
@@ -1398,7 +1376,6 @@ function goFreigeschaltet(){const dashboardToken=getConfirmedDashboardToken();if
 function goUnitExchange(){const dashboardToken=getConfirmedDashboardToken();if(dashboardToken){location.href="https://betinsightclub.github.io/profil/wechselboerse/?token="+encodeURIComponent(dashboardToken);return}const msg=document.getElementById("message");if(msg)msg.innerText="Die Unit-Wechselstube konnte noch nicht geöffnet werden, weil der persönliche Dashboard-Zugang fehlt."}
 function goMarketingCenter(){const token=getActiveToken();const base="https://betinsightclub.github.io/profil/marketing-center/";location.href=token?base+"?token="+encodeURIComponent(token):base}
 function goSupport(){const dashboardToken=getConfirmedDashboardToken();if(dashboardToken){location.href="https://betinsightclub.github.io/profil/support/?token="+encodeURIComponent(dashboardToken);return}const msg=document.getElementById("message");if(msg)msg.innerText="Der Support konnte noch nicht geöffnet werden, weil der persönliche Dashboard-Zugang fehlt."}
-function goBackoffice(){location.href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726"}
 
 function roundReferralUnits(value){return Math.round((safeNumber(value)+Number.EPSILON)*100)/100}
 function createReferralTransferRequestId(){if(window.crypto?.randomUUID)return"REF-KONTO-"+window.crypto.randomUUID();return"REF-KONTO-"+Date.now()+"-"+Math.random().toString(36).slice(2,10)}

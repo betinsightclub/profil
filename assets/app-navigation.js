@@ -43,7 +43,15 @@
       ]
     },
     { id: "wallet", label: "Wallet", icon: icons.wallet },
-    { id: "netzwerk", label: "Netzwerk & Provisionen", icon: icons.network },
+    {
+      id: "netzwerk-group",
+      label: "Netzwerk & Provisionen",
+      icon: icons.network,
+      children: [
+        { id: "netzwerk", label: "Unit-Provisionen" },
+        { id: "premium-provisionen", label: "Premium-Provisionen" }
+      ]
+    },
     { id: "premium", label: "Mitgliedschaft", icon: icons.membership },
     { id: "support", label: "Support", icon: icons.support }
   ];
@@ -52,7 +60,6 @@
   let overlay = null;
   let toggle = null;
   let closeButton = null;
-  let floatingBack = null;
 
   function isMobile() {
     return window.matchMedia(`(max-width:${MOBILE_BREAKPOINT}px)`).matches;
@@ -167,6 +174,7 @@
       case "verkaufen": navigateDashboardRoute("verkaufen"); break;
       case "wallet": navigateDashboardRoute("wallet", "id"); break;
       case "netzwerk": navigateLocalHash("netzwerk"); break;
+      case "premium-provisionen": window.location.assign("https://betinsight.network/premium/"); break;
       case "premium": navigateLocalHash("premium"); break;
       case "support": navigateDashboardRoute("support"); break;
       default: break;
@@ -189,6 +197,7 @@
   function groupForRoute(routeId) {
     if (["tipps", "freigeschaltet"].includes(routeId)) return "tipps-group";
     if (["wechselboerse", "verkaufen", "angebote"].includes(routeId)) return "wechselboerse-group";
+    if (["netzwerk", "premium-provisionen"].includes(routeId)) return "netzwerk-group";
     return "";
   }
 
@@ -238,7 +247,6 @@
     toggle.setAttribute("aria-expanded", "true");
     toggle.classList.add("bi-nav-mobile-toggle-hidden");
     document.documentElement.classList.add("bi-nav-lock-scroll");
-    if (floatingBack) floatingBack.classList.add("bi-nav-obscured-by-drawer");
     window.setTimeout(() => closeButton?.focus(), 0);
   }
 
@@ -250,7 +258,6 @@
     toggle.setAttribute("aria-expanded", "false");
     toggle.classList.remove("bi-nav-mobile-toggle-hidden");
     document.documentElement.classList.remove("bi-nav-lock-scroll");
-    if (floatingBack) floatingBack.classList.remove("bi-nav-obscured-by-drawer");
   }
 
   function createDirectLink(item) {
@@ -355,9 +362,6 @@
 
     const page = document.querySelector("main");
     if (page) page.classList.add("bi-nav-content-offset", "bi-nav-mobile-safe");
-
-    floatingBack = document.querySelector(".floating-back-button");
-    if (floatingBack) floatingBack.classList.add("bi-nav-floating-adjust");
 
     toggle.addEventListener("click", () => {
       if (sidebar.classList.contains("bi-nav-sidebar-open")) closeNavigation();
