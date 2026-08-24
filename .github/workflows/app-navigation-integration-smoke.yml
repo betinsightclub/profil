@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - integration/app-navigation-current-main
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -34,7 +37,6 @@ jobs:
           import http from 'node:http';
           import fs from 'node:fs';
           import path from 'node:path';
-          import { fileURLToPath } from 'node:url';
 
           const root = process.cwd();
           const out = path.join(root, 'smoke-artifacts');
@@ -75,7 +77,6 @@ jobs:
 
           await new Promise(resolve => server.listen(4173, '127.0.0.1', resolve));
           const base = 'http://127.0.0.1:4173';
-
           const browser = await chromium.launch({ headless: true });
 
           async function mockExternal(page) {
