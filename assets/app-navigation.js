@@ -338,7 +338,7 @@
 
     const footer = document.createElement("div");
     footer.className = "bi-nav-footer";
-    footer.textContent = "BetInsight App · Navigation Prototype";
+    footer.textContent = "BetInsight App";
 
     sidebar.append(brand, list, footer);
     document.body.append(overlay, sidebar, toggle);
