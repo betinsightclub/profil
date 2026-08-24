@@ -2,7 +2,7 @@
 <!--
 Projekt: BetInsight
 Datei auf GitHub: profil/admin/backoffice/index.html
-Version: 2026.08.24-BACKOFFICE-v2.16-LIVE-ACTIVITY-CLEAN
+Version: 2026.08.24-BACKOFFICE-v2.17-TIPP-LISTENPFLEGE
 Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro Tipp einer Liefer-LED plus einer Ergebnis-LED, Bonuspunkten für Übererfüllung, Tipp-ID-sicherer Wochenhistorie, getrenntem Testbetrieb, Ergebnisübersicht, Wallet-Zielauswahl und festen Netzwerken.
 -->
 <html lang="de">
@@ -2740,6 +2740,8 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
     const TIPSTER_API_URL = "https://hook.eu1.make.com/2mtxmxp37qjcyv4mf9o846cl7z4hmh8m"; // Session-gesicherter Tippgeber-Webhook.
     const RESULT_SESSION_API_READY = true; // Session-gesicherter Master-Ergebnis-Schreibweg aktiv.
     const RESULT_API_URL = "https://hook.eu1.make.com/k6qxta8xyae1mtnwbzu93g1798rylnwn"; // Session-gesicherter Master-Ergebnis-Webhook.
+    const TIP_MAINTENANCE_SESSION_API_READY = true; // Master-geschützte Archiv-/Testlöschfunktion aktiv.
+    const TIP_MAINTENANCE_API_URL = "https://hook.eu1.make.com/asljoa9gohywvf2r2t7pht8m2ny5xo91";
     const TEST_PAYMENT_SESSION_API_READY = false;
     const PRIVACY_KEY = "betinsight_admin_privacy_active";
     const ROUTE_PREF_KEY = "betinsight_admin_route_payout_preference";
@@ -3299,7 +3301,8 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
           ergebnis_id: p[0] || "", tipp_id: p[1] || "", admin_id: p[2] || "", admin_name: p[3] || "",
           spiel: p[4] || "", quote: p[5] || "", ergebnis_status: p[6] || "OFFEN", bestaetigungsstatus: p[7] || "OFFEN",
           screenshot_url: p[8] || "", nachweis_status: p[9] || "FEHLT", sichtbar_fuer_teilnehmer: p[10] || "NEIN",
-          quelle: p[11] || "", bestaetigt_am: p[12] || "", tipp_quelle: p[13] || ""
+          quelle: p[11] || "", bestaetigt_am: p[12] || "", tipp_quelle: p[13] || "",
+          listen_status: p[14] || "AKTIV", endgueltig_loeschbar: p[15] || "NEIN"
         };
       }).filter(Boolean);
     }
@@ -3688,31 +3691,35 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       const walletActions = ["save_wallet", "save_payout_settings"];
       const tipsterActions = ["save_tipster_settings"];
       const resultActions = ["confirm_tip_result"];
-      if (!walletActions.includes(action) && !tipsterActions.includes(action) && !resultActions.includes(action)) {
+      const tipMaintenanceActions = ["archive_tip", "delete_test_tip"];
+      if (!walletActions.includes(action) && !tipsterActions.includes(action) && !resultActions.includes(action) && !tipMaintenanceActions.includes(action)) {
         throw new Error("Diese Backoffice-Schreibaktion ist noch nicht freigegeben.");
       }
 
       const isTipsterAction = tipsterActions.includes(action);
       const isResultAction = resultActions.includes(action);
-      const endpoint = isResultAction ? RESULT_API_URL : (isTipsterAction ? TIPSTER_API_URL : WALLET_API_URL);
-      const endpointReady = isResultAction ? RESULT_SESSION_API_READY : (isTipsterAction ? TIPSTER_SESSION_API_READY : WALLET_SESSION_API_READY);
+      const isTipMaintenanceAction = tipMaintenanceActions.includes(action);
+      const endpoint = isTipMaintenanceAction ? TIP_MAINTENANCE_API_URL : (isResultAction ? RESULT_API_URL : (isTipsterAction ? TIPSTER_API_URL : WALLET_API_URL));
+      const endpointReady = isTipMaintenanceAction ? TIP_MAINTENANCE_SESSION_API_READY : (isResultAction ? RESULT_SESSION_API_READY : (isTipsterAction ? TIPSTER_SESSION_API_READY : WALLET_SESSION_API_READY));
 
       if (!endpointReady || !endpoint) {
-        throw new Error(isResultAction
-          ? "Der session-gesicherte Ergebnis-Webhook ist noch nicht verbunden."
-          : (isTipsterAction
-            ? "Der session-gesicherte Tippgeber-Webhook ist noch nicht verbunden."
-            : "Der session-gesicherte Wallet-Webhook ist noch nicht verbunden."));
+        throw new Error(isTipMaintenanceAction
+          ? "Der session-gesicherte Listenpflege-Webhook ist noch nicht verbunden."
+          : (isResultAction
+            ? "Der session-gesicherte Ergebnis-Webhook ist noch nicht verbunden."
+            : (isTipsterAction
+              ? "Der session-gesicherte Tippgeber-Webhook ist noch nicht verbunden."
+              : "Der session-gesicherte Wallet-Webhook ist noch nicht verbunden.")));
       }
 
-      if ((isTipsterAction || isResultAction) && current.admin?.role !== "owner") {
+      if ((isTipsterAction || isResultAction || isTipMaintenanceAction) && current.admin?.role !== "owner") {
         throw new Error("Diese Aktion darf nur vom Master geändert werden.");
       }
 
       const sessionHash = await sha256Hex(current.session.token);
       const requestId =
         (crypto.randomUUID ? crypto.randomUUID() :
-        (isTipsterAction ? "tipster-" : "wallet-") + Date.now() + "-" + Math.random().toString(16).slice(2));
+        (isTipMaintenanceAction ? "tip-maintenance-" : (isResultAction ? "result-" : (isTipsterAction ? "tipster-" : "wallet-"))) + Date.now() + "-" + Math.random().toString(16).slice(2));
 
       const body = isResultAction
         ? {
@@ -3720,6 +3727,13 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
             session_hash: sessionHash,
             tipp_id: String(payload.tipp_id || ""),
             ergebnis_status: canonicalTipResultStatus(payload.ergebnis_status || "OFFEN"),
+            request_id: requestId
+          }
+        : isTipMaintenanceAction
+        ? {
+            action: action,
+            session_hash: sessionHash,
+            tipp_id: String(payload.tipp_id || ""),
             request_id: requestId
           }
         : isTipsterAction
@@ -4583,7 +4597,9 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
     }
 
     function renderMasterResults(items) {
-      latestTipResults = (Array.isArray(items) ? items.slice() : []).sort(function (a, b) {
+      latestTipResults = (Array.isArray(items) ? items.slice() : []).filter(function (item) {
+        return normalizeText(firstDefined(item, ["listen_status", "list_status"], "AKTIV")).toUpperCase() !== "ARCHIVIERT";
+      }).sort(function (a, b) {
         const sourceA = normalizeText(firstDefined(a, ["tipp_quelle", "tip_source"], "")).toUpperCase();
         const sourceB = normalizeText(firstDefined(b, ["tipp_quelle", "tip_source"], "")).toUpperCase();
         const testA = sourceA.includes("TEST") ? 1 : 0;
@@ -4612,6 +4628,8 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
           : tipSource.includes("TEST") ? "Test · nicht öffentlich"
           : "BetInsight Bestand";
         const isTest = tipSource.includes("TEST");
+        const canDeletePermanently = isTest && normalizeText(firstDefined(item, ["endgueltig_loeschbar", "permanently_deletable"], "NEIN")).toUpperCase() === "JA";
+        const maintenanceAction = canDeletePermanently ? "delete_test_tip" : "archive_tip";
         const currentStatus = canonicalTipResultStatus(firstDefined(item, ["ergebnis_status", "result_status"], "OFFEN"));
         const selectedStatus = pendingResultSelections.get(tipId) || currentStatus;
         const statusButton = function (status, text, cls) {
@@ -4636,6 +4654,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
           <td>
             <div class="route-hint">Auswahl: <strong>${escapeHtml(resultStatusLabel(selectedStatus))}</strong></div>
             <button class="button button-primary button-small result-confirm-button" type="button" data-tip-id="${escapeHtml(tipId)}" ${tipId && RESULT_SESSION_API_READY ? "" : "disabled"}>Ergebnis bestätigen</button>
+            <button class="button button-small tip-maintenance-button ${canDeletePermanently ? "button-red" : "button-neutral"}" type="button" data-tip-id="${escapeHtml(tipId)}" data-action="${maintenanceAction}" ${tipId && TIP_MAINTENANCE_SESSION_API_READY ? "" : "disabled"}>${canDeletePermanently ? "🗑️ Testtipp löschen" : "📦 Archivieren"}</button>
             <div class="route-hint">${RESULT_SESSION_API_READY ? escapeHtml(label(review)) : "Make-Ergebnis-Schreibweg noch verbinden"}</div>
           </td>
         </tr>`;
@@ -4665,6 +4684,36 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
         await loadBackofficeData();
       } catch (error) {
         setActionMessage(masterResultsMessage, "Ergebnis konnte noch nicht bestätigt werden: " + (error.message || "Unbekannter Fehler"), "error");
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    async function maintainTip(button) {
+      const tipId = String(button.dataset.tipId || "");
+      const action = String(button.dataset.action || "");
+      if (!tipId || !["archive_tip", "delete_test_tip"].includes(action)) return;
+
+      const item = latestTipResults.find(function (entry) {
+        return normalizeText(firstDefined(entry, ["tipp_id", "tip_id"])) === tipId;
+      });
+      const matchLabel = normalizeText(firstDefined(item || {}, ["spiel", "event"], "Unbekanntes Spiel"));
+      const isPermanentDelete = action === "delete_test_tip";
+      const question = isPermanentDelete
+        ? 'Testtipp "' + matchLabel + '" (' + tipId + ') endgültig löschen? Tipp- und Ergebniszeile werden entfernt; der Audit-Eintrag bleibt erhalten.'
+        : 'Tipp "' + matchLabel + '" (' + tipId + ') archivieren? Er verschwindet aus der aktiven und öffentlichen Liste, bleibt intern aber nachvollziehbar.';
+
+      if (!window.confirm(question)) return;
+
+      button.disabled = true;
+      setActionMessage(masterResultsMessage, "", "error");
+      try {
+        const result = await postBackofficeAction(action, { tipp_id: tipId });
+        pendingResultSelections.delete(tipId);
+        setActionMessage(masterResultsMessage, result.message || (isPermanentDelete ? "Testtipp wurde gelöscht." : "Tipp wurde archiviert."), "success");
+        await loadBackofficeData();
+      } catch (error) {
+        setActionMessage(masterResultsMessage, "Listenpflege konnte nicht abgeschlossen werden: " + (error.message || "Unbekannter Fehler"), "error");
       } finally {
         button.disabled = false;
       }
@@ -5323,7 +5372,9 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       const statusButton = event.target.closest(".result-status-button");
       if (statusButton) { chooseTipResultStatus(statusButton); return; }
       const confirmButton = event.target.closest(".result-confirm-button");
-      if (confirmButton) confirmTipResult(confirmButton);
+      if (confirmButton) { confirmTipResult(confirmButton); return; }
+      const maintenanceButton = event.target.closest(".tip-maintenance-button");
+      if (maintenanceButton) maintainTip(maintenanceButton);
     });
 
     createTipsterButton.addEventListener("click", createTipster);
