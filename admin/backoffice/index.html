@@ -2,7 +2,7 @@
 <!--
 Projekt: BetInsight
 Datei auf GitHub: profil/admin/backoffice/index.html
-Version: 2026.08.24-BACKOFFICE-v2.18-ALLE-TIPPS-NEUESTE-ZUERST
+Version: 2026.08.24-BACKOFFICE-v2.19-BTC-MINIMUM-ROUTE-FIX
 Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro Tipp einer Liefer-LED plus einer Ergebnis-LED, Bonuspunkten für Übererfüllung, Tipp-ID-sicherer Wochenhistorie, getrenntem Testbetrieb, Ergebnisübersicht, Wallet-Zielauswahl und festen Netzwerken.
 -->
 <html lang="de">
@@ -5436,7 +5436,10 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
     reloadButton.addEventListener("click", loadBackofficeData);
     logoutButton.addEventListener("click", logout);
     saveWalletButton.addEventListener("click", saveWalletSecurely);
-    settingsCurrency.addEventListener("change", updateNetworkOptions);
+    settingsCurrency.addEventListener("change", function () {
+      updateNetworkOptions();
+      updateSettingsMinimumUi();
+    });
     settingsNetwork.addEventListener("change", updateSettingsMinimumUi);
     settingsMinimumSelect.addEventListener("change", function () {
       settingsMinimumCustomWrap.classList.toggle(
