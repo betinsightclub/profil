@@ -1,9 +1,6 @@
 name: Fix Backoffice BTC minimum UI
 
 on:
-  push:
-    paths:
-      - '.github/workflows/fix-backoffice-btc-minimum.yml'
   workflow_dispatch:
 
 permissions:
@@ -18,20 +15,27 @@ jobs:
         shell: python
         run: |
           from pathlib import Path
-          p = Path('admin/backoffice/index.html')
-          s = p.read_text(encoding='utf-8')
+
+          p = Path("admin/backoffice/index.html")
+          s = p.read_text(encoding="utf-8")
           old = '    settingsCurrency.addEventListener("change", updateNetworkOptions);'
-          new = '''    settingsCurrency.addEventListener("change", function () {
-      updateNetworkOptions();
-      updateSettingsMinimumUi();
-    });'''
+          new = "\n".join([
+              '    settingsCurrency.addEventListener("change", function () {',
+              '      updateNetworkOptions();',
+              '      updateSettingsMinimumUi();',
+              '    });',
+          ])
           if old not in s:
-              raise SystemExit('Target listener not found; refusing to patch')
+              raise SystemExit("Target listener not found; refusing to patch")
           s = s.replace(old, new, 1)
-          s = s.replace('Version: 2026.08.24-BACKOFFICE-v2.18-ALLE-TIPPS-NEUESTE-ZUERST',
-                        'Version: 2026.08.24-BACKOFFICE-v2.19-BTC-MINIMUM-ROUTE-FIX', 1)
-          p.write_text(s, encoding='utf-8')
+          s = s.replace(
+              "Version: 2026.08.24-BACKOFFICE-v2.18-ALLE-TIPPS-NEUESTE-ZUERST",
+              "Version: 2026.08.24-BACKOFFICE-v2.19-BTC-MINIMUM-ROUTE-FIX",
+              1,
+          )
+          p.write_text(s, encoding="utf-8")
       - name: Commit fix
+        shell: bash
         run: |
           git config user.name "BetInsight Bot"
           git config user.email "actions@users.noreply.github.com"
@@ -42,5 +46,3 @@ jobs:
           fi
           git commit -m "Fix route-specific payout minimum refresh"
           git push
-
-# trigger-refresh-2026-08-24
