@@ -2,7 +2,7 @@
 <!--
 Projekt: BetInsight
 Datei auf GitHub: profil/admin/backoffice/index.html
-Version: 2026.08.24-BACKOFFICE-v2.17-TIPP-LISTENPFLEGE
+Version: 2026.08.24-BACKOFFICE-v2.18-ALLE-TIPPS-NEUESTE-ZUERST
 Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro Tipp einer Liefer-LED plus einer Ergebnis-LED, Bonuspunkten für Übererfüllung, Tipp-ID-sicherer Wochenhistorie, getrenntem Testbetrieb, Ergebnisübersicht, Wallet-Zielauswahl und festen Netzwerken.
 -->
 <html lang="de">
@@ -4601,14 +4601,9 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       latestTipResults = (Array.isArray(items) ? items.slice() : []).filter(function (item) {
         return normalizeText(firstDefined(item, ["listen_status", "list_status"], "AKTIV")).toUpperCase() !== "ARCHIVIERT";
       }).sort(function (a, b) {
-        const sourceA = normalizeText(firstDefined(a, ["tipp_quelle", "tip_source"], "")).toUpperCase();
-        const sourceB = normalizeText(firstDefined(b, ["tipp_quelle", "tip_source"], "")).toUpperCase();
-        const testA = sourceA.includes("TEST") ? 1 : 0;
-        const testB = sourceB.includes("TEST") ? 1 : 0;
-        if (testA !== testB) return testA - testB;
-        const openA = canonicalTipResultStatus(firstDefined(a, ["ergebnis_status", "result_status"], "OFFEN")) === "OFFEN" ? 0 : 1;
-        const openB = canonicalTipResultStatus(firstDefined(b, ["ergebnis_status", "result_status"], "OFFEN")) === "OFFEN" ? 0 : 1;
-        return openA - openB;
+        const tipIdA = normalizeText(firstDefined(a, ["tipp_id", "tip_id"], ""));
+        const tipIdB = normalizeText(firstDefined(b, ["tipp_id", "tip_id"], ""));
+        return tipIdB.localeCompare(tipIdA, "de", { numeric: true, sensitivity: "base" });
       });
       if (!latestTipResults.length) {
         masterResultsTableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state">Noch keine Ergebnisdaten über Make geliefert.</div></td></tr>';
