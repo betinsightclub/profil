@@ -5,9 +5,13 @@ Live-Seite: https://betinsightclub.github.io/profil/
 
 Projekt: BetInsight
 Datei: profil/index.html
-Version: 2026.08.24-02
+Version: 2026.08.24-03
 
 Änderungen:
+- REFERRAL-DOMAINUMSTELLUNG 2026.08.24-03:
+  - Direkter Registrierungslink verwendet jetzt https://betinsight.club/ref/?ref=... statt github.io/profil/ref/.
+  - Persönlicher Landingpage-Link verwendet jetzt https://betinsight.club/?ref=... statt github.io/profil/betinsightcommunity/.
+  - Der öffentliche Referral-Code bleibt erhalten; Profil-UUID und Dashboard-Token werden nicht übertragen.
 - PREMIUMKARTE UND TELEGRAM-SICHTBARKEIT 2026.08.24-02:
   - Die Premiumkarte ist im schmalen Kontobereich vollständig einspaltig aufgebaut; Laufzeit und Aktionen werden nicht mehr abgeschnitten.
   - Der Telegram-Button wird erst nach bestätigtem Premium- oder Premium-Plus-Status eingeblendet; Basis sieht ihn nicht.
@@ -1362,8 +1366,8 @@ function setUnitColor(units){const color=units===0?"red":units<10?"orange":"lime
 function renderHeaderReferralAvailable(value){const el=document.getElementById("accountReferralUnits");if(el)el.innerText=formatUnitsTwoDecimals(value)}
 function setDebug(text){document.getElementById("debug").innerText=text}
 function getReferralCode(data={}){return String(data.ref_code||currentProfileData.refCode||"").trim()}
-function buildRegistrationReferralLink(data={}){if(data.ref_link&&String(data.ref_link).trim())return String(data.ref_link).trim();if(currentProfileData.refLink)return currentProfileData.refLink;const ref=getReferralCode(data);return ref?"https://betinsightclub.github.io/profil/ref/?ref="+encodeURIComponent(ref):""}
-function buildLandingpageReferralLink(data={}){const ref=getReferralCode(data);return ref?"https://betinsightclub.github.io/profil/betinsightcommunity/?ref="+encodeURIComponent(ref):""}
+function buildRegistrationReferralLink(data={}){const ref=getReferralCode(data);return ref?"https://betinsight.club/ref/?ref="+encodeURIComponent(ref):""}
+function buildLandingpageReferralLink(data={}){const ref=getReferralCode(data);return ref?"https://betinsight.club/?ref="+encodeURIComponent(ref):""}
 function setReferralLinks(data={}){document.getElementById("registrationReferralLink").innerText=buildRegistrationReferralLink(data)||"Kein direkter Registrierungslink gefunden.";document.getElementById("landingpageReferralLink").innerText=buildLandingpageReferralLink(data)||"Kein persönlicher Landingpage-Link gefunden."}
 async function copyReferralLinkById(linkId,buttonId,success){const value=document.getElementById(linkId).innerText.trim();if(!value||value.includes("gefunden")||value.includes("geladen")){document.getElementById("referralStatus").innerText="Der gewünschte Empfehlungslink ist noch nicht verfügbar.";return}await copyText(value);const b=document.getElementById(buttonId),old=b.innerText;b.innerText="✅ Link kopiert";document.getElementById("referralStatus").innerText=success;setTimeout(()=>b.innerText=old,1800)}
 function copyRegistrationReferralLink(){return copyReferralLinkById("registrationReferralLink","copyRegistrationReferralButton","Direkter Registrierungslink wurde kopiert.")}
