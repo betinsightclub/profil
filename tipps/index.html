@@ -9,7 +9,7 @@ Diese Datei ersetzt die dort vorhandene index.html vollständig.
 
 <!--
 BetInsight Tipps
-Version: 2026.08.24-09
+Version: 2026.08.24-10
 
 - Offene veröffentlichte Tipps oben.
 - Vom Master bestätigte Ergebnisse automatisch unten.
@@ -18,6 +18,7 @@ Version: 2026.08.24-09
 - Beendete Tipps können nicht mehr freigeschaltet werden.
 - Moderne BetInsight-Karten mit konsistenten Halbkreis-Zierelementen.
 - Kunden können beendete Tipps nach Datum oder Ergebnis sortieren.
+- Geprüfte Nachweise erscheinen nur bei vorhandener, freigegebener Belegdatei.
 -->
 <html lang="de">
 <head>
@@ -371,6 +372,35 @@ h1 { margin:4px 0 10px; font-size:36px; }
   color:var(--muted);
   font-size:13px;
   line-height:1.5;
+}
+
+.proof-link {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  width:100%;
+  min-height:44px;
+  margin:0 auto 4px;
+  padding:11px 18px;
+  color:#fff;
+  background:linear-gradient(90deg,rgba(22,168,255,.95),rgba(0,200,255,.88));
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:14px;
+  text-decoration:none;
+  font-weight:800;
+  box-shadow:0 12px 28px rgba(0,174,255,.22);
+  transition:transform .16s ease, filter .16s ease;
+}
+
+.proof-link:hover {
+  transform:translateY(-1px);
+  filter:brightness(1.08);
+}
+
+.proof-link:focus-visible {
+  outline:3px solid rgba(79,224,164,.55);
+  outline-offset:3px;
 }
 
 .empty,
@@ -844,6 +874,23 @@ function createOpenTipCard(tipp) {
   return card;
 }
 
+function proofImageUrl(item) {
+  const fileId = safeText(item.screenshot_file_id, "").trim();
+  const proofStatus = safeText(item.nachweis_status, "").trim().toUpperCase();
+  const visibleForParticipants =
+    safeText(item.sichtbar_fuer_teilnehmer, "").trim().toUpperCase();
+
+  if (
+    proofStatus !== "GEPRUEFT" ||
+    visibleForParticipants !== "JA" ||
+    !/^[A-Za-z0-9_-]{10,}$/.test(fileId)
+  ) {
+    return "";
+  }
+
+  return "./nachweise/" + encodeURIComponent(fileId) + ".jpg";
+}
+
 function createResultCard(item) {
   const card = document.createElement("article");
   card.className = "result-card";
@@ -854,6 +901,16 @@ function createResultCard(item) {
   const quote = safeText(item.quote);
   const markt = safeText(item.markt);
   const datum = safeText(item.spiel_datum);
+  const proofUrl = proofImageUrl(item);
+  const proofButton = proofUrl
+    ? `<a class="proof-link"
+          href="${escapeHtml(proofUrl)}"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Nachweis für ${escapeHtml(spiel)} in neuem Tab ansehen">
+         📎 Nachweis ansehen
+       </a>`
+    : "";
 
   card.innerHTML = `
     <div class="result-badge ${ui.cls}">${ui.icon} ${escapeHtml(ui.label)}</div>
@@ -875,6 +932,8 @@ function createResultCard(item) {
     <p class="result-note">
       Ergebnis von BetInsight bestätigt.
     </p>
+
+    ${proofButton}
   `;
 
   return card;
