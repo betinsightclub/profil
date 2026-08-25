@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<!--
+BetInsight Konto & Zugang
+Pfad: /konto/index.html
+Stand: 25.08.2026
+Zweck:
+- zentrale Seite zwischen Systeme.io-Kontoeinstellungen und BetInsight-Dashboard
+- kein persönlicher Token wird von Systeme.io erwartet oder übertragen
+- vorhandener BetInsight-Zugang wird auf app.betinsight.club lokal wiederverwendet
+-->
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#031720">
+  <meta name="robots" content="noindex,nofollow">
+  <title>BetInsight – Konto & Zugang</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <style>
+    *{box-sizing:border-box}
+    :root{
+      --bg:#031720;
+      --bg2:#020f16;
+      --panel:#072432;
+      --panel2:#0a2b3b;
+      --line:rgba(126,211,255,.18);
+      --text:#f5fbff;
+      --muted:#aac0cc;
+      --blue:#1687ff;
+      --blue2:#0a69d8;
+      --green:#00d99b;
+      --green2:#00ad7d;
+      --gold:#f5c84b;
+      --danger:#ff777c;
+    }
+    html,body{min-height:100%}
+    body{
+      margin:0;
+      color:var(--text);
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:
+        radial-gradient(circle at 14% 0%,rgba(0,217,155,.10),transparent 30rem),
+        radial-gradient(circle at 88% 8%,rgba(22,135,255,.14),transparent 34rem),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+    }
+    a,button{font:inherit}
+    .page{width:min(calc(100% - 34px),980px);margin:0 auto;padding:42px 0 56px}
+    .hero{
+      text-align:center;
+      padding:26px 18px 32px;
+    }
+    .logo{width:min(270px,72vw);height:auto;margin:0 auto 26px;display:block}
+    .eyebrow{
+      display:inline-flex;align-items:center;gap:8px;
+      margin-bottom:14px;padding:7px 12px;border-radius:999px;
+      border:1px solid rgba(0,217,155,.30);background:rgba(0,217,155,.08);
+      color:#b9f9e4;font-size:12px;font-weight:900;letter-spacing:.11em;text-transform:uppercase;
+    }
+    h1{margin:0 0 12px;font-size:clamp(34px,5vw,52px);line-height:1.08;letter-spacing:-.035em}
+    .lead{max-width:720px;margin:0 auto;color:#c7d9e2;font-size:17px;line-height:1.7}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px}
+    .card{
+      min-width:0;padding:26px;border:1px solid var(--line);border-radius:22px;
+      background:linear-gradient(180deg,rgba(10,43,59,.96),rgba(6,31,43,.96));
+      box-shadow:0 22px 55px rgba(0,0,0,.20);
+      display:flex;flex-direction:column;
+    }
+    .icon{
+      width:52px;height:52px;display:grid;place-items:center;margin-bottom:18px;
+      border-radius:16px;font-size:25px;background:rgba(255,255,255,.055);border:1px solid var(--line)
+    }
+    .card h2{margin:0 0 9px;font-size:22px;letter-spacing:-.02em}
+    .card p{margin:0 0 22px;color:var(--muted);line-height:1.65;flex:1}
+    .btn{
+      width:100%;min-height:54px;display:inline-flex;align-items:center;justify-content:center;gap:9px;
+      padding:14px 18px;border:0;border-radius:14px;text-decoration:none;color:#fff;font-weight:850;
+      cursor:pointer;transition:transform .18s ease,box-shadow .18s ease;
+    }
+    .btn:hover{transform:translateY(-2px)}
+    .btn-blue{background:linear-gradient(135deg,var(--blue),var(--blue2));box-shadow:0 14px 30px rgba(22,135,255,.25)}
+    .btn-green{color:#00251a;background:linear-gradient(135deg,#25efb4,var(--green2));box-shadow:0 14px 30px rgba(0,217,155,.20)}
+    .access{
+      margin-top:18px;padding:22px 24px;border:1px solid rgba(245,200,75,.23);border-radius:20px;
+      background:rgba(245,200,75,.055);
+    }
+    .access-top{display:flex;align-items:flex-start;gap:13px}
+    .access-icon{font-size:24px;line-height:1.2}
+    .access h2{margin:0 0 7px;font-size:19px}
+    .access p{margin:0;color:#c5d4db;line-height:1.65}
+    .status{
+      margin-top:14px;padding:11px 13px;border-radius:12px;border:1px solid var(--line);
+      background:rgba(255,255,255,.035);color:#d7e8ef;font-size:14px;font-weight:750
+    }
+    .status.ok{border-color:rgba(0,217,155,.32);color:#b9f9e4;background:rgba(0,217,155,.07)}
+    .status.missing{border-color:rgba(245,200,75,.26);color:#f8dda0;background:rgba(245,200,75,.06)}
+    .registration{
+      margin-top:18px;padding:24px;border:1px solid var(--line);border-radius:20px;text-align:center;
+      background:rgba(255,255,255,.025)
+    }
+    .registration h2{margin:0 0 8px;font-size:21px}
+    .registration p{margin:0 auto 18px;max-width:650px;color:var(--muted);line-height:1.6}
+    .registration .btn{max-width:420px;margin:0 auto}
+    .fineprint{margin-top:22px;text-align:center;color:#718e9c;font-size:12px;line-height:1.6}
+    @media(max-width:720px){
+      .page{width:min(calc(100% - 24px),980px);padding-top:26px}
+      .hero{padding-inline:8px}
+      .grid{grid-template-columns:1fr}
+      .card,.access,.registration{padding:21px}
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <img class="logo" src="/logo_betisight.club.png" alt="BetInsight Club">
+      <div class="eyebrow">Konto & Zugang</div>
+      <h1>Deine BetInsight Kontozentrale</h1>
+      <p class="lead">Hier verwaltest du deine registrierte E-Mail-Adresse und dein Passwort bei Systeme.io oder öffnest deinen persönlichen BetInsight-Dashboard-Zugang.</p>
+    </section>
+
+    <section class="grid" aria-label="Kontoaktionen">
+      <article class="card">
+        <div class="icon" aria-hidden="true">⚙️</div>
+        <h2>E-Mail, Passwort & Einstellungen</h2>
+        <p>Hier siehst du die bei Systeme.io hinterlegte E-Mail-Adresse und kannst deine Kontoeinstellungen beziehungsweise dein Passwort verwalten.</p>
+        <a class="btn btn-blue" href="https://betinsight.systeme.io/profile/user-settings" target="_blank" rel="noopener noreferrer">Kontoeinstellungen öffnen</a>
+      </article>
+
+      <article class="card">
+        <div class="icon" aria-hidden="true">🏠</div>
+        <h2>BetInsight Dashboard</h2>
+        <p>Wenn dein persönlicher Zugang auf diesem Gerät bereits gespeichert ist, öffnet sich dein Dashboard direkt. Andernfalls kannst du dort deinen Profil-Link per E-Mail anfordern.</p>
+        <button class="btn btn-green" type="button" id="dashboardButton">Dashboard öffnen</button>
+      </article>
+    </section>
+
+    <section class="access" aria-labelledby="accessTitle">
+      <div class="access-top">
+        <div class="access-icon" aria-hidden="true">🔐</div>
+        <div>
+          <h2 id="accessTitle">Wichtig zu deinem persönlichen Zugang</h2>
+          <p>Systeme.io übergibt deinen BetInsight-Token nicht an diese Seite. Öffne deinen persönlichen Profil-Link aus der E-Mail einmal auf diesem Gerät. BetInsight kann den Zugang danach lokal auf diesem Gerät wiederverwenden. Bewahre den erhaltenen Link trotzdem sicher auf.</p>
+        </div>
+      </div>
+      <div id="accessStatus" class="status">Zugangsstatus wird geprüft …</div>
+    </section>
+
+    <section class="registration">
+      <h2>Noch kein BetInsight-Konto?</h2>
+      <p>Starte über die öffentliche BetInsight-Seite. Ein vorhandener Empfehlungs-Code wird dabei automatisch weitergegeben.</p>
+      <a id="registrationButton" class="btn btn-blue" href="https://betinsight.club/">Jetzt kostenlos registrieren</a>
+    </section>
+
+    <div class="fineprint">© 2026 BetInsight · Dein persönlicher Dashboard-Zugang wird nicht öffentlich angezeigt.</div>
+  </main>
+
+  <script>
+    (() => {
+      const PROFILE_KEY = "betinsight_profile_token";
+      const DASHBOARD_KEY = "betinsight_dashboard_token";
+      const status = document.getElementById("accessStatus");
+      const dashboardButton = document.getElementById("dashboardButton");
+      const registrationButton = document.getElementById("registrationButton");
+
+      function getSaved(key){
+        try{return String(localStorage.getItem(key) || "").trim()}catch(e){return ""}
+      }
+
+      function savedAccess(){
+        return getSaved(DASHBOARD_KEY) || getSaved(PROFILE_KEY);
+      }
+
+      const access = savedAccess();
+      if(access){
+        status.className = "status ok";
+        status.textContent = "✅ Persönlicher BetInsight-Zugang ist auf diesem Gerät gespeichert.";
+      }else{
+        status.className = "status missing";
+        status.textContent = "ℹ️ Auf diesem Gerät ist noch kein persönlicher BetInsight-Zugang gespeichert. Im Dashboard kannst du deinen Profil-Link per E-Mail anfordern.";
+      }
+
+      dashboardButton.addEventListener("click", () => {
+        const token = savedAccess();
+        const target = new URL("https://app.betinsight.club/");
+        if(token) target.searchParams.set("token", token);
+        window.location.href = target.toString();
+      });
+
+      const params = new URLSearchParams(window.location.search);
+      const ref = String(params.get("ref") || params.get("ref_code") || "").trim();
+      if(ref && /^[A-Za-z0-9_-]{2,50}$/.test(ref)){
+        registrationButton.href = "https://betinsight.club/?ref=" + encodeURIComponent(ref);
+      }
+    })();
+  </script>
+</body>
+</html>
