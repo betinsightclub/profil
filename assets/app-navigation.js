@@ -1,5 +1,6 @@
-/* BetInsight App Navigation · 2026-08-25
-   Reuses existing BetInsight token helpers/storage. It does not authenticate users. */
+/* BetInsight App Navigation · 2026-08-25-02
+   Reuses existing BetInsight token helpers/storage. It does not authenticate users.
+   Login return targets are strictly whitelisted and never accept arbitrary external URLs. */
 (() => {
   "use strict";
 
@@ -7,6 +8,13 @@
   const GITHUB_HOST = "betinsightclub.github.io";
   const PROFILE_STORAGE_KEY = "betinsight_profile_token";
   const DASHBOARD_STORAGE_KEY = "betinsight_dashboard_token";
+  const LOGIN_NEXT_KEY = "betinsight_login_next";
+  const NETWORK_PREMIUM_URL = "https://betinsight.network/premium/";
+  const ALLOWED_NEXT = new Set([
+    "dashboard", "daily", "tipps", "freigeschaltet", "kaufen", "wechselboerse",
+    "angebote", "verkaufen", "wallet", "netzwerk", "premium-provisionen",
+    "marketing-center", "premium", "support"
+  ]);
 
   const icons = {
     dashboard: '<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M9.5 20v-5.5h5V20"/></svg>',
@@ -73,6 +81,39 @@
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || "").trim());
   }
 
+  function normalizeNext(value) {
+    const clean = String(value || "").trim().toLowerCase();
+    return ALLOWED_NEXT.has(clean) ? clean : "";
+  }
+
+  function setPendingNext(value) {
+    const clean = normalizeNext(value);
+    if (!clean) return "";
+    try { localStorage.setItem(LOGIN_NEXT_KEY, clean); } catch (e) {}
+    return clean;
+  }
+
+  function getPendingNext() {
+    const params = new URLSearchParams(window.location.search);
+    const fromUrl = normalizeNext(params.get("next"));
+    if (fromUrl) return setPendingNext(fromUrl);
+    try { return normalizeNext(localStorage.getItem(LOGIN_NEXT_KEY)); } catch (e) { return ""; }
+  }
+
+  function clearPendingNext() {
+    try { localStorage.removeItem(LOGIN_NEXT_KEY); } catch (e) {}
+  }
+
+  function stripNextParam() {
+    try {
+      const url = new URL(window.location.href);
+      if (!url.searchParams.has("next")) return;
+      url.searchParams.delete("next");
+      const search = url.searchParams.toString();
+      history.replaceState(null, "", url.pathname + (search ? `?${search}` : "") + url.hash);
+    } catch (e) {}
+  }
+
   function basePath() {
     return window.location.hostname.toLowerCase() === GITHUB_HOST ? "/profil/" : "/";
   }
@@ -134,6 +175,7 @@
 
     localStorage.removeItem(PROFILE_STORAGE_KEY);
     localStorage.removeItem(DASHBOARD_STORAGE_KEY);
+    localStorage.removeItem(LOGIN_NEXT_KEY);
     localStorage.removeItem("betinsight_email");
 
     if (isMobile()) closeNavigation();
@@ -185,6 +227,24 @@
     window.location.assign(`${appPath("daily")}?token=${encodeURIComponent(token)}`);
   }
 
+  function navigatePremiumNetworkRoute() {
+    const dashboardUuid = currentDashboardUuid();
+    if (dashboardUuid) {
+      clearPendingNext();
+      window.location.assign(`${NETWORK_PREMIUM_URL}?token=${encodeURIComponent(dashboardUuid)}`);
+      return;
+    }
+
+    const profileToken = currentProfileToken();
+    setPendingNext("premium-provisionen");
+    if (profileToken) {
+      window.location.assign(`${appPath()}?token=${encodeURIComponent(profileToken)}&next=premium-provisionen`);
+      return;
+    }
+
+    window.location.assign(`${appPath("konto")}?next=premium-provisionen`);
+  }
+
   function navigateLocalHash(hash) {
     if (window.location.pathname !== appPath()) {
       const token = currentDashboardUuid() || currentProfileToken();
@@ -223,7 +283,7 @@
       case "wallet": navigateDashboardRoute("wallet", "id"); break;
       case "anbieter": window.location.assign(appPath("anbieter")); break;
       case "netzwerk": navigateLocalHash("netzwerk"); break;
-      case "premium-provisionen": window.location.assign("https://betinsight.network/premium/"); break;
+      case "premium-provisionen": navigatePremiumNetworkRoute(); break;
       case "marketing-center": {
         const token = currentDashboardUuid() || currentProfileToken();
         window.location.assign(`${appPath("marketing-center")}${token ? `?token=${encodeURIComponent(token)}` : ""}`);
@@ -233,6 +293,32 @@
       case "support": navigateDashboardRoute("support"); break;
       default: break;
     }
+  }
+
+  function handlePendingNext(attempt = 0) {
+    const pending = getPendingNext();
+    if (!pending) return;
+
+    if (pending === "premium-provisionen") {
+      const dashboardUuid = currentDashboardUuid();
+      if (dashboardUuid) {
+        clearPendingNext();
+        stripNextParam();
+        window.location.assign(`${NETWORK_PREMIUM_URL}?token=${encodeURIComponent(dashboardUuid)}`);
+        return;
+      }
+
+      if (attempt < 24 && window.location.pathname === appPath()) {
+        window.setTimeout(() => handlePendingNext(attempt + 1), 250);
+        return;
+      }
+
+      return;
+    }
+
+    clearPendingNext();
+    stripNextParam();
+    window.setTimeout(() => route(pending), 40);
   }
 
   function activeId() {
@@ -462,6 +548,7 @@
     window.addEventListener("popstate", updateActiveState);
 
     updateActiveState();
+    window.setTimeout(() => handlePendingNext(0), 80);
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", buildNavigation, { once: true });
