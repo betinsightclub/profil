@@ -125,6 +125,18 @@
     return isUuid(stored) ? stored : "";
   }
 
+  function logoutUser() {
+    const confirmed = window.confirm("Auf diesem Gerät ausloggen? Der gespeicherte Profilzugang wird entfernt.");
+    if (!confirmed) return;
+
+    localStorage.removeItem(PROFILE_STORAGE_KEY);
+    localStorage.removeItem(DASHBOARD_STORAGE_KEY);
+    localStorage.removeItem("betinsight_email");
+
+    if (isMobile()) closeNavigation();
+    window.location.replace(appPath());
+  }
+
   function showMessage(text) {
     const message = document.getElementById("message");
     if (message) {
@@ -383,6 +395,16 @@
     const footer = document.createElement("div");
     footer.className = "bi-nav-footer";
 
+    const logoutButton = document.createElement("button");
+    logoutButton.type = "button";
+    logoutButton.className = "bi-nav-settings-link";
+    logoutButton.style.width = "100%";
+    logoutButton.style.cursor = "pointer";
+    logoutButton.style.fontFamily = "inherit";
+    logoutButton.style.textAlign = "left";
+    logoutButton.innerHTML = '<span class="bi-nav-settings-icon" aria-hidden="true">↪</span><span>Ausloggen</span>';
+    logoutButton.addEventListener("click", logoutUser);
+
     const settingsLink = document.createElement("a");
     settingsLink.className = "bi-nav-settings-link";
     settingsLink.href = "https://betinsight.systeme.io/profile/user-settings";
@@ -394,7 +416,7 @@
     footerCaption.className = "bi-nav-footer-caption";
     footerCaption.textContent = "BetInsight App";
 
-    footer.append(settingsLink, footerCaption);
+    footer.append(logoutButton, settingsLink, footerCaption);
     sidebar.append(brand, list, footer);
     document.body.append(overlay, sidebar, toggle);
 
