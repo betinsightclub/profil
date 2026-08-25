@@ -10,6 +10,7 @@
 
   const icons = {
     dashboard: '<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M9.5 20v-5.5h5V20"/></svg>',
+    daily: '<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16v11H4z"/><path d="M12 9v11M4 13h16"/><path d="M7.5 9C5.5 9 5 7.9 5 7c0-1.1.9-2 2-2 2.2 0 5 4 5 4M16.5 9C18.5 9 19 7.9 19 7c0-1.1-.9-2-2-2-2.2 0-5 4-5 4"/></svg>',
     tipps: '<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18 9 13l3 3 7-9"/><path d="M14 7h5v5"/></svg>',
     buy: '<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M9 10.2c0-1.1 1.1-2 3-2s3 .9 3 2-1 1.8-3 1.8-3 .8-3 1.8 1.1 2 3 2 3-.9 3-2"/><path d="M12 6.5v11"/></svg>',
     exchange: '<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h13"/><path d="m14 5 3 3-3 3"/><path d="M20 16H7"/><path d="m10 13-3 3 3 3"/></svg>',
@@ -21,6 +22,7 @@
 
   const navigation = [
     { id: "dashboard", label: "Dashboard", icon: icons.dashboard },
+    { id: "daily", label: "Daily Bonus", icon: icons.daily },
     {
       id: "tipps-group",
       label: "Tipps",
@@ -173,6 +175,15 @@
     window.location.assign(`${appPath("pakete")}?token=${encodeURIComponent(sessionToken)}`);
   }
 
+  function navigateDailyRoute() {
+    const token = currentDashboardUuid() || currentProfileToken();
+    if (!token) {
+      showMessage("Der persönliche Zugang für Daily Bonus ist noch nicht verfügbar.");
+      return;
+    }
+    window.location.assign(`${appPath("daily")}?token=${encodeURIComponent(token)}`);
+  }
+
   function navigateLocalHash(hash) {
     if (window.location.pathname !== appPath()) {
       const token = currentDashboardUuid() || currentProfileToken();
@@ -201,6 +212,7 @@
         }
         break;
       }
+      case "daily": navigateDailyRoute(); break;
       case "tipps": navigateProfileRoute("tipps"); break;
       case "freigeschaltet": navigateDashboardRoute("freigeschaltet"); break;
       case "kaufen": navigatePackageRoute(); break;
@@ -228,7 +240,7 @@
     const base = basePath();
     const relative = path.startsWith(base) ? path.slice(base.length) : path.replace(/^\/+/, "");
     const first = relative.split("/").filter(Boolean)[0] || "dashboard";
-    const known = ["tipps", "freigeschaltet", "kaufen", "wechselboerse", "verkaufen", "wallet", "marketing-center", "support"];
+    const known = ["daily", "tipps", "freigeschaltet", "kaufen", "wechselboerse", "verkaufen", "wallet", "marketing-center", "support"];
     if (first === "pakete") return "kaufen";
     return known.includes(first) ? first : "dashboard";
   }
