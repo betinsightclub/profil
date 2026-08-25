@@ -40,11 +40,11 @@
 <main class="page">
   <header class="topbar">
     <div class="brand"><img src="../logo_betisight.club.png" alt="BetInsight"><div><h1>BetInsight Daily</h1><p>Deine tägliche Glücksnummer · Treue wird belohnt</p></div></div>
-    <div class="mode" id="modeBadge">VORBEREITET</div>
+    <div class="mode" id="modeBadge">LIVE</div>
   </header>
   <section class="grid">
     <article class="card main">
-      <div class="eyebrow"><span class="dot"></span><span id="availabilityText">Daily Claim vorbereitet</span></div>
+      <div class="eyebrow"><span class="dot"></span><span id="availabilityText">Daily Claim verfügbar</span></div>
       <h2 class="headline">Aktiviere deine Glücksnummer</h2>
       <p class="sub">Einmal pro Claim-Zeitraum starten. Deine Serie erhöht langfristig deine Treuestufe; am 7. Tag wartet zusätzlich eine Treuebox.</p>
       <div class="rollerbox">
@@ -53,9 +53,9 @@
         <div class="result" id="result"><div><strong>Noch nicht gestartet</strong><span>Die Walzen stoppen nacheinander auf deinem Ergebnis.</span></div></div>
       </div>
       <button class="play" id="playBtn">Glücksnummer starten</button>
-      <p class="note" id="modeNote">Technisch vorbereitet. Bis zum finalen Backend-Test läuft diese Seite noch ohne echte Unit-Buchung.</p>
+      <p class="note" id="modeNote">Dein Ergebnis wird serverseitig berechnet und als Geschenk-Units gebucht.</p>
       <div class="rules">
-        <div class="rule"><b>🛡️ Serverseitig entschieden</b><span>Im Livebetrieb bestimmt Make das Ergebnis. Die Animation zeigt nur das bereits feststehende Resultat.</span></div>
+        <div class="rule"><b>🛡️ Serverseitig entschieden</b><span>Make bestimmt das Ergebnis. Die Animation zeigt nur das bereits feststehende Resultat.</span></div>
         <div class="rule"><b>⏱️ 24h-Sperre</b><span>Nach dem Claim zeigt die Karte den nächsten verfügbaren Zeitpunkt als Countdown.</span></div>
         <div class="rule"><b>🎁 Geschenk-Units</b><span>Daily-Boni werden getrennt von Kauf- und Referral-Units als Geschenk-Units geführt.</span></div>
       </div>
@@ -69,7 +69,7 @@
 <script>
 (() => {
   'use strict';
-  const DAILY_LIVE = false;
+  const DAILY_LIVE = true;
   const DAILY_WEBHOOK = 'https://hook.eu1.make.com/vnerimfqa86a1tullvqah885xgqcc0j7';
   const PROFILE_KEY = 'betinsight_profile_token';
   const DASHBOARD_KEY = 'betinsight_dashboard_token';
@@ -105,7 +105,6 @@
   function applyResult(data){
     $('level').textContent=data.loyalty_level||'Starter';$('streakTotal').textContent=`${data.streak_total||0} Tage`;$('lastBonus').textContent=`+ ${Number(data.total_bonus_units??data.bonus_units??0).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})} Units`;renderDays(Number(data.cycle_day||1));if(data.next_claim_at)startCountdown(data.next_claim_at);
   }
-  async function demoClaim(){const number=String(Math.floor(Math.random()*10000)).padStart(4,'0');const bonus=[.01,.01,.01,.05,.05,.10,.10,.25][Math.floor(Math.random()*8)];await animate(number);$('result').innerHTML=`<div><strong>Deine Glücksnummer: ${number}</strong><span class="bonus">+ ${bonus.toLocaleString('de-DE',{minimumFractionDigits:2})} Geschenk-Units</span></div>`;if(bonus>=.25)confetti();$('lastBonus').textContent=`+ ${bonus.toLocaleString('de-DE',{minimumFractionDigits:2})} Units`}
   async function liveClaim(){
     const token=getAccessToken();if(!token)throw new Error('Bitte öffne Daily über dein BetInsight-Profil.');
     const res=await fetch(DAILY_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token,request_id:requestId()})});const data=await res.json();
@@ -113,8 +112,9 @@
     if(data.status==='already_claimed'||data.status==='duplicate_request'){applyResult(data);$('result').innerHTML=`<div><strong>Heute bereits aktiviert</strong><span>Dein nächster Claim wird automatisch freigeschaltet.</span></div>`;return}
     if(data.status==='parallel_request_blocked'){throw new Error('Dein Daily Claim wird gerade verarbeitet. Bitte einen Moment warten.')}throw new Error(data.message||'Daily Claim konnte nicht verarbeitet werden.')
   }
-  $('playBtn').addEventListener('click',async()=>{if(busy)return;busy=true;$('playBtn').disabled=true;$('result').innerHTML='<div><strong>Glücksnummer wird ermittelt …</strong><span>Die Walzen starten gleich.</span></div>';try{if(DAILY_LIVE)await liveClaim();else await demoClaim()}catch(e){$('result').innerHTML=`<div><strong>Hinweis</strong><span>${String(e.message||e)}</span></div>`}finally{busy=false;$('playBtn').disabled=false}});
-  if(DAILY_LIVE){$('modeBadge').textContent='LIVE';$('modeNote').textContent='Dein Ergebnis wird serverseitig berechnet und als Geschenk-Units gebucht.'}else{$('modeBadge').textContent='VORBEREITET';$('modeNote').textContent='Technisch vorbereitet. Bis zum finalen Backend-Test läuft diese Seite noch ohne echte Unit-Buchung.'}
+  $('playBtn').addEventListener('click',async()=>{if(busy)return;busy=true;$('playBtn').disabled=true;$('result').innerHTML='<div><strong>Glücksnummer wird ermittelt …</strong><span>Die Walzen starten gleich.</span></div>';try{await liveClaim()}catch(e){$('result').innerHTML=`<div><strong>Hinweis</strong><span>${String(e.message||e)}</span></div>`}finally{busy=false;$('playBtn').disabled=false}});
+  $('modeBadge').textContent='LIVE';
+  $('modeNote').textContent='Dein Ergebnis wird serverseitig berechnet und als Geschenk-Units gebucht.';
   renderDays(1);
 })();
 </script>
