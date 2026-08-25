@@ -2,11 +2,13 @@
 <!--
 BetInsight Konto & Zugang
 Pfad: /konto/index.html
-Stand: 25.08.2026
+Stand: 25.08.2026-02
 Zweck:
 - zentrale Seite zwischen Systeme.io-Kontoeinstellungen und BetInsight-Dashboard
-- kein persönlicher Token wird von Systeme.io erwartet oder übertragen
-- vorhandener BetInsight-Zugang wird auf app.betinsight.club lokal wiederverwendet
+- vorhandenen BetInsight-Zugang auf diesem Gerät automatisch wiederverwenden
+- ohne vorhandenen Zugang persönlichen Zugangslink per registrierter E-Mail anfordern
+- optionales, strikt erlaubtes Rücksprungziel über ?next=... speichern
+- bestehende Profil-/Dashboard-Zugänge bleiben unverändert nutzbar
 -->
 <html lang="de">
 <head>
@@ -43,12 +45,9 @@ Zweck:
         radial-gradient(circle at 88% 8%,rgba(22,135,255,.14),transparent 34rem),
         linear-gradient(180deg,var(--bg),var(--bg2));
     }
-    a,button{font:inherit}
+    a,button,input{font:inherit}
     .page{width:min(calc(100% - 34px),980px);margin:0 auto;padding:42px 0 56px}
-    .hero{
-      text-align:center;
-      padding:26px 18px 32px;
-    }
+    .hero{text-align:center;padding:26px 18px 32px}
     .logo{width:min(270px,72vw);height:auto;margin:0 auto 26px;display:block}
     .eyebrow{
       display:inline-flex;align-items:center;gap:8px;
@@ -58,12 +57,17 @@ Zweck:
     }
     h1{margin:0 0 12px;font-size:clamp(34px,5vw,52px);line-height:1.08;letter-spacing:-.035em}
     .lead{max-width:720px;margin:0 auto;color:#c7d9e2;font-size:17px;line-height:1.7}
+    .target-note{
+      display:none;max-width:720px;margin:18px auto 0;padding:11px 14px;border-radius:12px;
+      border:1px solid rgba(0,217,155,.24);background:rgba(0,217,155,.06);color:#c8f8e9;
+      font-size:13px;font-weight:800;line-height:1.5
+    }
+    .target-note.show{display:block}
     .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px}
     .card{
       min-width:0;padding:26px;border:1px solid var(--line);border-radius:22px;
       background:linear-gradient(180deg,rgba(10,43,59,.96),rgba(6,31,43,.96));
-      box-shadow:0 22px 55px rgba(0,0,0,.20);
-      display:flex;flex-direction:column;
+      box-shadow:0 22px 55px rgba(0,0,0,.20);display:flex;flex-direction:column;
     }
     .icon{
       width:52px;height:52px;display:grid;place-items:center;margin-bottom:18px;
@@ -74,14 +78,15 @@ Zweck:
     .btn{
       width:100%;min-height:54px;display:inline-flex;align-items:center;justify-content:center;gap:9px;
       padding:14px 18px;border:0;border-radius:14px;text-decoration:none;color:#fff;font-weight:850;
-      cursor:pointer;transition:transform .18s ease,box-shadow .18s ease;
+      cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,opacity .18s ease;
     }
     .btn:hover{transform:translateY(-2px)}
+    .btn:disabled{opacity:.58;cursor:wait;transform:none}
     .btn-blue{background:linear-gradient(135deg,var(--blue),var(--blue2));box-shadow:0 14px 30px rgba(22,135,255,.25)}
     .btn-green{color:#00251a;background:linear-gradient(135deg,#25efb4,var(--green2));box-shadow:0 14px 30px rgba(0,217,155,.20)}
     .access{
       margin-top:18px;padding:22px 24px;border:1px solid rgba(245,200,75,.23);border-radius:20px;
-      background:rgba(245,200,75,.055);
+      background:rgba(245,200,75,.055)
     }
     .access-top{display:flex;align-items:flex-start;gap:13px}
     .access-icon{font-size:24px;line-height:1.2}
@@ -89,10 +94,25 @@ Zweck:
     .access p{margin:0;color:#c5d4db;line-height:1.65}
     .status{
       margin-top:14px;padding:11px 13px;border-radius:12px;border:1px solid var(--line);
-      background:rgba(255,255,255,.035);color:#d7e8ef;font-size:14px;font-weight:750
+      background:rgba(255,255,255,.035);color:#d7e8ef;font-size:14px;font-weight:750;line-height:1.5
     }
     .status.ok{border-color:rgba(0,217,155,.32);color:#b9f9e4;background:rgba(0,217,155,.07)}
     .status.missing{border-color:rgba(245,200,75,.26);color:#f8dda0;background:rgba(245,200,75,.06)}
+    .email-login{
+      display:none;margin-top:18px;padding:25px;border:1px solid rgba(22,135,255,.24);border-radius:20px;
+      background:linear-gradient(145deg,rgba(8,44,60,.92),rgba(5,30,42,.95));box-shadow:0 18px 50px rgba(0,0,0,.18)
+    }
+    .email-login.show{display:block}
+    .email-login h2{margin:0 0 8px;font-size:22px}
+    .email-login p{margin:0;color:var(--muted);line-height:1.65}
+    .email-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;margin-top:17px}
+    .email-row input{
+      min-width:0;height:54px;padding:0 15px;border-radius:14px;border:2px solid rgba(22,135,255,.45);
+      background:#f8fbfd;color:#0d2430;outline:none;font-size:15px
+    }
+    .email-row input:focus{border-color:#1da3ff;box-shadow:0 0 0 3px rgba(29,163,255,.12)}
+    .email-row .btn{width:auto;min-width:245px}
+    .privacy-note{margin-top:11px;color:#7895a4;font-size:12px;line-height:1.55}
     .registration{
       margin-top:18px;padding:24px;border:1px solid var(--line);border-radius:20px;text-align:center;
       background:rgba(255,255,255,.025)
@@ -105,7 +125,9 @@ Zweck:
       .page{width:min(calc(100% - 24px),980px);padding-top:26px}
       .hero{padding-inline:8px}
       .grid{grid-template-columns:1fr}
-      .card,.access,.registration{padding:21px}
+      .card,.access,.registration,.email-login{padding:21px}
+      .email-row{grid-template-columns:1fr}
+      .email-row .btn{width:100%;min-width:0}
     }
   </style>
 </head>
@@ -115,7 +137,8 @@ Zweck:
       <img class="logo" src="/logo_betisight.club.png" alt="BetInsight Club">
       <div class="eyebrow">Konto & Zugang</div>
       <h1>Deine BetInsight Kontozentrale</h1>
-      <p class="lead">Hier verwaltest du deine registrierte E-Mail-Adresse und dein Passwort bei Systeme.io oder öffnest deinen persönlichen BetInsight-Dashboard-Zugang.</p>
+      <p class="lead">Öffne deinen persönlichen Bereich ohne Zugangscode-Suche. Ist dein Zugang auf diesem Gerät bereits gespeichert, geht es direkt weiter. Andernfalls senden wir deinen persönlichen Zugangslink an deine registrierte E-Mail-Adresse.</p>
+      <div id="targetNote" class="target-note"></div>
     </section>
 
     <section class="grid" aria-label="Kontoaktionen">
@@ -128,8 +151,8 @@ Zweck:
 
       <article class="card">
         <div class="icon" aria-hidden="true">🏠</div>
-        <h2>BetInsight Dashboard</h2>
-        <p>Wenn dein persönlicher Zugang auf diesem Gerät bereits gespeichert ist, öffnet sich dein Dashboard direkt. Andernfalls kannst du dort deinen Profil-Link per E-Mail anfordern.</p>
+        <h2 id="dashboardTitle">BetInsight Dashboard</h2>
+        <p id="dashboardCopy">Wenn dein persönlicher Zugang auf diesem Gerät bereits gespeichert ist, öffnet sich dein Dashboard direkt.</p>
         <button class="btn btn-green" type="button" id="dashboardButton">Dashboard öffnen</button>
       </article>
     </section>
@@ -138,11 +161,22 @@ Zweck:
       <div class="access-top">
         <div class="access-icon" aria-hidden="true">🔐</div>
         <div>
-          <h2 id="accessTitle">Wichtig zu deinem persönlichen Zugang</h2>
-          <p>Systeme.io übergibt deinen BetInsight-Token nicht an diese Seite. Öffne deinen persönlichen Profil-Link aus der E-Mail einmal auf diesem Gerät. BetInsight kann den Zugang danach lokal auf diesem Gerät wiederverwenden. Bewahre den erhaltenen Link trotzdem sicher auf.</p>
+          <h2 id="accessTitle">Dein persönlicher Zugang</h2>
+          <p>Du musst keinen technischen Code kennen oder abschreiben. BetInsight prüft nur, ob auf diesem Gerät bereits ein persönlicher Zugang vorhanden ist. Fehlt er, kannst du dir den vorhandenen Zugangslink an deine registrierte E-Mail-Adresse senden lassen.</p>
         </div>
       </div>
       <div id="accessStatus" class="status">Zugangsstatus wird geprüft …</div>
+    </section>
+
+    <section id="emailLogin" class="email-login" aria-labelledby="emailLoginTitle">
+      <h2 id="emailLoginTitle">Mit deiner registrierten E-Mail anmelden</h2>
+      <p>Trage dieselbe E-Mail-Adresse ein, mit der dein BetInsight-Konto registriert ist. Aus Sicherheitsgründen zeigt die Seite nicht an, ob eine bestimmte Adresse bei uns vorhanden ist.</p>
+      <div class="email-row">
+        <input id="emailInput" type="email" autocomplete="email" inputmode="email" placeholder="deine registrierte E-Mail-Adresse" aria-label="Registrierte E-Mail-Adresse">
+        <button id="emailButton" class="btn btn-blue" type="button">📧 Zugangslink senden</button>
+      </div>
+      <div id="emailStatus" class="status" style="display:none"></div>
+      <div class="privacy-note">Der persönliche Zugang wird ausschließlich an das registrierte E-Mail-Postfach gesendet. Die Kenntnis einer E-Mail-Adresse allein ermöglicht keinen Zugriff auf das Konto.</div>
     </section>
 
     <section class="registration">
@@ -156,40 +190,167 @@ Zweck:
 
   <script>
     (() => {
+      "use strict";
+
       const PROFILE_KEY = "betinsight_profile_token";
       const DASHBOARD_KEY = "betinsight_dashboard_token";
+      const NEXT_KEY = "betinsight_login_next";
+      const PROFILE_LINK_WEBHOOK = "https://hook.eu1.make.com/me8q6ptfnno6qfji4s6348rw6f47i3t5";
+      const NETWORK_PREMIUM_URL = "https://betinsight.network/premium/";
+      const APP_URL = "https://app.betinsight.club/";
+
+      const ALLOWED_NEXT = new Set([
+        "dashboard","premium-provisionen","premium","netzwerk","wallet","tipps","kaufen",
+        "freigeschaltet","wechselboerse","angebote","verkaufen","support","daily"
+      ]);
+
+      const NEXT_LABELS = {
+        "dashboard":"Dashboard",
+        "premium-provisionen":"Premium & Network",
+        "premium":"Mitgliedschaft",
+        "netzwerk":"Netzwerk & Provisionen",
+        "wallet":"Wallet",
+        "tipps":"Neue Tipps",
+        "kaufen":"Units-Pakete kaufen",
+        "freigeschaltet":"Freigeschaltete Tipps",
+        "wechselboerse":"Unit-Wechselstube",
+        "angebote":"Angebote kaufen",
+        "verkaufen":"Units verkaufen",
+        "support":"Support",
+        "daily":"Daily Bonus"
+      };
+
       const status = document.getElementById("accessStatus");
       const dashboardButton = document.getElementById("dashboardButton");
+      const dashboardTitle = document.getElementById("dashboardTitle");
+      const dashboardCopy = document.getElementById("dashboardCopy");
       const registrationButton = document.getElementById("registrationButton");
+      const emailLogin = document.getElementById("emailLogin");
+      const emailInput = document.getElementById("emailInput");
+      const emailButton = document.getElementById("emailButton");
+      const emailStatus = document.getElementById("emailStatus");
+      const targetNote = document.getElementById("targetNote");
 
       function getSaved(key){
         try{return String(localStorage.getItem(key) || "").trim()}catch(e){return ""}
+      }
+
+      function setSaved(key,value){
+        try{localStorage.setItem(key,value)}catch(e){}
+      }
+
+      function isUuid(value){
+        return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || "").trim());
       }
 
       function savedAccess(){
         return getSaved(DASHBOARD_KEY) || getSaved(PROFILE_KEY);
       }
 
+      function normalizeNext(value){
+        const clean = String(value || "").trim().toLowerCase();
+        return ALLOWED_NEXT.has(clean) ? clean : "";
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      const nextFromUrl = normalizeNext(params.get("next"));
+      if(nextFromUrl) setSaved(NEXT_KEY,nextFromUrl);
+      const next = nextFromUrl || normalizeNext(getSaved(NEXT_KEY));
+
+      function targetLabel(){
+        return NEXT_LABELS[next] || "deinen persönlichen Bereich";
+      }
+
+      if(next){
+        targetNote.classList.add("show");
+        targetNote.textContent = "Nach erfolgreichem Zugang geht es automatisch weiter zu: " + targetLabel() + ".";
+        dashboardTitle.textContent = targetLabel() + " öffnen";
+        dashboardCopy.textContent = "Ist dein persönlicher Zugang bereits auf diesem Gerät gespeichert, öffnen wir diesen Bereich direkt.";
+        dashboardButton.textContent = "Weiter zu " + targetLabel();
+      }
+
+      function buildAppTarget(token){
+        const target = new URL(APP_URL);
+        if(token) target.searchParams.set("token", token);
+        if(next && next !== "dashboard") target.searchParams.set("next", next);
+        return target.toString();
+      }
+
+      function goToTarget(token){
+        const access = String(token || savedAccess() || "").trim();
+        if(next === "premium-provisionen" && isUuid(getSaved(DASHBOARD_KEY) || access)){
+          const uuid = isUuid(getSaved(DASHBOARD_KEY)) ? getSaved(DASHBOARD_KEY) : access;
+          try{localStorage.removeItem(NEXT_KEY)}catch(e){}
+          window.location.href = NETWORK_PREMIUM_URL + "?token=" + encodeURIComponent(uuid);
+          return;
+        }
+        window.location.href = buildAppTarget(access);
+      }
+
       const access = savedAccess();
       if(access){
         status.className = "status ok";
         status.textContent = "✅ Persönlicher BetInsight-Zugang ist auf diesem Gerät gespeichert.";
+        emailLogin.classList.remove("show");
       }else{
         status.className = "status missing";
-        status.textContent = "ℹ️ Auf diesem Gerät ist noch kein persönlicher BetInsight-Zugang gespeichert. Im Dashboard kannst du deinen Profil-Link per E-Mail anfordern.";
+        status.textContent = "ℹ️ Auf diesem Gerät ist noch kein persönlicher Zugang gespeichert. Fordere ihn unten per E-Mail an.";
+        emailLogin.classList.add("show");
       }
 
       dashboardButton.addEventListener("click", () => {
         const token = savedAccess();
-        const target = new URL("https://app.betinsight.club/");
-        if(token) target.searchParams.set("token", token);
-        window.location.href = target.toString();
+        if(token){
+          goToTarget(token);
+        }else{
+          emailLogin.classList.add("show");
+          emailInput.focus();
+          emailLogin.scrollIntoView({behavior:"smooth",block:"center"});
+        }
       });
 
-      const params = new URLSearchParams(window.location.search);
+      async function requestAccess(){
+        const email = String(emailInput.value || "").trim();
+        if(!/^\S+@\S+\.\S+$/.test(email)){
+          emailStatus.style.display = "block";
+          emailStatus.className = "status missing";
+          emailStatus.textContent = "Bitte gib eine gültige E-Mail-Adresse ein.";
+          return;
+        }
+
+        if(next) setSaved(NEXT_KEY,next);
+        emailButton.disabled = true;
+        emailStatus.style.display = "block";
+        emailStatus.className = "status";
+        emailStatus.textContent = "Zugangslink wird angefordert …";
+
+        try{
+          const url = PROFILE_LINK_WEBHOOK + "?email=" + encodeURIComponent(email);
+          const response = await fetch(url,{method:"GET",cache:"no-store"});
+          if(!response.ok) throw new Error("request_failed");
+          emailStatus.className = "status ok";
+          emailStatus.textContent = "✅ Wenn die E-Mail-Adresse registriert ist, wurde dein persönlicher Zugangslink versendet. Öffne den Link auf diesem Gerät; danach wird der Zugang automatisch gespeichert.";
+          emailInput.value = "";
+        }catch(e){
+          emailStatus.className = "status missing";
+          emailStatus.textContent = "Der Zugangslink konnte gerade nicht angefordert werden. Bitte versuche es in einem Moment erneut.";
+        }finally{
+          emailButton.disabled = false;
+        }
+      }
+
+      emailButton.addEventListener("click",requestAccess);
+      emailInput.addEventListener("keydown",event => {
+        if(event.key === "Enter") requestAccess();
+      });
+
       const ref = String(params.get("ref") || params.get("ref_code") || "").trim();
       if(ref && /^[A-Za-z0-9_-]{2,50}$/.test(ref)){
         registrationButton.href = "https://betinsight.club/?ref=" + encodeURIComponent(ref);
+      }
+
+      if(access && next){
+        window.setTimeout(() => goToTarget(access),450);
       }
     })();
   </script>
