@@ -425,7 +425,7 @@
 
     const settingsLink = document.createElement("a");
     settingsLink.className = "bi-nav-settings-link";
-    settingsLink.href = "https://betinsight.systeme.io/profile/user-settings";
+    settingsLink.href = "https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726";
     settingsLink.target = "_blank";
     settingsLink.rel = "noopener noreferrer";
     settingsLink.innerHTML = '<span class="bi-nav-settings-icon" aria-hidden="true">⚙</span><span>Kontoeinstellungen</span>';
@@ -437,7 +437,6 @@
     footer.append(logoutButton, settingsLink, footerCaption);
     sidebar.append(brand, list, footer);
     document.body.append(overlay, sidebar, toggle);
-
     const page = document.querySelector("main");
     if (page) page.classList.add("bi-nav-content-offset", "bi-nav-mobile-safe");
 
