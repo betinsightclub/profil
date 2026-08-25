@@ -15,6 +15,7 @@
     buy: '<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M9 10.2c0-1.1 1.1-2 3-2s3 .9 3 2-1 1.8-3 1.8-3 .8-3 1.8 1.1 2 3 2 3-.9 3-2"/><path d="M12 6.5v11"/></svg>',
     exchange: '<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h13"/><path d="m14 5 3 3-3 3"/><path d="M20 16H7"/><path d="m10 13-3 3 3 3"/></svg>',
     wallet: '<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H19v14H6.5A2.5 2.5 0 0 1 4 16.5z"/><path d="M4 8h15"/><path d="M15 12h4v4h-4a2 2 0 0 1 0-4Z"/></svg>',
+    providers: '<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16l-1.5-5h-13Z"/><path d="M5 9v11h14V9"/><path d="M8 20v-6h4v6"/><path d="M15 13h2"/></svg>',
     network: '<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="6" r="2.5"/><circle cx="6" cy="17" r="2.5"/><circle cx="18" cy="17" r="2.5"/><path d="m10.7 8.2-3.4 6.5M13.3 8.2l3.4 6.5M8.5 17h7"/></svg>',
     membership: '<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.2 4.4 4.8.7-3.5 3.4.8 4.8-4.3-2.2-4.3 2.2.8-4.8L5 8.1l4.8-.7Z"/><path d="M7 19h10"/></svg>',
     support: '<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13a8 8 0 0 1 16 0"/><path d="M4 13v4a2 2 0 0 0 2 2h2v-7H4Zm16 0v4a2 2 0 0 1-2 2h-2v-7h4Z"/><path d="M16 19c0 1.1-.9 2-2 2h-2"/></svg>'
@@ -44,6 +45,7 @@
       ]
     },
     { id: "wallet", label: "Wallet", icon: icons.wallet },
+    { id: "anbieter", label: "Wettanbieter", icon: icons.providers },
     {
       id: "netzwerk-group",
       label: "Netzwerk & Provisionen",
@@ -219,6 +221,7 @@
       case "angebote": navigateDashboardRoute("wechselboerse/angebote"); break;
       case "verkaufen": navigateDashboardRoute("verkaufen"); break;
       case "wallet": navigateDashboardRoute("wallet", "id"); break;
+      case "anbieter": window.location.assign(appPath("anbieter")); break;
       case "netzwerk": navigateLocalHash("netzwerk"); break;
       case "premium-provisionen": window.location.assign("https://betinsight.network/premium/"); break;
       case "marketing-center": {
@@ -243,7 +246,7 @@
     const first = parts[0] || "dashboard";
     const second = parts[1] || "";
     if (first === "wechselboerse" && second === "angebote") return "angebote";
-    const known = ["daily", "tipps", "freigeschaltet", "kaufen", "wechselboerse", "verkaufen", "wallet", "marketing-center", "support"];
+    const known = ["daily", "tipps", "freigeschaltet", "kaufen", "wechselboerse", "verkaufen", "wallet", "anbieter", "marketing-center", "support"];
     if (first === "pakete") return "kaufen";
     return known.includes(first) ? first : "dashboard";
   }
