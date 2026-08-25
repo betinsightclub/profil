@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!--
 GitHub-Ziel: betinsightclub/profil/anbieter/index.html
-Live-Seite: https://betinsightclub.github.io/profil/anbieter/
+Live-Seite: https://app.betinsight.club/anbieter/
 
 BetInsight – Unsere Wettanbieter
-Version: 2026.08.21-03
+Version: 2026.08.25-04
 
 Änderungen:
 - Seite vollständig auf 6 Anbieter erweitert.
@@ -14,8 +14,8 @@ Version: 2026.08.21-03
 - Interne Affiliate-/Provisionsdaten vollständig aus der Kundenseite entfernt.
 - Unter jedem Anbieter eigener VPN-Bereich vorbereitet.
 - Stake-Erfahrungsblock ergänzt: seit rund 3 Jahren genutzt, bisher keine Probleme bei Auszahlungen.
-- Partner- und VPN-Links sind absichtlich noch nicht aktiv; sie werden später zentral ergänzt.
-- Rückkehr zur Mitglieder-Zentrale einheitlich als „Zum Backoffice“ bezeichnet.
+- BetFury- und TrustDice-Partnerlinks aktiviert und transparent gekennzeichnet.
+- Zentrale BetInsight-App-Navigation eingebunden.
 - Bestehendes BetInsight-Logo und Favicon weiterverwendet.
 -->
 <html lang="de">
@@ -26,6 +26,7 @@ Version: 2026.08.21-03
   <meta name="description" content="Unsere ausgewählten Wettanbieter bei BetInsight – übersichtlich, modern und mit wichtigen Hinweisen zu Nutzung, VPN und Verfügbarkeit.">
   <meta name="theme-color" content="#001b24">
   <title>BetInsight | Unsere Wettanbieter</title>
+  <link rel="stylesheet" href="../assets/app-navigation.css">
 <style>
     :root{
       --bg:#001b24;--bg-deep:#001219;--panel:#04263a;--line:rgba(255,255,255,.11);
@@ -85,7 +86,7 @@ Version: 2026.08.21-03
     .notice{margin-top:16px;padding:12px 13px;border-left:3px solid var(--blue2);border-radius:0 10px 10px 0;background:rgba(22,156,255,.075);color:#d4e7f2;font-size:.82rem}
     .notice.warning{border-left-color:var(--orange);background:rgba(255,174,53,.08);color:#ffe0a4}
     .actions{display:grid;gap:10px;margin-top:auto;padding-top:21px}
-    .provider-btn,.vpn-btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:49px;padding:12px 15px;border-radius:11px;font-weight:900;text-align:center;cursor:pointer;transition:.16s ease}
+    .provider-btn,.vpn-btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:49px;padding:12px 15px;border-radius:11px;font-weight:900;text-align:center;cursor:pointer;transition:.16s ease;text-decoration:none}
     .provider-btn{border:0;background:linear-gradient(135deg,var(--blue),#006fd6);color:#fff;box-shadow:0 12px 24px rgba(22,156,255,.22)}
     .featured .provider-btn{background:linear-gradient(135deg,var(--green),#11ad61);color:#002b19;box-shadow:0 12px 24px rgba(33,208,122,.20)}
     .vpn-row{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 42px;gap:9px;align-items:stretch}
@@ -115,7 +116,7 @@ Version: 2026.08.21-03
   </style>
 </head>
 <body>
-  <a class="back" href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726">⬅ Zum Backoffice</a>
+  <a class="back" href="https://app.betinsight.club/">⬅ Zum Backoffice</a>
 
   <main class="page">
     <div class="topbar">
@@ -158,13 +159,13 @@ Version: 2026.08.21-03
           </div>
           <div class="notice">VPN ist nicht pauschal verboten. Gesperrte Länder oder regionale Beschränkungen bleiben jedoch auch bei Nutzung eines VPN bestehen.</div>
           <div class="actions">
-            <button class="provider-btn pending-link" type="button">BetFury öffnen</button>
+            <a class="provider-btn" href="https://betfury.ai/?r=BETINSIGHT" target="_blank" rel="sponsored noopener noreferrer">BetFury öffnen ↗</a>
             <div class="vpn-row">
               <button class="vpn-btn pending-link" type="button">🛡️ VPN-Anbieter öffnen</button>
               <button class="info-btn" type="button" aria-expanded="false">?</button>
               <div class="info" hidden>Der VPN-Bereich dient dem Datenschutz und einer geschützten Verbindung. Er ist nicht zur Umgehung von Länder- oder Anbietersperren gedacht.</div>
             </div>
-            <p class="pending">Partnerlinks werden später ergänzt.</p>
+            <p class="pending">BetInsight Partnerlink.</p>
           </div>
         </div>
       </article>
@@ -192,13 +193,13 @@ Version: 2026.08.21-03
           </div>
           <div class="notice">TrustDice positioniert sich VPN-freundlich. Trotzdem gelten immer die Regeln des Wohnsitzlandes und die jeweiligen Plattformbedingungen.</div>
           <div class="actions">
-            <button class="provider-btn pending-link" type="button">TrustDice öffnen</button>
+            <a class="provider-btn" href="https://trustdice.win/faucet?ref=betinsight0410" target="_blank" rel="sponsored noopener noreferrer">TrustDice öffnen ↗</a>
             <div class="vpn-row">
               <button class="vpn-btn pending-link" type="button">🛡️ VPN-Anbieter öffnen</button>
               <button class="info-btn" type="button" aria-expanded="false">?</button>
               <div class="info" hidden>Der VPN-Bereich dient dem Datenschutz und einer geschützten Verbindung. Regionale Regeln und Plattformbedingungen bleiben davon unberührt.</div>
             </div>
-            <p class="pending">Partnerlinks werden später ergänzt.</p>
+            <p class="pending">BetInsight Partnerlink.</p>
           </div>
         </div>
       </article>
@@ -341,6 +342,7 @@ Version: 2026.08.21-03
     <section class="legal">
       <h2>Wichtiger Hinweis</h2>
       <p>BetInsight stellt hier eine redaktionelle Auswahl bereit. Verfügbarkeit, Quoten, Bonusbedingungen, unterstützte Kryptowährungen und Zugriffsregeln können sich jederzeit ändern.</p>
+      <p>Bei entsprechend gekennzeichneten Links handelt es sich um Partnerlinks. Wenn du dich darüber registrierst, kann BetInsight eine Vergütung erhalten; für dich entstehen dadurch keine zusätzlichen Kosten.</p>
       <p>Ein VPN dient dem Schutz der Verbindung und der Privatsphäre.</p>
     </section>
 
@@ -384,5 +386,6 @@ Version: 2026.08.21-03
       document.querySelectorAll(".info-btn").forEach(item=>item.setAttribute("aria-expanded","false"));
     });
   </script>
+  <script src="../assets/app-navigation.js" defer></script>
 </body>
 </html>
