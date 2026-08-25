@@ -39,8 +39,7 @@
       icon: icons.exchange,
       children: [
         { id: "wechselboerse", label: "Übersicht" },
-        /* /wechselboerse/angebote/ ist noch nicht vorhanden: produktiv vollständig ausblenden. */
-        { id: "angebote", label: "Angebote kaufen", visible: false },
+        { id: "angebote", label: "Angebote kaufen" },
         { id: "verkaufen", label: "Units verkaufen" }
       ]
     },
@@ -217,6 +216,7 @@
       case "freigeschaltet": navigateDashboardRoute("freigeschaltet"); break;
       case "kaufen": navigatePackageRoute(); break;
       case "wechselboerse": navigateDashboardRoute("wechselboerse"); break;
+      case "angebote": navigateDashboardRoute("wechselboerse/angebote"); break;
       case "verkaufen": navigateDashboardRoute("verkaufen"); break;
       case "wallet": navigateDashboardRoute("wallet", "id"); break;
       case "netzwerk": navigateLocalHash("netzwerk"); break;
@@ -239,7 +239,10 @@
     const path = window.location.pathname;
     const base = basePath();
     const relative = path.startsWith(base) ? path.slice(base.length) : path.replace(/^\/+/, "");
-    const first = relative.split("/").filter(Boolean)[0] || "dashboard";
+    const parts = relative.split("/").filter(Boolean);
+    const first = parts[0] || "dashboard";
+    const second = parts[1] || "";
+    if (first === "wechselboerse" && second === "angebote") return "angebote";
     const known = ["daily", "tipps", "freigeschaltet", "kaufen", "wechselboerse", "verkaufen", "wallet", "marketing-center", "support"];
     if (first === "pakete") return "kaufen";
     return known.includes(first) ? first : "dashboard";
