@@ -2,8 +2,14 @@
 <!--
 Projekt: BetInsight
 Datei: profil/marketing-center/index.html
-Version: 2026.08.25-01
-Anwendungs-Version: 1.4.0
+Version: 2026.08.25-02
+Anwendungs-Version: 1.5.0
+
+Änderungen v1.5:
+- Eigenen Bereich für die BetInsight-Geschäftspräsentation vorbereitet
+- PDF wird später aus downloads/praesentationen automatisch erkannt
+- Solange keine PDF vorhanden ist, erscheint sauber „In Vorbereitung“
+- Nach dem Upload werden „PDF ansehen“ und „PDF herunterladen“ automatisch eingeblendet
 
 Änderungen v1.4:
 - Einheitliches BetInsight-Seitenmenü eingebunden
@@ -28,7 +34,7 @@ Anwendungs-Version: 1.4.0
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#071019">
-  <meta name="application-version" content="1.4.0">
+  <meta name="application-version" content="1.5.0">
   <meta name="description" content="BetInsight Marketing-Center – freigegebenes Werbematerial.">
 <title>Marketing-Center | BetInsight Club</title>
   <link rel="stylesheet" href="../assets/app-navigation.css">
@@ -149,7 +155,7 @@ Anwendungs-Version: 1.4.0
 
     .quick-nav {
       display: grid;
-      grid-template-columns: repeat(3,1fr);
+      grid-template-columns: repeat(4,1fr);
       gap: 14px;
       margin: 28px 0 34px;
     }
@@ -362,6 +368,91 @@ Anwendungs-Version: 1.4.0
       stroke-linejoin: round;
     }
 
+    .presentation-card {
+      display: grid;
+      grid-template-columns: auto minmax(0,1fr) auto;
+      align-items: center;
+      gap: 20px;
+      padding: 22px;
+      background: linear-gradient(145deg,rgba(255,200,87,.08),rgba(13,26,38,.98));
+      border: 1px solid rgba(255,200,87,.24);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .presentation-icon {
+      display: grid;
+      place-items: center;
+      width: 66px;
+      height: 76px;
+      color: #271b00;
+      font-size: .85rem;
+      font-weight: 950;
+      letter-spacing: .08em;
+      background: linear-gradient(145deg,var(--warning),#ffe39b);
+      border-radius: 12px 12px 16px 16px;
+      box-shadow: 0 12px 28px rgba(0,0,0,.24);
+    }
+
+    .presentation-copy h3 {
+      margin: 0 0 7px;
+      font-size: 1.18rem;
+    }
+
+    .presentation-copy p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .presentation-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .presentation-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 17px;
+      color: #04140f;
+      font-weight: 900;
+      text-decoration: none;
+      background: linear-gradient(135deg,var(--accent),#7af2c8);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 12px;
+      transition: 160ms ease;
+    }
+
+    .presentation-button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+    }
+
+    .presentation-button.secondary {
+      color: var(--text);
+      background: rgba(89,168,255,.12);
+      border-color: rgba(89,168,255,.34);
+    }
+
+    .presentation-pending {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 14px;
+      color: var(--warning);
+      font-size: .8rem;
+      font-weight: 850;
+      background: rgba(255,200,87,.08);
+      border: 1px solid rgba(255,200,87,.24);
+      border-radius: 999px;
+    }
+
     .text-grid {
       display: grid;
       grid-template-columns: repeat(3,1fr);
@@ -543,6 +634,15 @@ Anwendungs-Version: 1.4.0
       .quick-nav {
         grid-template-columns: 1fr;
       }
+
+      .presentation-card {
+        grid-template-columns: auto minmax(0,1fr);
+      }
+
+      .presentation-actions {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+      }
     }
 
     @media (max-width: 620px) {
@@ -579,6 +679,22 @@ Anwendungs-Version: 1.4.0
       .text-grid,
       .future-grid {
         grid-template-columns: 1fr;
+      }
+
+      .presentation-card {
+        grid-template-columns: 1fr;
+      }
+
+      .presentation-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+      }
+
+      .presentation-button,
+      .presentation-pending {
+        width: 100%;
+        text-align: center;
       }
 
       .info-card {
@@ -618,6 +734,10 @@ Anwendungs-Version: 1.4.0
     <a href="#bilder">
       <strong>📱 Bilder & Grafiken</strong>
       <span>Freigegebene Motive ansehen und herunterladen.</span>
+    </a>
+    <a href="#praesentation">
+      <strong>📄 Geschäftspräsentation</strong>
+      <span>Die freigegebene PDF später ansehen oder herunterladen.</span>
     </a>
     <a href="#texte">
       <strong>✍️ Texte & Vorlagen</strong>
@@ -685,6 +805,45 @@ Anwendungs-Version: 1.4.0
       </section>
 
     </div>
+  </section>
+
+  <section class="section" id="praesentation">
+    <div class="section-head">
+      <div>
+        <h2>Geschäftspräsentation</h2>
+        <p>Die offizielle BetInsight-Geschäftspräsentation wird hier als freigegebene PDF bereitgestellt.</p>
+      </div>
+      <span class="status-pill" id="presentationStatus">In Vorbereitung</span>
+    </div>
+
+    <article class="presentation-card">
+      <div class="presentation-icon" aria-hidden="true">PDF</div>
+      <div class="presentation-copy">
+        <h3>BetInsight Geschäftspräsentation</h3>
+        <p id="presentationDescription">
+          Die Präsentation wird noch vorbereitet. Sobald die freigegebene PDF hochgeladen wurde,
+          kann sie hier direkt angesehen und heruntergeladen werden.
+        </p>
+      </div>
+      <div class="presentation-actions">
+        <a
+          class="presentation-button secondary"
+          id="presentationView"
+          href="#"
+          target="_blank"
+          rel="noopener"
+          hidden
+        >PDF ansehen</a>
+        <a
+          class="presentation-button"
+          id="presentationDownload"
+          href="#"
+          download
+          hidden
+        >PDF herunterladen</a>
+        <span class="presentation-pending" id="presentationPending">PDF folgt</span>
+      </div>
+    </article>
   </section>
 
   <section class="section" id="texte">
@@ -774,7 +933,7 @@ Anwendungs-Version: 1.4.0
   </aside>
 
   <footer class="footer">
-    © 2026 BetInsight Club · Marketing-Center · Version 1.4
+    © 2026 BetInsight Club · Marketing-Center · Version 1.5
   </footer>
 
 </main>
@@ -785,6 +944,10 @@ Anwendungs-Version: 1.4.0
   const GITHUB_IMAGES_API =
     "https://api.github.com/repos/betinsightclub/profil/contents/marketing-center/downloads/bilder?ref=main";
 
+  const GITHUB_PRESENTATIONS_API =
+    "https://api.github.com/repos/betinsightclub/profil/contents/marketing-center/downloads/praesentationen?ref=main";
+
+  const PDF_EXTENSION = /\.pdf$/i;
   const ALLOWED_EXTENSIONS = /\.(png|jpe?g|webp)$/i;
 
   function getToken() {
@@ -820,6 +983,10 @@ Anwendungs-Version: 1.4.0
 
   function originalPath(filename) {
     return "downloads/bilder/" + encodeURIComponent(filename);
+  }
+
+  function presentationPath(filename) {
+    return "downloads/praesentationen/" + encodeURIComponent(filename);
   }
 
   function uniqueBySha(files) {
@@ -1018,6 +1185,81 @@ Anwendungs-Version: 1.4.0
     }
   }
 
+  function showPresentationPending(message) {
+    const status = document.getElementById("presentationStatus");
+    const description = document.getElementById("presentationDescription");
+    const pending = document.getElementById("presentationPending");
+    const view = document.getElementById("presentationView");
+    const download = document.getElementById("presentationDownload");
+
+    status.textContent = "In Vorbereitung";
+    description.textContent = message;
+    pending.hidden = false;
+    view.hidden = true;
+    download.hidden = true;
+  }
+
+  async function loadPresentation() {
+    try {
+      const response = await fetch(GITHUB_PRESENTATIONS_API, {
+        headers: {
+          "Accept": "application/vnd.github+json"
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error("GitHub API " + response.status);
+      }
+
+      const data = await response.json();
+      const pdfFiles = data
+        .filter((item) =>
+          item &&
+          item.type === "file" &&
+          PDF_EXTENSION.test(item.name)
+        )
+        .sort((a,b) => a.name.localeCompare(b.name, "de"));
+
+      if (!pdfFiles.length) {
+        showPresentationPending(
+          "Die Präsentation wird noch vorbereitet. Sobald die freigegebene PDF hochgeladen wurde, kann sie hier direkt angesehen und heruntergeladen werden."
+        );
+        return;
+      }
+
+      const preferredName = "betinsight-geschaeftspraesentation.pdf";
+      const presentation =
+        pdfFiles.find((entry) => entry.name.toLowerCase() === preferredName) ||
+        pdfFiles.find((entry) => entry.name.toLowerCase().includes("geschaeft")) ||
+        pdfFiles[0];
+
+      const url = presentationPath(presentation.name);
+      const status = document.getElementById("presentationStatus");
+      const description = document.getElementById("presentationDescription");
+      const pending = document.getElementById("presentationPending");
+      const view = document.getElementById("presentationView");
+      const download = document.getElementById("presentationDownload");
+
+      status.textContent = "PDF verfügbar";
+      description.textContent =
+        "Die offizielle BetInsight-Geschäftspräsentation steht zur Ansicht und zum Herunterladen bereit.";
+      pending.hidden = true;
+
+      view.href = url;
+      view.hidden = false;
+
+      download.href = url;
+      download.setAttribute("download", presentation.name);
+      download.hidden = false;
+
+    } catch (error) {
+      console.warn("Geschäftspräsentation konnte noch nicht geladen werden:", error);
+      showPresentationPending(
+        "Die Präsentation wird noch vorbereitet. Sobald die freigegebene PDF hochgeladen wurde, kann sie hier direkt angesehen und heruntergeladen werden."
+      );
+    }
+  }
+
   async function copyText(targetId, feedbackId, button) {
     const target = document.getElementById(targetId);
     const feedback = document.getElementById(feedbackId);
@@ -1063,6 +1305,7 @@ Anwendungs-Version: 1.4.0
 
   applyTokenToBackLink();
   loadGallery();
+  loadPresentation();
 </script>
 </body>
 </html>
