@@ -1,4 +1,4 @@
-/* BetInsight App Navigation · 2026-08-24
+/* BetInsight App Navigation · 2026-08-25
    Reuses existing BetInsight token helpers/storage. It does not authenticate users. */
 (() => {
   "use strict";
@@ -49,7 +49,8 @@
       icon: icons.network,
       children: [
         { id: "netzwerk", label: "Unit-Provisionen" },
-        { id: "premium-provisionen", label: "Premium-Provisionen" }
+        { id: "premium-provisionen", label: "Premium-Provisionen" },
+        { id: "marketing-center", label: "Marketing-Center" }
       ]
     },
     { id: "premium", label: "Mitgliedschaft", icon: icons.membership },
@@ -196,6 +197,11 @@
       case "wallet": navigateDashboardRoute("wallet", "id"); break;
       case "netzwerk": navigateLocalHash("netzwerk"); break;
       case "premium-provisionen": window.location.assign("https://betinsight.network/premium/"); break;
+      case "marketing-center": {
+        const token = currentDashboardUuid() || currentProfileToken();
+        window.location.assign(`${appPath("marketing-center")}${token ? `?token=${encodeURIComponent(token)}` : ""}`);
+        break;
+      }
       case "premium": navigateLocalHash("premium"); break;
       case "support": navigateDashboardRoute("support"); break;
       default: break;
@@ -210,7 +216,7 @@
     const base = basePath();
     const relative = path.startsWith(base) ? path.slice(base.length) : path.replace(/^\/+/, "");
     const first = relative.split("/").filter(Boolean)[0] || "dashboard";
-    const known = ["tipps", "freigeschaltet", "kaufen", "wechselboerse", "verkaufen", "wallet", "support"];
+    const known = ["tipps", "freigeschaltet", "kaufen", "wechselboerse", "verkaufen", "wallet", "marketing-center", "support"];
     if (first === "pakete") return "kaufen";
     return known.includes(first) ? first : "dashboard";
   }
@@ -218,7 +224,7 @@
   function groupForRoute(routeId) {
     if (["tipps", "freigeschaltet"].includes(routeId)) return "tipps-group";
     if (["wechselboerse", "verkaufen", "angebote"].includes(routeId)) return "wechselboerse-group";
-    if (["netzwerk", "premium-provisionen"].includes(routeId)) return "netzwerk-group";
+    if (["netzwerk", "premium-provisionen", "marketing-center"].includes(routeId)) return "netzwerk-group";
     return "";
   }
 
