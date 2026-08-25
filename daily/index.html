@@ -112,7 +112,7 @@
     if(data.status==='already_claimed'||data.status==='duplicate_request'){applyResult(data);$('result').innerHTML=`<div><strong>Heute bereits aktiviert</strong><span>Dein nächster Claim wird automatisch freigeschaltet.</span></div>`;return}
     if(data.status==='parallel_request_blocked'){throw new Error('Dein Daily Claim wird gerade verarbeitet. Bitte einen Moment warten.')}throw new Error(data.message||'Daily Claim konnte nicht verarbeitet werden.')
   }
-  $('playBtn').addEventListener('click',async()=>{if(busy)return;busy=true;$('playBtn').disabled=true;$('result').innerHTML='<div><strong>Glücksnummer wird ermittelt …</strong><span>Die Walzen starten gleich.</span></div>';try{await liveClaim()}catch(e){$('result').innerHTML=`<div><strong>Hinweis</strong><span>${String(e.message||e)}</span></div>`}finally{busy=false;$('playBtn').disabled=false}});
+  $('playBtn').addEventListener('click',async()=>{if(busy)return;busy=true;$('playBtn').disabled=true;$('result').innerHTML='<div><strong>🍀 Viel Glück – deine Nummer wird gezogen …</strong><span>Die Walzen starten gleich.</span></div>';try{await liveClaim()}catch(e){$('result').innerHTML=`<div><strong>Hinweis</strong><span>${String(e.message||e)}</span></div>`}finally{busy=false;$('playBtn').disabled=false}});
   $('modeBadge').textContent='LIVE';
   $('modeNote').textContent='Dein Ergebnis wird serverseitig berechnet und als Geschenk-Units gebucht.';
   renderDays(1);
