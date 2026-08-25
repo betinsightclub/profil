@@ -21,13 +21,13 @@ PILOT-LIVE:
 -->
 <html lang="de">
 <head>
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#061923">
   <meta name="description" content="BetInsight Unit-Wechselstube – Units sicher mit USDT auf TRON kaufen.">
   <title>BetInsight – Units kaufen</title>
-<link rel="shortcut icon" href="/profil/favicon.ico">
+  <link rel="stylesheet" href="../../assets/app-navigation.css">
   <style>
     *{box-sizing:border-box}[hidden]{display:none!important}
     :root{--bg1:#061923;--bg2:#071d2b;--bg3:#04131c;--panel:rgba(9,34,49,.96);--panel2:rgba(13,43,59,.96);--border:rgba(80,168,214,.23);--border2:rgba(22,199,243,.38);--text:#fff;--soft:#c9e6f4;--muted:#85aabc;--cyan:#16c7f3;--blue:#1d9bf0;--green:#11d6a0;--orange:#f1a313;--danger:#ff7685;--focus:#ffcf33}
@@ -64,7 +64,7 @@ PILOT-LIVE:
 <body>
 <main class="page">
   <header class="topbar">
-    <img class="logo" src="/profil/logo_betisight.club.png" alt="BetInsight Club">
+    <img class="logo" src="../../logo_betisight.club.png" alt="BetInsight Club">
     <div><span class="eyebrow">Unit-Wechselstube</span><h1>Verfügbare Angebote</h1></div>
     <a id="backLink" class="back-link" href="../">← Zur Übersicht</a>
   </header>
@@ -182,5 +182,6 @@ async function copyText(text,label){const v=String(text||"").trim();if(!v)return
 el.sort.addEventListener("change",()=>{visibleCount=PAGE_SIZE;renderOffers()});el.loadMoreButton.addEventListener("click",()=>{visibleCount+=PAGE_SIZE;renderOffers()});el.retry.addEventListener("click",loadOffers);el.grid.addEventListener("click",e=>{const b=e.target.closest("[data-offer-id]");if(b)beginPurchase(b.dataset.offerId)});el.txidInput.addEventListener("input",()=>{const c=normalizeTxid(el.txidInput.value).replace(/[^0-9a-f]/gi,"").slice(0,64);if(el.txidInput.value!==c)el.txidInput.value=c;if(!txidPolling&&txidPollContext&&txidPollContext.txid!==c){txidPollContext=null;setTxidPollingVisual(false);el.txidCheckButton.textContent="Zahlung bestätigen"}const s=getStoredReservation(),ctx=txidPollContext,active=(s&&Number(s.expiresAt)>Date.now())||(ctx&&Number(ctx.graceUntil)>Date.now()&&ctx.txid===c);el.txidCheckButton.disabled=txidPolling||!active||!isValidTxidSyntax(c);if(!isValidTxidSyntax(c)){el.txidResult.className="txid-result";el.txidResult.textContent=""}});el.txidCheckButton.addEventListener("click",finalizeTxid);el.copyWalletButton.addEventListener("click",()=>copyText(el.purchaseWallet.textContent,"Wallet"));el.copyAmountButton.addEventListener("click",()=>copyText(el.purchaseCryptoAmount.dataset.raw||el.purchaseCryptoAmount.textContent.replace(/\s*USDT$/i,""),"Betrag"));
 async function initPage(){addTokenToBackLink();await loadOffers();await restoreReservationFromStorage()}initPage();
 </script>
+<script src="../../assets/app-navigation.js" defer></script>
 </body>
 </html>
