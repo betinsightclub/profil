@@ -5,18 +5,14 @@ Live-Seite: https://betinsightclub.github.io/profil/kaufen/
 
 Projekt: BetInsight
 Datei: kaufen/index.html
-Version: 2026.08.23-01
+Version: 2026.08.26-02
 
 Änderungen:
 - Zahlungs-Webhook auf "BetInsight - Rechnung erstellen v2.0 SECURE" umgestellt.
 - Neuer sicherer Unit-Rechnungs-Webhook: uk8zqla4l5b0e1ybeoh5gd8bxbk69bfh.
-- Token-, Paket-, E-Mail- und Darstellungslogik bleiben unverändert.
-- Token wird nicht mehr zwangsweise mit "BI-" überschrieben.
-- Exakter übergebener Token wird immer zuerst geprüft.
-- Bei alten numerischen BI-Zugängen werden automatisch kompatible Varianten getestet:
-  exakt, BI-Nummer, BINummer bzw. reine Nummer.
-- UUID-Zugänge werden ausschließlich exakt geprüft.
-- Ein erfolgreich erkannter Profil-Token wird wieder unter betinsight_profile_token gespeichert.
+- Dashboard-Token (UUID) wird für die automatische E-Mail-Ermittlung direkt verwendet.
+- Alte Profil-Tokens bleiben nur als Übergangs-/Kompatibilitätsweg erhalten.
+- Ein erfolgreich erkannter Dashboard-Token bleibt unter betinsight_dashboard_token gespeichert.
 -->
 <html lang="de">
 <head>
@@ -177,11 +173,14 @@ Version: 2026.08.23-01
       if (tokenFromUrl) {
         if (isUuidToken(tokenFromUrl)) {
           localStorage.setItem(DASHBOARD_TOKEN_STORAGE_KEY, tokenFromUrl);
-          return cleanToken(localStorage.getItem(TOKEN_STORAGE_KEY));
+          return tokenFromUrl;
         }
         localStorage.setItem(TOKEN_STORAGE_KEY, tokenFromUrl);
         return tokenFromUrl;
       }
+
+      const storedDashboardToken = cleanToken(localStorage.getItem(DASHBOARD_TOKEN_STORAGE_KEY));
+      if (isUuidToken(storedDashboardToken)) return storedDashboardToken;
 
       return cleanToken(localStorage.getItem(TOKEN_STORAGE_KEY));
     }
@@ -235,11 +234,19 @@ Version: 2026.08.23-01
           }
 
           const email = String(data.email).trim().toLowerCase();
-          const confirmedToken = cleanToken(data.token) || candidate;
+          const confirmedToken = cleanToken(data.token);
 
           emailInput.value = email;
           localStorage.setItem("betinsight_email", email);
-          localStorage.setItem(TOKEN_STORAGE_KEY, confirmedToken);
+
+          if (isUuidToken(candidate)) {
+            localStorage.setItem(DASHBOARD_TOKEN_STORAGE_KEY, candidate);
+            if (confirmedToken && !isUuidToken(confirmedToken)) {
+              localStorage.setItem(TOKEN_STORAGE_KEY, confirmedToken);
+            }
+          } else {
+            localStorage.setItem(TOKEN_STORAGE_KEY, confirmedToken || candidate);
+          }
 
           setEmailStatus(
             "✓ E-Mail automatisch erkannt. Bitte vor dem Kauf prüfen.",
