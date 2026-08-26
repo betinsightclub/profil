@@ -1,7 +1,7 @@
-/* BetInsight App Navigation · 2026-08-27-01
+/* BetInsight App Navigation · 2026-08-27-02
    Reuses existing BetInsight token helpers/storage. It does not authenticate users.
    Login return targets are strictly whitelisted and never accept arbitrary external URLs.
-   Root profile URLs capture the access token and immediately remove it from the visible address bar. */
+   Sensitive access parameters are captured into local storage and immediately removed from the visible address bar on protected member pages. */
 (() => {
   "use strict";
 
@@ -95,17 +95,29 @@
     } catch (e) {}
   }
 
-  function captureAndStripRootProfileToken() {
+  function captureAndStripSensitiveAccessParams() {
     try {
-      if (window.location.pathname !== appPath()) return;
       const url = new URL(window.location.href);
+      let changed = false;
+
       const token = String(url.searchParams.get("token") || "").trim();
-      if (!token) return;
+      if (token) {
+        if (isUuid(token)) localStorage.setItem(DASHBOARD_STORAGE_KEY, token);
+        else localStorage.setItem(PROFILE_STORAGE_KEY, token);
+        url.searchParams.delete("token");
+        changed = true;
+      }
 
-      if (isUuid(token)) localStorage.setItem(DASHBOARD_STORAGE_KEY, token);
-      else localStorage.setItem(PROFILE_STORAGE_KEY, token);
+      for (const name of ["dashboard_token", "id"]) {
+        const value = String(url.searchParams.get(name) || "").trim();
+        if (value && isUuid(value)) {
+          localStorage.setItem(DASHBOARD_STORAGE_KEY, value);
+          url.searchParams.delete(name);
+          changed = true;
+        }
+      }
 
-      url.searchParams.delete("token");
+      if (!changed) return;
       const search = url.searchParams.toString();
       history.replaceState(null, "", url.pathname + (search ? `?${search}` : "") + url.hash);
     } catch (e) {}
@@ -579,7 +591,7 @@
     window.setTimeout(() => handlePendingNext(0), 80);
   }
 
-  captureAndStripRootProfileToken();
+  captureAndStripSensitiveAccessParams();
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", buildNavigation, { once: true });
   else buildNavigation();
