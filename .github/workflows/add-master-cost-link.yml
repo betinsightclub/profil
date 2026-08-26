@@ -20,39 +20,41 @@ jobs:
         shell: python
         run: |
           from pathlib import Path
-          path = Path('admin/backoffice/index.html')
-          text = path.read_text(encoding='utf-8')
-          old_version = 'Version: 2026.08.24-BACKOFFICE-v2.20-PAYOUT-STATUS-REASONS'
-          new_version = 'Version: 2026.08.26-BACKOFFICE-v2.21-KOSTENBUCH'
+
+          path = Path("admin/backoffice/index.html")
+          text = path.read_text(encoding="utf-8")
+          old_version = "Version: 2026.08.24-BACKOFFICE-v2.20-PAYOUT-STATUS-REASONS"
+          new_version = "Version: 2026.08.26-BACKOFFICE-v2.21-KOSTENBUCH"
           if old_version in text:
               text = text.replace(old_version, new_version, 1)
+
           marker = '      <article class="content-card full" id="model4060Card">'
-          signature = 'href="./kosten/"'
+          signature = 'id="masterCostBookCard"'
           if signature not in text:
               if text.count(marker) != 1:
-                  raise SystemExit(f'Expected exactly one insertion marker, found {text.count(marker)}')
-              card = '''      <article class="content-card full" id="masterCostBookCard" style="margin-bottom:16px">
-        <div class="panel-heading">
-          <div>
-            <h3>🧾 Betriebskosten &amp; Rechnungen</h3>
-            <p class="muted">
-              Reale Firmenrechnungen erfassen, Belege zuordnen und Jahres- oder Mehrmonatskosten korrekt auf die Nutzungsmonate verteilen.
-            </p>
-          </div>
-          <a class="button button-green" href="./kosten/">Rechnung einbuchen</a>
-        </div>
-        <div class="info-box">
-          Die 2,5-%-Betriebskostenvorauszahlung wird den genehmigten tatsächlichen Kosten gegenübergestellt. Plus- oder Minusbeträge werden im Verhältnis 40 / 30 / 30 berücksichtigt. Der Rechnungsbereich ist ausschließlich für den Master-Admin freigegeben.
-        </div>
-      </article>
-
-'''
+                  raise SystemExit("Insertion marker is not unique")
+              lines = [
+                  '      <article class="content-card full" id="masterCostBookCard" style="margin-bottom:16px">',
+                  '        <div class="panel-heading">',
+                  '          <div>',
+                  '            <h3>🧾 Betriebskosten &amp; Rechnungen</h3>',
+                  '            <p class="muted">Rechnungen erfassen, nach Monat prüfen, vorhandene Buchungen bearbeiten und EUR, USD oder BRL automatisch in EUR umrechnen.</p>',
+                  '          </div>',
+                  '          <a class="button button-green" href="./kosten/">Kostenbuch öffnen</a>',
+                  '        </div>',
+                  '        <div class="info-box">Nur für den Master-Admin. Mehrmonats- und Jahresrechnungen bleiben centgenau auf die Nutzungsmonate verteilt.</div>',
+                  '      </article>',
+                  '',
+              ]
+              card = "\n".join(lines)
               text = text.replace(marker, card + marker, 1)
-          footer_old = '© 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.9 · TIPP-ID-LED · ERGEBNIS-LED · 10-10-10 · MINDESTWERT-SICHER'
-          footer_new = '© 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.9 · KOSTENBUCH · TIPP-ID-LED · ERGEBNIS-LED · 10-10-10 · MINDESTWERT-SICHER'
+
+          footer_old = "© 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.9 · TIPP-ID-LED · ERGEBNIS-LED · 10-10-10 · MINDESTWERT-SICHER"
+          footer_new = "© 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.9 · KOSTENBUCH · TIPP-ID-LED · ERGEBNIS-LED · 10-10-10 · MINDESTWERT-SICHER"
           if footer_old in text:
               text = text.replace(footer_old, footer_new, 1)
-          path.write_text(text, encoding='utf-8')
+
+          path.write_text(text, encoding="utf-8")
       - name: Commit patch
         run: |
           if git diff --quiet -- admin/backoffice/index.html; then
