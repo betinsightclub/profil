@@ -1,4 +1,4 @@
-/* BetInsight App Navigation · 2026-08-25-02
+/* BetInsight App Navigation · 2026-08-26-01
    Reuses existing BetInsight token helpers/storage. It does not authenticate users.
    Login return targets are strictly whitelisted and never accept arbitrary external URLs. */
 (() => {
@@ -210,18 +210,18 @@
   }
 
   function navigatePackageRoute() {
-    const sessionToken = currentDashboardUuid() || currentProfileToken();
+    const sessionToken = currentDashboardUuid();
     if (!sessionToken) {
-      showMessage("Der persönliche Zugang ist für die Paketauswahl noch nicht verfügbar.");
+      showMessage("Der persönliche Dashboard-Zugang ist für die Paketauswahl noch nicht verfügbar.");
       return;
     }
     window.location.assign(`${appPath("pakete")}?token=${encodeURIComponent(sessionToken)}`);
   }
 
   function navigateDailyRoute() {
-    const token = currentDashboardUuid() || currentProfileToken();
+    const token = currentDashboardUuid();
     if (!token) {
-      showMessage("Der persönliche Zugang für Daily Bonus ist noch nicht verfügbar.");
+      showMessage("Der persönliche Dashboard-Zugang für Daily Bonus ist noch nicht verfügbar.");
       return;
     }
     window.location.assign(`${appPath("daily")}?token=${encodeURIComponent(token)}`);
@@ -274,7 +274,7 @@
         break;
       }
       case "daily": navigateDailyRoute(); break;
-      case "tipps": navigateProfileRoute("tipps"); break;
+      case "tipps": navigateDashboardRoute("tipps"); break;
       case "freigeschaltet": navigateDashboardRoute("freigeschaltet"); break;
       case "kaufen": navigatePackageRoute(); break;
       case "wechselboerse": navigateDashboardRoute("wechselboerse"); break;
@@ -284,11 +284,7 @@
       case "anbieter": window.location.assign(appPath("anbieter")); break;
       case "netzwerk": navigateLocalHash("netzwerk"); break;
       case "premium-provisionen": navigatePremiumNetworkRoute(); break;
-      case "marketing-center": {
-        const token = currentDashboardUuid() || currentProfileToken();
-        window.location.assign(`${appPath("marketing-center")}${token ? `?token=${encodeURIComponent(token)}` : ""}`);
-        break;
-      }
+      case "marketing-center": navigateDashboardRoute("marketing-center"); break;
       case "premium": navigateLocalHash("premium"); break;
       case "support": navigateDashboardRoute("support"); break;
       default: break;
