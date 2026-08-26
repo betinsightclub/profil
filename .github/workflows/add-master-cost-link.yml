@@ -1,0 +1,66 @@
+name: Add Master cost book link
+
+on:
+  push:
+    paths:
+      - '.github/workflows/add-master-cost-link.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-backoffice:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Insert Master cost book card
+        shell: python
+        run: |
+          from pathlib import Path
+          path = Path('admin/backoffice/index.html')
+          text = path.read_text(encoding='utf-8')
+          old_version = 'Version: 2026.08.24-BACKOFFICE-v2.20-PAYOUT-STATUS-REASONS'
+          new_version = 'Version: 2026.08.26-BACKOFFICE-v2.21-KOSTENBUCH'
+          if old_version in text:
+              text = text.replace(old_version, new_version, 1)
+          marker = '      <article class="content-card full" id="model4060Card">'
+          signature = 'href="./kosten/"'
+          if signature not in text:
+              if text.count(marker) != 1:
+                  raise SystemExit(f'Expected exactly one insertion marker, found {text.count(marker)}')
+              card = '''      <article class="content-card full" id="masterCostBookCard" style="margin-bottom:16px">
+        <div class="panel-heading">
+          <div>
+            <h3>🧾 Betriebskosten &amp; Rechnungen</h3>
+            <p class="muted">
+              Reale Firmenrechnungen erfassen, Belege zuordnen und Jahres- oder Mehrmonatskosten korrekt auf die Nutzungsmonate verteilen.
+            </p>
+          </div>
+          <a class="button button-green" href="./kosten/">Rechnung einbuchen</a>
+        </div>
+        <div class="info-box">
+          Die 2,5-%-Betriebskostenvorauszahlung wird den genehmigten tatsächlichen Kosten gegenübergestellt. Plus- oder Minusbeträge werden im Verhältnis 40 / 30 / 30 berücksichtigt. Der Rechnungsbereich ist ausschließlich für den Master-Admin freigegeben.
+        </div>
+      </article>
+
+'''
+              text = text.replace(marker, card + marker, 1)
+          footer_old = '© 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.9 · TIPP-ID-LED · ERGEBNIS-LED · 10-10-10 · MINDESTWERT-SICHER'
+          footer_new = '© 2026 BetInsight Club · Admin Backoffice · Session-Sicherheit v2.9 · KOSTENBUCH · TIPP-ID-LED · ERGEBNIS-LED · 10-10-10 · MINDESTWERT-SICHER'
+          if footer_old in text:
+              text = text.replace(footer_old, footer_new, 1)
+          path.write_text(text, encoding='utf-8')
+      - name: Commit patch
+        run: |
+          if git diff --quiet -- admin/backoffice/index.html; then
+            echo "No change needed"
+            exit 0
+          fi
+          git config user.name "BetInsight Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add admin/backoffice/index.html
+          git commit -m "Add Master backoffice cost book entry"
+          git push
