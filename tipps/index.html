@@ -9,9 +9,12 @@ Diese Datei ersetzt die dort vorhandene index.html vollständig.
 
 <!--
 BetInsight Tipps
-Version: 2026.08.24-10
+Version: 2026.08.26-11
 
 - Offene veröffentlichte Tipps oben.
+- Sichere Vorschau: Spiel, Markt, Auswahl, exakte Quote, Tippgeber und echte Anpfiffzeit werden vor Freischaltung nicht an den Browser übertragen.
+- Quote wird nur als Bereich gezeigt: 1,60–2,00 / 2,01–3,00 / über 3,00.
+- Anpfiff wird in der Vorschau nur als maskierter Platzhalter gezeigt.
 - Vom Master bestätigte Ergebnisse automatisch unten.
 - Beendete Tipps verschwinden aus "Neue Tipps".
 - Bestehende Token- und Freischaltlogik bleibt erhalten.
@@ -278,6 +281,43 @@ h1 { margin:4px 0 10px; font-size:36px; }
   font-size:12px;
 }
 
+.preview-list {
+  max-width:430px;
+  margin:2px auto 18px;
+  padding:15px 17px;
+  border-radius:17px;
+  background:rgba(3,28,40,.28);
+  border:1px solid rgba(117,218,255,.11);
+  text-align:left;
+}
+
+.preview-row {
+  padding:7px 0;
+  color:#e8f8ff;
+  font-size:15px;
+  line-height:1.4;
+}
+
+.preview-row + .preview-row {
+  border-top:1px solid rgba(255,255,255,.055);
+}
+
+.preview-row strong {
+  color:#fff;
+}
+
+.masked-time {
+  display:inline-block;
+  letter-spacing:1px;
+  color:#d7edf7;
+  text-shadow:0 0 4px rgba(215,237,247,.38);
+}
+
+.locked-value {
+  color:#b9d6e4;
+  font-weight:700;
+}
+
 .locked {
   color:#b6d2df;
   font-size:14px;
@@ -490,6 +530,7 @@ h1 { margin:4px 0 10px; font-size:36px; }
   .meta-item { width:100%; justify-content:flex-start; }
   .btn { width:100%; min-width:0; }
   .price { width:100%; max-width:290px; }
+  .preview-list { max-width:none; }
   .result-sort { align-items:stretch; }
   .result-sort label { width:100%; }
   .result-sort select { width:100%; min-width:0; }
@@ -545,7 +586,6 @@ h1 { margin:4px 0 10px; font-size:36px; }
   }
 }
 
-
 .dashboard-column.left,
 .dashboard-column.right {
   width:100%;
@@ -568,7 +608,6 @@ h1 { margin:4px 0 10px; font-size:36px; }
 .dashboard-column .result-card {
   align-self:start;
 }
-
 
 /* v08: gleiche optische Tiefe/Höhe der Haupttafeln */
 .dashboard-column .tip-card,
@@ -708,11 +747,52 @@ function escapeHtml(value) {
     .replaceAll("'","&#039;");
 }
 
-function formatDate(value) {
-  if (!value) return "-";
-  const d = new Date(value);
-  if (!Number.isNaN(d.getTime())) return d.toLocaleDateString("de-DE");
-  return String(value);
+function parseDateValue(value) {
+  const raw = safeText(value, "").trim();
+  if (!raw) return null;
+
+  const germanDate = raw.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})(?:\D.*)?$/);
+  if (germanDate) {
+    return new Date(
+      Number(germanDate[3]),
+      Number(germanDate[2]) - 1,
+      Number(germanDate[1])
+    );
+  }
+
+  const parsed = new Date(raw);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function formatPreviewDate(value) {
+  const date = parseDateValue(value);
+  if (!date) return safeText(value);
+
+  const today = new Date();
+  const isToday =
+    date.getFullYear() === today.getFullYear() &&
+    date.getMonth() === today.getMonth() &&
+    date.getDate() === today.getDate();
+
+  return isToday
+    ? "Heute"
+    : date.toLocaleDateString("de-DE", {
+        day:"2-digit",
+        month:"2-digit",
+        year:"numeric"
+      });
+}
+
+function sportIcon(value) {
+  const sport = safeText(value, "").toLowerCase();
+  if (sport.includes("fußball") || sport.includes("fussball") || sport.includes("soccer")) return "⚽";
+  if (sport.includes("tennis")) return "🎾";
+  if (sport.includes("basket")) return "🏀";
+  if (sport.includes("eishockey") || sport.includes("ice hockey")) return "🏒";
+  if (sport.includes("baseball")) return "⚾";
+  if (sport.includes("volley")) return "🏐";
+  if (sport.includes("handball")) return "🤾";
+  return "🎯";
 }
 
 function parseWebhookJson(rawText) {
@@ -827,45 +907,40 @@ function createOpenTipCard(tipp) {
   card.className = "tip-card";
 
   const tippId = safeText(tipp.tipp_id, "");
-  const spiel = safeText(tipp.spiel);
   const liga = safeText(tipp.liga);
-  const markt = safeText(tipp.markt);
-  const quote = safeText(tipp.quote);
+  const sportart = safeText(tipp.sportart, "Sport");
+  const quoteBereich = safeText(tipp.quote_bereich, "Quote nach Freischaltung");
   const preisUnits = safeText(tipp.preis_units);
-  const spielDatum = formatDate(tipp.spiel_datum);
-  const anpfiff = safeText(tipp.anpfiff);
-  const ersteller = safeText(tipp.ersteller, "System");
+  const spielDatum = formatPreviewDate(tipp.spiel_datum);
+  const unlockLabel = `🔓 Tipp für ${preisUnits} Units freischalten`;
 
   card.innerHTML = `
-    <div class="badge">🔒 Premium-Vorschau</div>
-    <h2 class="card-title">${escapeHtml(spiel)}</h2>
+    <div class="badge">🔒 BETINSIGHT EXPERTENTIPP</div>
 
-    <div class="tip-meta">
-      <span class="meta-item">👤 Tippgeber: ${escapeHtml(ersteller)}</span>
-      <span class="meta-item">🏆 ${escapeHtml(liga)}</span>
-      <span class="meta-item">📅 ${escapeHtml(spielDatum)}</span>
-      <span class="meta-item">⏰ ${escapeHtml(anpfiff)}</span>
-      <span class="meta-item">📊 ${escapeHtml(markt)}</span>
-      <span class="meta-item">📈 Quote ${escapeHtml(quote)}</span>
+    <div class="preview-list">
+      <div class="preview-row">${sportIcon(sportart)} <strong>${escapeHtml(sportart)}</strong></div>
+      <div class="preview-row">${escapeHtml(liga)}</div>
+      <div class="preview-row">📅 <strong>${escapeHtml(spielDatum)}</strong></div>
+      <div class="preview-row">🕒 <strong>Anpfiff:</strong> <span class="masked-time">▓▓:▓▓ Uhr</span></div>
+      <div class="preview-row">📊 <strong>Quote:</strong> ${escapeHtml(quoteBereich)}</div>
+      <div class="preview-row">🎯 <strong>Markt:</strong> <span class="locked-value">Nach Freischaltung sichtbar</span></div>
+      <div class="preview-row">⚔️ <strong>Begegnung:</strong> <span class="locked-value">Nach Freischaltung sichtbar</span></div>
     </div>
 
-    <div class="locked">
-      Tipp und Analyse sind erst nach erfolgreicher Freischaltung sichtbar.
-    </div>
-
-    <div class="price">💎 ${escapeHtml(preisUnits)} Units</div>
+    <div class="price">Preis: ${escapeHtml(preisUnits)} Units</div>
     <br>
 
-    <button class="btn unlock-button" type="button">Freischalten</button>
+    <button class="btn unlock-button" type="button">${escapeHtml(unlockLabel)}</button>
 
     <div class="small-note">
-      Nach bestätigtem Spielende wird der Tipp automatisch in den Ergebnisbereich verschoben.
+      Nach der Freischaltung werden Begegnung, Markt, Auswahl, genaue Quote, Anpfiff, Tippgeber und Analyse sichtbar.
     </div>
 
     <div class="unlock-result"></div>
   `;
 
   const button = card.querySelector(".unlock-button");
+  button.dataset.defaultText = unlockLabel;
   button.addEventListener("click", () => freischalten(tippId, card, button));
 
   return card;
@@ -1040,7 +1115,7 @@ async function loadPage() {
     openStatus.style.display = "none";
     resultStatus.style.display = "none";
     openBox.innerHTML =
-      '<div class="error">Fehler beim Laden der Tipps:\\n\\n' +
+      '<div class="error">Fehler beim Laden der Tipps:\n\n' +
       escapeHtml(error.message) + '</div>';
     console.error(error);
   }
@@ -1053,7 +1128,7 @@ async function freischalten(tippId, card, button) {
 
   if (!token) {
     resultBox.innerHTML =
-      '<div class="error">Kein Zugangscode gefunden.\\n\\nBitte öffne die Seite über deinen persönlichen Profil-Link.</div>';
+      '<div class="error">Kein Zugangscode gefunden.\n\nBitte öffne die Seite über deinen persönlichen Profil-Link.</div>';
     return;
   }
 
@@ -1076,15 +1151,15 @@ async function freischalten(tippId, card, button) {
     const rawText = await response.text();
 
     if (!response.ok) {
-      throw new Error("HTTP Fehler: " + response.status + "\\n\\nAntwort:\\n" + rawText);
+      throw new Error("HTTP Fehler: " + response.status + "\n\nAntwort:\n" + rawText);
     }
 
     const data = parseUnlockResponse(rawText);
 
     if (data.status === "not_enough_units") {
       resultBox.innerHTML =
-        '<div class="error">Nicht genug Units.\\n\\nAktuelle Units: ' +
-        escapeHtml(data.units) + '\\nBenötigt: ' + escapeHtml(data.required) + '</div>';
+        '<div class="error">Nicht genug Units.\n\nAktuelle Units: ' +
+        escapeHtml(data.units) + '\nBenötigt: ' + escapeHtml(data.required) + '</div>';
       return;
     }
 
@@ -1095,7 +1170,7 @@ async function freischalten(tippId, card, button) {
       );
 
       resultBox.innerHTML =
-        '<div class="error">Die Units können aktuell nicht eindeutig zugeordnet werden.\\n\\n' +
+        '<div class="error">Die Units können aktuell nicht eindeutig zugeordnet werden.\n\n' +
         escapeHtml(serverMessage) + '</div>';
       return;
     }
@@ -1114,9 +1189,12 @@ async function freischalten(tippId, card, button) {
         <div class="unlock-box">
           <h3>✅ Freigeschalteter Tipp</h3>
           <p><strong>Spiel:</strong> ${escapeHtml(data.spiel)}</p>
+          <p><strong>Liga:</strong> ${escapeHtml(data.liga)}</p>
+          <p><strong>Markt:</strong> ${escapeHtml(data.markt)}</p>
           <p><strong>Tipp:</strong> ${escapeHtml(data.tipp)}</p>
           <p><strong>Quote:</strong> ${escapeHtml(data.quote)}</p>
-          <p><strong>Ersteller:</strong> ${escapeHtml(data.ersteller)}</p>
+          <p><strong>Anpfiff:</strong> ${escapeHtml(data.anpfiff)}</p>
+          <p><strong>Tippgeber:</strong> ${escapeHtml(data.ersteller)}</p>
           <p><strong>Verbleibende Units:</strong> ${escapeHtml(data.units)}</p>
           <div class="analysis-text">
             <strong>Analyse:</strong><br><br>${escapeHtml(data.analyse)}
@@ -1127,18 +1205,18 @@ async function freischalten(tippId, card, button) {
     }
 
     resultBox.innerHTML =
-      '<div class="error">Unbekannte Antwort vom Server:\\n\\n' +
+      '<div class="error">Unbekannte Antwort vom Server:\n\n' +
       escapeHtml(rawText) + '</div>';
 
   } catch (error) {
     resultBox.innerHTML =
-      '<div class="error">Fehler beim Freischalten:\\n\\n' +
+      '<div class="error">Fehler beim Freischalten:\n\n' +
       escapeHtml(error.message) + '</div>';
     console.error(error);
 
   } finally {
     button.disabled = false;
-    button.textContent = "Freischalten";
+    button.textContent = button.dataset.defaultText || "Freischalten";
   }
 }
 
