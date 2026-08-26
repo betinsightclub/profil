@@ -530,7 +530,7 @@
 
       function purchaseUrl() {
         const base = window.location.hostname.toLowerCase() === GITHUB_HOST ? "/profil/" : "/";
-        const token = profileToken();
+        const token = dashboardToken();
         return token ? `${base}kaufen/?token=${encodeURIComponent(token)}` : "";
       }
 
@@ -542,7 +542,7 @@
             return;
           }
           document.getElementById("message").textContent =
-            "Der persönliche Kaufzugang fehlt. Bitte öffne zuerst dein Dashboard und aktualisiere den Kontostand.";
+            "Der persönliche Dashboard-Zugang fehlt. Bitte öffne zuerst dein Dashboard und rufe die Pakete erneut auf.";
         });
       });
 
