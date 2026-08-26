@@ -2,8 +2,8 @@
 <!--
 Projekt: BetInsight
 Datei: profil/verkaufen/index.html
-Version: 2026.08.21-01
-Anwendungs-Version: 1.4.0
+Version: 2026.08.27-01
+Anwendungs-Version: 1.4.1
 Änderungen:
 - Verkaufsseite verwendet ausschließlich den canonical dashboard_token als UUID.
 - Der zusätzliche Profil-Webhook-Aufruf zur Alt-Token-Normalisierung wurde entfernt.
@@ -11,6 +11,7 @@ Anwendungs-Version: 1.4.0
 - Fehlende/nicht bestätigte Wallet ist ein normaler Status und kein Ladefehler.
 - 0 verkaufbare Units werden sauber als 0 angezeigt; der Verkaufsbutton bleibt gesperrt.
 - Alte numerische/BI-Tokens werden nicht mehr selbst aufgelöst; der Einstieg erfolgt über Profil → Wechselstube.
+- Lokale Bestandsprüfung hat wieder Vorrang vor Wallet-Hinweisen: eine zu hohe Verkaufsmenge wird sofort rot markiert.
 - Reservierungs-, Gebühren-, Unit- und Verkaufslogik bleiben unverändert.
 -->
 <html lang="de">
@@ -19,7 +20,7 @@ Anwendungs-Version: 1.4.0
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#071019">
-  <meta name="application-version" content="1.4.0">
+  <meta name="application-version" content="1.4.1">
   <title>Units verkaufen | BetInsight Club</title>
   <link rel="stylesheet" href="../assets/app-navigation.css">
 <style>
@@ -268,7 +269,7 @@ Anwendungs-Version: 1.4.0
     </ul>
   </section>
 
-  <p class="footer-note">BetInsight Wechselbörse · Verkaufsangebot Version 1.4.0</p>
+  <p class="footer-note">BetInsight Wechselbörse · Verkaufsangebot Version 1.4.1</p>
 </main>
 
 <script>
@@ -376,17 +377,15 @@ function refreshCreateButton() {
     setAvailabilityError("");
     return;
   }
-  if (!accountState.walletChecked) {
-    offerStatus.textContent = "Wallet wird geprüft";
-    setAvailabilityError("");
+
+  if (!validSelection) {
+    const message = "Ungültige Auswahl. Bitte wähle eine erlaubte Verkaufsmenge und einen erlaubten Preis.";
+    offerStatus.textContent = "Auswahl nicht möglich";
+    setAvailabilityError(message);
+    showFeedback(message,"error");
     return;
   }
-  if (!accountState.walletReady) {
-    offerStatus.textContent = "Wallet nicht bereit";
-    setAvailabilityError("");
-    showFeedback("Bitte richte zuerst deine Auszahlungs-Wallet vollständig ein und bestätige sie. Der Verkaufsbutton bleibt bis dahin gesperrt.","info");
-    return;
-  }
+
   if (!enoughUnits) {
     const missing = Math.max(0,offer.required-accountState.totalSellable);
     const message =
@@ -398,6 +397,19 @@ function refreshCreateButton() {
     showFeedback(message,"error");
     return;
   }
+
+  if (!accountState.walletChecked) {
+    offerStatus.textContent = "Wallet wird geprüft";
+    setAvailabilityError("");
+    return;
+  }
+  if (!accountState.walletReady) {
+    offerStatus.textContent = "Wallet nicht bereit";
+    setAvailabilityError("");
+    showFeedback("Bitte richte zuerst deine Auszahlungs-Wallet vollständig ein und bestätige sie. Der Verkaufsbutton bleibt bis dahin gesperrt.","info");
+    return;
+  }
+
   setAvailabilityError("");
   offerStatus.textContent = "Verkauf möglich";
   showFeedback(
@@ -437,7 +449,6 @@ async function backendStatusCheck() {
   accountState.purchasedUnits = safeNumber(result.purchased_units);
   accountState.refFree = safeNumber(result.ref_free);
   accountState.refOnAccount = safeNumber(result.ref_on_account);
-
   renderBalances();
   refreshCreateButton();
 }
