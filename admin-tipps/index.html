@@ -4,1277 +4,198 @@ GitHub-Ziel: betinsightclub/profil/admin-tipps/index.html
 Live-Seite: https://betinsightclub.github.io/profil/admin-tipps/
 
 Projekt: BetInsight
-Version: 2026.08.24-03
-Stand: 24.08.2026
+Version: 2026.08.26-01
+Anwendungs-Version: 2.4.0
+Stand: 26.08.2026
 
 GEÄNDERT:
-- Master-Modus für die nachträgliche Erfassung historischer Tipps ergänzt.
-- Historische Tipps erhalten Quelle und bestehende Tippgeber-ID, bleiben aber von rückwirkender Abrechnung ausgeschlossen.
-- Für jeden gespeicherten Tipp wird serverseitig eine offene Ergebniszeile vorbereitet.
-- Live-Alarm-Schalter mit Spielstand, Spielminute und Gültigkeitsdauer ergänzt.
-- Live-Alarme werden gleichzeitig Premium und Premium Plus zugeordnet; Basis ist ausgeschlossen.
-- Analyse ist optional und wird von Browser und Make nicht mehr als Pflichtfeld verlangt.
-- Make speichert die Vorbereitung getrennt in LIVE_ALERTS; Unit- und Referral-Logik bleiben unverändert.
-- Tippfreigabe für berechtigte Admins auf direkte Veröffentlichung umgestellt.
-- Nur eine gültige, aktive Admin-Sitzung mit tipps_erlaubt = JA darf veröffentlichen.
-- Admin-ID und Erstellername werden serverseitig aus BO_ADMIN_SESSIONS / BO_ADMINS ermittelt.
-- Make schreibt direkt in TIPPS; TIPPS_ENTWURF und ein zusätzlicher Freigabeschritt entfallen.
-- Der Browser akzeptiert nur eine eindeutige JSON-Bestätigung nach erfolgreichem TIPPS-Schreibvorgang.
-- Die doppelte Auth-Prüfung unmittelbar vor jedem Speichern entfällt; Make prüft die Sitzung serverseitig erneut.
-- Quote wird im Make-Szenario für die deutsche Tabellen-Lokalisierung normalisiert.
-- Zentrale Admin-Session, Logout, Logo und Favicon bleiben unverändert.
+- Markt "Kombi-Wette" ergänzt.
+- Kombi-Bereich öffnet sich ausschließlich bei Auswahl "Kombi-Wette".
+- Kombis mit 2 bis 10 Auswahlen möglich; 3er-/4er-Kombis über "Weitere Auswahl hinzufügen".
+- Jede Auswahl besitzt eigenes Spiel, Liga/Wettbewerb, Markt, Tipp, Einzelquote, Spieldatum und Anpfiff.
+- Gesamtquote wird automatisch aus den Einzelquoten berechnet.
+- Kombi wird zusätzlich rückwärtskompatibel in den bestehenden TIPPS-Feldern zusammengefasst, damit das aktuelle Make-Szenario weiterarbeiten kann.
+- Strukturierte kombi_legs werden zusätzlich im Webhook-Payload mitgesendet, ohne bestehende Felder zu ersetzen.
+- Bestehende Admin-Session, historische Master-Erfassung und Live-Alarm bleiben erhalten.
 -->
 <html lang="de">
 <head>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#061d2a">
-  <meta name="application-version" content="2.3.0">
+  <meta name="application-version" content="2.4.0">
   <title>BetInsight – Tippbereich</title>
-
   <style>
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: radial-gradient(circle at top, #0b3b55 0%, #061d2a 45%, #031018 100%);
-      color: #ffffff;
-      font-family: Arial, Helvetica, sans-serif;
-      padding: 28px 16px 48px;
-    }
-
-    button, input, select, textarea, a { font: inherit; }
-    button, a, select { -webkit-tap-highlight-color: transparent; }
-
-    .page {
-      width: 100%;
-      max-width: 1050px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .logo {
-      width: 170px;
-      max-width: 70%;
-      height: auto;
-      margin: 10px auto 28px;
-      display: block;
-    }
-
-    .card {
-      background: rgba(9, 45, 64, 0.95);
-      border: 1px solid rgba(0, 218, 255, 0.28);
-      border-radius: 22px;
-      padding: 28px;
-      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
-      margin: 0 auto 22px;
-    }
-
-    h1 { margin: 0 0 10px; font-size: 30px; }
-    h2 { margin: 0 0 18px; font-size: 24px; }
-
-    .subtitle {
-      color: #b9d8e8;
-      line-height: 1.5;
-      margin-bottom: 24px;
-    }
-
-    .hidden { display: none !important; }
-
-    .auth-card {
-      max-width: 560px;
-      padding: 34px 28px;
-    }
-
-    .auth-spinner {
-      width: 42px;
-      height: 42px;
-      margin: 0 auto 18px;
-      border: 4px solid rgba(185, 216, 232, 0.22);
-      border-top-color: #16a8f5;
-      border-radius: 50%;
-      animation: spin 0.85s linear infinite;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .auth-message {
-      color: #b9d8e8;
-      line-height: 1.55;
-      margin: 0;
-    }
-
-    .auth-error {
-      color: #ff9da3;
-      margin-top: 14px;
-      line-height: 1.5;
-    }
-
-    .dashboard-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-bottom: 22px;
-      text-align: left;
-    }
-
-    .admin-name { color: #8fe7ff; font-weight: bold; }
-
-    .role-badge {
-      display: inline-flex;
-      align-items: center;
-      margin-left: 7px;
-      padding: 4px 9px;
-      border: 1px solid rgba(0, 212, 138, 0.38);
-      border-radius: 999px;
-      background: rgba(0, 212, 138, 0.10);
-      color: #82f5c8;
-      font-size: 12px;
-      font-weight: 800;
-      vertical-align: middle;
-    }
-
-    .top-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .btn,
-    .link-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border: none;
-      border-radius: 999px;
-      padding: 14px 22px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      color: #ffffff;
-      background: #16a8f5;
-      text-decoration: none;
-      transition: transform .18s ease, filter .18s ease, background .18s ease;
-    }
-
-    .btn:hover, .link-btn:hover,
-    .btn:focus-visible, .link-btn:focus-visible {
-      transform: translateY(-2px);
-      filter: brightness(1.06);
-      outline: none;
-    }
-
-    .btn-secondary,
-    .link-btn {
-      background: transparent;
-      border: 1px solid rgba(0, 218, 255, 0.4);
-      color: #d8eef8;
-    }
-
-    .btn-secondary:hover, .link-btn:hover { background: rgba(0, 218, 255, 0.10); }
-
-    .small-btn {
-      width: auto;
-      margin: 0;
-      padding: 10px 18px;
-      font-size: 14px;
-    }
-
-    .logout-btn {
-      background: linear-gradient(135deg, #e95e68, #9d2f39);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 18px;
-      margin-top: 22px;
-    }
-
-    .dashboard-tile {
-      background: rgba(6, 29, 42, 0.85);
-      border: 1px solid rgba(0, 218, 255, 0.22);
-      border-radius: 18px;
-      padding: 22px;
-      text-align: left;
-      min-height: 135px;
-    }
-
-    .tile-icon { font-size: 28px; margin-bottom: 12px; }
-    .tile-title { font-size: 19px; font-weight: bold; margin-bottom: 8px; }
-    .tile-text { color: #b9d8e8; line-height: 1.45; font-size: 14px; }
-
-    .notice {
-      margin-top: 22px;
-      padding: 16px;
-      border-radius: 14px;
-      background: rgba(255, 204, 102, 0.12);
-      border: 1px solid rgba(255, 204, 102, 0.35);
-      color: #ffe0a3;
-      line-height: 1.5;
-      text-align: left;
-    }
-
-    .live-alarm-card {
-      margin-top: 22px;
-      padding: 20px;
-      border-radius: 18px;
-      border: 1px solid rgba(255, 91, 103, 0.42);
-      background: radial-gradient(circle at 100% 0%, rgba(255, 70, 87, 0.16), transparent 45%), rgba(34, 10, 18, 0.46);
-    }
-
-    .live-alarm-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-      flex-wrap: wrap;
-    }
-
-    .live-alarm-copy { flex: 1 1 360px; }
-
-    .live-alarm-copy h3 {
-      margin: 0 0 7px;
-      color: #ffffff;
-      font-size: 20px;
-    }
-
-    .live-alarm-copy p {
-      margin: 0;
-      color: #ffc5ca;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .live-alarm-toggle {
-      min-width: 220px;
-      min-height: 50px;
-      border: 1px solid rgba(255, 255, 255, 0.24);
-      border-radius: 999px;
-      padding: 12px 20px;
-      background: rgba(255, 255, 255, 0.08);
-      color: #e8f3f8;
-      font-size: 15px;
-      font-weight: 900;
-      cursor: pointer;
-      transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
-    }
-
-    .live-alarm-toggle:hover,
-    .live-alarm-toggle:focus-visible {
-      transform: translateY(-2px);
-      outline: none;
-    }
-
-    .live-alarm-toggle.is-active {
-      border-color: #ff5b67;
-      background: linear-gradient(135deg, #ef3346, #b30f29);
-      color: #ffffff;
-      box-shadow: 0 0 0 4px rgba(255, 70, 87, 0.12), 0 12px 30px rgba(179, 15, 41, 0.28);
-    }
-
-    .live-alarm-fields {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 15px;
-      margin-top: 18px;
-      padding-top: 18px;
-      border-top: 1px solid rgba(255, 255, 255, 0.12);
-    }
-
-    .live-alarm-fields[hidden] { display: none; }
-
-    .live-alarm-recipient {
-      grid-column: 1 / -1;
-      padding: 12px 14px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.07);
-      color: #ffe5e8;
-      font-size: 13px;
-      line-height: 1.45;
-    }
-
-    .form-card { text-align: left; margin-top: 22px; }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 18px;
-    }
-
-    .form-group.full { grid-column: 1 / -1; }
-
-    label {
-      display: block;
-      text-align: left;
-      margin-bottom: 8px;
-      color: #d8eef8;
-      font-weight: bold;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      padding: 14px 15px;
-      border-radius: 12px;
-      border: 1px solid rgba(0, 218, 255, 0.35);
-      background: #061d2a;
-      color: #ffffff;
-      font-size: 16px;
-      outline: none;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-
-    textarea { min-height: 150px; resize: vertical; line-height: 1.5; }
-
-    input:focus, select:focus, textarea:focus {
-      border-color: #16a8f5;
-      box-shadow: 0 0 0 3px rgba(22, 168, 245, 0.16);
-    }
-
-    button:disabled, input:disabled, select:disabled, textarea:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-    }
-
-    .hint {
-      color: #83b7ca;
-      font-size: 13px;
-      margin-top: 6px;
-      line-height: 1.4;
-    }
-
-    .form-actions {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-      margin-top: 18px;
-    }
-
-    .form-actions .btn { width: 100%; }
-
-    .message {
-      margin-top: 15px;
-      font-size: 14px;
-      color: #ffcc66;
-      min-height: 20px;
-      line-height: 1.4;
-    }
-
-    .error-message { color: #ff8f8f; }
-    .success-message { color: #7dffb2; }
-
-    .preview {
-      margin-top: 22px;
-      padding: 18px;
-      border-radius: 16px;
-      background: rgba(6, 29, 42, 0.85);
-      border: 1px solid rgba(0, 218, 255, 0.22);
-      line-height: 1.6;
-      color: #d8eef8;
-      white-space: pre-wrap;
-    }
-
-    .preview strong { color: #ffffff; }
-
-    .success-box {
-      margin-top: 22px;
-      padding: 20px;
-      border-radius: 18px;
-      background: rgba(125, 255, 178, 0.12);
-      border: 1px solid rgba(125, 255, 178, 0.35);
-      color: #dfffee;
-      text-align: center;
-      line-height: 1.6;
-    }
-
-    .success-box strong { color: #ffffff; font-size: 19px; }
-
-    .version {
-      margin-top: 18px;
-      color: #6f9cad;
-      font-size: 12px;
-      text-align: center;
-    }
-
-    @media (max-width: 760px) {
-      body { padding: 22px 12px 38px; }
-      .card { padding: 22px; }
-      h1 { font-size: 26px; }
-      .dashboard-header { text-align: center; justify-content: center; }
-      .top-actions { width: 100%; justify-content: center; }
-      .form-grid { grid-template-columns: 1fr; }
-      .form-actions { grid-template-columns: 1fr; }
-      .live-alarm-toggle { width: 100%; min-width: 0; }
-      .live-alarm-fields { grid-template-columns: 1fr; }
-    }
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#0b3b55 0%,#061d2a 45%,#031018 100%);color:#fff;font-family:Arial,Helvetica,sans-serif;padding:28px 16px 48px}
+    button,input,select,textarea,a{font:inherit}button,a,select{-webkit-tap-highlight-color:transparent}
+    .page{width:100%;max-width:1050px;margin:0 auto;text-align:center}.logo{width:170px;max-width:70%;height:auto;margin:10px auto 28px;display:block}
+    .card{background:rgba(9,45,64,.95);border:1px solid rgba(0,218,255,.28);border-radius:22px;padding:28px;box-shadow:0 18px 45px rgba(0,0,0,.35);margin:0 auto 22px}
+    h1{margin:0 0 10px;font-size:30px}h2{margin:0 0 18px;font-size:24px}.subtitle{color:#b9d8e8;line-height:1.5;margin-bottom:24px}.hidden{display:none!important}
+    .auth-card{max-width:560px;padding:34px 28px}.auth-spinner{width:42px;height:42px;margin:0 auto 18px;border:4px solid rgba(185,216,232,.22);border-top-color:#16a8f5;border-radius:50%;animation:spin .85s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    .auth-message{color:#b9d8e8;line-height:1.55;margin:0}.auth-error{color:#ff9da3;margin-top:14px;line-height:1.5}
+    .dashboard-header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:22px;text-align:left}.admin-name{color:#8fe7ff;font-weight:bold}.role-badge{display:inline-flex;align-items:center;margin-left:7px;padding:4px 9px;border:1px solid rgba(0,212,138,.38);border-radius:999px;background:rgba(0,212,138,.10);color:#82f5c8;font-size:12px;font-weight:800;vertical-align:middle}.top-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .btn,.link-btn{display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:999px;padding:14px 22px;font-size:16px;font-weight:bold;cursor:pointer;color:#fff;background:#16a8f5;text-decoration:none;transition:transform .18s ease,filter .18s ease,background .18s ease}.btn:hover,.link-btn:hover,.btn:focus-visible,.link-btn:focus-visible{transform:translateY(-2px);filter:brightness(1.06);outline:none}.btn-secondary,.link-btn{background:transparent;border:1px solid rgba(0,218,255,.4);color:#d8eef8}.btn-secondary:hover,.link-btn:hover{background:rgba(0,218,255,.10)}.small-btn{width:auto;margin:0;padding:10px 18px;font-size:14px}.logout-btn{background:linear-gradient(135deg,#e95e68,#9d2f39)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:22px}.dashboard-tile{background:rgba(6,29,42,.85);border:1px solid rgba(0,218,255,.22);border-radius:18px;padding:22px;text-align:left;min-height:135px}.tile-icon{font-size:28px;margin-bottom:12px}.tile-title{font-size:19px;font-weight:bold;margin-bottom:8px}.tile-text{color:#b9d8e8;line-height:1.45;font-size:14px}
+    .notice{margin-top:22px;padding:16px;border-radius:14px;background:rgba(255,204,102,.12);border:1px solid rgba(255,204,102,.35);color:#ffe0a3;line-height:1.5;text-align:left}
+    .form-card{text-align:left;margin-top:22px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.form-group.full{grid-column:1/-1}label{display:block;text-align:left;margin-bottom:8px;color:#d8eef8;font-weight:bold}input,select,textarea{width:100%;padding:14px 15px;border-radius:12px;border:1px solid rgba(0,218,255,.35);background:#061d2a;color:#fff;font-size:16px;outline:none;font-family:Arial,Helvetica,sans-serif}textarea{min-height:150px;resize:vertical;line-height:1.5}input:focus,select:focus,textarea:focus{border-color:#16a8f5;box-shadow:0 0 0 3px rgba(22,168,245,.16)}button:disabled,input:disabled,select:disabled,textarea:disabled{opacity:.55;cursor:not-allowed}.hint{color:#83b7ca;font-size:13px;margin-top:6px;line-height:1.4}
+    .combo-card{grid-column:1/-1;border:1px solid rgba(255,186,73,.42);border-radius:18px;padding:20px;background:linear-gradient(180deg,rgba(92,57,8,.25),rgba(6,29,42,.75));margin-top:2px}.combo-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:16px}.combo-head h3{margin:0 0 6px;font-size:21px}.combo-head p{margin:0;color:#d8c59f;line-height:1.45;font-size:14px}.combo-leg{border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:17px;background:rgba(0,0,0,.16);margin-top:14px}.combo-leg-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.combo-leg-title{font-weight:900;color:#ffd58a}.combo-leg-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.combo-remove{border:1px solid rgba(233,94,104,.45);background:rgba(233,94,104,.12);color:#ffb0b6;border-radius:999px;padding:8px 12px;font-size:13px;font-weight:800;cursor:pointer}.combo-tools{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:18px}.combo-add{border:1px solid rgba(0,212,138,.48);background:rgba(0,212,138,.12);color:#8ff0cb;border-radius:999px;padding:11px 16px;font-weight:900;cursor:pointer}.combo-quote{padding:10px 14px;border-radius:12px;background:rgba(255,186,73,.12);border:1px solid rgba(255,186,73,.34);color:#ffe1a6;font-weight:900}.combo-count{color:#a9cddd;font-size:13px;margin-top:10px}
+    .live-alarm-card{margin-top:22px;padding:20px;border-radius:18px;border:1px solid rgba(255,91,103,.42);background:radial-gradient(circle at 100% 0%,rgba(255,70,87,.16),transparent 45%),rgba(34,10,18,.46)}.live-alarm-header{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}.live-alarm-copy{flex:1 1 360px}.live-alarm-copy h3{margin:0 0 7px;color:#fff;font-size:20px}.live-alarm-copy p{margin:0;color:#ffc5ca;font-size:14px;line-height:1.5}.live-alarm-toggle{min-width:220px;min-height:50px;border:1px solid rgba(255,255,255,.24);border-radius:999px;padding:12px 20px;background:rgba(255,255,255,.08);color:#e8f3f8;font-size:15px;font-weight:900;cursor:pointer}.live-alarm-toggle.is-active{border-color:#ff5b67;background:linear-gradient(135deg,#ef3346,#b30f29);color:#fff;box-shadow:0 0 0 4px rgba(255,70,87,.12),0 12px 30px rgba(179,15,41,.28)}.live-alarm-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,.12)}.live-alarm-fields[hidden]{display:none}.live-alarm-recipient{grid-column:1/-1;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.07);color:#ffe5e8;font-size:13px;line-height:1.45}
+    .form-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}.form-actions .btn{width:100%}.message{margin-top:15px;font-size:14px;color:#ffcc66;min-height:20px;line-height:1.4}.error-message{color:#ff8f8f}.success-message{color:#7dffb2}.preview{margin-top:22px;padding:18px;border-radius:16px;background:rgba(6,29,42,.85);border:1px solid rgba(0,218,255,.22);line-height:1.6;color:#d8eef8;white-space:pre-wrap}.preview strong{color:#fff}.success-box{margin-top:22px;padding:20px;border-radius:18px;background:rgba(125,255,178,.12);border:1px solid rgba(125,255,178,.35);color:#dfffee;text-align:center;line-height:1.6}.success-box strong{color:#fff;font-size:19px}.version{margin-top:18px;color:#6f9cad;font-size:12px;text-align:center}
+    @media(max-width:760px){body{padding:22px 12px 38px}.card{padding:22px}h1{font-size:26px}.dashboard-header{text-align:center;justify-content:center}.top-actions{width:100%;justify-content:center}.form-grid,.combo-leg-grid{grid-template-columns:1fr}.form-actions{grid-template-columns:1fr}.live-alarm-toggle{width:100%;min-width:0}.live-alarm-fields{grid-template-columns:1fr}.combo-tools{align-items:stretch}.combo-add,.combo-quote{width:100%;text-align:center}}
   </style>
 </head>
-
 <body>
-  <main class="page">
-    <img src="../logo_betisight.club.png" alt="BetInsight Club" class="logo">
+<main class="page">
+  <img src="../logo_betisight.club.png" alt="BetInsight Club" class="logo">
 
-    <section id="authArea" class="card auth-card">
-      <div class="auth-spinner" id="authSpinner" aria-hidden="true"></div>
-      <h1>🔐 Sichere Sitzung wird geprüft</h1>
-      <p class="auth-message" id="authMessage">
-        Der Tippbereich wird erst nach erfolgreicher Prüfung deiner zentralen Admin-Sitzung geöffnet.
-      </p>
-      <div class="auth-error hidden" id="authError"></div>
-      <a class="link-btn hidden" id="backToAdminButton" href="https://betinsightclub.github.io/profil/admin/" style="margin-top:18px;">
-        ← Zum Admin Center
-      </a>
+  <section id="authArea" class="card auth-card">
+    <div class="auth-spinner" id="authSpinner" aria-hidden="true"></div>
+    <h1>🔐 Sichere Sitzung wird geprüft</h1>
+    <p class="auth-message" id="authMessage">Der Tippbereich wird erst nach erfolgreicher Prüfung deiner zentralen Admin-Sitzung geöffnet.</p>
+    <div class="auth-error hidden" id="authError"></div>
+    <a class="link-btn hidden" id="backToAdminButton" href="https://betinsightclub.github.io/profil/admin/" style="margin-top:18px;">← Zum Admin Center</a>
+  </section>
+
+  <div id="dashboardArea" class="hidden">
+    <section class="card">
+      <div class="dashboard-header">
+        <div><h1 id="dashboardTitle">BetInsight Tippbereich</h1><p class="subtitle" style="margin:8px 0 0;">Angemeldet als <span id="adminName" class="admin-name">Admin</span><span id="roleBadge" class="role-badge">Admin</span></p></div>
+        <div class="top-actions"><a class="link-btn small-btn" href="https://betinsightclub.github.io/profil/admin/">← Admin Center</a><button class="btn small-btn logout-btn" type="button" id="logoutButton">Abmelden</button></div>
+      </div>
+      <div class="grid">
+        <div class="dashboard-tile"><div class="tile-icon">➕</div><div class="tile-title">Neuer Tipp</div><div class="tile-text">Einzel- oder Kombi-Tipp erfassen und direkt sicher veröffentlichen.</div></div>
+        <div class="dashboard-tile"><div class="tile-icon">📋</div><div class="tile-title">Tipps verwalten</div><div class="tile-text">Veröffentlichte Tipps und Bearbeitungsfunktionen werden hier schrittweise ergänzt.</div></div>
+        <div class="dashboard-tile"><div class="tile-icon">🚀</div><div class="tile-title">Direkt veröffentlichen</div><div class="tile-text">Berechtigte Admins veröffentlichen ohne zusätzlichen Freigabeschritt direkt in TIPPS.</div></div>
+      </div>
+      <div id="modeNotice" class="notice"><strong>Wichtig:</strong><br>Spieldatum und Anpfiff beziehen sich auf das echte Spiel. Bei einer Kombi werden Datum und Startzeit pro Auswahl erfasst. Mit „Tipp veröffentlichen“ wird der Datensatz direkt veröffentlicht.</div>
     </section>
 
-    <div id="dashboardArea" class="hidden">
-      <section class="card">
-        <div class="dashboard-header">
-          <div>
-            <h1 id="dashboardTitle">BetInsight Tippbereich</h1>
-            <p class="subtitle" style="margin:8px 0 0;">
-              Angemeldet als <span id="adminName" class="admin-name">Admin</span>
-              <span id="roleBadge" class="role-badge">Admin</span>
-            </p>
-          </div>
+    <section class="card form-card">
+      <h2 id="tipFormTitle">➕ Neuen Tipp erfassen</h2>
 
-          <div class="top-actions">
-            <a class="link-btn small-btn" href="https://betinsightclub.github.io/profil/admin/">← Admin Center</a>
-            <button class="btn small-btn logout-btn" type="button" id="logoutButton">Abmelden</button>
+      <div id="currentMasterSourcePanel" class="notice hidden" style="margin-bottom:18px;text-align:left;">
+        <strong>Quelle des neuen Tipps</strong>
+        <div class="form-group" style="margin-top:12px;"><label for="currentTipSource">BetInsight-Quelle *</label><select id="currentTipSource"><option value="BETINSIGHT_REDAKTION">BetInsight Redaktion · eigener Tipp</option><option value="BETINSIGHT_KI">BetInsight KI · nicht der persönlichen Tippgeberabrechnung zuordnen</option></select></div>
+      </div>
+
+      <div id="historicalModePanel" class="notice hidden" style="margin-bottom:18px;text-align:left;">
+        <strong>🗂️ Historischen Tipp nachtragen</strong><br>Dieser Modus ist nur für den Master-Admin. Der Tipp erscheint nicht als neuer aktueller Tipp und löst keinen Live-Alarm sowie keine rückwirkende Unit- oder Provisionsabrechnung aus.
+        <div class="form-grid" style="margin-top:16px;">
+          <div class="form-group"><label for="historicalTipSource">Quelle / Tippgeber *</label><select id="historicalTipSource"><option value="ADM-001|BETINSIGHT_REDAKTION|Luciano">Eigener BetInsight-Tipp · Luciano</option><option value="ADM-002|TIPPGEBER|Martin">Tippgeber · Martin</option><option value="ADM-003|TIPPGEBER|Frank">Tippgeber · Frank</option><option value="ADM-001|BETINSIGHT_KI|BetInsight KI">BetInsight KI</option></select></div>
+          <div class="form-group"><label for="historicalPublishedAt">Ursprünglich veröffentlicht am *</label><input id="historicalPublishedAt" type="date"><div class="hint">Das tatsächliche frühere Veröffentlichungsdatum – nicht das heutige Erfassungsdatum.</div></div>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group"><label for="markt">Markt *</label><select id="markt"><option value="">Bitte auswählen</option><option value="1X2">1X2</option><option value="Über 2,5">Über 2,5</option><option value="Unter 2,5">Unter 2,5</option><option value="Beide treffen">Beide treffen</option><option value="Handicap">Handicap</option><option value="Doppelte Chance">Doppelte Chance</option><option value="Kombi-Wette">Kombi-Wette</option><option value="Eigener Markt">Eigener Markt</option></select><div class="hint">Nur bei „Kombi-Wette“ öffnet sich der zusätzliche Kombi-Bereich.</div></div>
+        <div class="form-group"><label for="preisUnits">Preis in Units *</label><input id="preisUnits" type="number" step="1" min="1" placeholder="z.B. 3"></div>
+
+        <div id="singleFields" class="form-group full">
+          <div class="form-grid">
+            <div class="form-group"><label for="spiel">Spiel *</label><input id="spiel" type="text" placeholder="z.B. Japan vs Frankreich"></div>
+            <div class="form-group"><label for="liga">Liga / Wettbewerb *</label><input id="liga" type="text" placeholder="z.B. WM 2026"></div>
+            <div class="form-group"><label for="tipp">Tipp *</label><input id="tipp" type="text" placeholder="z.B. Frankreich gewinnt"></div>
+            <div class="form-group"><label for="quote">Quote *</label><input id="quote" type="number" step="0.01" min="1" placeholder="z.B. 1.85"></div>
+            <div class="form-group"><label for="spielDatum">Spieldatum *</label><input id="spielDatum" type="date"><div class="hint">Datum, an dem das Spiel stattfindet.</div></div>
+            <div class="form-group"><label for="anpfiff">Anpfiff *</label><input id="anpfiff" type="time"><div class="hint">Startzeit des Spiels, nicht die Speicherzeit.</div></div>
           </div>
         </div>
 
-        <div class="grid">
-          <div class="dashboard-tile">
-            <div class="tile-icon">➕</div>
-            <div class="tile-title">Neuer Tipp</div>
-            <div class="tile-text">Tipp über die Maske eintragen und direkt sicher veröffentlichen.</div>
-          </div>
-
-          <div class="dashboard-tile">
-            <div class="tile-icon">📋</div>
-            <div class="tile-title">Tipps verwalten</div>
-            <div class="tile-text">Veröffentlichte Tipps und Bearbeitungsfunktionen werden hier schrittweise ergänzt.</div>
-          </div>
-
-          <div class="dashboard-tile">
-            <div class="tile-icon">🚀</div>
-            <div class="tile-title">Direkt veröffentlichen</div>
-            <div class="tile-text">Berechtigte Admins veröffentlichen ohne zusätzlichen Freigabeschritt direkt in TIPPS.</div>
-          </div>
-        </div>
-
-        <div id="modeNotice" class="notice">
-          <strong>Wichtig:</strong><br>
-          Spieldatum und Anpfiff beziehen sich auf das echte Spiel. Mit „Tipp veröffentlichen“ wird der Datensatz direkt veröffentlicht; die Veröffentlichungszeit setzt das System.
-        </div>
-      </section>
-
-      <section class="card form-card">
-        <h2 id="tipFormTitle">➕ Neuen Tipp erfassen</h2>
-
-        <div id="currentMasterSourcePanel" class="notice hidden" style="margin-bottom:18px;text-align:left;">
-          <strong>Quelle des neuen Tipps</strong>
-          <div class="form-group" style="margin-top:12px;">
-            <label for="currentTipSource">BetInsight-Quelle *</label>
-            <select id="currentTipSource">
-              <option value="BETINSIGHT_REDAKTION">BetInsight Redaktion · eigener Tipp</option>
-              <option value="BETINSIGHT_KI">BetInsight KI · nicht der persönlichen Tippgeberabrechnung zuordnen</option>
-            </select>
-          </div>
-        </div>
-
-        <div id="historicalModePanel" class="notice hidden" style="margin-bottom:18px;text-align:left;">
-          <strong>🗂️ Historischen Tipp nachtragen</strong><br>
-          Dieser Modus ist nur für den Master-Admin. Der Tipp erscheint nicht als neuer aktueller Tipp und löst keinen Live-Alarm sowie keine rückwirkende Unit- oder Provisionsabrechnung aus.
-          <div class="form-grid" style="margin-top:16px;">
-            <div class="form-group">
-              <label for="historicalTipSource">Quelle / Tippgeber *</label>
-              <select id="historicalTipSource">
-                <option value="ADM-001|BETINSIGHT_REDAKTION|Luciano">Eigener BetInsight-Tipp · Luciano</option>
-                <option value="ADM-002|TIPPGEBER|Martin">Tippgeber · Martin</option>
-                <option value="ADM-003|TIPPGEBER|Frank">Tippgeber · Frank</option>
-                <option value="ADM-001|BETINSIGHT_KI|BetInsight KI">BetInsight KI</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="historicalPublishedAt">Ursprünglich veröffentlicht am *</label>
-              <input id="historicalPublishedAt" type="date">
-              <div class="hint">Das tatsächliche frühere Veröffentlichungsdatum – nicht das heutige Erfassungsdatum.</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="spiel">Spiel *</label>
-            <input id="spiel" type="text" placeholder="z.B. Japan vs Frankreich">
-          </div>
-
-          <div class="form-group">
-            <label for="liga">Liga / Wettbewerb *</label>
-            <input id="liga" type="text" placeholder="z.B. WM 2026">
-          </div>
-
-          <div class="form-group">
-            <label for="markt">Markt *</label>
-            <select id="markt">
-              <option value="">Bitte auswählen</option>
-              <option value="1X2">1X2</option>
-              <option value="Über 2,5">Über 2,5</option>
-              <option value="Unter 2,5">Unter 2,5</option>
-              <option value="Beide treffen">Beide treffen</option>
-              <option value="Handicap">Handicap</option>
-              <option value="Doppelte Chance">Doppelte Chance</option>
-              <option value="Eigener Markt">Eigener Markt</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="tipp">Tipp *</label>
-            <input id="tipp" type="text" placeholder="z.B. Frankreich gewinnt">
-          </div>
-
-          <div class="form-group">
-            <label for="quote">Quote *</label>
-            <input id="quote" type="number" step="0.01" min="1" placeholder="z.B. 1.85">
-          </div>
-
-          <div class="form-group">
-            <label for="preisUnits">Preis in Units *</label>
-            <input id="preisUnits" type="number" step="1" min="1" placeholder="z.B. 3">
-          </div>
-
-          <div class="form-group">
-            <label for="spielDatum">Spieldatum *</label>
-            <input id="spielDatum" type="date">
-            <div class="hint">Datum, an dem das Spiel stattfindet.</div>
-          </div>
-
-          <div class="form-group">
-            <label for="anpfiff">Anpfiff *</label>
-            <input id="anpfiff" type="time">
-            <div class="hint">Startzeit des Spiels, nicht die Speicherzeit.</div>
-          </div>
-
-          <div class="form-group full">
-            <label for="analyse">Analyse (optional)</label>
-            <textarea id="analyse" placeholder="Optional: kurze oder vollständige Analyse eintragen..."></textarea>
-            <div class="hint">Kann leer bleiben. Wenn du etwas einträgst, wird es mit dem Tipp gespeichert und erst nach Freischaltung angezeigt.</div>
-          </div>
-        </div>
-
-        <section id="liveAlarmSection" class="live-alarm-card" aria-labelledby="liveAlarmTitle">
-          <div class="live-alarm-header">
-            <div class="live-alarm-copy">
-              <h3 id="liveAlarmTitle">🔴 Live-Alarm für Premium-Mitglieder</h3>
-              <p>Aktiviere den Schalter nur bei einem zeitkritischen Live-Tipp. Premium und Premium Plus erhalten denselben Alarm gleichzeitig; Basis erhält keinen Live-Alarm.</p>
-            </div>
-            <button id="liveAlarmToggle" class="live-alarm-toggle" type="button" aria-pressed="false">⚪ LIVE-ALARM AUS</button>
-          </div>
-
-          <div id="liveAlarmFields" class="live-alarm-fields" hidden>
-            <div class="form-group">
-              <label for="liveSpielstand">Aktueller Spielstand *</label>
-              <input id="liveSpielstand" type="text" placeholder="z.B. 0:1" inputmode="text">
-            </div>
-
-            <div class="form-group">
-              <label for="liveSpielminute">Spielminute *</label>
-              <input id="liveSpielminute" type="number" min="1" max="120" step="1" placeholder="z.B. 68">
-            </div>
-
-            <div class="form-group">
-              <label for="liveGueltigMinuten">Alarm gültig für *</label>
-              <select id="liveGueltigMinuten">
-                <option value="3">3 Minuten</option>
-                <option value="5" selected>5 Minuten</option>
-                <option value="10">10 Minuten</option>
-              </select>
-            </div>
-
-            <div class="live-alarm-recipient">
-              <strong>Empfänger:</strong> Premium und Premium Plus · <strong>Anzeige:</strong> Profil-Popup vorbereitet · E-Mail und Telegram als Versandkanäle vorbereitet · Quote gilt zum Veröffentlichungszeitpunkt und kann sich ändern.
-            </div>
-          </div>
+        <section id="comboSection" class="combo-card hidden" aria-labelledby="comboTitle">
+          <div class="combo-head"><div><h3 id="comboTitle">🔗 Kombi-Wette – Einzelwetten</h3><p>Mindestens zwei Auswahlen. Für eine 3er- oder 4er-Kombi einfach weitere Auswahl hinzufügen.</p></div><div id="comboCount" class="combo-count">2 Auswahlen</div></div>
+          <div id="comboLegs"></div>
+          <div class="combo-tools"><button id="addComboLeg" class="combo-add" type="button">＋ Weitere Auswahl hinzufügen</button><div id="comboQuote" class="combo-quote">Gesamtquote: –</div></div>
+          <div class="hint">Die Gesamtquote wird automatisch aus den Einzelquoten berechnet. Maximal 10 Auswahlen pro Kombi.</div>
         </section>
 
-        <div class="form-actions">
-          <button id="previewButton" class="btn" type="button">Vorschau prüfen</button>
-          <button id="saveButton" class="btn" type="button">🚀 Tipp veröffentlichen</button>
-          <button id="resetButton" class="btn btn-secondary" type="button">Maske leeren</button>
+        <div class="form-group full"><label for="analyse">Analyse (optional)</label><textarea id="analyse" placeholder="Optional: kurze oder vollständige Analyse eintragen..."></textarea><div class="hint">Kann leer bleiben. Wenn du etwas einträgst, wird es mit dem Tipp gespeichert und erst nach Freischaltung angezeigt.</div></div>
+      </div>
+
+      <section id="liveAlarmSection" class="live-alarm-card" aria-labelledby="liveAlarmTitle">
+        <div class="live-alarm-header"><div class="live-alarm-copy"><h3 id="liveAlarmTitle">🔴 Live-Alarm für Premium-Mitglieder</h3><p>Aktiviere den Schalter nur bei einem zeitkritischen Live-Tipp. Premium und Premium Plus erhalten denselben Alarm gleichzeitig; Basis erhält keinen Live-Alarm.</p></div><button id="liveAlarmToggle" class="live-alarm-toggle" type="button" aria-pressed="false">⚪ LIVE-ALARM AUS</button></div>
+        <div id="liveAlarmFields" class="live-alarm-fields" hidden>
+          <div class="form-group"><label for="liveSpielstand">Aktueller Spielstand *</label><input id="liveSpielstand" type="text" placeholder="z.B. 0:1" inputmode="text"></div>
+          <div class="form-group"><label for="liveSpielminute">Spielminute *</label><input id="liveSpielminute" type="number" min="1" max="120" step="1" placeholder="z.B. 68"></div>
+          <div class="form-group"><label for="liveGueltigMinuten">Alarm gültig für *</label><select id="liveGueltigMinuten"><option value="3">3 Minuten</option><option value="5" selected>5 Minuten</option><option value="10">10 Minuten</option></select></div>
+          <div class="live-alarm-recipient"><strong>Empfänger:</strong> Premium und Premium Plus · <strong>Anzeige:</strong> Profil-Popup vorbereitet · E-Mail und Telegram als Versandkanäle vorbereitet · Quote gilt zum Veröffentlichungszeitpunkt und kann sich ändern.</div>
         </div>
-
-        <div id="formMessage" class="message"></div>
-        <div id="previewBox" class="preview hidden"></div>
-        <div id="successBox" class="success-box hidden"></div>
-
-        <div class="version">BetInsight Tippbereich · Version 2.3 · Live-Alarm und historische Master-Erfassung</div>
       </section>
-    </div>
-  </main>
 
-  <script>
-    "use strict";
-
-    const MAKE_WEBHOOK_URL = "https://hook.eu1.make.com/jnj854h9aeg5iqny6prd3owgt4mpcd51";
-    const AUTH_API_URL = "https://hook.eu1.make.com/rfmhuu4fkr9kjsv7o15r2kir8ezbersl";
-    const SESSION_KEY = "betinsight_admin_session_v1";
-    const ADMIN_CENTER_URL = "https://betinsightclub.github.io/profil/admin/";
-    const HISTORICAL_MODE = new URLSearchParams(window.location.search).get("mode") === "historisch";
-
-    let verifiedSession = null;
-    let liveAlarmEnabled = false;
-
-    const authArea = document.getElementById("authArea");
-    const authSpinner = document.getElementById("authSpinner");
-    const authMessage = document.getElementById("authMessage");
-    const authError = document.getElementById("authError");
-    const backToAdminButton = document.getElementById("backToAdminButton");
-    const dashboardArea = document.getElementById("dashboardArea");
-    const adminName = document.getElementById("adminName");
-    const roleBadge = document.getElementById("roleBadge");
-    const logoutButton = document.getElementById("logoutButton");
-    const formMessage = document.getElementById("formMessage");
-    const previewBox = document.getElementById("previewBox");
-    const successBox = document.getElementById("successBox");
-    const saveButton = document.getElementById("saveButton");
-    const previewButton = document.getElementById("previewButton");
-    const resetButton = document.getElementById("resetButton");
-    const liveAlarmToggle = document.getElementById("liveAlarmToggle");
-    const liveAlarmFields = document.getElementById("liveAlarmFields");
-    const liveAlarmSection = document.getElementById("liveAlarmSection");
-    const dashboardTitle = document.getElementById("dashboardTitle");
-    const tipFormTitle = document.getElementById("tipFormTitle");
-    const modeNotice = document.getElementById("modeNotice");
-    const currentMasterSourcePanel = document.getElementById("currentMasterSourcePanel");
-    const currentTipSource = document.getElementById("currentTipSource");
-    const historicalModePanel = document.getElementById("historicalModePanel");
-    const historicalTipSource = document.getElementById("historicalTipSource");
-    const historicalPublishedAt = document.getElementById("historicalPublishedAt");
-
-    function bytesToHex(bytes) {
-      return Array.from(bytes, byte => byte.toString(16).padStart(2, "0")).join("");
-    }
-
-    async function sha256Hex(text) {
-      const data = new TextEncoder().encode(String(text || ""));
-      const digest = await crypto.subtle.digest("SHA-256", data);
-      return bytesToHex(new Uint8Array(digest));
-    }
-
-    function readSession() {
-      try {
-        const raw = sessionStorage.getItem(SESSION_KEY);
-        if (!raw) return null;
-        const session = JSON.parse(raw);
-        return session?.token && session?.adminId ? session : null;
-      } catch (error) {
-        return null;
-      }
-    }
-
-    function clearSession() {
-      try { sessionStorage.removeItem(SESSION_KEY); } catch (error) {}
-    }
-
-    function sessionIsLocallyExpired(session) {
-      const expiresMs = Number(session?.expiresMs || 0);
-      return !expiresMs || Date.now() >= expiresMs;
-    }
-
-    function isMasterSession(session) {
-      const master = String(session?.master || "").trim().toUpperCase();
-      const role = String(session?.role || "").trim().toUpperCase();
-      return master === "JA" || role === "MASTER";
-    }
-
-    async function authRequest(payload) {
-      let response;
-
-      try {
-        response = await fetch(AUTH_API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          cache: "no-store",
-          credentials: "omit",
-          body: JSON.stringify(payload)
-        });
-      } catch (error) {
-        const networkError = new Error("Die sichere Session-Prüfung ist vorübergehend nicht erreichbar.");
-        networkError.transient = true;
-        throw networkError;
-      }
-
-      const raw = await response.text();
-      let data = {};
-
-      try {
-        data = raw ? JSON.parse(raw) : {};
-      } catch (error) {
-        const parseError = new Error("Der Auth-Server hat keine gültige Antwort geliefert.");
-        parseError.transient = true;
-        throw parseError;
-      }
-
-      if (!response.ok || data?.ok !== true) {
-        const authError = new Error(data?.message || data?.error || "Admin-Sitzung wurde abgelehnt.");
-        authError.httpStatus = response.status;
-        authError.code = String(data?.code || data?.error_code || data?.error || "AUTH_REJECTED").toUpperCase();
-        authError.transient = response.status >= 500 || response.status === 429;
-        throw authError;
-      }
-
-      if (data.session_valid !== undefined && String(data.session_valid).toUpperCase() !== "JA") {
-        const invalidSessionError = new Error(data?.message || "Admin-Sitzung ist nicht mehr gültig.");
-        invalidSessionError.httpStatus = 401;
-        invalidSessionError.code = "INVALID_SESSION";
-        invalidSessionError.transient = false;
-        throw invalidSessionError;
-      }
-
-      return data;
-    }
-
-    function isDefinitiveSessionFailure(error) {
-      const status = Number(error?.httpStatus || 0);
-      const code = String(error?.code || "").toUpperCase();
-      if (status === 401 || status === 403) return true;
-      return ["INVALID_SESSION", "SESSION_EXPIRED", "SESSION_NOT_FOUND", "UNAUTHORIZED", "FORBIDDEN"]
-        .some(value => code.includes(value));
-    }
-
-    function showAuthError(message, allowRetry = true) {
-      authSpinner.classList.add("hidden");
-      authMessage.textContent = message;
-      authError.textContent = allowRetry
-        ? "Bitte lade die Seite erneut. Deine bestehende Sitzung wurde nicht gelöscht."
-        : "Bitte melde dich im zentralen Admin Center erneut an.";
-      authError.classList.remove("hidden");
-      backToAdminButton.classList.remove("hidden");
-      dashboardArea.classList.add("hidden");
-      authArea.classList.remove("hidden");
-    }
-
-    function getHistoricalSelection() {
-      const parts = String(historicalTipSource?.value || "").split("|");
-      return {
-        adminId: String(parts[0] || ""),
-        source: String(parts[1] || ""),
-        name: String(parts[2] || "")
-      };
-    }
-
-    function configurePageMode() {
-      if (!HISTORICAL_MODE) {
-        currentMasterSourcePanel.classList.toggle("hidden", !isMasterSession(verifiedSession));
-        return;
-      }
-
-      document.title = "BetInsight – Historischen Tipp erfassen";
-      dashboardTitle.textContent = "Historische Tipps erfassen";
-      tipFormTitle.textContent = "🗂️ Historischen Tipp nachtragen";
-      modeNotice.innerHTML =
-        "<strong>Historischer Master-Modus:</strong><br>" +
-        "Der Datensatz wird mit seiner ursprünglichen Quelle und Tippgeber-ID gespeichert. Er wird nicht als neuer Tipp angeboten und nicht rückwirkend abgerechnet.";
-      historicalModePanel.classList.remove("hidden");
-      liveAlarmSection.classList.add("hidden");
-      setLiveAlarmEnabled(false);
-    }
-
-    function showDashboard(session) {
-      verifiedSession = session;
-
-      if (HISTORICAL_MODE && !isMasterSession(session)) {
-        showAuthError("Die historische Tipp-Erfassung ist ausschließlich für den Master-Admin freigegeben.", true);
-        return;
-      }
-
-      adminName.textContent = session.name || "Admin";
-      roleBadge.textContent = isMasterSession(session) ? "Master-Admin" : "Admin";
-      authArea.classList.add("hidden");
-      dashboardArea.classList.remove("hidden");
-      configurePageMode();
-    }
-
-    async function verifyStoredSession() {
-      const session = readSession();
-
-      if (!session) {
-        window.location.replace(ADMIN_CENTER_URL);
-        return;
-      }
-
-      if (sessionIsLocallyExpired(session)) {
-        clearSession();
-        window.location.replace(ADMIN_CENTER_URL);
-        return;
-      }
-
-      try {
-        const sessionHash = await sha256Hex(session.token);
-        const result = await authRequest({ action: "verify", session_hash: sessionHash });
-
-        const verified = {
-          token: session.token,
-          expiresMs: Number(result.expires_ms || session.expiresMs || 0),
-          adminId: String(result.admin_id || session.adminId || ""),
-          name: String(result.name || session.name || "Admin"),
-          role: String(result.role || session.role || "ADMIN"),
-          master: String(result.master || session.master || "NEIN")
-        };
-
-        if (!verified.adminId || !verified.expiresMs) {
-          throw new Error("Die geprüfte Admin-Sitzung ist unvollständig.");
-        }
-
-        sessionStorage.setItem(SESSION_KEY, JSON.stringify(verified));
-        showDashboard(verified);
-      } catch (error) {
-        console.error("Admin-Session-Prüfung fehlgeschlagen:", error);
-
-        if (isDefinitiveSessionFailure(error)) {
-          clearSession();
-          showAuthError("Deine Admin-Sitzung ist abgelaufen oder ungültig.", false);
-        } else {
-          showAuthError(error?.message || "Die sichere Session-Prüfung ist vorübergehend nicht möglich.", true);
-        }
-      }
-    }
-
-    async function logoutAdmin() {
-      const session = readSession();
-      clearSession();
-      verifiedSession = null;
-
-      if (session?.token) {
-        try {
-          const sessionHash = await sha256Hex(session.token);
-          await authRequest({ action: "logout", session_hash: sessionHash });
-        } catch (error) {
-          // Die lokale Abmeldung bleibt wirksam.
-        }
-      }
-
-      window.location.replace(ADMIN_CENTER_URL);
-    }
-
-    function getCurrentAdmin() {
-      if (!verifiedSession) return null;
-      return {
-        adminId: String(verifiedSession.adminId || ""),
-        name: String(verifiedSession.name || "Admin"),
-        role: isMasterSession(verifiedSession) ? "owner" : "tipster"
-      };
-    }
-
-    function getValue(id) {
-      return String(document.getElementById(id).value || "").trim();
-    }
-
-    function setLiveAlarmEnabled(enabled) {
-      liveAlarmEnabled = HISTORICAL_MODE ? false : Boolean(enabled);
-      liveAlarmFields.hidden = !liveAlarmEnabled;
-      liveAlarmToggle.classList.toggle("is-active", liveAlarmEnabled);
-      liveAlarmToggle.setAttribute("aria-pressed", liveAlarmEnabled ? "true" : "false");
-      liveAlarmToggle.textContent = liveAlarmEnabled ? "🔴 LIVE-ALARM AN" : "⚪ LIVE-ALARM AUS";
-      liveAlarmToggle.disabled = HISTORICAL_MODE;
-      saveButton.textContent = HISTORICAL_MODE
-        ? "🗂️ Historischen Tipp speichern"
-        : (liveAlarmEnabled ? "🔴 Tipp + Live-Alarm veröffentlichen" : "🚀 Tipp veröffentlichen");
-    }
-
-    function createLiveValidUntil(minutes) {
-      if (!liveAlarmEnabled) return "";
-      return new Date(Date.now() + Number(minutes || 0) * 60000).toISOString();
-    }
-
-    function validateTipForm() {
-      const requiredFields = [
-        { id: "spiel", label: "Spiel" },
-        { id: "liga", label: "Liga / Wettbewerb" },
-        { id: "markt", label: "Markt" },
-        { id: "tipp", label: "Tipp" },
-        { id: "quote", label: "Quote" },
-        { id: "preisUnits", label: "Preis in Units" },
-        { id: "spielDatum", label: "Spieldatum" },
-        { id: "anpfiff", label: "Anpfiff" }
-      ];
-
-      for (const field of requiredFields) {
-        if (!getValue(field.id)) return "Bitte Feld ausfüllen: " + field.label;
-      }
-
-      if (HISTORICAL_MODE) {
-        const historical = getHistoricalSelection();
-        if (!historical.adminId || !historical.source || !historical.name) {
-          return "Bitte Quelle und Tippgeber auswählen.";
-        }
-        const publishedAt = getValue("historicalPublishedAt");
-        if (!publishedAt) return "Bitte das ursprüngliche Veröffentlichungsdatum eintragen.";
-        if (new Date(publishedAt + "T23:59:59").getTime() > Date.now()) {
-          return "Das historische Veröffentlichungsdatum darf nicht in der Zukunft liegen.";
-        }
-      }
-
-      const quote = Number(getValue("quote"));
-      if (!quote || quote < 1) return "Bitte eine gültige Quote eintragen.";
-
-      const preisUnits = Number(getValue("preisUnits"));
-      if (!Number.isInteger(preisUnits) || preisUnits < 1) {
-        return "Bitte einen gültigen Unit-Preis eintragen.";
-      }
-
-      if (liveAlarmEnabled) {
-        if (!getValue("liveSpielstand")) return "Bitte den aktuellen Spielstand für den Live-Alarm eintragen.";
-
-        const minute = Number(getValue("liveSpielminute"));
-        if (!Number.isInteger(minute) || minute < 1 || minute > 120) {
-          return "Bitte eine gültige Spielminute zwischen 1 und 120 eintragen.";
-        }
-
-        const duration = Number(getValue("liveGueltigMinuten"));
-        if (![3, 5, 10].includes(duration)) return "Bitte eine gültige Alarmdauer auswählen.";
-      }
-
-      return "";
-    }
-
-    function formatDateGerman(dateValue) {
-      if (!dateValue) return "";
-      const parts = dateValue.split("-");
-      if (parts.length !== 3) return dateValue;
-      return parts[2] + "." + parts[1] + "." + parts[0];
-    }
-
-    function createTippId(adminNameValue) {
-      const now = new Date();
-      const stamp =
-        now.getFullYear().toString() +
-        String(now.getMonth() + 1).padStart(2, "0") +
-        String(now.getDate()).padStart(2, "0") +
-        "-" +
-        String(now.getHours()).padStart(2, "0") +
-        String(now.getMinutes()).padStart(2, "0") +
-        String(now.getSeconds()).padStart(2, "0");
-
-      const shortAdmin = String(adminNameValue || "ADM").substring(0, 3).toUpperCase();
-      return "BI-" + stamp + "-" + shortAdmin;
-    }
-
-    function createCreatedAt() {
-      return new Date().toLocaleString("de-DE");
-    }
-
-    function collectTipData() {
-      const admin = getCurrentAdmin();
-
-      if (!admin) throw new Error("Keine verifizierte Admin-Sitzung vorhanden.");
-
-      const historical = HISTORICAL_MODE ? getHistoricalSelection() : null;
-      const currentSource = !HISTORICAL_MODE && isMasterSession(verifiedSession)
-        ? String(currentTipSource?.value || "BETINSIGHT_REDAKTION")
-        : (admin.adminId === "ADM-001" ? "BETINSIGHT_REDAKTION" : "TIPPGEBER");
-      const creatorName = historical?.name || (currentSource === "BETINSIGHT_KI" ? "BetInsight KI" : admin.name);
-      const tippId = createTippId(creatorName);
-      const duration = liveAlarmEnabled ? Number(getValue("liveGueltigMinuten")) : 0;
-
-      return {
-        tipp_id: tippId,
-        spiel: getValue("spiel"),
-        liga: getValue("liga"),
-        markt: getValue("markt"),
-        tipp: getValue("tipp"),
-        quote: getValue("quote"),
-        preis_units: Number(getValue("preisUnits")),
-        status: HISTORICAL_MODE ? "historisch" : "veröffentlicht",
-        ersteller: creatorName,
-        admin_id: admin.adminId,
-        ziel_tippgeber_id: historical?.adminId || admin.adminId,
-        tipp_quelle: historical?.source || currentSource,
-        sportart: "Fussball",
-        spiel_datum: formatDateGerman(getValue("spielDatum")),
-        anpfiff: getValue("anpfiff"),
-        analyse: getValue("analyse"),
-        erstellt_am: HISTORICAL_MODE ? formatDateGerman(getValue("historicalPublishedAt")) : createCreatedAt(),
-        live_alarm: liveAlarmEnabled ? "JA" : "NEIN",
-        live_alert_id: (liveAlarmEnabled ? "LA-" : "LOG-") + tippId,
-        live_spielstand: liveAlarmEnabled ? getValue("liveSpielstand") : "",
-        live_spielminute: liveAlarmEnabled ? Number(getValue("liveSpielminute")) : "",
-        live_gueltig_minuten: duration || "",
-        live_gueltig_bis: createLiveValidUntil(duration),
-        live_zielgruppe: liveAlarmEnabled ? "PREMIUM_UND_PLUS" : ""
-      };
-    }
-
-    function prepareTipPreview() {
-      formMessage.textContent = "";
-      formMessage.classList.remove("error-message", "success-message");
-      previewBox.classList.add("hidden");
-      successBox.classList.add("hidden");
-      previewBox.textContent = "";
-      successBox.textContent = "";
-
-      if (!verifiedSession) {
-        formMessage.classList.add("error-message");
-        formMessage.textContent = "Deine Admin-Sitzung ist nicht verifiziert. Bitte über das Admin Center neu öffnen.";
-        return false;
-      }
-
-      const validationError = validateTipForm();
-
-      if (validationError) {
-        formMessage.classList.add("error-message");
-        formMessage.textContent = validationError;
-        return false;
-      }
-
-      const tip = collectTipData();
-
-      const historicalPreview = HISTORICAL_MODE
-        ? "<br>Quelle: " + escapeHtml(tip.tipp_quelle) +
-          "<br>Zugeordnete Tippgeber-ID: " + escapeHtml(tip.ziel_tippgeber_id) +
-          "<br>Ursprünglich veröffentlicht am: " + escapeHtml(tip.erstellt_am) +
-          "<br><strong>Keine rückwirkende Abrechnung</strong>"
-        : "";
-
-      const livePreview = tip.live_alarm === "JA"
-        ? "<br><br><strong>🔴 LIVE-ALARM:</strong><br>" +
-          "Spielstand: " + escapeHtml(tip.live_spielstand) + "<br>" +
-          "Spielminute: " + escapeHtml(String(tip.live_spielminute)) + "<br>" +
-          "Gültig für: " + escapeHtml(String(tip.live_gueltig_minuten)) + " Minuten<br>" +
-          "Empfänger: Premium und Premium Plus"
-        : "";
-
-      previewBox.innerHTML =
-        "<strong>Vorschau:</strong><br><br>" +
-        "Tipp-ID: " + escapeHtml(tip.tipp_id) + "<br>" +
-        "Spiel: " + escapeHtml(tip.spiel) + "<br>" +
-        "Liga: " + escapeHtml(tip.liga) + "<br>" +
-        "Markt: " + escapeHtml(tip.markt) + "<br>" +
-        "Tipp: " + escapeHtml(tip.tipp) + "<br>" +
-        "Quote: " + escapeHtml(tip.quote) + "<br>" +
-        "Preis: " + escapeHtml(String(tip.preis_units)) + " Units<br>" +
-        "Status: " + escapeHtml(tip.status) + "<br>" +
-        "Ersteller: " + escapeHtml(tip.ersteller) + "<br>" +
-        "Spieldatum: " + escapeHtml(tip.spiel_datum) + "<br>" +
-        "Anpfiff: " + escapeHtml(tip.anpfiff) + "<br>" +
-        "Erstellt am: " + escapeHtml(tip.erstellt_am) +
-        historicalPreview +
-        livePreview +
-        "<br><br><strong>Analyse:</strong><br>" +
-        escapeHtml(tip.analyse || "Keine zusätzliche Analyse.");
-
-      previewBox.classList.remove("hidden");
-      formMessage.classList.add("success-message");
-      formMessage.textContent = HISTORICAL_MODE
-        ? "Vorschau erstellt. Du kannst den historischen Tipp jetzt speichern."
-        : "Vorschau erstellt. Du kannst den Tipp jetzt direkt veröffentlichen.";
-      return true;
-    }
-
-    async function verifyBeforeSave() {
-      const session = readSession();
-
-      if (!session || sessionIsLocallyExpired(session)) {
-        clearSession();
-        verifiedSession = null;
-        throw new Error("Deine Admin-Sitzung ist abgelaufen. Bitte erneut anmelden.");
-      }
-
-      if (!verifiedSession || String(verifiedSession.adminId || "") !== String(session.adminId || "")) {
-        throw new Error("Deine Admin-Sitzung ist nicht vollständig verifiziert. Bitte den Tippbereich über das Admin Center neu öffnen.");
-      }
-
-      return sha256Hex(session.token);
-    }
-
-    async function saveTipToMake() {
-      formMessage.textContent = "";
-      formMessage.classList.remove("error-message", "success-message");
-
-      const isValid = prepareTipPreview();
-      if (!isValid) return;
-
-      const tip = collectTipData();
-
-      if (HISTORICAL_MODE) {
-        const confirmedHistorical = window.confirm([
-          "Historischen Tipp wirklich speichern?",
-          "",
-          tip.spiel + " · " + tip.tipp,
-          "Quelle/Tippgeber: " + tip.ersteller + " · " + tip.ziel_tippgeber_id,
-          "Ursprünglich veröffentlicht: " + tip.erstellt_am,
-          "",
-          "Der Tipp wird nicht als neu angeboten und nicht rückwirkend abgerechnet."
-        ].join("\n"));
-
-        if (!confirmedHistorical) {
-          formMessage.textContent = "Historische Erfassung abgebrochen. Die Eingaben bleiben erhalten.";
-          return;
-        }
-      }
-
-      if (tip.live_alarm === "JA") {
-        const confirmedLive = window.confirm([
-          "LIVE-ALARM wirklich veröffentlichen?",
-          "",
-          tip.spiel + " · " + tip.live_spielstand + " · " + tip.live_spielminute + ". Minute",
-          "Tipp: " + tip.tipp,
-          "Quote: " + tip.quote,
-          "Gültig: " + tip.live_gueltig_minuten + " Minuten",
-          "Empfänger: Premium und Premium Plus",
-          "",
-          "Die Quote kann sich nach dem Versand ändern."
-        ].join("\n"));
-
-        if (!confirmedLive) {
-          formMessage.textContent = "Live-Alarm wurde nicht veröffentlicht. Die Eingaben bleiben erhalten.";
-          return;
-        }
-      }
-
-      saveButton.disabled = true;
-      previewButton.disabled = true;
-      resetButton.disabled = true;
-      liveAlarmToggle.disabled = true;
-      saveButton.textContent = HISTORICAL_MODE ? "Speicherung läuft ..." : "Veröffentlichung läuft ...";
-
-      try {
-        const sessionHash = await verifyBeforeSave();
-
-        const payload = {
-          ...tip,
-          admin_session_hash: sessionHash
-        };
-
-        const response = await fetch(MAKE_WEBHOOK_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          cache: "no-store",
-          credentials: "omit",
-          body: JSON.stringify(payload)
-        });
-
-        const raw = await response.text();
-        let result = null;
-
-        try {
-          result = raw ? JSON.parse(raw) : null;
-        } catch (parseError) {
-          throw new Error("Der Veröffentlichungsserver hat den Schreibvorgang nicht eindeutig bestätigt.");
-        }
-
-        if (!response.ok) {
-          const publishError = new Error(result?.message || result?.error || "Make hat die Veröffentlichung abgelehnt.");
-          publishError.httpStatus = response.status;
-          publishError.code = String(result?.code || result?.error_code || "PUBLISH_REJECTED").toUpperCase();
-          throw publishError;
-        }
-
-        const confirmed =
-          result?.ok === true &&
-          String(result?.published || "").toUpperCase() === "JA" &&
-          String(result?.tipp_id || "") === String(tip.tipp_id) &&
-          String(result?.live_alert_saved || "").toUpperCase() === "JA";
-
-        if (!confirmed) {
-          throw new Error("Der Tipp wurde nicht vollständig bestätigt. Es wurde keine Erfolgsmeldung angezeigt.");
-        }
-
-        resetTipForm(false);
-
-        const liveSuccess = tip.live_alarm === "JA"
-          ? "<br>Der Live-Alarm wurde getrennt in <strong>LIVE_ALERTS</strong> für Premium und Premium Plus vorbereitet.<br><br>Status: <strong>LIVE-ALARM VORBEREITET</strong>"
-          : "<br><br>Status: <strong>VERÖFFENTLICHT</strong>";
-
-        if (HISTORICAL_MODE) {
-          successBox.innerHTML =
-            "<strong>✅ Historischer Tipp gespeichert</strong><br><br>" +
-            "Der Tipp wurde in <strong>TIPPS</strong> mit Quelle und Tippgeber-ID gespeichert; die offene Ergebniszeile wurde vorbereitet.<br>" +
-            "Tipp-ID:<br><strong>" + escapeHtml(tip.tipp_id) + "</strong><br><br>" +
-            "Status: <strong>HISTORISCH · NICHT RÜCKWIRKEND ABGERECHNET</strong>";
-          formMessage.textContent = "Historisch gespeichert. Das Ergebnis kannst du jetzt im Master-Backoffice als gewonnen, verloren oder ungültig bestätigen.";
-        } else {
-          successBox.innerHTML =
-            "<strong>✅ Tipp erfolgreich veröffentlicht</strong><br><br>" +
-            "Der Tipp wurde direkt in <strong>TIPPS</strong> gespeichert.<br>" +
-            "Tipp-ID:<br><strong>" + escapeHtml(tip.tipp_id) + "</strong>" +
-            liveSuccess;
-          formMessage.textContent = tip.live_alarm === "JA"
-            ? "Veröffentlicht und Live-Alarm vorbereitet. Du kannst jetzt einen weiteren Tipp erfassen."
-            : "Veröffentlicht. Du kannst jetzt einen weiteren Tipp erfassen.";
-        }
-
-        successBox.classList.remove("hidden");
-        formMessage.classList.add("success-message");
-      } catch (error) {
-        console.error("Tipp veröffentlichen fehlgeschlagen:", error);
-        formMessage.classList.add("error-message");
-        formMessage.textContent = "❌ " + (error?.message || "Fehler beim Veröffentlichen. Bitte später erneut versuchen.");
-
-        if (isDefinitiveSessionFailure(error) || sessionIsLocallyExpired(readSession())) {
-          clearSession();
-          verifiedSession = null;
-          setTimeout(() => window.location.replace(ADMIN_CENTER_URL), 1600);
-        }
-      } finally {
-        saveButton.disabled = false;
-        previewButton.disabled = false;
-        resetButton.disabled = false;
-        liveAlarmToggle.disabled = false;
-        setLiveAlarmEnabled(liveAlarmEnabled);
-      }
-    }
-
-    function resetTipForm(clearMessage = true) {
-      document.getElementById("spiel").value = "";
-      document.getElementById("liga").value = "";
-      document.getElementById("markt").value = "";
-      document.getElementById("tipp").value = "";
-      document.getElementById("quote").value = "";
-      document.getElementById("preisUnits").value = "";
-      document.getElementById("spielDatum").value = "";
-      document.getElementById("anpfiff").value = "";
-      document.getElementById("analyse").value = "";
-      document.getElementById("liveSpielstand").value = "";
-      document.getElementById("liveSpielminute").value = "";
-      document.getElementById("liveGueltigMinuten").value = "5";
-      if (historicalPublishedAt) historicalPublishedAt.value = "";
-      if (currentTipSource) currentTipSource.value = "BETINSIGHT_REDAKTION";
-      setLiveAlarmEnabled(false);
-
-      previewBox.classList.add("hidden");
-      previewBox.textContent = "";
-
-      if (clearMessage) {
-        formMessage.textContent = "";
-        formMessage.classList.remove("error-message", "success-message");
-        successBox.classList.add("hidden");
-        successBox.textContent = "";
-      }
-    }
-
-    function escapeHtml(value) {
-      return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    previewButton.addEventListener("click", prepareTipPreview);
-    saveButton.addEventListener("click", saveTipToMake);
-    resetButton.addEventListener("click", () => resetTipForm(true));
-    liveAlarmToggle.addEventListener("click", () => setLiveAlarmEnabled(!liveAlarmEnabled));
-    logoutButton.addEventListener("click", logoutAdmin);
-
-    verifyStoredSession();
-  </script>
+      <div class="form-actions"><button id="previewButton" class="btn" type="button">Vorschau prüfen</button><button id="saveButton" class="btn" type="button">🚀 Tipp veröffentlichen</button><button id="resetButton" class="btn btn-secondary" type="button">Maske leeren</button></div>
+      <div id="formMessage" class="message"></div><div id="previewBox" class="preview hidden"></div><div id="successBox" class="success-box hidden"></div>
+      <div class="version">BetInsight Tippbereich · Version 2.4 · Kombi-Wetten, Live-Alarm und historische Master-Erfassung</div>
+    </section>
+  </div>
+</main>
+
+<script>
+"use strict";
+const MAKE_WEBHOOK_URL="https://hook.eu1.make.com/jnj854h9aeg5iqny6prd3owgt4mpcd51";
+const AUTH_API_URL="https://hook.eu1.make.com/rfmhuu4fkr9kjsv7o15r2kir8ezbersl";
+const SESSION_KEY="betinsight_admin_session_v1";
+const ADMIN_CENTER_URL="https://betinsightclub.github.io/profil/admin/";
+const HISTORICAL_MODE=new URLSearchParams(window.location.search).get("mode")==="historisch";
+const MAX_COMBO_LEGS=10;
+let verifiedSession=null,liveAlarmEnabled=false;
+
+const byId=id=>document.getElementById(id);
+const authArea=byId("authArea"),authSpinner=byId("authSpinner"),authMessage=byId("authMessage"),authError=byId("authError"),backToAdminButton=byId("backToAdminButton"),dashboardArea=byId("dashboardArea"),adminName=byId("adminName"),roleBadge=byId("roleBadge"),logoutButton=byId("logoutButton"),formMessage=byId("formMessage"),previewBox=byId("previewBox"),successBox=byId("successBox"),saveButton=byId("saveButton"),previewButton=byId("previewButton"),resetButton=byId("resetButton"),liveAlarmToggle=byId("liveAlarmToggle"),liveAlarmFields=byId("liveAlarmFields"),liveAlarmSection=byId("liveAlarmSection"),dashboardTitle=byId("dashboardTitle"),tipFormTitle=byId("tipFormTitle"),modeNotice=byId("modeNotice"),currentMasterSourcePanel=byId("currentMasterSourcePanel"),currentTipSource=byId("currentTipSource"),historicalModePanel=byId("historicalModePanel"),historicalTipSource=byId("historicalTipSource"),historicalPublishedAt=byId("historicalPublishedAt"),marktSelect=byId("markt"),singleFields=byId("singleFields"),comboSection=byId("comboSection"),comboLegs=byId("comboLegs"),comboQuote=byId("comboQuote"),comboCount=byId("comboCount"),addComboLegButton=byId("addComboLeg");
+
+function bytesToHex(bytes){return Array.from(bytes,b=>b.toString(16).padStart(2,"0")).join("")}
+async function sha256Hex(text){const data=new TextEncoder().encode(String(text||""));const digest=await crypto.subtle.digest("SHA-256",data);return bytesToHex(new Uint8Array(digest))}
+function readSession(){try{const raw=sessionStorage.getItem(SESSION_KEY);if(!raw)return null;const s=JSON.parse(raw);return s?.token&&s?.adminId?s:null}catch(e){return null}}
+function clearSession(){try{sessionStorage.removeItem(SESSION_KEY)}catch(e){}}
+function sessionIsLocallyExpired(s){const ms=Number(s?.expiresMs||0);return !ms||Date.now()>=ms}
+function isMasterSession(s){const master=String(s?.master||"").trim().toUpperCase(),role=String(s?.role||"").trim().toUpperCase();return master==="JA"||role==="MASTER"}
+async function authRequest(payload){let response;try{response=await fetch(AUTH_API_URL,{method:"POST",headers:{"Content-Type":"application/json"},cache:"no-store",credentials:"omit",body:JSON.stringify(payload)})}catch(e){const x=new Error("Die sichere Session-Prüfung ist vorübergehend nicht erreichbar.");x.transient=true;throw x}const raw=await response.text();let data={};try{data=raw?JSON.parse(raw):{}}catch(e){const x=new Error("Der Auth-Server hat keine gültige Antwort geliefert.");x.transient=true;throw x}if(!response.ok||data?.ok!==true){const x=new Error(data?.message||data?.error||"Admin-Sitzung wurde abgelehnt.");x.httpStatus=response.status;x.code=String(data?.code||data?.error_code||data?.error||"AUTH_REJECTED").toUpperCase();x.transient=response.status>=500||response.status===429;throw x}if(data.session_valid!==undefined&&String(data.session_valid).toUpperCase()!=="JA"){const x=new Error(data?.message||"Admin-Sitzung ist nicht mehr gültig.");x.httpStatus=401;x.code="INVALID_SESSION";x.transient=false;throw x}return data}
+function isDefinitiveSessionFailure(e){const status=Number(e?.httpStatus||0),code=String(e?.code||"").toUpperCase();if(status===401||status===403)return true;return["INVALID_SESSION","SESSION_EXPIRED","SESSION_NOT_FOUND","UNAUTHORIZED","FORBIDDEN"].some(v=>code.includes(v))}
+function showAuthError(message,allowRetry=true){authSpinner.classList.add("hidden");authMessage.textContent=message;authError.textContent=allowRetry?"Bitte lade die Seite erneut. Deine bestehende Sitzung wurde nicht gelöscht.":"Bitte melde dich im zentralen Admin Center erneut an.";authError.classList.remove("hidden");backToAdminButton.classList.remove("hidden");dashboardArea.classList.add("hidden");authArea.classList.remove("hidden")}
+function getHistoricalSelection(){const p=String(historicalTipSource?.value||"").split("|");return{adminId:String(p[0]||""),source:String(p[1]||""),name:String(p[2]||"")}}
+function configurePageMode(){if(!HISTORICAL_MODE){currentMasterSourcePanel.classList.toggle("hidden",!isMasterSession(verifiedSession));return}document.title="BetInsight – Historischen Tipp erfassen";dashboardTitle.textContent="Historische Tipps erfassen";tipFormTitle.textContent="🗂️ Historischen Tipp nachtragen";modeNotice.innerHTML="<strong>Historischer Master-Modus:</strong><br>Der Datensatz wird mit seiner ursprünglichen Quelle und Tippgeber-ID gespeichert. Er wird nicht als neuer Tipp angeboten und nicht rückwirkend abgerechnet.";historicalModePanel.classList.remove("hidden");liveAlarmSection.classList.add("hidden");setLiveAlarmEnabled(false)}
+function showDashboard(s){verifiedSession=s;if(HISTORICAL_MODE&&!isMasterSession(s)){showAuthError("Die historische Tipp-Erfassung ist ausschließlich für den Master-Admin freigegeben.",true);return}adminName.textContent=s.name||"Admin";roleBadge.textContent=isMasterSession(s)?"Master-Admin":"Admin";authArea.classList.add("hidden");dashboardArea.classList.remove("hidden");configurePageMode()}
+async function verifyStoredSession(){const s=readSession();if(!s){window.location.replace(ADMIN_CENTER_URL);return}if(sessionIsLocallyExpired(s)){clearSession();window.location.replace(ADMIN_CENTER_URL);return}try{const sessionHash=await sha256Hex(s.token),r=await authRequest({action:"verify",session_hash:sessionHash});const verified={token:s.token,expiresMs:Number(r.expires_ms||s.expiresMs||0),adminId:String(r.admin_id||s.adminId||""),name:String(r.name||s.name||"Admin"),role:String(r.role||s.role||"ADMIN"),master:String(r.master||s.master||"NEIN")};if(!verified.adminId||!verified.expiresMs)throw new Error("Die geprüfte Admin-Sitzung ist unvollständig.");sessionStorage.setItem(SESSION_KEY,JSON.stringify(verified));showDashboard(verified)}catch(e){console.error("Admin-Session-Prüfung fehlgeschlagen:",e);if(isDefinitiveSessionFailure(e)){clearSession();showAuthError("Deine Admin-Sitzung ist abgelaufen oder ungültig.",false)}else showAuthError(e?.message||"Die sichere Session-Prüfung ist vorübergehend nicht möglich.",true)}}
+async function logoutAdmin(){const s=readSession();clearSession();verifiedSession=null;if(s?.token){try{const h=await sha256Hex(s.token);await authRequest({action:"logout",session_hash:h})}catch(e){}}window.location.replace(ADMIN_CENTER_URL)}
+function getCurrentAdmin(){if(!verifiedSession)return null;return{adminId:String(verifiedSession.adminId||""),name:String(verifiedSession.name||"Admin"),role:isMasterSession(verifiedSession)?"owner":"tipster"}}
+function getValue(id){return String(byId(id)?.value||"").trim()}
+function setLiveAlarmEnabled(enabled){liveAlarmEnabled=HISTORICAL_MODE?false:Boolean(enabled);liveAlarmFields.hidden=!liveAlarmEnabled;liveAlarmToggle.classList.toggle("is-active",liveAlarmEnabled);liveAlarmToggle.setAttribute("aria-pressed",liveAlarmEnabled?"true":"false");liveAlarmToggle.textContent=liveAlarmEnabled?"🔴 LIVE-ALARM AN":"⚪ LIVE-ALARM AUS";liveAlarmToggle.disabled=HISTORICAL_MODE;saveButton.textContent=HISTORICAL_MODE?"🗂️ Historischen Tipp speichern":(liveAlarmEnabled?"🔴 Tipp + Live-Alarm veröffentlichen":"🚀 Tipp veröffentlichen")}
+function createLiveValidUntil(minutes){return liveAlarmEnabled?new Date(Date.now()+Number(minutes||0)*60000).toISOString():""}
+function formatDateGerman(v){if(!v)return"";const p=v.split("-");return p.length===3?p[2]+"."+p[1]+"."+p[0]:v}
+function createTippId(name){const n=new Date(),stamp=n.getFullYear().toString()+String(n.getMonth()+1).padStart(2,"0")+String(n.getDate()).padStart(2,"0")+"-"+String(n.getHours()).padStart(2,"0")+String(n.getMinutes()).padStart(2,"0")+String(n.getSeconds()).padStart(2,"0");return"BI-"+stamp+"-"+String(name||"ADM").substring(0,3).toUpperCase()}
+function createCreatedAt(){return new Date().toLocaleString("de-DE")}
+function isComboMode(){return getValue("markt")==="Kombi-Wette"}
+
+function comboMarketOptions(){return `<option value="">Bitte auswählen</option><option value="1X2">1X2</option><option value="Über 2,5">Über 2,5</option><option value="Unter 2,5">Unter 2,5</option><option value="Beide treffen">Beide treffen</option><option value="Handicap">Handicap</option><option value="Doppelte Chance">Doppelte Chance</option><option value="Eigener Markt">Eigener Markt</option>`}
+function createComboLeg(index,data={}){const el=document.createElement("div");el.className="combo-leg";el.dataset.comboLeg="1";el.innerHTML=`<div class="combo-leg-head"><div class="combo-leg-title">Auswahl ${index+1}</div><button class="combo-remove" type="button">Entfernen</button></div><div class="combo-leg-grid"><div class="form-group"><label>Spiel *</label><input data-field="spiel" type="text" placeholder="z.B. Bayern vs Dortmund"></div><div class="form-group"><label>Liga / Wettbewerb *</label><input data-field="liga" type="text" placeholder="z.B. Bundesliga"></div><div class="form-group"><label>Markt *</label><select data-field="markt">${comboMarketOptions()}</select></div><div class="form-group"><label>Tipp *</label><input data-field="tipp" type="text" placeholder="z.B. Bayern gewinnt"></div><div class="form-group"><label>Einzelquote *</label><input data-field="quote" type="number" step="0.01" min="1" placeholder="z.B. 1.55"></div><div class="form-group"><label>Spieldatum *</label><input data-field="spiel_datum" type="date"></div><div class="form-group"><label>Anpfiff *</label><input data-field="anpfiff" type="time"></div></div>`;for(const [k,v] of Object.entries(data)){const f=el.querySelector(`[data-field="${k}"]`);if(f)f.value=v}el.querySelector(".combo-remove").addEventListener("click",()=>{if(comboLegs.children.length<=2)return;el.remove();renumberComboLegs();updateComboQuote()});el.querySelectorAll("input,select").forEach(x=>x.addEventListener("input",updateComboQuote));return el}
+function addComboLeg(data={}){if(comboLegs.children.length>=MAX_COMBO_LEGS){formMessage.classList.add("error-message");formMessage.textContent="Maximal "+MAX_COMBO_LEGS+" Auswahlen pro Kombi.";return}comboLegs.appendChild(createComboLeg(comboLegs.children.length,data));renumberComboLegs();updateComboQuote()}
+function renumberComboLegs(){[...comboLegs.children].forEach((el,i)=>{el.querySelector(".combo-leg-title").textContent="Auswahl "+(i+1);el.querySelector(".combo-remove").classList.toggle("hidden",comboLegs.children.length<=2)});comboCount.textContent=comboLegs.children.length+" Auswahlen";addComboLegButton.disabled=comboLegs.children.length>=MAX_COMBO_LEGS}
+function collectComboLegs(){return[...comboLegs.querySelectorAll("[data-combo-leg]")].map((el,i)=>{const get=f=>String(el.querySelector(`[data-field="${f}"]`)?.value||"").trim();return{position:i+1,spiel:get("spiel"),liga:get("liga"),markt:get("markt"),tipp:get("tipp"),quote:get("quote"),spiel_datum:get("spiel_datum"),anpfiff:get("anpfiff")}})}
+function calculateComboQuote(legs=collectComboLegs()){if(!legs.length)return 0;let total=1;for(const leg of legs){const q=Number(leg.quote);if(!q||q<1)return 0;total*=q}return Math.round((total+Number.EPSILON)*100)/100}
+function updateComboQuote(){const q=calculateComboQuote();comboQuote.textContent=q?"Gesamtquote: "+q.toFixed(2):"Gesamtquote: –"}
+function initComboLegs(){comboLegs.innerHTML="";addComboLeg();addComboLeg()}
+function updateBetTypeUI(){const combo=isComboMode();comboSection.classList.toggle("hidden",!combo);singleFields.classList.toggle("hidden",combo);if(combo&&comboLegs.children.length<2)initComboLegs();if(combo)updateComboQuote()}
+function getEarliestComboStart(legs){const valid=legs.map(l=>({leg:l,key:(l.spiel_datum||"9999-99-99")+"T"+(l.anpfiff||"99:99")})).sort((a,b)=>a.key.localeCompare(b.key));return valid[0]?.leg||legs[0]||null}
+
+function validateTipForm(){if(!getValue("markt"))return"Bitte Feld ausfüllen: Markt";const preis=Number(getValue("preisUnits"));if(!Number.isInteger(preis)||preis<1)return"Bitte einen gültigen Unit-Preis eintragen.";if(isComboMode()){const legs=collectComboLegs();if(legs.length<2)return"Eine Kombi benötigt mindestens zwei Auswahlen.";for(let i=0;i<legs.length;i++){const l=legs[i],n=i+1;if(!l.spiel)return`Bitte bei Auswahl ${n} das Spiel eintragen.`;if(!l.liga)return`Bitte bei Auswahl ${n} Liga / Wettbewerb eintragen.`;if(!l.markt)return`Bitte bei Auswahl ${n} den Markt auswählen.`;if(!l.tipp)return`Bitte bei Auswahl ${n} den Tipp eintragen.`;if(!l.quote||Number(l.quote)<1)return`Bitte bei Auswahl ${n} eine gültige Einzelquote eintragen.`;if(!l.spiel_datum)return`Bitte bei Auswahl ${n} das Spieldatum eintragen.`;if(!l.anpfiff)return`Bitte bei Auswahl ${n} den Anpfiff eintragen.`}if(!calculateComboQuote(legs))return"Die Gesamtquote der Kombi konnte nicht berechnet werden."}else{for(const f of[{id:"spiel",label:"Spiel"},{id:"liga",label:"Liga / Wettbewerb"},{id:"tipp",label:"Tipp"},{id:"quote",label:"Quote"},{id:"spielDatum",label:"Spieldatum"},{id:"anpfiff",label:"Anpfiff"}])if(!getValue(f.id))return"Bitte Feld ausfüllen: "+f.label;const q=Number(getValue("quote"));if(!q||q<1)return"Bitte eine gültige Quote eintragen."}
+if(HISTORICAL_MODE){const h=getHistoricalSelection();if(!h.adminId||!h.source||!h.name)return"Bitte Quelle und Tippgeber auswählen.";const p=getValue("historicalPublishedAt");if(!p)return"Bitte das ursprüngliche Veröffentlichungsdatum eintragen.";if(new Date(p+"T23:59:59").getTime()>Date.now())return"Das historische Veröffentlichungsdatum darf nicht in der Zukunft liegen."}
+if(liveAlarmEnabled){if(!getValue("liveSpielstand"))return"Bitte den aktuellen Spielstand für den Live-Alarm eintragen.";const m=Number(getValue("liveSpielminute"));if(!Number.isInteger(m)||m<1||m>120)return"Bitte eine gültige Spielminute zwischen 1 und 120 eintragen.";const d=Number(getValue("liveGueltigMinuten"));if(![3,5,10].includes(d))return"Bitte eine gültige Alarmdauer auswählen."}return""}
+
+function collectTipData(){const admin=getCurrentAdmin();if(!admin)throw new Error("Keine verifizierte Admin-Sitzung vorhanden.");const historical=HISTORICAL_MODE?getHistoricalSelection():null,currentSource=!HISTORICAL_MODE&&isMasterSession(verifiedSession)?String(currentTipSource?.value||"BETINSIGHT_REDAKTION"):(admin.adminId==="ADM-001"?"BETINSIGHT_REDAKTION":"TIPPGEBER"),creatorName=historical?.name||(currentSource==="BETINSIGHT_KI"?"BetInsight KI":admin.name),tippId=createTippId(creatorName),duration=liveAlarmEnabled?Number(getValue("liveGueltigMinuten")):0,combo=isComboMode(),legs=combo?collectComboLegs():[],comboTotal=combo?calculateComboQuote(legs):0,first=combo?getEarliestComboStart(legs):null;
+const comboSummary=combo?legs.map(l=>`${l.position}. ${l.spiel} – ${l.markt}: ${l.tipp} @ ${Number(l.quote).toFixed(2)} (${formatDateGerman(l.spiel_datum)} ${l.anpfiff})`).join(" | "):"";
+return{tipp_id:tippId,spiel:combo?`Kombi (${legs.length} Auswahlen): `+legs.map(l=>l.spiel).join(" + "):getValue("spiel"),liga:combo?"Kombi-Wette · "+[...new Set(legs.map(l=>l.liga))].join(" / "):getValue("liga"),markt:getValue("markt"),tipp:combo?comboSummary:getValue("tipp"),quote:combo?comboTotal.toFixed(2):getValue("quote"),preis_units:Number(getValue("preisUnits")),status:HISTORICAL_MODE?"historisch":"veröffentlicht",ersteller:creatorName,admin_id:admin.adminId,ziel_tippgeber_id:historical?.adminId||admin.adminId,tipp_quelle:historical?.source||currentSource,sportart:"Fussball",spiel_datum:combo?formatDateGerman(first?.spiel_datum||""):formatDateGerman(getValue("spielDatum")),anpfiff:combo?(first?.anpfiff||""):getValue("anpfiff"),analyse:getValue("analyse"),erstellt_am:HISTORICAL_MODE?formatDateGerman(getValue("historicalPublishedAt")):createCreatedAt(),live_alarm:liveAlarmEnabled?"JA":"NEIN",live_alert_id:(liveAlarmEnabled?"LA-":"LOG-")+tippId,live_spielstand:liveAlarmEnabled?getValue("liveSpielstand"):"",live_spielminute:liveAlarmEnabled?Number(getValue("liveSpielminute")):"",live_gueltig_minuten:duration||"",live_gueltig_bis:createLiveValidUntil(duration),live_zielgruppe:liveAlarmEnabled?"PREMIUM_UND_PLUS":"",kombi:combo?"JA":"NEIN",kombi_typ:combo?`${legs.length}er-Kombi`:"",kombi_anzahl:combo?legs.length:0,kombi_legs:combo?legs:[]}}
+
+function escapeHtml(v){return String(v).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
+function comboPreviewHtml(tip){if(tip.kombi!=="JA")return"";return"<br><br><strong>🔗 "+escapeHtml(tip.kombi_typ)+"</strong><br>"+tip.kombi_legs.map(l=>`${l.position}. ${escapeHtml(l.spiel)} · ${escapeHtml(l.liga)}<br>&nbsp;&nbsp;${escapeHtml(l.markt)} → ${escapeHtml(l.tipp)} · Quote ${escapeHtml(Number(l.quote).toFixed(2))} · ${escapeHtml(formatDateGerman(l.spiel_datum))} ${escapeHtml(l.anpfiff)}`).join("<br><br>")+"<br><br><strong>Gesamtquote: "+escapeHtml(tip.quote)+"</strong>"}
+function prepareTipPreview(){formMessage.textContent="";formMessage.classList.remove("error-message","success-message");previewBox.classList.add("hidden");successBox.classList.add("hidden");previewBox.textContent="";successBox.textContent="";if(!verifiedSession){formMessage.classList.add("error-message");formMessage.textContent="Deine Admin-Sitzung ist nicht verifiziert. Bitte über das Admin Center neu öffnen.";return false}const err=validateTipForm();if(err){formMessage.classList.add("error-message");formMessage.textContent=err;return false}const tip=collectTipData(),historicalPreview=HISTORICAL_MODE?"<br>Quelle: "+escapeHtml(tip.tipp_quelle)+"<br>Zugeordnete Tippgeber-ID: "+escapeHtml(tip.ziel_tippgeber_id)+"<br>Ursprünglich veröffentlicht am: "+escapeHtml(tip.erstellt_am)+"<br><strong>Keine rückwirkende Abrechnung</strong>":"",livePreview=tip.live_alarm==="JA"?"<br><br><strong>🔴 LIVE-ALARM:</strong><br>Spielstand: "+escapeHtml(tip.live_spielstand)+"<br>Spielminute: "+escapeHtml(String(tip.live_spielminute))+"<br>Gültig für: "+escapeHtml(String(tip.live_gueltig_minuten))+" Minuten<br>Empfänger: Premium und Premium Plus":"";
+previewBox.innerHTML="<strong>Vorschau:</strong><br><br>Tipp-ID: "+escapeHtml(tip.tipp_id)+"<br>Spiel: "+escapeHtml(tip.spiel)+"<br>Liga: "+escapeHtml(tip.liga)+"<br>Markt: "+escapeHtml(tip.markt)+"<br>Tipp: "+escapeHtml(tip.tipp)+"<br>Quote: "+escapeHtml(tip.quote)+"<br>Preis: "+escapeHtml(String(tip.preis_units))+" Units<br>Status: "+escapeHtml(tip.status)+"<br>Ersteller: "+escapeHtml(tip.ersteller)+"<br>Spieldatum: "+escapeHtml(tip.spiel_datum)+"<br>Anpfiff: "+escapeHtml(tip.anpfiff)+"<br>Erstellt am: "+escapeHtml(tip.erstellt_am)+historicalPreview+comboPreviewHtml(tip)+livePreview+"<br><br><strong>Analyse:</strong><br>"+escapeHtml(tip.analyse||"Keine zusätzliche Analyse.");previewBox.classList.remove("hidden");formMessage.classList.add("success-message");formMessage.textContent=HISTORICAL_MODE?"Vorschau erstellt. Du kannst den historischen Tipp jetzt speichern.":"Vorschau erstellt. Du kannst den Tipp jetzt direkt veröffentlichen.";return true}
+async function verifyBeforeSave(){const s=readSession();if(!s||sessionIsLocallyExpired(s)){clearSession();verifiedSession=null;throw new Error("Deine Admin-Sitzung ist abgelaufen. Bitte erneut anmelden.")}if(!verifiedSession||String(verifiedSession.adminId||"")!==String(s.adminId||""))throw new Error("Deine Admin-Sitzung ist nicht vollständig verifiziert. Bitte den Tippbereich über das Admin Center neu öffnen.");return sha256Hex(s.token)}
+async function saveTipToMake(){formMessage.textContent="";formMessage.classList.remove("error-message","success-message");if(!prepareTipPreview())return;const tip=collectTipData();if(HISTORICAL_MODE){const ok=window.confirm(["Historischen Tipp wirklich speichern?","",tip.spiel+" · "+tip.tipp,"Quelle/Tippgeber: "+tip.ersteller+" · "+tip.ziel_tippgeber_id,"Ursprünglich veröffentlicht: "+tip.erstellt_am,"","Der Tipp wird nicht als neu angeboten und nicht rückwirkend abgerechnet."].join("\n"));if(!ok){formMessage.textContent="Historische Erfassung abgebrochen. Die Eingaben bleiben erhalten.";return}}if(tip.live_alarm==="JA"){const ok=window.confirm(["LIVE-ALARM wirklich veröffentlichen?","",tip.spiel+" · "+tip.live_spielstand+" · "+tip.live_spielminute+". Minute","Tipp: "+tip.tipp,"Quote: "+tip.quote,"Gültig: "+tip.live_gueltig_minuten+" Minuten","Empfänger: Premium und Premium Plus","","Die Quote kann sich nach dem Versand ändern."].join("\n"));if(!ok){formMessage.textContent="Live-Alarm wurde nicht veröffentlicht. Die Eingaben bleiben erhalten.";return}}
+saveButton.disabled=true;previewButton.disabled=true;resetButton.disabled=true;liveAlarmToggle.disabled=true;saveButton.textContent=HISTORICAL_MODE?"Speicherung läuft ...":"Veröffentlichung läuft ...";try{const h=await verifyBeforeSave(),payload={...tip,admin_session_hash:h},response=await fetch(MAKE_WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},cache:"no-store",credentials:"omit",body:JSON.stringify(payload)}),raw=await response.text();let result=null;try{result=raw?JSON.parse(raw):null}catch(e){throw new Error("Der Veröffentlichungsserver hat den Schreibvorgang nicht eindeutig bestätigt.")}if(!response.ok){const x=new Error(result?.message||result?.error||"Make hat die Veröffentlichung abgelehnt.");x.httpStatus=response.status;x.code=String(result?.code||result?.error_code||"PUBLISH_REJECTED").toUpperCase();throw x}const confirmed=result?.ok===true&&String(result?.published||"").toUpperCase()==="JA"&&String(result?.tipp_id||"")===String(tip.tipp_id)&&String(result?.live_alert_saved||"").toUpperCase()==="JA";if(!confirmed)throw new Error("Der Tipp wurde nicht vollständig bestätigt. Es wurde keine Erfolgsmeldung angezeigt.");resetTipForm(false);const liveSuccess=tip.live_alarm==="JA"?"<br>Der Live-Alarm wurde getrennt in <strong>LIVE_ALERTS</strong> für Premium und Premium Plus vorbereitet.<br><br>Status: <strong>LIVE-ALARM VORBEREITET</strong>":"<br><br>Status: <strong>VERÖFFENTLICHT</strong>",comboSuccess=tip.kombi==="JA"?"<br><strong>"+escapeHtml(tip.kombi_typ)+"</strong> · Gesamtquote "+escapeHtml(tip.quote):"";if(HISTORICAL_MODE){successBox.innerHTML="<strong>✅ Historischer Tipp gespeichert</strong><br><br>Der Tipp wurde in <strong>TIPPS</strong> mit Quelle und Tippgeber-ID gespeichert; die offene Ergebniszeile wurde vorbereitet.<br>Tipp-ID:<br><strong>"+escapeHtml(tip.tipp_id)+"</strong>"+comboSuccess+"<br><br>Status: <strong>HISTORISCH · NICHT RÜCKWIRKEND ABGERECHNET</strong>";formMessage.textContent="Historisch gespeichert. Das Ergebnis kannst du jetzt im Master-Backoffice als gewonnen, verloren oder ungültig bestätigen."}else{successBox.innerHTML="<strong>✅ Tipp erfolgreich veröffentlicht</strong><br><br>Der Tipp wurde direkt in <strong>TIPPS</strong> gespeichert.<br>Tipp-ID:<br><strong>"+escapeHtml(tip.tipp_id)+"</strong>"+comboSuccess+liveSuccess;formMessage.textContent=tip.live_alarm==="JA"?"Veröffentlicht und Live-Alarm vorbereitet. Du kannst jetzt einen weiteren Tipp erfassen.":"Veröffentlicht. Du kannst jetzt einen weiteren Tipp erfassen."}successBox.classList.remove("hidden");formMessage.classList.add("success-message")}catch(e){console.error("Tipp veröffentlichen fehlgeschlagen:",e);formMessage.classList.add("error-message");formMessage.textContent="❌ "+(e?.message||"Fehler beim Veröffentlichen. Bitte später erneut versuchen.");if(isDefinitiveSessionFailure(e)||sessionIsLocallyExpired(readSession())){clearSession();verifiedSession=null;setTimeout(()=>window.location.replace(ADMIN_CENTER_URL),1600)}}finally{saveButton.disabled=false;previewButton.disabled=false;resetButton.disabled=false;liveAlarmToggle.disabled=false;setLiveAlarmEnabled(liveAlarmEnabled)}}
+function resetTipForm(clearMessage=true){["spiel","liga","tipp","quote","preisUnits","spielDatum","anpfiff","analyse","liveSpielstand","liveSpielminute"].forEach(id=>{const el=byId(id);if(el)el.value=""});marktSelect.value="";byId("liveGueltigMinuten").value="5";if(historicalPublishedAt)historicalPublishedAt.value="";if(currentTipSource)currentTipSource.value="BETINSIGHT_REDAKTION";initComboLegs();updateBetTypeUI();setLiveAlarmEnabled(false);previewBox.classList.add("hidden");previewBox.textContent="";if(clearMessage){formMessage.textContent="";formMessage.classList.remove("error-message","success-message");successBox.classList.add("hidden");successBox.textContent=""}}
+
+marktSelect.addEventListener("change",updateBetTypeUI);addComboLegButton.addEventListener("click",()=>addComboLeg());previewButton.addEventListener("click",prepareTipPreview);saveButton.addEventListener("click",saveTipToMake);resetButton.addEventListener("click",()=>resetTipForm(true));liveAlarmToggle.addEventListener("click",()=>setLiveAlarmEnabled(!liveAlarmEnabled));logoutButton.addEventListener("click",logoutAdmin);
+initComboLegs();updateBetTypeUI();verifyStoredSession();
+</script>
 </body>
 </html>
