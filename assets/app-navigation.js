@@ -1,6 +1,7 @@
-/* BetInsight App Navigation · 2026-08-26-02
+/* BetInsight App Navigation · 2026-08-27-01
    Reuses existing BetInsight token helpers/storage. It does not authenticate users.
-   Login return targets are strictly whitelisted and never accept arbitrary external URLs. */
+   Login return targets are strictly whitelisted and never accept arbitrary external URLs.
+   Root profile URLs capture the access token and immediately remove it from the visible address bar. */
 (() => {
   "use strict";
 
@@ -91,6 +92,22 @@
         localStorage.setItem(DASHBOARD_STORAGE_KEY, profileStored);
         localStorage.removeItem(PROFILE_STORAGE_KEY);
       }
+    } catch (e) {}
+  }
+
+  function captureAndStripRootProfileToken() {
+    try {
+      if (window.location.pathname !== appPath()) return;
+      const url = new URL(window.location.href);
+      const token = String(url.searchParams.get("token") || "").trim();
+      if (!token) return;
+
+      if (isUuid(token)) localStorage.setItem(DASHBOARD_STORAGE_KEY, token);
+      else localStorage.setItem(PROFILE_STORAGE_KEY, token);
+
+      url.searchParams.delete("token");
+      const search = url.searchParams.toString();
+      history.replaceState(null, "", url.pathname + (search ? `?${search}` : "") + url.hash);
     } catch (e) {}
   }
 
@@ -561,6 +578,8 @@
     updateActiveState();
     window.setTimeout(() => handlePendingNext(0), 80);
   }
+
+  captureAndStripRootProfileToken();
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", buildNavigation, { once: true });
   else buildNavigation();
