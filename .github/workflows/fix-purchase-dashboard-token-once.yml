@@ -1,0 +1,127 @@
+name: One-time purchase dashboard token fix
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-purchase-dashboard-token-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.event.head_commit.message == 'chore: run purchase token fix'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fix dashboard token in purchase flow
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          kaufen = Path('kaufen/index.html')
+          text = kaufen.read_text(encoding='utf-8')
+
+          old = '''      function getActiveToken() {
+            const tokenFromUrl = getTokenFromUrl();
+
+            if (tokenFromUrl) {
+              if (isUuidToken(tokenFromUrl)) {
+                localStorage.setItem(DASHBOARD_TOKEN_STORAGE_KEY, tokenFromUrl);
+                return cleanToken(localStorage.getItem(TOKEN_STORAGE_KEY));
+              }
+              localStorage.setItem(TOKEN_STORAGE_KEY, tokenFromUrl);
+              return tokenFromUrl;
+            }
+
+            return cleanToken(localStorage.getItem(TOKEN_STORAGE_KEY));
+          }
+'''
+          new = '''      function getActiveToken() {
+            const tokenFromUrl = getTokenFromUrl();
+
+            if (tokenFromUrl) {
+              if (isUuidToken(tokenFromUrl)) {
+                localStorage.setItem(DASHBOARD_TOKEN_STORAGE_KEY, tokenFromUrl);
+                return tokenFromUrl;
+              }
+              localStorage.setItem(TOKEN_STORAGE_KEY, tokenFromUrl);
+              return tokenFromUrl;
+            }
+
+            const storedDashboardToken = cleanToken(localStorage.getItem(DASHBOARD_TOKEN_STORAGE_KEY));
+            if (isUuidToken(storedDashboardToken)) return storedDashboardToken;
+
+            return cleanToken(localStorage.getItem(TOKEN_STORAGE_KEY));
+          }
+'''
+          if old not in text:
+              raise SystemExit('kaufen getActiveToken block not found')
+          text = text.replace(old, new, 1)
+
+          old2 = '''          const email = String(data.email).trim().toLowerCase();
+          const confirmedToken = cleanToken(data.token) || candidate;
+
+          emailInput.value = email;
+          localStorage.setItem("betinsight_email", email);
+          localStorage.setItem(TOKEN_STORAGE_KEY, confirmedToken);
+'''
+          new2 = '''          const email = String(data.email).trim().toLowerCase();
+          const confirmedToken = cleanToken(data.token);
+
+          emailInput.value = email;
+          localStorage.setItem("betinsight_email", email);
+
+          if (isUuidToken(candidate)) {
+            localStorage.setItem(DASHBOARD_TOKEN_STORAGE_KEY, candidate);
+            if (confirmedToken && !isUuidToken(confirmedToken)) {
+              localStorage.setItem(TOKEN_STORAGE_KEY, confirmedToken);
+            }
+          } else {
+            localStorage.setItem(TOKEN_STORAGE_KEY, confirmedToken || candidate);
+          }
+'''
+          if old2 not in text:
+              raise SystemExit('kaufen confirmed token block not found')
+          text = text.replace(old2, new2, 1)
+          kaufen.write_text(text, encoding='utf-8')
+
+          pakete = Path('pakete/index.html')
+          text = pakete.read_text(encoding='utf-8')
+          old3 = '''      function purchaseUrl() {
+            const base = window.location.hostname.toLowerCase() === GITHUB_HOST ? "/profil/" : "/";
+            const token = profileToken();
+            return token ? `${base}kaufen/?token=${encodeURIComponent(token)}` : "";
+          }
+'''
+          new3 = '''      function purchaseUrl() {
+            const base = window.location.hostname.toLowerCase() === GITHUB_HOST ? "/profil/" : "/";
+            const token = dashboardToken();
+            return token ? `${base}kaufen/?token=${encodeURIComponent(token)}` : "";
+          }
+'''
+          if old3 not in text:
+              raise SystemExit('pakete purchaseUrl block not found')
+          text = text.replace(old3, new3, 1)
+
+          old4 = '"Der persönliche Kaufzugang fehlt. Bitte öffne zuerst dein Dashboard und aktualisiere den Kontostand.";'
+          new4 = '"Der persönliche Dashboard-Zugang fehlt. Bitte öffne zuerst dein Dashboard und rufe die Pakete erneut auf.";'
+          if old4 not in text:
+              raise SystemExit('pakete purchase error message not found')
+          text = text.replace(old4, new4, 1)
+          pakete.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit fix
+        shell: bash
+        run: |
+          git config user.name 'BetInsight Automation'
+          git config user.email 'betinsightclub@users.noreply.github.com'
+          git add kaufen/index.html pakete/index.html
+          git diff --cached --quiet && exit 0
+          git commit -m 'fix: use dashboard token for unit purchase email lookup'
+          git push
