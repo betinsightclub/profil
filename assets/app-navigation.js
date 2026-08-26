@@ -1,4 +1,4 @@
-/* BetInsight App Navigation · 2026-08-26-01
+/* BetInsight App Navigation · 2026-08-26-02
    Reuses existing BetInsight token helpers/storage. It does not authenticate users.
    Login return targets are strictly whitelisted and never accept arbitrary external URLs. */
 (() => {
@@ -79,6 +79,19 @@
 
   function isUuid(value) {
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || "").trim());
+  }
+
+  function repairTokenStorage() {
+    try {
+      const fromUrl = urlAccessValue("dashboard_token", "id", "token");
+      if (isUuid(fromUrl)) localStorage.setItem(DASHBOARD_STORAGE_KEY, fromUrl);
+
+      const profileStored = String(localStorage.getItem(PROFILE_STORAGE_KEY) || "").trim();
+      if (isUuid(profileStored)) {
+        localStorage.setItem(DASHBOARD_STORAGE_KEY, profileStored);
+        localStorage.removeItem(PROFILE_STORAGE_KEY);
+      }
+    } catch (e) {}
   }
 
   function normalizeNext(value) {
@@ -450,6 +463,8 @@
   }
 
   function buildNavigation() {
+    repairTokenStorage();
+
     toggle = document.createElement("button");
     toggle.type = "button";
     toggle.className = "bi-nav-mobile-toggle";
