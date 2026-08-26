@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#071019">
-  <meta name="application-version" content="1.1.0">
+  <meta name="application-version" content="1.2.0">
   <title>Wallet-Verwaltung | BetInsight Club</title>
   <link rel="stylesheet" href="../assets/app-navigation.css">
 <style>
@@ -425,9 +425,7 @@
           <select id="walletType" name="wallet_type" required>
             <option value="">Bitte auswählen</option>
             <option value="USDT_TRC20">USDT – TRON (TRC20)</option>
-            <option value="USDT_BEP20">USDT – BNB Smart Chain (BEP20)</option>
-            <option value="USDC_SOLANA">USDC – Solana</option>
-            <option value="USDC_ERC20">USDC – Ethereum (ERC20)</option>
+            <option value="TRX_TRON">TRX – TRON (native)</option>
           </select>
           <p class="help" id="walletExamples">
             Wähle zuerst Kryptowährung und Netzwerk aus.
@@ -476,7 +474,7 @@
     </section>
 
     <p class="footer-note">
-      BetInsight Wallet-Verwaltung · Version 1.1.0
+      BetInsight Wallet-Verwaltung · Version 1.2.0
     </p>
   </main>
 
@@ -494,29 +492,13 @@
         pattern: /^T[1-9A-HJ-NP-Za-km-z]{33}$/,
         error: "Eine TRON-Adresse beginnt normalerweise mit T und hat 34 Zeichen."
       },
-      USDT_BEP20: {
-        coin: "USDT",
-        network: "BNB Smart Chain",
-        standard: "BEP20",
-        examples: "Geeignete Wallet-Beispiele: MetaMask oder TokenPocket.",
-        pattern: /^0x[a-fA-F0-9]{40}$/,
-        error: "Eine BEP20-Adresse beginnt mit 0x und hat danach 40 Zeichen."
-      },
-      USDC_SOLANA: {
-        coin: "USDC",
-        network: "Solana",
-        standard: "SOLANA",
-        examples: "Geeignete Wallet-Beispiele: Phantom oder TokenPocket.",
-        pattern: /^[1-9A-HJ-NP-Za-km-z]{32,44}$/,
-        error: "Die Solana-Adresse hat kein gültiges Format. Bitte kopiere sie erneut aus deiner Wallet."
-      },
-      USDC_ERC20: {
-        coin: "USDC",
-        network: "Ethereum",
-        standard: "ERC20",
-        examples: "Geeignete Wallet-Beispiele: MetaMask, Phantom oder TokenPocket.",
-        pattern: /^0x[a-fA-F0-9]{40}$/,
-        error: "Eine ERC20-Adresse beginnt mit 0x und hat danach 40 Zeichen."
+      TRX_TRON: {
+        coin: "TRX",
+        network: "TRON",
+        standard: "NATIVE",
+        examples: "Geeignete Wallet-Beispiele: TronLink oder TokenPocket.",
+        pattern: /^T[1-9A-HJ-NP-Za-km-z]{33}$/,
+        error: "Eine TRON-Adresse beginnt normalerweise mit T und hat 34 Zeichen."
       }
     };
 
