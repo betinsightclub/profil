@@ -2,8 +2,14 @@
 <!--
 Projekt: BetInsight
 Datei: profil/marketing-center/index.html
-Version: 2026.08.25-02
-Anwendungs-Version: 1.5.0
+Version: 2026.08.27-01
+Anwendungs-Version: 1.6.0
+
+Änderungen v1.6:
+- Eigenen Bereich „Academy & Anleitungen“ ergänzt
+- PDF-Anleitungen werden automatisch aus downloads/anleitungen erkannt
+- Mehrere Academy-PDFs können später ohne HTML-Änderung ergänzt werden
+- Pro Anleitung stehen „PDF ansehen“ und „PDF herunterladen“ bereit
 
 Änderungen v1.5:
 - Eigenen Bereich für die BetInsight-Geschäftspräsentation vorbereitet
@@ -34,9 +40,9 @@ Anwendungs-Version: 1.5.0
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#071019">
-  <meta name="application-version" content="1.5.0">
-  <meta name="description" content="BetInsight Marketing-Center – freigegebenes Werbematerial.">
-<title>Marketing-Center | BetInsight Club</title>
+  <meta name="application-version" content="1.6.0">
+  <meta name="description" content="BetInsight Marketing-Center – freigegebenes Werbematerial und Academy-Anleitungen.">
+  <title>Marketing-Center | BetInsight Club</title>
   <link rel="stylesheet" href="../assets/app-navigation.css">
   <script src="../assets/app-navigation.js" defer></script>
 
@@ -73,7 +79,6 @@ Anwendungs-Version: 1.5.0
     }
 
     button, a { font: inherit; }
-
     [hidden] { display: none !important; }
 
     .page {
@@ -155,7 +160,7 @@ Anwendungs-Version: 1.5.0
 
     .quick-nav {
       display: grid;
-      grid-template-columns: repeat(4,1fr);
+      grid-template-columns: repeat(5,1fr);
       gap: 14px;
       margin: 28px 0 34px;
     }
@@ -255,18 +260,14 @@ Anwendungs-Version: 1.5.0
       animation: spin .8s linear infinite;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     .gallery-groups {
       display: grid;
       gap: 34px;
     }
 
-    .format-group {
-      min-width: 0;
-    }
+    .format-group { min-width: 0; }
 
     .format-head {
       display: flex;
@@ -327,13 +328,8 @@ Anwendungs-Version: 1.5.0
       transition: transform 220ms ease, opacity 220ms ease;
     }
 
-    .media-card:hover img {
-      transform: scale(1.012);
-    }
-
-    .media-card.is-loading img {
-      opacity: .55;
-    }
+    .media-card:hover img { transform: scale(1.012); }
+    .media-card.is-loading img { opacity: .55; }
 
     .download-fab {
       position: absolute;
@@ -378,6 +374,21 @@ Anwendungs-Version: 1.5.0
       border: 1px solid rgba(255,200,87,.24);
       border-radius: 22px;
       box-shadow: var(--shadow);
+    }
+
+    .guide-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .guide-grid .presentation-card {
+      background: linear-gradient(145deg,rgba(89,168,255,.08),rgba(13,26,38,.98));
+      border-color: rgba(89,168,255,.24);
+    }
+
+    .guide-grid .presentation-icon {
+      color: #061525;
+      background: linear-gradient(145deg,var(--blue),#9fd0ff);
     }
 
     .presentation-icon {
@@ -619,6 +630,10 @@ Anwendungs-Version: 1.5.0
       border-top: 1px solid var(--line);
     }
 
+    @media (max-width: 1000px) {
+      .quick-nav { grid-template-columns: repeat(2,1fr); }
+    }
+
     @media (max-width: 900px) {
       .gallery-grid.portrait,
       .gallery-grid.square,
@@ -627,13 +642,7 @@ Anwendungs-Version: 1.5.0
         grid-template-columns: repeat(2,minmax(0,1fr));
       }
 
-      .future-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .quick-nav {
-        grid-template-columns: 1fr;
-      }
+      .future-grid { grid-template-columns: 1fr 1fr; }
 
       .presentation-card {
         grid-template-columns: auto minmax(0,1fr);
@@ -665,7 +674,6 @@ Anwendungs-Version: 1.5.0
       }
 
       .intro { font-size: .96rem; }
-
       .section-head { display: block; }
 
       .status-pill {
@@ -673,6 +681,7 @@ Anwendungs-Version: 1.5.0
         margin-top: 11px;
       }
 
+      .quick-nav,
       .gallery-grid.portrait,
       .gallery-grid.square,
       .gallery-grid.landscape,
@@ -681,9 +690,7 @@ Anwendungs-Version: 1.5.0
         grid-template-columns: 1fr;
       }
 
-      .presentation-card {
-        grid-template-columns: 1fr;
-      }
+      .presentation-card { grid-template-columns: 1fr; }
 
       .presentation-actions {
         display: grid;
@@ -697,14 +704,8 @@ Anwendungs-Version: 1.5.0
         text-align: center;
       }
 
-      .info-card {
-        grid-template-columns: 1fr;
-      }
-
-      .info-icon {
-        width: 34px;
-        height: 34px;
-      }
+      .info-card { grid-template-columns: 1fr; }
+      .info-icon { width: 34px; height: 34px; }
     }
   </style>
 </head>
@@ -725,8 +726,8 @@ Anwendungs-Version: 1.5.0
     <p class="eyebrow">Partnerbereich · Deutsch</p>
     <h1>Marketing-Center</h1>
     <p class="intro">
-      Hier findest du freigegebene Bilder, Texte und Vorlagen, mit denen du BetInsight
-      professionell weiterempfehlen kannst. Der Bereich wird laufend erweitert.
+      Hier findest du freigegebene Bilder, Texte, Anleitungen und Vorlagen, mit denen du BetInsight
+      professionell weiterempfehlen und neuen Interessenten den Einstieg erleichtern kannst.
     </p>
   </section>
 
@@ -737,7 +738,11 @@ Anwendungs-Version: 1.5.0
     </a>
     <a href="#praesentation">
       <strong>📄 Geschäftspräsentation</strong>
-      <span>Die freigegebene PDF später ansehen oder herunterladen.</span>
+      <span>Die freigegebene PDF ansehen oder herunterladen.</span>
+    </a>
+    <a href="#anleitungen">
+      <strong>🎓 Academy & Anleitungen</strong>
+      <span>Schritt-für-Schritt-PDFs zum Ansehen und Weitergeben.</span>
     </a>
     <a href="#texte">
       <strong>✍️ Texte & Vorlagen</strong>
@@ -773,13 +778,10 @@ Anwendungs-Version: 1.5.0
     </div>
 
     <div class="empty-box" id="emptyBox" hidden>
-      <div>
-        <strong>Noch keine Bilder vorhanden.</strong>
-      </div>
+      <div><strong>Noch keine Bilder vorhanden.</strong></div>
     </div>
 
     <div class="gallery-groups" id="galleryGroups" hidden>
-
       <section class="format-group" id="portraitGroup" hidden>
         <div class="format-head">
           <h3 class="format-title">Hochformat</h3>
@@ -803,7 +805,6 @@ Anwendungs-Version: 1.5.0
         </div>
         <div class="gallery-grid landscape" id="landscapeGrid"></div>
       </section>
-
     </div>
   </section>
 
@@ -826,24 +827,44 @@ Anwendungs-Version: 1.5.0
         </p>
       </div>
       <div class="presentation-actions">
-        <a
-          class="presentation-button secondary"
-          id="presentationView"
-          href="#"
-          target="_blank"
-          rel="noopener"
-          hidden
-        >PDF ansehen</a>
-        <a
-          class="presentation-button"
-          id="presentationDownload"
-          href="#"
-          download
-          hidden
-        >PDF herunterladen</a>
+        <a class="presentation-button secondary" id="presentationView" href="#" target="_blank" rel="noopener" hidden>PDF ansehen</a>
+        <a class="presentation-button" id="presentationDownload" href="#" download hidden>PDF herunterladen</a>
         <span class="presentation-pending" id="presentationPending">PDF folgt</span>
       </div>
     </article>
+  </section>
+
+  <section class="section" id="anleitungen">
+    <div class="section-head">
+      <div>
+        <h2>Academy & Anleitungen</h2>
+        <p>Schritt-für-Schritt-Anleitungen für Registrierung und weitere BetInsight-Funktionen. Neue PDFs werden hier automatisch ergänzt.</p>
+      </div>
+      <span class="status-pill" id="guideStatus">Lädt …</span>
+    </div>
+
+    <div class="loading-box" id="guideLoading">
+      <div>
+        <div class="spinner"></div>
+        <strong>Anleitungen werden geladen</strong>
+      </div>
+    </div>
+
+    <div class="empty-box" id="guideEmpty" hidden>
+      <div>
+        <strong>Noch keine freigegebene PDF-Anleitung vorhanden.</strong>
+        <span>Sobald eine Anleitung hochgeladen wurde, erscheint sie hier automatisch.</span>
+      </div>
+    </div>
+
+    <div class="error-box" id="guideError" hidden>
+      <div>
+        <strong>Anleitungen konnten gerade nicht geladen werden.</strong>
+        <span>Bitte die Seite in einem Moment neu laden.</span>
+      </div>
+    </div>
+
+    <div class="guide-grid" id="guideGrid" hidden></div>
   </section>
 
   <section class="section" id="texte">
@@ -933,7 +954,7 @@ Anwendungs-Version: 1.5.0
   </aside>
 
   <footer class="footer">
-    © 2026 BetInsight Club · Marketing-Center · Version 1.5
+    © 2026 BetInsight Club · Marketing-Center · Version 1.6
   </footer>
 
 </main>
@@ -946,6 +967,9 @@ Anwendungs-Version: 1.5.0
 
   const GITHUB_PRESENTATIONS_API =
     "https://api.github.com/repos/betinsightclub/profil/contents/marketing-center/downloads/praesentationen?ref=main";
+
+  const GITHUB_GUIDES_API =
+    "https://api.github.com/repos/betinsightclub/profil/contents/marketing-center/downloads/anleitungen?ref=main";
 
   const PDF_EXTENSION = /\.pdf$/i;
   const ALLOWED_EXTENSIONS = /\.(png|jpe?g|webp)$/i;
@@ -965,7 +989,6 @@ Anwendungs-Version: 1.5.0
   function applyTokenToBackLink() {
     const token = getToken();
     const link = document.getElementById("backLink");
-
     if (!link || !token) return;
 
     const target = new URL(link.getAttribute("href"), window.location.href);
@@ -989,14 +1012,15 @@ Anwendungs-Version: 1.5.0
     return "downloads/praesentationen/" + encodeURIComponent(filename);
   }
 
+  function guidePath(filename) {
+    return "downloads/anleitungen/" + encodeURIComponent(filename);
+  }
+
   function uniqueBySha(files) {
     const seen = new Set();
-
     return files.filter((file) => {
       const key = file.sha || file.name;
-
       if (seen.has(key)) return false;
-
       seen.add(key);
       return true;
     });
@@ -1004,9 +1028,7 @@ Anwendungs-Version: 1.5.0
 
   function categoryFromDimensions(width, height) {
     if (!width || !height) return "square";
-
     const ratio = width / height;
-
     if (ratio < 0.82) return "portrait";
     if (ratio > 1.22) return "landscape";
     return "square";
@@ -1014,11 +1036,9 @@ Anwendungs-Version: 1.5.0
 
   function categoryFromFilename(filename) {
     const name = filename.toLowerCase();
-
     if (name.includes("hochformat")) return "portrait";
     if (name.includes("querformat")) return "landscape";
     if (name.includes("quadrat")) return "square";
-
     return "";
   }
 
@@ -1037,15 +1057,11 @@ Anwendungs-Version: 1.5.0
       const previewUrl = previewPath(file.name);
       const originalUrl = originalPath(file.name);
       const probe = new Image();
-
       let fallbackUsed = false;
 
       probe.onload = () => {
-        const detected =
-          categoryFromDimensions(probe.naturalWidth, probe.naturalHeight);
-
+        const detected = categoryFromDimensions(probe.naturalWidth, probe.naturalHeight);
         const filenameCategory = categoryFromFilename(file.name);
-
         resolve({
           file,
           previewUrl: probe.src,
@@ -1086,10 +1102,7 @@ Anwendungs-Version: 1.5.0
     img.decoding = "async";
     img.alt = "BetInsight Werbematerial";
     img.src = item.previewUrl;
-
-    img.onload = () => {
-      card.classList.remove("is-loading");
-    };
+    img.onload = () => card.classList.remove("is-loading");
 
     const download = document.createElement("a");
     download.className = "download-fab";
@@ -1114,9 +1127,7 @@ Anwendungs-Version: 1.5.0
       .sort((a,b) => a.file.name.localeCompare(b.file.name, "de"))
       .forEach((item) => grid.appendChild(buildCard(item)));
 
-    count.textContent =
-      items.length === 1 ? "1 Bild" : items.length + " Bilder";
-
+    count.textContent = items.length === 1 ? "1 Bild" : items.length + " Bilder";
     group.hidden = false;
   }
 
@@ -1129,22 +1140,14 @@ Anwendungs-Version: 1.5.0
 
     try {
       const response = await fetch(GITHUB_IMAGES_API, {
-        headers: {
-          "Accept": "application/vnd.github+json"
-        }
+        headers: { "Accept": "application/vnd.github+json" }
       });
-
-      if (!response.ok) {
-        throw new Error("GitHub API " + response.status);
-      }
+      if (!response.ok) throw new Error("GitHub API " + response.status);
 
       const data = await response.json();
-
       const files = uniqueBySha(
         data.filter((item) =>
-          item &&
-          item.type === "file" &&
-          ALLOWED_EXTENSIONS.test(item.name)
+          item && item.type === "file" && ALLOWED_EXTENSIONS.test(item.name)
         )
       );
 
@@ -1155,30 +1158,16 @@ Anwendungs-Version: 1.5.0
         return;
       }
 
-      /*
-        Die tatsächlichen Abmessungen werden aus der geladenen Vorschau
-        bzw. aus dem Original ermittelt. Damit funktioniert die Sortierung
-        auch dann, wenn ein Dateiname einmal nicht perfekt benannt ist.
-      */
       const items = await Promise.all(files.map(loadImageData));
+      renderGroup("portrait", items.filter((item) => item.category === "portrait"));
+      renderGroup("square", items.filter((item) => item.category === "square"));
+      renderGroup("landscape", items.filter((item) => item.category === "landscape"));
 
-      const portrait = items.filter((item) => item.category === "portrait");
-      const square = items.filter((item) => item.category === "square");
-      const landscape = items.filter((item) => item.category === "landscape");
-
-      renderGroup("portrait", portrait);
-      renderGroup("square", square);
-      renderGroup("landscape", landscape);
-
-      imageCount.textContent =
-        items.length === 1 ? "1 Bild" : items.length + " Bilder";
-
+      imageCount.textContent = items.length === 1 ? "1 Bild" : items.length + " Bilder";
       loadingBox.hidden = true;
       groups.hidden = false;
-
     } catch (error) {
       console.error("Marketing-Center Galerie:", error);
-
       loadingBox.hidden = true;
       errorBox.hidden = false;
       imageCount.textContent = "Nicht erreichbar";
@@ -1202,22 +1191,13 @@ Anwendungs-Version: 1.5.0
   async function loadPresentation() {
     try {
       const response = await fetch(GITHUB_PRESENTATIONS_API, {
-        headers: {
-          "Accept": "application/vnd.github+json"
-        }
+        headers: { "Accept": "application/vnd.github+json" }
       });
-
-      if (!response.ok) {
-        throw new Error("GitHub API " + response.status);
-      }
+      if (!response.ok) throw new Error("GitHub API " + response.status);
 
       const data = await response.json();
       const pdfFiles = data
-        .filter((item) =>
-          item &&
-          item.type === "file" &&
-          PDF_EXTENSION.test(item.name)
-        )
+        .filter((item) => item && item.type === "file" && PDF_EXTENSION.test(item.name))
         .sort((a,b) => a.name.localeCompare(b.name, "de"));
 
       if (!pdfFiles.length) {
@@ -1241,17 +1221,13 @@ Anwendungs-Version: 1.5.0
       const download = document.getElementById("presentationDownload");
 
       status.textContent = "PDF verfügbar";
-      description.textContent =
-        "Die offizielle BetInsight-Geschäftspräsentation steht zur Ansicht und zum Herunterladen bereit.";
+      description.textContent = "Die offizielle BetInsight-Geschäftspräsentation steht zur Ansicht und zum Herunterladen bereit.";
       pending.hidden = true;
-
       view.href = url;
       view.hidden = false;
-
       download.href = url;
       download.setAttribute("download", presentation.name);
       download.hidden = false;
-
     } catch (error) {
       console.warn("Geschäftspräsentation konnte noch nicht geladen werden:", error);
       showPresentationPending(
@@ -1260,10 +1236,110 @@ Anwendungs-Version: 1.5.0
     }
   }
 
+  function friendlyGuideTitle(filename) {
+    const raw = baseName(filename)
+      .replace(/[_-]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    if (/registrierung/i.test(raw)) {
+      return "Registrierung bei BetInsight - Schritt für Schritt";
+    }
+
+    return raw || "BetInsight Academy Anleitung";
+  }
+
+  function guideDescription(filename) {
+    if (/registrierung/i.test(filename)) {
+      return "Bild-Anleitung zur Registrierung mit markierten Klickpunkten und kurzen Erklärungen. Ideal zum Nachlesen oder Weitergeben an neue Interessenten.";
+    }
+
+    return "Freigegebene BetInsight Academy-Anleitung mit Schritt-für-Schritt-Erklärungen.";
+  }
+
+  function buildGuideCard(file) {
+    const card = document.createElement("article");
+    card.className = "presentation-card";
+
+    const icon = document.createElement("div");
+    icon.className = "presentation-icon";
+    icon.setAttribute("aria-hidden", "true");
+    icon.textContent = "PDF";
+
+    const copy = document.createElement("div");
+    copy.className = "presentation-copy";
+
+    const title = document.createElement("h3");
+    title.textContent = friendlyGuideTitle(file.name);
+
+    const description = document.createElement("p");
+    description.textContent = guideDescription(file.name);
+
+    copy.append(title, description);
+
+    const actions = document.createElement("div");
+    actions.className = "presentation-actions";
+
+    const url = guidePath(file.name);
+
+    const view = document.createElement("a");
+    view.className = "presentation-button secondary";
+    view.href = url;
+    view.target = "_blank";
+    view.rel = "noopener";
+    view.textContent = "PDF ansehen";
+
+    const download = document.createElement("a");
+    download.className = "presentation-button";
+    download.href = url;
+    download.setAttribute("download", file.name);
+    download.textContent = "PDF herunterladen";
+
+    actions.append(view, download);
+    card.append(icon, copy, actions);
+    return card;
+  }
+
+  async function loadGuides() {
+    const loading = document.getElementById("guideLoading");
+    const empty = document.getElementById("guideEmpty");
+    const errorBox = document.getElementById("guideError");
+    const grid = document.getElementById("guideGrid");
+    const status = document.getElementById("guideStatus");
+
+    try {
+      const response = await fetch(GITHUB_GUIDES_API, {
+        headers: { "Accept": "application/vnd.github+json" }
+      });
+      if (!response.ok) throw new Error("GitHub API " + response.status);
+
+      const data = await response.json();
+      const pdfFiles = data
+        .filter((item) => item && item.type === "file" && PDF_EXTENSION.test(item.name))
+        .sort((a,b) => a.name.localeCompare(b.name, "de"));
+
+      loading.hidden = true;
+
+      if (!pdfFiles.length) {
+        empty.hidden = false;
+        status.textContent = "In Vorbereitung";
+        return;
+      }
+
+      pdfFiles.forEach((file) => grid.appendChild(buildGuideCard(file)));
+      grid.hidden = false;
+      status.textContent = pdfFiles.length === 1 ? "1 PDF verfügbar" : pdfFiles.length + " PDFs verfügbar";
+    } catch (error) {
+      console.warn("Academy-Anleitungen konnten nicht geladen werden:", error);
+      loading.hidden = true;
+      errorBox.hidden = false;
+      status.textContent = "Nicht erreichbar";
+    }
+  }
+
   async function copyText(targetId, feedbackId, button) {
     const target = document.getElementById(targetId);
     const feedback = document.getElementById(feedbackId);
-
     if (!target) return;
 
     const text = target.innerText.trim();
@@ -1283,7 +1359,6 @@ Anwendungs-Version: 1.5.0
     }
 
     feedback.textContent = "✓ Text kopiert";
-
     const oldText = button.textContent;
     button.textContent = "Kopiert ✓";
 
@@ -1295,17 +1370,14 @@ Anwendungs-Version: 1.5.0
 
   document.querySelectorAll(".copy-button").forEach((button) => {
     button.addEventListener("click", () => {
-      copyText(
-        button.dataset.copyTarget,
-        button.dataset.feedback,
-        button
-      );
+      copyText(button.dataset.copyTarget, button.dataset.feedback, button);
     });
   });
 
   applyTokenToBackLink();
   loadGallery();
   loadPresentation();
+  loadGuides();
 </script>
 </body>
 </html>
