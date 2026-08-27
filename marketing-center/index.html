@@ -2,8 +2,12 @@
 <!--
 Projekt: BetInsight
 Datei: profil/marketing-center/index.html
-Version: 2026.08.27-02
-Anwendungs-Version: 1.6.1
+Version: 2026.08.27-03
+Anwendungs-Version: 1.6.2
+
+Änderungen v1.6.2:
+- Academy #01 um offizielle YouTube-Videoanleitung ergänzt
+- Registrierung bietet nun Video ansehen, PDF ansehen und PDF herunterladen
 
 Änderungen v1.6.1:
 - Academy-Registrierungsanleitung zeigt nun das hochgeladene PNG-Vorschaubild
@@ -45,7 +49,7 @@ Anwendungs-Version: 1.6.1
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#071019">
-  <meta name="application-version" content="1.6.1">
+  <meta name="application-version" content="1.6.2">
   <meta name="description" content="BetInsight Marketing-Center – freigegebenes Werbematerial und Academy-Anleitungen.">
   <title>Marketing-Center | BetInsight Club</title>
   <link rel="stylesheet" href="../assets/app-navigation.css">
@@ -988,7 +992,7 @@ Anwendungs-Version: 1.6.1
   </aside>
 
   <footer class="footer">
-    © 2026 BetInsight Club · Marketing-Center · Version 1.6.1
+    © 2026 BetInsight Club · Marketing-Center · Version 1.6.2
   </footer>
 
 </main>
@@ -1004,6 +1008,8 @@ Anwendungs-Version: 1.6.1
 
   const GITHUB_GUIDES_API =
     "https://api.github.com/repos/betinsightclub/profil/contents/marketing-center/downloads/anleitungen?ref=main";
+
+  const ACADEMY_VIDEO_01_URL = "https://youtu.be/TthBEfLi1ZA";
 
   const PDF_EXTENSION = /\.pdf$/i;
   const ALLOWED_EXTENSIONS = /\.(png|jpe?g|webp)$/i;
@@ -1292,7 +1298,7 @@ Anwendungs-Version: 1.6.1
 
   function guideDescription(filename) {
     if (/registrierung/i.test(filename)) {
-      return "Bild-Anleitung zur Registrierung mit markierten Klickpunkten und kurzen Erklärungen. Ideal zum Nachlesen oder Weitergeben an neue Interessenten.";
+      return "Video- und PDF-Anleitung zur Registrierung mit kurzen Erklärungen. Ideal zum Ansehen, Nachlesen oder Weitergeben an neue Interessenten.";
     }
 
     return "Freigegebene BetInsight Academy-Anleitung mit Schritt-für-Schritt-Erklärungen.";
@@ -1356,6 +1362,16 @@ Anwendungs-Version: 1.6.1
     download.href = url;
     download.setAttribute("download", file.name);
     download.textContent = "PDF herunterladen";
+
+    if (/registrierung/i.test(file.name)) {
+      const video = document.createElement("a");
+      video.className = "presentation-button secondary";
+      video.href = ACADEMY_VIDEO_01_URL;
+      video.target = "_blank";
+      video.rel = "noopener noreferrer";
+      video.textContent = "▶ Video ansehen";
+      actions.appendChild(video);
+    }
 
     actions.append(view, download);
     card.append(visual, copy, actions);
