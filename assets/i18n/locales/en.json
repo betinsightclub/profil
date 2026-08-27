@@ -1,0 +1,43 @@
+{
+  "language": {
+    "label": "Language",
+    "de": "German",
+    "en": "English"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "daily": "Daily Bonus",
+    "tips": "Tips",
+    "newTips": "New Tips",
+    "unlockedTips": "Unlocked Tips",
+    "buyPackages": "Buy Unit Packages",
+    "exchange": "Unit Exchange",
+    "overview": "Overview",
+    "buyOffers": "Buy Offers",
+    "sellUnits": "Sell Units",
+    "wallet": "Wallet",
+    "providers": "Betting Providers",
+    "network": "Network & Commissions",
+    "unitCommissions": "Unit Commissions",
+    "premiumCommissions": "Premium Commissions",
+    "marketingCenter": "Marketing Center",
+    "membership": "Membership",
+    "support": "Support",
+    "logout": "Log Out",
+    "accountSettings": "Account Settings",
+    "openMenu": "Open BetInsight menu",
+    "closeMenu": "Close menu",
+    "mainNavigation": "Main navigation",
+    "appNavigation": "BetInsight app navigation",
+    "followUs": "Follow us",
+    "openYoutube": "Open BetInsight Club on YouTube"
+  },
+  "session": {
+    "logoutConfirm": "Log out on this device? The saved profile access will be removed.",
+    "dashboardMissing": "Your personal dashboard access is not available for this page yet.",
+    "profileMissing": "Your personal profile access is not available for this page yet.",
+    "packageMissing": "Your personal dashboard access is not available for package selection yet.",
+    "dailyMissing": "Your personal dashboard access for Daily Bonus is not available yet.",
+    "networkHandoffPending": "Secure access to the Premium Network is currently being migrated to a token-free handoff."
+  }
+}
