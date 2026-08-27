@@ -2,8 +2,13 @@
 <!--
 Projekt: BetInsight
 Datei: profil/marketing-center/index.html
-Version: 2026.08.27-01
-Anwendungs-Version: 1.6.0
+Version: 2026.08.27-02
+Anwendungs-Version: 1.6.1
+
+Änderungen v1.6.1:
+- Academy-Registrierungsanleitung zeigt nun das hochgeladene PNG-Vorschaubild
+- Vorschaubild ist klickbar und öffnet die zugehörige PDF
+- Responsive Darstellung für Desktop und Mobil ergänzt
 
 Änderungen v1.6:
 - Eigenen Bereich „Academy & Anleitungen“ ergänzt
@@ -40,7 +45,7 @@ Anwendungs-Version: 1.6.0
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#071019">
-  <meta name="application-version" content="1.6.0">
+  <meta name="application-version" content="1.6.1">
   <meta name="description" content="BetInsight Marketing-Center – freigegebenes Werbematerial und Academy-Anleitungen.">
   <title>Marketing-Center | BetInsight Club</title>
   <link rel="stylesheet" href="../assets/app-navigation.css">
@@ -391,6 +396,31 @@ Anwendungs-Version: 1.6.0
       background: linear-gradient(145deg,var(--blue),#9fd0ff);
     }
 
+    .guide-preview {
+      display: block;
+      width: 180px;
+      max-width: 100%;
+      overflow: hidden;
+      border: 1px solid rgba(89,168,255,.28);
+      border-radius: 16px;
+      background: #061722;
+      box-shadow: 0 12px 30px rgba(0,0,0,.28);
+      transition: transform 160ms ease, border-color 160ms ease;
+    }
+
+    .guide-preview:hover,
+    .guide-preview:focus-visible {
+      transform: translateY(-2px);
+      border-color: rgba(89,168,255,.58);
+      outline: none;
+    }
+
+    .guide-preview img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
     .presentation-icon {
       display: grid;
       place-items: center;
@@ -692,6 +722,10 @@ Anwendungs-Version: 1.6.0
 
       .presentation-card { grid-template-columns: 1fr; }
 
+      .guide-preview {
+        width: min(100%, 260px);
+      }
+
       .presentation-actions {
         display: grid;
         grid-template-columns: 1fr;
@@ -954,7 +988,7 @@ Anwendungs-Version: 1.6.0
   </aside>
 
   <footer class="footer">
-    © 2026 BetInsight Club · Marketing-Center · Version 1.6
+    © 2026 BetInsight Club · Marketing-Center · Version 1.6.1
   </footer>
 
 </main>
@@ -1014,6 +1048,13 @@ Anwendungs-Version: 1.6.0
 
   function guidePath(filename) {
     return "downloads/anleitungen/" + encodeURIComponent(filename);
+  }
+
+  function guidePreviewPath(filename) {
+    if (/registrierung/i.test(filename)) {
+      return "assets/academy/betinsight-academy-01-registrierung-vorschau.png";
+    }
+    return "";
   }
 
   function uniqueBySha(files) {
@@ -1261,10 +1302,33 @@ Anwendungs-Version: 1.6.0
     const card = document.createElement("article");
     card.className = "presentation-card";
 
-    const icon = document.createElement("div");
-    icon.className = "presentation-icon";
-    icon.setAttribute("aria-hidden", "true");
-    icon.textContent = "PDF";
+    const url = guidePath(file.name);
+    const previewUrl = guidePreviewPath(file.name);
+    let visual;
+
+    if (previewUrl) {
+      const preview = document.createElement("a");
+      preview.className = "guide-preview";
+      preview.href = url;
+      preview.target = "_blank";
+      preview.rel = "noopener";
+      preview.setAttribute("aria-label", "PDF-Vorschau öffnen");
+
+      const image = document.createElement("img");
+      image.src = previewUrl;
+      image.loading = "lazy";
+      image.decoding = "async";
+      image.alt = "Vorschau der BetInsight Academy Anleitung Registrierung Schritt für Schritt";
+
+      preview.appendChild(image);
+      visual = preview;
+    } else {
+      const icon = document.createElement("div");
+      icon.className = "presentation-icon";
+      icon.setAttribute("aria-hidden", "true");
+      icon.textContent = "PDF";
+      visual = icon;
+    }
 
     const copy = document.createElement("div");
     copy.className = "presentation-copy";
@@ -1280,8 +1344,6 @@ Anwendungs-Version: 1.6.0
     const actions = document.createElement("div");
     actions.className = "presentation-actions";
 
-    const url = guidePath(file.name);
-
     const view = document.createElement("a");
     view.className = "presentation-button secondary";
     view.href = url;
@@ -1296,7 +1358,7 @@ Anwendungs-Version: 1.6.0
     download.textContent = "PDF herunterladen";
 
     actions.append(view, download);
-    card.append(icon, copy, actions);
+    card.append(visual, copy, actions);
     return card;
   }
 
