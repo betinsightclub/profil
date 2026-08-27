@@ -353,6 +353,32 @@
   color: #ffcf33 !important;
 }
 
+/* Marketing-Center · Academy-Lektion 01: PDF-Vorschaubild */
+#guideGrid .presentation-card:first-child .presentation-icon {
+  width: 150px;
+  height: 104px;
+  min-width: 150px;
+  padding: 0;
+  border: 1px solid rgba(89, 168, 255, .28);
+  border-radius: 14px;
+  background-image: url("../marketing-center/assets/academy/academy-01-registrierung-vorschau.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: transparent;
+  font-size: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 620px) {
+  #guideGrid .presentation-card:first-child .presentation-icon {
+    width: 100%;
+    height: auto;
+    min-width: 0;
+    aspect-ratio: 612 / 530;
+  }
+}
+
 @media (max-width: 1179px) {
   .bi-nav-sidebar {
     width: min(86vw, 286px);
