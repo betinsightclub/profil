@@ -1,4 +1,4 @@
-/* BetInsight App Navigation · 2026-08-27-03
+/* BetInsight App Navigation · 2026-08-27-04
    Reuses existing BetInsight token helpers/storage. It does not authenticate users.
    Login return targets are strictly whitelisted and never accept arbitrary external URLs.
    Sensitive access parameters are captured into local storage and immediately removed from the visible address bar on protected member pages. */
@@ -12,6 +12,7 @@
   const LOGIN_NEXT_KEY = "betinsight_login_next";
   const NETWORK_PREMIUM_URL = "https://betinsight.network/premium/";
   const YOUTUBE_URL = "https://www.youtube.com/@betinsightclub";
+  const TELEGRAM_URL = "https://t.me/+iKZj1FvUf4RmMjdh";
   const ALLOWED_NEXT = new Set([
     "dashboard", "daily", "tipps", "freigeschaltet", "kaufen", "wechselboerse",
     "angebote", "verkaufen", "wallet", "netzwerk", "premium-provisionen",
@@ -533,7 +534,16 @@
     youtube.title = "BetInsight Club auf YouTube";
     youtube.innerHTML = '<svg class="bi-social-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5.2" width="20" height="13.6" rx="4.2" fill="#ff0033"/><path d="M10 8.7 16 12l-6 3.3Z" fill="#fff"/></svg>';
 
-    links.appendChild(youtube);
+    const telegram = document.createElement("a");
+    telegram.className = "bi-social-link bi-social-telegram";
+    telegram.href = TELEGRAM_URL;
+    telegram.target = "_blank";
+    telegram.rel = "noopener noreferrer";
+    telegram.setAttribute("aria-label", "BetInsight Club auf Telegram öffnen");
+    telegram.title = "BetInsight Club auf Telegram";
+    telegram.innerHTML = '<svg class="bi-social-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#229ED9"/><path d="M17.8 7.2 15 17.3c-.2.7-.8.9-1.4.5l-4.2-3.1-2 1.9c-.2.2-.4.4-.8.4l.3-4.3 7.8-7c.3-.3-.1-.5-.5-.2l-9.6 6-4.1-1.3c-.9-.3-.9-.9.2-1.3l16-6.2c.8-.3 1.5.2 1.1 1.5Z" fill="#fff" transform="translate(2 2) scale(.83)"/></svg>';
+
+    links.append(youtube, telegram);
     socialFooter.append(label, links);
     page.appendChild(socialFooter);
   }
