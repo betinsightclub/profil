@@ -1,4 +1,4 @@
-/* BetInsight App Navigation · 2026-08-27-02
+/* BetInsight App Navigation · 2026-08-27-03
    Reuses existing BetInsight token helpers/storage. It does not authenticate users.
    Login return targets are strictly whitelisted and never accept arbitrary external URLs.
    Sensitive access parameters are captured into local storage and immediately removed from the visible address bar on protected member pages. */
@@ -11,6 +11,7 @@
   const DASHBOARD_STORAGE_KEY = "betinsight_dashboard_token";
   const LOGIN_NEXT_KEY = "betinsight_login_next";
   const NETWORK_PREMIUM_URL = "https://betinsight.network/premium/";
+  const YOUTUBE_URL = "https://www.youtube.com/@betinsightclub";
   const ALLOWED_NEXT = new Set([
     "dashboard", "daily", "tipps", "freigeschaltet", "kaufen", "wechselboerse",
     "angebote", "verkaufen", "wallet", "netzwerk", "premium-provisionen",
@@ -491,6 +492,52 @@
     return group;
   }
 
+  function ensureSocialFooterStyles() {
+    if (document.getElementById("bi-social-footer-styles")) return;
+    const style = document.createElement("style");
+    style.id = "bi-social-footer-styles";
+    style.textContent = `
+      .bi-social-footer{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;margin:50px auto 0;padding:18px 0 4px;border-top:1px solid rgba(104,191,230,.12);color:#7398aa;font-family:Inter,Arial,sans-serif}
+      .bi-social-footer-label{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+      .bi-social-links{display:flex;align-items:center;justify-content:center;gap:8px}
+      .bi-social-link{display:grid;place-items:center;width:34px;height:34px;border:1px solid rgba(255,255,255,.10);border-radius:10px;background:rgba(3,24,35,.58);text-decoration:none;box-shadow:0 8px 20px rgba(0,0,0,.16);transition:transform .16s ease,border-color .16s ease,background .16s ease}
+      .bi-social-link:hover,.bi-social-link:focus-visible{transform:translateY(-1px);border-color:rgba(255,80,90,.48);background:rgba(56,18,25,.52);outline:none}
+      .bi-social-icon{display:block;width:20px;height:20px}
+      @media(max-width:700px){.bi-social-footer{margin-top:36px;padding-top:16px}.bi-social-link{width:36px;height:36px}}
+      @media(prefers-reduced-motion:reduce){.bi-social-link{transition:none}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function buildSocialFooter(page) {
+    if (!page || page.querySelector(".bi-social-footer")) return;
+    ensureSocialFooterStyles();
+
+    const socialFooter = document.createElement("footer");
+    socialFooter.className = "bi-social-footer";
+    socialFooter.setAttribute("aria-label", "BetInsight Social Media");
+
+    const label = document.createElement("span");
+    label.className = "bi-social-footer-label";
+    label.textContent = "Folge uns";
+
+    const links = document.createElement("div");
+    links.className = "bi-social-links";
+
+    const youtube = document.createElement("a");
+    youtube.className = "bi-social-link bi-social-youtube";
+    youtube.href = YOUTUBE_URL;
+    youtube.target = "_blank";
+    youtube.rel = "noopener noreferrer";
+    youtube.setAttribute("aria-label", "BetInsight Club auf YouTube öffnen");
+    youtube.title = "BetInsight Club auf YouTube";
+    youtube.innerHTML = '<svg class="bi-social-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5.2" width="20" height="13.6" rx="4.2" fill="#ff0033"/><path d="M10 8.7 16 12l-6 3.3Z" fill="#fff"/></svg>';
+
+    links.appendChild(youtube);
+    socialFooter.append(label, links);
+    page.appendChild(socialFooter);
+  }
+
   function buildNavigation() {
     repairTokenStorage();
 
@@ -564,7 +611,10 @@
     sidebar.append(brand, list, footer);
     document.body.append(overlay, sidebar, toggle);
     const page = document.querySelector("main");
-    if (page) page.classList.add("bi-nav-content-offset", "bi-nav-mobile-safe");
+    if (page) {
+      page.classList.add("bi-nav-content-offset", "bi-nav-mobile-safe");
+      buildSocialFooter(page);
+    }
 
     toggle.addEventListener("click", () => {
       if (sidebar.classList.contains("bi-nav-sidebar-open")) closeNavigation();
