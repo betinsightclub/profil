@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<!--
+BetInsight multilingual preview – FEATURE BRANCH ONLY
+This page does not call Make, does not change Units and is not linked from production.
+It exists only to validate the language/session/navigation foundation before touching German production pages.
+-->
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#071019">
+  <title>BetInsight i18n Preview</title>
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+  <link rel="stylesheet" href="../assets/app-navigation.css">
+  <script src="../assets/app-session.js" defer></script>
+  <script src="../assets/i18n/core.js" defer></script>
+  <script src="../assets/app-navigation-next.js" defer></script>
+  <style>
+    *{box-sizing:border-box}
+    :root{--bg:#071019;--panel:#0d1a26;--panel2:#122433;--text:#f4f8fb;--muted:#91a6b7;--line:rgba(145,166,183,.18);--green:#25e6a7;--blue:#59a8ff;--warn:#ffc857}
+    body{min-height:100vh;margin:0;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 10% 0%,rgba(37,230,167,.11),transparent 30rem),radial-gradient(circle at 92% 8%,rgba(89,168,255,.12),transparent 30rem),var(--bg)}
+    main{width:min(100% - 32px,980px);margin:0 auto;padding:42px 0 70px}
+    .hero,.card{border:1px solid var(--line);border-radius:22px;background:linear-gradient(155deg,rgba(18,36,51,.96),rgba(13,26,38,.98));box-shadow:0 24px 70px rgba(0,0,0,.22)}
+    .hero{padding:32px;margin-bottom:20px}.hero small{color:var(--green);font-weight:900;letter-spacing:.1em;text-transform:uppercase}.hero h1{margin:10px 0 10px;font-size:clamp(2rem,6vw,3.5rem)}.hero p{margin:0;color:var(--muted);line-height:1.7}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.card{padding:22px}.card h2{margin:0 0 13px}.row{display:flex;justify-content:space-between;gap:18px;padding:11px 0;border-bottom:1px solid var(--line)}.row:last-child{border-bottom:0}.row span{color:var(--muted)}.ok{color:var(--green)}.warn{color:var(--warn)}
+    .sample{display:grid;gap:10px}.sample div{padding:13px 14px;border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.025)}
+    code{color:#bfe9ff;overflow-wrap:anywhere}
+    @media(max-width:700px){main{width:min(100% - 22px,980px);padding-top:24px}.grid{grid-template-columns:1fr}.hero{padding:24px}}
+  </style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <small>Feature branch preview</small>
+    <h1>BetInsight Multilingual Foundation</h1>
+    <p>Diese Testseite prüft ausschließlich Sprache, saubere interne Navigation und die lokale Dashboard-Sitzung. Die produktive deutsche Seite und sämtliche Unit-, Wallet-, Premium- und Make-Logik werden nicht verändert.</p>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <h2>Sprach-Test</h2>
+      <div class="sample">
+        <div data-bi-i18n="nav.newTips" data-bi-i18n-fallback="Neue Tipps">Neue Tipps</div>
+        <div data-bi-i18n="nav.unlockedTips" data-bi-i18n-fallback="Freigeschaltete Tipps">Freigeschaltete Tipps</div>
+        <div data-bi-i18n="nav.exchange" data-bi-i18n-fallback="Unit-Wechselstube">Unit-Wechselstube</div>
+        <div data-bi-i18n="nav.network" data-bi-i18n-fallback="Netzwerk & Provisionen">Netzwerk & Provisionen</div>
+        <div data-bi-i18n="nav.membership" data-bi-i18n-fallback="Mitgliedschaft">Mitgliedschaft</div>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Sicherheits-Test</h2>
+      <div class="row"><span>Dashboard-Sitzung lokal vorhanden</span><strong id="sessionState">wird geprüft</strong></div>
+      <div class="row"><span>Dashboard-UUID in sichtbarer URL</span><strong id="urlState">wird geprüft</strong></div>
+      <div class="row"><span>Aktuelle Sprache</span><strong id="languageState">de</strong></div>
+      <div class="row"><span>URL</span><code id="visibleUrl"></code></div>
+    </article>
+  </section>
+</main>
+
+<script>
+(() => {
+  "use strict";
+  const uuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i;
+
+  function refresh() {
+    const session = window.BetInsightSession;
+    const i18n = window.BetInsightI18n;
+    const url = window.location.href;
+    const hasVisibleUuid = uuidPattern.test(url) || /[?&](dashboard_token|id)=/i.test(url);
+
+    const sessionState = document.getElementById("sessionState");
+    sessionState.textContent = session?.hasDashboardAccess?.() ? "ja" : "nein";
+    sessionState.className = session?.hasDashboardAccess?.() ? "ok" : "warn";
+
+    const urlState = document.getElementById("urlState");
+    urlState.textContent = hasVisibleUuid ? "FEHLER" : "nein";
+    urlState.className = hasVisibleUuid ? "warn" : "ok";
+
+    document.getElementById("languageState").textContent = i18n?.getLanguage?.() || document.documentElement.lang || "de";
+    document.getElementById("visibleUrl").textContent = url;
+  }
+
+  window.addEventListener("bi:languagechange", refresh);
+  window.addEventListener("load", refresh, { once:true });
+  window.setTimeout(refresh, 250);
+})();
+</script>
+</body>
+</html>
