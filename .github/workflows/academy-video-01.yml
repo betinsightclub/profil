@@ -25,7 +25,6 @@ jobs:
           path = Path("marketing-center/index.html")
           text = path.read_text(encoding="utf-8")
 
-          # Versionskopf aktualisieren.
           old_head = "Version: 2026.08.27-02\nAnwendungs-Version: 1.6.1\n"
           new_head = "Version: 2026.08.27-03\nAnwendungs-Version: 1.6.2\n\nÄnderungen v1.6.2:\n- Academy #01 um offizielle YouTube-Videoanleitung ergänzt\n- Registrierung bietet nun Video ansehen, PDF ansehen und PDF herunterladen\n"
           if old_head in text:
@@ -42,7 +41,6 @@ jobs:
               1
           )
 
-          # Zentraler Video-Link für Academy 01.
           video_const = '  const ACADEMY_VIDEO_01_URL = "https://youtu.be/TthBEfLi1ZA";\n\n'
           if 'const ACADEMY_VIDEO_01_URL' not in text:
               marker = '  const PDF_EXTENSION = /\\.pdf$/i;'
@@ -50,30 +48,30 @@ jobs:
                   raise SystemExit("PDF marker is not unique")
               text = text.replace(marker, video_const + marker, 1)
 
-          # Beschreibung der Registrierungslektion auf Video + PDF anpassen.
           old_description = '      return "Bild-Anleitung zur Registrierung mit markierten Klickpunkten und kurzen Erklärungen. Ideal zum Nachlesen oder Weitergeben an neue Interessenten.";'
           new_description = '      return "Video- und PDF-Anleitung zur Registrierung mit kurzen Erklärungen. Ideal zum Ansehen, Nachlesen oder Weitergeben an neue Interessenten.";'
           if old_description in text:
               text = text.replace(old_description, new_description, 1)
 
-          # Nur bei der Registrierungs-PDF den passenden YouTube-Button ergänzen.
           signature = 'video.textContent = "▶ Video ansehen";'
           if signature not in text:
               marker = '    actions.append(view, download);\n    card.append(visual, copy, actions);'
               if text.count(marker) != 1:
                   raise SystemExit("Guide actions marker is not unique")
-              replacement = '''    if (/registrierung/i.test(file.name)) {
-      const video = document.createElement("a");
-      video.className = "presentation-button secondary";
-      video.href = ACADEMY_VIDEO_01_URL;
-      video.target = "_blank";
-      video.rel = "noopener noreferrer";
-      video.textContent = "▶ Video ansehen";
-      actions.appendChild(video);
-    }
-
-    actions.append(view, download);
-    card.append(visual, copy, actions);'''
+              replacement = "\n".join([
+                  '    if (/registrierung/i.test(file.name)) {',
+                  '      const video = document.createElement("a");',
+                  '      video.className = "presentation-button secondary";',
+                  '      video.href = ACADEMY_VIDEO_01_URL;',
+                  '      video.target = "_blank";',
+                  '      video.rel = "noopener noreferrer";',
+                  '      video.textContent = "▶ Video ansehen";',
+                  '      actions.appendChild(video);',
+                  '    }',
+                  '',
+                  '    actions.append(view, download);',
+                  '    card.append(visual, copy, actions);',
+              ])
               text = text.replace(marker, replacement, 1)
 
           if 'https://youtu.be/TthBEfLi1ZA' not in text:
@@ -81,7 +79,6 @@ jobs:
 
           path.write_text(text, encoding="utf-8")
 
-          # Einmal-Workflow nach erfolgreichem Patch wieder entfernen.
           workflow = Path(".github/workflows/academy-video-01.yml")
           if workflow.exists():
               workflow.unlink()
