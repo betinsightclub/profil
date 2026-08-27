@@ -1,145 +1,122 @@
-# BetInsight Customer App – Multilingual Migration
+# BetInsight Kundenbereich – Mehrsprachigkeits-Migration
 
-Status: feature branch only. Production `main` is intentionally unchanged.
+Stand: 27.08.2026
+Branch: `feature/i18n-multilang-safe-v3`
+Status: **WIP / nicht für `main` freigegeben**
 
-## Non-negotiable rules
+## Feste Regeln
 
-1. The German production customer app remains functional during migration.
-2. Admin, master backoffice and internal operator pages remain German and are out of scope.
-3. The canonical `dashboard_token` / dashboard UUID must never be generated into a visible browser URL.
-4. Internal technical field names, Google Sheet columns, JSON keys, Make mappings and webhook contracts are never translated.
-5. German is the permanent fallback language. A missing translation must fall back to German, never to an empty label.
-6. One customer page serves all languages. We do not create separate `/en/`, `/es/`, `/pt/` copies of the protected app.
-7. New languages are added as locale files, not by duplicating application logic.
+1. Die produktive deutsche Seite auf `main` bleibt während der Migration unverändert.
+2. Admin, Admin-Tipps und Master-Backoffice bleiben deutsch und sind nicht Teil der Übersetzung.
+3. Geschäftslogik, Webhooks, Sheet-Felder, API-Felder und interne IDs werden nicht übersetzt.
+4. Die Dashboard-UUID wird bei neuer Navigation niemals in eine Browser-URL geschrieben.
+5. Alte eingehende UUID-Links dürfen nur als Kompatibilitätsweg eingelesen, lokal gespeichert und sofort aus der sichtbaren URL entfernt werden.
+6. Deutsch bleibt der Fallback, falls eine Übersetzung fehlt oder eine Locale nicht geladen werden kann.
+7. Neue Sprachen erzeugen keine Kopien des kompletten Kundenbereichs.
 
-## Language architecture
+## Zielarchitektur
 
-Core:
-- `assets/i18n/core.js`
-- `assets/i18n/locales/de.json`
-- `assets/i18n/locales/en.json`
+Eine Kundenseite bleibt eine Kundenseite, zum Beispiel:
 
-Future languages follow the same pattern, for example:
-- `assets/i18n/locales/es.json`
-- `assets/i18n/locales/pt.json`
-- `assets/i18n/locales/fr.json`
-- `assets/i18n/locales/it.json`
+`https://app.betinsight.club/wallet/`
 
-The selected language is stored in `localStorage` as `betinsight_language`.
+Die sichtbare Sprache wird zentral über `betinsight_language` gesteuert. Die Seite selbst wird nicht als `/de/wallet/`, `/en/wallet/`, `/es/wallet/` usw. vervielfacht.
 
-Static page text is migrated gradually with attributes such as:
+### Zentrale Dateien
 
-```html
-<h1 data-bi-i18n="profile.title" data-bi-i18n-fallback="Dein BetInsight Profil">
-  Dein BetInsight Profil
-</h1>
-```
+- `assets/i18n/core-v2.js` – Sprachkern
+- `assets/i18n/locales/manifest.json` – registrierte Sprachen
+- `assets/i18n/locales/de.json` – deutsche Texte / Fallback
+- `assets/i18n/locales/en.json` – englische Texte
+- `assets/app-session.js` – lokaler Dashboard-Sitzungshelfer
+- `assets/app-navigation-next.js` – vorbereitete tokenfreie Navigation
 
-The existing German text remains directly in the HTML as the visible fallback. This prevents the German page from becoming dependent on a translation file in order to render correctly.
+### Weitere Sprache ergänzen
 
-## Session architecture
+Beispiel Spanisch:
 
-Foundation:
-- `assets/app-session.js`
+1. `assets/i18n/locales/es.json` hinzufügen.
+2. In `assets/i18n/locales/manifest.json` `"es"` ergänzen.
+3. Keine Kunden-HTML muss deshalb kopiert werden.
+4. Nur neue Seitentexte müssen im gemeinsamen Sprachschlüssel-Schema übersetzt werden.
 
-The dashboard UUID is stored locally under the existing key:
-- `betinsight_dashboard_token`
+## Pilot 1 – Konto & Zugang
 
-New internal navigation must use clean paths only, for example:
+`konto/index.html` wurde ausschließlich auf dem Feature-Branch als erster echter Pilot umgestellt.
 
-```text
-/app route: /wallet/
-/app route: /tipps/
-/app route: /wechselboerse/
-```
+Der Pilot enthält:
 
-Forbidden for new navigation:
+- sichtbaren `DE | EN` Sprachschalter,
+- Speicherung der gewählten Sprache im Browser,
+- zentrale deutsche und englische Texte,
+- lokalisierte dynamische Status- und Fehlermeldungen,
+- unveränderten Webhook für die Anforderung des persönlichen Zugangslinks,
+- unveränderte Referral-Weitergabe bei Registrierung,
+- saubere Same-Origin-Navigation ohne Dashboard-UUID in der erzeugten URL,
+- Sperre des Premium-Network-Übergangs, solange dafür noch keine geprüfte tokenfreie Cross-Origin-Übergabe existiert.
 
-```text
-/wallet/?id=<dashboard UUID>
-/tipps/?token=<dashboard UUID>
-/wechselboerse/?dashboard_token=<dashboard UUID>
-```
+Die produktive Datei auf `main` wurde nicht verändert.
 
-`captureLegacyIngress()` exists only so old bookmarks can be migrated and immediately cleaned. It must never be used as justification to generate new token URLs.
+## Dashboard-UUID-Regel
 
-## Cross-domain Premium Network
+Neue Navigation darf keine dieser Formen erzeugen:
 
-`betinsight.network` is a separate origin, therefore `localStorage` from `app.betinsight.club` cannot be reused directly.
+- `?dashboard_token=<UUID>`
+- `?id=<UUID>`
+- `?token=<UUID>`
 
-Until a secure token-free handoff is implemented and tested, the NEXT navigation deliberately does not send the dashboard UUID to `betinsight.network` in the URL.
+Die UUID liegt nach erfolgreichem Zugang ausschließlich lokal unter `betinsight_dashboard_token` und wird von den Kundenbereichen aus diesem Speicher gelesen.
 
-A dedicated cross-origin handoff must be built separately before Premium Network is switched to the new navigation.
+Alte Lesewege bleiben während der Migration nur für bereits versendete oder gespeicherte Altlinks bestehen. Bei deren Aufruf muss die UUID sofort aus der Adresszeile entfernt werden.
 
-## Staged rollout
+## Premium Network
 
-### Stage 0 – foundation
-- Add i18n core and DE/EN locale files.
-- Add token-safe app session helper.
-- Build `app-navigation-next.js` as a non-production preview.
-- Do not reference NEXT files from production pages yet.
+`betinsight.network` liegt auf einer anderen Origin. `localStorage` von `app.betinsight.club` kann dort nicht direkt gelesen werden.
 
-### Stage 1 – low-risk pilot page
-Recommended first pilot: `konto/` or another simple customer page without Unit mutation.
+Deshalb wird **keine** Zwischenlösung verwendet, die die Dashboard-UUID wieder an die URL hängt. Vor Freigabe dieses Bereichs ist ein eigener sicherer Handoff nötig, zum Beispiel ein kurzlebiger Einmalcode, der serverseitig gegen die bereits bestätigte Sitzung ausgestellt wird.
 
-- Add `core.js` and `app-session.js`.
-- Add DE/EN attributes.
-- Verify German is pixel/function equivalent.
-- Verify English switch.
-- Verify browser URL contains no dashboard UUID.
-- Verify page reload keeps language and authenticated session.
+Bis dieser Handoff implementiert und getestet ist, bleibt der neue Premium-Network-Weg gesperrt.
 
-### Stage 2 – navigation pilot
-- Replace current navigation with NEXT only on the pilot branch/page.
-- Test every route from desktop and mobile.
-- Migrate target pages to read dashboard UUID from `BetInsightSession` / local storage.
+## Reihenfolge nach Pilot 1
 
-### Stage 3 – customer pages
-Suggested order:
-1. Dashboard/profile
-2. Daily Bonus
-3. Tips
-4. Unlocked Tips
-5. Packages / Units purchase
-6. Unit Exchange overview
-7. Offers
-8. Sell Units
-9. Wallet
-10. Betting Providers
-11. Marketing Center
-12. Support
-13. Account & Access
+1. Pilot `Konto & Zugang` statisch und im Browser testen.
+2. Zentrale neue Navigation auf dem Feature-Branch mit einer echten Kunden-Unterseite testen.
+3. Hauptdashboard mehrsprachig vorbereiten.
+4. Daily, Tipps, Freigeschaltete Tipps und Unit-Pakete.
+5. Wechselstube, Angebote, Verkaufen und Wallet.
+6. Wettanbieter, Marketing-Center und Support.
+7. `betinsight.network` erst nach sicherem Cross-Origin-Handoff.
+8. Gesamttest DE/EN Desktop + Mobil.
+9. Erst danach kontrollierte Übernahme nach `main`.
 
-### Stage 4 – BetInsight Network
-Separate repository and separate test branch:
-- Network start page
-- Premium Network
-- Messages
-- secure cross-origin session handoff
+## Mindest-Testmatrix vor Merge
 
-## Explicitly out of scope
+### Deutsch
+- alle bisher sichtbaren deutschen Texte fachlich unverändert,
+- E-Mail-Zugangslink anfordern funktioniert,
+- gespeicherter Zugang wird erkannt,
+- Referral-Code wird weitergegeben,
+- keine neue Fehlermeldung oder Sackgasse.
 
-The following remain German unless a later separate decision is made:
-- `admin/`
-- `admin/backoffice/`
-- `admin-tipps/`
-- master cost pages
-- internal support/admin pages
-- internal test/operator tools
+### Englisch
+- alle sichtbaren Pilottexte wechseln auf Englisch,
+- dynamische Texte wechseln ebenfalls,
+- E-Mail-Feld, Buttons und Statusmeldungen sind übersetzt,
+- Umschalten zurück auf Deutsch funktioniert ohne Reload.
 
-## Test checklist per migrated page
+### Sprache
+- Auswahl bleibt nach Seitenreload gespeichert,
+- unbekannte/fehlende Locale fällt auf Deutsch zurück,
+- spätere Sprache kann über Manifest + neue JSON ergänzt werden.
 
-- German text unchanged in meaning and function.
-- English complete; no mixed-language buttons or JS messages.
-- No translated backend keys.
-- No dashboard UUID in browser URL before, during or after internal navigation.
-- Refresh works without re-entering access.
-- Mobile navigation works.
-- Desktop navigation works.
-- Language persists across page changes.
-- Webhook payloads are byte-for-byte equivalent except for purely presentational language fields if explicitly intended.
-- Unit balances, FIFO, wallet, sales, Premium and referral logic remain untouched.
+### Sicherheit
+- keine neu erzeugte URL enthält die Dashboard-UUID,
+- Legacy-UUID wird sofort aus der Adresszeile entfernt,
+- Premium-Network-Handoff erzeugt keine UUID-URL,
+- Backend-Feldnamen und Webhook-Payloads bleiben unverändert.
 
-## Release rule
-
-Nothing from this migration is merged into `main` until the pilot page passes the German regression test and the dashboard-token URL test.
+### Darstellung
+- Desktop,
+- Smartphone,
+- lange englische Texte ohne Überlauf,
+- Sprachschalter erreichbar und tastaturbedienbar.
