@@ -1,0 +1,38 @@
+name: Import Academy PDF
+
+on:
+  push:
+    paths:
+      - '.tmp_pdf_chunks/READY'
+
+permissions:
+  contents: write
+
+jobs:
+  build-pdf:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Rebuild PDF
+        shell: bash
+        run: |
+          mkdir -p marketing-center/downloads/anleitungen
+          cat .tmp_pdf_chunks/part* | base64 -d > marketing-center/downloads/anleitungen/BetInsight_Academy_Registrierung_Schritt_fuer_Schritt.pdf
+          test -s marketing-center/downloads/anleitungen/BetInsight_Academy_Registrierung_Schritt_fuer_Schritt.pdf
+
+      - name: Commit PDF and cleanup
+        shell: bash
+        run: |
+          rm -rf .tmp_pdf_chunks
+          rm -f .github/workflows/import-academy-pdf.yml
+          git config user.name 'betinsightclub'
+          git config user.email 'betinsight.club@gmail.com'
+          git add marketing-center/downloads/anleitungen/BetInsight_Academy_Registrierung_Schritt_fuer_Schritt.pdf .tmp_pdf_chunks .github/workflows/import-academy-pdf.yml
+          if git diff --cached --quiet; then
+            echo 'Nothing to commit'
+            exit 0
+          fi
+          git commit -m 'Academy Registrierung PDF hinzufügen'
+          git push
