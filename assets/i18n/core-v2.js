@@ -4,6 +4,7 @@
 
   const STORAGE_KEY = "betinsight_language";
   const FALLBACK = "de";
+  const SCRIPT_URL = document.currentScript?.src || "";
   const dictionaries = new Map();
   let supported = ["de", "en"];
   let defaultLanguage = FALLBACK;
@@ -15,8 +16,7 @@
   const clean = value => String(value || "").trim().toLowerCase();
 
   function assetUrl(relative) {
-    const script = document.currentScript;
-    if (script?.src) return new URL(relative, script.src).toString();
+    if (SCRIPT_URL) return new URL(relative, SCRIPT_URL).toString();
     return `/assets/i18n/${String(relative || "").replace(/^\.\//, "")}`;
   }
 
