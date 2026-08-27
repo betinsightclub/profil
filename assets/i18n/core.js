@@ -7,6 +7,7 @@
   const STORAGE_KEY = "betinsight_language";
   const DEFAULT_LANGUAGE = "de";
   const SUPPORTED_LANGUAGES = Object.freeze(["de", "en"]);
+  const SCRIPT_URL = document.currentScript?.src || "";
   const dictionaries = new Map();
   let activeLanguage = DEFAULT_LANGUAGE;
   let activeDictionary = {};
@@ -40,11 +41,9 @@
   }
 
   function localeUrl(language) {
-    const currentScript = document.currentScript;
-    if (currentScript?.src) {
-      return new URL(`./locales/${language}.json`, currentScript.src).toString();
-    }
-    return `/assets/i18n/locales/${language}.json`;
+    if (SCRIPT_URL) return new URL(`./locales/${language}.json`, SCRIPT_URL).toString();
+    const prefix = window.location.hostname.toLowerCase() === "betinsightclub.github.io" ? "/profil" : "";
+    return `${prefix}/assets/i18n/locales/${language}.json`;
   }
 
   async function loadDictionary(language) {
@@ -116,23 +115,21 @@
   async function setLanguage(language, options = {}) {
     const lang = normalizeLanguage(language) || DEFAULT_LANGUAGE;
     let dictionary;
+    let resolvedLanguage = lang;
 
     try {
       dictionary = await loadDictionary(lang);
     } catch (error) {
       if (lang !== DEFAULT_LANGUAGE) {
         dictionary = await loadDictionary(DEFAULT_LANGUAGE);
-        activeLanguage = DEFAULT_LANGUAGE;
+        resolvedLanguage = DEFAULT_LANGUAGE;
       } else {
         throw error;
       }
     }
 
-    if (dictionary) {
-      activeLanguage = dictionaries.has(lang) ? lang : DEFAULT_LANGUAGE;
-      activeDictionary = dictionary;
-    }
-
+    activeLanguage = resolvedLanguage;
+    activeDictionary = dictionary || {};
     document.documentElement.lang = activeLanguage;
 
     if (options.persist !== false) {
