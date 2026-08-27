@@ -92,5 +92,23 @@
       "support": "Support",
       "daily": "Daily Bonus"
     }
+  },
+  "exchangePage": {
+    "title": "BetInsight Unit Exchange",
+    "eyebrow": "Member Area",
+    "heading": "Unit Exchange",
+    "secure": "Protected Access",
+    "questionStart": "What would you like to",
+    "questionAccent": "do?",
+    "intro": "Buy available Referral Units or offer your released Units for sale to other BetInsight members.",
+    "buyTitle": "Buy Units",
+    "buyCopy": "View available sale offers and choose an offer.",
+    "sellTitle": "Sell Units",
+    "sellCopy": "Create a new sale offer using released Referral Units.",
+    "walletTitle": "Payout Wallet",
+    "walletCopy": "Manage your USDT/USDC wallet for direct incoming payments.",
+    "walletButton": "Manage Wallet",
+    "info": "Only Units specifically released for sale can be sold.",
+    "missingAccess": "No valid dashboard access is stored on this device yet. Please open the Unit Exchange from your current BetInsight profile."
   }
 }
