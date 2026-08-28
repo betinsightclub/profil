@@ -1,328 +1,83 @@
 <!DOCTYPE html>
-<!--
-GitHub-Ziel: betinsightclub/profil/kaufen/index.html
-Live-Seite: https://betinsightclub.github.io/profil/kaufen/
-
-Projekt: BetInsight
-Datei: kaufen/index.html
-Version: 2026.08.26-02
-
-Änderungen:
-- Zahlungs-Webhook auf "BetInsight - Rechnung erstellen v2.0 SECURE" umgestellt.
-- Neuer sicherer Unit-Rechnungs-Webhook: uk8zqla4l5b0e1ybeoh5gd8bxbk69bfh.
-- Dashboard-Token (UUID) wird für die automatische E-Mail-Ermittlung direkt verwendet.
-- Alte Profil-Tokens bleiben nur als Übergangs-/Kompatibilitätsweg erhalten.
-- Ein erfolgreich erkannter Dashboard-Token bleibt unter betinsight_dashboard_token gespeichert.
+<!-- BetInsight Unit purchase · multilingual feature migration · 2026.08.28-03
+- existing secure invoice webhook and package codes preserved
+- dashboard/profile access is read from local BetInsightSession; legacy URL access is captured and removed
+- DE/EN via central i18n
 -->
 <html lang="de">
 <head>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="bi-i18n-scope" content="buy">
+  <meta name="theme-color" content="#001b24">
+  <title data-bi-i18n="buyPage.title">BetInsight Units kaufen</title>
   <link rel="stylesheet" href="../assets/app-navigation.css">
-  <title>BetInsight Units kaufen</title>
+  <script src="../assets/app-session.js"></script>
+  <script src="../assets/i18n/core-v2.js"></script>
+  <script src="../assets/app-navigation-v2.js" defer></script>
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 82% 3%,rgba(0,140,255,.13),transparent 28rem),linear-gradient(180deg,#00151e,#001b24 45%,#00131b);color:#fff;font-family:Inter,Arial,sans-serif}.page{max-width:760px;margin:0 auto;padding:45px 20px 70px;text-align:center}.logo{width:180px;max-width:70%;height:auto;margin-bottom:34px}.card{max-width:510px;margin:0 auto;padding:30px;border:1px solid rgba(76,184,255,.22);border-radius:20px;background:linear-gradient(150deg,rgba(7,50,72,.97),rgba(3,30,44,.98));box-shadow:0 24px 60px rgba(0,0,0,.28)}h1{margin:0 0 10px;font-size:clamp(1.8rem,5vw,2.5rem)}.intro{margin:0 0 18px;color:#b9d0dc;line-height:1.55}.field{width:100%;min-height:52px;margin:9px 0;padding:13px 14px;border:2px solid #168ff4;border-radius:10px;background:#fff;color:#13232d;font:inherit}.status{min-height:20px;margin:4px 0 10px;color:#ffcc00;font-size:13px;line-height:1.45}.preview{min-height:27px;margin:15px 0;color:#69f0c2;font-size:17px;font-weight:900}.pay{width:100%;min-height:52px;margin-top:4px;border:0;border-radius:11px;background:linear-gradient(105deg,#168dff,#08bdec);color:#fff;font-size:17px;font-weight:900;cursor:pointer}.pay:hover{filter:brightness(1.06)}.warning{margin:18px 0 0;color:#ffcf5a;font-size:13px;line-height:1.5}.fine{margin:10px 0 0;color:#a9beca;font-size:12px;line-height:1.5}.fine a{color:#69c2ff;font-weight:800}.debug{display:none;margin-top:16px;color:rgba(255,255,255,.35);font-size:11px}.footer{margin-top:48px;color:rgba(255,255,255,.43);font-size:13px}@media(max-width:600px){.page{padding:78px 14px 45px}.card{padding:23px 17px}}
+  </style>
 </head>
-
-<body style="margin:0;background:#001b24;color:white;font-family:Arial,sans-serif;text-align:center;min-height:100vh;">
-
-  <main style="max-width:760px;margin:0 auto;padding:45px 20px;">
-
-    <img
-      src="../logo_betisight.club.png"
-      alt="BetInsight Club"
-      style="width:170px;max-width:70%;height:auto;margin-bottom:45px;"
-    >
-
-    <div style="max-width:480px;margin:0 auto;text-align:center;color:white;background:#04263a;padding:28px;border-radius:14px;">
-
-      <h2>Units kaufen</h2>
-
-      <p>
-        Deine E-Mail wird automatisch geladen. Bitte prüfe sie vor dem Kauf und wähle dein Paket.
-      </p>
-
-      <input
-        id="buyerEmail"
-        type="email"
-        placeholder="deine registrierte E-Mail"
-        style="width:100%;padding:14px;font-size:16px;margin:15px 0;box-sizing:border-box;background:white;color:black;border:2px solid #008cff;border-radius:8px;"
-      >
-
-      <div id="emailStatus" style="font-size:13px;color:#ffcc00;margin-bottom:12px;line-height:1.5;">
-        E-Mail wird geladen...
-      </div>
-
-      <select
-        id="packageSelect"
-        onchange="updatePreview()"
-        style="width:100%;padding:14px;font-size:16px;margin:10px 0;box-sizing:border-box;background:white;color:black;border:2px solid #008cff;border-radius:8px;"
-      >
-        <option value="">Bitte Paket auswählen</option>
-
-        <option value="starter">Starter Paket – 50 Units – 49 €</option>
-        <option value="basic">Basic Paket – 110 Units – 99 €</option>
-        <option value="pro">Pro Paket – 240 Units – 199 €</option>
-        <option value="elite">Elite Paket – 365 Units – 299 €</option>
-
-        <option value="starter_bonus">Starter Bonus – 70 Units – 64 €</option>
-        <option value="basic_bonus">Basic Bonus – 130 Units – 114 €</option>
-        <option value="pro_bonus">Pro Bonus – 260 Units – 214 €</option>
-        <option value="elite_bonus">Elite Bonus – 385 Units – 314 €</option>
-      </select>
-
-      <div id="preview" style="margin:18px 0;font-size:18px;font-weight:bold;color:#00ff99;">
-        Noch kein Paket gewählt
-      </div>
-
-      <button
-        onclick="goPay()"
-        style="width:100%;padding:14px;font-size:18px;background:#008cff;color:white;border:0;border-radius:8px;cursor:pointer;"
-      >
-        Weiter zur Zahlung
-      </button>
-
-      <p style="font-size:13px;line-height:1.5;margin-top:18px;color:#ffcc00;">
-        Bitte prüfe die E-Mail vor dem Kauf. Die Units werden genau dieser E-Mail gutgeschrieben.
-      </p>
-
-      <p style="font-size:12px;line-height:1.5;margin-top:10px;color:#c9d6df;">
-        Wenn du mehrere Accounts betreust, kontrolliere bitte besonders sorgfältig,
-        dass hier die richtige registrierte E-Mail steht.
-      </p>
-
-      <p style="font-size:12px;line-height:1.5;margin-top:10px;color:#c9d6df;">
-        Nicht sicher, welche E-Mail du bei der Registrierung verwendet hast?<br>
-        <a
-          href="https://betinsight.systeme.io/profile/user-settings"
-          target="_blank"
-          style="color:#4db8ff;font-weight:bold;text-decoration:underline;"
-        >
-          Hier Profil öffnen und E-Mail prüfen
-        </a>
-      </p>
-
-      <div id="debug" style="margin-top:18px;color:rgba(255,255,255,0.35);font-size:12px;"></div>
-
-    </div>
-
-    <div style="margin-top:70px;color:rgba(255,255,255,0.45);font-size:14px;">
-      © 2026 BetInsight Club
-    </div>
-
-  </main>
-
-  <script>
-    "use strict";
-
-    const PROFILE_WEBHOOK_URL = "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
-    const PAYMENT_WEBHOOK_URL = "https://hook.eu1.make.com/uk8zqla4l5b0e1ybeoh5gd8bxbk69bfh";
-    const TOKEN_STORAGE_KEY = "betinsight_profile_token";
-    const DASHBOARD_TOKEN_STORAGE_KEY = "betinsight_dashboard_token";
-
-    const pakete = {
-      starter: {name:"Starter Paket", units:"50 Units", preis:"49 €"},
-      basic: {name:"Basic Paket", units:"110 Units", preis:"99 €"},
-      pro: {name:"Pro Paket", units:"240 Units", preis:"199 €"},
-      elite: {name:"Elite Paket", units:"365 Units", preis:"299 €"},
-
-      starter_bonus: {name:"Starter Bonus", units:"70 Units", preis:"64 €"},
-      basic_bonus: {name:"Basic Bonus", units:"130 Units", preis:"114 €"},
-      pro_bonus: {name:"Pro Bonus", units:"260 Units", preis:"214 €"},
-      elite_bonus: {name:"Elite Bonus", units:"385 Units", preis:"314 €"},
-    };
-
-    function cleanToken(token) {
-      return String(token || "").trim();
-    }
-
-    function isUuidToken(token) {
-      return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanToken(token));
-    }
-
-    function buildTokenVariants(token) {
-      const clean = cleanToken(token);
-      if (!clean) return [];
-
-      if (isUuidToken(clean)) {
-        return [clean];
-      }
-
-      const variants = [clean];
-
-      if (/^BI-\d+$/i.test(clean)) {
-        const numberPart = clean.slice(3);
-        variants.push(numberPart, "BI" + numberPart);
-      } else if (/^BI\d+$/i.test(clean)) {
-        const numberPart = clean.slice(2);
-        variants.push(numberPart, "BI-" + numberPart);
-      } else if (/^\d+$/.test(clean)) {
-        variants.push("BI-" + clean, "BI" + clean);
-      }
-
-      return [...new Set(variants.filter(Boolean))];
-    }
-
-    function getTokenFromUrl() {
-      const params = new URLSearchParams(window.location.search);
-      return cleanToken(params.get("token"));
-    }
-
-    function getActiveToken() {
-      const tokenFromUrl = getTokenFromUrl();
-
-      if (tokenFromUrl) {
-        if (isUuidToken(tokenFromUrl)) {
-          localStorage.setItem(DASHBOARD_TOKEN_STORAGE_KEY, tokenFromUrl);
-          return tokenFromUrl;
-        }
-        localStorage.setItem(TOKEN_STORAGE_KEY, tokenFromUrl);
-        return tokenFromUrl;
-      }
-
-      const storedDashboardToken = cleanToken(localStorage.getItem(DASHBOARD_TOKEN_STORAGE_KEY));
-      if (isUuidToken(storedDashboardToken)) return storedDashboardToken;
-
-      return cleanToken(localStorage.getItem(TOKEN_STORAGE_KEY));
-    }
-
-    function setEmailStatus(text, color) {
-      const status = document.getElementById("emailStatus");
-      status.innerText = text;
-      status.style.color = color || "#ffcc00";
-    }
-
-    function setDebug(text) {
-      document.getElementById("debug").innerText = text;
-    }
-
-    async function fetchProfileCandidate(token) {
-      const response = await fetch(
-        PROFILE_WEBHOOK_URL + "?token=" + encodeURIComponent(token),
-        { cache: "no-store" }
-      );
-
-      if (!response.ok) {
-        throw new Error("HTTP " + response.status);
-      }
-
-      return await response.json();
-    }
-
-    async function loadEmail() {
-      const inputToken = getActiveToken();
-      const emailInput = document.getElementById("buyerEmail");
-
-      if (!inputToken) {
-        emailInput.value = "";
-        setEmailStatus(
-          "Keine automatische E-Mail erkannt. Bitte trage deine registrierte E-Mail manuell ein.",
-          "#ffcc00"
-        );
-        setDebug("Debug: Kein Token aktiv.");
-        return;
-      }
-
-      const variants = buildTokenVariants(inputToken);
-      let lastError = null;
-
-      for (const candidate of variants) {
-        try {
-          const data = await fetchProfileCandidate(candidate);
-
-          if (!data || data.found === false || !data.email) {
-            continue;
-          }
-
-          const email = String(data.email).trim().toLowerCase();
-          const confirmedToken = cleanToken(data.token);
-
-          emailInput.value = email;
-          localStorage.setItem("betinsight_email", email);
-
-          if (isUuidToken(candidate)) {
-            localStorage.setItem(DASHBOARD_TOKEN_STORAGE_KEY, candidate);
-            if (confirmedToken && !isUuidToken(confirmedToken)) {
-              localStorage.setItem(TOKEN_STORAGE_KEY, confirmedToken);
-            }
-          } else {
-            localStorage.setItem(TOKEN_STORAGE_KEY, confirmedToken || candidate);
-          }
-
-          setEmailStatus(
-            "✓ E-Mail automatisch erkannt. Bitte vor dem Kauf prüfen.",
-            "#00ff99"
-          );
-
-          setDebug(
-            "Debug: Zugang erkannt | Variante: " + candidate +
-            " | API E-Mail: " + email
-          );
-          return;
-
-        } catch (error) {
-          console.warn("Profilprüfung fehlgeschlagen:", candidate, error);
-          lastError = error;
-        }
-      }
-
-      emailInput.value = "";
-
-      if (lastError) {
-        setEmailStatus(
-          "E-Mail konnte nicht automatisch geladen werden. Bitte trage sie manuell ein.",
-          "#ffcc00"
-        );
-        setDebug("Debug: Keine passende Token-Variante gefunden.");
-      } else {
-        setEmailStatus(
-          "E-Mail konnte nicht automatisch geladen werden. Bitte trage sie manuell ein.",
-          "#ffcc00"
-        );
-        setDebug("Debug: Token vorhanden, aber kein Profil gefunden.");
-      }
-    }
-
-    function updatePreview() {
-      const paket = document.getElementById("packageSelect").value;
-      const preview = document.getElementById("preview");
-
-      if (!paket || !pakete[paket]) {
-        preview.innerText = "Noch kein Paket gewählt";
-        return;
-      }
-
-      preview.innerText =
-        pakete[paket].name + " – " + pakete[paket].units + " für " + pakete[paket].preis;
-    }
-
-    function goPay() {
-      const email = document.getElementById("buyerEmail").value.trim().toLowerCase();
-      const paket = document.getElementById("packageSelect").value;
-
-      if (!email) {
-        alert("Bitte registrierte E-Mail eingeben oder prüfen.");
-        return;
-      }
-
-      if (!paket) {
-        alert("Bitte Paket auswählen.");
-        return;
-      }
-
-      localStorage.setItem("betinsight_email", email);
-
-      const paymentUrl =
-        PAYMENT_WEBHOOK_URL
-        + "?paket=" + encodeURIComponent(paket)
-        + "&email=" + encodeURIComponent(email);
-
-      window.open(paymentUrl, "_blank");
-    }
-
-    loadEmail();
-  </script>
-
-  <script src="../assets/app-navigation.js" defer></script>
-
-</body>
-</html>
+<body>
+<main class="page">
+  <img class="logo" src="../logo_betisight.club.png" alt="BetInsight Club">
+  <section class="card">
+    <h1 data-bi-i18n="buyPage.heading">Units kaufen</h1>
+    <p class="intro" data-bi-i18n="buyPage.intro">Deine E-Mail wird automatisch geladen. Bitte prüfe sie vor dem Kauf und wähle dein Paket.</p>
+    <input id="buyerEmail" class="field" type="email" placeholder="deine registrierte E-Mail" data-bi-i18n-placeholder="buyPage.emailPlaceholder" autocomplete="email">
+    <div id="emailStatus" class="status" data-bi-i18n="buyPage.emailLoading">E-Mail wird geladen...</div>
+    <select id="packageSelect" class="field">
+      <option value="" data-bi-i18n="buyPage.selectPackage">Bitte Paket auswählen</option>
+      <option value="starter" data-bi-i18n="buyPage.starter">Starter Paket – 50 Units – 49 €</option>
+      <option value="basic" data-bi-i18n="buyPage.basic">Basic Paket – 110 Units – 99 €</option>
+      <option value="pro" data-bi-i18n="buyPage.pro">Pro Paket – 240 Units – 199 €</option>
+      <option value="elite" data-bi-i18n="buyPage.elite">Elite Paket – 365 Units – 299 €</option>
+      <option value="starter_bonus" data-bi-i18n="buyPage.starterBonus">Starter Bonus – 70 Units – 64 €</option>
+      <option value="basic_bonus" data-bi-i18n="buyPage.basicBonus">Basic Bonus – 130 Units – 114 €</option>
+      <option value="pro_bonus" data-bi-i18n="buyPage.proBonus">Pro Bonus – 260 Units – 214 €</option>
+      <option value="elite_bonus" data-bi-i18n="buyPage.eliteBonus">Elite Bonus – 385 Units – 314 €</option>
+    </select>
+    <div id="preview" class="preview" data-bi-i18n="buyPage.noPackage">Noch kein Paket gewählt</div>
+    <button id="payButton" class="pay" type="button" data-bi-i18n="buyPage.continuePayment">Weiter zur Zahlung</button>
+    <p class="warning" data-bi-i18n="buyPage.emailWarning">Bitte prüfe die E-Mail vor dem Kauf. Die Units werden genau dieser E-Mail gutgeschrieben.</p>
+    <p class="fine" data-bi-i18n="buyPage.multiAccount">Wenn du mehrere Accounts betreust, kontrolliere bitte besonders sorgfältig, dass hier die richtige registrierte E-Mail steht.</p>
+    <p class="fine"><span data-bi-i18n="buyPage.emailQuestion">Nicht sicher, welche E-Mail du bei der Registrierung verwendet hast?</span><br><a href="https://betinsight.systeme.io/profile/user-settings" target="_blank" rel="noopener noreferrer" data-bi-i18n="buyPage.openSettings">Hier Profil öffnen und E-Mail prüfen</a></p>
+    <div id="debug" class="debug"></div>
+  </section>
+  <div class="footer" data-bi-i18n="buyPage.footer">© 2026 BetInsight Club</div>
+</main>
+<script>
+(() => {
+  "use strict";
+  const PROFILE_WEBHOOK_URL="https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
+  const PAYMENT_WEBHOOK_URL="https://hook.eu1.make.com/uk8zqla4l5b0e1ybeoh5gd8bxbk69bfh";
+  const $=id=>document.getElementById(id);
+  const clean=v=>String(v||"").trim();
+  const t=(key,vars={},fallback="")=>window.BetInsightI18n?.t(key,vars,fallback)||fallback;
+  const packageData={starter:{nameKey:"starter",units:"50 Units",price:"49 €"},basic:{nameKey:"basic",units:"110 Units",price:"99 €"},pro:{nameKey:"pro",units:"240 Units",price:"199 €"},elite:{nameKey:"elite",units:"365 Units",price:"299 €"},starter_bonus:{nameKey:"starterBonus",units:"70 Units",price:"64 €"},basic_bonus:{nameKey:"basicBonus",units:"130 Units",price:"114 €"},pro_bonus:{nameKey:"proBonus",units:"260 Units",price:"214 €"},elite_bonus:{nameKey:"eliteBonus",units:"385 Units",price:"314 €"}};
+
+  function setEmailStatus(text,color="#ffcc00"){$('emailStatus').textContent=text;$('emailStatus').style.color=color}
+  function setDebug(text){$('debug').textContent=text}
+  function accessCandidates(){
+    const session=window.BetInsightSession;
+    const values=[session?.getDashboardUuid?.(),session?.getProfileToken?.()].map(clean).filter(Boolean);
+    const expanded=[];
+    for(const value of values){expanded.push(value);if(!session?.isUuid?.(value)){if(/^BI-\d+$/i.test(value)){const n=value.slice(3);expanded.push(n,"BI"+n)}else if(/^BI\d+$/i.test(value)){const n=value.slice(2);expanded.push(n,"BI-"+n)}else if(/^\d+$/.test(value))expanded.push("BI-"+value,"BI"+value)}}
+    return [...new Set(expanded.filter(Boolean))];
+  }
+  async function fetchProfileCandidate(token){const response=await fetch(PROFILE_WEBHOOK_URL+"?token="+encodeURIComponent(token),{cache:"no-store"});if(!response.ok)throw new Error("HTTP "+response.status);return response.json()}
+  async function loadEmail(){
+    const emailInput=$('buyerEmail'),candidates=accessCandidates();
+    if(!candidates.length){emailInput.value="";setEmailStatus(t('buyPage.noAutoEmail',{},'Keine automatische E-Mail erkannt. Bitte trage deine registrierte E-Mail manuell ein.'));setDebug(t('buyPage.debugNoAccess',{},'Debug: Kein Zugang aktiv.'));return}
+    let lastError=null;
+    for(const candidate of candidates){try{const data=await fetchProfileCandidate(candidate);if(!data||data.found===false||!data.email)continue;const email=clean(data.email).toLowerCase();emailInput.value=email;try{localStorage.setItem('betinsight_email',email)}catch(e){}const confirmed=clean(data.token);if(confirmed&&!window.BetInsightSession?.isUuid?.(confirmed))window.BetInsightSession?.rememberProfileToken?.(confirmed);setEmailStatus(t('buyPage.emailRecognized',{},'✓ E-Mail automatisch erkannt. Bitte vor dem Kauf prüfen.'),'#00ff99');setDebug('Debug: access confirmed');return}catch(error){lastError=error;console.warn('Profile lookup failed',error)}}
+    emailInput.value="";setEmailStatus(t('buyPage.emailLoadFailed',{},'E-Mail konnte nicht automatisch geladen werden. Bitte trage sie manuell ein.'));setDebug(t(lastError?'buyPage.debugNoMatch':'buyPage.debugNoProfile',{},lastError?'Debug: Kein passender Zugang gefunden.':'Debug: Zugang vorhanden, aber kein Profil gefunden.'))
+  }
+  function updatePreview(){const code=$('packageSelect').value,data=packageData[code];if(!data){$('preview').textContent=t('buyPage.noPackage',{},'Noch kein Paket gewählt');return}const optionText=$('packageSelect').selectedOptions[0]?.textContent||code;$('preview').textContent=t('buyPage.preview',{name:optionText,units:data.units,price:data.price},`${optionText} – ${data.units} für ${data.price}`)}
+  function goPay(){const email=$('buyerEmail').value.trim().toLowerCase(),code=$('packageSelect').value;if(!email){alert(t('buyPage.missingEmail',{},'Bitte registrierte E-Mail eingeben oder prüfen.'));return}if(!code){alert(t('buyPage.missingPackage',{},'Bitte Paket auswählen.'));return}try{localStorage.setItem('betinsight_email',email)}catch(e){}const paymentUrl=PAYMENT_WEBHOOK_URL+"?paket="+encodeURIComponent(code)+"&email="+encodeURIComponent(email);window.open(paymentUrl,'_blank','noopener')}
+  $('packageSelect').addEventListener('change',updatePreview);$('payButton').addEventListener('click',goPay);window.addEventListener('bi:languagechange',updatePreview);window.BetInsightI18n?.init().then(()=>{updatePreview();loadEmail()});
+})();
+</script>
+</body></html>
