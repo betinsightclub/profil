@@ -2,6 +2,7 @@
    - runs only on /tipps/
    - uses the public tip feed's boolean `expired` flag; exact kickoff time stays hidden
    - prevents expired unlock attempts before they reach the paid unlock flow
+   - rechecks immediately before every unlock click
    - existing server-side unlock guard remains the final authority
 */
 (() => {
@@ -69,16 +70,16 @@
         return;
       }
 
-      if (button?.dataset?.expiryState !== "active") {
-        const rows = await getFeed(true);
-        const tip = rows.find(row => String(row?.tipp_id || "") === String(tippId || ""));
-        if (tip && asExpired(tip.expired)) {
-          markExpired(card, button);
-          return;
-        }
-        if (button) button.dataset.expiryState = "active";
+      // Always refresh directly before the paid unlock request. This closes the case
+      // where the page was opened before kickoff and the user clicks only after kickoff.
+      const rows = await getFeed(true);
+      const tip = rows.find(row => String(row?.tipp_id || "") === String(tippId || ""));
+      if (tip && asExpired(tip.expired)) {
+        markExpired(card, button);
+        return;
       }
 
+      if (button) button.dataset.expiryState = "active";
       return originalUnlock(tippId, card, button);
     }
     wrappedUnlock.__biExpiryWrapped = true;
