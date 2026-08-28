@@ -1,0 +1,30 @@
+name: Fix Tipps dashboard token compatibility
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-tipps-dashboard-token.yml'
+      - '.github/scripts/fix_tipps_dashboard_token.py'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-tipps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch tipps token compatibility
+        run: python3 .github/scripts/fix_tipps_dashboard_token.py
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name "BetInsight Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add tipps/index.html
+          if git diff --cached --quiet; then
+            echo "No changes needed."
+            exit 0
+          fi
+          git commit -m "Fix tips dashboard token compatibility"
+          git push
