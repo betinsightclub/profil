@@ -1,4 +1,5 @@
-/* BetInsight i18n core v2 · manifest-driven multilingual customer UI */
+/* BetInsight i18n core v2 · manifest-driven multilingual customer UI
+   Supports shared locales plus lazy page-specific locale scopes. */
 (() => {
   "use strict";
 
@@ -6,6 +7,13 @@
   const FALLBACK = "de";
   const SCRIPT_URL = document.currentScript?.src || "";
   const dictionaries = new Map();
+  const scopedDictionaries = new Map();
+  const PAGE_SCOPES = Object.freeze({
+    "verkaufen": "sell",
+    "angebote": "offers",
+    "marketing-center": "marketing-center",
+    "support": "support"
+  });
   let supported = ["de", "en"];
   let defaultLanguage = FALLBACK;
   let activeLanguage = FALLBACK;
@@ -75,6 +83,49 @@
     return dictionary || {};
   }
 
+  function pageScope() {
+    const metaScope = clean(document.querySelector('meta[name="bi-i18n-scope"]')?.content);
+    if (metaScope) return metaScope;
+    const parts = window.location.pathname.split("/").filter(Boolean).map(clean);
+    for (let i = parts.length - 1; i >= 0; i--) {
+      if (PAGE_SCOPES[parts[i]]) return PAGE_SCOPES[parts[i]];
+    }
+    return "";
+  }
+
+  async function loadScopedDictionary(scope, language) {
+    const safeScope = clean(scope).replace(/[^a-z0-9_-]/g, "");
+    const lang = normalize(language) || defaultLanguage;
+    if (!safeScope) return {};
+    const cacheKey = `${safeScope}:${lang}`;
+    if (scopedDictionaries.has(cacheKey)) return scopedDictionaries.get(cacheKey);
+    try {
+      const response = await fetch(assetUrl(`./pages/${safeScope}/${lang}.json`), { cache: "no-store", credentials: "same-origin" });
+      if (!response.ok) throw new Error(`scope:${safeScope}:${lang}`);
+      const data = await response.json();
+      scopedDictionaries.set(cacheKey, data || {});
+      return data || {};
+    } catch (e) {
+      scopedDictionaries.set(cacheKey, {});
+      return {};
+    }
+  }
+
+  function deepMerge(target, source) {
+    if (!source || typeof source !== "object" || Array.isArray(source)) return target;
+    Object.entries(source).forEach(([key, value]) => {
+      if (value && typeof value === "object" && !Array.isArray(value)) {
+        const base = target[key] && typeof target[key] === "object" && !Array.isArray(target[key]) ? target[key] : {};
+        target[key] = deepMerge(base, value);
+      } else target[key] = value;
+    });
+    return target;
+  }
+
+  function cloneDictionary(dictionary) {
+    try { return JSON.parse(JSON.stringify(dictionary || {})); } catch (e) { return { ...(dictionary || {}) }; }
+  }
+
   function lookup(dictionary, key) {
     return String(key || "").split(".").reduce((value, part) => {
       if (value && Object.prototype.hasOwnProperty.call(value, part)) return value[part];
@@ -89,7 +140,7 @@
   function t(key, variables = {}, fallback = "") {
     const value = lookup(activeDictionary, key);
     if (value !== undefined && value !== null && typeof value !== "object") return interpolate(value, variables);
-    return fallback || key;
+    return interpolate(fallback || key, variables);
   }
 
   function apply(root = document) {
@@ -116,21 +167,27 @@
     await loadManifest();
     let resolved = normalize(language) || defaultLanguage;
     let dictionary;
-    try {
-      dictionary = await loadDictionary(resolved);
-    } catch (e) {
-      resolved = defaultLanguage;
-      dictionary = await loadDictionary(defaultLanguage);
-    }
+    try { dictionary = await loadDictionary(resolved); }
+    catch (e) { resolved = defaultLanguage; dictionary = await loadDictionary(defaultLanguage); }
     activeLanguage = resolved;
-    activeDictionary = dictionary || {};
+    activeDictionary = cloneDictionary(dictionary);
+    const scope = pageScope();
+    if (scope) deepMerge(activeDictionary, await loadScopedDictionary(scope, activeLanguage));
     document.documentElement.lang = activeLanguage;
     if (options.persist !== false) {
       try { localStorage.setItem(STORAGE_KEY, activeLanguage); } catch (e) {}
     }
     if (options.apply !== false) apply(document);
-    window.dispatchEvent(new CustomEvent("bi:languagechange", { detail: { language: activeLanguage } }));
+    window.dispatchEvent(new CustomEvent("bi:languagechange", { detail: { language: activeLanguage, scope } }));
     return activeLanguage;
+  }
+
+  async function loadScope(scope, options = {}) {
+    await init();
+    const fragment = await loadScopedDictionary(scope, activeLanguage);
+    deepMerge(activeDictionary, fragment);
+    if (options.apply !== false) apply(document);
+    return fragment;
   }
 
   function createSwitcher(options = {}) {
@@ -138,7 +195,6 @@
     wrapper.className = options.className || "bi-language-switcher";
     wrapper.setAttribute("role", "group");
     wrapper.setAttribute("aria-label", t("language.label", {}, "Sprache"));
-
     supported.forEach(language => {
       const button = document.createElement("button");
       button.type = "button";
@@ -166,12 +222,11 @@
 
   function init() {
     if (!initPromise) {
-      initPromise = (async () => {
-        await loadManifest();
-        return setLanguage(preferredLanguage(), { persist: false });
-      })().catch(async () => {
+      initPromise = (async () => { await loadManifest(); return setLanguage(preferredLanguage(), { persist: false }); })().catch(async () => {
         activeLanguage = defaultLanguage;
-        activeDictionary = await loadDictionary(defaultLanguage);
+        activeDictionary = cloneDictionary(await loadDictionary(defaultLanguage));
+        const scope = pageScope();
+        if (scope) deepMerge(activeDictionary, await loadScopedDictionary(scope, defaultLanguage));
         document.documentElement.lang = defaultLanguage;
         apply(document);
         return defaultLanguage;
@@ -181,11 +236,7 @@
   }
 
   window.BetInsightI18n = Object.freeze({
-    init,
-    t,
-    apply,
-    setLanguage,
-    createSwitcher,
+    init, t, apply, setLanguage, loadScope, createSwitcher,
     getLanguage: () => activeLanguage,
     getSupportedLanguages: () => [...supported],
     storageKey: STORAGE_KEY,
