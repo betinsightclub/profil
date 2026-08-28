@@ -1,0 +1,30 @@
+name: Fix remaining token storage
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-remaining-token-storage.yml'
+      - '.github/scripts/fix_remaining_token_storage.py'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch remaining token storage
+        run: python3 .github/scripts/fix_remaining_token_storage.py
+      - name: Commit token compatibility fixes
+        shell: bash
+        run: |
+          git config user.name "BetInsight Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add marketing-center/index.html wechselboerse/angebote/index.html
+          if git diff --cached --quiet; then
+            echo "No changes needed."
+            exit 0
+          fi
+          git commit -m "Fix remaining dashboard token storage"
+          git push
