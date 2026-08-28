@@ -1,9 +1,15 @@
-/* BetInsight App Navigation Loader · 2026-08-28-02
-   Lädt die unveränderte Navigation sowie die neue READONLY-Kontobewegungsanzeige. */
+/* BetInsight App Navigation Loader · 2026-08-28-03
+   Lädt die unveränderte Navigation, die READONLY-Kontobewegungsanzeige und den Tipp-Ablaufwächter. */
 (() => {
   "use strict";
   const current = document.currentScript?.src || new URL("assets/app-navigation.js", window.location.href).href;
   const base = new URL("./", current);
+
+  const expiryGuard = document.createElement("script");
+  expiryGuard.src = new URL("tip-expiry-guard.js", base).href;
+  expiryGuard.async = false;
+  document.head.appendChild(expiryGuard);
+
   const core = document.createElement("script");
   core.src = new URL("app-navigation-core.js", base).href;
   core.async = false;
