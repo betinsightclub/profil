@@ -2,7 +2,7 @@
 
 Stand: 28.08.2026
 Branch: `feature/i18n-multilang-safe-v3`
-Status: **DE/EN-Code-Migration vollständig · Browser-Regressionsprüfung vor Merge erforderlich**
+Status: **DE/EN-Code-Migration vollständig und mit `main` bis Commit `4335928aa555e2351de0c247d33c4140692428b6` abgeglichen · Browser-Regressionsprüfung vor Merge erforderlich**
 
 ## Feste Regeln
 
@@ -39,21 +39,36 @@ Die sichtbare Sprache wird zentral über `betinsight_language` gesteuert. Die Se
 
 - Konto & Zugang (`/konto/`)
 - Hauptdashboard / Profil & Empfehlungscenter (`/`)
-- Daily Bonus (`/daily/`)
+- Daily Bonus inklusive serverseitiger Daily-History (`/daily/`)
 - Neue Tipps (`/tipps/`)
 - Freigeschaltete Tipps (`/freigeschaltet/`)
 - Unit-Pakete (`/pakete/`)
 - Units kaufen (`/kaufen/`)
 - Unit-Wechselstube (`/wechselboerse/`)
 - Angebote kaufen (`/wechselboerse/angebote/`)
-- Units verkaufen / eigene Angebote (`/verkaufen/`)
+- Units verkaufen (`/verkaufen/`)
+- Meine Verkaufsangebote (`/meine-verkaufsangebote/`)
 - Wallet (`/wallet/`)
 - Wettanbieter (`/anbieter/`)
-- Marketing-Center (`/marketing-center/`)
+- Marketing-Center / Academy (`/marketing-center/`)
 - Support (`/support/`)
-- zentrale App-Navigation einschließlich Sprachumschaltung
+- zentrale App-Navigation einschließlich Sprachumschaltung sowie öffentlicher YouTube-/Telegram-Verlinkung
 
-Adminbereiche wurden absichtlich nicht angefasst.
+Adminbereiche wurden absichtlich nicht übersetzt. Aktuelle Produktionsänderungen im Admin-/Vorschau-Bereich wurden beim Abgleich mit `main` übernommen, ohne die Sprachgrenze zu verändern.
+
+## Abgleich mit dem aktuellen Produktionsstand
+
+Die Feature-Branch-Historie enthält den aktuellen `main`-Stand bis `4335928aa555e2351de0c247d33c4140692428b6` als Merge-Elternstand. Beim Abgleich wurden die nach Beginn der Übersetzungsmigration hinzugekommenen Produktionsänderungen gezielt übernommen beziehungsweise mit der mehrsprachigen Version zusammengeführt, darunter:
+
+- serverseitige Daily-History,
+- sofort startende Daily-Walzenanimation,
+- bereinigte kundenfreundliche Fehlermeldungen bei Tipps,
+- aktuelle Academy-Vorschau und Geschäftspräsentation,
+- `Meine Verkaufsangebote`,
+- aktuelle Navigations-/Layoutanpassungen,
+- öffentlicher Telegram-Link im Kunden-Footer.
+
+Damit ist der Feature-Branch aktuell `0` Commits hinter `main`; der eigentliche Produktiv-Merge bleibt trotzdem bis zum Browser-QA gesperrt.
 
 ## Technische Leitplanken der Migration
 
@@ -72,9 +87,11 @@ Neue Same-Origin-Navigation verwendet nur Pfade und Hashes. Sie erzeugt keine UR
 
 Alte bereits versendete Links dürfen beim Einstieg weiterhin erkannt werden. Der Wert wird lokal übernommen; sensible Parameter werden anschließend aus der sichtbaren URL entfernt.
 
+Backend-/Webhook-Aufrufe dürfen weiterhin die für die bestehende Authentifizierung erforderlichen Werte an die jeweilige API senden. Die Sicherheitsregel bezieht sich auf die sichtbare Browser-Navigation zwischen Kundenseiten.
+
 ### Neue Tipps
 
-`/tipps/` benötigt weiterhin den normalen Profilzugang, da die bestehende Tipp-/Freischaltlogik damit arbeitet. Die neue Navigation darf deshalb nicht so tun, als reiche eine allein gespeicherte Dashboard-UUID für diesen Bereich aus. Das ist Teil der Regressionstest-Matrix.
+`/tipps/` übernimmt den vorhandenen Zugang nun aus der lokalen BetInsight-Sitzung und bevorzugt – entsprechend dem aktuellen Produktionsstand – die bestätigte Dashboard-UUID; ein vorhandener normaler Profilzugang bleibt als Kompatibilitäts-Fallback erhalten. Die interne Navigation erzeugt dabei keinen sichtbaren Token-Link.
 
 ### Premium Network
 
@@ -102,7 +119,7 @@ Damit bleibt die Architektur für weitere Sprachen skalierbar.
 
 ## Noch nicht freigegeben: Merge nach `main`
 
-Die Code-Migration ist auf dem Feature-Branch vollständig, aber ein Merge nach `main` erfolgt erst nach einem echten Browser-Regressionslauf.
+Die Code-Migration ist auf dem Feature-Branch vollständig und PR #6 ist technisch konfliktfrei/mergebar. Der PR bleibt dennoch bewusst **Draft**, bis ein echter Browser-Regressionslauf abgeschlossen ist.
 
 ### Mindest-Testmatrix vor Merge
 
@@ -142,9 +159,12 @@ Die Code-Migration ist auf dem Feature-Branch vollständig, aber ein Merge nach 
 - Tabellen und Netzwerkebenen,
 - Unit-Pakete,
 - Wettanbieter-Karten,
+- Verkauf / eigene Verkaufsangebote,
+- Daily-History,
+- Academy-Inhalte,
 - Support-Threads,
 - lange englische Button- und Hinweistexte.
 
 ## Merge-Regel
 
-Erst wenn die Testmatrix ohne kritischen Fehler abgeschlossen ist, wird PR #6 von Draft/WIP auf mergefähig gesetzt und kontrolliert nach `main` übernommen. Bis dahin bleibt die produktive deutsche Seite unverändert.
+Erst wenn die Testmatrix ohne kritischen Fehler abgeschlossen ist, wird PR #6 aus dem Draft-Status genommen und kontrolliert nach `main` übernommen. Bis dahin bleibt die produktive deutsche Seite unverändert.
