@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex,nofollow">
   <title>BetInsight – Verkaufsangebote Vorschau</title>
   <style>
-    :root{--bg:#071019;--panel:#0d1a26;--panel2:#122433;--text:#f4f8fb;--muted:#91a6b7;--line:rgba(145,166,183,.18);--green:#25e6a7;--blue:#59a8ff;--yellow:#ffc857}
+    :root{--bg:#071019;--panel:#0d1a26;--text:#f4f8fb;--muted:#91a6b7;--line:rgba(145,166,183,.18);--green:#25e6a7;--yellow:#ffc857}
     *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 12% 0%,rgba(37,230,167,.12),transparent 30rem),radial-gradient(circle at 92% 12%,rgba(89,168,255,.12),transparent 30rem),var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}.page{width:min(100% - 28px,920px);margin:auto;padding:34px 0 56px}.logo{width:170px;max-width:55vw}.preview{margin:24px 0 14px;display:inline-flex;padding:7px 11px;border:1px solid rgba(255,200,87,.3);border-radius:999px;color:var(--yellow);font-size:.76rem;font-weight:900}.hero h1{margin:8px 0 8px;font-size:clamp(2rem,6vw,3rem)}.hero p{color:var(--muted);line-height:1.55}.card{margin-top:22px;padding:clamp(20px,5vw,30px);border:1px solid var(--line);border-radius:22px;background:linear-gradient(155deg,rgba(18,36,51,.96),rgba(13,26,38,.98))}.cardhead{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:18px}.card h2{margin:0 0 6px}.cardhead p{margin:0;color:var(--muted)}.count{padding:7px 11px;border-radius:999px;border:1px solid rgba(37,230,167,.28);color:var(--green);font-size:.75rem;font-weight:900}.list{display:grid;gap:12px}.offer{display:grid;grid-template-columns:minmax(0,1.35fr) repeat(3,minmax(0,.9fr));gap:12px;align-items:center;padding:16px;border:1px solid var(--line);border-radius:16px;background:rgba(7,16,25,.52)}.main strong,.meta strong{display:block}.main span,.meta span{display:block;margin-top:5px;color:var(--muted);font-size:.78rem}.badge{justify-self:end;display:inline-flex;min-height:34px;align-items:center;padding:0 11px;border-radius:999px;font-size:.74rem;font-weight:900;white-space:nowrap}.badge.active{color:#caffed;background:rgba(37,230,167,.1);border:1px solid rgba(37,230,167,.3)}.badge.reserved{color:#ffe6ad;background:rgba(255,200,87,.1);border:1px solid rgba(255,200,87,.3)}.state{padding:16px;border:1px dashed rgba(145,166,183,.25);border-radius:14px;color:var(--muted);line-height:1.55}.note{margin-top:18px;color:var(--muted);font-size:.82rem;line-height:1.5}.back{display:inline-flex;margin-top:18px;padding:11px 15px;border-radius:12px;border:1px solid var(--line);color:#fff;text-decoration:none;background:rgba(13,26,38,.9)}@media(max-width:700px){.offer{grid-template-columns:1fr 1fr}.main{grid-column:1/-1}.badge{justify-self:start}.cardhead{flex-direction:column}}@media(max-width:460px){.offer{grid-template-columns:1fr}.main{grid-column:auto}}
   </style>
 </head>
@@ -20,7 +20,7 @@
   </section>
   <section class="card">
     <div class="cardhead"><div><h2>Aktuell im Verkauf</h2><p>Aktive und momentan für einen Käufer reservierte Angebote.</p></div><span class="count" id="count">Lade …</span></div>
-    <div class="state" id="state">Die Vorschau prüft, ob auf diesem Gerät bereits ein BetInsight-Zugang gespeichert ist.</div>
+    <div class="state" id="state">Die Vorschau prüft den gespeicherten BetInsight-Zugang.</div>
     <div class="list" id="list" hidden></div>
     <p class="note" id="note">Diese Vorschau verändert keine Units, Gebühren oder Angebote.</p>
   </section>
@@ -29,38 +29,34 @@
 <script>
 (()=>{
   'use strict';
-  const ENDPOINT='https://hook.eu1.make.com/r4vv6dolmdni4vppridgpaf5teaua6kr';
+  const OWN='https://hook.eu1.make.com/r4vv6dolmdni4vppridgpaf5teaua6kr';
+  const PUBLIC='https://hook.eu1.make.com/c09vltke6d7gr7tvlpaspvugw13yfg32';
   const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   const state=document.getElementById('state'),list=document.getElementById('list'),count=document.getElementById('count'),note=document.getElementById('note');
   const euro=v=>new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR',minimumFractionDigits:2}).format(Number(v)||0);
-  function storedToken(){
-    for(const key of ['betinsight_dashboard_token','betinsight_profile_token']){
-      try{const v=String(localStorage.getItem(key)||'').trim();if(UUID.test(v))return v}catch(_){ }
-    }
-    return '';
-  }
-  function render(items,isDemo=false){
-    const visible=(Array.isArray(items)?items:[]).filter(x=>['AKTIV','KAUF_RESERVIERT'].includes(String(x.status||'').toUpperCase()));
+  function storedToken(){for(const key of ['betinsight_dashboard_token','betinsight_profile_token']){try{const v=String(localStorage.getItem(key)||'').trim();if(UUID.test(v))return v}catch(_){}}return ''}
+  function render(items,publicFallback=false){
+    const visible=(Array.isArray(items)?items:[]).filter(x=>!x.status||['AKTIV','KAUF_RESERVIERT'].includes(String(x.status||'').toUpperCase()));
     count.textContent=visible.length+' Angebot'+(visible.length===1?'':'e');
-    if(!visible.length){state.hidden=false;state.textContent='Aktuell sind keine eigenen Verkaufsangebote im Verkauf oder reserviert.';list.hidden=true;return}
+    if(!visible.length){state.hidden=false;state.textContent='Aktuell sind keine Verkaufsangebote vorhanden.';list.hidden=true;return}
     state.hidden=true;list.hidden=false;list.innerHTML='';
     visible.forEach(o=>{
-      const reserved=String(o.status||'').toUpperCase()==='KAUF_RESERVIERT';
+      const status=String(o.status||'AKTIV').toUpperCase(),reserved=status==='KAUF_RESERVIERT';
+      const id=String(o.id||'Angebot');
+      const units=Number(o.units)||0,price=Number(o.unitPriceEur)||0,total=Number(o.totalEur)||units*price;
       const el=document.createElement('article');el.className='offer';
-      el.innerHTML=`<div class="main"><strong>${Number(o.units)||0} Units</strong><span>${String(o.id||'Angebot')}</span></div><div class="meta"><span>Preis pro Unit</span><strong>${euro(o.unitPriceEur)}</strong></div><div class="meta"><span>Gesamtpreis</span><strong>${euro(o.totalEur)}</strong></div><div><span class="badge ${reserved?'reserved':'active'}">${reserved?'Für Käufer reserviert':'Aktiv im Verkauf'}</span></div>`;
+      el.innerHTML=`<div class="main"><strong>${units} Units</strong><span>${id}</span></div><div class="meta"><span>Preis pro Unit</span><strong>${euro(price)}</strong></div><div class="meta"><span>Gesamtpreis</span><strong>${euro(total)}</strong></div><div><span class="badge ${reserved?'reserved':'active'}">${reserved?'Für Käufer reserviert':'Aktiv im Verkauf'}</span></div>`;
       list.appendChild(el);
     });
-    if(isDemo)note.textContent='Auf diesem Gerät wurde kein gespeicherter Dashboard-Zugang gefunden. Deshalb wird hier nur eine Musteransicht gezeigt; es wurden keine echten Kontodaten geladen.';
+    if(publicFallback)note.textContent='Auf diesem Gerät wurde kein persönlicher Dashboard-Zugang erkannt. Deshalb zeigt die Vorschau die aktuell öffentlich sichtbaren Verkaufsangebote ohne Verkäuferdaten. Die Darstellung ist dieselbe; es werden keine Daten verändert.';
   }
+  async function request(url,body){const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});const text=String(await r.text()||'').replace(/^\uFEFF/,'').trim();if(!r.ok)throw new Error('Abruf fehlgeschlagen');return text?JSON.parse(text):[]}
   async function init(){
     const token=storedToken();
-    if(!token){render([{id:'Beispiel-Angebot',units:10,unitPriceEur:1,totalEur:10,status:'AKTIV'}],true);return}
     try{
-      const r=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dashboard_token:token})});
-      const text=String(await r.text()||'').replace(/^\uFEFF/,'').trim();
-      if(!r.ok)throw new Error('Abruf fehlgeschlagen');
-      const data=text?JSON.parse(text):[];render(data,false);
-    }catch(e){state.hidden=false;state.textContent='Die persönlichen Angebote konnten gerade nicht geladen werden. Es wird stattdessen die Musteransicht gezeigt.';render([{id:'Beispiel-Angebot',units:10,unitPriceEur:1,totalEur:10,status:'AKTIV'}],true)}
+      if(token){const own=await request(OWN,{dashboard_token:token});render(own,false);return}
+      const active=await request(PUBLIC,{});render(active,true);
+    }catch(e){count.textContent='–';state.hidden=false;state.textContent='Die Vorschau konnte die Angebote gerade nicht laden. Bitte aktualisiere die Seite in einem Moment erneut.';list.hidden=true}
   }
   init();
 })();
