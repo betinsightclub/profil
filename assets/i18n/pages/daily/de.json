@@ -49,8 +49,19 @@
     "boxOpening":"Treuebox wird geöffnet …",
     "boxFailed":"Die Treuebox konnte gerade nicht geöffnet werden.",
     "goodLuck":"🍀 Viel Glück – deine Nummer wird gezogen …",
-    "rollersStart":"Die Walzen starten gleich.",
+    "rollersStart":"Die Walzen laufen bereits, während dein Ergebnis serverseitig berechnet wird.",
     "notice":"Hinweis",
-    "responseError":"Die Daily-Antwort konnte gerade nicht verarbeitet werden. Bitte versuche es in einem Moment erneut."
+    "responseError":"Die Daily-Antwort konnte gerade nicht verarbeitet werden. Bitte versuche es in einem Moment erneut.",
+    "historyHeading":"🧾 Daily-History",
+    "historySub":"Deine letzten 10 serverseitig gebuchten Ziehungen",
+    "historyLoading":"History wird geladen …",
+    "historyEmpty":"Noch keine Daily-Einträge vorhanden.",
+    "historyError":"History konnte gerade nicht geladen werden.",
+    "historyProof":"Die Einträge stammen aus dem BetInsight-Serverprotokoll. Glücksnummer, Bonus und Buchungszeit können dadurch später eindeutig nachvollzogen werden.",
+    "historyBalanceAfter":"Stand danach {{value}}",
+    "historyStreak":"Serie {{count}}",
+    "historyDay":"Tag {{day}}/7",
+    "historyBox":"🎁 Treuebox",
+    "historyBoxWithBonus":"🎁 Treuebox · {{bonus}} Units"
   }
 }
