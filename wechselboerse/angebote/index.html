@@ -3,7 +3,7 @@
 Projekt: BetInsight
 Pfad: /profil/wechselboerse/angebote/index.html
 Stand: 2026-08-24
-Version: 2.3 PILOT-LIVE AUTO-CONFIRM FINAL POLL LABELS
+Version: 2.4 PILOT-LIVE TOKEN-COMPAT
 
 PILOT-LIVE:
 - bestehender Angebots- und Reservierungsweg bleibt erhalten
@@ -132,12 +132,12 @@ const API_ENDPOINTS={
   pilotQuote:"https://hook.eu1.make.com/iv86qjlwryxsjw07trn4zuxfwwvduxpx",
   txidFinalizer:"https://hook.eu1.make.com/6r6csw99scmcxkkxng6avf9k3hxw9xd3"
 };
-const TOKEN_STORAGE_KEY="betinsight_profile_token",RESERVATION_STORAGE_KEY="betinsight_active_purchase_reservation",PAGE_SIZE=8,DEMO_MODE=new URLSearchParams(location.search).get("demo")==="1";
+const TOKEN_STORAGE_KEY="betinsight_profile_token",DASHBOARD_TOKEN_STORAGE_KEY="betinsight_dashboard_token",RESERVATION_STORAGE_KEY="betinsight_active_purchase_reservation",PAGE_SIZE=8,DEMO_MODE=new URLSearchParams(location.search).get("demo")==="1";
 const TXID_POLL_SCHEDULE=[0,25000,50000,75000,120000],FINALIZER_GRACE_MS=5*60*1000;
 const DEMO_OFFERS=[{id:"DEMO-101",units:10,unitPriceEur:.85,totalEur:8.5,currency:"USDT",network:"TRON",createdAt:"2026-07-31T13:30:00Z"},{id:"DEMO-102",units:20,unitPriceEur:.9,totalEur:18,currency:"USDT",network:"TRON",createdAt:"2026-07-31T14:00:00Z"}];
 let offers=[],visibleCount=PAGE_SIZE,toastTimer=null,reservationTimerInterval=null,txidPolling=false,txidPollContext=null;
 const $=id=>document.getElementById(id),el={grid:$("offersGrid"),count:$("offerCount"),sort:$("sortOffers"),loading:$("loadingState"),empty:$("emptyState"),error:$("errorState"),retry:$("retryButton"),loadMoreWrap:$("loadMoreWrap"),loadMoreButton:$("loadMoreButton"),banner:$("demoBanner"),backLink:$("backLink"),toast:$("toast"),purchasePanel:$("purchasePanel"),purchaseTitle:$("purchaseTitle"),purchaseSub:$("purchaseSub"),purchaseBooking:$("purchaseBooking"),purchaseUnits:$("purchaseUnits"),purchaseTotal:$("purchaseTotal"),purchaseCryptoAmount:$("purchaseCryptoAmount"),purchaseWallet:$("purchaseWallet"),purchaseNetwork:$("purchaseNetwork"),paymentBox:$("paymentBox"),txidPanel:$("txidPanel"),txidInput:$("txidInput"),txidCheckButton:$("txidCheckButton"),txidResult:$("txidResult"),reservationTimer:$("reservationTimer"),reservationTimerTitle:$("reservationTimerTitle"),reservationTimerText:$("reservationTimerText"),reservationTimerValue:$("reservationTimerValue"),copyAmountButton:$("copyAmountButton"),copyWalletButton:$("copyWalletButton")};
-function normalizeToken(v){return String(v||"").trim()}function getActiveToken(){const p=new URLSearchParams(location.search),u=normalizeToken(p.get("token"));if(u){try{localStorage.setItem(TOKEN_STORAGE_KEY,u)}catch(_){ }return u}try{return normalizeToken(localStorage.getItem(TOKEN_STORAGE_KEY))}catch(_){return""}}
+function normalizeToken(v){return String(v||"").trim()}function isDashboardUuid(v){return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(normalizeToken(v))}function getActiveToken(){const p=new URLSearchParams(location.search),u=normalizeToken(p.get("token"));if(u){try{if(isDashboardUuid(u))localStorage.setItem(DASHBOARD_TOKEN_STORAGE_KEY,u);else localStorage.setItem(TOKEN_STORAGE_KEY,u)}catch(_){ }return u}try{return normalizeToken(localStorage.getItem(DASHBOARD_TOKEN_STORAGE_KEY)||localStorage.getItem(TOKEN_STORAGE_KEY))}catch(_){return""}}
 function addTokenToBackLink(){const t=getActiveToken();if(!t)return;const u=new URL("../",location.href);u.searchParams.set("token",t);el.backLink.href=u.toString()}
 function showToast(m){clearTimeout(toastTimer);el.toast.textContent=String(m||"");el.toast.classList.add("visible");toastTimer=setTimeout(()=>el.toast.classList.remove("visible"),4400)}
 function setState(n){el.loading.classList.toggle("visible",n==="loading");el.empty.classList.toggle("visible",n==="empty");el.error.classList.toggle("visible",n==="error");el.grid.hidden=n!=="ready"}

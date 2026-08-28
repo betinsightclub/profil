@@ -2,8 +2,8 @@
 <!--
 Projekt: BetInsight
 Datei: profil/marketing-center/index.html
-Version: 2026.08.27-03
-Anwendungs-Version: 1.6.2
+Version: 2026.08.28-04
+Anwendungs-Version: 1.6.3
 
 Änderungen v1.6.2:
 - Academy #01 um offizielle YouTube-Videoanleitung ergänzt
@@ -49,7 +49,7 @@ Anwendungs-Version: 1.6.2
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#071019">
-  <meta name="application-version" content="1.6.2">
+  <meta name="application-version" content="1.6.3">
   <meta name="description" content="BetInsight Marketing-Center – freigegebenes Werbematerial und Academy-Anleitungen.">
   <title>Marketing-Center | BetInsight Club</title>
   <link rel="stylesheet" href="../assets/app-navigation.css">
@@ -992,13 +992,14 @@ Anwendungs-Version: 1.6.2
   </aside>
 
   <footer class="footer">
-    © 2026 BetInsight Club · Marketing-Center · Version 1.6.2
+    © 2026 BetInsight Club · Marketing-Center · Version 1.6.3
   </footer>
 
 </main>
 
 <script>
   const TOKEN_STORAGE_KEY = "betinsight_profile_token";
+  const DASHBOARD_TOKEN_STORAGE_KEY = "betinsight_dashboard_token";
 
   const GITHUB_IMAGES_API =
     "https://api.github.com/repos/betinsightclub/profil/contents/marketing-center/downloads/bilder?ref=main";
@@ -1014,16 +1015,21 @@ Anwendungs-Version: 1.6.2
   const PDF_EXTENSION = /\.pdf$/i;
   const ALLOWED_EXTENSIONS = /\.(png|jpe?g|webp)$/i;
 
+  function isDashboardUuid(value) {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || "").trim());
+  }
+
   function getToken() {
     const params = new URLSearchParams(window.location.search);
     const fromUrl = String(params.get("token") || "").trim();
 
     if (fromUrl) {
-      localStorage.setItem(TOKEN_STORAGE_KEY, fromUrl);
+      if (isDashboardUuid(fromUrl)) localStorage.setItem(DASHBOARD_TOKEN_STORAGE_KEY, fromUrl);
+      else localStorage.setItem(TOKEN_STORAGE_KEY, fromUrl);
       return fromUrl;
     }
 
-    return String(localStorage.getItem(TOKEN_STORAGE_KEY) || "").trim();
+    return String(localStorage.getItem(DASHBOARD_TOKEN_STORAGE_KEY) || localStorage.getItem(TOKEN_STORAGE_KEY) || "").trim();
   }
 
   function applyTokenToBackLink() {
