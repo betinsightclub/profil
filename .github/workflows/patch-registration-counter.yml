@@ -1,31 +1,26 @@
-name: Registration counter patch
+name: Add registration counter
 
 on:
   push:
-    branches:
-      - main
     paths:
-      - .github/workflows/patch-registration-counter.yml
+      - '.github/workflows/patch-registration-counter.yml'
+      - '.github/scripts/patch_registration_counter.py'
 
 permissions:
   contents: write
 
 jobs:
-  patch:
+  patch-backoffice:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Patch Backoffice
-        run: python .github/scripts/patch_registration_counter.py
-
-      - name: Commit patch
+      - uses: actions/checkout@v4
+      - name: Patch Backoffice registration counter
+        run: python3 .github/scripts/patch_registration_counter.py
+      - name: Commit Backoffice update
+        shell: bash
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "BetInsight Automation"
+          git config user.email "actions@users.noreply.github.com"
           git add admin/backoffice/index.html
           if git diff --cached --quiet; then
             echo "No changes needed."
