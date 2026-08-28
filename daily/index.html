@@ -33,10 +33,15 @@
     @keyframes giftPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
     .stat{display:grid;grid-template-columns:1fr auto;gap:14px;padding:12px 0;border-bottom:1px solid rgba(123,196,228,.10)}.stat:last-child{border-bottom:0}.stat span{color:var(--muted);font-size:13px}.stat strong{font-size:14px;text-align:right}.level{color:#8df6d4!important}
     .rules{margin-top:20px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.rule{padding:15px 16px;border-radius:16px;background:rgba(6,30,43,.72);border:1px solid rgba(113,196,229,.12)}.rule b{display:block;font-size:13px;margin-bottom:5px}.rule span{color:var(--muted);font-size:12px;line-height:1.4}
+    .history-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}.history-head h3{margin:0 0 3px;font-size:18px}.history-head small{display:block;color:var(--muted);font-size:11px;line-height:1.35}
+    .history-list{display:flex;flex-direction:column;gap:9px;max-height:430px;overflow:auto;padding-right:2px}.history-empty{padding:14px 0;color:var(--muted);font-size:13px;line-height:1.45}
+    .history-item{padding:11px 12px;border-radius:15px;border:1px solid rgba(116,194,226,.12);background:rgba(3,21,31,.58)}.history-row{display:flex;align-items:center;justify-content:space-between;gap:10px}.history-date{color:#8fb7c9;font-size:11px}.history-number{font-weight:900;font-variant-numeric:tabular-nums;color:#dff8ff;letter-spacing:.4px}.history-bonus{color:#80f1cf;font-weight:900;font-size:13px;white-space:nowrap}
+    .history-meta{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}.history-pill{padding:4px 7px;border-radius:999px;border:1px solid rgba(22,156,255,.18);background:rgba(22,156,255,.08);color:#9ed7fb;font-size:10px;font-weight:800}.history-pill.box{border-color:rgba(255,193,77,.26);background:rgba(255,193,77,.08);color:#ffd783}
+    .history-proof{margin-top:11px;padding-top:10px;border-top:1px solid rgba(123,196,228,.10);color:#6f9db2;font-size:10.5px;line-height:1.45}
     .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:20}.confetti i{position:absolute;top:-10px;width:8px;height:12px;border-radius:2px;opacity:.95;animation:fall 1.5s ease-in forwards}@keyframes fall{to{transform:translate3d(var(--x),110vh,0) rotate(680deg);opacity:.2}}
-    @media(max-width:1040px) and (min-width:881px){.sidecard{padding:18px 14px}.streakhead{gap:7px}.streakhead strong{font-size:16px}.count{font-size:10px;padding:5px 7px}.days{gap:4px}.day{height:46px;border-radius:11px}.day b{font-size:14px}.day span{font-size:8px}.treasure{padding:13px 11px;gap:9px}.gift{width:40px;height:40px;flex-basis:40px;font-size:20px}.treasure strong{font-size:14px}.treasure small{font-size:11px}}
-    @media(max-width:880px){.grid{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.rules{grid-template-columns:1fr}}
-    @media(max-width:620px){.page{padding:14px 12px 60px}.topbar{padding:15px;border-radius:19px}.brand img{width:72px}.brand h1{font-size:23px}.brand p{font-size:12px}.mode{display:none}.main{padding:18px}.rollerbox{padding:15px 10px}.rollers{gap:7px}.digit{height:92px;border-radius:15px;font-size:47px}.side{grid-template-columns:1fr}.days{gap:5px}.day{height:44px}.day span{font-size:8.5px}}
+    @media(max-width:1040px) and (min-width:881px){.sidecard{padding:18px 14px}.streakhead{gap:7px}.streakhead strong{font-size:16px}.count{font-size:10px;padding:5px 7px}.days{gap:4px}.day{height:46px;border-radius:11px}.day b{font-size:14px}.day span{font-size:8px}.treasure{padding:13px 11px;gap:9px}.gift{width:40px;height:40px;flex-basis:40px;font-size:20px}.treasure strong{font-size:14px}.treasure small{font-size:11px}.history-head h3{font-size:16px}.history-item{padding:10px}}
+    @media(max-width:880px){.grid{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.rules{grid-template-columns:1fr}.history-card{grid-column:1/-1}}
+    @media(max-width:620px){.page{padding:14px 12px 60px}.topbar{padding:15px;border-radius:19px}.brand img{width:72px}.brand h1{font-size:23px}.brand p{font-size:12px}.mode{display:none}.main{padding:18px}.rollerbox{padding:15px 10px}.rollers{gap:7px}.digit{height:92px;border-radius:15px;font-size:47px}.side{grid-template-columns:1fr}.days{gap:5px}.day{height:44px}.day span{font-size:8.5px}.history-card{grid-column:auto}.history-list{max-height:none}}
   </style>
 </head>
 <body>
@@ -79,6 +84,14 @@
         </div>
       </section>
       <section class="card sidecard"><h3 style="margin:0 0 8px">Dein Daily-Status</h3><div class="stat"><span>Treuestufe</span><strong class="level" id="level">Starter</strong></div><div class="stat"><span>Aktuelle Serie</span><strong id="streakTotal">0 Tage</strong></div><div class="stat"><span>Nächster Claim</span><strong id="nextClaim">bereit</strong></div><div class="stat"><span>Letzter Bonus</span><strong id="lastBonus">–</strong></div></section>
+      <section class="card sidecard history-card">
+        <div class="history-head">
+          <div><h3>🧾 Daily-History</h3><small>Deine letzten 10 serverseitig gebuchten Ziehungen</small></div>
+          <span class="count" id="historyCount">0</span>
+        </div>
+        <div class="history-list" id="historyList"><div class="history-empty">History wird geladen …</div></div>
+        <div class="history-proof">Die Einträge stammen aus dem BetInsight-Serverprotokoll. Glücksnummer, Bonus und Buchungszeit können dadurch später eindeutig nachvollzogen werden.</div>
+      </section>
     </aside>
   </section>
 </main>
@@ -90,6 +103,7 @@
   const PROFILE_KEY = 'betinsight_profile_token';
   const DASHBOARD_KEY = 'betinsight_dashboard_token';
   const STATUS_CACHE_TTL = 2 * 60 * 1000;
+  const HISTORY_CACHE_TTL = 2 * 60 * 1000;
   const $ = id => document.getElementById(id);
   let busy = false;
   let boxBusy = false;
@@ -107,13 +121,59 @@
   }
   function requestId(prefix='DAILY'){ return prefix+'-'+Date.now().toString(36).toUpperCase()+'-'+crypto.getRandomValues(new Uint32Array(1))[0].toString(36).toUpperCase(); }
   function statusCacheKey(token){return 'betinsight_daily_status_v2:'+token}
+  function historyCacheKey(token){return 'betinsight_daily_history_v1:'+token}
   function readStatusCache(token){try{const item=JSON.parse(localStorage.getItem(statusCacheKey(token))||'null');if(item&&Date.now()-Number(item.savedAt||0)<STATUS_CACHE_TTL)return item.data}catch(e){}return null}
   function writeStatusCache(token,data){try{localStorage.setItem(statusCacheKey(token),JSON.stringify({savedAt:Date.now(),data}))}catch(e){}}
+  function readHistoryCache(token){try{const item=JSON.parse(localStorage.getItem(historyCacheKey(token))||'null');if(item&&Date.now()-Number(item.savedAt||0)<HISTORY_CACHE_TTL&&Array.isArray(item.data))return item.data}catch(e){}return null}
+  function writeHistoryCache(token,data){try{localStorage.setItem(historyCacheKey(token),JSON.stringify({savedAt:Date.now(),data}))}catch(e){}}
+  function esc(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
   async function postDaily(payload){
     const res=await fetch(DAILY_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const raw=await res.text();
     let data;try{data=JSON.parse(raw)}catch(e){throw new Error('Die Daily-Antwort konnte gerade nicht verarbeitet werden. Bitte versuche es in einem Moment erneut.')}
     return data;
+  }
+  function formatHistoryDate(value){
+    const d=new Date(value);
+    if(Number.isNaN(d.getTime()))return String(value||'–');
+    return new Intl.DateTimeFormat('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}).format(d);
+  }
+  function renderHistory(items=[]){
+    const host=$('historyList');
+    const rows=Array.isArray(items)?items.slice(0,10):[];
+    $('historyCount').textContent=String(rows.length);
+    if(!rows.length){host.innerHTML='<div class="history-empty">Noch keine Daily-Einträge vorhanden.</div>';return}
+    host.innerHTML=rows.map(row=>{
+      const cleanNumber=String(row['5']??'').replace(/\D/g,'').padStart(4,'0').slice(-4);
+      const bonus=Number(row['6']??0);
+      const streak=Number(row['7']??0);
+      const cycle=Number(row['8']??0);
+      const box=String(row['10']??'').toUpperCase()==='JA';
+      const boxBonus=Number(row['11']??0);
+      const giftAfter=Number(row['13']??0);
+      return `<div class="history-item">
+        <div class="history-row"><span class="history-date">${esc(formatHistoryDate(row['2']))}</span><span class="history-number">#${cleanNumber}</span></div>
+        <div class="history-row" style="margin-top:6px"><span class="history-bonus">+ ${bonus.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})} Units</span><span class="history-date">Stand danach ${giftAfter.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>
+        <div class="history-meta"><span class="history-pill">Serie ${Math.max(0,streak)}</span><span class="history-pill">Tag ${cycle||'–'}/7</span>${box?`<span class="history-pill box">🎁 Treuebox${boxBonus>0?' · '+boxBonus.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})+' Units':''}</span>`:''}</div>
+      </div>`;
+    }).join('');
+  }
+  async function loadDailyHistory(force=false){
+    const token=getAccessToken();
+    if(!token){renderHistory([]);return}
+    const cached=!force?readHistoryCache(token):null;
+    if(cached){renderHistory(cached);return}
+    $('historyList').innerHTML='<div class="history-empty">History wird geladen …</div>';
+    try{
+      const data=await postDaily({token,request_id:requestId('HISTORY')});
+      const rows=Array.isArray(data)?data:[];
+      writeHistoryCache(token,rows);
+      renderHistory(rows);
+    }catch(e){
+      console.warn('Daily History konnte nicht geladen werden',e);
+      $('historyCount').textContent='–';
+      $('historyList').innerHTML='<div class="history-empty">History konnte gerade nicht geladen werden.</div>';
+    }
   }
   function renderDays(day=1){
     const host=$('days');host.innerHTML='';
@@ -194,19 +254,21 @@
     if(showResult)showStoredResult(data);
   }
   function applyResult(data){
-    const statusData={can_claim:false,next_claim_at:data.next_claim_at||'',streak_total:Number(data.streak_total||0),cycle_day:Number(data.cycle_day||1),loyalty_level:data.loyalty_level||'Starter',last_number:data.daily_number||'',last_bonus_units:Number(data.bonus_units??data.total_bonus_units??0),box_pending:asBool(data.box_pending),box_pending_id:data.box_pending_id||'',box_opened_count:Number(data.box_opened_count||0)};
+    const previous=readStatusCache(getAccessToken())||{};
+    const statusData={can_claim:false,next_claim_at:data.next_claim_at||'',streak_total:Number(data.streak_total||0),cycle_day:Number(data.cycle_day||1),loyalty_level:data.loyalty_level||'Starter',last_number:data.daily_number||'',last_bonus_units:Number(data.bonus_units??data.total_bonus_units??0),total_claims:Number(previous.total_claims||0)+1,box_pending:asBool(data.box_pending),box_pending_id:data.box_pending_id||'',box_opened_count:Number(data.box_opened_count||0)};
     applyStatus(statusData,false);
     const token=getAccessToken();if(token)writeStatusCache(token,statusData);
   }
   async function loadDailyStatus(){
-    const token=getAccessToken();if(!token)return;
-    const cached=readStatusCache(token);if(cached){applyStatus(cached,true);return}
+    const token=getAccessToken();if(!token){renderHistory([]);return}
+    const cached=readStatusCache(token);
+    if(cached){applyStatus(cached,true);loadDailyHistory(false);return}
     $('playBtn').disabled=true;
     try{
       const data=await postDaily({token,request_id:requestId('STATUS')});
-      if(data.status==='daily_status'){writeStatusCache(token,data);applyStatus(data,true);return}
+      if(data.status==='daily_status'){writeStatusCache(token,data);applyStatus(data,true);loadDailyHistory(false);return}
     }catch(e){console.warn('Daily status konnte nicht geladen werden',e)}
-    canClaimNow=true;$('playBtn').disabled=false;$('playBtn').textContent='Glücksnummer starten';
+    canClaimNow=true;$('playBtn').disabled=false;$('playBtn').textContent='Glücksnummer starten';loadDailyHistory(false);
   }
   async function liveClaim(){
     const token=getAccessToken();if(!token)throw new Error('Bitte öffne Daily über dein BetInsight-Profil.');
@@ -222,14 +284,16 @@
       await finishRollers(data.daily_number,rollerState);
       $('result').innerHTML=`<div><strong>Deine Glücksnummer: ${data.daily_number}</strong><span class="bonus">+ ${Number(data.bonus_units??data.total_bonus_units??0).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})} Geschenk-Units</span></div>`;
       applyResult(data);
+      loadDailyHistory(true);
       if(asBool(data.box_pending))setBoxState(true);
       if(Number(data.bonus_units??0)>=.5)confetti();
       return;
     }
     stopRollers(rollerState);
     if(data.status==='already_claimed'||data.status==='duplicate_request'){
-      const cached={can_claim:false,next_claim_at:data.next_claim_at||'',streak_total:Number(data.streak_total||0),cycle_day:Number(data.cycle_day||1),loyalty_level:data.loyalty_level||'Starter',last_number:data.last_number||'',last_bonus_units:Number(data.last_bonus_units??0),box_pending:asBool(data.box_pending),box_pending_id:data.box_pending_id||''};
-      applyStatus(cached,!!cached.last_number);writeStatusCache(token,cached);
+      const previous=readStatusCache(token)||{};
+      const cached={can_claim:false,next_claim_at:data.next_claim_at||'',streak_total:Number(data.streak_total||0),cycle_day:Number(data.cycle_day||1),loyalty_level:data.loyalty_level||'Starter',last_number:data.last_number||'',last_bonus_units:Number(data.last_bonus_units??0),total_claims:Number(previous.total_claims||0),box_pending:asBool(data.box_pending),box_pending_id:data.box_pending_id||''};
+      applyStatus(cached,!!cached.last_number);writeStatusCache(token,cached);loadDailyHistory(false);
       if(!cached.last_number)$('result').innerHTML='<div><strong>Heute bereits aktiviert</strong><span>Dein nächster Claim wird automatisch freigeschaltet.</span></div>';
       return;
     }
