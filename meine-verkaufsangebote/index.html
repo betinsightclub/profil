@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#071019">
+  <meta name="bi-i18n-scope" content="my-sale-offers">
+  <title data-bi-i18n="mySaleOffersPage.title">Meine Verkaufsangebote | BetInsight Club</title>
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+  <link rel="stylesheet" href="../assets/app-navigation.css">
+  <script src="../assets/app-session.js"></script>
+  <script src="../assets/i18n/core-v2.js"></script>
+  <script src="../assets/app-navigation-v2.js" defer></script>
+  <style>
+    :root{--bg:#071019;--panel:#0d1a26;--text:#f4f8fb;--muted:#91a6b7;--line:rgba(145,166,183,.18);--green:#25e6a7;--yellow:#ffc857;--danger:#ff6b7d}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 12% 0%,rgba(37,230,167,.12),transparent 30rem),radial-gradient(circle at 92% 12%,rgba(89,168,255,.12),transparent 30rem),var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}.page{width:min(100% - 28px,920px);margin:auto;padding:34px 0 56px}.logo{width:170px;max-width:55vw}.hero{margin-top:24px}.hero h1{margin:8px 0;font-size:clamp(2rem,6vw,3rem)}.hero p{color:var(--muted);line-height:1.55}.card{margin-top:22px;padding:clamp(20px,5vw,30px);border:1px solid var(--line);border-radius:22px;background:linear-gradient(155deg,rgba(18,36,51,.96),rgba(13,26,38,.98));box-shadow:0 24px 70px rgba(0,0,0,.34)}.cardhead{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:18px}.card h2{margin:0 0 6px}.cardhead p{margin:0;color:var(--muted)}.count{padding:7px 11px;border-radius:999px;border:1px solid rgba(37,230,167,.28);color:var(--green);font-size:.75rem;font-weight:900}.list{display:grid;gap:12px}.offer{display:grid;grid-template-columns:minmax(0,1.35fr) repeat(3,minmax(0,.9fr));gap:12px;align-items:center;padding:16px;border:1px solid var(--line);border-radius:16px;background:rgba(7,16,25,.52)}.main strong,.meta strong{display:block}.main span,.meta span{display:block;margin-top:5px;color:var(--muted);font-size:.78rem}.badge{justify-self:end;display:inline-flex;min-height:34px;align-items:center;padding:0 11px;border-radius:999px;font-size:.74rem;font-weight:900;white-space:nowrap}.badge.active{color:#caffed;background:rgba(37,230,167,.1);border:1px solid rgba(37,230,167,.3)}.badge.reserved{color:#ffe6ad;background:rgba(255,200,87,.1);border:1px solid rgba(255,200,87,.3)}.state{padding:16px;border:1px dashed rgba(145,166,183,.25);border-radius:14px;color:var(--muted);line-height:1.55}.state.error{color:#ffd9de;border-color:rgba(255,107,125,.35);background:rgba(255,107,125,.07)}.note{margin-top:18px;color:var(--muted);font-size:.82rem;line-height:1.5}.back{display:inline-flex;margin-top:18px;padding:11px 15px;border-radius:12px;border:1px solid var(--line);color:#fff;text-decoration:none;background:rgba(13,26,38,.9)}@media(max-width:700px){.offer{grid-template-columns:1fr 1fr}.main{grid-column:1/-1}.badge{justify-self:start}.cardhead{flex-direction:column}}@media(max-width:460px){.offer{grid-template-columns:1fr}.main{grid-column:auto}}
+  </style>
+</head>
+<body>
+<main class="page">
+  <img class="logo" src="../logo_betisight.club.png" alt="BetInsight Club">
+  <section class="hero">
+    <h1 data-bi-i18n="mySaleOffersPage.heading">Meine Verkaufsangebote</h1>
+    <p data-bi-i18n="mySaleOffersPage.intro">Hier siehst du deine aktuell aktiven oder für einen Käufer reservierten Verkaufsangebote. Die Übersicht ist nur lesend.</p>
+  </section>
+  <section class="card">
+    <div class="cardhead"><div><h2 data-bi-i18n="mySaleOffersPage.current">Aktuell im Verkauf</h2><p data-bi-i18n="mySaleOffersPage.currentCopy">Aktive und momentan reservierte Angebote.</p></div><span class="count" id="count" data-bi-i18n="mySaleOffersPage.loadingCount">Lade …</span></div>
+    <div class="state" id="state" data-bi-i18n="mySaleOffersPage.loading">Deine Verkaufsangebote werden geladen.</div>
+    <div class="list" id="list" hidden></div>
+    <p class="note" data-bi-i18n="mySaleOffersPage.note">Diese Seite verändert keine Units, Gebühren oder Angebote. Eine Storno-Funktion ist noch nicht freigeschaltet.</p>
+  </section>
+  <a class="back" href="../verkaufen/" data-bi-i18n="mySaleOffersPage.newOffer">Neues Verkaufsangebot erstellen</a>
+</main>
+<script>
+(()=>{
+  'use strict';
+  const ENDPOINT='https://hook.eu1.make.com/r4vv6dolmdni4vppridgpaf5teaua6kr';
+  const state=document.getElementById('state'),list=document.getElementById('list'),count=document.getElementById('count');
+  let lastItems=[];
+  const t=(key,vars={},fallback='')=>window.BetInsightI18n?.t(key,vars,fallback)||fallback;
+  const locale=()=>window.BetInsightI18n?.getLanguage?.()==='en'?'en-US':'de-DE';
+  const euro=v=>new Intl.NumberFormat(locale(),{style:'currency',currency:'EUR',minimumFractionDigits:2}).format(Number(v)||0);
+  function storedToken(){return window.BetInsightSession?.getDashboardUuid?.()||''}
+  function render(items){
+    lastItems=Array.isArray(items)?items:[];
+    const visible=lastItems.filter(x=>['AKTIV','KAUF_RESERVIERT'].includes(String(x.status||'').toUpperCase()));
+    count.textContent=t(visible.length===1?'mySaleOffersPage.offerOne':'mySaleOffersPage.offerMany',{count:visible.length},visible.length+' Angebot'+(visible.length===1?'':'e'));
+    if(!visible.length){state.hidden=false;state.className='state';state.textContent=t('mySaleOffersPage.empty',{},'Aktuell hast du keine eigenen Verkaufsangebote im Verkauf oder reserviert.');list.hidden=true;return}
+    state.hidden=true;list.hidden=false;list.innerHTML='';
+    visible.forEach(o=>{
+      const reserved=String(o.status||'').toUpperCase()==='KAUF_RESERVIERT';
+      const el=document.createElement('article');el.className='offer';
+      const id=String(o.id||t('mySaleOffersPage.offerFallback',{},'Angebot'));
+      el.innerHTML=`<div class="main"><strong>${Number(o.units)||0} Units</strong><span>${escapeHtml(id)}</span></div><div class="meta"><span>${escapeHtml(t('mySaleOffersPage.unitPrice',{},'Preis pro Unit'))}</span><strong>${escapeHtml(euro(o.unitPriceEur))}</strong></div><div class="meta"><span>${escapeHtml(t('mySaleOffersPage.totalPrice',{},'Gesamtpreis'))}</span><strong>${escapeHtml(euro(o.totalEur))}</strong></div><div><span class="badge ${reserved?'reserved':'active'}">${escapeHtml(t(reserved?'mySaleOffersPage.reserved':'mySaleOffersPage.active',{},reserved?'Für Käufer reserviert':'Aktiv im Verkauf'))}</span></div>`;
+      list.appendChild(el);
+    });
+  }
+  function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  async function init(){
+    const token=storedToken();
+    if(!token){count.textContent='–';state.className='state error';state.textContent=t('mySaleOffersPage.missingAccess',{},'Dein persönlicher Dashboard-Zugang ist auf diesem Gerät noch nicht verfügbar. Öffne die Seite bitte über dein BetInsight-Profil.');return}
+    try{
+      const r=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dashboard_token:token})});
+      const text=String(await r.text()||'').replace(/^\uFEFF/,'').trim();
+      if(!r.ok)throw new Error('request failed');
+      render(text?JSON.parse(text):[]);
+    }catch(e){console.error('Sale offers load failed',e);count.textContent='–';state.hidden=false;state.className='state error';state.textContent=t('mySaleOffersPage.loadError',{},'Deine Verkaufsangebote konnten gerade nicht geladen werden. Bitte versuche es erneut.')}
+  }
+  window.addEventListener('bi:languagechange',()=>render(lastItems));
+  window.BetInsightI18n?.init().then(init);
+})();
+</script>
+</body>
+</html>
