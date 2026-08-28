@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-BetInsight Tipps · Version 2026.08.27-12
+BetInsight Tipps · Version 2026.08.28-13-DASHBOARD-TOKEN
 - Sichere Vorschau bleibt unverändert: Spiel, Markt, Auswahl, exakte Quote, Tippgeber und echte Anpfiffzeit werden vor Freischaltung nicht ausgeliefert.
 - Nach Freischaltung erscheint der vorbereitete Premium-/Premium-Plus-Quotenbereich.
 - Basis: 5 gesperrte Slots. Premium: 2 Slots ohne Direktlink. Premium Plus: 5 Slots, Direkt-/Affiliate-Links vorbereitet.
@@ -59,10 +59,11 @@ BetInsight Tipps · Version 2026.08.27-12
 const TIPPS_WEBHOOK="https://hook.eu1.make.com/36gm8kvlfcb7jwae8ypxe8oripquonq5";
 const FREISCHALTEN_WEBHOOK="https://hook.eu1.make.com/k1qn9hlfqd7yhz55vwiotkojgpuqzxug";
 const ERGEBNISSE_WEBHOOK="https://hook.eu1.make.com/7kseudxkxeihrdirty1cffbffe7q771e";
-const TOKEN_STORAGE_KEY="betinsight_profile_token";const PAGE_SIZE=10;
+const TOKEN_STORAGE_KEY="betinsight_profile_token";const DASHBOARD_TOKEN_STORAGE_KEY="betinsight_dashboard_token";const PAGE_SIZE=10;
 let loadedOpenTipps=[],visibleOpenTipCount=0,loadedResults=[],resultSortMode="date_desc";
 function normalizeToken(v){return String(v||"").trim()}
-function getToken(){const p=new URLSearchParams(location.search),u=p.get("token");if(u&&u.trim()){const n=normalizeToken(u);localStorage.setItem(TOKEN_STORAGE_KEY,n);return n}return normalizeToken(localStorage.getItem(TOKEN_STORAGE_KEY))}
+function isDashboardUuid(v){return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(normalizeToken(v))}
+function getToken(){const p=new URLSearchParams(location.search),u=p.get("token");if(u&&u.trim()){const n=normalizeToken(u);if(isDashboardUuid(n))localStorage.setItem(DASHBOARD_TOKEN_STORAGE_KEY,n);else localStorage.setItem(TOKEN_STORAGE_KEY,n);return n}const dashboard=normalizeToken(localStorage.getItem(DASHBOARD_TOKEN_STORAGE_KEY));if(dashboard)return dashboard;return normalizeToken(localStorage.getItem(TOKEN_STORAGE_KEY))}
 function safeText(v,f="-"){return v===null||v===undefined||v===""?f:String(v)}
 function escapeHtml(v){return safeText(v,"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
 function membershipLevel(value,name){const n=Number(String(value??"").replace(",","."));if(Number.isFinite(n)&&n>=0)return Math.min(2,Math.floor(n));const l=String(name||"").toLowerCase();if(l.includes("plus"))return 2;if(l.includes("premium"))return 1;return 0}
