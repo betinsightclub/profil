@@ -2,7 +2,7 @@
 <!--
 Projekt: BetInsight
 Datei auf GitHub: profil/admin/backoffice/index.html
-Version: 2026.08.28-BACKOFFICE-v2.22-REGISTRIERUNGEN
+Version: 2026.08.28-BACKOFFICE-v2.23-FREISCHALTUNGEN
 Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro Tipp einer Liefer-LED plus einer Ergebnis-LED, Bonuspunkten für Übererfüllung, Tipp-ID-sicherer Wochenhistorie, getrenntem Testbetrieb, Ergebnisübersicht, Wallet-Zielauswahl und festen Netzwerken.
 -->
 <html lang="de">
@@ -2694,6 +2694,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
                   <th>Quelle / Tippgeber</th>
                   <th>Spiel</th>
                   <th>Quote</th>
+                  <th>Freischaltungen</th>
                   <th>Ergebnis</th>
                   <th>Nachweis</th>
                   <th>Teilnehmer</th>
@@ -2701,7 +2702,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
                 </tr>
               </thead>
               <tbody id="masterResultsTableBody">
-                <tr><td colspan="7"><div class="empty-state">Noch keine Ergebnisdaten geladen.</div></td></tr>
+                <tr><td colspan="8"><div class="empty-state">Noch keine Ergebnisdaten geladen.</div></td></tr>
               </tbody>
             </table>
           </div>
@@ -2979,6 +2980,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
     let latestTipResults = [];
     let latestTipsterHistory = [];
     let latestTipsterTipResults = [];
+    let latestTipUnlockCounts = new Map();
     let selectedHistoryWeek = "";
 
     function readAdminSession() {
@@ -3338,6 +3340,36 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       }).filter(Boolean);
     }
 
+    function parseTipUnlockCountsRaw(raw) {
+      const counts = new Map();
+      const text = String(raw || "").trim();
+      if (!text) return counts;
+
+      text.split("§").forEach(function (record) {
+        const separator = record.lastIndexOf("|");
+        if (separator <= 0) return;
+        const tipId = normalizeText(record.slice(0, separator));
+        const count = Math.max(0, Math.floor(num(record.slice(separator + 1))));
+        if (tipId) counts.set(tipId, count);
+      });
+
+      return counts;
+    }
+
+    function tipUnlockCount(tipId) {
+      const id = normalizeText(tipId);
+      if (!id) return 0;
+      return Math.max(0, Math.floor(num(latestTipUnlockCounts.get(id) || 0)));
+    }
+
+    function unlockCountForItems(items) {
+      return (Array.isArray(items) ? items : [])
+        .filter(function (item) { return item && !item.display_only; })
+        .reduce(function (sum, item) {
+          return sum + tipUnlockCount(firstDefined(item, ["tip_id", "tipp_id", "id"], ""));
+        }, 0);
+    }
+
     function normalizeTipsterTipResults(items) {
       const list = Array.isArray(items) ? items : [];
       const byId = new Map();
@@ -3434,23 +3466,27 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
 
     function compactTipsterAnalysisHtml(adminId, runningWeek, weekCount) {
       const weekItems = runningWeek ? tipItemsFor(adminId, runningWeek) : [];
+      const totalItems = realTipItemsForAdmin(adminId);
       const weekStats = resultStatsForItems(weekItems, weekCount);
-      const totalStats = resultStatsForItems(realTipItemsForAdmin(adminId));
+      const totalStats = resultStatsForItems(totalItems);
+      const weekUnlocks = unlockCountForItems(weekItems);
+      const totalUnlocks = unlockCountForItems(totalItems);
 
       function rateText(rate) {
         return rate === null ? "–" : formatNumber(rate, 1) + " %";
       }
 
       return '<div class="tipster-analysis-mini">' +
-        '<div class="tipster-analysis-title">Kurz-Analyse</div>' +
+        '<div class="tipster-analysis-title">Kurz-Analyse · Nutzerinteresse</div>' +
         '<table class="tipster-analysis-table" aria-label="Tippgeber Kurz-Analyse">' +
           '<thead><tr>' +
-            '<th>Zeitraum</th><th>Tipps</th><th>Gewonnen</th><th>Verloren</th><th>Trefferquote</th>' +
+            '<th>Zeitraum</th><th>Tipps</th><th>Freischaltungen</th><th>Gewonnen</th><th>Verloren</th><th>Trefferquote</th>' +
           '</tr></thead>' +
           '<tbody>' +
             '<tr>' +
               '<td>Diese Woche</td>' +
               '<td><strong>' + weekStats.tips + '</strong></td>' +
+              '<td><strong>' + weekUnlocks + '×</strong></td>' +
               '<td class="tipster-analysis-win">' + weekStats.won + '</td>' +
               '<td class="tipster-analysis-loss">' + weekStats.lost + '</td>' +
               '<td class="tipster-analysis-rate">' + rateText(weekStats.rate) + '</td>' +
@@ -3458,6 +3494,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
             '<tr>' +
               '<td>Gesamt</td>' +
               '<td><strong>' + totalStats.tips + '</strong></td>' +
+              '<td><strong>' + totalUnlocks + '×</strong></td>' +
               '<td class="tipster-analysis-win">' + totalStats.won + '</td>' +
               '<td class="tipster-analysis-loss">' + totalStats.lost + '</td>' +
               '<td class="tipster-analysis-rate">' + rateText(totalStats.rate) + '</td>' +
@@ -4638,7 +4675,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
         return tipIdB.localeCompare(tipIdA, "de", { numeric: true, sensitivity: "base" });
       });
       if (!latestTipResults.length) {
-        masterResultsTableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state">Noch keine Ergebnisdaten über Make geliefert.</div></td></tr>';
+        masterResultsTableBody.innerHTML = '<tr><td colspan="8"><div class="empty-state">Noch keine Ergebnisdaten über Make geliefert.</div></td></tr>';
         return;
       }
 
@@ -4667,6 +4704,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
           <td><strong>${escapeHtml(sourceLabel)}</strong><div class="route-hint">${escapeHtml(firstDefined(item, ["admin_name", "tippgeber_name"], "–"))} · ${escapeHtml(firstDefined(item, ["admin_id", "tippgeber_id"], "–"))}</div></td>
           <td><strong>${escapeHtml(firstDefined(item, ["spiel", "event"], "–"))}</strong><div class="route-hint">${escapeHtml(tipId)}</div></td>
           <td>${escapeHtml(firstDefined(item, ["quote", "odds"], "–"))}</td>
+          <td><span class="status-pill">${tipUnlockCount(tipId)}×</span><div class="route-hint">Nutzer</div></td>
           <td>
             <span class="status-pill">${escapeHtml(resultStatusLabel(currentStatus))}</span>
             <div class="result-action-row" style="margin-top:7px">
@@ -5041,6 +5079,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       const tipResultFeed = parseJsonValue(data.tipster_tip_results ?? master.tipster_tip_results, []);
       const rawTipResultFeed = parseTipsterTipResultsRaw(data.tipster_tip_results_raw || master.tipster_tip_results_raw || "");
       latestTipsterTipResults = normalizeTipsterTipResults([].concat(Array.isArray(tipResults) ? tipResults : [], Array.isArray(tipResultFeed) ? tipResultFeed : [], rawTipResultFeed));
+      latestTipUnlockCounts = parseTipUnlockCountsRaw(data.tip_unlock_counts_raw || master.tip_unlock_counts_raw || "");
       latestTipsterHistory = parseTipsterHistoryRaw(data.tipster_history_raw || "");
 
       renderPersonalTipster(tipsterSelf, data);
