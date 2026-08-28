@@ -2,14 +2,14 @@
 <!--
 Projekt: BetInsight
 GitHub-Ziel: /profil/wechselboerse/index.html
-Pilot-Version: 2026.08.27-01 · Feature-Branch
+Pilot-Version: 2026.08.28-02 · Feature-Branch
 
 Ziele:
 - sichtbare deutsche Oberfläche bleibt Fallback
 - Englisch über zentrale Locale-Dateien
 - Dashboard-UUID wird niemals in neu erzeugte URLs geschrieben
 - alte eingehende UUID-Links werden durch app-session.js einmalig übernommen und sofort aus der Browserzeile entfernt
-- Kaufen, Verkaufen und Wallet navigieren anschließend ausschließlich tokenfrei auf derselben Domain
+- Kaufen, Verkaufen, Meine Verkaufsangebote und Wallet navigieren anschließend ausschließlich tokenfrei auf derselben Domain
 -->
 <html lang="de">
 <head>
@@ -17,7 +17,7 @@ Ziele:
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#061923">
-  <meta name="description" content="BetInsight Unit-Wechselstube: Units kaufen, verkaufen und Auszahlungs-Wallet verwalten.">
+  <meta name="description" content="BetInsight Unit-Wechselstube: Units kaufen, verkaufen, eigene Verkaufsangebote ansehen und Auszahlungs-Wallet verwalten.">
   <title>BetInsight Unit-Wechselstube</title>
   <link rel="shortcut icon" href="../favicon.ico">
   <link rel="stylesheet" href="../assets/app-navigation.css">
@@ -35,12 +35,13 @@ Ziele:
     .hero::after{content:"";position:absolute;top:-110px;right:-90px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(22,199,243,.12),transparent 68%);pointer-events:none}
     .hero-intro{position:relative;z-index:1;max-width:700px;margin:0 auto 30px;text-align:center}.hero-icon{display:grid;place-items:center;width:58px;height:58px;margin:0 auto 15px;border:1px solid rgba(22,199,243,.28);border-radius:18px;background:rgba(22,199,243,.08);font-size:29px;box-shadow:0 12px 28px rgba(0,0,0,.20)}
     .hero h2{margin:0;font-size:clamp(28px,5vw,42px);line-height:1.08}.hero h2 span{color:#1fe0ac}.hero-intro p{max-width:620px;margin:13px auto 0;color:var(--soft);font-size:16px;line-height:1.6}
-    .main-actions{position:relative;z-index:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.action-card{position:relative;display:flex;min-height:160px;padding:24px;overflow:hidden;border:1px solid rgba(255,255,255,.12);border-radius:18px;color:#fff;text-decoration:none;box-shadow:0 14px 30px rgba(0,0,0,.22);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,opacity .18s ease}
-    .action-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.30);box-shadow:0 19px 38px rgba(0,0,0,.30)}.action-card:focus-visible,.wallet-action:focus-visible{outline:3px solid var(--focus);outline-offset:3px}.buy-card{background:linear-gradient(135deg,#087dbd,#0fb8d2)}.sell-card{background:linear-gradient(135deg,var(--green2),var(--green))}
+    .main-actions{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.action-card{position:relative;display:flex;min-height:160px;padding:24px;overflow:hidden;border:1px solid rgba(255,255,255,.12);border-radius:18px;color:#fff;text-decoration:none;box-shadow:0 14px 30px rgba(0,0,0,.22);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,opacity .18s ease}
+    .action-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.30);box-shadow:0 19px 38px rgba(0,0,0,.30)}.action-card:focus-visible,.wallet-action:focus-visible{outline:3px solid var(--focus);outline-offset:3px}.buy-card{background:linear-gradient(135deg,#087dbd,#0fb8d2)}.sell-card{background:linear-gradient(135deg,var(--green2),var(--green))}.my-offers-card{background:linear-gradient(135deg,#4054b2,#6578df)}
     .action-content{display:flex;flex:1;flex-direction:column;align-items:flex-start}.action-icon{display:grid;place-items:center;width:44px;height:44px;margin-bottom:18px;border:1px solid rgba(255,255,255,.22);border-radius:13px;background:rgba(0,0,0,.12);font-size:22px}.action-card h3{margin:0;font-size:22px;line-height:1.2}.action-card p{margin:7px 0 0;color:rgba(255,255,255,.88);font-size:14px;line-height:1.45}.action-arrow{align-self:center;margin-left:12px;font-size:26px;font-weight:800;transition:transform .18s ease}.action-card:hover .action-arrow{transform:translateX(4px)}
     .wallet-section{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:16px;padding:18px 20px;border:1px solid rgba(80,168,214,.20);border-radius:16px;background:rgba(4,22,32,.55)}.wallet-copy{display:flex;align-items:center;gap:13px;min-width:0}.wallet-icon{display:grid;flex:0 0 auto;place-items:center;width:42px;height:42px;border:1px solid rgba(241,163,19,.26);border-radius:12px;background:rgba(241,163,19,.09);font-size:20px}.wallet-copy h3{margin:0;font-size:16px}.wallet-copy p{margin:4px 0 0;color:var(--muted);font-size:13px;line-height:1.4}
     .wallet-action{flex:0 0 auto;padding:11px 16px;border:1px solid rgba(241,163,19,.38);border-radius:11px;background:rgba(241,163,19,.12);color:#ffd985;font-size:14px;font-weight:800;text-decoration:none;transition:background .18s ease,transform .18s ease}.wallet-action:hover{transform:translateY(-2px);background:rgba(241,163,19,.20)}
     .warning{display:none;position:relative;z-index:1;margin-top:16px;padding:14px 16px;border:1px solid rgba(241,163,19,.38);border-radius:13px;background:rgba(241,163,19,.09);color:#ffe2a3;font-size:13px;line-height:1.55;text-align:center}.warning.visible{display:block}.info-line{display:flex;align-items:center;justify-content:center;gap:8px;margin:18px 0 0;color:var(--muted);font-size:12px;line-height:1.5;text-align:center}.disabled{opacity:.42;pointer-events:none;filter:saturate(.35)}
+    @media(max-width:900px){.main-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media(max-width:720px){.topbar{grid-template-columns:auto 1fr}.secure-badge{grid-column:1/-1;justify-self:center}.main-actions{grid-template-columns:1fr}}
     @media(max-width:540px){.page{width:min(100% - 24px,1040px);padding-top:12px}.topbar{display:block;padding:15px;text-align:center}.logo{width:100px;margin:0 auto 11px}.secure-badge{margin-top:12px}.hero{margin-top:12px;padding:25px 15px;border-radius:19px}.hero-intro{margin-bottom:23px}.action-card{min-height:158px;padding:20px}.wallet-section{align-items:stretch;flex-direction:column}.wallet-action{width:100%;text-align:center}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
@@ -73,6 +74,10 @@ Ziele:
           <span class="action-content"><span class="action-icon" aria-hidden="true">🏷️</span><h3 data-bi-i18n="exchangePage.sellTitle">Units verkaufen</h3><p data-bi-i18n="exchangePage.sellCopy">Freigegebene Referral Units als neues Verkaufsangebot einstellen.</p></span>
           <span class="action-arrow" aria-hidden="true">→</span>
         </a>
+        <a id="myOffersLink" class="action-card my-offers-card disabled" href="#" aria-disabled="true">
+          <span class="action-content"><span class="action-icon" aria-hidden="true">📋</span><h3 data-bi-i18n="exchangePage.myOffersTitle">Meine Verkaufsangebote</h3><p data-bi-i18n="exchangePage.myOffersCopy">Deine aktuell aktiven oder für einen Käufer reservierten Angebote ansehen.</p></span>
+          <span class="action-arrow" aria-hidden="true">→</span>
+        </a>
       </div>
 
       <div class="wallet-section">
@@ -90,6 +95,7 @@ Ziele:
       "use strict";
       const buyLink=document.getElementById("buyLink");
       const sellLink=document.getElementById("sellLink");
+      const myOffersLink=document.getElementById("myOffersLink");
       const walletLink=document.getElementById("walletLink");
       const warning=document.getElementById("warning");
 
@@ -103,11 +109,12 @@ Ziele:
         if(hasAccess){
           enableLink(buyLink,"angebote/");
           enableLink(sellLink,"../verkaufen/");
+          enableLink(myOffersLink,"../verkaufen/#myOffersTitle");
           enableLink(walletLink,"../wallet/");
           warning.classList.remove("visible");
           warning.textContent="";
         }else{
-          disableLink(buyLink);disableLink(sellLink);disableLink(walletLink);
+          disableLink(buyLink);disableLink(sellLink);disableLink(myOffersLink);disableLink(walletLink);
           warning.textContent=i18n?.t("exchangePage.missingAccess",{},"Auf diesem Gerät ist noch kein gültiger Dashboard-Zugang gespeichert. Bitte öffne die Unit-Wechselstube über dein aktuelles BetInsight-Profil.")||"Auf diesem Gerät ist noch kein gültiger Dashboard-Zugang gespeichert.";
           warning.classList.add("visible");
         }
