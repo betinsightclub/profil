@@ -17,6 +17,7 @@
 
   const MOBILE_BREAKPOINT = 1179;
   const YOUTUBE_URL = "https://www.youtube.com/@betinsightclub";
+  const TELEGRAM_URL = "https://t.me/betinsightclub_official";
   const ACCOUNT_SETTINGS_URL = "https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726";
   const SCRIPT_URL = document.currentScript?.src || "";
   const ASSET_BASE = SCRIPT_URL ? new URL("./", SCRIPT_URL) : new URL("/assets/", window.location.origin);
@@ -45,7 +46,8 @@
     {id:"exchange-group",key:"nav.exchange",fallback:"Unit-Wechselstube",icon:icons.exchange,children:[
       {id:"wechselboerse",key:"nav.overview",fallback:"Übersicht"},
       {id:"angebote",key:"nav.buyOffers",fallback:"Angebote kaufen"},
-      {id:"verkaufen",key:"nav.sellUnits",fallback:"Units verkaufen"}
+      {id:"verkaufen",key:"nav.sellUnits",fallback:"Units verkaufen"},
+      {id:"meine-verkaufsangebote",key:"nav.mySaleOffers",fallback:"Meine Verkaufsangebote",fallbackEn:"My Sale Offers"}
     ]},
     {id:"wallet",key:"nav.wallet",fallback:"Wallet",icon:icons.wallet},
     {id:"anbieter",key:"nav.providers",fallback:"Wettanbieter",icon:icons.providers},
@@ -100,6 +102,9 @@
   const session = () => window.BetInsightSession;
   const t = (key, fallback) => i18n()?.t(key, {}, fallback) || fallback;
   const isMobile = () => window.matchMedia(`(max-width:${MOBILE_BREAKPOINT}px)`).matches;
+  const localizedFallback = item => i18n()?.getLanguage?.() === "en" && item?.fallbackEn ? item.fallbackEn : item?.fallback;
+  const itemLabel = item => t(item.key, localizedFallback(item));
+  const socialText = (de,en) => i18n()?.getLanguage?.() === "en" ? en : de;
 
   function showMessage(text) {
     const message = document.getElementById("message");
@@ -122,9 +127,9 @@
     return false;
   }
 
-  function requireProfileAccess() {
-    if (session()?.hasProfileAccess()) return true;
-    showMessage(t("session.profileMissing", "Der persönliche Profilzugang ist für diese Seite noch nicht verfügbar."));
+  function requireAnyAccess() {
+    if (session()?.hasDashboardAccess() || session()?.hasProfileAccess()) return true;
+    showMessage(t("session.profileMissing", socialText("Dein persönlicher Zugang ist für diese Seite noch nicht verfügbar.","Your personal access is not available for this page yet.")));
     return false;
   }
 
@@ -133,8 +138,8 @@
     session().navigateLocal(segment, options);
   }
 
-  function navigateProfileProtected(segment = "", options = {}) {
-    if (!requireProfileAccess()) return;
+  function navigateAnyProtected(segment = "", options = {}) {
+    if (!requireAnyAccess()) return;
     session().navigateLocal(segment, options);
   }
 
@@ -168,12 +173,13 @@
     switch (id) {
       case "dashboard": navigateProtected(""); break;
       case "daily": navigateProtected("daily"); break;
-      case "tipps": navigateProfileProtected("tipps"); break;
+      case "tipps": navigateAnyProtected("tipps"); break;
       case "freigeschaltet": navigateProtected("freigeschaltet"); break;
       case "kaufen": navigateProtected("pakete"); break;
       case "wechselboerse": navigateProtected("wechselboerse"); break;
       case "angebote": navigateProtected("wechselboerse/angebote"); break;
       case "verkaufen": navigateProtected("verkaufen"); break;
+      case "meine-verkaufsangebote": navigateProtected("meine-verkaufsangebote"); break;
       case "wallet": navigateProtected("wallet"); break;
       case "anbieter": session().navigateLocal("anbieter"); break;
       case "netzwerk": navigateProfileHash("netzwerk"); break;
@@ -197,13 +203,13 @@
     const second = parts[1] || "";
     if (first === "wechselboerse" && second === "angebote") return "angebote";
     if (first === "pakete") return "kaufen";
-    const known = ["daily","tipps","freigeschaltet","wechselboerse","verkaufen","wallet","anbieter","marketing-center","support"];
+    const known = ["daily","tipps","freigeschaltet","wechselboerse","verkaufen","meine-verkaufsangebote","wallet","anbieter","marketing-center","support"];
     return known.includes(first) ? first : "dashboard";
   }
 
   function groupForRoute(id) {
     if (["tipps","freigeschaltet"].includes(id)) return "tips-group";
-    if (["wechselboerse","angebote","verkaufen"].includes(id)) return "exchange-group";
+    if (["wechselboerse","angebote","verkaufen","meine-verkaufsangebote"].includes(id)) return "exchange-group";
     if (["netzwerk","premium-provisionen","marketing-center"].includes(id)) return "network-group";
     return "";
   }
@@ -264,7 +270,7 @@
     link.className = "bi-nav-link";
     link.href = "#";
     link.dataset.biNavRoute = item.id;
-    link.innerHTML = `<span class="bi-nav-icon">${item.icon}</span><span class="bi-nav-label">${t(item.key,item.fallback)}</span>`;
+    link.innerHTML = `<span class="bi-nav-icon">${item.icon}</span><span class="bi-nav-label">${itemLabel(item)}</span>`;
     link.addEventListener("click", event => {
       event.preventDefault();
       if (isMobile()) closeNavigation();
@@ -282,7 +288,7 @@
     button.type = "button";
     button.className = "bi-nav-group-button";
     button.setAttribute("aria-expanded", "false");
-    button.innerHTML = `<span class="bi-nav-icon">${item.icon}</span><span class="bi-nav-label">${t(item.key,item.fallback)}</span><span class="bi-nav-chevron" aria-hidden="true">⌄</span>`;
+    button.innerHTML = `<span class="bi-nav-icon">${item.icon}</span><span class="bi-nav-label">${itemLabel(item)}</span><span class="bi-nav-chevron" aria-hidden="true">⌄</span>`;
     button.addEventListener("click", () => setGroupOpen(group, !group.classList.contains("bi-nav-group-open"), isMobile()));
 
     const submenu = document.createElement("div");
@@ -294,7 +300,7 @@
       link.className = "bi-nav-sub-link";
       link.href = "#";
       link.dataset.biNavRoute = child.id;
-      link.innerHTML = `<span class="bi-nav-sub-dot" aria-hidden="true">•</span><span class="bi-nav-label">${t(child.key,child.fallback)}</span>`;
+      link.innerHTML = `<span class="bi-nav-sub-dot" aria-hidden="true">•</span><span class="bi-nav-label">${itemLabel(child)}</span>`;
       link.addEventListener("click", event => {
         event.preventDefault();
         if (isMobile()) closeNavigation();
@@ -320,7 +326,8 @@
       .bi-social-footer{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;margin:50px auto 0;padding:18px 0 4px;border-top:1px solid rgba(104,191,230,.12);color:#7398aa;font-family:Inter,Arial,sans-serif}
       .bi-social-footer-label{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
       .bi-social-links{display:flex;align-items:center;justify-content:center;gap:8px}
-      .bi-social-link{display:grid;place-items:center;width:34px;height:34px;border:1px solid rgba(255,255,255,.10);border-radius:10px;background:rgba(3,24,35,.58);text-decoration:none}
+      .bi-social-link{display:grid;place-items:center;width:34px;height:34px;border:1px solid rgba(255,255,255,.10);border-radius:10px;background:rgba(3,24,35,.58);text-decoration:none;box-shadow:0 8px 20px rgba(0,0,0,.16);transition:transform .16s ease,border-color .16s ease,background .16s ease}
+      .bi-social-link:hover,.bi-social-link:focus-visible{transform:translateY(-1px);border-color:rgba(89,168,255,.48);background:rgba(12,49,68,.52);outline:none}
       .bi-social-icon{display:block;width:20px;height:20px}
     `;
     document.head.appendChild(style);
@@ -331,18 +338,30 @@
     const footer = document.createElement("footer");
     footer.className = "bi-social-footer";
     footer.setAttribute("aria-label", "BetInsight Social Media");
-    footer.innerHTML = `<span class="bi-social-footer-label">${t("nav.followUs","Folge uns")}</span>`;
+    footer.innerHTML = `<span class="bi-social-footer-label">${t("nav.followUs",socialText("Folge uns","Follow us"))}</span>`;
     const links = document.createElement("div");
     links.className = "bi-social-links";
+
     const youtube = document.createElement("a");
     youtube.className = "bi-social-link bi-social-youtube";
     youtube.href = YOUTUBE_URL;
     youtube.target = "_blank";
     youtube.rel = "noopener noreferrer";
-    youtube.setAttribute("aria-label", t("nav.openYoutube","BetInsight Club auf YouTube öffnen"));
-    youtube.title = t("nav.openYoutube","BetInsight Club auf YouTube öffnen");
+    youtube.setAttribute("aria-label", t("nav.openYoutube",socialText("BetInsight Club auf YouTube öffnen","Open BetInsight Club on YouTube")));
+    youtube.title = t("nav.openYoutube",socialText("BetInsight Club auf YouTube öffnen","Open BetInsight Club on YouTube"));
     youtube.innerHTML = '<svg class="bi-social-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5.2" width="20" height="13.6" rx="4.2" fill="#ff0033"/><path d="M10 8.7 16 12l-6 3.3Z" fill="#fff"/></svg>';
-    links.appendChild(youtube);
+
+    const telegram = document.createElement("a");
+    telegram.className = "bi-social-link bi-social-telegram";
+    telegram.href = TELEGRAM_URL;
+    telegram.target = "_blank";
+    telegram.rel = "noopener noreferrer";
+    const telegramLabel = socialText("BetInsight Club auf Telegram öffnen","Open BetInsight Club on Telegram");
+    telegram.setAttribute("aria-label", telegramLabel);
+    telegram.title = telegramLabel;
+    telegram.innerHTML = '<svg class="bi-social-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#229ED9"/><path d="M17.6 7.3 15 17c-.2.7-.8.9-1.4.5l-4-3-1.9 1.8c-.2.2-.4.4-.8.4l.3-4.1 7.4-6.7c.3-.3-.1-.5-.5-.2l-9.1 5.7-3.9-1.2c-.8-.3-.9-.9.2-1.3l15.2-5.9c.7-.3 1.4.2 1.1 1.4Z" fill="#fff"/></svg>';
+
+    links.append(youtube,telegram);
     footer.appendChild(links);
     page.appendChild(footer);
   }
@@ -360,7 +379,7 @@
     toggle = document.createElement("button");
     toggle.type = "button";
     toggle.className = "bi-nav-mobile-toggle";
-    toggle.setAttribute("aria-label", t("nav.openMenu","BetInsight-Menü öffnen"));
+    toggle.setAttribute("aria-label", t("nav.openMenu",socialText("BetInsight-Menü öffnen","Open BetInsight menu")));
     toggle.setAttribute("aria-expanded", "false");
     toggle.setAttribute("aria-controls", "bi-nav-sidebar");
     toggle.textContent = "☰";
@@ -372,7 +391,7 @@
     sidebar = document.createElement("aside");
     sidebar.id = "bi-nav-sidebar";
     sidebar.className = "bi-nav-sidebar";
-    sidebar.setAttribute("aria-label", t("nav.appNavigation","BetInsight App-Navigation"));
+    sidebar.setAttribute("aria-label", t("nav.appNavigation",socialText("BetInsight App-Navigation","BetInsight app navigation")));
 
     const brand = document.createElement("div");
     brand.className = "bi-nav-brand";
@@ -385,13 +404,13 @@
     closeButton = document.createElement("button");
     closeButton.type = "button";
     closeButton.className = "bi-nav-close";
-    closeButton.setAttribute("aria-label", t("nav.closeMenu","Menü schließen"));
+    closeButton.setAttribute("aria-label", t("nav.closeMenu",socialText("Menü schließen","Close menu")));
     closeButton.textContent = "×";
     brand.append(logo, closeButton);
 
     const list = document.createElement("nav");
     list.className = "bi-nav-list";
-    list.setAttribute("aria-label", t("nav.mainNavigation","Hauptnavigation"));
+    list.setAttribute("aria-label", t("nav.mainNavigation",socialText("Hauptnavigation","Main navigation")));
     navigation.forEach(item => list.appendChild(item.children ? createGroup(item) : createDirectLink(item)));
 
     const footer = document.createElement("div");
@@ -405,7 +424,7 @@
     logout.style.cursor = "pointer";
     logout.style.fontFamily = "inherit";
     logout.style.textAlign = "left";
-    logout.innerHTML = `<span class="bi-nav-settings-icon" aria-hidden="true">↪</span><span>${t("nav.logout","Ausloggen")}</span>`;
+    logout.innerHTML = `<span class="bi-nav-settings-icon" aria-hidden="true">↪</span><span>${t("nav.logout",socialText("Ausloggen","Log Out"))}</span>`;
     logout.addEventListener("click", logoutUser);
 
     const settings = document.createElement("a");
@@ -413,7 +432,7 @@
     settings.href = ACCOUNT_SETTINGS_URL;
     settings.target = "_blank";
     settings.rel = "noopener noreferrer";
-    settings.innerHTML = `<span class="bi-nav-settings-icon" aria-hidden="true">⚙</span><span>${t("nav.accountSettings","Kontoeinstellungen")}</span>`;
+    settings.innerHTML = `<span class="bi-nav-settings-icon" aria-hidden="true">⚙</span><span>${t("nav.accountSettings",socialText("Kontoeinstellungen","Account Settings"))}</span>`;
 
     const caption = document.createElement("span");
     caption.className = "bi-nav-footer-caption";
