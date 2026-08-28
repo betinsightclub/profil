@@ -1,0 +1,23 @@
+{
+  "mySaleOffersPage": {
+    "title":"Meine Verkaufsangebote | BetInsight Club",
+    "heading":"Meine Verkaufsangebote",
+    "intro":"Hier siehst du deine aktuell aktiven oder für einen Käufer reservierten Verkaufsangebote. Die Übersicht ist nur lesend.",
+    "current":"Aktuell im Verkauf",
+    "currentCopy":"Aktive und momentan reservierte Angebote.",
+    "loadingCount":"Lade …",
+    "loading":"Deine Verkaufsangebote werden geladen.",
+    "note":"Diese Seite verändert keine Units, Gebühren oder Angebote. Eine Storno-Funktion ist noch nicht freigeschaltet.",
+    "newOffer":"Neues Verkaufsangebot erstellen",
+    "offerOne":"{{count}} Angebot",
+    "offerMany":"{{count}} Angebote",
+    "empty":"Aktuell hast du keine eigenen Verkaufsangebote im Verkauf oder reserviert.",
+    "offerFallback":"Angebot",
+    "unitPrice":"Preis pro Unit",
+    "totalPrice":"Gesamtpreis",
+    "reserved":"Für Käufer reserviert",
+    "active":"Aktiv im Verkauf",
+    "missingAccess":"Dein persönlicher Dashboard-Zugang ist auf diesem Gerät noch nicht verfügbar. Öffne die Seite bitte über dein BetInsight-Profil.",
+    "loadError":"Deine Verkaufsangebote konnten gerade nicht geladen werden. Bitte versuche es erneut."
+  }
+}

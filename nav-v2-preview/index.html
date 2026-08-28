@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#071019">
+  <title>BetInsight Navigation v2 Preview</title>
+  <link rel="stylesheet" href="../assets/app-navigation.css">
+  <script src="../assets/app-navigation-v2.js" defer></script>
+  <style>
+    :root{--bg:#071019;--panel:#0d1a26;--line:rgba(145,166,183,.18);--text:#f4f8fb;--muted:#91a6b7;--accent:#25e6a7;--blue:#59a8ff}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 15% 0%,rgba(37,230,167,.12),transparent 30rem),radial-gradient(circle at 90% 10%,rgba(89,168,255,.12),transparent 32rem),var(--bg)}
+    main{width:min(calc(100% - 32px),1000px);margin:0 auto;padding:48px 0 64px}.badge{display:inline-flex;padding:7px 11px;border:1px solid rgba(37,230,167,.28);border-radius:999px;color:#bff9e7;background:rgba(37,230,167,.07);font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}h1{font-size:clamp(34px,6vw,58px);line-height:1.05;margin:16px 0 12px;letter-spacing:-.04em}.lead{max-width:760px;color:var(--muted);font-size:17px;line-height:1.7}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:32px}.card{padding:22px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(155deg,rgba(18,36,51,.95),rgba(13,26,38,.98));box-shadow:0 18px 46px rgba(0,0,0,.22)}.card h2{margin:0 0 10px;font-size:18px}.card p{margin:0;color:var(--muted);line-height:1.6}.status{margin-top:18px;padding:13px 15px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.03);font-weight:750}.ok{border-color:rgba(37,230,167,.32);color:#c9ffed}.warn{border-color:rgba(255,200,87,.32);color:#ffe4a1}@media(max-width:720px){main{padding-top:30px}.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">Feature Branch Preview</span>
+    <h1>BetInsight Navigation v2</h1>
+    <p class="lead">Isolierter Test der zentralen Navigation. Die Seite lädt nur <code>app-navigation-v2.js</code>; Session- und Sprachkern werden automatisch nachgeladen. Die produktiven deutschen Seiten verwenden weiterhin die bisherige Navigation.</p>
+
+    <div class="grid">
+      <section class="card">
+        <h2 data-bi-i18n="nav.network">Netzwerk & Provisionen</h2>
+        <p>Der Sprachschalter im Menü verwendet dieselben zentralen Locale-Dateien wie spätere Kundenseiten.</p>
+      </section>
+      <section class="card">
+        <h2 data-bi-i18n="nav.exchange">Unit-Wechselstube</h2>
+        <p>Interne Routen werden ohne Dashboard-UUID in der URL erzeugt. Ohne lokal gespeicherten Zugang wird nur eine Meldung gezeigt.</p>
+      </section>
+      <section class="card">
+        <h2 data-bi-i18n="nav.marketingCenter">Marketing-Center</h2>
+        <p>Spätere Sprachen werden über die zentrale Manifest-/Locale-Struktur ergänzt, nicht durch Kopieren der Seite.</p>
+      </section>
+      <section class="card">
+        <h2 data-bi-i18n="nav.support">Support</h2>
+        <p>Premium Network bleibt in dieser Testgeneration bewusst gesperrt, bis der domainübergreifende Zugriff ohne sichtbaren Dashboard-Zugang gelöst ist.</p>
+      </section>
+    </div>
+
+    <div id="urlStatus" class="status">URL-Sicherheitsprüfung …</div>
+    <div id="langStatus" class="status">Sprachstatus …</div>
+  </main>
+
+  <script>
+    (()=>{
+      const sensitive=["dashboard_token","id"];
+      const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      function render(){
+        const params=new URLSearchParams(location.search);
+        const bad=sensitive.some(k=>params.has(k)) || uuid.test(String(params.get("token")||""));
+        const url=document.getElementById("urlStatus");
+        url.className="status "+(bad?"warn":"ok");
+        url.textContent=bad?"⚠ Sensibler Dashboard-Zugang steht noch in der URL.":"✓ Kein Dashboard-Token in der sichtbaren URL.";
+        const lang=document.getElementById("langStatus");
+        const current=window.BetInsightI18n?.getLanguage?.()||document.documentElement.lang||"de";
+        lang.className="status ok";
+        lang.textContent="Aktive Sprache: "+current.toUpperCase();
+      }
+      window.addEventListener("bi:languagechange",render);
+      window.addEventListener("load",()=>setTimeout(render,200));
+    })();
+  </script>
+</body>
+</html>
