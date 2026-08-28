@@ -122,8 +122,19 @@
     return false;
   }
 
+  function requireProfileAccess() {
+    if (session()?.hasProfileAccess()) return true;
+    showMessage(t("session.profileMissing", "Der persönliche Profilzugang ist für diese Seite noch nicht verfügbar."));
+    return false;
+  }
+
   function navigateProtected(segment = "", options = {}) {
     if (!requireDashboardAccess()) return;
+    session().navigateLocal(segment, options);
+  }
+
+  function navigateProfileProtected(segment = "", options = {}) {
+    if (!requireProfileAccess()) return;
     session().navigateLocal(segment, options);
   }
 
@@ -157,7 +168,7 @@
     switch (id) {
       case "dashboard": navigateProtected(""); break;
       case "daily": navigateProtected("daily"); break;
-      case "tipps": navigateProtected("tipps"); break;
+      case "tipps": navigateProfileProtected("tipps"); break;
       case "freigeschaltet": navigateProtected("freigeschaltet"); break;
       case "kaufen": navigateProtected("pakete"); break;
       case "wechselboerse": navigateProtected("wechselboerse"); break;
