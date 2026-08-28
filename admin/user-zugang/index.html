@@ -1,0 +1,153 @@
+<!doctype html>
+<!--
+BetInsight · User-Profilzugang verwalten
+Pfad: /admin/user-zugang/
+Stand: 28.08.2026
+
+Sicherheit:
+- Nur mit gültiger MASTER-Admin-Session nutzbar.
+- Der bestehende Dashboard-/Profilzugang eines Users wird bei Erneuerung serverseitig ersetzt.
+- Alte Profillinks werden dadurch ungültig.
+- Referral-Code, User-ID, Units und normaler Profil-Token werden nicht verändert.
+-->
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#061d2a">
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico">
+  <title>BetInsight · User-Profilzugang</title>
+  <style>
+    :root{color-scheme:dark;--bg1:#0b3b55;--bg2:#061d2a;--bg3:#031018;--panel:rgba(9,45,64,.96);--panel2:rgba(5,30,43,.96);--line:rgba(0,218,255,.28);--text:#fff;--muted:#b9d8e8;--blue:#16a8f5;--blue2:#0879bb;--green:#00d48a;--green2:#079663;--yellow:#ffda76;--red:#ff7d86;--red2:#9d2f39;--shadow:0 18px 48px rgba(0,0,0,.36)}*{box-sizing:border-box}html{min-height:100%}body{margin:0;min-height:100vh;padding:28px 16px 60px;background:radial-gradient(circle at top,var(--bg1) 0%,var(--bg2) 46%,var(--bg3) 100%);color:var(--text);font-family:Inter,Arial,sans-serif}button,input,a{font:inherit}.page{width:min(100%,920px);margin:0 auto}.logo{display:block;width:160px;max-width:58vw;height:auto;margin:4px auto 24px}.topbar,.card{border:1px solid var(--line);border-radius:20px;background:var(--panel);box-shadow:var(--shadow)}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px;margin-bottom:18px}.eyebrow{margin:0 0 5px;color:var(--green);font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}h1,h2,p{margin-top:0}h1{margin-bottom:5px;font-size:clamp(25px,4vw,34px)}h2{margin-bottom:8px;font-size:21px}.muted{color:var(--muted);line-height:1.55}.back{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 13px;border:1px solid rgba(185,216,232,.24);border-radius:11px;background:rgba(255,255,255,.06);color:#fff;text-decoration:none;font-weight:800}.card{padding:24px;margin-top:16px}.search-grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px}.input{width:100%;min-height:50px;padding:12px 14px;border:1px solid rgba(0,218,255,.38);border-radius:12px;outline:none;background:#061d2a;color:#fff}.input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(22,168,245,.15)}.button{min-height:48px;padding:11px 17px;border:0;border-radius:12px;color:#fff;font-weight:900;cursor:pointer}.button:disabled{cursor:not-allowed;opacity:.55}.primary{background:linear-gradient(135deg,var(--blue),var(--blue2))}.danger{background:linear-gradient(135deg,#e95e68,var(--red2))}.green{background:linear-gradient(135deg,var(--green),var(--green2));color:#03291e}.status{min-height:22px;margin-top:13px;color:var(--yellow);font-size:13px;line-height:1.5}.status.error{color:#ff9da5}.status.success{color:#8cf5cf}.user-card{display:none}.user-card.visible{display:block}.user-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:17px}.datum{min-width:0;padding:13px;border:1px solid rgba(185,216,232,.13);border-radius:12px;background:rgba(1,15,23,.30)}.datum span{display:block;margin-bottom:5px;color:var(--muted);font-size:11px;font-weight:800;text-transform:uppercase}.datum strong{display:block;overflow-wrap:anywhere}.warning{margin-top:18px;padding:15px 16px;border:1px solid rgba(255,218,118,.29);border-radius:13px;background:rgba(255,218,118,.07);color:#ffe7a2;font-size:13px;line-height:1.55}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.result-box{display:none;margin-top:18px;padding:17px;border:1px solid rgba(0,212,138,.34);border-radius:14px;background:rgba(0,212,138,.08)}.result-box.visible{display:block}.link-box{width:100%;margin-top:10px;padding:12px 13px;border:1px solid rgba(0,212,138,.25);border-radius:11px;background:#041923;color:#caffed;overflow-wrap:anywhere;user-select:all}.security{margin-top:17px;color:#8eabb9;font-size:12px;line-height:1.55}.lock{display:none;text-align:center;padding:30px}.lock.visible{display:block}.app{display:none}.app.visible{display:block}@media(max-width:680px){body{padding:14px 10px 45px}.topbar{align-items:flex-start;flex-direction:column}.search-grid{grid-template-columns:1fr}.search-grid .button,.actions .button{width:100%}.user-grid{grid-template-columns:1fr}.card{padding:18px}}
+  </style>
+</head>
+<body>
+<main class="page">
+  <img class="logo" src="../../logo_betisight.club.png" alt="BetInsight Club">
+
+  <section id="lock" class="card lock">
+    <h1>Master-Zugang erforderlich</h1>
+    <p id="lockText" class="muted">Deine Admin-Sitzung wird geprüft.</p>
+    <a class="back" href="../">Zum Admin Center</a>
+  </section>
+
+  <div id="app" class="app">
+    <header class="topbar">
+      <div><div class="eyebrow">MASTER · Sicherheit</div><h1>User-Profilzugang</h1><p class="muted" style="margin:0">Kompromittierten Profillink sperren und einen neuen Zugang erzeugen.</p></div>
+      <a class="back" href="../">← Admin Center</a>
+    </header>
+
+    <section class="card">
+      <h2>User suchen</h2>
+      <p class="muted">Gib die BetInsight User-ID oder die registrierte E-Mail-Adresse ein.</p>
+      <div class="search-grid">
+        <input id="userKey" class="input" type="text" autocomplete="off" spellcheck="false" placeholder="z. B. 260000004 oder user@example.com">
+        <button id="lookupButton" class="button primary" type="button">User prüfen</button>
+      </div>
+      <div id="lookupStatus" class="status" role="status" aria-live="polite"></div>
+    </section>
+
+    <section id="userCard" class="card user-card">
+      <h2>Gefundener User</h2>
+      <div class="user-grid">
+        <div class="datum"><span>User-ID</span><strong id="foundUserId">–</strong></div>
+        <div class="datum"><span>E-Mail</span><strong id="foundEmail">–</strong></div>
+        <div class="datum"><span>Referral-Code</span><strong id="foundRef">–</strong></div>
+        <div class="datum"><span>Zugangs-Version</span><strong id="foundVersion">0</strong></div>
+        <div class="datum"><span>Zuletzt erneuert</span><strong id="foundChangedAt">Noch nie</strong></div>
+        <div class="datum"><span>Erneuert von</span><strong id="foundChangedBy">–</strong></div>
+      </div>
+      <div class="warning"><strong>⚠️ Sicherheitsaktion:</strong> „Profilzugang erneuern“ erzeugt eine neue Dashboard-UUID. Der bisherige persönliche Profillink funktioniert danach nicht mehr. User-ID, Referral-Code, Units, Netzwerk und der normale Profil-Token bleiben unverändert.</div>
+      <div class="actions"><button id="rotateButton" class="button danger" type="button">🔐 Profilzugang erneuern</button></div>
+      <div id="rotateStatus" class="status" role="status" aria-live="polite"></div>
+      <div id="resultBox" class="result-box">
+        <strong>✅ Neuer Profillink aktiv</strong>
+        <p class="muted" style="margin:8px 0 0">Der alte Profillink ist ungültig. Sende ausschließlich diesen neuen Link an den User.</p>
+        <div id="newProfileLink" class="link-box"></div>
+        <div class="actions"><button id="copyButton" class="button green" type="button">📋 Neuen Profillink kopieren</button></div>
+      </div>
+      <p class="security">Der neue geheime Zugang wird nur nach ausdrücklicher Bestätigung erzeugt. Die Aktion wird im Master-Protokoll dokumentiert. Historische Buchungen werden nicht umgeschrieben.</p>
+    </section>
+  </div>
+</main>
+
+<script>
+(() => {
+  'use strict';
+  const AUTH_API_URL='https://hook.eu1.make.com/rfmhuu4fkr9kjsv7o15r2kir8ezbersl';
+  const SESSION_KEY='betinsight_admin_session_v1';
+  const $=id=>document.getElementById(id);
+  let verifiedSession=null,currentUser=null,busy=false;
+
+  function readSession(){try{const raw=sessionStorage.getItem(SESSION_KEY);if(!raw)return null;const data=JSON.parse(raw);return data&&data.token&&data.adminId?data:null}catch(e){return null}}
+  function expired(s){return !Number(s?.expiresMs||0)||Date.now()>=Number(s.expiresMs)}
+  function master(s){return String(s?.master||'').toUpperCase()==='JA'||String(s?.role||'').toUpperCase()==='MASTER'}
+  function hex(bytes){return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('')}
+  async function sha256(text){const d=new TextEncoder().encode(String(text||'')),h=await crypto.subtle.digest('SHA-256',d);return hex(new Uint8Array(h))}
+  function setStatus(id,text,type=''){const el=$(id);el.textContent=text||'';el.className='status'+(type?' '+type:'')}
+  function showLock(text){$('app').classList.remove('visible');$('lock').classList.add('visible');$('lockText').textContent=text}
+  function showApp(){$('lock').classList.remove('visible');$('app').classList.add('visible')}
+
+  async function request(payload){
+    const response=await fetch(AUTH_API_URL,{method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',credentials:'omit',body:JSON.stringify(payload)});
+    const raw=await response.text();
+    let data;
+    try{data=raw?JSON.parse(raw):{}}catch(e){throw new Error(raw==='Accepted'?'Keine passende Berechtigung oder kein User gefunden.':'Der Sicherheitsserver hat keine gültige Antwort geliefert.')}
+    if(!response.ok||data?.ok!==true)throw new Error(data?.message||data?.error||'Anfrage wurde abgelehnt.');
+    return data;
+  }
+
+  async function sessionHash(){if(!verifiedSession?.token)throw new Error('Admin-Sitzung fehlt.');return sha256(verifiedSession.token)}
+
+  async function verify(){
+    const stored=readSession();
+    if(!stored||expired(stored)){showLock('Bitte melde dich zuerst im Admin Center mit deinem persönlichen Admin-Code an.');return}
+    try{
+      const result=await request({action:'verify',session_hash:await sha256(stored.token)});
+      const merged={...stored,adminId:String(result.admin_id||stored.adminId||''),name:String(result.name||stored.name||''),role:String(result.role||stored.role||''),master:String(result.master||stored.master||'NEIN'),expiresMs:Number(result.expires_ms||stored.expiresMs||0)};
+      if(!master(merged)){showLock('Dieser Bereich ist ausschließlich für den Master-Admin freigegeben.');return}
+      verifiedSession=merged;sessionStorage.setItem(SESSION_KEY,JSON.stringify(merged));showApp();$('userKey').focus();
+    }catch(e){showLock('Die sichere Master-Session konnte nicht bestätigt werden. Bitte öffne das Admin Center und melde dich erneut an.')}
+  }
+
+  async function lookup(){
+    if(busy)return;
+    const key=String($('userKey').value||'').trim();
+    if(!key){setStatus('lookupStatus','Bitte User-ID oder E-Mail-Adresse eingeben.','error');return}
+    busy=true;$('lookupButton').disabled=true;$('userCard').classList.remove('visible');$('resultBox').classList.remove('visible');setStatus('lookupStatus','User wird sicher geprüft …');
+    try{
+      const data=await request({action:'profile_access_lookup',session_hash:await sessionHash(),user_key:key});
+      currentUser=data;
+      $('foundUserId').textContent=data.user_id||'–';$('foundEmail').textContent=data.email||'–';$('foundRef').textContent=data.ref_code||'–';$('foundVersion').textContent=String(data.profilzugang_version||0);$('foundChangedAt').textContent=data.profilzugang_geaendert_am||'Noch nie';$('foundChangedBy').textContent=data.profilzugang_geaendert_von||'–';
+      $('userCard').classList.add('visible');setStatus('lookupStatus','User gefunden. Bitte Daten vor einer Erneuerung prüfen.','success');setStatus('rotateStatus','');
+    }catch(e){currentUser=null;setStatus('lookupStatus',e.message||'User konnte nicht gefunden werden.','error')}
+    finally{busy=false;$('lookupButton').disabled=false}
+  }
+
+  function requestId(){const a=new Uint32Array(2);crypto.getRandomValues(a);return `PROFILE-ROTATE-${Date.now()}-${a[0].toString(36)}${a[1].toString(36)}`.toUpperCase()}
+
+  async function rotate(){
+    if(busy||!currentUser)return;
+    const label=[currentUser.user_id,currentUser.email].filter(Boolean).join(' · ');
+    const ok=window.confirm(`Profilzugang für ${label} wirklich erneuern?\n\nDer bisherige Profillink wird sofort ungültig. Diese Aktion kann nicht rückgängig gemacht werden.`);
+    if(!ok)return;
+    const newToken=crypto.randomUUID();
+    busy=true;$('rotateButton').disabled=true;$('resultBox').classList.remove('visible');setStatus('rotateStatus','Neuer Profilzugang wird erzeugt und bestehende Zuordnungen werden synchronisiert …');
+    try{
+      const data=await request({action:'profile_access_rotate',session_hash:await sessionHash(),user_key:currentUser.user_id||currentUser.email,new_dashboard_token:newToken,request_id:requestId(),reason:'Profil-Link kompromittiert oder versehentlich geteilt'});
+      const link=String(data.new_profile_link||'').trim();
+      if(!link)throw new Error('Der Zugang wurde nicht vollständig bestätigt. Bitte nicht weitergeben und den Vorgang prüfen.');
+      $('newProfileLink').textContent=link;$('foundVersion').textContent=String(data.profilzugang_version||Number(currentUser.profilzugang_version||0)+1);$('foundChangedAt').textContent='soeben';$('foundChangedBy').textContent=verifiedSession.adminId||'MASTER';$('resultBox').classList.add('visible');setStatus('rotateStatus','✅ Profilzugang erfolgreich erneuert. Der alte Profillink ist ungültig.','success');currentUser={...currentUser,profilzugang_version:data.profilzugang_version};
+    }catch(e){setStatus('rotateStatus',e.message||'Profilzugang konnte nicht erneuert werden.','error')}
+    finally{busy=false;$('rotateButton').disabled=false}
+  }
+
+  async function copyLink(){const value=$('newProfileLink').textContent.trim();if(!value)return;try{await navigator.clipboard.writeText(value);$('copyButton').textContent='✅ Kopiert';setTimeout(()=>$('copyButton').textContent='📋 Neuen Profillink kopieren',1600)}catch(e){window.prompt('Neuen Profillink kopieren:',value)}}
+
+  $('lookupButton').addEventListener('click',lookup);$('userKey').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();lookup()}});$('rotateButton').addEventListener('click',rotate);$('copyButton').addEventListener('click',copyLink);
+  verify();
+})();
+</script>
+</body>
+</html>
