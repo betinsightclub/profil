@@ -1,18 +1,19 @@
 # BetInsight Kundenbereich – Mehrsprachigkeits-Migration
 
-Stand: 27.08.2026
+Stand: 28.08.2026
 Branch: `feature/i18n-multilang-safe-v3`
-Status: **WIP / nicht für `main` freigegeben**
+Status: **DE/EN-Code-Migration vollständig · Browser-Regressionsprüfung vor Merge erforderlich**
 
 ## Feste Regeln
 
-1. Die produktive deutsche Seite auf `main` bleibt während der Migration unverändert.
+1. Die produktive deutsche Seite auf `main` bleibt bis zum Abschluss der Regressionstests unverändert.
 2. Admin, Admin-Tipps und Master-Backoffice bleiben deutsch und sind nicht Teil der Übersetzung.
 3. Geschäftslogik, Webhooks, Sheet-Felder, API-Felder und interne IDs werden nicht übersetzt.
-4. Die Dashboard-UUID wird bei neuer Navigation niemals in eine Browser-URL geschrieben.
-5. Alte eingehende UUID-Links dürfen nur als Kompatibilitätsweg eingelesen, lokal gespeichert und sofort aus der sichtbaren URL entfernt werden.
+4. Die Dashboard-UUID wird bei neuer interner Navigation niemals in eine Browser-URL geschrieben.
+5. Alte eingehende UUID-/Token-Links bleiben nur als Kompatibilitätsweg erlaubt: Zugang lokal speichern und sensible Query-Parameter aus der sichtbaren URL entfernen.
 6. Deutsch bleibt der Fallback, falls eine Übersetzung fehlt oder eine Locale nicht geladen werden kann.
 7. Neue Sprachen erzeugen keine Kopien des kompletten Kundenbereichs.
+8. `betinsight.network` erhält keinen Rückfall auf UUID-/Token-Parameter. Der Premium-Network-Weg bleibt gesperrt, bis ein eigener sicherer Cross-Origin-Handoff vorhanden und getestet ist.
 
 ## Zielarchitektur
 
@@ -24,99 +25,126 @@ Die sichtbare Sprache wird zentral über `betinsight_language` gesteuert. Die Se
 
 ### Zentrale Dateien
 
-- `assets/i18n/core-v2.js` – Sprachkern
+- `assets/i18n/core-v2.js` – zentraler Sprachkern
 - `assets/i18n/locales/manifest.json` – registrierte Sprachen
-- `assets/i18n/locales/de.json` – deutsche Texte / Fallback
-- `assets/i18n/locales/en.json` – englische Texte
-- `assets/app-session.js` – lokaler Dashboard-Sitzungshelfer
-- `assets/app-navigation-next.js` – vorbereitete tokenfreie Navigation
+- `assets/i18n/locales/de.json` – deutsche Basistexte / Fallback
+- `assets/i18n/locales/en.json` – englische Basistexte
+- `assets/i18n/pages/*/de.json` und `en.json` – umfangreiche Seitentexte, wo ein eigener Scope sinnvoll ist
+- `assets/app-session.js` – lokaler Profil-/Dashboard-Sitzungshelfer
+- `assets/app-navigation-v2.js` – mehrsprachige tokenfreie Same-Origin-Navigation
+- `assets/app-navigation.js` – Kompatibilitätsloader für bestehende Kundenseiten
+- `assets/i18n/dashboard-legacy.js` – Übersetzungsadapter für das große bestehende Hauptdashboard, ohne dessen Geschäftslogik neu zu schreiben
 
-### Weitere Sprache ergänzen
+## Fertig migrierte Kundenbereiche DE/EN
 
-Beispiel Spanisch:
+- Konto & Zugang (`/konto/`)
+- Hauptdashboard / Profil & Empfehlungscenter (`/`)
+- Daily Bonus (`/daily/`)
+- Neue Tipps (`/tipps/`)
+- Freigeschaltete Tipps (`/freigeschaltet/`)
+- Unit-Pakete (`/pakete/`)
+- Units kaufen (`/kaufen/`)
+- Unit-Wechselstube (`/wechselboerse/`)
+- Angebote kaufen (`/wechselboerse/angebote/`)
+- Units verkaufen / eigene Angebote (`/verkaufen/`)
+- Wallet (`/wallet/`)
+- Wettanbieter (`/anbieter/`)
+- Marketing-Center (`/marketing-center/`)
+- Support (`/support/`)
+- zentrale App-Navigation einschließlich Sprachumschaltung
 
-1. `assets/i18n/locales/es.json` hinzufügen.
-2. In `assets/i18n/locales/manifest.json` `"es"` ergänzen.
-3. Keine Kunden-HTML muss deshalb kopiert werden.
-4. Nur neue Seitentexte müssen im gemeinsamen Sprachschlüssel-Schema übersetzt werden.
+Adminbereiche wurden absichtlich nicht angefasst.
 
-## Pilot 1 – Konto & Zugang
+## Technische Leitplanken der Migration
 
-`konto/index.html` wurde ausschließlich auf dem Feature-Branch als erster echter Pilot umgestellt.
+### Dashboard-/Profilzugang
 
-Der Pilot enthält:
+`assets/app-session.js` trennt:
 
-- sichtbaren `DE | EN` Sprachschalter,
-- Speicherung der gewählten Sprache im Browser,
-- zentrale deutsche und englische Texte,
-- lokalisierte dynamische Status- und Fehlermeldungen,
-- unveränderten Webhook für die Anforderung des persönlichen Zugangslinks,
-- unveränderte Referral-Weitergabe bei Registrierung,
-- saubere Same-Origin-Navigation ohne Dashboard-UUID in der erzeugten URL,
-- Sperre des Premium-Network-Übergangs, solange dafür noch keine geprüfte tokenfreie Cross-Origin-Übergabe existiert.
+- `betinsight_dashboard_token` – Dashboard-UUID
+- `betinsight_profile_token` – normaler Profilzugang
 
-Die produktive Datei auf `main` wurde nicht verändert.
-
-## Dashboard-UUID-Regel
-
-Neue Navigation darf keine dieser Formen erzeugen:
+Neue Same-Origin-Navigation verwendet nur Pfade und Hashes. Sie erzeugt keine URLs der Formen:
 
 - `?dashboard_token=<UUID>`
 - `?id=<UUID>`
 - `?token=<UUID>`
 
-Die UUID liegt nach erfolgreichem Zugang ausschließlich lokal unter `betinsight_dashboard_token` und wird von den Kundenbereichen aus diesem Speicher gelesen.
+Alte bereits versendete Links dürfen beim Einstieg weiterhin erkannt werden. Der Wert wird lokal übernommen; sensible Parameter werden anschließend aus der sichtbaren URL entfernt.
 
-Alte Lesewege bleiben während der Migration nur für bereits versendete oder gespeicherte Altlinks bestehen. Bei deren Aufruf muss die UUID sofort aus der Adresszeile entfernt werden.
+### Neue Tipps
 
-## Premium Network
+`/tipps/` benötigt weiterhin den normalen Profilzugang, da die bestehende Tipp-/Freischaltlogik damit arbeitet. Die neue Navigation darf deshalb nicht so tun, als reiche eine allein gespeicherte Dashboard-UUID für diesen Bereich aus. Das ist Teil der Regressionstest-Matrix.
+
+### Premium Network
 
 `betinsight.network` liegt auf einer anderen Origin. `localStorage` von `app.betinsight.club` kann dort nicht direkt gelesen werden.
 
-Deshalb wird **keine** Zwischenlösung verwendet, die die Dashboard-UUID wieder an die URL hängt. Vor Freigabe dieses Bereichs ist ein eigener sicherer Handoff nötig, zum Beispiel ein kurzlebiger Einmalcode, der serverseitig gegen die bereits bestätigte Sitzung ausgestellt wird.
+Deshalb ist im neuen Menü **keine Zwischenlösung mit UUID in der URL** erlaubt. `Premium-Provisionen` bleibt im neuen Navigationsweg mit einem verständlichen Migrationshinweis gesperrt, bis ein sicherer Handoff verfügbar ist, zum Beispiel:
 
-Bis dieser Handoff implementiert und getestet ist, bleibt der neue Premium-Network-Weg gesperrt.
+1. bereits bestätigte App-Sitzung serverseitig prüfen,
+2. kurzlebigen Einmalcode ausstellen,
+3. nur diesen Einmalcode an `betinsight.network` übergeben,
+4. Code dort einmalig gegen die bestätigte Sitzung tauschen,
+5. Code sofort ungültig machen.
 
-## Reihenfolge nach Pilot 1
+## Weitere Sprache ergänzen
 
-1. Pilot `Konto & Zugang` statisch und im Browser testen.
-2. Zentrale neue Navigation auf dem Feature-Branch mit einer echten Kunden-Unterseite testen.
-3. Hauptdashboard mehrsprachig vorbereiten.
-4. Daily, Tipps, Freigeschaltete Tipps und Unit-Pakete.
-5. Wechselstube, Angebote, Verkaufen und Wallet.
-6. Wettanbieter, Marketing-Center und Support.
-7. `betinsight.network` erst nach sicherem Cross-Origin-Handoff.
-8. Gesamttest DE/EN Desktop + Mobil.
-9. Erst danach kontrollierte Übernahme nach `main`.
+Beispiel Spanisch:
 
-## Mindest-Testmatrix vor Merge
+1. `assets/i18n/locales/es.json` hinzufügen.
+2. In `assets/i18n/locales/manifest.json` `es` registrieren.
+3. Für große Seitenscopes die entsprechenden `assets/i18n/pages/<scope>/es.json` ergänzen.
+4. Keine Kunden-HTML als spanische Kopie anlegen.
+5. Dynamische Texte ebenfalls über vorhandene Sprachschlüssel führen.
 
-### Deutsch
-- alle bisher sichtbaren deutschen Texte fachlich unverändert,
+Damit bleibt die Architektur für weitere Sprachen skalierbar.
+
+## Noch nicht freigegeben: Merge nach `main`
+
+Die Code-Migration ist auf dem Feature-Branch vollständig, aber ein Merge nach `main` erfolgt erst nach einem echten Browser-Regressionslauf.
+
+### Mindest-Testmatrix vor Merge
+
+#### Deutsch
+- Dashboard und alle Kunden-Unterseiten öffnen,
+- bisher sichtbare deutsche Texte fachlich unverändert,
+- Profil-/Dashboard-Zugang wird erkannt,
 - E-Mail-Zugangslink anfordern funktioniert,
-- gespeicherter Zugang wird erkannt,
-- Referral-Code wird weitergegeben,
-- keine neue Fehlermeldung oder Sackgasse.
+- Referral-Code und Empfehlungslinks stimmen,
+- Units, Tippfreischaltung, Ergebnisse, Wallet, Verkauf, Angebote, Daily und Support funktionieren unverändert,
+- Premium-/Telegram-Bereiche verhalten sich wie vor der Übersetzung.
 
-### Englisch
-- alle sichtbaren Pilottexte wechseln auf Englisch,
-- dynamische Texte wechseln ebenfalls,
-- E-Mail-Feld, Buttons und Statusmeldungen sind übersetzt,
-- Umschalten zurück auf Deutsch funktioniert ohne Reload.
+#### Englisch
+- Sprache auf EN umschalten und mehrere Seiten nacheinander öffnen,
+- Sprachwahl bleibt nach Navigation und Reload gespeichert,
+- statische Texte, Pop-ups, Status-, Fehler- und Erfolgsmeldungen sind Englisch,
+- lange englische Texte laufen auf Desktop und Mobil nicht über,
+- dynamisch geladene Tipps, Ergebnisse, Netzwerkdaten und Supportinhalte behalten Datenwerte/IDs unverändert und übersetzen nur die Oberfläche.
 
-### Sprache
-- Auswahl bleibt nach Seitenreload gespeichert,
-- unbekannte/fehlende Locale fällt auf Deutsch zurück,
-- spätere Sprache kann über Manifest + neue JSON ergänzt werden.
+#### Sprache
+- DE → EN → DE ohne Datenverlust,
+- Auswahl bleibt gespeichert,
+- fehlende Locale fällt auf Deutsch zurück,
+- Seitenscopes laden ohne 404-/JSON-Fehler.
 
-### Sicherheit
-- keine neu erzeugte URL enthält die Dashboard-UUID,
-- Legacy-UUID wird sofort aus der Adresszeile entfernt,
-- Premium-Network-Handoff erzeugt keine UUID-URL,
-- Backend-Feldnamen und Webhook-Payloads bleiben unverändert.
+#### Sicherheit
+- interne Navigation erzeugt keine UUID-/Profilzugang-Query in der Browserzeile,
+- alte Zugangslinks werden übernommen und aus der sichtbaren URL bereinigt,
+- API-/Webhook-Anfragen dürfen die für das Backend erforderlichen Authentifizierungswerte weiterhin serverseitig senden; diese Regel betrifft die sichtbare Browser-Navigation,
+- Premium-Network-Handoff erzeugt keine UUID-URL und bleibt bis zur sicheren Übergabe gesperrt.
 
-### Darstellung
+#### Darstellung
 - Desktop,
 - Smartphone,
-- lange englische Texte ohne Überlauf,
-- Sprachschalter erreichbar und tastaturbedienbar.
+- Menü offen/geschlossen,
+- Pop-ups und Dialoge,
+- Tabellen und Netzwerkebenen,
+- Unit-Pakete,
+- Wettanbieter-Karten,
+- Support-Threads,
+- lange englische Button- und Hinweistexte.
+
+## Merge-Regel
+
+Erst wenn die Testmatrix ohne kritischen Fehler abgeschlossen ist, wird PR #6 von Draft/WIP auf mergefähig gesetzt und kontrolliert nach `main` übernommen. Bis dahin bleibt die produktive deutsche Seite unverändert.
