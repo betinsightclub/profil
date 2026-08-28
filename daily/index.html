@@ -122,12 +122,26 @@
   }
   function confetti(){const host=$('confetti');for(let i=0;i<34;i++){const n=document.createElement('i');n.style.left=(Math.random()*100)+'vw';n.style.background=['#0edca6','#169cff','#ffc14d','#fff'][i%4];n.style.setProperty('--x',((Math.random()-.5)*220)+'px');n.style.animationDelay=(Math.random()*.25)+'s';host.appendChild(n);setTimeout(()=>n.remove(),1900)}}
   function setDigits(number,win=false){const digits=String(number||'0000').padStart(4,'0').slice(-4).split('');for(let i=0;i<4;i++){const el=$('d'+i);el.textContent=digits[i];el.classList.remove('spin');el.classList.toggle('win',win)}}
-  async function animate(number){
-    const digits=String(number).padStart(4,'0').slice(-4).split('');
+  function startRollers(){
     const els=[0,1,2,3].map(i=>$('d'+i));
     els.forEach(e=>{e.classList.add('spin');e.classList.remove('win')});
     const timers=els.map(e=>setInterval(()=>e.textContent=Math.floor(Math.random()*10),65));
-    for(let i=0;i<4;i++){await new Promise(r=>setTimeout(r,520+i*180));clearInterval(timers[i]);els[i].textContent=digits[i];els[i].classList.remove('spin');els[i].classList.add('win')}
+    return {els,timers};
+  }
+  function stopRollers(state){
+    if(!state)return;
+    state.timers.forEach(clearInterval);
+    state.els.forEach(e=>e.classList.remove('spin'));
+  }
+  async function finishRollers(number,state){
+    const digits=String(number).padStart(4,'0').slice(-4).split('');
+    for(let i=0;i<4;i++){
+      await new Promise(r=>setTimeout(r,260+i*120));
+      clearInterval(state.timers[i]);
+      state.els[i].textContent=digits[i];
+      state.els[i].classList.remove('spin');
+      state.els[i].classList.add('win');
+    }
   }
   function setBoxState(pending,openedBonus=null){
     boxPending=!!pending;
@@ -196,15 +210,23 @@
   }
   async function liveClaim(){
     const token=getAccessToken();if(!token)throw new Error('Bitte öffne Daily über dein BetInsight-Profil.');
-    const data=await postDaily({token,request_id:requestId()});
+    const rollerState=startRollers();
+    let data;
+    try{
+      data=await postDaily({token,request_id:requestId()});
+    }catch(e){
+      stopRollers(rollerState);
+      throw e;
+    }
     if(data.status==='success'){
-      await animate(data.daily_number);
+      await finishRollers(data.daily_number,rollerState);
       $('result').innerHTML=`<div><strong>Deine Glücksnummer: ${data.daily_number}</strong><span class="bonus">+ ${Number(data.bonus_units??data.total_bonus_units??0).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})} Geschenk-Units</span></div>`;
       applyResult(data);
       if(asBool(data.box_pending))setBoxState(true);
       if(Number(data.bonus_units??0)>=.5)confetti();
       return;
     }
+    stopRollers(rollerState);
     if(data.status==='already_claimed'||data.status==='duplicate_request'){
       const cached={can_claim:false,next_claim_at:data.next_claim_at||'',streak_total:Number(data.streak_total||0),cycle_day:Number(data.cycle_day||1),loyalty_level:data.loyalty_level||'Starter',last_number:data.last_number||'',last_bonus_units:Number(data.last_bonus_units??0),box_pending:asBool(data.box_pending),box_pending_id:data.box_pending_id||''};
       applyStatus(cached,!!cached.last_number);writeStatusCache(token,cached);
@@ -233,7 +255,7 @@
       boxBusy=false;setBoxState(true);$('treasureText').textContent=String(e.message||e);
     }
   }
-  $('playBtn').addEventListener('click',async()=>{if(busy||!canClaimNow)return;busy=true;$('playBtn').disabled=true;$('result').innerHTML='<div><strong>🍀 Viel Glück – deine Nummer wird gezogen …</strong><span>Die Walzen starten gleich.</span></div>';try{await liveClaim()}catch(e){$('result').innerHTML=`<div><strong>Hinweis</strong><span>${String(e.message||e)}</span></div>`}finally{busy=false;$('playBtn').disabled=!canClaimNow}});
+  $('playBtn').addEventListener('click',async()=>{if(busy||!canClaimNow)return;busy=true;$('playBtn').disabled=true;$('result').innerHTML='<div><strong>🍀 Viel Glück – deine Nummer wird gezogen …</strong><span>Die Walzen laufen bereits, während dein Ergebnis serverseitig berechnet wird.</span></div>';try{await liveClaim()}catch(e){$('result').innerHTML=`<div><strong>Hinweis</strong><span>${String(e.message||e)}</span></div>`}finally{busy=false;$('playBtn').disabled=!canClaimNow}});
   $('boxOpenBtn').addEventListener('click',openTreasureBox);
   $('giftButton').addEventListener('click',openTreasureBox);
   $('modeBadge').textContent='LIVE';
