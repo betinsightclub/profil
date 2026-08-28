@@ -49,8 +49,19 @@
     "boxOpening":"Opening loyalty box …",
     "boxFailed":"The loyalty box could not be opened right now.",
     "goodLuck":"🍀 Good luck – your number is being drawn …",
-    "rollersStart":"The reels are about to start.",
+    "rollersStart":"The reels are already running while your result is being calculated server-side.",
     "notice":"Notice",
-    "responseError":"The Daily response could not be processed right now. Please try again in a moment."
+    "responseError":"The Daily response could not be processed right now. Please try again in a moment.",
+    "historyHeading":"🧾 Daily History",
+    "historySub":"Your last 10 server-recorded draws",
+    "historyLoading":"Loading history …",
+    "historyEmpty":"No Daily entries yet.",
+    "historyError":"History could not be loaded right now.",
+    "historyProof":"These entries come from the BetInsight server log, allowing the lucky number, bonus and booking time to be verified later.",
+    "historyBalanceAfter":"Balance after: {{value}}",
+    "historyStreak":"Streak {{count}}",
+    "historyDay":"Day {{day}}/7",
+    "historyBox":"🎁 Loyalty Box",
+    "historyBoxWithBonus":"🎁 Loyalty Box · {{bonus}} Units"
   }
 }
