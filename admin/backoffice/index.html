@@ -2,7 +2,7 @@
 <!--
 Projekt: BetInsight
 Datei auf GitHub: profil/admin/backoffice/index.html
-Version: 2026.08.26-BACKOFFICE-v2.21-KOSTENBUCH
+Version: 2026.08.28-BACKOFFICE-v2.22-REGISTRIERUNGEN
 Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro Tipp einer Liefer-LED plus einer Ergebnis-LED, Bonuspunkten für Übererfüllung, Tipp-ID-sicherer Wochenhistorie, getrenntem Testbetrieb, Ergebnisübersicht, Wallet-Zielauswahl und festen Netzwerken.
 -->
 <html lang="de">
@@ -2048,6 +2048,11 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
           <p class="muted">
             Deine wichtigsten Vergütungs- und Auszahlungswerte auf einen Blick.
           </p>
+        </div>
+        <div class="model-status-card" style="min-width:190px; flex:0 0 auto;">
+          <span class="model-status-label">Registrierungen gesamt</span>
+          <span class="model-status-value" id="registrationCount">0</span>
+          <span class="route-hint">Echte Registrierungen seit Produktivstart</span>
         </div>
       </div>
 
@@ -5018,6 +5023,10 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       document.getElementById("effectiveFactor").textContent =
         effectiveFactorText.includes("%") ? effectiveFactorText : effectiveFactorText + " %";
       document.getElementById("nextBatchDate").textContent = String(data.next_batch_date || formatGermanDate(getNextBatchDate()));
+      const registrationCount = document.getElementById("registrationCount");
+      if (registrationCount) {
+        registrationCount.textContent = String(Math.max(0, Math.floor(num(data.registrations_total ?? 0))));
+      }
 
       latestBalances = parseJsonValue(data.balances, []);
       latestWallets = mergeWallets(parseJsonValue(data.wallets, []));
