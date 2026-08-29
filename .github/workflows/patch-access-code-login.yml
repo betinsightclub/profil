@@ -20,20 +20,20 @@ jobs:
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
 
-          replacements = {
-            'Fordere deinen Profil-Link per E-Mail an oder trage einen bereits erhaltenen Link direkt ein.': 'Fordere deinen persönlichen Zugangscode per E-Mail an oder gib ihn hier ein.',
-            'Profil-Link anfordern': 'Zugangscode anfordern',
-            '📩 Profil-Link anfordern': '📩 Zugangscode anfordern',
-            'Profil-Link eintragen': 'Zugangscode eingeben',
-            'Link oder Zugangscode aus deiner E-Mail verwenden.': 'Füge den persönlichen Zugangscode aus deiner BetInsight E-Mail ein.',
-            'placeholder="Profil-Link oder Zugangscode"': 'placeholder="Persönlichen Zugangscode eingeben"',
-            '🔓 Persönliches Profil öffnen': '🔓 Mit Zugangscode anmelden',
-            'Profil-Link wird angefordert...': 'Zugangscode wird angefordert...',
-            '✅ Wenn diese E-Mail bei BetInsight registriert ist, wurde der Profil-Link versendet. Bitte prüfe dein E-Mail-Postfach.': '✅ Wenn diese E-Mail bei BetInsight registriert ist, wurde der persönliche Zugangscode versendet. Bitte prüfe dein E-Mail-Postfach.',
-            'Der Profil-Link konnte nicht gesendet werden. Prüfe die E-Mail-Adresse oder versuche es später erneut.': 'Der Zugangscode konnte nicht gesendet werden. Prüfe die E-Mail-Adresse oder versuche es später erneut.',
-            'Bitte Profil-Link oder Zugangscode eintragen.': 'Bitte deinen persönlichen Zugangscode eintragen.'
-          }
-          for old, new in replacements.items():
+          replacements = [
+            ('📩 Profil-Link anfordern', '📩 Zugangscode anfordern'),
+            ('Fordere deinen Profil-Link per E-Mail an oder trage einen bereits erhaltenen Link direkt ein.', 'Fordere deinen persönlichen Zugangscode per E-Mail an oder gib ihn hier ein.'),
+            ('Profil-Link anfordern', 'Zugangscode anfordern'),
+            ('Profil-Link eintragen', 'Zugangscode eingeben'),
+            ('Link oder Zugangscode aus deiner E-Mail verwenden.', 'Füge den persönlichen Zugangscode aus deiner BetInsight E-Mail ein.'),
+            ('placeholder="Profil-Link oder Zugangscode"', 'placeholder="Persönlichen Zugangscode eingeben"'),
+            ('🔓 Persönliches Profil öffnen', '🔓 Mit Zugangscode anmelden'),
+            ('Profil-Link wird angefordert...', 'Zugangscode wird angefordert...'),
+            ('✅ Wenn diese E-Mail bei BetInsight registriert ist, wurde der Profil-Link versendet. Bitte prüfe dein E-Mail-Postfach.', '✅ Wenn diese E-Mail bei BetInsight registriert ist, wurde der persönliche Zugangscode versendet. Bitte prüfe dein E-Mail-Postfach.'),
+            ('Der Profil-Link konnte nicht gesendet werden. Prüfe die E-Mail-Adresse oder versuche es später erneut.', 'Der Zugangscode konnte nicht gesendet werden. Prüfe die E-Mail-Adresse oder versuche es später erneut.'),
+            ('Bitte Profil-Link oder Zugangscode eintragen.', 'Bitte deinen persönlichen Zugangscode eintragen.')
+          ]
+          for old, new in replacements:
               if old not in s:
                   raise SystemExit(f'Missing expected text: {old}')
               s = s.replace(old, new)
