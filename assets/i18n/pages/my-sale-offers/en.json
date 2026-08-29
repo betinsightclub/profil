@@ -1,0 +1,23 @@
+{
+  "mySaleOffersPage": {
+    "title":"My Sale Offers | BetInsight Club",
+    "heading":"My Sale Offers",
+    "intro":"View your currently active sale offers and offers that are reserved for a buyer. This overview is read-only.",
+    "current":"Currently for Sale",
+    "currentCopy":"Active offers and offers currently reserved for a buyer.",
+    "loadingCount":"Loading …",
+    "loading":"Loading your sale offers.",
+    "note":"This page does not change any Units, fees or offers. A cancellation function has not been enabled yet.",
+    "newOffer":"Create a New Sale Offer",
+    "offerOne":"{{count}} offer",
+    "offerMany":"{{count}} offers",
+    "empty":"You currently have no sale offers that are active or reserved.",
+    "offerFallback":"Offer",
+    "unitPrice":"Price per Unit",
+    "totalPrice":"Total Price",
+    "reserved":"Reserved for Buyer",
+    "active":"Active for Sale",
+    "missingAccess":"Your personal dashboard access is not available on this device yet. Please open this page from your BetInsight profile.",
+    "loadError":"Your sale offers could not be loaded right now. Please try again."
+  }
+}
