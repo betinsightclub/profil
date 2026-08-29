@@ -2,9 +2,10 @@ name: BetInsight one-time move member language switch
 
 on:
   push:
-    branches: [ feature/i18n-multilang-safe-v3 ]
+    branches:
+      - feature/i18n-multilang-safe-v3
     paths:
-      - '.github/workflows/move-member-language-switch.yml'
+      - .github/workflows/move-member-language-switch.yml
 
 permissions:
   contents: write
@@ -13,13 +14,15 @@ jobs:
   move-switch:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           ref: feature/i18n-multilang-safe-v3
 
       - name: Put language switch directly below sidebar logo
-        shell: python
+        shell: bash
         run: |
+          python3 <<'PY'
           from pathlib import Path
           path = Path('assets/app-navigation-v2.js')
           text = path.read_text(encoding='utf-8')
@@ -42,6 +45,7 @@ jobs:
           text = text.replace(old_append, new_append, 1)
 
           path.write_text(text, encoding='utf-8')
+          PY
 
       - name: Commit and remove one-time workflow
         shell: bash
