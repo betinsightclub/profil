@@ -1,0 +1,68 @@
+name: BetInsight patch feature member language position
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/patch-feature-member-language-position.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-feature:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch only central navigation on feature branch
+        run: |
+          git fetch origin feature/i18n-multilang-safe-v3
+          git switch feature/i18n-multilang-safe-v3
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('assets/app-navigation-v2.js')
+          text = path.read_text(encoding='utf-8')
+
+          old_footer = '''    const footer = document.createElement("div");
+    footer.className = "bi-nav-footer";
+    footer.appendChild(i18n().createSwitcher());'''
+          new_footer = '''    const languageSwitcher = i18n().createSwitcher();
+    languageSwitcher.classList.add("bi-language-switcher-under-logo");
+
+    const footer = document.createElement("div");
+    footer.className = "bi-nav-footer";'''
+          if old_footer not in text:
+              raise SystemExit('Expected language switch footer block not found; no page changed.')
+          text = text.replace(old_footer, new_footer, 1)
+
+          old_append = '    sidebar.append(brand, list, footer);'
+          new_append = '    sidebar.append(brand, languageSwitcher, list, footer);'
+          if old_append not in text:
+              raise SystemExit('Expected sidebar append block not found; no page changed.')
+          text = text.replace(old_append, new_append, 1)
+
+          old_css = '      .bi-language-switcher{display:grid;grid-template-columns:repeat(auto-fit,minmax(42px,1fr));gap:6px;margin:8px 0 10px}\n'
+          new_css = '      .bi-language-switcher{display:grid;grid-template-columns:repeat(auto-fit,minmax(42px,1fr));gap:6px;margin:8px 0 10px}\n      .bi-language-switcher-under-logo{margin:0 14px 14px;padding:0 0 12px;border-bottom:1px solid rgba(104,191,230,.12)}\n'
+          if old_css in text:
+              text = text.replace(old_css, new_css, 1)
+
+          path.write_text(text, encoding='utf-8')
+          PY
+          git config user.name "BetInsight Automation"
+          git config user.email "betinsight.club@gmail.com"
+          git add assets/app-navigation-v2.js
+          git commit -m "ui: place member language switch below logo"
+          git push origin HEAD:feature/i18n-multilang-safe-v3
+
+      - name: Remove one-time workflow from main
+        run: |
+          git switch main
+          git rm .github/workflows/patch-feature-member-language-position.yml
+          git config user.name "BetInsight Automation"
+          git config user.email "betinsight.club@gmail.com"
+          git commit -m "chore: remove one-time member language patch workflow"
+          git push origin main
