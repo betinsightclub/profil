@@ -1,6 +1,4 @@
-/* BetInsight App Navigation compatibility loader · feature/i18n-multilang-safe-v3
-   This file intentionally replaces the former legacy navigation on the feature branch.
-
+/* BetInsight App Navigation compatibility loader · multilingual customer app
    Goals:
    - customer pages that still include assets/app-navigation.js receive the multilingual v2 navigation
    - the large legacy root dashboard receives the DE/EN adapter without rewriting its business logic
@@ -133,6 +131,7 @@
       if (isRootDashboard()) {
         await loadScript("dashboard-layout.js");
         await loadScript("account-history.js");
+        await loadScript("i18n/dashboard-completion.js");
       }
     } catch (error) {
       console.error("BetInsight multilingual navigation could not be loaded:", error);
