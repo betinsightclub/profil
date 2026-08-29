@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '.github/workflows/patch-shared-cost-transparency-v1.yml'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -15,38 +16,146 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Patch backoffice
-        shell: python
+
+      - name: Patch admin backoffice
         run: |
+          python3 - <<'PY'
           from pathlib import Path
+
           p = Path('admin/backoffice/index.html')
           s = p.read_text(encoding='utf-8')
 
-          s = s.replace('Version: 2026.08.28-BACKOFFICE-v2.23-FREISCHALTUNGEN', 'Version: 2026.08.29-BACKOFFICE-v2.24-KOSTEN-TRANSPARENZ', 1)
+          s = s.replace(
+              'Version: 2026.08.28-BACKOFFICE-v2.23-FREISCHALTUNGEN',
+              'Version: 2026.08.29-BACKOFFICE-v2.24-KOSTEN-TRANSPARENZ',
+              1
+          )
 
-          css_anchor = '''    .hidden {\n      display: none !important;\n    }\n'''
-          css_block = '''    .hidden {\n      display: none !important;\n    }\n\n    .cost-transparency-card {\n      margin-top: 16px;\n      margin-bottom: 18px;\n      border-color: rgba(0, 218, 255, 0.30);\n      background: linear-gradient(180deg, rgba(7, 48, 66, 0.92), rgba(4, 30, 43, 0.94));\n    }\n\n    .cost-transparency-grid {\n      display: grid;\n      grid-template-columns: repeat(3, minmax(0, 1fr));\n      gap: 12px;\n      margin-top: 14px;\n    }\n\n    .cost-transparency-stat {\n      position: relative;\n      overflow: hidden;\n      isolation: isolate;\n      min-width: 0;\n      padding: 15px;\n      border: 1px solid rgba(185, 216, 232, 0.15);\n      border-radius: 13px;\n      background: rgba(1, 12, 19, 0.34);\n    }\n\n    .cost-transparency-stat::after {\n      content: \"\";\n      position: absolute;\n      z-index: 0;\n      width: 110px;\n      height: 110px;\n      right: -55px;\n      bottom: -55px;\n      border-radius: 50%;\n      background: radial-gradient(circle at 32% 30%, rgba(34,211,255,.20) 0%, rgba(0,212,138,.07) 55%, transparent 72%);\n      border: 1px solid rgba(64,216,255,.12);\n      pointer-events: none;\n    }\n\n    .cost-transparency-stat > * { position: relative; z-index: 1; }\n    .cost-transparency-label { display:block; margin-bottom:7px; color:var(--muted); font-size:11px; font-weight:800; text-transform:uppercase; }\n    .cost-transparency-value { display:block; color:#fff; font-size:23px; font-weight:900; line-height:1.15; }\n    .cost-transparency-note { display:block; margin-top:6px; color:#9fc7d8; font-size:12px; line-height:1.4; }\n\n    .cost-coverage-line,\n    .cost-rate-plan {\n      margin-top: 12px;\n      padding: 11px 13px;\n      border-radius: 11px;\n      border: 1px solid rgba(185,216,232,.15);\n      background: rgba(255,255,255,.035);\n      color: #d8edf6;\n      font-size: 13px;\n      line-height: 1.5;\n    }\n    .cost-coverage-line.positive { border-color:rgba(0,212,138,.30); background:rgba(0,212,138,.08); color:#a9f7dc; }\n    .cost-coverage-line.negative { border-color:rgba(255,125,134,.32); background:rgba(255,125,134,.075); color:#ffc6ca; }\n\n    .cost-master-control {\n      display: grid;\n      grid-template-columns: minmax(0, 1fr) auto;\n      align-items: end;\n      gap: 12px;\n      margin-top: 14px;\n      padding: 14px;\n      border: 1px solid rgba(255,218,118,.28);\n      border-radius: 12px;\n      background: rgba(255,218,118,.06);\n    }\n    .cost-master-control .field { margin:0; }\n    .cost-master-control input { max-width: 220px; }\n    .cost-rate-message { grid-column:1/-1; margin-top:0; }\n\n    @media (max-width: 760px) {\n      .cost-transparency-grid, .cost-master-control { grid-template-columns: 1fr; }\n      .cost-master-control input { max-width:none; }\n    }\n'''
-          if 'cost-transparency-grid' not in s:
-              if css_anchor not in s:
-                  raise SystemExit('CSS anchor not found')
-              s = s.replace(css_anchor, css_block, 1)
+          if '.cost-transparency-grid {' not in s:
+              css = r'''
+    /* v2.24 – Gemeinsame Betriebskosten-Transparenz */
+    .cost-transparency-card {
+      margin-top: 16px;
+      margin-bottom: 18px;
+      border-color: rgba(0, 218, 255, 0.30);
+      background: linear-gradient(180deg, rgba(7, 48, 66, 0.92), rgba(4, 30, 43, 0.94));
+    }
+    .cost-transparency-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .cost-transparency-stat {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      min-width: 0;
+      padding: 15px;
+      border: 1px solid rgba(185, 216, 232, 0.15);
+      border-radius: 13px;
+      background: rgba(1, 12, 19, 0.34);
+    }
+    .cost-transparency-stat::after {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      width: 110px;
+      height: 110px;
+      right: -55px;
+      bottom: -55px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 32% 30%, rgba(34,211,255,.20) 0%, rgba(0,212,138,.07) 55%, transparent 72%);
+      border: 1px solid rgba(64,216,255,.12);
+      pointer-events: none;
+    }
+    .cost-transparency-stat > * { position: relative; z-index: 1; }
+    .cost-transparency-label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .cost-transparency-value {
+      display: block;
+      color: #fff;
+      font-size: 23px;
+      font-weight: 900;
+      line-height: 1.15;
+    }
+    .cost-transparency-note {
+      display: block;
+      margin-top: 6px;
+      color: #9fc7d8;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .cost-coverage-line,
+    .cost-rate-plan {
+      margin-top: 12px;
+      padding: 11px 13px;
+      border-radius: 11px;
+      border: 1px solid rgba(185,216,232,.15);
+      background: rgba(255,255,255,.035);
+      color: #d8edf6;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .cost-coverage-line.positive {
+      border-color: rgba(0,212,138,.30);
+      background: rgba(0,212,138,.08);
+      color: #a9f7dc;
+    }
+    .cost-coverage-line.negative {
+      border-color: rgba(255,125,134,.32);
+      background: rgba(255,125,134,.075);
+      color: #ffc6ca;
+    }
+    .cost-master-control {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: 12px;
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid rgba(255,218,118,.28);
+      border-radius: 12px;
+      background: rgba(255,218,118,.06);
+    }
+    .cost-master-control .field { margin: 0; }
+    .cost-master-control input { max-width: 220px; }
+    .cost-rate-message { grid-column: 1 / -1; margin-top: 0; }
+    @media (max-width: 760px) {
+      .cost-transparency-grid,
+      .cost-master-control { grid-template-columns: 1fr; }
+      .cost-master-control input { max-width: none; }
+    }
+'''
+              marker = '</style>'
+              pos = s.find(marker)
+              if pos < 0:
+                  raise SystemExit('style end marker not found')
+              s = s[:pos] + css + '\n' + s[pos:]
 
-          overview_anchor = '''      </div>\n\n      <div class=\"section-grid\">\n        <article class=\"content-card full personal-tipster-card hidden\" id=\"personalTipsterCard\">'''
-          overview_block = '''      </div>\n\n      <article class=\"content-card full cost-transparency-card\" id=\"sharedCostOverviewCard\">\n        <div class=\"panel-heading\">\n          <div>\n            <h3>🏢 Betriebskosten &amp; Kostenreserve</h3>\n            <p class=\"muted\">Gemeinsame Betriebskosten und der dafür zurückgelegte Umsatzanteil – für alle Admins transparent.</p>\n          </div>\n          <div class=\"route-hint\" id=\"sharedCostMonthLabel\">Aktueller Monat</div>\n        </div>\n\n        <div class=\"cost-transparency-grid\">\n          <div class=\"cost-transparency-stat\">\n            <span class=\"cost-transparency-label\">Betriebskosten laufender Monat</span>\n            <span class=\"cost-transparency-value privacy-sensitive\" id=\"sharedCostCurrent\">0,00 €</span>\n            <span class=\"cost-transparency-note\">Tatsächlich auf den laufenden Monat entfallende gemeinsame Kosten.</span>\n          </div>\n          <div class=\"cost-transparency-stat\">\n            <span class=\"cost-transparency-label\">Gebuchte Betriebskosten gesamt</span>\n            <span class=\"cost-transparency-value privacy-sensitive\" id=\"sharedCostTotal\">0,00 €</span>\n            <span class=\"cost-transparency-note\">Summe aller bisher genehmigten und erfassten Rechnungen.</span>\n          </div>\n          <div class=\"cost-transparency-stat\">\n            <span class=\"cost-transparency-label\">Betriebskostenbeitrag aus Umsätzen</span>\n            <span class=\"cost-transparency-value privacy-sensitive\" id=\"sharedCostContribution\">0,00 €</span>\n            <span class=\"cost-transparency-note\" id=\"sharedCostRateNote\">Aktueller Satz: 2,50 %</span>\n          </div>\n        </div>\n\n        <div class=\"cost-coverage-line\" id=\"sharedCostCoverage\">Deckung laufender Monat wird geladen …</div>\n        <div class=\"cost-rate-plan\" id=\"sharedCostPlan\">Aktueller und geplanter Satz werden geladen …</div>\n\n        <div class=\"cost-master-control hidden\" id=\"costMasterControl\">\n          <div class=\"field\">\n            <label for=\"nextCostPctInput\">Betriebskostenbeitrag für Folgemonat</label>\n            <input id=\"nextCostPctInput\" type=\"number\" min=\"0\" max=\"20\" step=\"0.10\" inputmode=\"decimal\">\n            <div class=\"route-hint\" id=\"nextCostEffectiveHint\">Gilt ausschließlich ab dem Folgemonat; keine Rückwirkung.</div>\n          </div>\n          <button class=\"button button-green\" type=\"button\" id=\"saveNextCostPctButton\">Ab nächstem Monat übernehmen</button>\n          <div id=\"costRateMessage\" class=\"master-action-message cost-rate-message\"></div>\n        </div>\n      </article>\n\n      <div class=\"section-grid\">\n        <article class=\"content-card full personal-tipster-card hidden\" id=\"personalTipsterCard\">'''
           if 'id="sharedCostOverviewCard"' not in s:
-              if overview_anchor not in s:
-                  raise SystemExit('Overview anchor not found')
-              s = s.replace(overview_anchor, overview_block, 1)
+              anchor = '''      </div>\n\n      <div class="section-grid">\n        <article class="content-card full personal-tipster-card hidden" id="personalTipsterCard">'''
+              block = '''      </div>\n\n      <article class="content-card full cost-transparency-card" id="sharedCostOverviewCard">\n        <div class="panel-heading">\n          <div>\n            <h3>🏢 Betriebskosten &amp; Kostenreserve</h3>\n            <p class="muted">Gemeinsame Betriebskosten und der dafür zurückgelegte Umsatzanteil – für alle Admins transparent.</p>\n          </div>\n          <div class="route-hint" id="sharedCostMonthLabel">Aktueller Monat</div>\n        </div>\n\n        <div class="cost-transparency-grid">\n          <div class="cost-transparency-stat">\n            <span class="cost-transparency-label">Betriebskosten laufender Monat</span>\n            <span class="cost-transparency-value privacy-sensitive" id="sharedCostCurrent">0,00 €</span>\n            <span class="cost-transparency-note">Tatsächlich auf den laufenden Monat entfallende gemeinsame Kosten.</span>\n          </div>\n          <div class="cost-transparency-stat">\n            <span class="cost-transparency-label">Gebuchte Betriebskosten gesamt</span>\n            <span class="cost-transparency-value privacy-sensitive" id="sharedCostTotal">0,00 €</span>\n            <span class="cost-transparency-note">Summe aller bisher genehmigten und erfassten Rechnungen.</span>\n          </div>\n          <div class="cost-transparency-stat">\n            <span class="cost-transparency-label">Betriebskostenbeitrag aus Umsätzen</span>\n            <span class="cost-transparency-value privacy-sensitive" id="sharedCostContribution">0,00 €</span>\n            <span class="cost-transparency-note" id="sharedCostRateNote">Aktueller Satz: 2,50 %</span>\n          </div>\n        </div>\n\n        <div class="cost-coverage-line" id="sharedCostCoverage">Deckung laufender Monat wird geladen …</div>\n        <div class="cost-rate-plan" id="sharedCostPlan">Aktueller und geplanter Satz werden geladen …</div>\n\n        <div class="cost-master-control hidden" id="costMasterControl">\n          <div class="field">\n            <label for="nextCostPctInput">Betriebskostenbeitrag für Folgemonat</label>\n            <input id="nextCostPctInput" type="number" min="0" max="20" step="0.10" inputmode="decimal">\n            <div class="route-hint" id="nextCostEffectiveHint">Gilt ausschließlich ab dem Folgemonat; keine Rückwirkung.</div>\n          </div>\n          <button class="button button-green" type="button" id="saveNextCostPctButton">Ab nächstem Monat übernehmen</button>\n          <div id="costRateMessage" class="master-action-message cost-rate-message"></div>\n        </div>\n      </article>\n\n      <div class="section-grid">\n        <article class="content-card full personal-tipster-card hidden" id="personalTipsterCard">'''
+              if anchor not in s:
+                  raise SystemExit('overview insertion anchor not found')
+              s = s.replace(anchor, block, 1)
 
-          const_anchor = '    const SESSION_KEY = "betinsight_admin_session_v1";\n'
-          const_block = '''    const SESSION_KEY = "betinsight_admin_session_v1";\n    const COST_RATE_SESSION_API_READY = true;\n    const COST_RATE_API_URL = "https://hook.eu1.make.com/d0np6cadeelzhiqf8qmab97i5v5iw0oo";\n'''
-          if 'COST_RATE_API_URL' not in s:
-              if const_anchor not in s:
-                  raise SystemExit('Constant anchor not found')
-              s = s.replace(const_anchor, const_block, 1)
+          if 'const COST_RATE_API_URL' not in s:
+              anchor = '    const SESSION_KEY = "betinsight_admin_session_v1";\n'
+              block = '''    const SESSION_KEY = "betinsight_admin_session_v1";\n    const COST_RATE_SESSION_API_READY = true;\n    const COST_RATE_API_URL = "https://hook.eu1.make.com/d0np6cadeelzhiqf8qmab97i5v5iw0oo";\n'''
+              if anchor not in s:
+                  raise SystemExit('SESSION_KEY anchor not found')
+              s = s.replace(anchor, block, 1)
 
-          func_anchor = '    function applyData(data) {\n'
-          functions = r'''    function formatCostDate(value) {
+          if 'function renderSharedCosts' not in s:
+              anchor = '    function applyData(data) {\n'
+              functions = r'''    function formatCostDate(value) {
       const text = String(value || "").trim();
       if (!text) return "–";
       const match = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -94,7 +203,7 @@ jobs:
       const control = document.getElementById("costMasterControl");
       if (control) control.classList.toggle("hidden", !isMaster);
       const input = document.getElementById("nextCostPctInput");
-      if (input && document.activeElement !== input) input.value = String(nextRate.toFixed(2));
+      if (input && document.activeElement !== input) input.value = nextRate.toFixed(2);
       const hint = document.getElementById("nextCostEffectiveHint");
       if (hint) hint.textContent = "Wirksam ab " + formatCostDate(effective) + ". Der laufende Monat bleibt bei " + formatNumber(currentRate, 2) + " %.";
     }
@@ -152,30 +261,34 @@ jobs:
     }
 
 '''
-          if 'function renderSharedCosts' not in s:
-              if func_anchor not in s:
-                  raise SystemExit('Function anchor not found')
-              s = s.replace(func_anchor, functions + func_anchor, 1)
-
-          apply_anchor = '''      masterTabButton.classList.toggle("hidden", !isMaster);\n\n      document.getElementById("availableBalance")'''
-          apply_block = '''      masterTabButton.classList.toggle("hidden", !isMaster);\n      const costsSummary = parseJsonValue(data.costs_summary, {});\n      renderSharedCosts(costsSummary, isMaster);\n\n      document.getElementById("availableBalance")'''
-          if 'const costsSummary = parseJsonValue(data.costs_summary' not in s:
-              if apply_anchor not in s:
+              if anchor not in s:
                   raise SystemExit('applyData anchor not found')
-              s = s.replace(apply_anchor, apply_block, 1)
+              s = s.replace(anchor, functions + anchor, 1)
 
-          listener_anchor = '    reloadButton.addEventListener("click", loadBackofficeData);\n'
-          listener_block = '''    document.getElementById("saveNextCostPctButton")?.addEventListener("click", saveNextCostRate);\n    reloadButton.addEventListener("click", loadBackofficeData);\n'''
+          if 'const costsSummary = parseJsonValue(data.costs_summary' not in s:
+              anchor = '      masterTabButton.classList.toggle("hidden", !isMaster);\n\n      document.getElementById("availableBalance")'
+              replacement = '      masterTabButton.classList.toggle("hidden", !isMaster);\n      const costsSummary = parseJsonValue(data.costs_summary, {});\n      renderSharedCosts(costsSummary, isMaster);\n\n      document.getElementById("availableBalance")'
+              if anchor not in s:
+                  raise SystemExit('applyData insertion anchor not found')
+              s = s.replace(anchor, replacement, 1)
+
           if 'saveNextCostPctButton")?.addEventListener' not in s:
-              if listener_anchor not in s:
-                  raise SystemExit('Listener anchor not found')
-              s = s.replace(listener_anchor, listener_block, 1)
+              anchor = '    reloadButton.addEventListener("click", loadBackofficeData);\n'
+              replacement = '    document.getElementById("saveNextCostPctButton")?.addEventListener("click", saveNextCostRate);\n' + anchor
+              if anchor not in s:
+                  raise SystemExit('listener anchor not found')
+              s = s.replace(anchor, replacement, 1)
 
           s = s.replace('<th>Betriebskosten 2,5 %</th>', '<th>Betriebskostenbeitrag</th>')
-          s = s.replace('Davon werden 2,5 % Betriebskostenvorauszahlung und 10 % Affiliate-Reserve abgezogen.', 'Davon werden der für den jeweiligen Monat gültige Betriebskostenbeitrag und 10 % Affiliate-Reserve abgezogen.')
+          s = s.replace(
+              'Davon werden 2,5 % Betriebskostenvorauszahlung und 10 % Affiliate-Reserve abgezogen.',
+              'Davon werden der für den jeweiligen Monat gültige Betriebskostenbeitrag und 10 % Affiliate-Reserve abgezogen.'
+          )
 
           p.write_text(s, encoding='utf-8')
-      - name: Commit patch
+          PY
+
+      - name: Commit backoffice patch
         run: |
           git config user.name "BetInsight Automation"
           git config user.email "actions@users.noreply.github.com"
