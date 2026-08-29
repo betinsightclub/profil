@@ -1,0 +1,51 @@
+name: BetInsight one-time tip result date sort fix
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/fix-tip-result-date-sort.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix-sort:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Parse German result dates before Date.parse
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('tipps/index.html')
+          text = path.read_text(encoding='utf-8')
+          old = 'function resultDateTimestamp(i){const r=safeText(i.spiel_datum,"").trim();if(!r)return 0;const p=Date.parse(r);if(!Number.isNaN(p))return p;const g=r.match(/^(\\d{1,2})[.\\/-](\\d{1,2})[.\\/-](\\d{4})/);return g?Date.UTC(Number(g[3]),Number(g[2])-1,Number(g[1])):0}'
+          new = 'function resultDateTimestamp(i){const r=safeText(i.spiel_datum,"").trim();if(!r)return 0;const g=r.match(/^(\\d{1,2})[.\\/-](\\d{1,2})[.\\/-](\\d{4})/);if(g)return Date.UTC(Number(g[3]),Number(g[2])-1,Number(g[1]));const p=Date.parse(r);return Number.isNaN(p)?0:p}'
+
+          if old not in text:
+              if new in text:
+                  print('Sort fix already installed.')
+              else:
+                  raise SystemExit('Expected resultDateTimestamp function not found; no changes made.')
+          else:
+              text = text.replace(old, new, 1)
+              path.write_text(text, encoding='utf-8')
+              print('Result date sort fixed.')
+
+      - name: Commit fix and remove one-time workflow
+        shell: bash
+        run: |
+          git config user.name "BetInsight Automation"
+          git config user.email "betinsight.club@gmail.com"
+          git rm .github/workflows/fix-tip-result-date-sort.yml
+          git add tipps/index.html
+          if git diff --cached --quiet; then
+            echo "Nothing to commit."
+            exit 0
+          fi
+          git commit -m "fix: sort confirmed tips by real DD.MM.YYYY date"
+          git push
