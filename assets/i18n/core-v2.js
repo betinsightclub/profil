@@ -190,33 +190,78 @@
     return fragment;
   }
 
+  function placeSwitcherBelowMemberLogo(wrapper) {
+    const move = () => {
+      const sidebar = document.getElementById("bi-nav-sidebar");
+      const brand = sidebar?.querySelector(".bi-nav-brand");
+      if (!sidebar || !brand || !wrapper.isConnected) return false;
+      if (wrapper.previousElementSibling !== brand) brand.insertAdjacentElement("afterend", wrapper);
+      wrapper.classList.add("bi-language-switcher-under-logo");
+      return true;
+    };
+    if (move()) return;
+    requestAnimationFrame(() => {
+      if (!move()) window.setTimeout(move, 40);
+    });
+  }
+
   function createSwitcher(options = {}) {
     const wrapper = document.createElement("div");
     wrapper.className = options.className || "bi-language-switcher";
     wrapper.setAttribute("role", "group");
     wrapper.setAttribute("aria-label", t("language.label", {}, "Sprache"));
+    wrapper.style.display = "flex";
+    wrapper.style.alignItems = "center";
+    wrapper.style.gap = "7px";
+    wrapper.style.margin = "4px 12px 12px";
+    wrapper.style.padding = "6px 8px";
+    wrapper.style.border = "1px solid rgba(255,255,255,.10)";
+    wrapper.style.borderRadius = "10px";
+    wrapper.style.background = "rgba(255,255,255,.035)";
+
+    const icon = document.createElement("span");
+    icon.textContent = "🌐";
+    icon.setAttribute("aria-hidden", "true");
+    icon.style.fontSize = "14px";
+    icon.style.flex = "0 0 auto";
+
+    const select = document.createElement("select");
+    select.className = "bi-language-select";
+    select.setAttribute("aria-label", t("language.label", {}, "Sprache"));
+    select.style.width = "100%";
+    select.style.minWidth = "0";
+    select.style.minHeight = "32px";
+    select.style.padding = "4px 26px 4px 8px";
+    select.style.border = "0";
+    select.style.borderRadius = "8px";
+    select.style.outline = "none";
+    select.style.background = "#071d2a";
+    select.style.color = "#dceef5";
+    select.style.font = "800 11px/1 Inter,Arial,sans-serif";
+    select.style.cursor = "pointer";
+
     supported.forEach(language => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "bi-language-button";
-      button.dataset.biLanguage = language;
-      button.textContent = language.toUpperCase();
-      const label = t(`language.${language}`, {}, language.toUpperCase());
-      button.title = label;
-      button.setAttribute("aria-label", label);
-      button.setAttribute("aria-pressed", language === activeLanguage ? "true" : "false");
-      button.classList.toggle("is-active", language === activeLanguage);
-      button.addEventListener("click", async () => {
-        await setLanguage(language);
-        wrapper.querySelectorAll("[data-bi-language]").forEach(item => {
-          const selected = item.dataset.biLanguage === activeLanguage;
-          item.setAttribute("aria-pressed", selected ? "true" : "false");
-          item.classList.toggle("is-active", selected);
-        });
-        wrapper.setAttribute("aria-label", t("language.label", {}, "Sprache"));
-      });
-      wrapper.appendChild(button);
+      const option = document.createElement("option");
+      option.value = language;
+      option.textContent = `${language.toUpperCase()} · ${t(`language.${language}`, {}, language.toUpperCase())}`;
+      select.appendChild(option);
     });
+    select.value = activeLanguage;
+
+    select.addEventListener("change", async () => {
+      await setLanguage(select.value);
+      select.value = activeLanguage;
+      select.setAttribute("aria-label", t("language.label", {}, "Sprache"));
+      supported.forEach(language => {
+        const option = [...select.options].find(item => item.value === language);
+        if (option) option.textContent = `${language.toUpperCase()} · ${t(`language.${language}`, {}, language.toUpperCase())}`;
+      });
+      wrapper.setAttribute("aria-label", t("language.label", {}, "Sprache"));
+      placeSwitcherBelowMemberLogo(wrapper);
+    });
+
+    wrapper.append(icon, select);
+    requestAnimationFrame(() => placeSwitcherBelowMemberLogo(wrapper));
     return wrapper;
   }
 
