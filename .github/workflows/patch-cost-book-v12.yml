@@ -1,0 +1,82 @@
+name: Patch cost book v1.2
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-cost-book-v12.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Patch cost book
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('admin/backoffice/kosten/index.html')
+          text = p.read_text(encoding='utf-8')
+
+          text = text.replace(
+              'Version: 2026.08.26-KOSTEN-v1.1-LIST-EDIT-FX',
+              'Version: 2026.08.29-KOSTEN-v1.2-TOTALS-RECEIPT-YEARLY',
+              1
+          )
+
+          old = '.kpi .value{font-size:21px;font-weight:900}.kpi.plus .value'
+          new = '.kpi .value{font-size:21px;font-weight:900}.kpi .subvalue{display:block;margin-top:6px;color:var(--muted);font-size:12px;font-weight:700;line-height:1.35}.kpi.plus .value'
+          if old in text:
+              text = text.replace(old, new, 1)
+
+          old = '<div class="kpi"><span class="label">Tatsächliche Kosten</span><span class="value" id="actualCostsValue">0,00 €</span></div>'
+          new = '<div class="kpi"><span class="label">Tatsächliche Kosten · aktueller Monat</span><span class="value" id="actualCostsValue">0,00 €</span><span class="subvalue" id="allCostsValue">Gesamt erfasst: 0,00 €</span></div>'
+          if old not in text:
+              raise SystemExit('Actual-cost KPI marker not found')
+          text = text.replace(old, new, 1)
+
+          old = '<div class="field"><label for="paymentType">Zahlungsart *</label><select id="paymentType" required><option value="EINMALIG">Einmalig</option><option value="MONATLICH" selected>Monatlich</option><option value="JAEHRLICH">Jährlich</option><option value="FREIE_MONATSZAHL">Mehrere / freie Monatszahl</option></select></div>'
+          new = '<div class="field"><label for="paymentType">Zahlungsart *</label><select id="paymentType" required><option value="EINMALIG">Einmalig · 1 Kostenmonat</option><option value="MONATLICH" selected>Monatlich · 1 Kostenmonat</option><option value="JAEHRLICH">Jährlich · auf 12 Monate verteilen</option><option value="FREIE_MONATSZAHL">Mehrere Monate · Zeitraum verwenden</option></select><small>Bei Jahreszahlungen werden immer 12 Monatsanteile gebildet. Bei mehreren Monaten bestimmt der Leistungszeitraum die Anzahl.</small></div>'
+          if old in text:
+              text = text.replace(old, new, 1)
+
+          old = '<div class="field full"><label for="receiptLink">Beleg-Link</label><input id="receiptLink" type="url" autocomplete="off" placeholder="https://drive.google.com/..."><small>Optional. PDF/JPG kann über einen Google-Drive-Link hinterlegt werden.</small></div>'
+          new = '<div class="field full"><label for="receiptLink">Beleg / Nachweis (optional)</label><input id="receiptLink" type="url" autocomplete="off" placeholder="Optional: Link zu Drive, E-Mail oder Rechnung"><small>Kein Upload erforderlich. Die Rechnung kann auch ohne hinterlegten Beleg gebucht werden; den Nachweis kannst du später über „Bearbeiten“ ergänzen.</small></div>'
+          if old in text:
+              text = text.replace(old, new, 1)
+
+          old = 'function resolvedPeriod(){const invoice=dateFromInput($("invoiceDate").value);if(!invoice)throw new Error("Bitte ein gültiges Rechnungsdatum eintragen.");const type=$("paymentType").value;let from=dateFromInput($("serviceFrom").value),to=dateFromInput($("serviceTo").value);if(type==="JAEHRLICH"||type==="FREIE_MONATSZAHL"){if(!from||!to)throw new Error("Bei Jahres- oder Mehrmonatszahlungen bitte Leistungszeitraum von und bis eintragen.");if(to<from)throw new Error("Das Ende des Leistungszeitraums darf nicht vor dem Beginn liegen.")}else{from=from||invoice;to=to||from;if(to<from)throw new Error("Das Ende des Leistungszeitraums darf nicht vor dem Beginn liegen.")}return{from,to,months:inclusiveMonths(from,to)}}'
+          new = 'function resolvedPeriod(){const invoice=dateFromInput($("invoiceDate").value);if(!invoice)throw new Error("Bitte ein gültiges Rechnungsdatum eintragen.");const type=$("paymentType").value;let from=dateFromInput($("serviceFrom").value),to=dateFromInput($("serviceTo").value);if(type==="JAEHRLICH"){if(!from||!to)throw new Error("Bei Jahreszahlungen bitte Leistungszeitraum von und bis eintragen.");if(to<from)throw new Error("Das Ende des Leistungszeitraums darf nicht vor dem Beginn liegen.");return{from,to,months:12}}if(type==="FREIE_MONATSZAHL"){if(!from||!to)throw new Error("Bei Mehrmonatszahlungen bitte Leistungszeitraum von und bis eintragen.");if(to<from)throw new Error("Das Ende des Leistungszeitraums darf nicht vor dem Beginn liegen.");return{from,to,months:inclusiveMonths(from,to)}}from=from||invoice;to=to||from;if(to<from)throw new Error("Das Ende des Leistungszeitraums darf nicht vor dem Beginn liegen.");return{from,to,months:1}}'
+          if old not in text:
+              raise SystemExit('resolvedPeriod marker not found')
+          text = text.replace(old, new, 1)
+
+          old = 'invoiceItems=parseJson(data.costs_items,[]).filter(x=>x&&x.kosten_id);renderMonthFilter();renderInvoices();statusBox.innerHTML=`<strong>Master-Session aktiv:</strong> ${escapeHtml(verifiedSession.name)}. Kostenmodell ${escapeHtml(s.prepayment_pct??2.5)} % Vorauszahlung · ${invoiceItems.length} gebuchte Rechnung${invoiceItems.length===1?"":"en"}.`'
+          new = 'invoiceItems=parseJson(data.costs_items,[]).filter(x=>x&&x.kosten_id);const allCosts=invoiceItems.reduce((sum,x)=>sum+Number(x.betrag_eur||0),0);$("allCostsValue").textContent="Gesamt erfasst: "+money(allCosts);renderMonthFilter();renderInvoices();statusBox.innerHTML=`<strong>Master-Session aktiv:</strong> ${escapeHtml(verifiedSession.name)}. Kostenmodell ${escapeHtml(s.prepayment_pct??2.5)} % Vorauszahlung · ${invoiceItems.length} gebuchte Rechnung${invoiceItems.length===1?"":"en"} · Gesamt ${money(allCosts)}.`'
+          if old not in text:
+              raise SystemExit('loadData marker not found')
+          text = text.replace(old, new, 1)
+
+          old = '${item.beleg_link?`<a class="button button-neutral button-small" target="_blank" rel="noopener" href="${escapeHtml(item.beleg_link)}">Beleg öffnen</a>`:`<span class="pill">${escapeHtml(item.belegstatus||"ohne Link")}</span>`}'
+          new = '${item.beleg_link?`<a class="button button-neutral button-small" target="_blank" rel="noopener" href="${escapeHtml(item.beleg_link)}">Beleg öffnen</a>`:`<span class="pill">Nicht hinterlegt · optional</span>`}'
+          if old in text:
+              text = text.replace(old, new, 1)
+
+          p.write_text(text, encoding='utf-8')
+
+      - name: Commit patch
+        run: |
+          if git diff --quiet -- admin/backoffice/kosten/index.html; then
+            echo "No change needed"
+            exit 0
+          fi
+          git config user.name "BetInsight Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add admin/backoffice/kosten/index.html
+          git commit -m "Improve cost book totals and yearly allocation"
+          git push
