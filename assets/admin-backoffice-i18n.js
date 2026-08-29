@@ -1,4 +1,4 @@
-/* BetInsight Admin Backoffice i18n · 2026-08-28
+/* BetInsight Admin Backoffice i18n · 2026-08-29
    Presentation-only translation layer.
    - Uses the shared betinsight_language preference.
    - Never changes form values, data-* attributes, API payloads, status codes or backend semantics.
@@ -197,19 +197,22 @@
     const style = document.createElement("style");
     style.id = "bi-admin-i18n-style";
     style.textContent = `
-      .bi-admin-language-switcher{display:inline-flex;align-items:center;gap:7px;min-height:42px;padding:0 9px;border:1px solid rgba(0,218,255,.28);border-radius:11px;background:rgba(0,218,255,.07);color:#d8f5ff;font-weight:800}
-      .bi-admin-language-switcher-icon{font-size:16px;line-height:1}
-      .bi-admin-language-select{min-height:32px;max-width:150px;padding:4px 26px 4px 8px;border:0;border-radius:8px;outline:none;background:#071d2a;color:#fff;font:inherit;font-size:13px;font-weight:900;cursor:pointer}
+      .bi-admin-logo-stack{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;flex:0 0 auto}
+      .bi-admin-logo-stack .topbar-logo{max-width:118px}
+      .bi-admin-language-switcher{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:34px;padding:0 7px;border:1px solid rgba(0,218,255,.28);border-radius:10px;background:rgba(0,218,255,.07);color:#d8f5ff;font-weight:800}
+      .bi-admin-language-switcher-icon{font-size:15px;line-height:1}
+      .bi-admin-language-select{min-height:29px;max-width:136px;padding:3px 24px 3px 7px;border:0;border-radius:8px;outline:none;background:#071d2a;color:#fff;font:inherit;font-size:12px;font-weight:900;cursor:pointer}
       .bi-admin-language-select:focus-visible{box-shadow:0 0 0 2px rgba(0,218,255,.55)}
-      @media(max-width:700px){.bi-admin-language-switcher{order:-1}.bi-admin-language-select{max-width:132px}}
+      @media(max-width:700px){.bi-admin-logo-stack{align-items:flex-start}.bi-admin-language-select{max-width:126px}}
     `;
     document.head.appendChild(style);
   }
 
   async function buildSwitcher(availableLanguages) {
     if (switcher || !document.body) return;
-    const target = document.querySelector(".top-actions") || document.querySelector(".topbar");
-    if (!target) return;
+    const logo = document.querySelector(".topbar-logo");
+    const brandGroup = document.querySelector(".brand-group");
+    if (!logo || !brandGroup) return;
 
     injectStyles();
     switcher = document.createElement("div");
@@ -239,7 +242,15 @@
     select.addEventListener("change", () => setLanguage(select.value));
 
     switcher.append(icon, select);
-    target.prepend(switcher);
+
+    let logoStack = brandGroup.querySelector(".bi-admin-logo-stack");
+    if (!logoStack) {
+      logoStack = document.createElement("div");
+      logoStack.className = "bi-admin-logo-stack";
+      brandGroup.insertBefore(logoStack, logo);
+      logoStack.appendChild(logo);
+    }
+    logoStack.appendChild(switcher);
   }
 
   function observe() {
