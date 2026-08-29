@@ -6,11 +6,20 @@ on:
       - '.github/workflows/patch-access-code-login.yml'
 permissions:
   contents: write
+concurrency:
+  group: betinsight-access-code-login-patch
+  cancel-in-progress: false
 jobs:
   patch:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Sync latest main
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
       - name: Patch login copy, clean token entry, and i18n
         run: |
           python - <<'PY'
@@ -73,11 +82,18 @@ jobs:
               data['dashboardPage'].update(vals)
               fp.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
           PY
-      - name: Commit patch and remove one-time workflow
+      - name: Commit and push safely
         run: |
           rm .github/workflows/patch-access-code-login.yml
           git config user.name 'BetInsight Automation'
           git config user.email 'betinsight.club@gmail.com'
           git add index.html assets/i18n/pages/dashboard/de.json assets/i18n/pages/dashboard/en.json .github/workflows/patch-access-code-login.yml
           git commit -m 'security: switch member login to access-code entry'
-          git push
+          for attempt in 1 2 3; do
+            if git pull --rebase origin main && git push origin main; then
+              exit 0
+            fi
+            git rebase --abort 2>/dev/null || true
+            sleep 3
+          done
+          exit 1
