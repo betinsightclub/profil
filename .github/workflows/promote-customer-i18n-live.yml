@@ -1,0 +1,95 @@
+name: BetInsight promote full customer DE EN translation
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/promote-customer-i18n-live.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Fetch multilingual feature branch
+        run: git fetch origin feature/i18n-multilang-safe-v3:refs/remotes/origin/feature/i18n-multilang-safe-v3 --depth=1
+
+      - name: Copy customer-only multilingual files
+        run: |
+          git checkout origin/feature/i18n-multilang-safe-v3 -- \
+            assets/app-session.js \
+            assets/app-navigation-v2.js \
+            assets/i18n/core-v2.js \
+            assets/i18n/dashboard-legacy.js \
+            assets/i18n/locales/de.json \
+            assets/i18n/locales/en.json \
+            assets/i18n/locales/manifest.json \
+            assets/i18n/pages/buy \
+            assets/i18n/pages/daily \
+            assets/i18n/pages/dashboard \
+            assets/i18n/pages/marketing-center \
+            assets/i18n/pages/my-sale-offers \
+            assets/i18n/pages/offers \
+            assets/i18n/pages/packages \
+            assets/i18n/pages/providers \
+            assets/i18n/pages/sell \
+            assets/i18n/pages/support \
+            assets/i18n/pages/tips \
+            anbieter/index.html \
+            daily/index.html \
+            freigeschaltet/index.html \
+            kaufen/index.html \
+            konto/index.html \
+            marketing-center/index.html \
+            meine-verkaufsangebote/index.html \
+            pakete/index.html \
+            support/index.html \
+            tipps/index.html \
+            verkaufen/index.html \
+            wallet/index.html \
+            wechselboerse/index.html \
+            wechselboerse/angebote/index.html
+
+      - name: Build hybrid compatibility loader for live dashboard
+        shell: bash
+        run: |
+          git show origin/feature/i18n-multilang-safe-v3:assets/app-navigation.js > assets/app-navigation.js
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('assets/app-navigation.js')
+          s = p.read_text(encoding='utf-8')
+          old = '''    try {\n      await loadScript("app-session.js","BetInsightSession");'''
+          new = '''    try {\n      await loadScript("tip-expiry-guard.js");\n      await loadScript("app-session.js","BetInsightSession");'''
+          if old not in s:
+              raise SystemExit('Could not find loader start anchor')
+          s = s.replace(old, new, 1)
+          old2 = '''      await loadScript("app-navigation-v2.js");\n    } catch (error) {'''
+          new2 = '''      await loadScript("app-navigation-v2.js");\n      if (isRootDashboard()) {\n        await loadScript("dashboard-layout.js");\n        await loadScript("account-history.js");\n      }\n    } catch (error) {'''
+          if old2 not in s:
+              raise SystemExit('Could not find loader end anchor')
+          s = s.replace(old2, new2, 1)
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Verify admin files were not touched
+        run: |
+          if git diff --name-only | grep -E '^admin/' ; then
+            echo 'Admin files changed unexpectedly.'
+            exit 1
+          fi
+
+      - name: Commit customer translation activation
+        run: |
+          git config user.name "BetInsight Automation"
+          git config user.email "betinsight.club@gmail.com"
+          git rm .github/workflows/promote-customer-i18n-live.yml
+          git add assets/app-navigation.js assets/app-navigation-v2.js assets/app-session.js assets/i18n \
+            anbieter daily freigeschaltet kaufen konto marketing-center meine-verkaufsangebote pakete support tipps verkaufen wallet wechselboerse
+          git commit -m "feat: activate full DE EN customer app translation"
+          git push
