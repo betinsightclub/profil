@@ -1,0 +1,61 @@
+name: Cache bust Premium Network v7
+
+on:
+  push:
+    paths:
+      - '.github/workflows/cache-bust-premium-network-v7.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Force fresh navigation assets
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          VERSION='20260830-7'
+          changed=[]
+          for p in Path('.').rglob('*.html'):
+              if '.git' in p.parts:
+                  continue
+              s=p.read_text(encoding='utf-8')
+              n=s
+              for name in ('app-navigation-v2.js','app-navigation.js'):
+                  for oldv in ('20260830-4','20260830-5','20260830-6'):
+                      n=n.replace(f'{name}?v={oldv}', f'{name}?v={VERSION}')
+                  n=n.replace(f'{name}"', f'{name}?v={VERSION}"')
+                  n=n.replace(f"{name}'", f"{name}?v={VERSION}'")
+              if n!=s:
+                  p.write_text(n,encoding='utf-8')
+                  changed.append(str(p))
+
+          loader=Path('assets/app-navigation.js')
+          if loader.exists():
+              s=loader.read_text(encoding='utf-8')
+              n=s
+              for oldv in ('20260830-4','20260830-5','20260830-6'):
+                  n=n.replace(f'app-navigation-v2.js?v={oldv}', f'app-navigation-v2.js?v={VERSION}')
+              n=n.replace('app-navigation-v2.js"', f'app-navigation-v2.js?v={VERSION}"')
+              n=n.replace("app-navigation-v2.js'", f"app-navigation-v2.js?v={VERSION}'")
+              if n!=s:
+                  loader.write_text(n,encoding='utf-8')
+                  changed.append(str(loader))
+
+          Path('.github/workflows/cache-bust-premium-network-v7.yml').unlink(missing_ok=True)
+          print('changed files:', len(changed))
+          for item in changed: print(item)
+          PY
+      - name: Commit cache bust
+        run: |
+          git config user.name "betinsight-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -m "Force fresh Premium Network navigation assets"
+          git push origin main
