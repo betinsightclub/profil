@@ -40,6 +40,55 @@
     }, true);
   }
 
+  function installPremiumProvisionInfo() {
+    if (!isRootDashboard() || window.__betinsightPremiumProvisionInfoInstalled) return;
+    window.__betinsightPremiumProvisionInfoInstalled = true;
+
+    const apply = () => {
+      const dialog = document.getElementById("membershipInfoPanel");
+      if (!dialog || dialog.querySelector(".bi-premium-provision-plan")) return;
+
+      if (!document.getElementById("bi-premium-provision-plan-style")) {
+        const style = document.createElement("style");
+        style.id = "bi-premium-provision-plan-style";
+        style.textContent = `
+          .bi-premium-provision-plan{margin-top:13px;padding:12px 13px;border:1px solid rgba(99,184,220,.16);border-radius:13px;background:rgba(1,16,25,.42)}
+          .bi-premium-provision-plan strong{display:block;margin-bottom:7px;color:#effbff;font-size:10px}
+          .bi-premium-provision-rates{display:flex;flex-wrap:wrap;gap:5px}
+          .bi-premium-provision-rate{display:inline-flex;align-items:center;min-height:22px;padding:3px 7px;border:1px solid rgba(255,255,255,.09);border-radius:999px;background:rgba(255,255,255,.045);color:#d7edf7;font-size:8px;font-weight:900;white-space:nowrap}
+          .premium-info-tier .bi-premium-provision-rate{border-color:rgba(14,220,166,.16)}
+          .premiumplus-info-tier .bi-premium-provision-rate{border-color:rgba(255,171,46,.18)}
+          .bi-premium-provision-max{margin-top:8px;color:#9fc7d7;font-size:8px;line-height:1.4}
+          .bi-premium-provision-max b{color:#fff}
+          .bi-premium-provision-rules{margin-top:14px;padding:11px 13px;border:1px solid rgba(255,193,91,.13);border-radius:12px;background:rgba(255,193,91,.035);color:#a9c7d3;font-size:9px;line-height:1.5}
+          .bi-premium-provision-rules b{color:#eefaff}
+        `;
+        document.head.appendChild(style);
+      }
+
+      const premium = dialog.querySelector(".premium-info-tier");
+      const plus = dialog.querySelector(".premiumplus-info-tier");
+      const addPlan = (card, title, rates, max) => {
+        if (!card) return;
+        const box = document.createElement("div");
+        box.className = "bi-premium-provision-plan";
+        box.innerHTML = `<strong>${title}</strong><div class="bi-premium-provision-rates">${rates.map(([level,rate]) => `<span class="bi-premium-provision-rate">Ebene ${level}: ${rate}</span>`).join("")}</div><div class="bi-premium-provision-max">Maximale Tarif-Provision bei vollständiger Berechtigung: <b>${max}</b></div>`;
+        card.appendChild(box);
+      };
+
+      addPlan(premium, "Premium-Provisionsplan", [[1,"30 %"],[2,"12 %"],[3,"8 %"],[4,"5 %"],[5,"3 %"]], "58 %");
+      addPlan(plus, "Premium-Plus-Provisionsplan", [[1,"30 %"],[2,"12 %"],[3,"8 %"],[4,"5 %"],[5,"3 %"],[6,"2 %"],[7,"1,5 %"],[8,"1 %"]], "62,5 %");
+
+      const rules = document.createElement("div");
+      rules.className = "bi-premium-provision-rules";
+      rules.innerHTML = "<b>So gilt der Provisionsplan:</b> Die Prozentsätze beziehen sich auf erfolgreich bezahlte Premium- bzw. Premium-Plus-Zahlungen. Provisionen entstehen nur für die mit dem eigenen Tarif freigeschalteten Ebenen, beginnen ab bestätigter Aktivierung und werden nicht rückwirkend vergeben. Nicht provisionsberechtigte oder unbesetzte Ebenen werden nicht auf andere Ebenen umverteilt. Das Unit-Referral-System bis Ebene 3 bleibt davon getrennt.";
+      dialog.appendChild(rules);
+    };
+
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", apply, {once:true});
+    else apply();
+  }
+
   function safePath(segment = "", hash = "") {
     const clean = String(segment||"").replace(/^\/+|\/+$/g, "");
     const url = new URL(clean ? `${clean}/` : "", APP_ROOT);
@@ -141,6 +190,7 @@
 
   async function boot() {
     installLandingLogoLink();
+    installPremiumProvisionInfo();
     addDashboardScope();
     try {
       await loadScript("tip-expiry-guard.js");
