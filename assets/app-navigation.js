@@ -11,6 +11,7 @@
   const SCRIPT_URL = document.currentScript?.src || new URL("assets/app-navigation.js", location.href).toString();
   const ASSET_BASE = new URL("./", SCRIPT_URL);
   const APP_ROOT = new URL("../", SCRIPT_URL);
+  const LANDING_PAGE_URL = "https://betinsight.club/";
   const PROFILE_STORAGE_KEY = "betinsight_profile_token";
   const DASHBOARD_STORAGE_KEY = "betinsight_dashboard_token";
   const isUuid = value => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value||"").trim());
@@ -18,6 +19,24 @@
   function isRootDashboard() {
     const pathname = location.pathname.replace(/\/+$/, "/");
     return pathname === APP_ROOT.pathname.replace(/\/+$/, "/") || pathname === APP_ROOT.pathname.replace(/\/+$/, "/") + "index.html";
+  }
+
+  function installLandingLogoLink() {
+    if (window.__betinsightLandingLogoLinkInstalled) return;
+    window.__betinsightLandingLogoLinkInstalled = true;
+
+    const style = document.createElement("style");
+    style.id = "bi-logo-landing-link-style";
+    style.textContent = ".bi-nav-logo-image{cursor:pointer}";
+    document.head.appendChild(style);
+
+    document.addEventListener("click", event => {
+      const target = event.target instanceof Element ? event.target.closest(".bi-nav-logo-image") : null;
+      if (!target) return;
+      event.preventDefault();
+      event.stopPropagation();
+      location.assign(LANDING_PAGE_URL);
+    }, true);
   }
 
   function safePath(segment = "", hash = "") {
@@ -120,6 +139,7 @@
   }
 
   async function boot() {
+    installLandingLogoLink();
     addDashboardScope();
     try {
       await loadScript("tip-expiry-guard.js");
