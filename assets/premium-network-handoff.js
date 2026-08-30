@@ -1,94 +1,108 @@
-/* BetInsight Premium Network handoff · 2026-08-30 v2
-   Transfers the confirmed dashboard UUID from app.betinsight.club to
-   betinsight.network without placing the UUID in the browser address bar.
+/* BetInsight Premium Network handoff · 2026-08-30 v3
+   Secure cross-domain handoff without exposing the dashboard UUID in any browser URL.
 
-   Transport:
-   - a trusted betinsight.network window is opened from the user's click
-   - the UUID is sent only with window.postMessage to the fixed target origin
-   - /handoff/ stores it in same-origin sessionStorage and opens /premium/
-   - no automatic bounce back is used, so a failed handoff cannot create a loop
+   Flow:
+   1. app.betinsight.club already holds the confirmed dashboard UUID locally.
+   2. A cryptographically random, short-lived handoff code is created.
+   3. Make validates the UUID server-side and stores code -> UUID for 3 minutes.
+   4. Only the opaque handoff code is sent to betinsight.network.
+   5. betinsight.network redeems the code once and creates its own session.
 */
 (() => {
   "use strict";
 
-  const HANDOFF_URL = "https://betinsight.network/handoff/?v=2";
-  const HANDOFF_ORIGIN = "https://betinsight.network";
+  const ISSUE_URL = "https://hook.eu1.make.com/l12lvfgly1e4b9p1op3oohfbncnfwkqh";
+  const HANDOFF_URL = "https://betinsight.network/handoff/";
   const ACCOUNT_GATEWAY = "/konto/?next=premium-provisionen";
-  const MESSAGE_TYPE = "BI_NETWORK_HANDOFF_V2";
-  const ACK_TYPE = "BI_NETWORK_HANDOFF_ACK_V2";
-  let activeTransfer = null;
+
+  function isUuid(value) {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || "").trim());
+  }
 
   function dashboardUuid() {
     try {
       const session = window.BetInsightSession;
       const value = String(session?.getDashboardUuid?.() || localStorage.getItem("betinsight_dashboard_token") || "").trim();
-      if (session?.isUuid?.(value) || /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) return value;
+      if (session?.isUuid?.(value) || isUuid(value)) return value;
     } catch (e) {}
     return "";
   }
 
-  function stopTransfer() {
-    if (!activeTransfer) return;
-    if (activeTransfer.timer) window.clearInterval(activeTransfer.timer);
-    if (activeTransfer.timeout) window.clearTimeout(activeTransfer.timeout);
-    if (activeTransfer.onMessage) window.removeEventListener("message", activeTransfer.onMessage);
-    activeTransfer = null;
+  function randomCode() {
+    try {
+      if (crypto?.randomUUID) return crypto.randomUUID();
+      const bytes = new Uint8Array(24);
+      crypto.getRandomValues(bytes);
+      return Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
+    } catch (e) {
+      return "";
+    }
   }
 
-  function startHandoff(existingWindow = null) {
+  function closeTarget(target) {
+    try { if (target && !target.closed) target.close(); } catch (e) {}
+  }
+
+  function showWaiting(target) {
+    try {
+      target.document.title = "BetInsight – Premium & Network";
+      target.document.body.style.margin = "0";
+      target.document.body.innerHTML = '<div style="font-family:Arial,sans-serif;background:#03131d;color:#dff6ff;min-height:100vh;display:grid;place-items:center"><div style="padding:24px;border:1px solid rgba(104,203,235,.2);border-radius:18px;background:#062433;text-align:center">Premium &amp; Network wird sicher geöffnet …</div></div>';
+    } catch (e) {}
+  }
+
+  async function startHandoff(existingWindow = null) {
     const token = dashboardUuid();
     if (!token) {
-      if (existingWindow && !existingWindow.closed) existingWindow.close();
+      closeTarget(existingWindow);
       if (!window.location.pathname.startsWith("/konto")) window.location.assign(ACCOUNT_GATEWAY);
       return false;
     }
 
     let target = existingWindow;
     if (!target || target.closed) {
-      target = window.open(HANDOFF_URL, "betinsightPremiumNetwork");
+      target = window.open("about:blank", "betinsightPremiumNetwork");
       if (!target) return false;
-    } else {
-      try { target.location.replace(HANDOFF_URL); }
-      catch (e) { try { target.location.href = HANDOFF_URL; } catch (_) {} }
+    }
+    showWaiting(target);
+
+    const code = randomCode();
+    if (!code) {
+      closeTarget(target);
+      return false;
     }
 
-    stopTransfer();
+    try {
+      const issue = new URL(ISSUE_URL);
+      issue.searchParams.set("dashboard_token", token);
+      issue.searchParams.set("code", code);
 
-    const payload = Object.freeze({type: MESSAGE_TYPE, token});
-    const send = () => {
-      if (!target || target.closed) {
-        stopTransfer();
-        return;
+      const response = await fetch(issue.toString(), {
+        method: "GET",
+        cache: "no-store",
+        credentials: "omit",
+        referrerPolicy: "no-referrer"
+      });
+      let data = null;
+      try { data = await response.json(); } catch (e) {}
+      if (!response.ok || data?.success !== true || String(data?.code || "") !== code) {
+        throw new Error("handoff_issue_failed");
       }
-      try { target.postMessage(payload, HANDOFF_ORIGIN); } catch (e) {}
-    };
 
-    const onMessage = event => {
-      if (event.origin !== HANDOFF_ORIGIN || event.source !== target) return;
-      if (event.data?.type !== ACK_TYPE) return;
-      stopTransfer();
-    };
-
-    window.addEventListener("message", onMessage);
-    const timer = window.setInterval(send, 250);
-    const timeout = window.setTimeout(stopTransfer, 10000);
-    activeTransfer = {target, timer, timeout, onMessage};
-    send();
-    return true;
+      const destination = new URL(HANDOFF_URL);
+      destination.searchParams.set("code", code);
+      try { target.location.replace(destination.toString()); }
+      catch (e) { target.location.href = destination.toString(); }
+      return true;
+    } catch (e) {
+      try {
+        if (target && !target.closed) {
+          target.document.body.innerHTML = '<div style="font-family:Arial,sans-serif;background:#03131d;color:#dff6ff;min-height:100vh;display:grid;place-items:center;margin:0"><div style="max-width:520px;padding:24px;border:1px solid rgba(255,112,121,.25);border-radius:18px;background:#062433;text-align:center"><strong style="display:block;margin-bottom:8px">Premium &amp; Network konnte nicht geöffnet werden.</strong><span style="color:#9bb8c4">Bitte dieses Fenster schließen und im BetInsight-Menü erneut auf Premium-Provisionen klicken.</span></div></div>';
+        }
+      } catch (_) {}
+      return false;
+    }
   }
-
-  document.addEventListener("click", event => {
-    const element = event.target instanceof Element
-      ? event.target.closest('[data-bi-nav-route="premium-provisionen"]')
-      : null;
-    if (!element) return;
-
-    event.preventDefault();
-    event.stopPropagation();
-    event.stopImmediatePropagation();
-    const opened = startHandoff();
-    if (!opened && !window.location.pathname.startsWith("/konto")) window.location.assign(ACCOUNT_GATEWAY);
-  }, true);
 
   window.BetInsightPremiumNetworkHandoff = Object.freeze({ start: startHandoff });
 })();
