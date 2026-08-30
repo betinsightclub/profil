@@ -5,7 +5,7 @@
    - dashboard UUIDs are stored locally through BetInsightSession.
    - internal navigation NEVER creates URLs containing dashboard_token, id or UUID token values.
    - legacy incoming UUID URLs may be captured once and immediately cleaned by app-session.js.
-   - cross-origin Premium Network handoff stays disabled until a separate secure handoff exists.
+   - cross-origin Premium Network handoff uses a fixed-origin postMessage bridge and never exposes the dashboard UUID in the URL.
 
    Migration invariant:
    - existing customer pages only need the normal app-navigation.css plus this one script.
@@ -186,11 +186,31 @@
       case "premium": navigateProfileHash("premium"); break;
       case "marketing-center": navigateProtected("marketing-center"); break;
       case "support": navigateProtected("support"); break;
-      case "premium-provisionen":
-        loadScript("premium-network-handoff.js", "BetInsightPremiumNetworkHandoff")
-          .then(() => window.BetInsightPremiumNetworkHandoff?.start?.())
-          .catch(() => showMessage(t("session.networkHandoffError", "Premium & Network konnte gerade nicht geöffnet werden.")));
+      case "premium-provisionen": {
+        const handoffWindow = window.open("about:blank", "betinsightPremiumNetwork");
+        if (!handoffWindow) {
+          showMessage(t("session.networkPopupBlocked", "Premium & Network konnte nicht geöffnet werden. Bitte Pop-ups für BetInsight erlauben."));
+          break;
+        }
+        try {
+          handoffWindow.document.title = "BetInsight – Premium & Network";
+          handoffWindow.document.body.innerHTML = '<div style="font-family:Arial,sans-serif;background:#03131d;color:#dff6ff;min-height:100vh;display:grid;place-items:center;margin:0"><div>Premium & Network wird sicher geöffnet …</div></div>';
+        } catch (e) {}
+        loadScript("premium-network-handoff.js?v=20260830-6", "BetInsightPremiumNetworkHandoff")
+          .then(() => {
+            const started = window.BetInsightPremiumNetworkHandoff?.start?.(handoffWindow);
+            if (!started) {
+              try { if (!handoffWindow.closed) handoffWindow.close(); } catch (e) {}
+              if (!session()?.hasDashboardAccess()) session().navigateLocal("konto", {query:{next:"premium-provisionen"}});
+              else showMessage(t("session.networkHandoffError", "Premium & Network konnte gerade nicht geöffnet werden."));
+            }
+          })
+          .catch(() => {
+            try { if (!handoffWindow.closed) handoffWindow.close(); } catch (e) {}
+            showMessage(t("session.networkHandoffError", "Premium & Network konnte gerade nicht geöffnet werden."));
+          });
         break;
+      }
       default: break;
     }
   }

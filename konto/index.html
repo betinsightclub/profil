@@ -2,7 +2,7 @@
 <!--
 BetInsight Konto & Zugang
 Pfad: /konto/index.html
-Stand: 30.08.2026-02 · Premium-Network-Handoff aktiv
+Stand: 30.08.2026-03 · Premium-Network-Handoff loopfrei
 
 Ziele dieses Piloten:
 - deutsche Oberfläche bleibt inhaltlicher Fallback
@@ -21,6 +21,7 @@ Ziele dieses Piloten:
   <title>BetInsight – Konto & Zugang</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <script src="../assets/app-session.js"></script>
+  <script src="../assets/premium-network-handoff.js?v=20260830-6"></script>
   <script src="../assets/i18n/core-v2.js"></script>
   <style>
     *{box-sizing:border-box}
@@ -150,8 +151,6 @@ Ziele dieses Piloten:
       const NEXT_KEY = "betinsight_login_next";
       const PROFILE_LINK_WEBHOOK = "https://hook.eu1.make.com/me8q6ptfnno6qfji4s6348rw6f47i3t5";
       const APP_URL = new URL(session ? session.appPath() : "/", window.location.origin).toString();
-      const PREMIUM_NETWORK_HANDOFF_URL = "https://betinsight.network/handoff/";
-      const PREMIUM_NETWORK_HANDOFF_PREFIX = "BI_NETWORK_HANDOFF_V1:";
 
       const ALLOWED_NEXT = new Set([
         "dashboard","premium-provisionen","premium","netzwerk","wallet","tipps","kaufen",
@@ -254,21 +253,19 @@ Ziele dieses Piloten:
           const dashboardToken=savedDashboard();
           if(!dashboardToken){
             status.className="status missing";
-            status.textContent=i18n.t("account.networkAccessMissing",{},"Der bestätigte Dashboard-Zugang fehlt auf diesem Gerät. Bitte öffne zuerst dein BetInsight Dashboard über deinen aktuellen Profil-Link.");
+            status.textContent=i18n.t("account.networkAccessMissing",{},"Der bestätigte Dashboard-Zugang fehlt auf diesem Gerät. Bitte öffne zuerst dein BetInsight Dashboard über deinen aktuellen Profil-Link und lade diese Seite danach neu.");
             return false;
           }
-          try{
-            window.name=PREMIUM_NETWORK_HANDOFF_PREFIX+dashboardToken;
+          const started=window.BetInsightPremiumNetworkHandoff?.start?.();
+          if(started){
             removeSaved(NEXT_KEY);
             status.className="status ok";
-            status.textContent=i18n.t("account.networkOpening",{},"✅ Premium & Network wird sicher geöffnet …");
-            window.location.assign(PREMIUM_NETWORK_HANDOFF_URL);
+            status.textContent=i18n.t("account.networkOpening",{},"✅ Premium & Network wurde in einem sicheren Fenster geöffnet.");
             return true;
-          }catch(e){
-            status.className="status missing";
-            status.textContent=i18n.t("account.networkOpenError",{},"Premium & Network konnte gerade nicht geöffnet werden. Bitte versuche es erneut.");
-            return false;
           }
+          status.className="status missing";
+          status.textContent=i18n.t("account.networkOpenError",{},"Premium & Network konnte nicht geöffnet werden. Bitte Pop-ups für BetInsight erlauben und erneut klicken.");
+          return false;
         }
 
         if(next && next!=="dashboard") setSaved(NEXT_KEY,next);
@@ -327,7 +324,7 @@ Ziele dieses Piloten:
       renderDynamicText();
 
       const access=savedAccess();
-      if(access&&next) window.setTimeout(()=>goToTarget(),450);
+      if(access&&next&&next!=="premium-provisionen") window.setTimeout(()=>goToTarget(),450);
     })();
   </script>
 </body>
