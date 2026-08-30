@@ -1,5 +1,5 @@
 /* BetInsight App Navigation v2 · staged multilingual migration
-   Feature-branch only until regression tests pass.
+   Premium/Netzwerk hash fix · 2026-08-30
 
    Security invariant:
    - dashboard UUIDs are stored locally through BetInsightSession.
@@ -144,7 +144,7 @@
   }
 
   function navigateProfileHash(hash) {
-    if (!requireDashboardAccess()) return;
+    if (!requireAnyAccess()) return;
     const root = session().appPath();
     if (window.location.pathname === root) {
       if (window.location.hash !== `#${hash}`) history.pushState(null, "", `#${hash}`);
