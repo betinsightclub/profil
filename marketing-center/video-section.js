@@ -1,9 +1,12 @@
-/* BetInsight Marketing-Center · Videos & Reels · 2026-08-29 */
+/* BetInsight Marketing-Center · Videos, Reels & Networker-PDF · 2026-08-30 */
 (() => {
   "use strict";
 
   const VIDEO_API = "https://api.github.com/repos/betinsightclub/profil/contents/marketing-center/downloads/videos?ref=main";
+  const PRESENTATIONS_API = "https://api.github.com/repos/betinsightclub/profil/contents/marketing-center/downloads/praesentationen?ref=main";
   const VIDEO_EXT = /\.(mp4|webm|mov)$/i;
+  const PDF_EXT = /\.pdf$/i;
+  const NETWORKER_FILE = /networker/i;
   const $ = selector => document.querySelector(selector);
   const tr = (key, fallback, vars = {}) => window.BetInsightI18n?.t(key, vars, fallback) || fallback;
 
@@ -20,6 +23,9 @@
     .video-body p{margin:0;color:var(--muted);line-height:1.6}
     .video-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
     .video-actions .presentation-button{flex:1 1 180px}
+    .networker-presentation-card{margin-top:14px;background:linear-gradient(145deg,rgba(37,230,167,.09),rgba(13,26,38,.98));border-color:rgba(37,230,167,.30)}
+    .networker-presentation-card .presentation-icon{color:#052319;background:linear-gradient(145deg,#25e6a7,#87f4d1)}
+    .networker-presentation-card .networker-label{display:inline-flex;width:max-content;margin-bottom:8px;padding:5px 9px;color:#d9fff1;font-size:.7rem;font-weight:850;background:rgba(37,230,167,.09);border:1px solid rgba(37,230,167,.25);border-radius:999px}
     @media(max-width:1000px){.quick-nav{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media(max-width:760px){.video-grid{grid-template-columns:1fr}.video-preview{max-height:640px}}
     @media(max-width:620px){.quick-nav{grid-template-columns:1fr}.video-actions{display:grid;grid-template-columns:1fr}.video-actions .presentation-button{width:100%}}
@@ -28,6 +34,10 @@
 
   function videoPath(fileName) {
     return "downloads/videos/" + encodeURIComponent(fileName);
+  }
+
+  function presentationPath(fileName) {
+    return "downloads/praesentationen/" + encodeURIComponent(fileName);
   }
 
   function titleFor(fileName) {
@@ -98,6 +108,39 @@
     if (soonCopy) {
       soonCopy.dataset.biI18n = "marketingPage.navSoonCopyUpdated";
       soonCopy.textContent = tr("marketingPage.navSoonCopyUpdated", "Webinar-Material, Banner, QR-Codes und weitere Sprachen.");
+    }
+  }
+
+  function installNetworkerPresentationCard(file) {
+    const section = $("#praesentation");
+    if (!section || !file || section.querySelector(".networker-presentation-card")) return;
+    const url = presentationPath(file.name);
+    const card = document.createElement("article");
+    card.className = "presentation-card networker-presentation-card";
+    card.innerHTML = `
+      <div class="presentation-icon">PDF</div>
+      <div class="presentation-copy">
+        <span class="networker-label">Networker-Info</span>
+        <h3>${tr("marketingPage.networkerPdfTitle", "Premium-Provisionsplan für Networker")}</h3>
+        <p>${tr("marketingPage.networkerPdfDescription", "Provisionssätze bis Ebene 8, feste Eurobeträge sowie transparente 2×2- und 3×3-Rechenbeispiele. Ohne Einkommens- oder Verdienstgarantie.")}</p>
+      </div>
+      <div class="presentation-actions">
+        <a class="presentation-button secondary" href="${url}" target="_blank" rel="noopener">${tr("marketingPage.viewPdf", "PDF ansehen")}</a>
+        <a class="presentation-button" href="${url}" download="${file.name}">${tr("marketingPage.downloadPdf", "PDF herunterladen")}</a>
+      </div>`;
+    const mainCard = section.querySelector(".presentation-card");
+    if (mainCard) mainCard.insertAdjacentElement("afterend", card); else section.appendChild(card);
+  }
+
+  async function loadNetworkerPresentation() {
+    try {
+      const response = await fetch(PRESENTATIONS_API, {headers:{Accept:"application/vnd.github+json"}});
+      if (!response.ok) throw new Error("GitHub API " + response.status);
+      const data = await response.json();
+      const file = data.find(item => item && item.type === "file" && PDF_EXT.test(item.name) && NETWORKER_FILE.test(item.name));
+      if (file) installNetworkerPresentationCard(file);
+    } catch (err) {
+      console.warn("BetInsight Networker PDF discovery", err);
     }
   }
 
@@ -197,6 +240,7 @@
     makeSection();
     tuneComingSoon();
     loadVideos();
+    loadNetworkerPresentation();
     window.addEventListener("bi:languagechange", refreshLanguage);
   }
 
