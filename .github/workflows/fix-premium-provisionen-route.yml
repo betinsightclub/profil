@@ -1,0 +1,36 @@
+name: Fix Premium Provision route
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-premium-provisionen-route.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch Premium Provision route
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('assets/app-navigation-v2.js')
+          s = p.read_text()
+          old = 'case "premium-provisionen": showMessage(t("session.networkHandoffPending", "Der sichere Zugang zum Premium-Netzwerk wird gerade auf tokenfreie Übergabe umgestellt.")); break;'
+          new = '''case "premium-provisionen":\n        loadScript("premium-network-handoff.js", "BetInsightPremiumNetworkHandoff")\n          .then(() => window.BetInsightPremiumNetworkHandoff?.start?.())\n          .catch(() => showMessage(t("session.networkHandoffError", "Premium & Network konnte gerade nicht geöffnet werden.")));\n        break;'''
+          if old not in s:
+              raise SystemExit('Expected Premium Provision route line not found')
+          p.write_text(s.replace(old, new, 1))
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name "betinsight-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add assets/app-navigation-v2.js
+          git diff --cached --quiet && exit 0
+          git commit -m "Fix Premium Provision secure handoff route"
+          git push
