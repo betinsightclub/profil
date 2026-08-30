@@ -2,7 +2,7 @@
 <!--
 BetInsight Konto & Zugang
 Pfad: /konto/index.html
-Stand: 30.08.2026-03 · Premium-Network-Handoff loopfrei
+Stand: 30.08.2026-04 · Premium-Network-Handoff per Einmalcode
 
 Ziele dieses Piloten:
 - deutsche Oberfläche bleibt inhaltlicher Fallback
@@ -21,7 +21,7 @@ Ziele dieses Piloten:
   <title>BetInsight – Konto & Zugang</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <script src="../assets/app-session.js"></script>
-  <script src="../assets/premium-network-handoff.js?v=20260830-6"></script>
+  <script src="../assets/premium-network-handoff.js?v=20260830-8"></script>
   <script src="../assets/i18n/core-v2.js"></script>
   <style>
     *{box-sizing:border-box}
@@ -246,7 +246,7 @@ Ziele dieses Piloten:
         renderAccessState();
       }
 
-      function goToTarget(){
+      async function goToTarget(){
         if(!savedAccess()) return false;
 
         if(next === "premium-provisionen"){
@@ -256,15 +256,21 @@ Ziele dieses Piloten:
             status.textContent=i18n.t("account.networkAccessMissing",{},"Der bestätigte Dashboard-Zugang fehlt auf diesem Gerät. Bitte öffne zuerst dein BetInsight Dashboard über deinen aktuellen Profil-Link und lade diese Seite danach neu.");
             return false;
           }
-          const started=window.BetInsightPremiumNetworkHandoff?.start?.();
+          const handoffWindow=window.open("about:blank","betinsightPremiumNetwork");
+          if(!handoffWindow){
+            status.className="status missing";
+            status.textContent=i18n.t("account.networkOpenError",{},"Premium & Network konnte nicht geöffnet werden. Bitte Pop-ups für BetInsight erlauben und erneut klicken.");
+            return false;
+          }
+          const started=await window.BetInsightPremiumNetworkHandoff?.start?.(handoffWindow);
           if(started){
             removeSaved(NEXT_KEY);
             status.className="status ok";
-            status.textContent=i18n.t("account.networkOpening",{},"✅ Premium & Network wurde in einem sicheren Fenster geöffnet.");
+            status.textContent=i18n.t("account.networkOpening",{},"✅ Premium & Network wird sicher geöffnet …");
             return true;
           }
           status.className="status missing";
-          status.textContent=i18n.t("account.networkOpenError",{},"Premium & Network konnte nicht geöffnet werden. Bitte Pop-ups für BetInsight erlauben und erneut klicken.");
+          status.textContent=i18n.t("account.networkOpenError",{},"Premium & Network konnte gerade nicht geöffnet werden. Bitte versuche es erneut.");
           return false;
         }
 

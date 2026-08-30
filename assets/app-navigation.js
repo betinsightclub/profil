@@ -3,7 +3,7 @@
    - customer pages that still include assets/app-navigation.js receive the multilingual v2 navigation
    - the large legacy root dashboard receives the DE/EN adapter without rewriting its business logic
    - internal customer navigation no longer generates URLs containing profile/dashboard access values
-   - Premium Network uses a token-free cross-domain handoff via a trusted bridge
+   - Premium Network uses a short-lived one-time-code handoff
    - admin pages are not part of this migration
 */
 (() => {
@@ -148,8 +148,8 @@
       await loadScript("i18n/core-v2.js","BetInsightI18n");
       await window.BetInsightI18n?.init?.();
       if (isRootDashboard()) await loadScript("i18n/dashboard-legacy.js");
-      await loadScript("app-navigation-v2.js?v=20260830-7");
-      await loadScript("premium-network-handoff.js?v=20260830-4","BetInsightPremiumNetworkHandoff");
+      await loadScript("app-navigation-v2.js?v=20260830-8");
+      await loadScript("premium-network-handoff.js?v=20260830-8","BetInsightPremiumNetworkHandoff");
       if (isRootDashboard()) {
         await loadScript("dashboard-layout.js");
         await loadScript("account-history.js");
