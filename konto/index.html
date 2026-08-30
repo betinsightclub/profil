@@ -2,7 +2,7 @@
 <!--
 BetInsight Konto & Zugang
 Pfad: /konto/index.html
-Pilot-Stand: 27.08.2026-01 · nur Feature-Branch
+Stand: 30.08.2026-02 · Premium-Network-Handoff aktiv
 
 Ziele dieses Piloten:
 - deutsche Oberfläche bleibt inhaltlicher Fallback
@@ -150,6 +150,8 @@ Ziele dieses Piloten:
       const NEXT_KEY = "betinsight_login_next";
       const PROFILE_LINK_WEBHOOK = "https://hook.eu1.make.com/me8q6ptfnno6qfji4s6348rw6f47i3t5";
       const APP_URL = new URL(session ? session.appPath() : "/", window.location.origin).toString();
+      const PREMIUM_NETWORK_HANDOFF_URL = "https://betinsight.network/handoff/";
+      const PREMIUM_NETWORK_HANDOFF_PREFIX = "BI_NETWORK_HANDOFF_V1:";
 
       const ALLOWED_NEXT = new Set([
         "dashboard","premium-provisionen","premium","netzwerk","wallet","tipps","kaufen",
@@ -249,9 +251,24 @@ Ziele dieses Piloten:
         if(!savedAccess()) return false;
 
         if(next === "premium-provisionen"){
-          status.className="status missing";
-          status.textContent=i18n.t("account.networkPending",{},"Der sichere Zugang zu Premium & Network wird aktuell auf eine Übergabe ohne sichtbaren Dashboard-Zugang umgestellt.");
-          return false;
+          const dashboardToken=savedDashboard();
+          if(!dashboardToken){
+            status.className="status missing";
+            status.textContent=i18n.t("account.networkAccessMissing",{},"Der bestätigte Dashboard-Zugang fehlt auf diesem Gerät. Bitte öffne zuerst dein BetInsight Dashboard über deinen aktuellen Profil-Link.");
+            return false;
+          }
+          try{
+            window.name=PREMIUM_NETWORK_HANDOFF_PREFIX+dashboardToken;
+            removeSaved(NEXT_KEY);
+            status.className="status ok";
+            status.textContent=i18n.t("account.networkOpening",{},"✅ Premium & Network wird sicher geöffnet …");
+            window.location.assign(PREMIUM_NETWORK_HANDOFF_URL);
+            return true;
+          }catch(e){
+            status.className="status missing";
+            status.textContent=i18n.t("account.networkOpenError",{},"Premium & Network konnte gerade nicht geöffnet werden. Bitte versuche es erneut.");
+            return false;
+          }
         }
 
         if(next && next!=="dashboard") setSaved(NEXT_KEY,next);
@@ -310,7 +327,7 @@ Ziele dieses Piloten:
       renderDynamicText();
 
       const access=savedAccess();
-      if(access&&next&&next!=="premium-provisionen") window.setTimeout(()=>goToTarget(),450);
+      if(access&&next) window.setTimeout(()=>goToTarget(),450);
     })();
   </script>
 </body>
