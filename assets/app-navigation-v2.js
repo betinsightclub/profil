@@ -186,7 +186,11 @@
       case "premium": navigateProfileHash("premium"); break;
       case "marketing-center": navigateProtected("marketing-center"); break;
       case "support": navigateProtected("support"); break;
-      case "premium-provisionen": showMessage(t("session.networkHandoffPending", "Der sichere Zugang zum Premium-Netzwerk wird gerade auf tokenfreie Übergabe umgestellt.")); break;
+      case "premium-provisionen":
+        loadScript("premium-network-handoff.js", "BetInsightPremiumNetworkHandoff")
+          .then(() => window.BetInsightPremiumNetworkHandoff?.start?.())
+          .catch(() => showMessage(t("session.networkHandoffError", "Premium & Network konnte gerade nicht geöffnet werden.")));
+        break;
       default: break;
     }
   }
