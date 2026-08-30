@@ -187,31 +187,19 @@
       case "marketing-center": navigateProtected("marketing-center"); break;
       case "support": navigateProtected("support"); break;
       case "premium-provisionen": {
-        const handoffWindow = window.open("about:blank", "betinsightPremiumNetwork");
-        if (!handoffWindow) {
-          showMessage(t("session.networkPopupBlocked", "Premium & Network konnte nicht geöffnet werden. Bitte Pop-ups für BetInsight erlauben."));
-          break;
-        }
-        try {
-          handoffWindow.document.title = "BetInsight – Premium & Network";
-          handoffWindow.document.body.innerHTML = '<div style="font-family:Arial,sans-serif;background:#03131d;color:#dff6ff;min-height:100vh;display:grid;place-items:center;margin:0"><div>Premium & Network wird sicher geöffnet …</div></div>';
-        } catch (e) {}
-        loadScript("premium-network-handoff.js?v=20260830-8", "BetInsightPremiumNetworkHandoff")
+        showMessage(t("session.networkOpening", "Premium & Network wird sicher geöffnet …"));
+        loadScript("premium-network-handoff.js?v=20260830-9", "BetInsightPremiumNetworkHandoff")
           .then(async () => {
-            const started = await window.BetInsightPremiumNetworkHandoff?.start?.(handoffWindow);
+            const started = await window.BetInsightPremiumNetworkHandoff?.start?.();
             if (!started) {
               if (!session()?.hasDashboardAccess()) {
-                try { if (!handoffWindow.closed) handoffWindow.close(); } catch (e) {}
                 window.location.assign(session().appPath("konto") + "?next=premium-provisionen");
               } else {
-                showMessage(t("session.networkHandoffError", "Premium & Network konnte gerade nicht geöffnet werden."));
+                showMessage(t("session.networkHandoffError", "Premium & Network konnte gerade nicht geöffnet werden. Bitte versuche es erneut."));
               }
             }
           })
-          .catch(() => {
-            try { if (!handoffWindow.closed) handoffWindow.close(); } catch (e) {}
-            showMessage(t("session.networkHandoffError", "Premium & Network konnte gerade nicht geöffnet werden."));
-          });
+          .catch(() => showMessage(t("session.networkHandoffError", "Premium & Network konnte gerade nicht geöffnet werden. Bitte versuche es erneut.")));
         break;
       }
       default: break;

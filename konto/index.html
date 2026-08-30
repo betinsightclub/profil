@@ -2,7 +2,7 @@
 <!--
 BetInsight Konto & Zugang
 Pfad: /konto/index.html
-Stand: 30.08.2026-04 · Premium-Network-Handoff per Einmalcode
+Stand: 30.08.2026-05 · Premium-Network-Handoff per Einmalcode im selben Tab
 
 Ziele dieses Piloten:
 - deutsche Oberfläche bleibt inhaltlicher Fallback
@@ -21,7 +21,7 @@ Ziele dieses Piloten:
   <title>BetInsight – Konto & Zugang</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <script src="../assets/app-session.js"></script>
-  <script src="../assets/premium-network-handoff.js?v=20260830-8"></script>
+  <script src="../assets/premium-network-handoff.js?v=20260830-9"></script>
   <script src="../assets/i18n/core-v2.js"></script>
   <style>
     *{box-sizing:border-box}
@@ -256,17 +256,11 @@ Ziele dieses Piloten:
             status.textContent=i18n.t("account.networkAccessMissing",{},"Der bestätigte Dashboard-Zugang fehlt auf diesem Gerät. Bitte öffne zuerst dein BetInsight Dashboard über deinen aktuellen Profil-Link und lade diese Seite danach neu.");
             return false;
           }
-          const handoffWindow=window.open("about:blank","betinsightPremiumNetwork");
-          if(!handoffWindow){
-            status.className="status missing";
-            status.textContent=i18n.t("account.networkOpenError",{},"Premium & Network konnte nicht geöffnet werden. Bitte Pop-ups für BetInsight erlauben und erneut klicken.");
-            return false;
-          }
-          const started=await window.BetInsightPremiumNetworkHandoff?.start?.(handoffWindow);
+          status.className="status ok";
+          status.textContent=i18n.t("account.networkOpening",{},"Premium & Network wird sicher geöffnet …");
+          const started=await window.BetInsightPremiumNetworkHandoff?.start?.();
           if(started){
             removeSaved(NEXT_KEY);
-            status.className="status ok";
-            status.textContent=i18n.t("account.networkOpening",{},"✅ Premium & Network wird sicher geöffnet …");
             return true;
           }
           status.className="status missing";
