@@ -39,7 +39,7 @@
     const token = dashboardUuid();
     if (!token) {
       if (existingWindow && !existingWindow.closed) existingWindow.close();
-      window.location.assign(ACCOUNT_GATEWAY);
+      if (!window.location.pathname.startsWith("/konto")) window.location.assign(ACCOUNT_GATEWAY);
       return false;
     }
 
@@ -87,7 +87,7 @@
     event.stopPropagation();
     event.stopImmediatePropagation();
     const opened = startHandoff();
-    if (!opened) window.location.assign(ACCOUNT_GATEWAY);
+    if (!opened && !window.location.pathname.startsWith("/konto")) window.location.assign(ACCOUNT_GATEWAY);
   }, true);
 
   window.BetInsightPremiumNetworkHandoff = Object.freeze({ start: startHandoff });
