@@ -1,0 +1,90 @@
+name: Fix Premium Network loop v2
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-premium-network-loop-v2.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Patch navigation and account gateway
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          VERSION = '20260830-6'
+
+          # 1) Navigation: open a blank trusted window synchronously from the click,
+          # then load the handoff helper and transfer via postMessage.
+          nav = Path('assets/app-navigation-v2.js')
+          s = nav.read_text(encoding='utf-8')
+          old = '''      case "premium-provisionen":\n        loadScript("premium-network-handoff.js", "BetInsightPremiumNetworkHandoff")\n          .then(() => window.BetInsightPremiumNetworkHandoff?.start?.())\n          .catch(() => showMessage(t("session.networkHandoffError", "Premium & Network konnte gerade nicht geöffnet werden.")));\n        break;'''
+          new = '''      case "premium-provisionen": {\n        const handoffWindow = window.open("about:blank", "betinsightPremiumNetwork");\n        if (!handoffWindow) {\n          showMessage(t("session.networkPopupBlocked", "Premium & Network konnte nicht geöffnet werden. Bitte Pop-ups für BetInsight erlauben."));\n          break;\n        }\n        try {\n          handoffWindow.document.title = "BetInsight – Premium & Network";\n          handoffWindow.document.body.innerHTML = '<div style="font-family:Arial,sans-serif;background:#03131d;color:#dff6ff;min-height:100vh;display:grid;place-items:center;margin:0"><div>Premium & Network wird sicher geöffnet …</div></div>';\n        } catch (e) {}\n        loadScript("premium-network-handoff.js?v=''' + VERSION + '''", "BetInsightPremiumNetworkHandoff")\n          .then(() => {\n            const started = window.BetInsightPremiumNetworkHandoff?.start?.(handoffWindow);\n            if (!started) {\n              try { if (!handoffWindow.closed) handoffWindow.close(); } catch (e) {}\n              if (!session()?.hasDashboardAccess()) session().navigateLocal("konto", {query:{next:"premium-provisionen"}});\n              else showMessage(t("session.networkHandoffError", "Premium & Network konnte gerade nicht geöffnet werden."));\n            }\n          })\n          .catch(() => {\n            try { if (!handoffWindow.closed) handoffWindow.close(); } catch (e) {}\n            showMessage(t("session.networkHandoffError", "Premium & Network konnte gerade nicht geöffnet werden."));\n          });\n        break;\n      }'''
+          if old not in s:
+              raise SystemExit('app-navigation premium branch anchor not found')
+          s = s.replace(old, new, 1)
+          s = s.replace('cross-origin Premium Network handoff stays disabled until a separate secure handoff exists.', 'cross-origin Premium Network handoff uses a fixed-origin postMessage bridge and never exposes the dashboard UUID in the URL.', 1)
+          nav.write_text(s, encoding='utf-8')
+
+          # 2) Account gateway: preload the helper, use it only on explicit button click,
+          # and never auto-redirect Premium Network (prevents bounce loops / popup blocking).
+          konto = Path('konto/index.html')
+          s = konto.read_text(encoding='utf-8')
+          anchor = '  <script src="../assets/app-session.js"></script>\n  <script src="../assets/i18n/core-v2.js"></script>'
+          replacement = '  <script src="../assets/app-session.js"></script>\n  <script src="../assets/premium-network-handoff.js?v=' + VERSION + '"></script>\n  <script src="../assets/i18n/core-v2.js"></script>'
+          if anchor not in s:
+              raise SystemExit('konto script anchor not found')
+          s = s.replace(anchor, replacement, 1)
+
+          s = s.replace('      const PREMIUM_NETWORK_HANDOFF_URL = "https://betinsight.network/handoff/";\n      const PREMIUM_NETWORK_HANDOFF_PREFIX = "BI_NETWORK_HANDOFF_V1:";\n', '', 1)
+
+          old_branch = '''        if(next === "premium-provisionen"){\n          const dashboardToken=savedDashboard();\n          if(!dashboardToken){\n            status.className="status missing";\n            status.textContent=i18n.t("account.networkAccessMissing",{},"Der bestätigte Dashboard-Zugang fehlt auf diesem Gerät. Bitte öffne zuerst dein BetInsight Dashboard über deinen aktuellen Profil-Link.");\n            return false;\n          }\n          try{\n            window.name=PREMIUM_NETWORK_HANDOFF_PREFIX+dashboardToken;\n            removeSaved(NEXT_KEY);\n            status.className="status ok";\n            status.textContent=i18n.t("account.networkOpening",{},"✅ Premium & Network wird sicher geöffnet …");\n            window.location.assign(PREMIUM_NETWORK_HANDOFF_URL);\n            return true;\n          }catch(e){\n            status.className="status missing";\n            status.textContent=i18n.t("account.networkOpenError",{},"Premium & Network konnte gerade nicht geöffnet werden. Bitte versuche es erneut.");\n            return false;\n          }\n        }'''
+          new_branch = '''        if(next === "premium-provisionen"){\n          const dashboardToken=savedDashboard();\n          if(!dashboardToken){\n            status.className="status missing";\n            status.textContent=i18n.t("account.networkAccessMissing",{},"Der bestätigte Dashboard-Zugang fehlt auf diesem Gerät. Bitte öffne zuerst dein BetInsight Dashboard über deinen aktuellen Profil-Link und lade diese Seite danach neu.");\n            return false;\n          }\n          const started=window.BetInsightPremiumNetworkHandoff?.start?.();\n          if(started){\n            removeSaved(NEXT_KEY);\n            status.className="status ok";\n            status.textContent=i18n.t("account.networkOpening",{},"✅ Premium & Network wurde in einem sicheren Fenster geöffnet.");\n            return true;\n          }\n          status.className="status missing";\n          status.textContent=i18n.t("account.networkOpenError",{},"Premium & Network konnte nicht geöffnet werden. Bitte Pop-ups für BetInsight erlauben und erneut klicken.");\n          return false;\n        }'''
+          if old_branch not in s:
+              raise SystemExit('konto premium branch anchor not found')
+          s = s.replace(old_branch, new_branch, 1)
+
+          old_auto = '      if(access&&next) window.setTimeout(()=>goToTarget(),450);'
+          new_auto = '      if(access&&next&&next!=="premium-provisionen") window.setTimeout(()=>goToTarget(),450);'
+          if old_auto not in s:
+              raise SystemExit('konto autoroute anchor not found')
+          s = s.replace(old_auto, new_auto, 1)
+          s = s.replace('Stand: 30.08.2026-02 · Premium-Network-Handoff aktiv', 'Stand: 30.08.2026-03 · Premium-Network-Handoff loopfrei', 1)
+          konto.write_text(s, encoding='utf-8')
+
+          # 3) Force fresh navigation URLs once, so browsers do not keep the broken v4/v5 scripts.
+          for p in Path('.').rglob('*.html'):
+              if '.git' in p.parts:
+                  continue
+              s = p.read_text(encoding='utf-8')
+              n = re.sub(r'app-navigation-v2\\.js(?:\\?v=[^"\\\']+)?', 'app-navigation-v2.js?v=' + VERSION, s)
+              n = re.sub(r'app-navigation\\.js(?:\\?v=[^"\\\']+)?', 'app-navigation.js?v=' + VERSION, n)
+              if n != s:
+                  p.write_text(n, encoding='utf-8')
+
+          # Update compatibility loader too.
+          loader = Path('assets/app-navigation.js')
+          if loader.exists():
+              s = loader.read_text(encoding='utf-8')
+              s = re.sub(r'app-navigation-v2\\.js(?:\\?v=[^"\\\']+)?', 'app-navigation-v2.js?v=' + VERSION, s)
+              loader.write_text(s, encoding='utf-8')
+
+          # This workflow is one-time only.
+          Path('.github/workflows/fix-premium-network-loop-v2.yml').unlink(missing_ok=True)
+          PY
+      - name: Commit final loop fix
+        run: |
+          git config user.name "betinsight-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -m "Fix Premium Network secure handoff loop"
+          git push origin main
