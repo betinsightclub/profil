@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <meta name="theme-color" content="#071019">
+  <meta name="application-version" content="1.1.0">
   <meta name="bi-i18n-scope" content="my-sale-offers">
   <title data-bi-i18n="mySaleOffersPage.title">Meine Verkaufsangebote | BetInsight Club</title>
   <link rel="icon" type="image/x-icon" href="../favicon.ico">
@@ -13,7 +14,8 @@
   <script src="../assets/i18n/core-v2.js"></script>
   <script src="../assets/app-navigation-v2.js?v=20260830-9" defer></script>
   <style>
-    :root{--bg:#071019;--panel:#0d1a26;--text:#f4f8fb;--muted:#91a6b7;--line:rgba(145,166,183,.18);--green:#25e6a7;--yellow:#ffc857;--danger:#ff6b7d}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 12% 0%,rgba(37,230,167,.12),transparent 30rem),radial-gradient(circle at 92% 12%,rgba(89,168,255,.12),transparent 30rem),var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}.page{width:min(100% - 28px,920px);margin:auto;padding:34px 0 56px}.logo{width:170px;max-width:55vw}.hero{margin-top:24px}.hero h1{margin:8px 0;font-size:clamp(2rem,6vw,3rem)}.hero p{color:var(--muted);line-height:1.55}.card{margin-top:22px;padding:clamp(20px,5vw,30px);border:1px solid var(--line);border-radius:22px;background:linear-gradient(155deg,rgba(18,36,51,.96),rgba(13,26,38,.98));box-shadow:0 24px 70px rgba(0,0,0,.34)}.cardhead{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:18px}.card h2{margin:0 0 6px}.cardhead p{margin:0;color:var(--muted)}.count{padding:7px 11px;border-radius:999px;border:1px solid rgba(37,230,167,.28);color:var(--green);font-size:.75rem;font-weight:900}.list{display:grid;gap:12px}.offer{display:grid;grid-template-columns:minmax(0,1.35fr) repeat(3,minmax(0,.9fr));gap:12px;align-items:center;padding:16px;border:1px solid var(--line);border-radius:16px;background:rgba(7,16,25,.52)}.main strong,.meta strong{display:block}.main span,.meta span{display:block;margin-top:5px;color:var(--muted);font-size:.78rem}.badge{justify-self:end;display:inline-flex;min-height:34px;align-items:center;padding:0 11px;border-radius:999px;font-size:.74rem;font-weight:900;white-space:nowrap}.badge.active{color:#caffed;background:rgba(37,230,167,.1);border:1px solid rgba(37,230,167,.3)}.badge.reserved{color:#ffe6ad;background:rgba(255,200,87,.1);border:1px solid rgba(255,200,87,.3)}.state{padding:16px;border:1px dashed rgba(145,166,183,.25);border-radius:14px;color:var(--muted);line-height:1.55}.state.error{color:#ffd9de;border-color:rgba(255,107,125,.35);background:rgba(255,107,125,.07)}.note{margin-top:18px;color:var(--muted);font-size:.82rem;line-height:1.5}.back{display:inline-flex;margin-top:18px;padding:11px 15px;border-radius:12px;border:1px solid var(--line);color:#fff;text-decoration:none;background:rgba(13,26,38,.9)}@media(max-width:700px){.offer{grid-template-columns:1fr 1fr}.main{grid-column:1/-1}.badge{justify-self:start}.cardhead{flex-direction:column}}@media(max-width:460px){.offer{grid-template-columns:1fr}.main{grid-column:auto}}
+    :root{--bg:#071019;--panel:#0d1a26;--text:#f4f8fb;--muted:#91a6b7;--line:rgba(145,166,183,.18);--green:#25e6a7;--blue:#59a8ff;--yellow:#ffc857;--danger:#ff6b7d}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 12% 0%,rgba(37,230,167,.12),transparent 30rem),radial-gradient(circle at 92% 12%,rgba(89,168,255,.12),transparent 30rem),var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}.page{width:min(100% - 28px,920px);margin:auto;padding:34px 0 56px}.logo{width:170px;max-width:55vw}.hero{margin-top:24px}.hero h1{margin:8px 0;font-size:clamp(2rem,6vw,3rem)}.hero p{color:var(--muted);line-height:1.55}.card{margin-top:22px;padding:clamp(20px,5vw,30px);border:1px solid var(--line);border-radius:22px;background:linear-gradient(155deg,rgba(18,36,51,.96),rgba(13,26,38,.98));box-shadow:0 24px 70px rgba(0,0,0,.34)}.cardhead{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:18px}.card h2{margin:0 0 6px}.cardhead p{margin:0;color:var(--muted)}.count{padding:7px 11px;border-radius:999px;border:1px solid rgba(37,230,167,.28);color:var(--green);font-size:.75rem;font-weight:900}.list{display:grid;gap:12px}.offer{display:grid;grid-template-columns:minmax(0,1.3fr) repeat(3,minmax(0,.85fr));gap:12px;align-items:center;padding:16px;border:1px solid var(--line);border-radius:16px;background:rgba(7,16,25,.52)}.main strong,.meta strong{display:block}.main span,.meta span{display:block;margin-top:5px;color:var(--muted);font-size:.78rem;overflow-wrap:anywhere}.badge{justify-self:end;display:inline-flex;min-height:34px;align-items:center;padding:0 11px;border-radius:999px;font-size:.74rem;font-weight:900;white-space:nowrap}.badge.active{color:#caffed;background:rgba(37,230,167,.1);border:1px solid rgba(37,230,167,.3)}.badge.reserved{color:#ffe6ad;background:rgba(255,200,87,.1);border:1px solid rgba(255,200,87,.3)}.actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:9px;padding-top:11px;border-top:1px solid var(--line)}.action{min-height:40px;padding:0 15px;border-radius:10px;font-weight:850;cursor:pointer}.action.edit{color:#dcecff;background:rgba(89,168,255,.12);border:1px solid rgba(89,168,255,.35)}.action.cancel{color:#ffd9de;background:rgba(255,107,125,.1);border:1px solid rgba(255,107,125,.35)}.action:disabled{opacity:.5;cursor:not-allowed}.price-select{min-height:40px;padding:0 10px;color:var(--text);background:#0b1721;border:1px solid rgba(89,168,255,.35);border-radius:10px}.locked{grid-column:1/-1;margin:0;padding-top:10px;border-top:1px solid var(--line);color:var(--muted);font-size:.8rem;line-height:1.45}.state{padding:16px;border:1px dashed rgba(145,166,183,.25);border-radius:14px;color:var(--muted);line-height:1.55}.state.error{color:#ffd9de;border-color:rgba(255,107,125,.35);background:rgba(255,107,125,.07)}.feedback{display:none;margin-top:16px;padding:13px 15px;border-radius:11px;line-height:1.5;font-size:.86rem}.feedback.show{display:block}.feedback.success{color:#caffed;background:rgba(37,230,167,.08);border:1px solid rgba(37,230,167,.3)}.feedback.error{color:#ffd9de;background:rgba(255,107,125,.08);border:1px solid rgba(255,107,125,.3)}.note{margin-top:18px;color:var(--muted);font-size:.82rem;line-height:1.5}.back{display:inline-flex;margin-top:18px;padding:11px 15px;border-radius:12px;border:1px solid var(--line);color:#fff;text-decoration:none;background:rgba(13,26,38,.9)}@media(max-width:700px){.offer{grid-template-columns:1fr 1fr}.main{grid-column:1/-1}.badge{justify-self:start}.cardhead{flex-direction:column}.actions{justify-content:stretch}.action{flex:1}}@media(max-width:460px){.offer{grid-template-columns:1fr}.main{grid-column:auto}.actions{display:grid;grid-template-columns:1fr 1fr}}
   </style>
 </head>
 <body>
@@ -21,53 +23,67 @@
   <img class="logo" src="../logo_betisight.club.png" alt="BetInsight Club">
   <section class="hero">
     <h1 data-bi-i18n="mySaleOffersPage.heading">Meine Verkaufsangebote</h1>
-    <p data-bi-i18n="mySaleOffersPage.intro">Hier siehst du deine aktuell aktiven oder für einen Käufer reservierten Verkaufsangebote. Die Übersicht ist nur lesend.</p>
+    <p>Hier siehst du deine aktiven oder bereits für einen Käufer reservierten Verkaufsangebote. Aktive Angebote kannst du im Preis bearbeiten oder stornieren.</p>
   </section>
   <section class="card">
-    <div class="cardhead"><div><h2 data-bi-i18n="mySaleOffersPage.current">Aktuell im Verkauf</h2><p data-bi-i18n="mySaleOffersPage.currentCopy">Aktive und momentan reservierte Angebote.</p></div><span class="count" id="count" data-bi-i18n="mySaleOffersPage.loadingCount">Lade …</span></div>
-    <div class="state" id="state" data-bi-i18n="mySaleOffersPage.loading">Deine Verkaufsangebote werden geladen.</div>
+    <div class="cardhead"><div><h2>Aktuell im Verkauf</h2><p>Aktive und momentan reservierte Angebote.</p></div><span class="count" id="count">Lade …</span></div>
+    <div class="state" id="state">Deine Verkaufsangebote werden geladen.</div>
     <div class="list" id="list" hidden></div>
-    <p class="note" data-bi-i18n="mySaleOffersPage.note">Diese Seite verändert keine Units, Gebühren oder Angebote. Eine Storno-Funktion ist noch nicht freigeschaltet.</p>
+    <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
+    <p class="note"><strong>Wichtig:</strong> Nur aktive Angebote können bearbeitet oder storniert werden. Sobald ein Käufer reserviert hat, sind Änderungen gesperrt. Beim Storno wird die Verkaufsmenge wieder freigegeben; die normale Verkaufsgebühr bleibt verbraucht. Eine reservierte Bank-Service-Unit wird zurückgegeben.</p>
   </section>
-  <a class="back" href="../verkaufen/" data-bi-i18n="mySaleOffersPage.newOffer">Neues Verkaufsangebot erstellen</a>
+  <a class="back" href="../verkaufen/">Neues Verkaufsangebot erstellen</a>
 </main>
 <script>
 (()=>{
   'use strict';
-  const ENDPOINT='https://hook.eu1.make.com/r4vv6dolmdni4vppridgpaf5teaua6kr';
-  const state=document.getElementById('state'),list=document.getElementById('list'),count=document.getElementById('count');
-  let lastItems=[];
-  const t=(key,vars={},fallback='')=>window.BetInsightI18n?.t(key,vars,fallback)||fallback;
+  const READ_ENDPOINT='https://hook.eu1.make.com/r4vv6dolmdni4vppridgpaf5teaua6kr';
+  const MUTATION_ENDPOINT='https://hook.eu1.make.com/6mm8zk6yaq08vi9lmzbu5v265e9rcyce';
+  const ALLOWED_PRICES=[.80,.85,.90,.95,1.00];
+  const state=document.getElementById('state'),list=document.getElementById('list'),count=document.getElementById('count'),feedback=document.getElementById('feedback');
+  let lastItems=[],busy=false;
   const locale=()=>window.BetInsightI18n?.getLanguage?.()==='en'?'en-US':'de-DE';
   const euro=v=>new Intl.NumberFormat(locale(),{style:'currency',currency:'EUR',minimumFractionDigits:2}).format(Number(v)||0);
-  function storedToken(){return window.BetInsightSession?.getDashboardUuid?.()||''}
+  const token=()=>window.BetInsightSession?.getDashboardUuid?.()||'';
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const reqId=()=>globalThis.crypto?.randomUUID?.()||('req-'+Date.now()+'-'+Math.random().toString(16).slice(2));
+  function message(text,type){feedback.textContent=text;feedback.className='feedback show '+type}
+  function clearMessage(){feedback.textContent='';feedback.className='feedback'}
+  function isActive(v){return String(v||'').toUpperCase()==='AKTIV'}
+  function isReserved(v){const s=String(v||'').toUpperCase();return s==='KAUF_RESERVIERT'||s==='RESERVIERT'}
   function render(items){
     lastItems=Array.isArray(items)?items:[];
-    const visible=lastItems.filter(x=>['AKTIV','KAUF_RESERVIERT'].includes(String(x.status||'').toUpperCase()));
-    count.textContent=t(visible.length===1?'mySaleOffersPage.offerOne':'mySaleOffersPage.offerMany',{count:visible.length},visible.length+' Angebot'+(visible.length===1?'':'e'));
-    if(!visible.length){state.hidden=false;state.className='state';state.textContent=t('mySaleOffersPage.empty',{},'Aktuell hast du keine eigenen Verkaufsangebote im Verkauf oder reserviert.');list.hidden=true;return}
+    const visible=lastItems.filter(x=>isActive(x.status)||isReserved(x.status));
+    count.textContent=visible.length+' Angebot'+(visible.length===1?'':'e');
+    if(!visible.length){state.hidden=false;state.className='state';state.textContent='Aktuell hast du keine eigenen Verkaufsangebote im Verkauf oder reserviert.';list.hidden=true;return}
     state.hidden=true;list.hidden=false;list.innerHTML='';
-    visible.forEach(o=>{
-      const reserved=String(o.status||'').toUpperCase()==='KAUF_RESERVIERT';
-      const el=document.createElement('article');el.className='offer';
-      const id=String(o.id||t('mySaleOffersPage.offerFallback',{},'Angebot'));
-      el.innerHTML=`<div class="main"><strong>${Number(o.units)||0} Units</strong><span>${escapeHtml(id)}</span></div><div class="meta"><span>${escapeHtml(t('mySaleOffersPage.unitPrice',{},'Preis pro Unit'))}</span><strong>${escapeHtml(euro(o.unitPriceEur))}</strong></div><div class="meta"><span>${escapeHtml(t('mySaleOffersPage.totalPrice',{},'Gesamtpreis'))}</span><strong>${escapeHtml(euro(o.totalEur))}</strong></div><div><span class="badge ${reserved?'reserved':'active'}">${escapeHtml(t(reserved?'mySaleOffersPage.reserved':'mySaleOffersPage.active',{},reserved?'Für Käufer reserviert':'Aktiv im Verkauf'))}</span></div>`;
+    visible.forEach((o,index)=>{
+      const active=isActive(o.status),reserved=isReserved(o.status),id=String(o.id||'Angebot');
+      const el=document.createElement('article');el.className='offer';el.dataset.index=String(index);
+      el.innerHTML=`<div class="main"><strong>${Number(o.units)||0} Units</strong><span>${esc(id)}</span></div><div class="meta"><span>Preis pro Unit</span><strong class="price-value">${esc(euro(o.unitPriceEur))}</strong></div><div class="meta"><span>Gesamtpreis</span><strong class="total-value">${esc(euro(o.totalEur))}</strong></div><div><span class="badge ${reserved?'reserved':'active'}">${reserved?'Für Käufer reserviert':'Aktiv im Verkauf'}</span></div>${active?'<div class="actions"><button class="action edit" type="button" data-action="edit">Bearbeiten</button><button class="action cancel" type="button" data-action="cancel">Stornieren</button></div>':'<p class="locked">Dieses Angebot ist bereits für einen Käufer reserviert und kann deshalb momentan weder bearbeitet noch storniert werden.</p>'}`;
+      el.querySelectorAll('[data-action]').forEach(btn=>btn.addEventListener('click',()=>handleAction(btn,o)));
       list.appendChild(el);
     });
   }
-  function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-  async function init(){
-    const token=storedToken();
-    if(!token){count.textContent='–';state.className='state error';state.textContent=t('mySaleOffersPage.missingAccess',{},'Dein persönlicher Dashboard-Zugang ist auf diesem Gerät noch nicht verfügbar. Öffne die Seite bitte über dein BetInsight-Profil.');return}
-    try{
-      const r=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dashboard_token:token})});
-      const text=String(await r.text()||'').replace(/^\uFEFF/,'').trim();
-      if(!r.ok)throw new Error('request failed');
-      render(text?JSON.parse(text):[]);
-    }catch(e){console.error('Sale offers load failed',e);count.textContent='–';state.hidden=false;state.className='state error';state.textContent=t('mySaleOffersPage.loadError',{},'Deine Verkaufsangebote konnten gerade nicht geladen werden. Bitte versuche es erneut.')}
+  async function load(){
+    const t=token();if(!t){count.textContent='–';state.className='state error';state.textContent='Dein persönlicher Dashboard-Zugang ist auf diesem Gerät nicht verfügbar.';return}
+    try{const r=await fetch(READ_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dashboard_token:t}),cache:'no-store'});const text=String(await r.text()||'').replace(/^\uFEFF/,'').trim();if(!r.ok)throw new Error('Angebote konnten nicht geladen werden.');render(text?JSON.parse(text):[])}catch(e){console.error(e);count.textContent='–';state.hidden=false;state.className='state error';state.textContent='Deine Verkaufsangebote konnten gerade nicht geladen werden. Bitte versuche es erneut.'}
+  }
+  async function mutate(payload){const r=await fetch(MUTATION_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...payload,dashboard_token:token(),request_id:reqId()}),cache:'no-store'});const text=String(await r.text()||'').replace(/^\uFEFF/,'').trim();let d={};try{d=JSON.parse(text||'{}')}catch(_){d={message:text}}if(!r.ok||d.status==='error')throw new Error(d.message||'Änderung fehlgeschlagen.');return d}
+  async function handleAction(btn,o){
+    if(busy)return;clearMessage();
+    if(btn.dataset.action==='edit'){
+      const card=btn.closest('.offer'),existing=card.querySelector('.price-select');
+      if(!existing){const current=Number(o.unitPriceEur||0),sel=document.createElement('select');sel.className='price-select';ALLOWED_PRICES.forEach(p=>{const op=document.createElement('option');op.value=p.toFixed(2);op.textContent=euro(p);if(Math.abs(p-current)<.001)op.selected=true;sel.appendChild(op)});card.querySelector('.price-value').replaceWith(sel);sel.addEventListener('change',()=>card.querySelector('.total-value').textContent=euro((Number(o.units)||0)*Number(sel.value)));btn.textContent='Preis speichern';return}
+      busy=true;btn.disabled=true;try{await mutate({action:'edit',offer_id:o.id,price:Number(existing.value)});message('Verkaufspreis wurde geändert.','success');await load()}catch(e){message(e.message||'Preis konnte nicht geändert werden.','error')}finally{busy=false;btn.disabled=false}return;
+    }
+    if(btn.dataset.action==='cancel'){
+      if(!confirm('Verkaufsangebot wirklich stornieren?\n\nDie Verkaufsmenge wird wieder freigegeben. Die normale Verkaufsgebühr bleibt verbraucht. Eine eventuell reservierte Bank-Service-Unit wird ebenfalls freigegeben.'))return;
+      busy=true;btn.disabled=true;try{await mutate({action:'cancel',offer_id:o.id});message('Verkaufsangebot wurde storniert und aus der aktiven Übersicht entfernt.','success');await load()}catch(e){message(e.message||'Angebot konnte nicht storniert werden.','error')}finally{busy=false;btn.disabled=false}
+    }
   }
   window.addEventListener('bi:languagechange',()=>render(lastItems));
-  window.BetInsightI18n?.init().then(init);
+  Promise.resolve(window.BetInsightI18n?.init?.()).finally(load);
 })();
 </script>
 </body>
