@@ -2,7 +2,7 @@
 <!--
 Projekt: BetInsight
 Datei auf GitHub: profil/admin/backoffice/index.html
-Version: 2026.08.29-BACKOFFICE-v2.24-KOSTEN-TRANSPARENZ
+Version: 2026.08.30-BACKOFFICE-v2.25-KOSTEN-PLANUNG
 Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro Tipp einer Liefer-LED plus einer Ergebnis-LED, Bonuspunkten für Übererfüllung, Tipp-ID-sicherer Wochenhistorie, getrenntem Testbetrieb, Ergebnisübersicht, Wallet-Zielauswahl und festen Netzwerken.
 -->
 <html lang="de">
@@ -2211,6 +2211,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
         </div>
 
         <div class="cost-coverage-line" id="sharedCostCoverage">Deckung laufender Monat wird geladen …</div>
+        <div class="cost-rate-plan" id="sharedCostPlanning">Offene Planung wird geladen …</div>
         <div class="cost-rate-plan" id="sharedCostPlan">Aktueller und geplanter Satz werden geladen …</div>
 
         <div class="cost-master-control hidden" id="costMasterControl">
@@ -5214,6 +5215,9 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       const currentRate = num(summary?.prepayment_pct);
       const nextRate = summary?.next_prepayment_pct !== undefined ? num(summary.next_prepayment_pct) : currentRate;
       const difference = num(summary?.difference_eur);
+      const plannedKnown = num(summary?.planned_costs_known_eur);
+      const plannedCount = Math.max(0, Math.floor(num(summary?.planned_costs_open_count)));
+      const expectedKnown = num(summary?.expected_total_known_eur || totalCosts + plannedKnown);
       const effective = String(summary?.next_prepayment_effective || "");
 
       const monthLabel = document.getElementById("sharedCostMonthLabel");
@@ -5234,6 +5238,20 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
         coverage.innerHTML = "<strong>Deckung laufender Monat:</strong> " +
           escapeHtml(formatEuro(contribution)) + " von " + escapeHtml(formatEuro(currentCosts)) +
           " · Differenz: <strong>" + escapeHtml((difference > 0 ? "+" : "") + formatEuro(difference)) + "</strong>";
+      }
+
+      const planning = document.getElementById("sharedCostPlanning");
+      if (planning) {
+        if (plannedCount > 0) {
+          planning.innerHTML = plannedKnown > 0
+            ? "<strong>Offene/geplante Kosten:</strong> " + escapeHtml(formatEuro(plannedKnown)) +
+              " · " + escapeHtml(String(plannedCount)) + " offene Position" + (plannedCount === 1 ? "" : "en") +
+              " · <strong>bekannte Gesamtkosten inkl. Planung:</strong> " + escapeHtml(formatEuro(expectedKnown))
+            : "<strong>Offene Planung:</strong> " + escapeHtml(String(plannedCount)) + " Position" + (plannedCount === 1 ? "" : "en") +
+              " · Betrag noch offen · <strong>aktuell gebuchte Gesamtkosten:</strong> " + escapeHtml(formatEuro(totalCosts));
+        } else {
+          planning.innerHTML = "<strong>Offene Planung:</strong> keine · <strong>Gesamtkosten:</strong> " + escapeHtml(formatEuro(totalCosts));
+        }
       }
 
       const plan = document.getElementById("sharedCostPlan");
