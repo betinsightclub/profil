@@ -1,152 +1,108 @@
 <!DOCTYPE html>
-<!--
-BetInsight Wallet · Feature-Branch multilingual pilot
-Version 2026.08.28-01
-- dashboard UUID is read from local BetInsightSession, never generated into page URLs
-- old incoming ?id/?token UUID links are captured once and removed immediately
-- DE/EN uses central manifest-driven i18n
-- existing wallet read/write webhooks and validation remain unchanged
--->
 <html lang="de">
 <head>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#071019">
-  <meta name="application-version" content="1.4.0">
-  <title>Wallet-Verwaltung | BetInsight Club</title>
+  <meta name="application-version" content="1.5.0">
+  <title>Auszahlungsmethoden | BetInsight Club</title>
   <link rel="stylesheet" href="../assets/app-navigation.css">
   <script src="../assets/app-session.js"></script>
   <script src="../assets/i18n/core-v2.js"></script>
   <script src="../assets/app-navigation-v2.js?v=20260830-9" defer></script>
 <style>
-  :root{--bg:#071019;--panel:#0d1a26;--panel-2:#122433;--text:#f4f8fb;--muted:#91a6b7;--line:rgba(145,166,183,.18);--accent:#25e6a7;--accent-dark:#11bb83;--accent-2:#59a8ff;--warning:#ffc857;--danger:#ff6b7d;--shadow:0 24px 70px rgba(0,0,0,.34)}
-  *{box-sizing:border-box}html{color-scheme:dark}body{min-height:100vh;margin:0;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 12% 0%,rgba(37,230,167,.12),transparent 30rem),radial-gradient(circle at 92% 12%,rgba(89,168,255,.12),transparent 30rem),var(--bg)}
-  button,input,select{font:inherit}.page{width:min(100% - 32px,860px);margin:0 auto;padding:34px 0 50px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:28px}.logo{width:170px;max-width:54vw;height:auto;display:block}
-  .hero{margin-bottom:22px}.eyebrow{display:inline-flex;align-items:center;gap:8px;margin:0 0 12px;color:var(--accent);font-size:.8rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.eyebrow::before{content:"";width:22px;height:2px;background:var(--accent);border-radius:2px}h1{margin:0;font-size:clamp(2rem,6vw,3.15rem);line-height:1.05;letter-spacing:-.045em}.intro{max-width:680px;margin:15px 0 0;color:var(--muted);font-size:1.02rem;line-height:1.65}
-  .notice,.card,.saved-wallet{border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.notice{display:grid;grid-template-columns:auto 1fr;gap:14px;margin-bottom:20px;padding:18px;background:linear-gradient(135deg,rgba(255,200,87,.12),rgba(13,26,38,.92));border-color:rgba(255,200,87,.26)}.notice-icon{display:grid;place-items:center;width:38px;height:38px;color:#1d1706;font-weight:900;background:var(--warning);border-radius:50%}.notice strong{display:block;margin-bottom:5px}.notice p{margin:0;color:#cfdae2;line-height:1.55}
-  .saved-wallet{display:none;margin-bottom:20px;padding:20px;background:linear-gradient(155deg,rgba(18,36,51,.95),rgba(13,26,38,.98));box-shadow:none}.saved-wallet.show{display:block}.saved-wallet-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px}.saved-wallet h2{margin:0;font-size:1.15rem}.saved-badge{padding:6px 10px;border-radius:999px;color:var(--accent);font-size:.78rem;font-weight:800;background:rgba(37,230,167,.1);border:1px solid rgba(37,230,167,.3)}
-  .saved-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px}.saved-item{padding:12px 14px;background:rgba(7,16,25,.52);border:1px solid var(--line);border-radius:13px}.saved-item.address{grid-column:1/-1}.saved-label{display:block;margin-bottom:5px;color:var(--muted);font-size:.78rem}.saved-value{display:block;font-weight:800;line-height:1.45}.saved-value.address{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;overflow-wrap:anywhere}.saved-note{margin:12px 0 0;color:var(--muted);font-size:.82rem;line-height:1.5}
-  .card{padding:clamp(20px,5vw,34px);background:linear-gradient(155deg,rgba(18,36,51,.95),rgba(13,26,38,.98))}.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:28px}h2{margin:0 0 6px;font-size:1.35rem}.card-head p{margin:0;color:var(--muted);line-height:1.5}.status{flex:0 0 auto;padding:7px 11px;color:var(--warning);font-size:.78rem;font-weight:800;background:rgba(255,200,87,.1);border:1px solid rgba(255,200,87,.28);border-radius:999px}
-  .field{margin-bottom:22px}label,legend{display:block;margin-bottom:9px;color:var(--text);font-size:.93rem;font-weight:750}select,input[type="text"]{width:100%;min-height:54px;padding:0 15px;color:var(--text);outline:none;background:rgba(7,16,25,.8);border:1px solid rgba(145,166,183,.25);border-radius:13px;transition:border-color 160ms ease,box-shadow 160ms ease}input[type="text"]{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:.9rem}select:focus,input[type="text"]:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(37,230,167,.1)}
-  .help{margin:9px 0 0;color:var(--muted);font-size:.85rem;line-height:1.55}.help strong{color:#c8d5df}fieldset{margin:5px 0 25px;padding:0;border:0}.check{display:grid;grid-template-columns:21px 1fr;gap:11px;align-items:start;margin-bottom:13px;padding:14px;color:#d7e1e8;line-height:1.48;background:rgba(7,16,25,.45);border:1px solid var(--line);border-radius:13px;cursor:pointer}.check input{width:18px;height:18px;margin:2px 0 0;accent-color:var(--accent)}
-  .actions{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}.save-button{min-height:54px;padding:0 22px;color:#04140f;font-weight:900;background:linear-gradient(135deg,var(--accent),#7af2c8);border:0;border-radius:13px;box-shadow:0 12px 28px rgba(37,230,167,.18);cursor:pointer;transition:transform 160ms ease,opacity 160ms ease}.save-button:hover{transform:translateY(-1px)}.save-button:disabled{opacity:.52;cursor:not-allowed;transform:none}.security{color:var(--muted);font-size:.78rem;text-align:right}
-  .feedback{display:none;margin-top:18px;padding:14px 16px;line-height:1.5;border-radius:12px}.feedback.show{display:block}.feedback.error{color:#ffd9de;background:rgba(255,107,125,.1);border:1px solid rgba(255,107,125,.3)}.feedback.success{color:#caffed;background:rgba(37,230,167,.1);border:1px solid rgba(37,230,167,.3)}.feedback.info{color:#dcecff;background:rgba(89,168,255,.1);border:1px solid rgba(89,168,255,.3)}.footer-note{margin:18px 0 0;color:#728797;font-size:.78rem;line-height:1.55;text-align:center}
-  @media(max-width:640px){.page{width:min(100% - 22px,860px);padding-top:20px}.topbar{align-items:flex-start;margin-bottom:32px}.notice{grid-template-columns:1fr}.notice-icon{width:32px;height:32px}.card-head,.actions{grid-template-columns:1fr;display:grid}.status{width:max-content}.security{text-align:left}.saved-grid{grid-template-columns:1fr}.saved-item.address{grid-column:auto}.saved-wallet-head{align-items:flex-start}}
+:root{--bg:#071019;--panel:#0d1a26;--panel2:#122433;--text:#f4f8fb;--muted:#91a6b7;--line:rgba(145,166,183,.18);--accent:#25e6a7;--blue:#59a8ff;--warning:#ffc857;--danger:#ff6b7d;--shadow:0 24px 70px rgba(0,0,0,.34)}
+*{box-sizing:border-box}html{color-scheme:dark}body{min-height:100vh;margin:0;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 12% 0%,rgba(37,230,167,.12),transparent 30rem),radial-gradient(circle at 92% 12%,rgba(89,168,255,.12),transparent 30rem),var(--bg)}
+button,input,select{font:inherit}.page{width:min(100% - 32px,920px);margin:0 auto;padding:34px 0 54px}.topbar{margin-bottom:28px}.logo{width:170px;max-width:54vw;height:auto;display:block}.hero{margin-bottom:24px}.eyebrow{display:inline-flex;align-items:center;gap:8px;margin:0 0 12px;color:var(--accent);font-size:.8rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.eyebrow:before{content:"";width:22px;height:2px;background:var(--accent);border-radius:2px}h1{margin:0;font-size:clamp(2rem,6vw,3.15rem);line-height:1.05;letter-spacing:-.045em}.intro{max-width:760px;margin:15px 0 0;color:var(--muted);font-size:1.02rem;line-height:1.65}
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.card,.saved{border:1px solid var(--line);border-radius:22px;background:linear-gradient(155deg,rgba(18,36,51,.95),rgba(13,26,38,.98));box-shadow:var(--shadow)}.card{padding:26px}.card.bank{border-color:rgba(89,168,255,.25)}.head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:22px}.head h2{margin:0 0 6px;font-size:1.35rem}.head p{margin:0;color:var(--muted);line-height:1.5;font-size:.92rem}.badge{flex:0 0 auto;padding:7px 10px;border-radius:999px;font-size:.75rem;font-weight:850;color:var(--warning);background:rgba(255,200,87,.1);border:1px solid rgba(255,200,87,.28)}.badge.ok{color:var(--accent);background:rgba(37,230,167,.1);border-color:rgba(37,230,167,.3)}
+.saved{display:none;margin-bottom:18px;padding:16px 18px;box-shadow:none}.saved.show{display:block}.saved-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}.saved-title strong{font-size:.95rem}.saved-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}.saved-item{padding:10px 12px;background:rgba(7,16,25,.52);border:1px solid var(--line);border-radius:11px}.saved-item.wide{grid-column:1/-1}.label{display:block;color:var(--muted);font-size:.74rem;margin-bottom:4px}.value{font-size:.88rem;font-weight:800;overflow-wrap:anywhere}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.field{margin-bottom:18px}label,legend{display:block;margin-bottom:8px;font-size:.9rem;font-weight:750}select,input[type="text"]{width:100%;min-height:52px;padding:0 14px;color:var(--text);outline:none;background:rgba(7,16,25,.8);border:1px solid rgba(145,166,183,.25);border-radius:12px}select:focus,input[type="text"]:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(37,230,167,.1)}.help{margin:7px 0 0;color:var(--muted);font-size:.8rem;line-height:1.5}.check{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:start;margin:4px 0 18px;padding:13px;color:#d7e1e8;line-height:1.45;background:rgba(7,16,25,.45);border:1px solid var(--line);border-radius:12px;cursor:pointer;font-size:.85rem}.check input{width:17px;height:17px;margin:2px 0 0;accent-color:var(--accent)}.save{width:100%;min-height:52px;padding:0 18px;color:#04140f;font-weight:900;background:linear-gradient(135deg,var(--accent),#7af2c8);border:0;border-radius:12px;cursor:pointer}.bank .save{background:linear-gradient(135deg,var(--blue),#9bc9ff);color:#06121e}.save:disabled{opacity:.52;cursor:not-allowed}.feedback{display:none;margin-top:14px;padding:12px 14px;border-radius:11px;line-height:1.45;font-size:.86rem}.feedback.show{display:block}.feedback.error{color:#ffd9de;background:rgba(255,107,125,.1);border:1px solid rgba(255,107,125,.3)}.feedback.success{color:#caffed;background:rgba(37,230,167,.1);border:1px solid rgba(37,230,167,.3)}.notice{margin-top:20px;padding:16px 18px;color:#cbd7df;line-height:1.55;font-size:.86rem;background:rgba(255,200,87,.07);border:1px solid rgba(255,200,87,.2);border-radius:16px}.footer-note{margin:18px 0 0;color:#728797;font-size:.78rem;text-align:center}
+@media(max-width:760px){.method-grid{grid-template-columns:1fr}.page{width:min(100% - 22px,920px);padding-top:20px}.saved-grid{grid-template-columns:1fr}.saved-item.wide{grid-column:auto}.head{align-items:flex-start}}
 </style>
 </head>
 <body>
 <main class="page">
   <header class="topbar"><img class="logo" src="../logo_betisight.club.png" alt="BetInsight Club"></header>
-
   <section class="hero">
-    <p class="eyebrow" data-bi-i18n="walletPage.eyebrow">Wechselbörse</p>
-    <h1 data-bi-i18n="walletPage.heading">Wallet-Verwaltung</h1>
-    <p class="intro" data-bi-i18n="walletPage.intro">Hinterlege eine einzige persönliche Empfangsadresse. Diese Wallet wird später für deine Verkäufe auf der BetInsight-Wechselbörse verwendet.</p>
+    <p class="eyebrow">Wechselstube</p>
+    <h1>Auszahlungsmethoden</h1>
+    <p class="intro">Hinterlege die Zahlungsarten, über die Käufer deine Verkaufsangebote bezahlen dürfen. Du kannst Krypto, Banküberweisung oder später beim Einstellen eines Angebots beide anbieten.</p>
   </section>
 
-  <aside class="notice" data-bi-i18n-aria-label="walletPage.noticeAria" aria-label="Wichtiger Sicherheitshinweis">
-    <span class="notice-icon">!</span>
-    <div><strong data-bi-i18n="walletPage.noticeTitle">Nur deine eigene, selbst verwaltete Wallet</strong><p data-bi-i18n="walletPage.noticeCopy">Verwende keine Einzahlungsadresse einer Kryptobörse wie Binance, Coinbase, Bitpanda oder Kraken. BetInsight fragt niemals nach Seed-Phrase oder privatem Schlüssel.</p></div>
-  </aside>
+  <div class="method-grid">
+    <section class="card">
+      <div class="head"><div><h2>🪙 Krypto</h2><p>Direkte Zahlung an deine persönliche Wallet.</p></div><span class="badge" id="cryptoStatus">Wird geprüft</span></div>
+      <section class="saved" id="savedCrypto">
+        <div class="saved-title"><strong>Gespeicherte Krypto-Wallet</strong><span class="badge ok">Gespeichert</span></div>
+        <div class="saved-grid">
+          <div class="saved-item"><span class="label">Coin</span><span class="value" id="savedCoin">–</span></div>
+          <div class="saved-item"><span class="label">Netzwerk</span><span class="value" id="savedNetwork">–</span></div>
+          <div class="saved-item wide"><span class="label">Empfangsadresse</span><span class="value mono" id="savedAddress">–</span></div>
+        </div>
+      </section>
+      <form id="walletForm" novalidate>
+        <div class="field"><label for="walletType">Kryptowährung und Netzwerk</label><select id="walletType" required><option value="">Bitte auswählen</option><option value="USDT_TRC20">USDT – TRON (TRC20)</option><option value="TRX_TRON">TRX – TRON (native)</option></select><p class="help" id="walletExamples">Wähle zuerst Kryptowährung und Netzwerk aus.</p></div>
+        <div class="field"><label for="walletAddress">Öffentliche Empfangsadresse</label><input id="walletAddress" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Wallet-Adresse vollständig eintragen"></div>
+        <label class="check"><input id="confirmOwnWallet" type="checkbox"><span>Ich bestätige, dass dies meine eigene öffentliche Empfangsadresse ist.</span></label>
+        <label class="check"><input id="confirmNetwork" type="checkbox"><span>Ich habe Coin, Netzwerk und vollständige Adresse kontrolliert.</span></label>
+        <button class="save" id="saveWallet" type="submit">Krypto-Wallet speichern</button>
+        <div class="feedback" id="cryptoFeedback" role="status"></div>
+      </form>
+    </section>
 
-  <section class="saved-wallet" id="savedWalletBox" aria-live="polite">
-    <div class="saved-wallet-head"><h2 data-bi-i18n="walletPage.savedTitle">Aktuell gespeicherte Wallet</h2><span class="saved-badge" id="savedWalletBadge" data-bi-i18n="walletPage.savedBadge">Gespeichert</span></div>
-    <div class="saved-grid">
-      <div class="saved-item"><span class="saved-label" data-bi-i18n="walletPage.crypto">Kryptowährung</span><strong class="saved-value" id="savedCoin">–</strong></div>
-      <div class="saved-item"><span class="saved-label" data-bi-i18n="walletPage.network">Netzwerk / Standard</span><strong class="saved-value" id="savedNetwork">–</strong></div>
-      <div class="saved-item address"><span class="saved-label" data-bi-i18n="walletPage.address">Empfangsadresse</span><strong class="saved-value address" id="savedAddress">–</strong></div>
-      <div class="saved-item"><span class="saved-label" data-bi-i18n="walletPage.status">Status</span><strong class="saved-value" id="savedStatus">–</strong></div>
-      <div class="saved-item"><span class="saved-label" data-bi-i18n="walletPage.changed">Zuletzt geändert</span><strong class="saved-value" id="savedChanged">–</strong></div>
-    </div>
-    <p class="saved-note" data-bi-i18n="walletPage.savedNote">Wenn du unten eine andere Wallet speicherst, wird deine bisherige Wallet durch die neue ersetzt und die Änderung in der Wallet-Historie dokumentiert.</p>
-  </section>
+    <section class="card bank">
+      <div class="head"><div><h2>🏦 Banküberweisung</h2><p>Direkte Überweisung vom Käufer auf dein Konto.</p></div><span class="badge" id="bankStatus">Noch nicht gespeichert</span></div>
+      <section class="saved" id="savedBank">
+        <div class="saved-title"><strong>Gespeicherte Bankverbindung</strong><span class="badge ok">Bereit</span></div>
+        <div class="saved-grid">
+          <div class="saved-item wide"><span class="label">Kontoinhaber</span><span class="value" id="savedHolder">–</span></div>
+          <div class="saved-item wide"><span class="label">IBAN</span><span class="value mono" id="savedIban">–</span></div>
+          <div class="saved-item"><span class="label">BIC</span><span class="value" id="savedBic">–</span></div>
+          <div class="saved-item"><span class="label">Land</span><span class="value" id="savedCountry">–</span></div>
+        </div>
+      </section>
+      <form id="bankForm" novalidate>
+        <div class="field"><label for="bankHolder">Kontoinhaber</label><input id="bankHolder" type="text" autocomplete="name" placeholder="Vor- und Nachname"></div>
+        <div class="field"><label for="bankIban">IBAN</label><input id="bankIban" class="mono" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="z. B. DE12 3456 7890 1234 5678 90"><p class="help">Die vollständige IBAN wird erst einem Käufer gezeigt, nachdem er dein Angebot reserviert hat.</p></div>
+        <div class="field"><label for="bankBic">BIC <span style="color:var(--muted);font-weight:500">(optional)</span></label><input id="bankBic" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="BIC / SWIFT"></div>
+        <div class="field"><label for="bankCountry">Land <span style="color:var(--muted);font-weight:500">(optional)</span></label><input id="bankCountry" type="text" autocomplete="country-name" placeholder="z. B. Deutschland"></div>
+        <label class="check"><input id="confirmOwnBank" type="checkbox"><span>Ich bestätige, dass diese Bankverbindung von mir für den Empfang meiner Verkäufe verwendet werden darf.</span></label>
+        <button class="save" id="saveBank" type="submit">Bankverbindung speichern</button>
+        <div class="feedback" id="bankFeedback" role="status"></div>
+      </form>
+    </section>
+  </div>
 
-  <section class="card">
-    <div class="card-head"><div><h2 data-bi-i18n="walletPage.addressTitle">Deine Empfangsadresse</h2><p data-bi-i18n="walletPage.oneActive">Pro Nutzer kann nur eine aktive Adresse gespeichert werden.</p></div><span class="status" id="walletStatus" data-bi-i18n="walletPage.checking">Wird geprüft</span></div>
-    <form id="walletForm" novalidate>
-      <div class="field">
-        <label for="walletType" data-bi-i18n="walletPage.walletType">Kryptowährung und Netzwerk</label>
-        <select id="walletType" name="wallet_type" required>
-          <option value="" data-bi-i18n="walletPage.select">Bitte auswählen</option>
-          <option value="USDT_TRC20">USDT – TRON (TRC20)</option>
-          <option value="TRX_TRON">TRX – TRON (native)</option>
-        </select>
-        <p class="help" id="walletExamples" data-bi-i18n="walletPage.examplesDefault">Wähle zuerst Kryptowährung und Netzwerk aus.</p>
-      </div>
-      <div class="field">
-        <label for="walletAddress" data-bi-i18n="walletPage.addressLabel">Öffentliche Empfangsadresse</label>
-        <input id="walletAddress" name="wallet_address" type="text" inputmode="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Wallet-Adresse vollständig eintragen" data-bi-i18n-placeholder="walletPage.placeholder" required>
-        <p class="help" data-bi-i18n="walletPage.addressHelp">Kopiere die Adresse direkt aus deiner Wallet. Kontrolliere besonders die ersten und letzten Zeichen.</p>
-      </div>
-      <fieldset>
-        <legend data-bi-i18n="walletPage.securityLegend">Sicherheitsbestätigung</legend>
-        <label class="check"><input id="confirmOwnWallet" name="confirm_own_wallet" type="checkbox" required><span data-bi-i18n="walletPage.ownConfirm">Ich bestätige, dass dies meine eigene öffentliche Empfangsadresse aus einer selbst verwalteten Wallet ist und keine Einzahlungsadresse einer Kryptobörse.</span></label>
-        <label class="check"><input id="confirmNetwork" name="confirm_network" type="checkbox" required><span data-bi-i18n="walletPage.networkConfirm">Ich habe Kryptowährung, Netzwerk und vollständige Adresse kontrolliert. Mir ist bekannt, dass ein falsches Netzwerk zum Verlust der Zahlung führen kann.</span></label>
-      </fieldset>
-      <div class="actions"><button class="save-button" id="saveButton" type="submit" data-bi-i18n="walletPage.save">Wallet sicher speichern</button><span class="security" data-bi-i18n="walletPage.security">🔒 Niemals Seed-Phrase eingeben</span></div>
-      <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
-    </form>
-  </section>
-  <p class="footer-note" data-bi-i18n="walletPage.footer">BetInsight Wallet-Verwaltung · Version 1.4.0</p>
+  <div class="notice"><strong>Wichtig:</strong> BetInsight nimmt die Zahlung nicht für den Verkäufer entgegen. Bei Banküberweisung bestätigt der Verkäufer später den tatsächlichen Geldeingang. Erst danach dürfen die reservierten Units an den Käufer übertragen werden.</div>
+  <p class="footer-note">BetInsight Auszahlungsmethoden · Version 1.5.0</p>
 </main>
-
 <script>
 "use strict";
 const WALLET_WEBHOOK_URL="https://hook.eu1.make.com/dj729m8ah6sxsy8yh38wwmf1kyn89tye";
 const WALLET_READ_WEBHOOK_URL="https://hook.eu1.make.com/456yvxtior92fsazzbkpuw6ywki6nz5r";
-const tr=(key,fallback)=>window.BetInsightI18n?.t(key,{},fallback)||fallback;
+const BANK_WEBHOOK_URL="https://hook.eu1.make.com/s6gxlmvcmmfbg547o3lw272yqtd9zfkd";
 const dashboardToken=window.BetInsightSession?.getDashboardUuid?.()||"";
-let lastWalletData=null;
-
-const walletOptions={
-  USDT_TRC20:{coin:"USDT",network:"TRON",standard:"TRC20",pattern:/^T[1-9A-HJ-NP-Za-km-z]{33}$/},
-  TRX_TRON:{coin:"TRX",network:"TRON",standard:"NATIVE",pattern:/^T[1-9A-HJ-NP-Za-km-z]{33}$/}
-};
-const form=document.getElementById("walletForm"),walletType=document.getElementById("walletType"),walletAddress=document.getElementById("walletAddress"),confirmOwnWallet=document.getElementById("confirmOwnWallet"),confirmNetwork=document.getElementById("confirmNetwork"),walletExamples=document.getElementById("walletExamples"),walletStatus=document.getElementById("walletStatus"),saveButton=document.getElementById("saveButton"),feedback=document.getElementById("feedback"),savedWalletBox=document.getElementById("savedWalletBox"),savedCoin=document.getElementById("savedCoin"),savedNetwork=document.getElementById("savedNetwork"),savedAddress=document.getElementById("savedAddress"),savedStatus=document.getElementById("savedStatus"),savedChanged=document.getElementById("savedChanged"),savedWalletBadge=document.getElementById("savedWalletBadge");
-
-function showFeedback(message,type){feedback.textContent=message;feedback.className="feedback show "+type}
-function clearFeedback(){feedback.textContent="";feedback.className="feedback"}
-function selectedWallet(){return walletOptions[walletType.value]||null}
-function setSavedStatus(text,type){walletStatus.textContent=text;walletStatus.style.color=type==="success"?"var(--accent)":type==="error"?"var(--danger)":"var(--warning)";walletStatus.style.borderColor=type==="success"?"rgba(37,230,167,.3)":type==="error"?"rgba(255,107,125,.3)":"rgba(255,200,87,.28)";walletStatus.style.background=type==="success"?"rgba(37,230,167,.1)":type==="error"?"rgba(255,107,125,.1)":"rgba(255,200,87,.1)"}
-function walletKeyFromSaved(data){const coin=String(data.wallet_coin||"").toUpperCase(),network=String(data.wallet_netzwerk||"").toUpperCase(),standard=String(data.wallet_standard||"").toUpperCase();if(coin==="USDT"&&network==="TRON"&&standard==="TRC20")return"USDT_TRC20";if(coin==="TRX"&&network==="TRON"&&(standard==="NATIVE"||standard==="TRX"||standard===""))return"TRX_TRON";return""}
-function refreshWalletExamples(){const option=selectedWallet();walletExamples.innerHTML=option?`<strong>${option.coin} ${window.BetInsightI18n?.getLanguage?.()==="en"?"via":"über"} ${option.network}:</strong> ${tr("walletPage.examples","Geeignete Wallet-Beispiele: TronLink oder TokenPocket.")}`:tr("walletPage.examplesDefault","Wähle zuerst Kryptowährung und Netzwerk aus.")}
-function renderSavedWallet(data){lastWalletData=data;savedCoin.textContent=data.wallet_coin||"–";savedNetwork.textContent=[data.wallet_netzwerk,data.wallet_standard].filter(Boolean).join(" · ")||"–";savedAddress.textContent=data.wallet_adresse||"–";savedStatus.textContent=data.wallet_status||tr("walletPage.savedBadge","Gespeichert");savedChanged.textContent=data.geaendert_am||"–";savedWalletBadge.textContent=tr("walletPage.savedBadge","Gespeichert");savedWalletBox.classList.add("show");setSavedStatus(tr("walletPage.savedBadge","Gespeichert"),"success");const key=walletKeyFromSaved(data);if(key){walletType.value=key;walletAddress.value=data.wallet_adresse||"";refreshWalletExamples()}else{walletType.value="";walletAddress.value=data.wallet_adresse||"";walletExamples.textContent=tr("walletPage.legacyType","Die bisher gespeicherte Wallet nutzt eine Zahlungsart, die für neue Verkäufe nicht mehr angeboten wird.")}}
-
-async function loadSavedWallet(){
-  if(!dashboardToken){setSavedStatus(tr("walletPage.accessMissing","Zugang fehlt"),"error");return}
-  try{
-    const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),10000);
-    const response=await fetch(WALLET_READ_WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({dashboard_token:dashboardToken}),signal:controller.signal});clearTimeout(timeout);
-    const text=String(await response.text()||"").replace(/^\uFEFF/,"").trim();
-    if(!response.ok||!text){setSavedStatus(tr("walletPage.notSaved","Noch nicht gespeichert"),"");return}
-    let data={};try{data=JSON.parse(text)}catch(_){setSavedStatus(tr("walletPage.notSaved","Noch nicht gespeichert"),"");return}
-    const found=data.found===true||String(data.found||"").toLowerCase()==="true"||Boolean(data.wallet_adresse);
-    if(found&&data.wallet_adresse)renderSavedWallet(data);else setSavedStatus(tr("walletPage.notSaved","Noch nicht gespeichert"),"");
-  }catch(error){console.warn("Wallet read failed",error);setSavedStatus(tr("walletPage.statusNotLoaded","Status nicht geladen"),"")}
+const walletOptions={USDT_TRC20:{coin:"USDT",network:"TRON",standard:"TRC20",pattern:/^T[1-9A-HJ-NP-Za-km-z]{33}$/},TRX_TRON:{coin:"TRX",network:"TRON",standard:"NATIVE",pattern:/^T[1-9A-HJ-NP-Za-km-z]{33}$/}};
+const $=id=>document.getElementById(id);
+function feedback(id,msg,type){const el=$(id);el.textContent=msg;el.className="feedback show "+type}
+function clearFeedback(id){const el=$(id);el.textContent="";el.className="feedback"}
+function maskIban(value){const v=String(value||"").replace(/\s+/g,"");if(v.length<8)return v||"–";return v.slice(0,4)+" •••• •••• "+v.slice(-4)}
+function walletKey(data){const c=String(data.wallet_coin||"").toUpperCase(),n=String(data.wallet_netzwerk||"").toUpperCase(),s=String(data.wallet_standard||"").toUpperCase();if(c==="USDT"&&n==="TRON"&&s==="TRC20")return"USDT_TRC20";if(c==="TRX"&&n==="TRON")return"TRX_TRON";return""}
+function refreshExamples(){const o=walletOptions[$("walletType").value];$("walletExamples").textContent=o?`${o.coin} über ${o.network}. Kontrolliere das Netzwerk vor dem Speichern.`:"Wähle zuerst Kryptowährung und Netzwerk aus."}
+function renderSaved(data){
+  if(data.wallet_adresse){$("savedCrypto").classList.add("show");$("savedCoin").textContent=data.wallet_coin||"–";$("savedNetwork").textContent=[data.wallet_netzwerk,data.wallet_standard].filter(Boolean).join(" · ")||"–";$("savedAddress").textContent=data.wallet_adresse;$("cryptoStatus").textContent="Gespeichert";$("cryptoStatus").classList.add("ok");const key=walletKey(data);if(key){$("walletType").value=key;$("walletAddress").value=data.wallet_adresse;refreshExamples()}}
+  else $("cryptoStatus").textContent="Noch nicht gespeichert";
+  if(data.bank_iban){$("savedBank").classList.add("show");$("savedHolder").textContent=data.bank_kontoinhaber||"–";$("savedIban").textContent=maskIban(data.bank_iban);$("savedBic").textContent=data.bank_bic||"–";$("savedCountry").textContent=data.bank_land||"–";$("bankStatus").textContent="Bereit";$("bankStatus").classList.add("ok");$("bankHolder").value=data.bank_kontoinhaber||"";$("bankIban").value=data.bank_iban||"";$("bankBic").value=data.bank_bic||"";$("bankCountry").value=data.bank_land||""}
+  else $("bankStatus").textContent="Noch nicht gespeichert";
 }
-
-walletType.addEventListener("change",()=>{clearFeedback();refreshWalletExamples()});
-walletAddress.addEventListener("input",()=>{walletAddress.value=walletAddress.value.trim();clearFeedback()});
-form.addEventListener("submit",async event=>{
-  event.preventDefault();clearFeedback();const option=selectedWallet(),address=walletAddress.value.trim();
-  if(!dashboardToken){showFeedback(tr("walletPage.missingAccess","Dein persönlicher Dashboard-Zugang fehlt."),"error");return}
-  if(!option){showFeedback(tr("walletPage.selectError","Bitte wähle zuerst Kryptowährung und Netzwerk aus."),"error");walletType.focus();return}
-  if(!address){showFeedback(tr("walletPage.addressError","Bitte trage deine öffentliche Empfangsadresse ein."),"error");walletAddress.focus();return}
-  if(!option.pattern.test(address)){showFeedback(tr("walletPage.tronError","Eine TRON-Adresse beginnt normalerweise mit T und hat 34 Zeichen."),"error");walletAddress.focus();return}
-  if(!confirmOwnWallet.checked||!confirmNetwork.checked){showFeedback(tr("walletPage.confirmError","Bitte bestätige beide Sicherheitshinweise."),"error");return}
-  const walletRecord={dashboard_token:dashboardToken,wallet_adresse:address,wallet_coin:option.coin,wallet_netzwerk:option.network,wallet_standard:option.standard,wallet_status:"AUSSTEHEND",eigene_wallet_bestaetigt:"JA",netzwerk_bestaetigt:"JA",geaendert_am:new Date().toISOString()};
-  saveButton.disabled=true;saveButton.textContent=tr("walletPage.sending","Wallet wird übertragen …");setSavedStatus(tr("walletPage.sendingStatus","Wird übertragen"),"");
-  try{
-    const response=await fetch(WALLET_WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(walletRecord)});if(!response.ok)throw new Error("HTTP "+response.status);
-    setSavedStatus(tr("walletPage.sentStatus","Übertragen"),"success");showFeedback(tr("walletPage.sent","Deine Wallet-Daten wurden sicher an BetInsight übertragen."),"success");confirmOwnWallet.checked=false;confirmNetwork.checked=false;await new Promise(resolve=>setTimeout(resolve,500));await loadSavedWallet();
-  }catch(error){setSavedStatus(tr("walletPage.failedStatus","Nicht übertragen"),"error");showFeedback(tr("walletPage.failed","Die Übertragung ist fehlgeschlagen. Bitte versuche es erneut."),"error");console.error("Wallet write failed",error)}
-  finally{saveButton.disabled=false;saveButton.textContent=tr("walletPage.save","Wallet sicher speichern")}
-});
-
-function onLanguage(){document.title=tr("walletPage.title","Wallet-Verwaltung | BetInsight Club");refreshWalletExamples();if(lastWalletData)renderSavedWallet(lastWalletData)}
-window.addEventListener("bi:languagechange",onLanguage);
-refreshWalletExamples();loadSavedWallet();onLanguage();
+async function loadMethods(){if(!dashboardToken){$("cryptoStatus").textContent="Zugang fehlt";$("bankStatus").textContent="Zugang fehlt";return}try{const r=await fetch(WALLET_READ_WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({dashboard_token:dashboardToken})});const t=String(await r.text()||"").replace(/^\uFEFF/,"").trim();if(r.ok&&t)renderSaved(JSON.parse(t))}catch(e){console.warn("Payment methods read failed",e)}}
+$("walletType").addEventListener("change",refreshExamples);
+$("walletForm").addEventListener("submit",async e=>{e.preventDefault();clearFeedback("cryptoFeedback");const o=walletOptions[$("walletType").value],address=$("walletAddress").value.trim();if(!dashboardToken)return feedback("cryptoFeedback","Dein persönlicher Dashboard-Zugang fehlt.","error");if(!o)return feedback("cryptoFeedback","Bitte Kryptowährung und Netzwerk auswählen.","error");if(!o.pattern.test(address))return feedback("cryptoFeedback","Bitte eine gültige TRON-Adresse eintragen.","error");if(!$("confirmOwnWallet").checked||!$("confirmNetwork").checked)return feedback("cryptoFeedback","Bitte beide Bestätigungen setzen.","error");const btn=$("saveWallet");btn.disabled=true;try{const r=await fetch(WALLET_WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({dashboard_token:dashboardToken,wallet_adresse:address,wallet_coin:o.coin,wallet_netzwerk:o.network,wallet_standard:o.standard,wallet_status:"AUSSTEHEND",eigene_wallet_bestaetigt:"JA",netzwerk_bestaetigt:"JA"})});if(!r.ok)throw new Error("HTTP "+r.status);feedback("cryptoFeedback","Krypto-Wallet wurde gespeichert.","success");await loadMethods()}catch(err){feedback("cryptoFeedback","Speichern fehlgeschlagen. Bitte erneut versuchen.","error")}finally{btn.disabled=false}});
+$("bankIban").addEventListener("input",e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9 ]/g,"")});
+$("bankBic").addEventListener("input",e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"")});
+$("bankForm").addEventListener("submit",async e=>{e.preventDefault();clearFeedback("bankFeedback");const holder=$("bankHolder").value.trim(),iban=$("bankIban").value.replace(/\s+/g,"").toUpperCase(),bic=$("bankBic").value.trim().toUpperCase(),country=$("bankCountry").value.trim();if(!dashboardToken)return feedback("bankFeedback","Dein persönlicher Dashboard-Zugang fehlt.","error");if(holder.length<2)return feedback("bankFeedback","Bitte den Kontoinhaber eintragen.","error");if(!/^[A-Z]{2}[A-Z0-9]{13,32}$/.test(iban))return feedback("bankFeedback","Bitte eine gültige IBAN mit 15 bis 34 Zeichen eintragen.","error");if(bic&&!/^[A-Z0-9]{8}([A-Z0-9]{3})?$/.test(bic))return feedback("bankFeedback","Bitte die BIC prüfen oder das Feld leer lassen.","error");if(!$("confirmOwnBank").checked)return feedback("bankFeedback","Bitte die Bestätigung zur Bankverbindung setzen.","error");const btn=$("saveBank");btn.disabled=true;try{const r=await fetch(BANK_WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({dashboard_token:dashboardToken,bank_kontoinhaber:holder,bank_iban:iban,bank_bic:bic,bank_land:country,eigene_bank_bestaetigt:"JA"})});const text=await r.text();if(!r.ok)throw new Error(text||("HTTP "+r.status));feedback("bankFeedback","Bankverbindung wurde gespeichert. Du kannst sie jetzt bei Verkaufsangeboten anbieten.","success");$("confirmOwnBank").checked=false;await loadMethods()}catch(err){feedback("bankFeedback","Bankverbindung konnte nicht gespeichert werden. Bitte erneut versuchen.","error")}finally{btn.disabled=false}});
+refreshExamples();loadMethods();
 </script>
 </body>
 </html>
