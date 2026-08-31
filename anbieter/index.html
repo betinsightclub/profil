@@ -11,55 +11,367 @@
   <script src="../assets/app-navigation.js?v=20260831-1" defer></script>
   <style>
     :root{--bg:#001b24;--deep:#001219;--panel:#04263a;--panel2:#063149;--line:rgba(255,255,255,.11);--text:#f4f8fb;--muted:#b8c8d2;--blue:#169cff;--blue2:#4db8ff;--green:#21d07a;--orange:#ffae35;--shadow:0 22px 50px rgba(0,0,0,.28)}
-    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55;background:radial-gradient(circle at 12% 0%,rgba(22,156,255,.18),transparent 31%),radial-gradient(circle at 88% 12%,rgba(33,208,122,.11),transparent 27%),linear-gradient(180deg,var(--deep) 0%,var(--bg) 48%,#002631 100%)}button,select{font:inherit}.page{width:min(1120px,calc(100% - 30px));margin:0 auto;padding:26px 0 90px}.topbar{display:flex;justify-content:center;align-items:center;min-height:88px;margin-bottom:18px}.logo-link{display:inline-flex;border-radius:16px}.logo{width:min(245px,68vw);height:auto;display:block;filter:drop-shadow(0 10px 24px rgba(0,0,0,.28))}.hero{position:relative;overflow:hidden;padding:46px 34px 40px;border:1px solid var(--line);border-radius:26px;background:linear-gradient(135deg,rgba(22,156,255,.15),rgba(33,208,122,.07)),rgba(4,38,58,.86);box-shadow:var(--shadow);text-align:center}.hero:after{content:"";position:absolute;width:280px;height:280px;top:-140px;right:-100px;border-radius:50%;background:rgba(22,156,255,.13);filter:blur(8px)}.eyebrow{display:inline-flex;align-items:center;gap:8px;margin-bottom:14px;padding:7px 13px;border:1px solid rgba(77,184,255,.35);border-radius:999px;background:rgba(22,156,255,.10);color:#c8ebff;font-size:.8rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase}h1{margin:0 auto 13px;font-size:clamp(2rem,4.4vw,3.7rem);line-height:1.04;letter-spacing:-.045em}.hero p{max-width:800px;margin:0 auto;color:var(--muted);font-size:clamp(.98rem,1.6vw,1.1rem)}.selector{margin:28px auto 0;padding:28px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(180deg,rgba(7,51,74,.97),rgba(4,38,58,.97));box-shadow:var(--shadow)}.step-head{display:flex;align-items:center;gap:12px;margin-bottom:18px}.step-number{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#006fd6);font-weight:950}.step-head h2{margin:0;font-size:1.35rem;letter-spacing:-.02em}.step-head p{margin:3px 0 0;color:var(--muted);font-size:.9rem}.country-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end}.field{display:grid;gap:7px}label{color:#dff7ff;font-size:.86rem;font-weight:850}select{width:100%;min-height:52px;padding:0 14px;border:1px solid rgba(77,184,255,.32);border-radius:12px;background:#062b3d;color:#fff;outline:none}select:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(77,184,255,.12)}.primary{min-height:52px;padding:0 22px;border:0;border-radius:12px;background:linear-gradient(135deg,var(--blue),#006fd6);color:#fff;font-weight:900;cursor:pointer;box-shadow:0 12px 24px rgba(22,156,255,.22)}.primary:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}.region-wrap{margin-top:14px}.hidden{display:none!important}.confirmed{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:16px;padding:12px 14px;border:1px solid rgba(33,208,122,.27);border-radius:12px;background:rgba(33,208,122,.07)}.confirmed strong{color:#bfffe1}.link-button{border:0;background:none;color:#8ed1ff;font-weight:850;cursor:pointer;text-decoration:underline;text-underline-offset:3px}.filter-step{margin-top:26px;padding-top:24px;border-top:1px solid var(--line)}.choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.choice{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-height:122px;padding:18px;border:1px solid var(--line);border-radius:16px;background:rgba(0,18,25,.30);color:#fff;text-align:left;cursor:pointer;transition:.16s}.choice:hover,.choice:focus-visible{transform:translateY(-2px);border-color:rgba(77,184,255,.5);background:rgba(22,156,255,.08);outline:none}.choice-icon{font-size:1.5rem}.choice strong{font-size:.96rem}.choice span:last-child{color:var(--muted);font-size:.81rem;line-height:1.42}.results{margin-top:28px}.results-head{display:flex;align-items:end;justify-content:space-between;gap:15px;margin-bottom:16px}.results-head h2{margin:0;font-size:1.55rem}.results-head p{margin:4px 0 0;color:var(--muted);font-size:.88rem}.status-box{padding:20px;border:1px solid rgba(255,174,53,.30);border-radius:16px;background:rgba(255,174,53,.07);color:#ffe3ae;text-align:center}.provider-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.provider-card{min-height:120px;padding:20px;border:1px solid var(--line);border-radius:17px;background:linear-gradient(180deg,rgba(7,51,74,.97),rgba(4,38,58,.97));box-shadow:0 16px 32px rgba(0,0,0,.2)}.provider-card h3{margin:0 0 10px;font-size:1.35rem}.badges{display:flex;flex-wrap:wrap;gap:7px}.badge{padding:5px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#cfe4ee;font-size:.72rem;font-weight:850}.badge.crypto{border-color:rgba(255,174,53,.35);color:#ffd996;background:rgba(255,174,53,.08)}.badge.verified{border-color:rgba(33,208,122,.35);color:#bfffe1;background:rgba(33,208,122,.08)}.provider-card .future{margin:12px 0 0;color:#8fa8b4;font-size:.77rem}.legal{margin-top:30px;padding:20px 22px;border:1px solid var(--line);border-radius:18px;background:rgba(4,38,58,.73)}.legal h2{margin:0 0 8px;font-size:1.02rem}.legal p{margin:6px 0 0;color:var(--muted);font-size:.83rem}.footer{padding:27px 8px 0;color:#8fa5b0;font-size:.76rem;text-align:center}@media(max-width:820px){.choices,.provider-grid{grid-template-columns:1fr}.country-row{grid-template-columns:1fr}.primary{width:100%}}@media(max-width:650px){.page{width:min(100% - 18px,1120px);padding-top:78px;padding-bottom:100px}.hero{padding:34px 20px 30px}.selector{padding:20px 16px}.confirmed{align-items:flex-start;flex-direction:column}}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55;background:radial-gradient(circle at 12% 0%,rgba(22,156,255,.18),transparent 31%),radial-gradient(circle at 88% 12%,rgba(33,208,122,.11),transparent 27%),linear-gradient(180deg,var(--deep) 0%,var(--bg) 48%,#002631 100%)}
+    button,select{font:inherit}
+    .page{width:min(1120px,calc(100% - 30px));margin:0 auto;padding:26px 0 90px}
+    .topbar{display:flex;justify-content:center;align-items:center;min-height:88px;margin-bottom:18px}
+    .logo-link{display:inline-flex;border-radius:16px}
+    .logo{width:min(245px,68vw);height:auto;display:block;filter:drop-shadow(0 10px 24px rgba(0,0,0,.28))}
+    .hero{position:relative;overflow:hidden;padding:46px 34px 40px;border:1px solid var(--line);border-radius:26px;background:linear-gradient(135deg,rgba(22,156,255,.15),rgba(33,208,122,.07)),rgba(4,38,58,.86);box-shadow:var(--shadow);text-align:center}
+    .hero:after{content:"";position:absolute;width:280px;height:280px;top:-140px;right:-100px;border-radius:50%;background:rgba(22,156,255,.13);filter:blur(8px)}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;margin-bottom:14px;padding:7px 13px;border:1px solid rgba(77,184,255,.35);border-radius:999px;background:rgba(22,156,255,.10);color:#c8ebff;font-size:.8rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+    h1{margin:0 auto 13px;font-size:clamp(2rem,4.4vw,3.7rem);line-height:1.04;letter-spacing:-.045em}
+    .hero p{max-width:800px;margin:0 auto;color:var(--muted);font-size:clamp(.98rem,1.6vw,1.1rem)}
+    .selector{margin:28px auto 0;padding:28px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(180deg,rgba(7,51,74,.97),rgba(4,38,58,.97));box-shadow:var(--shadow)}
+    .step-head{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+    .step-number{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#006fd6);font-weight:950}
+    .step-head h2{margin:0;font-size:1.35rem;letter-spacing:-.02em}
+    .step-head p{margin:3px 0 0;color:var(--muted);font-size:.9rem}
+    .country-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end}
+    .field{display:grid;gap:7px}
+    label{color:#dff7ff;font-size:.86rem;font-weight:850}
+    select{width:100%;min-height:52px;padding:0 14px;border:1px solid rgba(77,184,255,.32);border-radius:12px;background:#062b3d;color:#fff;outline:none}
+    select:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(77,184,255,.12)}
+    .primary{min-height:52px;padding:0 22px;border:0;border-radius:12px;background:linear-gradient(135deg,var(--blue),#006fd6);color:#fff;font-weight:900;cursor:pointer;box-shadow:0 12px 24px rgba(22,156,255,.22)}
+    .primary:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+    .region-wrap{margin-top:14px}
+    .hidden{display:none!important}
+    .confirmed{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:16px;padding:12px 14px;border:1px solid rgba(33,208,122,.27);border-radius:12px;background:rgba(33,208,122,.07)}
+    .confirmed strong{color:#bfffe1}
+    .link-button{border:0;background:none;color:#8ed1ff;font-weight:850;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+    .filter-step{margin-top:26px;padding-top:24px;border-top:1px solid var(--line)}
+    .choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .choice{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-height:122px;padding:18px;border:1px solid var(--line);border-radius:16px;background:rgba(0,18,25,.30);color:#fff;text-align:left;cursor:pointer;transition:.16s}
+    .choice:hover,.choice:focus-visible{transform:translateY(-2px);border-color:rgba(77,184,255,.5);background:rgba(22,156,255,.08);outline:none}
+    .choice-icon{font-size:1.5rem}
+    .choice strong{font-size:.96rem}
+    .choice span:last-child{color:var(--muted);font-size:.81rem;line-height:1.42}
+    .results{margin-top:28px}
+    .results-head{display:flex;align-items:end;justify-content:space-between;gap:15px;margin-bottom:16px}
+    .results-head h2{margin:0;font-size:1.55rem}
+    .results-head p{margin:4px 0 0;color:var(--muted);font-size:.88rem}
+    .status-box{padding:20px;border:1px solid rgba(255,174,53,.30);border-radius:16px;background:rgba(255,174,53,.07);color:#ffe3ae;text-align:center}
+    .provider-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+    .provider-card{min-height:120px;padding:20px;border:1px solid var(--line);border-radius:17px;background:linear-gradient(180deg,rgba(7,51,74,.97),rgba(4,38,58,.97));box-shadow:0 16px 32px rgba(0,0,0,.2)}
+    .provider-card h3{margin:0 0 10px;font-size:1.35rem}
+    .badges{display:flex;flex-wrap:wrap;gap:7px}
+    .badge{padding:5px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#cfe4ee;font-size:.72rem;font-weight:850}
+    .badge.crypto{border-color:rgba(255,174,53,.35);color:#ffd996;background:rgba(255,174,53,.08)}
+    .badge.verified{border-color:rgba(33,208,122,.35);color:#bfffe1;background:rgba(33,208,122,.08)}
+    .provider-card .future{margin:12px 0 0;color:#8fa8b4;font-size:.77rem}
+    .legal{margin-top:30px;padding:20px 22px;border:1px solid var(--line);border-radius:18px;background:rgba(4,38,58,.73)}
+    .legal h2{margin:0 0 8px;font-size:1.02rem}
+    .legal p{margin:6px 0 0;color:var(--muted);font-size:.83rem}
+    .footer{padding:27px 8px 0;color:#8fa5b0;font-size:.76rem;text-align:center}
+    @media(max-width:820px){.choices,.provider-grid{grid-template-columns:1fr}.country-row{grid-template-columns:1fr}.primary{width:100%}}
+    @media(max-width:650px){.page{width:min(100% - 18px,1120px);padding-top:78px;padding-bottom:100px}.hero{padding:34px 20px 30px}.selector{padding:20px 16px}.confirmed{align-items:flex-start;flex-direction:column}}
   </style>
 </head>
 <body>
   <main class="page">
-    <div class="topbar"><a class="logo-link" href="https://betinsight.club/" aria-label="Zur BetInsight Landingpage"><img class="logo" src="../logo_betisight.club.png" alt="BetInsight Club"></a></div>
-    <section class="hero"><div class="eyebrow">⚽ BetInsight Auswahl</div><h1>Unsere Wettanbieter</h1><p>Bevor wir dir Anbieter zeigen, bestätigst du dein Land. Danach kannst du wählen, ob du alle für dein Land freigegebenen Anbieter, nur freigegebene Krypto-Anbieter oder eine Auswahl ohne Präferenz sehen möchtest.</p></section>
+    <div class="topbar">
+      <a class="logo-link" href="https://betinsight.club/" aria-label="Zur BetInsight Landingpage">
+        <img class="logo" src="../logo_betisight.club.png" alt="BetInsight Club">
+      </a>
+    </div>
+
+    <section class="hero">
+      <div class="eyebrow">⚽ BetInsight Auswahl</div>
+      <h1>Unsere Wettanbieter</h1>
+      <p>Bevor wir dir Anbieter zeigen, bestätigst du dein Land. Danach kannst du wählen, ob du alle für dein Land freigegebenen Anbieter, nur freigegebene Krypto-Anbieter oder eine Auswahl ohne Präferenz sehen möchtest.</p>
+    </section>
+
     <section class="selector" aria-labelledby="countryHeading">
-      <div class="step-head"><div class="step-number">1</div><div><h2 id="countryHeading">Aus welchem Land kommst du?</h2><p>Die Auswahl erfolgt bewusst durch dich. Es wird hierfür keine Make- oder Sheet-Abfrage ausgelöst.</p></div></div>
-      <div id="countryForm">
-        <div class="country-row"><div class="field"><label for="countrySelect">Land auswählen</label><select id="countrySelect"><option value="">Bitte Land auswählen</option></select></div><button id="confirmCountry" class="primary" type="button" disabled>Land bestätigen</button></div>
-        <div id="regionWrap" class="field region-wrap hidden"><label for="regionSelect">Bundesstaat auswählen</label><select id="regionSelect"><option value="">Bitte Bundesstaat auswählen</option></select></div>
+      <div class="step-head">
+        <div class="step-number">1</div>
+        <div>
+          <h2 id="countryHeading">Aus welchem Land kommst du?</h2>
+          <p>Die Auswahl erfolgt bewusst durch dich. Es wird hierfür keine Make- oder Sheet-Abfrage ausgelöst.</p>
+        </div>
       </div>
-      <div id="confirmedCountry" class="confirmed hidden"><div><strong id="confirmedLabel"></strong><div style="color:var(--muted);font-size:.82rem">Diese Auswahl wird nur für die aktuelle Anbieteranzeige verwendet.</div></div><button id="changeCountry" class="link-button" type="button">Land ändern</button></div>
+
+      <div id="countryForm">
+        <div class="country-row">
+          <div class="field">
+            <label for="countrySelect">Land auswählen</label>
+            <select id="countrySelect">
+              <option value="">Bitte Land auswählen</option>
+            </select>
+          </div>
+          <button id="confirmCountry" class="primary" type="button" disabled>Land bestätigen</button>
+        </div>
+
+        <div id="regionWrap" class="field region-wrap hidden">
+          <label id="regionLabel" for="regionSelect">Region auswählen</label>
+          <select id="regionSelect">
+            <option value="">Bitte Region auswählen</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="confirmedCountry" class="confirmed hidden">
+        <div>
+          <strong id="confirmedLabel"></strong>
+          <div style="color:var(--muted);font-size:.82rem">Diese Auswahl wird nur für die aktuelle Anbieteranzeige verwendet.</div>
+        </div>
+        <button id="changeCountry" class="link-button" type="button">Land ändern</button>
+      </div>
+
       <div id="filterStep" class="filter-step hidden">
-        <div class="step-head"><div class="step-number">2</div><div><h2>Welche Anbieter möchtest du sehen?</h2><p>Die Auswahl wird ausschließlich gegen die zentrale BetInsight-Länderliste geprüft.</p></div></div>
+        <div class="step-head">
+          <div class="step-number">2</div>
+          <div>
+            <h2>Welche Anbieter möchtest du sehen?</h2>
+            <p>Die Auswahl wird ausschließlich gegen die zentrale BetInsight-Länderliste geprüft.</p>
+          </div>
+        </div>
         <div class="choices">
-          <button class="choice" type="button" data-mode="allowed"><span class="choice-icon">🛡️</span><strong>Für mein Land freigegebene Anbieter</strong><span>Zeigt nur Anbieter, die BetInsight für dein ausgewähltes Land als geprüft hinterlegt hat.</span></button>
-          <button class="choice" type="button" data-mode="crypto"><span class="choice-icon">₿</span><strong>Freigegebene Anbieter mit Krypto-Zahlung</strong><span>Filtert die freigegebenen Anbieter zusätzlich nach von BetInsight bestätigter Krypto-Unterstützung.</span></button>
-          <button class="choice" type="button" data-mode="any"><span class="choice-icon">⭐</span><strong>Keine Präferenz</strong><span>BetInsight zeigt dir eine passende Auswahl aus den für dein Land freigegebenen Anbietern.</span></button>
+          <button class="choice" type="button" data-mode="allowed">
+            <span class="choice-icon">🛡️</span>
+            <strong>Für mein Land freigegebene Anbieter</strong>
+            <span>Zeigt nur Anbieter, die BetInsight für dein ausgewähltes Land als geprüft hinterlegt hat.</span>
+          </button>
+          <button class="choice" type="button" data-mode="crypto">
+            <span class="choice-icon">₿</span>
+            <strong>Freigegebene Anbieter mit Krypto-Zahlung</strong>
+            <span>Filtert die freigegebenen Anbieter zusätzlich nach von BetInsight bestätigter Krypto-Unterstützung.</span>
+          </button>
+          <button class="choice" type="button" data-mode="any">
+            <span class="choice-icon">⭐</span>
+            <strong>Keine Präferenz</strong>
+            <span>BetInsight zeigt dir eine passende Auswahl aus den für dein Land freigegebenen Anbietern.</span>
+          </button>
         </div>
       </div>
     </section>
-    <section id="results" class="results hidden" aria-live="polite"><div class="results-head"><div><h2>Passende Anbieter</h2><p id="resultsSubtitle"></p></div></div><div id="statusBox" class="status-box hidden"></div><div id="providerGrid" class="provider-grid"></div></section>
-    <section class="legal"><h2>Wichtiger Hinweis</h2><p>Die BetInsight-Länderliste ist eine eigene, gepflegte Auswahl und keine Rechtsberatung oder behördliche Garantie. Anbieter, Domains, Zahlungsarten und Zulassungen können sich ändern.</p><p>Solange ein Land oder Anbieter noch nicht geprüft wurde, gilt standardmäßig: nicht anzeigen. Partner- und Reflinks werden später separat ergänzt und ändern die Länderfreigabe nicht.</p></section>
+
+    <section id="results" class="results hidden" aria-live="polite">
+      <div class="results-head">
+        <div>
+          <h2 id="resultsTitle">Passende Anbieter</h2>
+          <p id="resultsSubtitle"></p>
+        </div>
+      </div>
+      <div id="statusBox" class="status-box hidden"></div>
+      <div id="providerGrid" class="provider-grid"></div>
+    </section>
+
+    <section class="legal">
+      <h2>Wichtiger Hinweis</h2>
+      <p>Die BetInsight-Länderliste ist eine eigene, gepflegte Auswahl und keine Rechtsberatung oder behördliche Garantie. Anbieter, Domains, Zahlungsarten und Zulassungen können sich ändern.</p>
+      <p>Solange ein Land oder Anbieter noch nicht geprüft wurde, gilt standardmäßig: nicht anzeigen. Partner- und Reflinks werden später separat ergänzt und ändern die Länderfreigabe nicht.</p>
+      <p><strong>Stand der BetInsight-Anbieterliste:</strong> <span id="dataStand">wird geladen …</span></p>
+    </section>
+
     <footer class="footer">© 2026 BetInsight Club · Wettanbieter nach Land</footer>
   </main>
+
   <script>
-  (()=>{'use strict';
-    const DATA_URL='../assets/provider-whitelist.json?v=20260831-1';
-    const countrySelect=document.getElementById('countrySelect'),regionWrap=document.getElementById('regionWrap'),regionSelect=document.getElementById('regionSelect'),confirmCountry=document.getElementById('confirmCountry'),countryForm=document.getElementById('countryForm'),confirmedCountry=document.getElementById('confirmedCountry'),confirmedLabel=document.getElementById('confirmedLabel'),changeCountry=document.getElementById('changeCountry'),filterStep=document.getElementById('filterStep'),results=document.getElementById('results'),statusBox=document.getElementById('statusBox'),providerGrid=document.getElementById('providerGrid'),resultsSubtitle=document.getElementById('resultsSubtitle');
-    let config=null,selectedCountry='',selectedRegion='';
-    const browserLocale=document.documentElement.lang==='en'?'en':'de';
-    const displayNames=typeof Intl.DisplayNames==='function'?new Intl.DisplayNames([browserLocale],{type:'region'}):null;
-    function countryName(code){if(code==='XK')return'Kosovo';try{return displayNames?.of(code)||code}catch(_){return code}}
-    function flag(code){if(!/^[A-Z]{2}$/.test(code))return'🌍';return String.fromCodePoint(...[...code].map(ch=>127397+ch.charCodeAt()))}
-    function populateCountries(){const items=(config?.country_codes||[]).map(code=>({code,name:countryName(code)})).sort((a,b)=>a.name.localeCompare(b.name,browserLocale));countrySelect.innerHTML='<option value="">Bitte Land auswählen</option>'+items.map(item=>`<option value="${item.code}">${flag(item.code)} ${item.name}</option>`).join('')}
-    function populateRegions(countryCode){const regions=config?.regions?.[countryCode]||[];if(!regions.length){regionWrap.classList.add('hidden');regionSelect.innerHTML='<option value="">Bitte Region auswählen</option>';return}regionSelect.innerHTML='<option value="">Bitte Bundesstaat auswählen</option>'+regions.map(region=>`<option value="${region.code}">${region.name}</option>`).join('');regionWrap.classList.remove('hidden')}
-    function updateConfirmState(){const country=countrySelect.value,needsRegion=(config?.regions?.[country]||[]).length>0;confirmCountry.disabled=!country||(needsRegion&&!regionSelect.value)}
-    function getRule(){const base=config?.country_rules?.[selectedCountry];if(!base)return null;if(selectedRegion&&base.regions?.[selectedRegion])return base.regions[selectedRegion];return base}
-    function providerById(id){return(config?.providers||[]).find(provider=>provider.id===id)||{id,name:id}}
-    function normalizeEntries(rule){return(rule?.providers||[]).map(entry=>typeof entry==='string'?{id:entry,allowed:true,crypto:false}:{id:entry.id,allowed:entry.allowed!==false,crypto:entry.crypto===true,priority:Number(entry.priority||999)})}
-    function showStatus(message){providerGrid.innerHTML='';statusBox.textContent=message;statusBox.classList.remove('hidden')}
-    function renderProviders(mode){results.classList.remove('hidden');statusBox.classList.add('hidden');providerGrid.innerHTML='';const locationText=selectedRegion?`${countryName(selectedCountry)} · ${regionSelect.options[regionSelect.selectedIndex]?.text||selectedRegion}`:countryName(selectedCountry);resultsSubtitle.textContent=`Auswahl für ${locationText}`;const rule=getRule();if(!rule||rule.status!=='verified'){showStatus(`Für ${locationText} sind derzeit noch keine von BetInsight verifizierten Anbieter hinterlegt. Bis zur Prüfung werden keine Anbieter angezeigt.`);results.scrollIntoView({behavior:'smooth',block:'start'});return}let entries=normalizeEntries(rule).filter(entry=>entry.allowed);if(mode==='crypto')entries=entries.filter(entry=>entry.crypto);if(mode==='any')entries=entries.sort((a,b)=>a.priority-b.priority);if(!entries.length){showStatus(mode==='crypto'?`Für ${locationText} ist aktuell kein von BetInsight verifizierter Anbieter mit bestätigter Krypto-Zahlung hinterlegt.`:`Für ${locationText} sind aktuell keine passenden verifizierten Anbieter hinterlegt.`);results.scrollIntoView({behavior:'smooth',block:'start'});return}providerGrid.innerHTML=entries.map(entry=>{const provider=providerById(entry.id);return`<article class="provider-card"><h3>${provider.name}</h3><div class="badges"><span class="badge verified">✓ Land geprüft</span>${entry.crypto?'<span class="badge crypto">₿ Krypto bestätigt</span>':''}</div><p class="future">Partner- oder Reflink wird später separat ergänzt.</p></article>`}).join('');results.scrollIntoView({behavior:'smooth',block:'start'})}
-    countrySelect.addEventListener('change',()=>{populateRegions(countrySelect.value);regionSelect.value='';updateConfirmState()});regionSelect.addEventListener('change',updateConfirmState);
-    confirmCountry.addEventListener('click',()=>{selectedCountry=countrySelect.value;selectedRegion=regionSelect.value;if(!selectedCountry)return;const regionName=selectedRegion?regionSelect.options[regionSelect.selectedIndex]?.text:'';confirmedLabel.textContent=`${flag(selectedCountry)} ${countryName(selectedCountry)}${regionName?' · '+regionName:''}`;countryForm.classList.add('hidden');confirmedCountry.classList.remove('hidden');filterStep.classList.remove('hidden');results.classList.add('hidden')});
-    changeCountry.addEventListener('click',()=>{selectedCountry='';selectedRegion='';countryForm.classList.remove('hidden');confirmedCountry.classList.add('hidden');filterStep.classList.add('hidden');results.classList.add('hidden');countrySelect.value='';populateRegions('');updateConfirmState();countrySelect.focus()});
-    document.querySelectorAll('.choice').forEach(button=>button.addEventListener('click',()=>renderProviders(button.dataset.mode)));
-    fetch(DATA_URL).then(response=>{if(!response.ok)throw new Error(`Whitelist HTTP ${response.status}`);return response.json()}).then(data=>{config=data;populateCountries();updateConfirmState()}).catch(error=>{console.error('BetInsight provider whitelist could not be loaded:',error);countrySelect.innerHTML='<option value="">Länderliste konnte nicht geladen werden</option>';confirmCountry.disabled=true});
+  (() => {
+    'use strict';
+
+    const DATA_URL = '../assets/provider-whitelist.json?v=20260831-2';
+    const countrySelect = document.getElementById('countrySelect');
+    const regionWrap = document.getElementById('regionWrap');
+    const regionLabel = document.getElementById('regionLabel');
+    const regionSelect = document.getElementById('regionSelect');
+    const confirmCountry = document.getElementById('confirmCountry');
+    const countryForm = document.getElementById('countryForm');
+    const confirmedCountry = document.getElementById('confirmedCountry');
+    const confirmedLabel = document.getElementById('confirmedLabel');
+    const changeCountry = document.getElementById('changeCountry');
+    const filterStep = document.getElementById('filterStep');
+    const results = document.getElementById('results');
+    const statusBox = document.getElementById('statusBox');
+    const providerGrid = document.getElementById('providerGrid');
+    const resultsSubtitle = document.getElementById('resultsSubtitle');
+
+    let config = null;
+    let selectedCountry = '';
+    let selectedRegion = '';
+
+    const browserLocale = document.documentElement.lang === 'en' ? 'en' : 'de';
+    const displayNames = typeof Intl.DisplayNames === 'function'
+      ? new Intl.DisplayNames([browserLocale], {type:'region'})
+      : null;
+
+    function countryName(code) {
+      if (code === 'XK') return browserLocale === 'en' ? 'Kosovo' : 'Kosovo';
+      try { return displayNames?.of(code) || code; } catch (_) { return code; }
+    }
+
+    function flag(code) {
+      if (!/^[A-Z]{2}$/.test(code)) return '🌍';
+      return String.fromCodePoint(...[...code].map(ch => 127397 + ch.charCodeAt()));
+    }
+
+    function formatIsoDate(value) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) return value || '–';
+      const [year, month, day] = value.split('-');
+      return `${day}.${month}.${year}`;
+    }
+
+    function populateCountries() {
+      const items = (config?.country_codes || []).map(code => ({
+        code,
+        name: countryName(code)
+      })).sort((a,b) => a.name.localeCompare(b.name, browserLocale));
+
+      countrySelect.innerHTML = '<option value="">Bitte Land auswählen</option>' +
+        items.map(item => `<option value="${item.code}">${flag(item.code)} ${item.name}</option>`).join('');
+    }
+
+    function populateRegions(countryCode) {
+      const regions = config?.regions?.[countryCode] || [];
+      if (!regions.length) {
+        regionWrap.classList.add('hidden');
+        regionSelect.innerHTML = '<option value="">Bitte Region auswählen</option>';
+        return;
+      }
+      const noun = countryCode === 'US' ? 'Bundesstaat' : (countryCode === 'AT' ? 'Bundesland' : 'Region');
+      regionLabel.textContent = `${noun} auswählen`;
+      regionSelect.innerHTML = `<option value="">Bitte ${noun} auswählen</option>` +
+        regions.map(region => `<option value="${region.code}">${region.name}</option>`).join('');
+      regionWrap.classList.remove('hidden');
+    }
+
+    function updateConfirmState() {
+      const country = countrySelect.value;
+      const needsRegion = (config?.regions?.[country] || []).length > 0;
+      confirmCountry.disabled = !country || (needsRegion && !regionSelect.value);
+    }
+
+    function getRule() {
+      const base = config?.country_rules?.[selectedCountry];
+      if (!base) return null;
+      if (selectedRegion && base.regions?.[selectedRegion]) return base.regions[selectedRegion];
+      return base;
+    }
+
+    function providerById(id) {
+      return (config?.providers || []).find(provider => provider.id === id) || {id,name:id};
+    }
+
+    function normalizeEntries(rule) {
+      return (rule?.providers || []).map(entry => {
+        if (typeof entry === 'string') return {id:entry,allowed:true,crypto:false,priority:999};
+        return {
+          id:entry.id,
+          allowed:entry.allowed !== false,
+          crypto:entry.crypto === true,
+          priority:Number(entry.priority || 999)
+        };
+      });
+    }
+
+    function showStatus(message) {
+      providerGrid.innerHTML = '';
+      statusBox.textContent = message;
+      statusBox.classList.remove('hidden');
+    }
+
+    function renderProviders(mode) {
+      results.classList.remove('hidden');
+      statusBox.classList.add('hidden');
+      providerGrid.innerHTML = '';
+
+      const locationText = selectedRegion
+        ? `${countryName(selectedCountry)} · ${regionSelect.options[regionSelect.selectedIndex]?.text || selectedRegion}`
+        : countryName(selectedCountry);
+      resultsSubtitle.textContent = locationText;
+
+      const rule = getRule();
+      if (!rule || rule.status === 'unverified' || rule.status === 'inactive') {
+        showStatus(`Für ${locationText} sind derzeit noch keine von BetInsight verifizierten Anbieter hinterlegt.`);
+        results.scrollIntoView({behavior:'smooth',block:'start'});
+        return;
+      }
+
+      let entries = normalizeEntries(rule).filter(entry => entry.allowed);
+      if (mode === 'crypto') entries = entries.filter(entry => entry.crypto);
+      if (mode === 'any') entries = entries.sort((a,b) => a.priority - b.priority);
+
+      if (!entries.length) {
+        const msg = mode === 'crypto'
+          ? `Für ${locationText} ist aktuell kein von BetInsight verifizierter Anbieter mit bestätigter Krypto-Zahlung hinterlegt.`
+          : `Für ${locationText} sind aktuell keine passenden verifizierten Anbieter hinterlegt.`;
+        showStatus(msg);
+        results.scrollIntoView({behavior:'smooth',block:'start'});
+        return;
+      }
+
+      providerGrid.innerHTML = entries.map(entry => {
+        const provider = providerById(entry.id);
+        return `<article class="provider-card">
+          <h3>${provider.name}</h3>
+          <div class="badges">
+            <span class="badge verified">✓ Land geprüft</span>
+            ${entry.crypto ? '<span class="badge crypto">₿ Krypto bestätigt</span>' : ''}
+          </div>
+          <p class="future">Partner- oder Reflink wird später separat ergänzt.</p>
+        </article>`;
+      }).join('');
+
+      results.scrollIntoView({behavior:'smooth',block:'start'});
+    }
+
+    countrySelect.addEventListener('change', () => {
+      populateRegions(countrySelect.value);
+      regionSelect.value = '';
+      updateConfirmState();
+    });
+    regionSelect.addEventListener('change', updateConfirmState);
+
+    confirmCountry.addEventListener('click', () => {
+      selectedCountry = countrySelect.value;
+      selectedRegion = regionSelect.value;
+      if (!selectedCountry) return;
+
+      const regionName = selectedRegion
+        ? regionSelect.options[regionSelect.selectedIndex]?.text
+        : '';
+      confirmedLabel.textContent = `${flag(selectedCountry)} ${countryName(selectedCountry)}${regionName ? ' · ' + regionName : ''}`;
+
+      countryForm.classList.add('hidden');
+      confirmedCountry.classList.remove('hidden');
+      filterStep.classList.remove('hidden');
+      results.classList.add('hidden');
+    });
+
+    changeCountry.addEventListener('click', () => {
+      selectedCountry = '';
+      selectedRegion = '';
+      countryForm.classList.remove('hidden');
+      confirmedCountry.classList.add('hidden');
+      filterStep.classList.add('hidden');
+      results.classList.add('hidden');
+      countrySelect.value = '';
+      populateRegions('');
+      updateConfirmState();
+      countrySelect.focus();
+    });
+
+    document.querySelectorAll('.choice').forEach(button => {
+      button.addEventListener('click', () => renderProviders(button.dataset.mode));
+    });
+
+    fetch(DATA_URL)
+      .then(response => {
+        if (!response.ok) throw new Error(`Whitelist HTTP ${response.status}`);
+        return response.json();
+      })
+      .then(data => {
+        config = data;
+        const dataStand = document.getElementById('dataStand');
+        if (dataStand) dataStand.textContent = formatIsoDate(config.updated);
+        populateCountries();
+        updateConfirmState();
+      })
+      .catch(error => {
+        console.error('BetInsight provider whitelist could not be loaded:', error);
+        countrySelect.innerHTML = '<option value="">Länderliste konnte nicht geladen werden</option>';
+        confirmCountry.disabled = true;
+      });
   })();
   </script>
 </body>
