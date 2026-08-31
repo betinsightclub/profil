@@ -205,7 +205,7 @@
   (() => {
     'use strict';
     const DATA_URL = '../assets/provider-whitelist.json?v=20260831-4';
-    const WEB_BATCH_URL = '../assets/provider-whitelist-web-batch.json?v=20260831-1';
+    const BATCH_MANIFEST_URL = '../assets/provider-whitelist-batches.json?v=20260831-1';
     const BI = window.BetInsightI18n;
     const t = (key, vars={}, fallback='') => BI?.t(key, vars, fallback) || fallback;
     const countrySelect = document.getElementById('countrySelect');
@@ -386,9 +386,18 @@
 
     Promise.all([
       fetch(DATA_URL,{cache:'no-store'}).then(response=>{ if(!response.ok) throw new Error(`Whitelist HTTP ${response.status}`); return response.json(); }),
-      fetch(WEB_BATCH_URL,{cache:'no-store'}).then(response=>{ if(!response.ok) throw new Error(`Whitelist batch HTTP ${response.status}`); return response.json(); })
-    ]).then(([baseData,webBatch])=>{
-      config=deepMerge(baseData,webBatch);
+      fetch(BATCH_MANIFEST_URL,{cache:'no-store'}).then(response=>{ if(!response.ok) throw new Error(`Whitelist manifest HTTP ${response.status}`); return response.json(); })
+    ]).then(async ([baseData,manifest])=>{
+      config=baseData;
+      const files=Array.isArray(manifest?.files)?manifest.files:[];
+      for (const file of files) {
+        const url=new URL(`../assets/${file}`,location.href);
+        url.searchParams.set('v',manifest.updated||manifest.version||Date.now());
+        const response=await fetch(url,{cache:'no-store'});
+        if(!response.ok) throw new Error(`Whitelist batch HTTP ${response.status}: ${file}`);
+        config=deepMerge(config,await response.json());
+      }
+      if (manifest?.updated && (!config.updated || manifest.updated > config.updated)) config.updated=manifest.updated;
       dataStand.textContent=formatIsoDate(config.updated);
       populateCountries(countrySelect.value);
       populateRegions(countrySelect.value,regionSelect.value);
