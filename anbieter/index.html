@@ -204,7 +204,8 @@
   <script>
   (() => {
     'use strict';
-    const DATA_URL = '../assets/provider-whitelist.json?v=20260831-3';
+    const DATA_URL = '../assets/provider-whitelist.json?v=20260831-4';
+    const WEB_BATCH_URL = '../assets/provider-whitelist-web-batch.json?v=20260831-1';
     const BI = window.BetInsightI18n;
     const t = (key, vars={}, fallback='') => BI?.t(key, vars, fallback) || fallback;
     const countrySelect = document.getElementById('countrySelect');
@@ -370,8 +371,29 @@
     document.querySelectorAll('.choice').forEach(button=>button.addEventListener('click',()=>{ renderProviders(button.dataset.mode); results.scrollIntoView({behavior:'smooth',block:'start'}); }));
     window.addEventListener('bi:languagechange',refreshLanguage);
 
-    fetch(DATA_URL,{cache:'no-store'}).then(response=>{ if(!response.ok) throw new Error(`Whitelist HTTP ${response.status}`); return response.json(); }).then(data=>{
-      config=data; dataStand.textContent=formatIsoDate(config.updated); populateCountries(countrySelect.value); populateRegions(countrySelect.value,regionSelect.value); updateConfirmState(); refreshLanguage();
+    function deepMerge(target, source) {
+      if (!source || typeof source !== 'object') return target;
+      Object.entries(source).forEach(([key,value]) => {
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+          const base = target[key] && typeof target[key] === 'object' && !Array.isArray(target[key]) ? target[key] : {};
+          target[key] = deepMerge(base, value);
+        } else {
+          target[key] = value;
+        }
+      });
+      return target;
+    }
+
+    Promise.all([
+      fetch(DATA_URL,{cache:'no-store'}).then(response=>{ if(!response.ok) throw new Error(`Whitelist HTTP ${response.status}`); return response.json(); }),
+      fetch(WEB_BATCH_URL,{cache:'no-store'}).then(response=>{ if(!response.ok) throw new Error(`Whitelist batch HTTP ${response.status}`); return response.json(); })
+    ]).then(([baseData,webBatch])=>{
+      config=deepMerge(baseData,webBatch);
+      dataStand.textContent=formatIsoDate(config.updated);
+      populateCountries(countrySelect.value);
+      populateRegions(countrySelect.value,regionSelect.value);
+      updateConfirmState();
+      refreshLanguage();
     }).catch(error=>{
       console.error('BetInsight provider whitelist could not be loaded:',error);
       countrySelect.innerHTML=`<option value="">${escapeHtml(t('providersPage.loadError',{},'Länderliste konnte nicht geladen werden'))}</option>`; confirmCountry.disabled=true;
