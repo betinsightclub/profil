@@ -321,7 +321,7 @@
       const locationText=selectedLocationText();
       const rule=getRule();
       if (!rule || rule.status!=='verified') {
-        resultsSubtitle.textContent=t('providersPage.resultsSubtitle',{location:locationText,count:0},`Auswahl für ${locationText} · 0 Anbieter`);
+        resultsSubtitle.textContent=t('providersPage.pendingSubtitle',{location:locationText},`Prüfung für ${locationText} ausstehend`);
         showStatus(t('providersPage.unverified',{location:locationText},`Für ${locationText} sind noch keine von BetInsight verifizierten Anbieter hinterlegt.`));
         return;
       }
