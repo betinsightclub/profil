@@ -1,4 +1,4 @@
-/* BetInsight Kontobewegungen · 2026-08-28-01
+/* BetInsight Kontobewegungen · 2026-09-01-01
    Reine READONLY-Anzeige im Dashboard.
    Liest bestehende Bewegungs-/Tipp-/Daily-Historien über getrennte READONLY-Webhooks.
    Keine Unit-, Zahlungs-, Referral-, Tipp- oder Wechselstuben-Schreiblogik wird verändert. */
@@ -83,6 +83,8 @@
     const type = String(item.type || "").trim().toLowerCase();
     if (type === "wechselstube_kauf") return "Wechselstube · Units gekauft";
     if (type === "wechselstube_verkauf") return "Wechselstube · Units verkauft";
+    if (type === "wechselstube_kauf_bank") return "Wechselstube · Bankkauf";
+    if (type === "wechselstube_verkauf_bank") return "Wechselstube · Bankverkauf";
     if (type === "referral_aufs_konto") return "Referral-Units aufs Konto";
     if (type === "kauf") return "Unit-Paket gekauft";
     if (type === "tipp_freischaltung") return "Tipp freigeschaltet";
