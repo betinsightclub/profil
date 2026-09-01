@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <meta name="theme-color" content="#071019">
-  <meta name="application-version" content="1.1.0">
+  <meta name="application-version" content="1.2.0">
   <meta name="bi-i18n-scope" content="my-sale-offers">
   <title data-bi-i18n="mySaleOffersPage.title">Meine Verkaufsangebote | BetInsight Club</title>
   <link rel="icon" type="image/x-icon" href="../favicon.ico">
@@ -15,7 +15,7 @@
   <script src="../assets/app-navigation-v2.js?v=20260830-9" defer></script>
   <style>
     :root{--bg:#071019;--panel:#0d1a26;--text:#f4f8fb;--muted:#91a6b7;--line:rgba(145,166,183,.18);--green:#25e6a7;--blue:#59a8ff;--yellow:#ffc857;--danger:#ff6b7d}
-    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 12% 0%,rgba(37,230,167,.12),transparent 30rem),radial-gradient(circle at 92% 12%,rgba(89,168,255,.12),transparent 30rem),var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}.page{width:min(100% - 28px,920px);margin:auto;padding:34px 0 56px}.logo{width:170px;max-width:55vw}.hero{margin-top:24px}.hero h1{margin:8px 0;font-size:clamp(2rem,6vw,3rem)}.hero p{color:var(--muted);line-height:1.55}.card{margin-top:22px;padding:clamp(20px,5vw,30px);border:1px solid var(--line);border-radius:22px;background:linear-gradient(155deg,rgba(18,36,51,.96),rgba(13,26,38,.98));box-shadow:0 24px 70px rgba(0,0,0,.34)}.cardhead{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:18px}.card h2{margin:0 0 6px}.cardhead p{margin:0;color:var(--muted)}.count{padding:7px 11px;border-radius:999px;border:1px solid rgba(37,230,167,.28);color:var(--green);font-size:.75rem;font-weight:900}.list{display:grid;gap:12px}.offer{display:grid;grid-template-columns:minmax(0,1.3fr) repeat(3,minmax(0,.85fr));gap:12px;align-items:center;padding:16px;border:1px solid var(--line);border-radius:16px;background:rgba(7,16,25,.52)}.main strong,.meta strong{display:block}.main span,.meta span{display:block;margin-top:5px;color:var(--muted);font-size:.78rem;overflow-wrap:anywhere}.badge{justify-self:end;display:inline-flex;min-height:34px;align-items:center;padding:0 11px;border-radius:999px;font-size:.74rem;font-weight:900;white-space:nowrap}.badge.active{color:#caffed;background:rgba(37,230,167,.1);border:1px solid rgba(37,230,167,.3)}.badge.reserved{color:#ffe6ad;background:rgba(255,200,87,.1);border:1px solid rgba(255,200,87,.3)}.actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:9px;padding-top:11px;border-top:1px solid var(--line)}.action{min-height:40px;padding:0 15px;border-radius:10px;font-weight:850;cursor:pointer}.action.edit{color:#dcecff;background:rgba(89,168,255,.12);border:1px solid rgba(89,168,255,.35)}.action.cancel{color:#ffd9de;background:rgba(255,107,125,.1);border:1px solid rgba(255,107,125,.35)}.action:disabled{opacity:.5;cursor:not-allowed}.price-select{min-height:40px;padding:0 10px;color:var(--text);background:#0b1721;border:1px solid rgba(89,168,255,.35);border-radius:10px}.locked{grid-column:1/-1;margin:0;padding-top:10px;border-top:1px solid var(--line);color:var(--muted);font-size:.8rem;line-height:1.45}.state{padding:16px;border:1px dashed rgba(145,166,183,.25);border-radius:14px;color:var(--muted);line-height:1.55}.state.error{color:#ffd9de;border-color:rgba(255,107,125,.35);background:rgba(255,107,125,.07)}.feedback{display:none;margin-top:16px;padding:13px 15px;border-radius:11px;line-height:1.5;font-size:.86rem}.feedback.show{display:block}.feedback.success{color:#caffed;background:rgba(37,230,167,.08);border:1px solid rgba(37,230,167,.3)}.feedback.error{color:#ffd9de;background:rgba(255,107,125,.08);border:1px solid rgba(255,107,125,.3)}.note{margin-top:18px;color:var(--muted);font-size:.82rem;line-height:1.5}.back{display:inline-flex;margin-top:18px;padding:11px 15px;border-radius:12px;border:1px solid var(--line);color:#fff;text-decoration:none;background:rgba(13,26,38,.9)}@media(max-width:700px){.offer{grid-template-columns:1fr 1fr}.main{grid-column:1/-1}.badge{justify-self:start}.cardhead{flex-direction:column}.actions{justify-content:stretch}.action{flex:1}}@media(max-width:460px){.offer{grid-template-columns:1fr}.main{grid-column:auto}.actions{display:grid;grid-template-columns:1fr 1fr}}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 12% 0%,rgba(37,230,167,.12),transparent 30rem),radial-gradient(circle at 92% 12%,rgba(89,168,255,.12),transparent 30rem),var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}.page{width:min(100% - 28px,920px);margin:auto;padding:34px 0 56px}.logo{width:170px;max-width:55vw}.hero{margin-top:24px}.hero h1{margin:8px 0;font-size:clamp(2rem,6vw,3rem)}.hero p{color:var(--muted);line-height:1.55}.card{margin-top:22px;padding:clamp(20px,5vw,30px);border:1px solid var(--line);border-radius:22px;background:linear-gradient(155deg,rgba(18,36,51,.96),rgba(13,26,38,.98));box-shadow:0 24px 70px rgba(0,0,0,.34)}.cardhead{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:18px}.card h2{margin:0 0 6px}.cardhead p{margin:0;color:var(--muted)}.count{padding:7px 11px;border-radius:999px;border:1px solid rgba(37,230,167,.28);color:var(--green);font-size:.75rem;font-weight:900}.list{display:grid;gap:12px}.offer{display:grid;grid-template-columns:minmax(0,1.3fr) repeat(3,minmax(0,.85fr));gap:12px;align-items:center;padding:16px;border:1px solid var(--line);border-radius:16px;background:rgba(7,16,25,.52)}.main strong,.meta strong{display:block}.main span,.meta span{display:block;margin-top:5px;color:var(--muted);font-size:.78rem;overflow-wrap:anywhere}.badge{justify-self:end;display:inline-flex;min-height:34px;align-items:center;padding:0 11px;border-radius:999px;font-size:.74rem;font-weight:900;white-space:nowrap}.badge.active{color:#caffed;background:rgba(37,230,167,.1);border:1px solid rgba(37,230,167,.3)}.badge.reserved{color:#ffe6ad;background:rgba(255,200,87,.1);border:1px solid rgba(255,200,87,.3)}.actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:9px;padding-top:11px;border-top:1px solid var(--line)}.action{min-height:40px;padding:0 15px;border-radius:10px;font-weight:850;cursor:pointer}.action.edit{color:#dcecff;background:rgba(89,168,255,.12);border:1px solid rgba(89,168,255,.35)}.action.cancel{color:#ffd9de;background:rgba(255,107,125,.1);border:1px solid rgba(255,107,125,.35)}.action.confirm{color:#041b13;background:linear-gradient(135deg,#25e6a7,#63efc4);border:1px solid rgba(37,230,167,.6)}.action:disabled{opacity:.5;cursor:not-allowed}.price-select{min-height:40px;padding:0 10px;color:var(--text);background:#0b1721;border:1px solid rgba(89,168,255,.35);border-radius:10px}.locked{grid-column:1/-1;margin:0;padding-top:10px;border-top:1px solid var(--line);color:var(--muted);font-size:.8rem;line-height:1.45}.bank-payment{grid-column:1/-1;padding:13px 14px;border:1px solid var(--line);border-radius:12px;background:rgba(7,16,25,.45);color:var(--muted);font-size:.82rem;line-height:1.5}.bank-payment strong{display:block;margin-bottom:4px;color:var(--text)}.bank-payment.reported{border-color:rgba(255,200,87,.42);background:rgba(255,200,87,.07);color:#ffe6ad}.bank-payment.reported strong{color:#fff1c8}.bank-payment.waiting{border-color:rgba(89,168,255,.3);background:rgba(89,168,255,.06)}.bank-confirm-row{display:flex;justify-content:flex-end;margin-top:12px}.bank-details{margin-top:5px;color:var(--muted);font-size:.78rem}.state{padding:16px;border:1px dashed rgba(145,166,183,.25);border-radius:14px;color:var(--muted);line-height:1.55}.state.error{color:#ffd9de;border-color:rgba(255,107,125,.35);background:rgba(255,107,125,.07)}.feedback{display:none;margin-top:16px;padding:13px 15px;border-radius:11px;line-height:1.5;font-size:.86rem}.feedback.show{display:block}.feedback.success{color:#caffed;background:rgba(37,230,167,.08);border:1px solid rgba(37,230,167,.3)}.feedback.error{color:#ffd9de;background:rgba(255,107,125,.08);border:1px solid rgba(255,107,125,.3)}.note{margin-top:18px;color:var(--muted);font-size:.82rem;line-height:1.5}.back{display:inline-flex;margin-top:18px;padding:11px 15px;border-radius:12px;border:1px solid var(--line);color:#fff;text-decoration:none;background:rgba(13,26,38,.9)}@media(max-width:700px){.offer{grid-template-columns:1fr 1fr}.main{grid-column:1/-1}.badge{justify-self:start}.cardhead{flex-direction:column}.actions{justify-content:stretch}.action{flex:1}.bank-confirm-row{justify-content:stretch}.bank-confirm-row .action{width:100%}}@media(max-width:460px){.offer{grid-template-columns:1fr}.main{grid-column:auto}.actions{display:grid;grid-template-columns:1fr 1fr}}
   </style>
 </head>
 <body>
@@ -30,7 +30,7 @@
     <div class="state" id="state">Deine Verkaufsangebote werden geladen.</div>
     <div class="list" id="list" hidden></div>
     <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
-    <p class="note"><strong>Wichtig:</strong> Nur aktive Angebote können bearbeitet oder storniert werden. Sobald ein Käufer reserviert hat, sind Änderungen gesperrt. Beim Storno wird die Verkaufsmenge wieder freigegeben; die normale Verkaufsgebühr bleibt verbraucht. Eine reservierte Bank-Service-Unit wird zurückgegeben.</p>
+    <p class="note"><strong>Wichtig:</strong> Nur aktive Angebote können bearbeitet oder storniert werden. Sobald ein Käufer reserviert hat, sind Änderungen gesperrt. Bei Bankkäufen erscheint die Bestätigung erst, nachdem der Käufer die Zahlung als gesendet gemeldet hat. Bestätige den Geldeingang ausschließlich nach tatsächlichem vollständigem Eingang auf deinem Bankkonto. Erst dann werden die reservierten Units an den Käufer übertragen.</p>
   </section>
   <a class="back" href="../verkaufen/">Neues Verkaufsangebot erstellen</a>
 </main>
@@ -39,6 +39,8 @@
   'use strict';
   const READ_ENDPOINT='https://hook.eu1.make.com/r4vv6dolmdni4vppridgpaf5teaua6kr';
   const MUTATION_ENDPOINT='https://hook.eu1.make.com/6mm8zk6yaq08vi9lmzbu5v265e9rcyce';
+  const BANK_STATUS_ENDPOINT='https://hook.eu1.make.com/bu14cujqmjbgbmrn353zowo1owhc4v3m';
+  const BANK_CONFIRM_ENDPOINT='https://hook.eu1.make.com/80tpoc4jceq3gj6fng5rm9i5w9ga3ygl';
   const ALLOWED_PRICES=[.80,.85,.90,.95,1.00];
   const state=document.getElementById('state'),list=document.getElementById('list'),count=document.getElementById('count'),feedback=document.getElementById('feedback');
   let lastItems=[],busy=false;
@@ -51,6 +53,14 @@
   function clearMessage(){feedback.textContent='';feedback.className='feedback'}
   function isActive(v){return String(v||'').toUpperCase()==='AKTIV'}
   function isReserved(v){const s=String(v||'').toUpperCase();return s==='KAUF_RESERVIERT'||s==='RESERVIERT'}
+  function isBankOffer(o){return String(o?.zahlungBank||'').toUpperCase()==='JA'}
+  async function postJson(endpoint,payload){
+    const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),cache:'no-store'});
+    const text=String(await r.text()||'').replace(/^\uFEFF/,'').trim();
+    let d={};try{d=JSON.parse(text||'{}')}catch(_){d={message:text}}
+    if(!r.ok)throw new Error(d.message||'Anfrage konnte nicht abgeschlossen werden.');
+    return d;
+  }
   function render(items){
     lastItems=Array.isArray(items)?items:[];
     const visible=lastItems.filter(x=>isActive(x.status)||isReserved(x.status));
@@ -58,18 +68,54 @@
     if(!visible.length){state.hidden=false;state.className='state';state.textContent='Aktuell hast du keine eigenen Verkaufsangebote im Verkauf oder reserviert.';list.hidden=true;return}
     state.hidden=true;list.hidden=false;list.innerHTML='';
     visible.forEach((o,index)=>{
-      const active=isActive(o.status),reserved=isReserved(o.status),id=String(o.id||'Angebot');
+      const active=isActive(o.status),reserved=isReserved(o.status),id=String(o.id||'Angebot'),bankReserved=reserved&&isBankOffer(o);
       const el=document.createElement('article');el.className='offer';el.dataset.index=String(index);
-      el.innerHTML=`<div class="main"><strong>${Number(o.units)||0} Units</strong><span>${esc(id)}</span></div><div class="meta"><span>Preis pro Unit</span><strong class="price-value">${esc(euro(o.unitPriceEur))}</strong></div><div class="meta"><span>Gesamtpreis</span><strong class="total-value">${esc(euro(o.totalEur))}</strong></div><div><span class="badge ${reserved?'reserved':'active'}">${reserved?'Für Käufer reserviert':'Aktiv im Verkauf'}</span></div>${active?'<div class="actions"><button class="action edit" type="button" data-action="edit">Bearbeiten</button><button class="action cancel" type="button" data-action="cancel">Stornieren</button></div>':'<p class="locked">Dieses Angebot ist bereits für einen Käufer reserviert und kann deshalb momentan weder bearbeitet noch storniert werden.</p>'}`;
+      const reservedContent=bankReserved?'<div class="bank-payment waiting" data-bank-status><strong>🏦 Bankkauf reserviert</strong>Bankstatus wird geprüft …</div>':'<p class="locked">Dieses Angebot ist bereits für einen Käufer reserviert und kann deshalb momentan weder bearbeitet noch storniert werden.</p>';
+      el.innerHTML=`<div class="main"><strong>${Number(o.units)||0} Units</strong><span>${esc(id)}</span></div><div class="meta"><span>Preis pro Unit</span><strong class="price-value">${esc(euro(o.unitPriceEur))}</strong></div><div class="meta"><span>Gesamtpreis</span><strong class="total-value">${esc(euro(o.totalEur))}</strong></div><div><span class="badge ${reserved?'reserved':'active'}">${reserved?'Für Käufer reserviert':'Aktiv im Verkauf'}</span></div>${active?'<div class="actions"><button class="action edit" type="button" data-action="edit">Bearbeiten</button><button class="action cancel" type="button" data-action="cancel">Stornieren</button></div>':reservedContent}`;
       el.querySelectorAll('[data-action]').forEach(btn=>btn.addEventListener('click',()=>handleAction(btn,o)));
       list.appendChild(el);
+      if(bankReserved)loadBankStatus(o,el);
     });
+  }
+  async function loadBankStatus(o,el){
+    const box=el.querySelector('[data-bank-status]');if(!box)return;
+    try{
+      const d=await postJson(BANK_STATUS_ENDPOINT,{dashboard_token:token(),angebot_id:o.id});
+      if(d.status==='bank_payment_reported'&&d.seller_action_required===true){
+        box.className='bank-payment reported';
+        box.innerHTML=`<strong>💶 Käufer hat die Zahlung als gesendet gemeldet</strong>Bitte prüfe dein echtes Bankkonto. Erwarteter vollständiger Eingang: <strong>${esc(euro(d.zahlbetrag_eur))}</strong><div class="bank-details">Buchungsnummer: ${esc(d.buchungsnummer||'–')}${d.zahlung_gemeldet_am?` · Gemeldet: ${esc(d.zahlung_gemeldet_am)}`:''}</div><div class="bank-confirm-row"><button class="action confirm" type="button" data-bank-confirm>Geldeingang bestätigen &amp; ${Number(d.units)||Number(o.units)||0} Units übertragen</button></div>`;
+        const btn=box.querySelector('[data-bank-confirm]');if(btn)btn.addEventListener('click',()=>confirmBankPayment(btn,o,d));
+        return;
+      }
+      if(d.status==='bank_waiting_for_buyer'){
+        box.className='bank-payment waiting';
+        box.innerHTML=`<strong>🏦 Bankkauf reserviert</strong>Der Käufer hat die Überweisung noch nicht als gesendet gemeldet. Noch nichts bestätigen.`;
+        return;
+      }
+      box.className='bank-payment waiting';box.innerHTML='<strong>🏦 Bankkauf reserviert</strong>Für diesen Bankkauf ist derzeit keine Verkäuferbestätigung erforderlich.';
+    }catch(e){
+      console.error(e);box.className='bank-payment';box.innerHTML='<strong>Bankstatus momentan nicht verfügbar</strong>Bitte Seite erneut laden. Es wurden keine Units übertragen.';
+    }
+  }
+  async function confirmBankPayment(btn,o,d){
+    if(busy)return;clearMessage();
+    const amount=euro(d.zahlbetrag_eur),units=Number(d.units)||Number(o.units)||0;
+    if(!confirm('Geldeingang wirklich bestätigen?\n\nBitte bestätige nur, wenn '+amount+' vollständig auf deinem Bankkonto eingegangen sind.\n\nMit der Bestätigung werden '+units+' Units an den Käufer übertragen. Diese Bestätigung darf nicht aufgrund eines Screenshots oder einer Zahlungsankündigung erfolgen.'))return;
+    busy=true;btn.disabled=true;const oldText=btn.textContent;btn.textContent='Übertragung wird sicher geprüft …';
+    try{
+      const result=await postJson(BANK_CONFIRM_ENDPOINT,{dashboard_token:token(),buchungsnummer:d.buchungsnummer,request_id:reqId()});
+      if(result.status!=='bank_transfer_completed'&&result.status!=='bank_transfer_already_completed')throw new Error(result.message||'Der Bankverkauf konnte nicht abgeschlossen werden.');
+      message(result.status==='bank_transfer_completed'?'Geldeingang bestätigt. Die Units wurden einmalig an den Käufer übertragen.':'Dieser Bankverkauf war bereits abgeschlossen. Es wurde kein zweiter Unit-Transfer ausgeführt.','success');
+      await load();
+    }catch(e){
+      console.error(e);message(e.message||'Bestätigung fehlgeschlagen. Es wurden keine weiteren Units übertragen.','error');btn.disabled=false;btn.textContent=oldText;
+    }finally{busy=false}
   }
   async function load(){
     const t=token();if(!t){count.textContent='–';state.className='state error';state.textContent='Dein persönlicher Dashboard-Zugang ist auf diesem Gerät nicht verfügbar.';return}
     try{const r=await fetch(READ_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dashboard_token:t}),cache:'no-store'});const text=String(await r.text()||'').replace(/^\uFEFF/,'').trim();if(!r.ok)throw new Error('Angebote konnten nicht geladen werden.');render(text?JSON.parse(text):[])}catch(e){console.error(e);count.textContent='–';state.hidden=false;state.className='state error';state.textContent='Deine Verkaufsangebote konnten gerade nicht geladen werden. Bitte versuche es erneut.'}
   }
-  async function mutate(payload){const r=await fetch(MUTATION_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...payload,dashboard_token:token(),request_id:reqId()}),cache:'no-store'});const text=String(await r.text()||'').replace(/^\uFEFF/,'').trim();let d={};try{d=JSON.parse(text||'{}')}catch(_){d={message:text}}if(!r.ok||d.status==='error')throw new Error(d.message||'Änderung fehlgeschlagen.');return d}
+  async function mutate(payload){return postJson(MUTATION_ENDPOINT,{...payload,dashboard_token:token(),request_id:reqId()})}
   async function handleAction(btn,o){
     if(busy)return;clearMessage();
     if(btn.dataset.action==='edit'){
