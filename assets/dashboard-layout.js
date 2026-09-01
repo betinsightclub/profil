@@ -1,8 +1,11 @@
-/* BetInsight Dashboard-Layout · 2026-08-28-01
-   Reine Darstellungsänderung: Empfehlungslinks werden in den Profilzugang verschoben.
-   Keine Unit-, Referral-, Tipp-, Zahlungs- oder Wechselstubenlogik wird verändert. */
+/* BetInsight Dashboard-Layout · 2026-09-01-01
+   Empfehlungslinks werden in den Profilzugang verschoben.
+   Netzwerkebenen werden über network-lazy.js nur bei Bedarf geladen.
+   Keine Unit-, Referral-, Tipp-, Zahlungs- oder Wechselstubenbestände werden verändert. */
 (() => {
   "use strict";
+
+  const SCRIPT_BASE = new URL("./", document.currentScript?.src || location.href);
 
   function applyDashboardLayout() {
     const profilePanelBody = document.querySelector("#profileBox .profile-grid > .panel:first-child .panel-body");
@@ -49,6 +52,21 @@
     }
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", applyDashboardLayout, { once: true });
-  else applyDashboardLayout();
+  function loadNetworkLazy() {
+    if (document.querySelector('script[data-bi-network-lazy="1"]')) return;
+    const script = document.createElement("script");
+    script.src = new URL("network-lazy.js?v=20260901-1", SCRIPT_BASE).toString();
+    script.async = false;
+    script.dataset.biNetworkLazy = "1";
+    script.addEventListener("error", () => console.error("BetInsight Netzwerk-Sparmodus konnte nicht geladen werden."), { once:true });
+    document.head.appendChild(script);
+  }
+
+  function boot() {
+    applyDashboardLayout();
+    loadNetworkLazy();
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot, { once: true });
+  else boot();
 })();
