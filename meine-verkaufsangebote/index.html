@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <meta name="theme-color" content="#071019">
-  <meta name="application-version" content="1.2.0">
+  <meta name="application-version" content="1.2.1">
   <meta name="bi-i18n-scope" content="my-sale-offers">
   <title data-bi-i18n="mySaleOffersPage.title">Meine Verkaufsangebote | BetInsight Club</title>
   <link rel="icon" type="image/x-icon" href="../favicon.ico">
@@ -47,7 +47,7 @@
   const locale=()=>window.BetInsightI18n?.getLanguage?.()==='en'?'en-US':'de-DE';
   const euro=v=>new Intl.NumberFormat(locale(),{style:'currency',currency:'EUR',minimumFractionDigits:2}).format(Number(v)||0);
   const token=()=>window.BetInsightSession?.getDashboardUuid?.()||'';
-  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
   const reqId=()=>globalThis.crypto?.randomUUID?.()||('req-'+Date.now()+'-'+Math.random().toString(16).slice(2));
   function message(text,type){feedback.textContent=text;feedback.className='feedback show '+type}
   function clearMessage(){feedback.textContent='';feedback.className='feedback'}
@@ -132,5 +132,6 @@
   Promise.resolve(window.BetInsightI18n?.init?.()).finally(load);
 })();
 </script>
+<script src="../assets/bank-flow-ui-v1.js?v=20260901-1"></script>
 </body>
 </html>
