@@ -1,6 +1,7 @@
-/* BetInsight Dashboard-Layout · 2026-09-02-01
+/* BetInsight Dashboard-Layout · 2026-09-02-02
    Empfehlungslinks werden in den Profilzugang verschoben.
    Netzwerkebenen werden beim ersten Öffnen einmal komplett geladen und danach im Browser gecacht.
+   Alte manuelle Netzwerk-Ladebuttons sind im Cache-Modus entfernt; Aktualisierung bleibt je Ebene möglich.
    Keine Unit-, Referral-, Tipp-, Zahlungs- oder Wechselstubenbestände werden verändert. */
 (() => {
   "use strict";
@@ -30,6 +31,8 @@
     if (title) title.innerHTML = `🌐 <span class="panel-title-accent">Netzwerk &amp; Referral-Übersicht</span>`;
     if (subtitle) subtitle.textContent = "Deine Partnerstruktur und Referral-Units auf einen Blick.";
 
+    document.querySelectorAll("#referralSection .network-refresh-button").forEach(button => button.remove());
+
     if (!document.getElementById("bi-dashboard-layout-style")) {
       const style = document.createElement("style");
       style.id = "bi-dashboard-layout-style";
@@ -43,6 +46,8 @@
         .bi-profile-referral-links .referral-link-row{gap:8px;padding:8px;border-radius:13px}
         .bi-profile-referral-links .referral-linkbox{min-height:42px;padding:11px 12px;font-size:11px}
         .bi-profile-referral-links .referral-link-row button{min-width:165px;min-height:42px;padding:9px 10px;font-size:11px}
+        #referralSection .referral-footer-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
+        @media(max-width:760px){#referralSection .referral-footer-actions{grid-template-columns:1fr}}
         @media(max-width:600px){
           .bi-profile-referral-links .referral-link-row{grid-template-columns:1fr}
           .bi-profile-referral-links .referral-link-row button{width:100%;min-width:0}
