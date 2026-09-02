@@ -1,6 +1,6 @@
-/* BetInsight Dashboard-Layout · 2026-09-01-01
+/* BetInsight Dashboard-Layout · 2026-09-02-01
    Empfehlungslinks werden in den Profilzugang verschoben.
-   Netzwerkebenen werden über network-lazy.js nur bei Bedarf geladen.
+   Netzwerkebenen werden beim ersten Öffnen einmal komplett geladen und danach im Browser gecacht.
    Keine Unit-, Referral-, Tipp-, Zahlungs- oder Wechselstubenbestände werden verändert. */
 (() => {
   "use strict";
@@ -55,7 +55,7 @@
   function loadNetworkLazy() {
     if (document.querySelector('script[data-bi-network-lazy="1"]')) return;
     const script = document.createElement("script");
-    script.src = new URL("network-lazy.js?v=20260901-1", SCRIPT_BASE).toString();
+    script.src = new URL("network-lazy.js?v=20260902-1", SCRIPT_BASE).toString();
     script.async = false;
     script.dataset.biNetworkLazy = "1";
     script.addEventListener("error", () => console.error("BetInsight Netzwerk-Sparmodus konnte nicht geladen werden."), { once:true });
