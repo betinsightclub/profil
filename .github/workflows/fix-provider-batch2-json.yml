@@ -1,4 +1,4 @@
-name: Fix provider batch 2 JSON
+name: Fix provider JSON batches
 on:
   push:
     branches: [main]
@@ -15,17 +15,6 @@ jobs:
         run: |
           python - <<'PY'
           import json, pathlib
-          target = pathlib.Path('assets/provider-whitelist-web-batch-2.json')
-          text = target.read_text(encoding='utf-8')
-          try:
-              json.loads(text)
-              print('Batch 2 already valid; no repair needed')
-          except json.JSONDecodeError as e:
-              print('Current Batch 2 JSON error:', e)
-              candidate = text + '}'
-              json.loads(candidate)
-              target.write_text(candidate, encoding='utf-8')
-              print('Batch 2 repaired by restoring missing final closing brace')
           files = [
               'assets/provider-whitelist.json',
               'assets/provider-whitelist-batches.json',
@@ -33,25 +22,50 @@ jobs:
               'assets/provider-whitelist-web-batch-2.json',
               'assets/provider-whitelist-web-batch-3.json',
           ]
+          repaired=[]
+          for f in files:
+              p=pathlib.Path(f)
+              text=p.read_text(encoding='utf-8')
+              try:
+                  data=json.loads(text)
+                  print('VALID', f)
+                  continue
+              except json.JSONDecodeError as e:
+                  print('INVALID', f, e)
+              fixed=None
+              for n in range(1,4):
+                  candidate=text + ('}'*n)
+                  try:
+                      json.loads(candidate)
+                      fixed=candidate
+                      print('REPAIR', f, 'added_closing_braces=', n)
+                      break
+                  except json.JSONDecodeError:
+                      pass
+              if fixed is None:
+                  raise RuntimeError(f'Could not safely repair {f} by restoring trailing braces')
+              p.write_text(fixed, encoding='utf-8')
+              repaired.append(f)
           for f in files:
               with open(f, encoding='utf-8') as fh:
-                  data = json.load(fh)
-              print('VALID', f, 'keys=', list(data)[:6])
-          manifest = json.load(open('assets/provider-whitelist-batches.json', encoding='utf-8'))
-          for f in manifest.get('files', []):
-              p = pathlib.Path('assets') / f
+                  data=json.load(fh)
+              print('FINAL_VALID', f, 'keys=', list(data)[:6])
+          manifest=json.load(open('assets/provider-whitelist-batches.json', encoding='utf-8'))
+          for f in manifest.get('files',[]):
+              p=pathlib.Path('assets')/f
               assert p.exists(), f'Missing manifest batch: {f}'
+          print('REPAIRED_FILES', repaired)
           print('ALL_PROVIDER_JSON_VALID')
           PY
-      - name: Commit repair and remove temporary workflow
+      - name: Commit repairs and remove temporary workflow
         run: |
           git config user.name "betinsightclub"
           git config user.email "betinsight.club@gmail.com"
           rm -f .github/workflows/fix-provider-batch2-json.yml
-          git add assets/provider-whitelist-web-batch-2.json .github/workflows/fix-provider-batch2-json.yml
+          git add assets/provider-whitelist-web-batch-2.json assets/provider-whitelist-web-batch-3.json .github/workflows/fix-provider-batch2-json.yml
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
           fi
-          git commit -m "Fix provider whitelist batch 2 JSON"
+          git commit -m "Fix provider whitelist JSON batches"
           git push origin HEAD:main
