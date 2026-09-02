@@ -1,12 +1,19 @@
-/* BetInsight Dashboard-Layout · 2026-09-02-02
+/* BetInsight Dashboard-Layout · 2026-09-02-03
    Empfehlungslinks werden in den Profilzugang verschoben.
    Netzwerkebenen werden beim ersten Öffnen einmal komplett geladen und danach im Browser gecacht.
-   Alte manuelle Netzwerk-Ladebuttons sind im Cache-Modus entfernt; Aktualisierung bleibt je Ebene möglich.
+   Entfernt: oberer Netzwerk-laden-Button, unterer Netzwerkdaten-laden-Button und Marketing-Center im Netzwerkbereich.
+   Aktualisierung bleibt je geöffneter Ebene möglich.
    Keine Unit-, Referral-, Tipp-, Zahlungs- oder Wechselstubenbestände werden verändert. */
 (() => {
   "use strict";
 
   const SCRIPT_BASE = new URL("./", document.currentScript?.src || location.href);
+
+  function cleanupObsoleteNetworkButtons() {
+    const section = document.getElementById("referralSection");
+    if (!section) return;
+    section.querySelectorAll(".network-refresh-button,.footer-action-marketing").forEach(button => button.remove());
+  }
 
   function applyDashboardLayout() {
     const profilePanelBody = document.querySelector("#profileBox .profile-grid > .panel:first-child .panel-body");
@@ -31,7 +38,7 @@
     if (title) title.innerHTML = `🌐 <span class="panel-title-accent">Netzwerk &amp; Referral-Übersicht</span>`;
     if (subtitle) subtitle.textContent = "Deine Partnerstruktur und Referral-Units auf einen Blick.";
 
-    document.querySelectorAll("#referralSection .network-refresh-button").forEach(button => button.remove());
+    cleanupObsoleteNetworkButtons();
 
     if (!document.getElementById("bi-dashboard-layout-style")) {
       const style = document.createElement("style");
@@ -46,7 +53,9 @@
         .bi-profile-referral-links .referral-link-row{gap:8px;padding:8px;border-radius:13px}
         .bi-profile-referral-links .referral-linkbox{min-height:42px;padding:11px 12px;font-size:11px}
         .bi-profile-referral-links .referral-link-row button{min-width:165px;min-height:42px;padding:9px 10px;font-size:11px}
-        #referralSection .referral-footer-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
+        #referralSection .network-refresh-button,
+        #referralSection .footer-action-marketing{display:none!important}
+        #referralSection .referral-footer-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
         @media(max-width:760px){#referralSection .referral-footer-actions{grid-template-columns:1fr}}
         @media(max-width:600px){
           .bi-profile-referral-links .referral-link-row{grid-template-columns:1fr}
@@ -54,6 +63,13 @@
         }
       `;
       document.head.appendChild(style);
+    }
+
+    const section = document.getElementById("referralSection");
+    if (section && !window.__biNetworkButtonCleanupObserver) {
+      const observer = new MutationObserver(() => cleanupObsoleteNetworkButtons());
+      observer.observe(section,{childList:true,subtree:true});
+      window.__biNetworkButtonCleanupObserver = observer;
     }
   }
 
