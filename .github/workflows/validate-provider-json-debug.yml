@@ -1,0 +1,41 @@
+name: Validate provider JSON debug
+on:
+  push:
+    branches: [debug-provider-json-20260902]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JSON files
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          files = [
+            'assets/provider-whitelist.json',
+            'assets/provider-whitelist-batches.json',
+            'assets/provider-whitelist-web-batch.json',
+            'assets/provider-whitelist-web-batch-2.json',
+            'assets/provider-whitelist-web-batch-3.json',
+          ]
+          for f in files:
+            p=pathlib.Path(f)
+            print('CHECK', f, 'exists=', p.exists(), 'size=', p.stat().st_size if p.exists() else None)
+            with p.open(encoding='utf-8') as fh:
+              data=json.load(fh)
+            print('OK', f, 'keys=', list(data)[:8])
+          manifest=json.load(open('assets/provider-whitelist-batches.json',encoding='utf-8'))
+          for f in manifest.get('files',[]):
+            p=pathlib.Path('assets')/f
+            print('MANIFEST', f, 'exists=', p.exists())
+            assert p.exists(), f'Missing manifest file: {f}'
+          print('ALL_PROVIDER_JSON_VALID')
+          PY
+      - name: Inspect provider page loader
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('anbieter/index.html').read_text(encoding='utf-8')
+          for needle in ['provider-whitelist.json','provider-whitelist-batches.json','Promise.all','populateCountries']:
+            print(needle, needle in s)
+          PY
