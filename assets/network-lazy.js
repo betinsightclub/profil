@@ -1,11 +1,13 @@
-/* BetInsight Netzwerk Lazy Loading · 2026-09-01-01
-   Ziel: Netzwerkebenen 1–3 nur bei tatsächlichem Öffnen laden.
+/* BetInsight Netzwerk Cache-Sparmodus · 2026-09-02-01
+   Ziel: Beim ersten Öffnen einer Netzwerkebene alle Ebenen 1–3 einmal laden und im Browser halten.
+   Weitere Ebenen öffnen/schließen ohne zusätzliche Make-Abfrage.
    Keine Unit-, Referral-, Zahlungs-, FIFO- oder Premium-Bestände werden geschrieben. */
 (() => {
   "use strict";
 
-  const LEVEL_WEBHOOK_URL = "https://hook.eu1.make.com/yli7txai951a1huc8707xovumwomi2wz";
-  const levelState = new Map([1,2,3].map(level => [level,{loaded:false,loading:false,partners:[],summary:null}]));
+  const NETWORK_WEBHOOK_URL = "https://hook.eu1.make.com/yli7txai951a1huc8707xovumwomi2wz";
+  const levelState = new Map([1,2,3].map(level => [level,{loaded:false,partners:[],summary:null}]));
+  const networkState = {loaded:false,loading:false};
 
   const num = value => {
     if (typeof window.safeNumber === "function") return window.safeNumber(value);
@@ -32,8 +34,6 @@
       .bi-lazy-level-note{padding:16px;color:#83abc0;font-size:12px;line-height:1.5;text-align:center}
       .bi-lazy-level-note strong{color:#dff5ff}
       .bi-lazy-loading{opacity:.72;pointer-events:none}
-      .bi-lazy-refresh{display:inline-flex;width:auto;min-height:34px;margin:10px 12px 12px;padding:7px 11px;border:1px solid rgba(22,156,255,.25);border-radius:10px;background:rgba(22,156,255,.10);color:#9fd8ff;font-size:10px;font-weight:900;cursor:pointer}
-      .bi-lazy-refresh:hover{background:rgba(22,156,255,.16)}
     `;
     document.head.appendChild(style);
   }
@@ -59,16 +59,14 @@
         <div class="level-metric"><div class="level-metric-label">Freigegeben</div><div class="level-metric-value">–</div></div>
         <div class="level-arrow">⌄</div>
       </div>
-      <div class="level-body"><div class="bi-lazy-level-note"><strong>Noch nicht geladen.</strong><br>Diese Ebene wird erst jetzt abgefragt, wenn du sie öffnest.</div></div>
+      <div class="level-body"><div class="bi-lazy-level-note"><strong>Noch nicht geladen.</strong><br>Beim ersten Öffnen wird das Netzwerk einmal komplett geladen. Danach sind alle Ebenen ohne weitere Make-Abfrage verfügbar.</div></div>
     </article>`;
   }
 
   function ensureCards(reset=false){
     const list=document.getElementById("levelList");
     if(!list) return;
-    if(reset || !list.querySelector("[data-bi-lazy-level]")){
-      list.innerHTML=[1,2,3].map(placeholderCard).join("");
-    }
+    if(reset || !list.querySelector("[data-bi-lazy-level]")) list.innerHTML=[1,2,3].map(placeholderCard).join("");
     styleOnce();
   }
 
@@ -95,11 +93,9 @@
     }).join("");
   }
 
-  function renderLoadedLevel(level,partners,open=true){
-    const state=levelState.get(level);
-    const summary=partnerSummary(partners);
-    state.loaded=true; state.loading=false; state.partners=partners; state.summary=summary;
-    const card=document.getElementById("levelCard"+level);
+  function renderLoadedLevel(level,partners,open=false){
+    const state=levelState.get(level), summary=partnerSummary(partners), card=document.getElementById("levelCard"+level);
+    state.loaded=true; state.partners=partners; state.summary=summary;
     if(!card) return;
     const title=level===1?"Ebene 1 – direkte Partner":"Ebene "+level;
     card.className="level-card"+(open?" open":"");
@@ -110,96 +106,102 @@
       <div class="level-metric"><div class="level-metric-label">Erwartet</div><div class="level-metric-value">${fmt(summary.expected)}</div></div>
       <div class="level-metric"><div class="level-metric-label">Freigegeben</div><div class="level-metric-value">${fmt(summary.released)}</div></div>
       <div class="level-arrow">${open?"⌃":"⌄"}</div></div>
-      <div class="level-body"><button class="bi-lazy-refresh" type="button" onclick="event.stopPropagation();refreshSingleNetworkLevel(${level},this)">↻ Nur diese Ebene aktualisieren</button><div class="table-wrap"><table class="network-table"><thead><tr><th>BI-Nummer</th><th>Sponsor</th><th>Gekaufte Units</th><th>Verbrauchte Kauf-Units</th><th>Erwartete Referral Units</th><th>Freigegebene Referral Units</th></tr></thead><tbody>${loadedRows(partners)}</tbody></table></div></div>`;
+      <div class="level-body"><div class="table-wrap"><table class="network-table"><thead><tr><th>BI-Nummer</th><th>Sponsor</th><th>Gekaufte Units</th><th>Verbrauchte Kauf-Units</th><th>Erwartete Referral Units</th><th>Freigegebene Referral Units</th></tr></thead><tbody>${loadedRows(partners)}</tbody></table></div></div>`;
     const top=document.getElementById("networkLevel"+level); if(top) top.textContent=fmt(summary.partnerCount);
     applyPrivacy(card);
-    updateTotals();
   }
 
   function updateTotals(){
-    const allLoaded=[1,2,3].every(level=>levelState.get(level).loaded);
     const totalEl=document.getElementById("referralAllUnits"), pendingEl=document.getElementById("referralPendingUnits");
     if(!totalEl||!pendingEl) return;
-    if(!allLoaded){ totalEl.textContent="–"; pendingEl.textContent="–"; return; }
+    if(!networkState.loaded){totalEl.textContent="–";pendingEl.textContent="–";return;}
     const summaries=[1,2,3].map(level=>levelState.get(level).summary||{expected:0,released:0});
-    const pending=summaries.reduce((s,x)=>s+x.expected,0);
-    const released=summaries.reduce((s,x)=>s+x.released,0);
+    const pending=summaries.reduce((s,x)=>s+x.expected,0), released=summaries.reduce((s,x)=>s+x.released,0);
     totalEl.textContent=fmt(pending+released); pendingEl.textContent=fmt(pending);
   }
 
-  async function requestLevel(level){
+  function renderAll(levels,openLevel=0){
+    [1,2,3].forEach(level=>renderLoadedLevel(level,Array.isArray(levels[level])?levels[level]:[],level===Number(openLevel)));
+    networkState.loaded=true; networkState.loading=false;
+    updateTotals();
+  }
+
+  async function requestAllLevels(){
     const token=typeof window.getConfirmedDashboardToken === "function" ? window.getConfirmedDashboardToken() : "";
     if(!token) throw new Error("dashboard_token fehlt");
-    const url=new URL(LEVEL_WEBHOOK_URL);
+    const url=new URL(NETWORK_WEBHOOK_URL);
     url.searchParams.set("id",token);
-    url.searchParams.set("level",String(level));
+    url.searchParams.set("level","1");
     const response=await fetch(url.toString(),{cache:"no-store",credentials:"omit"});
     if(!response.ok) throw new Error("HTTP "+response.status);
     const raw=String(await response.text()||"").replace(/^\uFEFF/,"").trim();
-    if(!raw || raw.toLowerCase()==="accepted") return [];
+    if(!raw || raw.toLowerCase()==="accepted") throw new Error("Leere Netzwerk-Antwort");
     const data=JSON.parse(raw);
-    if(Array.isArray(data)) return data;
-    if(Array.isArray(data?.partners)) return data.partners;
-    return [];
+    if(Array.isArray(data?.level1) && Array.isArray(data?.level2) && Array.isArray(data?.level3)) return {1:data.level1,2:data.level2,3:data.level3};
+    throw new Error("Netzwerk-Antwort ist unvollständig");
   }
 
-  async function loadLevel(level,force=false,sourceButton=null){
-    if(![1,2,3].includes(Number(level))) return;
-    level=Number(level);
-    const state=levelState.get(level), card=document.getElementById("levelCard"+level), status=document.getElementById("referralStatus");
-    if(state.loading) return;
-    if(state.loaded && !force){ renderLoadedLevel(level,state.partners,true); return; }
-    state.loading=true;
-    card?.classList.add("bi-lazy-loading");
-    const old=sourceButton?.innerText;
-    if(sourceButton){sourceButton.disabled=true;sourceButton.innerText="⏳ Lädt...";}
-    if(status) status.textContent=`Ebene ${level} wird geladen. Die anderen Ebenen verursachen keine Make-Abfrage.`;
+  async function loadAll(openLevel=0,sourceButton=null){
+    if(networkState.loading) return;
+    if(networkState.loaded){
+      if(openLevel){
+        const card=document.getElementById("levelCard"+openLevel);card?.classList.add("open");const arrow=card?.querySelector(".level-arrow");if(arrow)arrow.textContent="⌃";
+      }
+      return;
+    }
+    networkState.loading=true;
+    document.getElementById("levelList")?.classList.add("bi-lazy-loading");
+    const status=document.getElementById("referralStatus"), old=sourceButton?.innerText;
+    if(sourceButton){sourceButton.disabled=true;sourceButton.innerText="⏳ Netzwerk wird geladen...";}
+    if(status) status.textContent="Netzwerk wird einmal geladen. Danach sind Ebene 1–3 ohne weitere Make-Abfrage verfügbar.";
     try{
-      const partners=await requestLevel(level);
-      renderLoadedLevel(level,partners,true);
-      if(status) status.textContent=`Ebene ${level} wurde geladen. Andere Ebenen werden erst beim Öffnen abgefragt.`;
+      const levels=await requestAllLevels();
+      renderAll(levels,openLevel);
+      if(status) status.textContent="Netzwerk geladen. Ebene 1–3 sind jetzt im Browser gespeichert und können ohne weitere Make-Credits geöffnet werden.";
+      if(sourceButton) sourceButton.innerText="✅ Netzwerk geladen";
     }catch(error){
-      console.error("Netzwerk-Ebene konnte nicht geladen werden:",error);
-      state.loading=false;
-      card?.classList.remove("bi-lazy-loading");
-      if(status) status.textContent=`Ebene ${level} konnte nicht geladen werden. Bitte versuche es erneut.`;
+      console.error("Netzwerk konnte nicht geladen werden:",error);
+      networkState.loading=false;
+      if(status) status.textContent="Die Netzwerkdaten konnten nicht geladen werden. Bitte versuche es erneut.";
+      if(sourceButton) sourceButton.innerText="❌ Fehler";
     }finally{
-      if(sourceButton){sourceButton.disabled=false;sourceButton.innerText=old||"↻ Nur diese Ebene aktualisieren";}
+      document.getElementById("levelList")?.classList.remove("bi-lazy-loading");
+      if(sourceButton) setTimeout(()=>{sourceButton.disabled=false;sourceButton.innerText=old||"🔄 Netzwerk laden";},1600);
     }
   }
-
-  window.refreshSingleNetworkLevel=(level,button)=>loadLevel(level,true,button);
 
   window.toggleLevel=async level=>{
     level=Number(level);
     const card=document.getElementById("levelCard"+level), state=levelState.get(level);
     if(!card||!state) return;
     if(card.classList.contains("open")){card.classList.remove("open");const arrow=card.querySelector(".level-arrow");if(arrow)arrow.textContent="⌄";return;}
-    if(!state.loaded){await loadLevel(level,false);return;}
+    if(!networkState.loaded){await loadAll(level);return;}
     card.classList.add("open");const arrow=card.querySelector(".level-arrow");if(arrow)arrow.textContent="⌃";
   };
 
   window.refreshNetworkData=async (showFeedback=false,sourceButton=null)=>{
     ensureCards(false);
-    const status=document.getElementById("referralStatus"),old=sourceButton?.innerText;
-    const open=[1,2,3].find(level=>document.getElementById("levelCard"+level)?.classList.contains("open"));
-    if(open){await loadLevel(open,true,sourceButton);return;}
-    if(sourceButton&&showFeedback){sourceButton.disabled=true;sourceButton.innerText="✅ Bereit";setTimeout(()=>{sourceButton.disabled=false;sourceButton.innerText=old;},1200);}
-    if(status) status.textContent="Tippe Ebene 1, 2 oder 3 an. Nur die ausgewählte Ebene wird geladen und verbraucht Make-Credits.";
+    const status=document.getElementById("referralStatus"), old=sourceButton?.innerText;
+    if(networkState.loaded){
+      if(status) status.textContent="Netzwerk ist bereits geladen. Das Öffnen weiterer Ebenen kostet keine zusätzlichen Make-Credits.";
+      if(sourceButton&&showFeedback){sourceButton.disabled=true;sourceButton.innerText="✅ Bereits geladen";setTimeout(()=>{sourceButton.disabled=false;sourceButton.innerText=old;},1200);}
+      return;
+    }
+    await loadAll(0,sourceButton);
   };
 
   window.prepareNetworkSection=()=>{
     const section=document.getElementById("referralSection");if(section)section.style.display="block";
     if(typeof window.setReferralLinks === "function") window.setReferralLinks({});
-    [1,2,3].forEach(level=>{levelState.set(level,{loaded:false,loading:false,partners:[],summary:null});const el=document.getElementById("networkLevel"+level);if(el)el.textContent="–";});
+    networkState.loaded=false;networkState.loading=false;
+    [1,2,3].forEach(level=>{levelState.set(level,{loaded:false,partners:[],summary:null});const el=document.getElementById("networkLevel"+level);if(el)el.textContent="–";});
     const all=document.getElementById("referralAllUnits"),pending=document.getElementById("referralPendingUnits");if(all)all.textContent="–";if(pending)pending.textContent="–";
     ensureCards(true);
-    const status=document.getElementById("referralStatus");if(status)status.textContent="Sparmodus aktiv: Tippe eine Ebene an. Nur diese Ebene wird geladen.";
+    const status=document.getElementById("referralStatus");if(status)status.textContent="Cache-Sparmodus aktiv: Beim ersten Öffnen einer Ebene wird das gesamte Netzwerk einmal geladen.";
   };
 
   function install(){
-    styleOnce();
-    ensureCards(false);
+    styleOnce();ensureCards(false);
     const section=document.getElementById("referralSection");
     if(section && getComputedStyle(section).display!=="none") window.prepareNetworkSection();
     const observer=new MutationObserver(()=>{
