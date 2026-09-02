@@ -122,6 +122,115 @@
   function hasDashboardAccess() { return Boolean(getDashboardUuid()); }
   function hasProfileAccess() { return Boolean(getProfileToken()); }
 
+  function installDailyBundledTransport() {
+    try {
+      const path = String(window.location.pathname || "").replace(/\/+$/, "");
+      if (!path.endsWith("/daily") || window.__betInsightDailyBundledFetchInstalled) return;
+
+      const endpoint = "https://hook.eu1.make.com/vnerimfqa86a1tullvqah885xgqcc0j7";
+      const originalFetch = window.fetch.bind(window);
+      const cachePrefix = "betinsight_daily_bundle_v1:";
+      const readyTtl = 2 * 60 * 1000;
+      const asBool = value => value === true || String(value).toLowerCase() === "true" || Number(value) === 1;
+      const cacheKey = token => cachePrefix + token;
+      const jsonResponse = data => new Response(JSON.stringify(data), { status: 200, headers: { "Content-Type": "application/json; charset=utf-8" } });
+
+      function readBundle(token) {
+        try {
+          const item = JSON.parse(localStorage.getItem(cacheKey(token)) || "null");
+          if (!item || !item.data) return null;
+          const data = item.data;
+          const next = new Date(data.next_claim_at || "").getTime();
+          const lockedUntilNextClaim = !asBool(data.can_claim) && Number.isFinite(next) && next > Date.now();
+          if (lockedUntilNextClaim || Date.now() - Number(item.savedAt || 0) < readyTtl) return data;
+        } catch (e) {}
+        return null;
+      }
+
+      function writeBundle(token, data) {
+        if (!token || !data) return;
+        try { localStorage.setItem(cacheKey(token), JSON.stringify({ savedAt: Date.now(), data })); } catch (e) {}
+      }
+
+      function mergeClaimResult(token, data) {
+        const current = readBundle(token);
+        if (!current && !data) return;
+        const merged = Object.assign({}, current || {});
+        if (data.status === "success") {
+          merged.status = "daily_status";
+          merged.can_claim = false;
+          merged.next_claim_at = data.next_claim_at || merged.next_claim_at || "";
+          merged.streak_total = Number(data.streak_total || 0);
+          merged.cycle_day = Number(data.cycle_day || 1);
+          merged.loyalty_level = data.loyalty_level || merged.loyalty_level || "Starter";
+          merged.last_number = data.daily_number || merged.last_number || "";
+          merged.last_bonus_units = Number(data.bonus_units ?? data.total_bonus_units ?? 0);
+          merged.total_claims = Number(merged.total_claims || 0) + 1;
+          merged.box_pending = asBool(data.box_pending);
+          merged.box_pending_id = data.box_pending_id || "";
+          merged.box_opened_count = Number(data.box_opened_count || merged.box_opened_count || 0);
+          if (Array.isArray(merged.history) && data.history_entry) {
+            merged.history = [data.history_entry, ...merged.history].slice(0, 10);
+          }
+          writeBundle(token, merged);
+          return;
+        }
+        if (data.status === "already_claimed" || data.status === "duplicate_request") {
+          merged.status = "daily_status";
+          merged.can_claim = false;
+          merged.next_claim_at = data.next_claim_at || merged.next_claim_at || "";
+          writeBundle(token, merged);
+          return;
+        }
+        if (data.status === "box_opened" || data.status === "no_pending_box") {
+          merged.status = "daily_status";
+          merged.box_pending = false;
+          merged.box_pending_id = "";
+          if (data.status === "box_opened") merged.box_opened_count = Number(data.box_opened_count || merged.box_opened_count || 0);
+          writeBundle(token, merged);
+        }
+      }
+
+      window.fetch = async function(input, init = {}) {
+        const url = typeof input === "string" ? input : input && input.url;
+        if (url !== endpoint || String(init.method || "GET").toUpperCase() !== "POST") return originalFetch(input, init);
+
+        let payload;
+        try { payload = JSON.parse(String(init.body || "{}")); } catch (e) { return originalFetch(input, init); }
+        const token = clean(payload.token);
+        const request = clean(payload.request_id);
+        if (!token || !request) return originalFetch(input, init);
+
+        if (request.startsWith("STATUS-")) {
+          const cached = readBundle(token);
+          if (cached) return jsonResponse(cached);
+          const loadPayload = Object.assign({}, payload, { request_id: "LOAD-" + request.slice(7) });
+          const response = await originalFetch(input, Object.assign({}, init, { body: JSON.stringify(loadPayload) }));
+          try {
+            const data = await response.clone().json();
+            if (data && data.status === "daily_status") writeBundle(token, data);
+          } catch (e) {}
+          return response;
+        }
+
+        if (request.startsWith("HISTORY-")) {
+          const cached = readBundle(token);
+          if (cached && Array.isArray(cached.history)) return jsonResponse(cached.history);
+          return originalFetch(input, init);
+        }
+
+        const response = await originalFetch(input, init);
+        try {
+          const data = await response.clone().json();
+          if (data && typeof data === "object") mergeClaimResult(token, data);
+        } catch (e) {}
+        return response;
+      };
+
+      window.__betInsightDailyBundledFetchInstalled = true;
+    } catch (e) {}
+  }
+
   window.BetInsightSession = Object.freeze({
     dashboardStorageKey: DASHBOARD_STORAGE_KEY,
     profileStorageKey: PROFILE_STORAGE_KEY,
@@ -145,4 +254,5 @@
 
   captureLegacyIngress();
   stripSensitiveAccessParams();
+  installDailyBundledTransport();
 })();
