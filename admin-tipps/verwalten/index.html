@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="theme-color" content="#061d2a">
+  <meta name="application-version" content="1.0.0">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <title>BetInsight – Tipps verwalten</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#0b3b55 0%,#061d2a 45%,#031018 100%);color:#fff;font-family:Arial,Helvetica,sans-serif;padding:28px 16px 48px}button,input,textarea,a{font:inherit}.page{width:100%;max-width:1100px;margin:0 auto}.logo{width:170px;max-width:70%;height:auto;margin:10px auto 28px;display:block}.card{background:rgba(9,45,64,.95);border:1px solid rgba(0,218,255,.28);border-radius:22px;padding:26px;box-shadow:0 18px 45px rgba(0,0,0,.35);margin:0 auto 22px}.hidden{display:none!important}.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}.top h1{margin:0 0 7px;font-size:30px}.sub{color:#b9d8e8;line-height:1.5;margin:0}.who{color:#8fe7ff;font-weight:800}.actions{display:flex;gap:10px;flex-wrap:wrap}.btn,.link-btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:999px;padding:12px 18px;font-weight:800;cursor:pointer;color:#fff;background:#16a8f5;text-decoration:none}.link-btn,.btn.secondary{background:transparent;border:1px solid rgba(0,218,255,.4);color:#d8eef8}.btn.danger{background:linear-gradient(135deg,#e95e68,#9d2f39)}.btn:disabled{opacity:.45;cursor:not-allowed}.notice{margin-top:20px;padding:15px 17px;border-radius:14px;background:rgba(255,204,102,.10);border:1px solid rgba(255,204,102,.32);color:#ffe0a3;line-height:1.5}.toolbar{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:18px}.filter-group{display:flex;gap:8px;flex-wrap:wrap}.filter-btn{border:1px solid rgba(0,218,255,.28);background:rgba(6,29,42,.8);color:#c9e6f3;border-radius:999px;padding:9px 14px;font-weight:800;cursor:pointer}.filter-btn.active{background:#0f7da9;color:#fff}.count{color:#83b7ca;font-size:14px}.tips{display:grid;gap:16px}.tip-card{background:rgba(6,29,42,.86);border:1px solid rgba(0,218,255,.20);border-radius:18px;padding:20px}.tip-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}.tip-game{font-size:19px;font-weight:900;line-height:1.35}.tip-meta{color:#9fc5d6;font-size:13px;margin-top:5px}.badge{display:inline-flex;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900;border:1px solid rgba(125,255,178,.35);background:rgba(125,255,178,.10);color:#9dffbf}.badge.arch{border-color:rgba(255,204,102,.35);background:rgba(255,204,102,.10);color:#ffe0a3}.badge.exp{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#b8c5cc}.tip-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:17px}.kv{background:rgba(255,255,255,.035);border-radius:12px;padding:12px}.k{font-size:11px;color:#7eaabd;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}.v{font-weight:800;line-height:1.35;overflow-wrap:anywhere}.analysis{margin-top:13px;padding:13px;border-left:3px solid rgba(22,168,245,.65);background:rgba(22,168,245,.06);color:#d7ebf4;line-height:1.5;white-space:pre-wrap}.tip-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.tip-actions .btn{padding:10px 15px;font-size:14px}.locked{color:#94acb8;font-size:13px;margin-top:13px;line-height:1.4}.empty,.loading,.error{padding:30px;text-align:center;border-radius:16px;background:rgba(6,29,42,.6);color:#b9d8e8}.error{color:#ffafb4;border:1px solid rgba(255,100,110,.25)}.spinner{width:38px;height:38px;border:4px solid rgba(185,216,232,.2);border-top-color:#16a8f5;border-radius:50%;margin:0 auto 14px;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:18px;z-index:50}.modal-card{width:min(760px,100%);max-height:92vh;overflow:auto;background:#082b3d;border:1px solid rgba(0,218,255,.32);border-radius:22px;padding:25px;box-shadow:0 22px 65px rgba(0,0,0,.5)}.modal-head{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:20px}.modal-head h2{margin:0}.x{border:0;background:transparent;color:#fff;font-size:27px;cursor:pointer}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.full{grid-column:1/-1}label{display:block;color:#d8eef8;font-weight:800;margin-bottom:7px}input,textarea{width:100%;padding:13px 14px;border-radius:11px;border:1px solid rgba(0,218,255,.32);background:#061d2a;color:#fff;outline:none}textarea{min-height:120px;resize:vertical}.modal-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:20px}.form-msg{min-height:20px;margin-top:12px;color:#ffb0b6}.auth{max-width:600px;text-align:center}.auth h1{font-size:27px;margin:0 0 10px}.version{text-align:center;color:#668fa1;font-size:12px;margin-top:18px}
+    @media(max-width:800px){.tip-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.form-grid{grid-template-columns:1fr}.full{grid-column:auto}}@media(max-width:520px){body{padding:20px 10px 36px}.card{padding:20px}.top h1{font-size:25px}.tip-grid{grid-template-columns:1fr}.actions{width:100%}.actions>*{flex:1}.tip-actions .btn{flex:1}.modal{padding:8px}.modal-card{padding:18px}}
+  </style>
+</head>
+<body>
+<main class="page">
+  <img src="../../logo_betisight.club.png" alt="BetInsight Club" class="logo">
+
+  <section id="authArea" class="card auth">
+    <div class="spinner"></div>
+    <h1>🔐 Sichere Sitzung wird geprüft</h1>
+    <p class="sub" id="authText">Deine Tippgeber-Sitzung wird geprüft.</p>
+  </section>
+
+  <div id="app" class="hidden">
+    <section class="card">
+      <div class="top">
+        <div>
+          <h1>📋 Tipps verwalten</h1>
+          <p class="sub">Angemeldet als <span id="name" class="who">Tippgeber</span>. Hier siehst du ausschließlich deine eigenen Tipps.</p>
+        </div>
+        <div class="actions">
+          <a class="link-btn" href="../">← Tippbereich</a>
+          <button class="btn secondary" id="reloadBtn" type="button">↻ Aktualisieren</button>
+          <button class="btn danger" id="logoutBtn" type="button">Abmelden</button>
+        </div>
+      </div>
+      <div class="notice"><strong>Sicherheitsregel:</strong> Ein veröffentlichter Tipp kann nur vor Anpfiff und nur solange bearbeitet oder archiviert werden, wie ihn noch kein Teilnehmer freigeschaltet hat. Bereits genutzte Tipps bleiben unverändert erhalten.</div>
+    </section>
+
+    <section class="card">
+      <div class="toolbar">
+        <div class="filter-group">
+          <button class="filter-btn active" data-filter="all" type="button">Alle</button>
+          <button class="filter-btn" data-filter="active" type="button">Aktiv</button>
+          <button class="filter-btn" data-filter="archive" type="button">Archiviert</button>
+        </div>
+        <div class="count" id="count"></div>
+      </div>
+      <div id="status" class="loading"><div class="spinner"></div>Eigene Tipps werden geladen …</div>
+      <div id="tips" class="tips hidden"></div>
+    </section>
+  </div>
+
+  <div class="version">BetInsight · Tipps verwalten · v1.0</div>
+</main>
+
+<div id="editModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+  <div class="modal-card">
+    <div class="modal-head"><h2 id="editTitle">✏️ Tipp bearbeiten</h2><button class="x" id="closeModal" type="button" aria-label="Schließen">×</button></div>
+    <form id="editForm">
+      <input type="hidden" id="editId">
+      <div class="form-grid">
+        <div><label for="editSpiel">Spiel *</label><input id="editSpiel" required></div>
+        <div><label for="editLiga">Liga / Wettbewerb *</label><input id="editLiga" required></div>
+        <div><label for="editMarkt">Markt *</label><input id="editMarkt" required></div>
+        <div><label for="editTipp">Tipp *</label><input id="editTipp" required></div>
+        <div><label for="editQuote">Quote *</label><input id="editQuote" inputmode="decimal" required></div>
+        <div><label for="editPreis">Preis in Units *</label><input id="editPreis" type="number" min="1" step="1" required></div>
+        <div><label for="editDatum">Spieldatum *</label><input id="editDatum" type="date" required></div>
+        <div><label for="editZeit">Anpfiff *</label><input id="editZeit" type="time" required></div>
+        <div class="full"><label for="editAnalyse">Analyse</label><textarea id="editAnalyse"></textarea></div>
+      </div>
+      <div class="form-msg" id="editMsg"></div>
+      <div class="modal-actions"><button class="btn secondary" id="cancelEdit" type="button">Abbrechen</button><button class="btn" id="saveEdit" type="submit">Änderungen speichern</button></div>
+    </form>
+  </div>
+</div>
+
+<script>
+"use strict";
+const SESSION_KEY="betinsight_admin_session_v1";
+const AUTH_API_URL="https://hook.eu1.make.com/rfmhuu4fkr9kjsv7o15r2kir8ezbersl";
+const MANAGE_API_URL="https://hook.eu1.make.com/1bc4yjg8rw171uu673xg48opf4snef72";
+const ADMIN_CENTER_URL="https://betinsightclub.github.io/profil/admin/";
+let verifiedSession=null,sessionHash="",allTips=[],activeFilter="all";
+const $=id=>document.getElementById(id);
+function safeDecode(v){try{return decodeURIComponent(String(v??""))}catch(e){return String(v??"")}}
+function esc(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
+function readSession(){try{const s=JSON.parse(sessionStorage.getItem(SESSION_KEY)||"null");return s?.token&&s?.adminId?s:null}catch(e){return null}}
+function clearSession(){try{sessionStorage.removeItem(SESSION_KEY)}catch(e){}}
+function expiredSession(s){return !Number(s?.expiresMs||0)||Date.now()>=Number(s.expiresMs)}
+async function sha256Hex(text){const d=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(String(text||"")));return Array.from(new Uint8Array(d),b=>b.toString(16).padStart(2,"0")).join("")}
+async function postJson(url,payload){const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},cache:"no-store",credentials:"omit",body:JSON.stringify(payload)});const raw=await r.text();let data={};try{data=raw?JSON.parse(raw):{}}catch(e){throw new Error("Der Server hat keine gültige Antwort geliefert.")}if(!r.ok||data?.ok===false){const er=new Error(data?.message||data?.error||"Die Anfrage wurde abgelehnt.");er.code=data?.code||"REQUEST_FAILED";er.status=r.status;throw er}return data}
+function requestId(prefix){try{return prefix+"-"+crypto.randomUUID()}catch(e){return prefix+"-"+Date.now()+"-"+Math.random().toString(16).slice(2)}}
+function germanToInputDate(v){const p=String(v||"").split(".");return p.length===3?p[2]+"-"+p[1].padStart(2,"0")+"-"+p[0].padStart(2,"0"):""}
+function inputToGermanDate(v){const p=String(v||"").split("-");return p.length===3?p[2]+"."+p[1]+"."+p[0]:""}
+function normalizedTip(t){return{...t,tipp_id:safeDecode(t.tipp_id),spiel:safeDecode(t.spiel),liga:safeDecode(t.liga),markt:safeDecode(t.markt),tipp:safeDecode(t.tipp),status:safeDecode(t.status),ersteller:safeDecode(t.ersteller),analyse:safeDecode(t.analyse),erstellt_am:safeDecode(t.erstellt_am),sportart:safeDecode(t.sportart)}}
+async function verify(){const s=readSession();if(!s||expiredSession(s)){clearSession();location.replace(ADMIN_CENTER_URL);return}try{sessionHash=await sha256Hex(s.token);const r=await postJson(AUTH_API_URL,{action:"verify",session_hash:sessionHash});if(String(r.session_valid||"JA").toUpperCase()!=="JA")throw new Error("Sitzung ungültig");verifiedSession={...s,adminId:String(r.admin_id||s.adminId||""),name:String(r.name||s.name||"Tippgeber"),expiresMs:Number(r.expires_ms||s.expiresMs||0)};sessionStorage.setItem(SESSION_KEY,JSON.stringify(verifiedSession));$("name").textContent=verifiedSession.name;$("authArea").classList.add("hidden");$("app").classList.remove("hidden");await loadTips()}catch(e){console.error(e);$("authText").textContent="Die Sitzung konnte nicht bestätigt werden. Bitte melde dich erneut im Admin Center an.";setTimeout(()=>location.replace(ADMIN_CENTER_URL),1800)}}
+async function loadTips(){const status=$("status"),tips=$("tips");status.className="loading";status.innerHTML='<div class="spinner"></div>Eigene Tipps werden geladen …';status.classList.remove("hidden");tips.classList.add("hidden");try{const data=await postJson(MANAGE_API_URL,{action:"list_my_tips",admin_session_hash:sessionHash});allTips=Array.isArray(data.tips)?data.tips.map(normalizedTip):[];renderTips()}catch(e){console.error(e);status.className="error";status.textContent="❌ "+e.message}}
+function isArchived(t){return String(t.status||"").toLowerCase()==="archiviert"}
+function isEditableClient(t){return !isArchived(t)&&!Boolean(t.expired)}
+function badge(t){if(isArchived(t))return '<span class="badge arch">ARCHIVIERT</span>';if(t.expired)return '<span class="badge exp">ABGELAUFEN</span>';return '<span class="badge">AKTIV</span>'}
+function renderTips(){let data=allTips;if(activeFilter==="active")data=data.filter(t=>!isArchived(t));if(activeFilter==="archive")data=data.filter(isArchived);$("count").textContent=data.length+" Tipp"+(data.length===1?"":"s");const status=$("status"),box=$("tips");if(!data.length){status.className="empty";status.textContent="Hier sind aktuell keine Tipps in dieser Ansicht vorhanden.";status.classList.remove("hidden");box.classList.add("hidden");return}status.classList.add("hidden");box.innerHTML=data.map(t=>{const can=isEditableClient(t);return `<article class="tip-card"><div class="tip-head"><div><div class="tip-game">${esc(t.spiel)}</div><div class="tip-meta">${esc(t.sportart||"Fussball")} · ${esc(t.liga)} · ID: ${esc(t.tipp_id)}</div></div>${badge(t)}</div><div class="tip-grid"><div class="kv"><div class="k">Markt</div><div class="v">${esc(t.markt)}</div></div><div class="kv"><div class="k">Dein Tipp</div><div class="v">${esc(t.tipp)}</div></div><div class="kv"><div class="k">Quote</div><div class="v">${esc(t.quote)}</div></div><div class="kv"><div class="k">Preis</div><div class="v">${esc(t.preis_units)} Units</div></div><div class="kv"><div class="k">Spieldatum</div><div class="v">${esc(t.spiel_datum)}</div></div><div class="kv"><div class="k">Anpfiff</div><div class="v">${esc(t.anpfiff)}</div></div><div class="kv"><div class="k">Erstellt</div><div class="v">${esc(t.erstellt_am||"–")}</div></div><div class="kv"><div class="k">Status</div><div class="v">${esc(t.status)}</div></div></div>${t.analyse?`<div class="analysis"><strong>Analyse:</strong><br>${esc(t.analyse)}</div>`:""}${can?`<div class="tip-actions"><button class="btn" type="button" data-edit="${esc(t.tipp_id)}">✏️ Bearbeiten</button><button class="btn danger" type="button" data-archive="${esc(t.tipp_id)}">🗂️ Archivieren</button></div><div class="locked">Die endgültige Berechtigung wird beim Klick nochmals serverseitig geprüft.</div>`:`<div class="locked">Dieser Tipp ist für Änderungen gesperrt.</div>`}</article>`}).join("");box.classList.remove("hidden");box.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>openEdit(b.dataset.edit)));box.querySelectorAll("[data-archive]").forEach(b=>b.addEventListener("click",()=>archiveTip(b.dataset.archive)))}
+function openEdit(id){const t=allTips.find(x=>x.tipp_id===id);if(!t)return;$("editId").value=t.tipp_id;$("editSpiel").value=t.spiel;$("editLiga").value=t.liga;$("editMarkt").value=t.markt;$("editTipp").value=t.tipp;$("editQuote").value=String(t.quote||"").replace(",",".");$("editPreis").value=t.preis_units;$("editDatum").value=germanToInputDate(t.spiel_datum);$("editZeit").value=t.anpfiff;$("editAnalyse").value=t.analyse||"";$("editMsg").textContent="";$("editModal").classList.remove("hidden")}
+function closeEdit(){$("editModal").classList.add("hidden")}
+async function saveEdit(ev){ev.preventDefault();const q=Number(String($("editQuote").value).replace(",",".")),preis=Number($("editPreis").value);if(!Number.isFinite(q)||q<=1){$("editMsg").textContent="Bitte eine gültige Quote größer als 1 eintragen.";return}if(!Number.isInteger(preis)||preis<1){$("editMsg").textContent="Bitte einen gültigen Unit-Preis eintragen.";return}const btn=$("saveEdit");btn.disabled=true;$("editMsg").textContent="Änderung wird sicher geprüft …";try{await postJson(MANAGE_API_URL,{action:"edit_tip",admin_session_hash:sessionHash,request_id:requestId("EDIT"),tipp_id:$("editId").value,spiel:$("editSpiel").value.trim(),liga:$("editLiga").value.trim(),markt:$("editMarkt").value.trim(),tipp:$("editTipp").value.trim(),quote:q.toFixed(2),preis_units:preis,spiel_datum:inputToGermanDate($("editDatum").value),anpfiff:$("editZeit").value,analyse:$("editAnalyse").value.trim()});closeEdit();await loadTips()}catch(e){$("editMsg").textContent="❌ "+e.message}finally{btn.disabled=false}}
+async function archiveTip(id){const t=allTips.find(x=>x.tipp_id===id);if(!t)return;const ok=confirm(`Tipp wirklich archivieren?\n\n${t.spiel}\n${t.tipp} · Quote ${t.quote}\n\nDer Datensatz wird nicht gelöscht, sondern sicher aus dem aktiven Kundenfeed entfernt.`);if(!ok)return;try{await postJson(MANAGE_API_URL,{action:"archive_tip",admin_session_hash:sessionHash,request_id:requestId("ARCH"),tipp_id:id});await loadTips()}catch(e){alert("Archivieren nicht möglich: "+e.message)}}
+async function logout(){const s=readSession();clearSession();try{if(s?.token){const h=await sha256Hex(s.token);await postJson(AUTH_API_URL,{action:"logout",session_hash:h})}}catch(e){}location.replace(ADMIN_CENTER_URL)}
+$("reloadBtn").addEventListener("click",loadTips);$("logoutBtn").addEventListener("click",logout);$("closeModal").addEventListener("click",closeEdit);$("cancelEdit").addEventListener("click",closeEdit);$("editForm").addEventListener("submit",saveEdit);$("editModal").addEventListener("click",e=>{if(e.target===$("editModal"))closeEdit()});document.querySelectorAll(".filter-btn").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".filter-btn").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeFilter=b.dataset.filter;renderTips()}));
+verify();
+</script>
+</body>
+</html>
