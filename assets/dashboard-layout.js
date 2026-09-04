@@ -1,13 +1,15 @@
-/* BetInsight Dashboard-Layout · 2026-09-02-06
+/* BetInsight Dashboard-Layout · 2026-09-04-01
    Empfehlungslinks werden in den Profilzugang verschoben.
    Die obere Netzwerkübersicht wird automatisch aus dem Browser-Cache angezeigt; fehlt der Cache, werden Ebenen 1–3 einmal gemeinsam geladen.
    Entfernt: oberer Netzwerk-laden-Button, unterer Netzwerkdaten-laden-Button und Marketing-Center im Netzwerkbereich.
    Produktionsansicht: interne Cache-/Make-Hinweise werden vollständig ausgeblendet; obere Netzwerkübersicht kompakt.
+   Performance-Fix: Netzwerk-DOM-Änderungen werden gebündelt; der Observer schreibt nicht mehr rekursiv in beobachtete Inhalte.
    Keine Unit-, Referral-, Tipp-, Zahlungs- oder Wechselstubenbestände werden verändert. */
 (() => {
   "use strict";
 
   const SCRIPT_BASE = new URL("./", document.currentScript?.src || location.href);
+  let sanitizeQueued = false;
 
   function cleanupObsoleteNetworkButtons() {
     const section = document.getElementById("referralSection");
@@ -32,13 +34,23 @@
       const raw = String(status.textContent || "").toLowerCase();
       const isError = raw.includes("konnte nicht") || raw.includes("konnten nicht") || raw.includes("fehler");
       if (isError) {
-        status.textContent = "Netzwerkdaten konnten nicht aktualisiert werden. Bitte erneut versuchen.";
-        status.style.display = "block";
+        const wanted = "Netzwerkdaten konnten nicht aktualisiert werden. Bitte erneut versuchen.";
+        if (status.textContent !== wanted) status.textContent = wanted;
+        if (status.style.display !== "block") status.style.display = "block";
       } else {
-        status.textContent = "";
-        status.style.display = "none";
+        if (status.textContent !== "") status.textContent = "";
+        if (status.style.display !== "none") status.style.display = "none";
       }
     }
+  }
+
+  function queueSanitizeNetworkUi() {
+    if (sanitizeQueued) return;
+    sanitizeQueued = true;
+    requestAnimationFrame(() => {
+      sanitizeQueued = false;
+      sanitizeNetworkUi();
+    });
   }
 
   function applyDashboardLayout() {
@@ -110,8 +122,8 @@
 
     const section = document.getElementById("referralSection");
     if (section && !window.__biNetworkButtonCleanupObserver) {
-      const observer = new MutationObserver(() => sanitizeNetworkUi());
-      observer.observe(section,{childList:true,subtree:true,characterData:true});
+      const observer = new MutationObserver(() => queueSanitizeNetworkUi());
+      observer.observe(section,{childList:true,subtree:true});
       window.__biNetworkButtonCleanupObserver = observer;
     }
   }
