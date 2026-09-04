@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="theme-color" content="#001b24">
+  <meta name="robots" content="noindex,nofollow">
+  <title>BetInsight | Premium Upgrade</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <style>
+    :root{
+      --bg:#001b24;--deep:#001219;--panel:#04263a;--panel2:#063149;
+      --line:rgba(255,255,255,.11);--text:#f4f8fb;--muted:#b8c8d2;
+      --blue:#169cff;--blue2:#4db8ff;--green:#21d07a;--orange:#ffae35;
+      --shadow:0 22px 50px rgba(0,0,0,.28)
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;min-height:100vh;color:var(--text);
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      line-height:1.5;
+      background:
+        radial-gradient(circle at 12% 0%,rgba(22,156,255,.18),transparent 31%),
+        radial-gradient(circle at 88% 12%,rgba(33,208,122,.11),transparent 27%),
+        linear-gradient(180deg,var(--deep) 0%,var(--bg) 50%,#002631 100%);
+    }
+    button,select{font:inherit}
+    .page{width:min(900px,calc(100% - 28px));margin:0 auto;padding:26px 0 70px}
+    .topbar{display:flex;justify-content:center;align-items:center;min-height:88px;margin-bottom:16px}
+    .logo{width:min(245px,68vw);height:auto;display:block;filter:drop-shadow(0 10px 24px rgba(0,0,0,.28))}
+    .hero{padding:38px 30px;border:1px solid var(--line);border-radius:26px;background:linear-gradient(135deg,rgba(22,156,255,.15),rgba(33,208,122,.07)),rgba(4,38,58,.86);box-shadow:var(--shadow);text-align:center}
+    .eyebrow{display:inline-flex;margin-bottom:13px;padding:7px 13px;border:1px solid rgba(77,184,255,.35);border-radius:999px;background:rgba(22,156,255,.10);color:#c8ebff;font-size:.8rem;font-weight:900;letter-spacing:.07em;text-transform:uppercase}
+    h1{margin:0 0 12px;font-size:clamp(2rem,5vw,3.25rem);line-height:1.05;letter-spacing:-.04em}
+    .hero p{max-width:690px;margin:0 auto;color:var(--muted)}
+    .card{margin-top:24px;padding:26px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(180deg,rgba(7,51,74,.97),rgba(4,38,58,.97));box-shadow:var(--shadow)}
+    .step{display:flex;gap:12px;align-items:flex-start;margin-bottom:18px}
+    .num{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#006fd6);font-weight:950}
+    .step h2{margin:0;font-size:1.25rem}.step p{margin:3px 0 0;color:var(--muted);font-size:.88rem}
+    .field{display:grid;gap:7px;margin-top:16px}
+    label{font-size:.86rem;font-weight:850;color:#dff7ff}
+    select{width:100%;min-height:52px;padding:0 14px;border:1px solid rgba(77,184,255,.32);border-radius:12px;background:#062b3d;color:white;outline:none}
+    select:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(77,184,255,.12)}
+    .hidden{display:none!important}
+    .tariff-info{display:grid;grid-template-columns:1fr auto;gap:15px;align-items:center;margin-top:14px;padding:15px 16px;border:1px solid rgba(33,208,122,.25);border-radius:14px;background:rgba(33,208,122,.06)}
+    .tariff-info strong{color:#c9ffe6}.price{font-size:1.15rem;font-weight:950;color:#fff;white-space:nowrap}
+    .divider{height:1px;background:var(--line);margin:26px 0}
+    .provider-slots{display:grid;gap:12px;margin-top:16px}
+    .slot{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:center;padding:13px;border:1px solid var(--line);border-radius:14px;background:rgba(0,18,25,.28)}
+    .slot-number{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:rgba(22,156,255,.13);color:#cdeeff;font-weight:950}
+    .slot select{min-height:48px}
+    .explain{margin-top:14px;padding:14px 15px;border-left:3px solid var(--orange);border-radius:10px;background:rgba(255,174,53,.07);color:#ffe2ad;font-size:.84rem}
+    .summary{margin-top:24px;padding:18px;border:1px solid rgba(77,184,255,.28);border-radius:16px;background:rgba(22,156,255,.07)}
+    .summary h3{margin:0 0 8px;font-size:1rem}.summary p{margin:5px 0;color:#d7eaf2;font-size:.88rem}
+    .actions{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;margin-top:20px}
+    .primary{min-height:54px;padding:0 22px;border:0;border-radius:12px;background:linear-gradient(135deg,var(--green),#11a861);color:#01251a;font-weight:950;cursor:pointer}
+    .primary:disabled{opacity:.42;cursor:not-allowed}
+    .secondary{display:inline-flex;align-items:center;justify-content:center;min-height:54px;padding:0 20px;border:1px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.04);color:#d9eef7;text-decoration:none;font-weight:850}
+    .notice{display:none;margin-top:16px;padding:14px 15px;border:1px solid rgba(255,174,53,.28);border-radius:12px;background:rgba(255,174,53,.07);color:#ffe2ad;font-size:.86rem}
+    .footer{padding:25px 5px 0;text-align:center;color:#8fa5b0;font-size:.76rem}
+    @media(max-width:650px){.page{width:min(100% - 18px,900px);padding-top:18px}.hero{padding:30px 18px}.card{padding:20px 16px}.tariff-info{grid-template-columns:1fr}.actions{grid-template-columns:1fr}.secondary{order:2}.slot{grid-template-columns:38px 1fr}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="topbar"><img class="logo" src="../logo_betisight.club.png" alt="BetInsight Club"></div>
+
+    <section class="hero">
+      <div class="eyebrow">Premium Upgrade</div>
+      <h1>Du möchtest ein Upgrade machen auf:</h1>
+      <p>Wähle zuerst deinen gewünschten Tarif. Danach fragen wir nur die Angaben ab, die wir für deine persönliche Anbieter- und Quotenanzeige benötigen.</p>
+    </section>
+
+    <section class="card">
+      <div class="step">
+        <div class="num">1</div>
+        <div><h2>Tarif auswählen</h2><p>Premium oder Premium Plus.</p></div>
+      </div>
+      <div class="field">
+        <label for="tariff">Gewünschter Tarif</label>
+        <select id="tariff">
+          <option value="">Bitte auswählen</option>
+          <option value="PREMIUM-1">Premium – 13,49 € / 30 Tage</option>
+          <option value="PREMIUM-2">Premium Plus – 19,99 € / 30 Tage</option>
+        </select>
+      </div>
+      <div id="tariffInfo" class="tariff-info hidden">
+        <div><strong id="tariffName"></strong><div id="tariffCopy" style="margin-top:3px;color:var(--muted);font-size:.86rem"></div></div>
+        <div id="tariffPrice" class="price"></div>
+      </div>
+
+      <div id="formArea" class="hidden">
+        <div class="divider"></div>
+        <div class="step">
+          <div class="num">2</div>
+          <div><h2>Land angeben</h2><p>Die konkrete Anbieterzuordnung erfolgt später passend zu deinem Land.</p></div>
+        </div>
+        <div class="field">
+          <label for="country">Dein Land</label>
+          <select id="country"><option value="">Bitte Land auswählen</option></select>
+        </div>
+
+        <div class="divider"></div>
+        <div class="step">
+          <div class="num">3</div>
+          <div><h2>Anbieterarten auswählen</h2><p id="slotIntro"></p></div>
+        </div>
+        <div id="slots" class="provider-slots"></div>
+        <div class="explain"><strong>Whitelisted</strong> = für dein Land von BetInsight freigegebene Anbieter · <strong>Krypto</strong> = passende Krypto-Anbieter · <strong>Sonstige</strong> = weitere Anbieter, die BetInsight passend zu deinem Land hinterlegt.</div>
+
+        <div id="summary" class="summary hidden">
+          <h3>Deine Auswahl</h3>
+          <p id="summaryTariff"></p>
+          <p id="summaryCountry"></p>
+          <p id="summaryProviders"></p>
+        </div>
+
+        <div class="actions">
+          <button id="continueBtn" class="primary" type="button" disabled>Angaben speichern &amp; weiter zur Zahlung</button>
+          <a id="backLink" class="secondary" href="../">Zurück</a>
+        </div>
+        <div id="notice" class="notice">Die Seite ist vorbereitet. Speicherung in der Nutzerliste und die anschließende Plisio-Zahlung werden im nächsten technischen Schritt verbunden.</div>
+      </div>
+    </section>
+
+    <div class="footer">BetInsight Club · Premium-Upgrade</div>
+  </main>
+
+<script>
+(function(){
+  const tariff=document.getElementById('tariff');
+  const tariffInfo=document.getElementById('tariffInfo');
+  const tariffName=document.getElementById('tariffName');
+  const tariffCopy=document.getElementById('tariffCopy');
+  const tariffPrice=document.getElementById('tariffPrice');
+  const formArea=document.getElementById('formArea');
+  const country=document.getElementById('country');
+  const slots=document.getElementById('slots');
+  const slotIntro=document.getElementById('slotIntro');
+  const continueBtn=document.getElementById('continueBtn');
+  const summary=document.getElementById('summary');
+  const summaryTariff=document.getElementById('summaryTariff');
+  const summaryCountry=document.getElementById('summaryCountry');
+  const summaryProviders=document.getElementById('summaryProviders');
+  const notice=document.getElementById('notice');
+  const backLink=document.getElementById('backLink');
+
+  const countries=[
+    'Albanien','Algerien','Andorra','Angola','Antigua und Barbuda','Argentinien','Armenien','Aserbaidschan','Australien','Bahamas','Bahrain','Bangladesch','Barbados','Belgien','Belize','Benin','Bhutan','Bolivien','Bosnien und Herzegowina','Botswana','Brasilien','Brunei','Bulgarien','Burkina Faso','Burundi','Chile','China','Costa Rica','Dänemark','Deutschland','Dominica','Dominikanische Republik','Dschibuti','Ecuador','El Salvador','Elfenbeinküste','Eritrea','Estland','Eswatini','Fidschi','Finnland','Frankreich','Gabun','Gambia','Georgien','Ghana','Grenada','Griechenland','Guatemala','Guinea','Guinea-Bissau','Guyana','Haiti','Honduras','Indien','Indonesien','Irak','Irland','Island','Israel','Italien','Jamaika','Japan','Jemen','Jordanien','Kambodscha','Kamerun','Kanada','Kap Verde','Kasachstan','Katar','Kenia','Kirgisistan','Kiribati','Kolumbien','Komoren','Kongo, Demokratische Republik','Kongo, Republik','Kosovo','Kroatien','Kuba','Kuwait','Laos','Lesotho','Lettland','Libanon','Liberia','Libyen','Liechtenstein','Litauen','Luxemburg','Madagaskar','Malawi','Malaysia','Malediven','Mali','Malta','Marokko','Marshallinseln','Mauretanien','Mauritius','Mexiko','Mikronesien','Moldau','Monaco','Mongolei','Montenegro','Mosambik','Myanmar','Namibia','Nauru','Nepal','Neuseeland','Nicaragua','Niederlande','Niger','Nigeria','Nordkorea','Nordmazedonien','Norwegen','Oman','Österreich','Pakistan','Palau','Panama','Papua-Neuguinea','Paraguay','Peru','Philippinen','Polen','Portugal','Ruanda','Rumänien','Russland','Salomonen','Sambia','Samoa','San Marino','São Tomé und Príncipe','Saudi-Arabien','Schweden','Schweiz','Senegal','Serbien','Seychellen','Sierra Leone','Simbabwe','Singapur','Slowakei','Slowenien','Somalia','Spanien','Sri Lanka','St. Kitts und Nevis','St. Lucia','St. Vincent und die Grenadinen','Südafrika','Sudan','Südkorea','Südsudan','Suriname','Syrien','Tadschikistan','Tansania','Thailand','Timor-Leste','Togo','Tonga','Trinidad und Tobago','Tschad','Tschechien','Tunesien','Türkei','Turkmenistan','Tuvalu','Uganda','Ukraine','Ungarn','Uruguay','Usbekistan','Vanuatu','Vatikanstadt','Venezuela','Vereinigte Arabische Emirate','Vereinigte Staaten','Vereinigtes Königreich','Vietnam','Weißrussland','Zentralafrikanische Republik','Zypern'
+  ];
+  countries.forEach(name=>{const o=document.createElement('option');o.value=name;o.textContent=name;country.appendChild(o)});
+
+  const q=new URLSearchParams(location.search);
+  const token=q.get('token')||q.get('dashboard_token')||'';
+  if(token) backLink.href='../?token='+encodeURIComponent(token);
+
+  function slotCount(){return tariff.value==='PREMIUM-1'?2:tariff.value==='PREMIUM-2'?5:0}
+  function tariffMeta(){
+    return tariff.value==='PREMIUM-1'
+      ? {name:'Premium',price:'13,49 €',copy:'2 persönliche Anbieter-/Quotenanzeigen · 30 Tage'}
+      : {name:'Premium Plus',price:'19,99 €',copy:'5 persönliche Anbieter im Quotenvergleich · 30 Tage'};
+  }
+  function renderSlots(){
+    slots.innerHTML='';
+    const count=slotCount();
+    slotIntro.textContent=count===2?'Wähle für deine 2 Anbieterplätze jeweils eine Anbieterart.':'Wähle für deine 5 Anbieterplätze jeweils eine Anbieterart.';
+    for(let i=1;i<=count;i++){
+      const row=document.createElement('div');row.className='slot';
+      row.innerHTML='<div class="slot-number">'+i+'</div><select class="providerType" aria-label="Anbieterart '+i+'"><option value="">Anbieterart auswählen</option><option value="WHITELISTED">Whitelisted</option><option value="KRYPTO">Krypto</option><option value="SONSTIGE">Sonstige</option></select>';
+      slots.appendChild(row);
+    }
+    slots.querySelectorAll('select').forEach(s=>s.addEventListener('change',validate));
+  }
+  function validate(){
+    const providerSelects=[...slots.querySelectorAll('select')];
+    const complete=!!tariff.value && !!country.value && providerSelects.length===slotCount() && providerSelects.every(s=>!!s.value);
+    continueBtn.disabled=!complete;
+    if(complete){
+      const meta=tariffMeta();
+      summaryTariff.textContent='Tarif: '+meta.name+' ('+meta.price+' / 30 Tage)';
+      summaryCountry.textContent='Land: '+country.value;
+      summaryProviders.textContent='Anbieterarten: '+providerSelects.map((s,i)=>(i+1)+'. '+s.options[s.selectedIndex].text).join(' · ');
+      summary.classList.remove('hidden');
+    }else summary.classList.add('hidden');
+  }
+  tariff.addEventListener('change',()=>{
+    notice.style.display='none';
+    if(!tariff.value){tariffInfo.classList.add('hidden');formArea.classList.add('hidden');slots.innerHTML='';return}
+    const meta=tariffMeta();
+    tariffName.textContent=meta.name;tariffCopy.textContent=meta.copy;tariffPrice.textContent=meta.price+' / 30 Tage';
+    tariffInfo.classList.remove('hidden');formArea.classList.remove('hidden');renderSlots();validate();
+  });
+  country.addEventListener('change',validate);
+  continueBtn.addEventListener('click',()=>{notice.style.display='block';notice.scrollIntoView({behavior:'smooth',block:'nearest'})});
+})();
+</script>
+</body>
+</html>
