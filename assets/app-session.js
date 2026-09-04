@@ -144,6 +144,53 @@
     }, true);
   }
 
+  function installPremiumContextButtons() {
+    const path = String(window.location.pathname || "").replace(/\/+$/, "");
+    if (!/(?:^|\/)(?:tipps|freigeschaltet)$/.test(path) || window.__betInsightPremiumContextButtonsInstalled) return;
+    window.__betInsightPremiumContextButtonsInstalled = true;
+
+    if (!document.getElementById("bi-premium-context-cta-style")) {
+      const style = document.createElement("style");
+      style.id = "bi-premium-context-cta-style";
+      style.textContent = `
+        .bi-premium-context-cta{width:100%;min-height:42px;margin-top:11px;padding:9px 13px;border:1px solid rgba(95,207,255,.28);border-radius:11px;background:linear-gradient(90deg,#168dff,#08bdec);color:#fff;font:inherit;font-size:12px;font-weight:900;cursor:pointer;box-shadow:0 10px 22px rgba(0,152,230,.18);transition:transform .15s ease,filter .15s ease}
+        .bi-premium-context-cta:hover{transform:translateY(-1px);filter:brightness(1.06)}
+        .bi-premium-context-cta.plus{background:linear-gradient(90deg,#e69522,#ffbe4a);color:#061923;border-color:rgba(255,205,104,.35);box-shadow:0 10px 22px rgba(230,149,34,.16)}
+      `;
+      document.head.appendChild(style);
+    }
+
+    const apply = root => {
+      const scope = root && root.querySelectorAll ? root : document;
+      scope.querySelectorAll('.provider-panel[data-membership-level="0"],.provider-panel[data-membership-level="1"]').forEach(panel => {
+        if (panel.querySelector(".bi-premium-context-cta")) return;
+        const level = Number(panel.dataset.membershipLevel || 0);
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "bi-premium-context-cta" + (level === 1 ? " plus" : "");
+        button.textContent = level === 1 ? "✨ Auf Premium Plus upgraden" : "⭐ Premium / Premium Plus ansehen";
+        button.addEventListener("click", event => {
+          event.preventDefault();
+          event.stopPropagation();
+          navigateLocal("premium-upgrade");
+        });
+        const feedback = panel.querySelector(".provider-feedback");
+        if (feedback) feedback.insertAdjacentElement("afterend", button);
+        else panel.appendChild(button);
+      });
+    };
+
+    apply(document);
+    const observer = new MutationObserver(records => {
+      for (const record of records) {
+        for (const node of record.addedNodes) {
+          if (node instanceof Element) apply(node);
+        }
+      }
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+  }
+
   function installDailyBundledTransport() {
     try {
       const path = String(window.location.pathname || "").replace(/\/+$/, "");
@@ -277,5 +324,6 @@
   captureLegacyIngress();
   stripSensitiveAccessParams();
   installPremiumUpgradeRouting();
+  installPremiumContextButtons();
   installDailyBundledTransport();
 })();
