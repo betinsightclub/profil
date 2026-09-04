@@ -230,6 +230,14 @@
     }
   }
 
+  function loadWebinarFunnelSection() {
+    if (document.querySelector('script[data-bi-webinar-funnel-section]')) return;
+    const script = document.createElement("script");
+    script.src = "webinar-funnel-section.js?v=20260905-1";
+    script.dataset.biWebinarFunnelSection = "1";
+    document.head.appendChild(script);
+  }
+
   function refreshLanguage() {
     tuneComingSoon();
     if (videoFiles.length) renderVideos();
@@ -241,6 +249,7 @@
     tuneComingSoon();
     loadVideos();
     loadNetworkerPresentation();
+    loadWebinarFunnelSection();
     window.addEventListener("bi:languagechange", refreshLanguage);
   }
 
