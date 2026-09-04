@@ -122,6 +122,28 @@
   function hasDashboardAccess() { return Boolean(getDashboardUuid()); }
   function hasProfileAccess() { return Boolean(getProfileToken()); }
 
+  function installPremiumUpgradeRouting() {
+    if (window.__betInsightPremiumUpgradeRoutingInstalled) return;
+    window.__betInsightPremiumUpgradeRoutingInstalled = true;
+
+    const selector = [
+      "#upgradePremiumButton",
+      "#upgradePremiumPlusButton",
+      "#premiumPlusUpgradeButton",
+      "#premiumExternalButton",
+      "#premiumUpgradeLink",
+      "#plusUpgradeLink"
+    ].join(",");
+
+    document.addEventListener("click", event => {
+      const target = event.target instanceof Element ? event.target.closest(selector) : null;
+      if (!target) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      navigateLocal("premium-upgrade");
+    }, true);
+  }
+
   function installDailyBundledTransport() {
     try {
       const path = String(window.location.pathname || "").replace(/\/+$/, "");
@@ -254,5 +276,6 @@
 
   captureLegacyIngress();
   stripSensitiveAccessParams();
+  installPremiumUpgradeRouting();
   installDailyBundledTransport();
 })();
