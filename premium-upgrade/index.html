@@ -1,4 +1,10 @@
 <!DOCTYPE html>
+<!-- BetInsight Premium Upgrade · 2026.09.04-02
+- separate Upgrade-Seite, Profilseite bleibt unverändert
+- registrierte E-Mail wird wie beim Unit-Kauf aus der BetInsight-Session geladen
+- Premium: 2 Anbieterarten, Premium Plus: 5 Anbieterarten
+- Speicherung und Plisio-Zahlung bleiben bis zum Backend-Test bewusst noch getrennt
+-->
 <html lang="de">
 <head>
   <meta charset="UTF-8">
@@ -7,6 +13,7 @@
   <meta name="robots" content="noindex,nofollow">
   <title>BetInsight | Premium Upgrade</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <script src="../assets/app-session.js"></script>
   <style>
     :root{
       --bg:#001b24;--deep:#001219;--panel:#04263a;--panel2:#063149;
@@ -24,7 +31,7 @@
         radial-gradient(circle at 88% 12%,rgba(33,208,122,.11),transparent 27%),
         linear-gradient(180deg,var(--deep) 0%,var(--bg) 50%,#002631 100%);
     }
-    button,select{font:inherit}
+    button,input,select{font:inherit}
     .page{width:min(900px,calc(100% - 28px));margin:0 auto;padding:26px 0 70px}
     .topbar{display:flex;justify-content:center;align-items:center;min-height:88px;margin-bottom:16px}
     .logo{width:min(245px,68vw);height:auto;display:block;filter:drop-shadow(0 10px 24px rgba(0,0,0,.28))}
@@ -33,31 +40,41 @@
     h1{margin:0 0 12px;font-size:clamp(2rem,5vw,3.25rem);line-height:1.05;letter-spacing:-.04em}
     .hero p{max-width:690px;margin:0 auto;color:var(--muted)}
     .card{margin-top:24px;padding:26px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(180deg,rgba(7,51,74,.97),rgba(4,38,58,.97));box-shadow:var(--shadow)}
+    .account-box{padding:18px;border:1px solid rgba(77,184,255,.24);border-radius:16px;background:linear-gradient(135deg,rgba(22,156,255,.09),rgba(33,208,122,.05))}
+    .account-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:11px}
+    .account-head strong{font-size:1rem}.account-head span{font-size:.76rem;color:#91b9cb}
+    .email-field{width:100%;min-height:50px;padding:12px 14px;border:1px solid rgba(77,184,255,.28);border-radius:11px;background:#062b3d;color:#eaf8ff;outline:none}
+    .email-field[readonly]{cursor:default}
+    .account-status{min-height:20px;margin:8px 2px 0;color:#ffcf75;font-size:.8rem;line-height:1.4}
+    .account-status.ok{color:#74f2bd}
     .step{display:flex;gap:12px;align-items:flex-start;margin-bottom:18px}
     .num{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#006fd6);font-weight:950}
     .step h2{margin:0;font-size:1.25rem}.step p{margin:3px 0 0;color:var(--muted);font-size:.88rem}
     .field{display:grid;gap:7px;margin-top:16px}
     label{font-size:.86rem;font-weight:850;color:#dff7ff}
-    select{width:100%;min-height:52px;padding:0 14px;border:1px solid rgba(77,184,255,.32);border-radius:12px;background:#062b3d;color:white;outline:none}
+    select{width:100%;min-height:52px;padding:0 14px;border:1px solid rgba(77,184,255,.32);border-radius:12px;background:#062b3d;color:white;outline:none;transition:.16s}
     select:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(77,184,255,.12)}
+    select:disabled{opacity:.5;cursor:not-allowed}
     .hidden{display:none!important}
     .tariff-info{display:grid;grid-template-columns:1fr auto;gap:15px;align-items:center;margin-top:14px;padding:15px 16px;border:1px solid rgba(33,208,122,.25);border-radius:14px;background:rgba(33,208,122,.06)}
     .tariff-info strong{color:#c9ffe6}.price{font-size:1.15rem;font-weight:950;color:#fff;white-space:nowrap}
     .divider{height:1px;background:var(--line);margin:26px 0}
     .provider-slots{display:grid;gap:12px;margin-top:16px}
-    .slot{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:center;padding:13px;border:1px solid var(--line);border-radius:14px;background:rgba(0,18,25,.28)}
+    .slot{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:center;padding:13px;border:1px solid var(--line);border-radius:14px;background:rgba(0,18,25,.28);transition:.16s}
+    .slot:focus-within{border-color:rgba(77,184,255,.34);background:rgba(22,156,255,.05)}
     .slot-number{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:rgba(22,156,255,.13);color:#cdeeff;font-weight:950}
     .slot select{min-height:48px}
     .explain{margin-top:14px;padding:14px 15px;border-left:3px solid var(--orange);border-radius:10px;background:rgba(255,174,53,.07);color:#ffe2ad;font-size:.84rem}
     .summary{margin-top:24px;padding:18px;border:1px solid rgba(77,184,255,.28);border-radius:16px;background:rgba(22,156,255,.07)}
     .summary h3{margin:0 0 8px;font-size:1rem}.summary p{margin:5px 0;color:#d7eaf2;font-size:.88rem}
     .actions{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;margin-top:20px}
-    .primary{min-height:54px;padding:0 22px;border:0;border-radius:12px;background:linear-gradient(135deg,var(--green),#11a861);color:#01251a;font-weight:950;cursor:pointer}
-    .primary:disabled{opacity:.42;cursor:not-allowed}
+    .primary{min-height:54px;padding:0 22px;border:0;border-radius:12px;background:linear-gradient(135deg,var(--green),#11a861);color:#01251a;font-weight:950;cursor:pointer;box-shadow:0 13px 28px rgba(17,168,97,.18);transition:.16s}
+    .primary:not(:disabled):hover{transform:translateY(-1px);filter:brightness(1.04)}
+    .primary:disabled{opacity:.42;cursor:not-allowed;box-shadow:none}
     .secondary{display:inline-flex;align-items:center;justify-content:center;min-height:54px;padding:0 20px;border:1px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.04);color:#d9eef7;text-decoration:none;font-weight:850}
     .notice{display:none;margin-top:16px;padding:14px 15px;border:1px solid rgba(255,174,53,.28);border-radius:12px;background:rgba(255,174,53,.07);color:#ffe2ad;font-size:.86rem}
     .footer{padding:25px 5px 0;text-align:center;color:#8fa5b0;font-size:.76rem}
-    @media(max-width:650px){.page{width:min(100% - 18px,900px);padding-top:18px}.hero{padding:30px 18px}.card{padding:20px 16px}.tariff-info{grid-template-columns:1fr}.actions{grid-template-columns:1fr}.secondary{order:2}.slot{grid-template-columns:38px 1fr}}
+    @media(max-width:650px){.page{width:min(100% - 18px,900px);padding-top:18px}.hero{padding:30px 18px}.card{padding:20px 16px}.tariff-info{grid-template-columns:1fr}.actions{grid-template-columns:1fr}.secondary{order:2}.slot{grid-template-columns:38px 1fr}.account-head{align-items:flex-start;flex-direction:column;gap:3px}}
   </style>
 </head>
 <body>
@@ -71,13 +88,24 @@
     </section>
 
     <section class="card">
+      <div class="account-box">
+        <div class="account-head">
+          <strong>Dein BetInsight-Konto</strong>
+          <span>automatisch aus deinem eingeloggten Zugang</span>
+        </div>
+        <label for="buyerEmail">Registrierte E-Mail</label>
+        <input id="buyerEmail" class="email-field" type="email" placeholder="E-Mail wird geladen …" readonly autocomplete="email">
+        <div id="emailStatus" class="account-status">E-Mail wird geladen …</div>
+      </div>
+
+      <div class="divider"></div>
       <div class="step">
         <div class="num">1</div>
         <div><h2>Tarif auswählen</h2><p>Premium oder Premium Plus.</p></div>
       </div>
       <div class="field">
         <label for="tariff">Gewünschter Tarif</label>
-        <select id="tariff">
+        <select id="tariff" disabled>
           <option value="">Bitte auswählen</option>
           <option value="PREMIUM-1">Premium – 13,49 € / 30 Tage</option>
           <option value="PREMIUM-2">Premium Plus – 19,99 € / 30 Tage</option>
@@ -109,6 +137,7 @@
 
         <div id="summary" class="summary hidden">
           <h3>Deine Auswahl</h3>
+          <p id="summaryEmail"></p>
           <p id="summaryTariff"></p>
           <p id="summaryCountry"></p>
           <p id="summaryProviders"></p>
@@ -118,7 +147,7 @@
           <button id="continueBtn" class="primary" type="button" disabled>Angaben speichern &amp; weiter zur Zahlung</button>
           <a id="backLink" class="secondary" href="../">Zurück</a>
         </div>
-        <div id="notice" class="notice">Die Seite ist vorbereitet. Speicherung in der Nutzerliste und die anschließende Plisio-Zahlung werden im nächsten technischen Schritt verbunden.</div>
+        <div id="notice" class="notice">Deine Kontodaten wurden erkannt. Die Speicherung der Anbieterwahl und die anschließende Plisio-Zahlung werden im nächsten technischen Schritt verbunden.</div>
       </div>
     </section>
 
@@ -127,6 +156,11 @@
 
 <script>
 (function(){
+  'use strict';
+  const PROFILE_WEBHOOK_URL='https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq';
+  const clean=v=>String(v||'').trim();
+  const buyerEmail=document.getElementById('buyerEmail');
+  const emailStatus=document.getElementById('emailStatus');
   const tariff=document.getElementById('tariff');
   const tariffInfo=document.getElementById('tariffInfo');
   const tariffName=document.getElementById('tariffName');
@@ -138,20 +172,69 @@
   const slotIntro=document.getElementById('slotIntro');
   const continueBtn=document.getElementById('continueBtn');
   const summary=document.getElementById('summary');
+  const summaryEmail=document.getElementById('summaryEmail');
   const summaryTariff=document.getElementById('summaryTariff');
   const summaryCountry=document.getElementById('summaryCountry');
   const summaryProviders=document.getElementById('summaryProviders');
   const notice=document.getElementById('notice');
-  const backLink=document.getElementById('backLink');
+
+  let resolvedAccessToken='';
 
   const countries=[
     'Albanien','Algerien','Andorra','Angola','Antigua und Barbuda','Argentinien','Armenien','Aserbaidschan','Australien','Bahamas','Bahrain','Bangladesch','Barbados','Belgien','Belize','Benin','Bhutan','Bolivien','Bosnien und Herzegowina','Botswana','Brasilien','Brunei','Bulgarien','Burkina Faso','Burundi','Chile','China','Costa Rica','Dänemark','Deutschland','Dominica','Dominikanische Republik','Dschibuti','Ecuador','El Salvador','Elfenbeinküste','Eritrea','Estland','Eswatini','Fidschi','Finnland','Frankreich','Gabun','Gambia','Georgien','Ghana','Grenada','Griechenland','Guatemala','Guinea','Guinea-Bissau','Guyana','Haiti','Honduras','Indien','Indonesien','Irak','Irland','Island','Israel','Italien','Jamaika','Japan','Jemen','Jordanien','Kambodscha','Kamerun','Kanada','Kap Verde','Kasachstan','Katar','Kenia','Kirgisistan','Kiribati','Kolumbien','Komoren','Kongo, Demokratische Republik','Kongo, Republik','Kosovo','Kroatien','Kuba','Kuwait','Laos','Lesotho','Lettland','Libanon','Liberia','Libyen','Liechtenstein','Litauen','Luxemburg','Madagaskar','Malawi','Malaysia','Malediven','Mali','Malta','Marokko','Marshallinseln','Mauretanien','Mauritius','Mexiko','Mikronesien','Moldau','Monaco','Mongolei','Montenegro','Mosambik','Myanmar','Namibia','Nauru','Nepal','Neuseeland','Nicaragua','Niederlande','Niger','Nigeria','Nordkorea','Nordmazedonien','Norwegen','Oman','Österreich','Pakistan','Palau','Panama','Papua-Neuguinea','Paraguay','Peru','Philippinen','Polen','Portugal','Ruanda','Rumänien','Russland','Salomonen','Sambia','Samoa','San Marino','São Tomé und Príncipe','Saudi-Arabien','Schweden','Schweiz','Senegal','Serbien','Seychellen','Sierra Leone','Simbabwe','Singapur','Slowakei','Slowenien','Somalia','Spanien','Sri Lanka','St. Kitts und Nevis','St. Lucia','St. Vincent und die Grenadinen','Südafrika','Sudan','Südkorea','Südsudan','Suriname','Syrien','Tadschikistan','Tansania','Thailand','Timor-Leste','Togo','Tonga','Trinidad und Tobago','Tschad','Tschechien','Tunesien','Türkei','Turkmenistan','Tuvalu','Uganda','Ukraine','Ungarn','Uruguay','Usbekistan','Vanuatu','Vatikanstadt','Venezuela','Vereinigte Arabische Emirate','Vereinigte Staaten','Vereinigtes Königreich','Vietnam','Weißrussland','Zentralafrikanische Republik','Zypern'
   ];
   countries.forEach(name=>{const o=document.createElement('option');o.value=name;o.textContent=name;country.appendChild(o)});
 
-  const q=new URLSearchParams(location.search);
-  const token=q.get('token')||q.get('dashboard_token')||'';
-  if(token) backLink.href='../?token='+encodeURIComponent(token);
+  function accessCandidates(){
+    const session=window.BetInsightSession;
+    const values=[session?.getDashboardUuid?.(),session?.getProfileToken?.()].map(clean).filter(Boolean);
+    const expanded=[];
+    for(const value of values){
+      expanded.push(value);
+      if(!session?.isUuid?.(value)){
+        if(/^BI-\d+$/i.test(value)){const n=value.slice(3);expanded.push(n,'BI'+n)}
+        else if(/^BI\d+$/i.test(value)){const n=value.slice(2);expanded.push(n,'BI-'+n)}
+        else if(/^\d+$/.test(value)) expanded.push('BI-'+value,'BI'+value);
+      }
+    }
+    return [...new Set(expanded.filter(Boolean))];
+  }
+
+  async function fetchProfileCandidate(token){
+    const response=await fetch(PROFILE_WEBHOOK_URL+'?token='+encodeURIComponent(token),{cache:'no-store'});
+    if(!response.ok) throw new Error('HTTP '+response.status);
+    return response.json();
+  }
+
+  async function loadAccount(){
+    const candidates=accessCandidates();
+    tariff.disabled=true;
+    buyerEmail.value='';
+    emailStatus.classList.remove('ok');
+    emailStatus.textContent='E-Mail wird geladen …';
+    if(!candidates.length){
+      emailStatus.textContent='Kein eingeloggter BetInsight-Zugang erkannt. Bitte öffne diese Seite über dein Backoffice.';
+      return;
+    }
+    for(const candidate of candidates){
+      try{
+        const data=await fetchProfileCandidate(candidate);
+        if(!data||data.found===false||!data.email) continue;
+        const email=clean(data.email).toLowerCase();
+        buyerEmail.value=email;
+        resolvedAccessToken=candidate;
+        try{localStorage.setItem('betinsight_email',email)}catch(e){}
+        const confirmed=clean(data.token);
+        if(confirmed&&!window.BetInsightSession?.isUuid?.(confirmed)) window.BetInsightSession?.rememberProfileToken?.(confirmed);
+        emailStatus.textContent='✓ E-Mail automatisch erkannt. Dieses Upgrade wird deinem BetInsight-Konto zugeordnet.';
+        emailStatus.classList.add('ok');
+        tariff.disabled=false;
+        validate();
+        return;
+      }catch(error){console.warn('Premium account lookup failed',error)}
+    }
+    emailStatus.textContent='Dein Konto konnte nicht eindeutig erkannt werden. Bitte öffne die Upgrade-Seite erneut über dein Backoffice.';
+  }
 
   function slotCount(){return tariff.value==='PREMIUM-1'?2:tariff.value==='PREMIUM-2'?5:0}
   function tariffMeta(){
@@ -172,10 +255,12 @@
   }
   function validate(){
     const providerSelects=[...slots.querySelectorAll('select')];
-    const complete=!!tariff.value && !!country.value && providerSelects.length===slotCount() && providerSelects.every(s=>!!s.value);
+    const accountReady=!!resolvedAccessToken&&!!clean(buyerEmail.value);
+    const complete=accountReady&&!!tariff.value&&!!country.value&&providerSelects.length===slotCount()&&providerSelects.every(s=>!!s.value);
     continueBtn.disabled=!complete;
     if(complete){
       const meta=tariffMeta();
+      summaryEmail.textContent='Konto: '+buyerEmail.value;
       summaryTariff.textContent='Tarif: '+meta.name+' ('+meta.price+' / 30 Tage)';
       summaryCountry.textContent='Land: '+country.value;
       summaryProviders.textContent='Anbieterarten: '+providerSelects.map((s,i)=>(i+1)+'. '+s.options[s.selectedIndex].text).join(' · ');
@@ -184,13 +269,14 @@
   }
   tariff.addEventListener('change',()=>{
     notice.style.display='none';
-    if(!tariff.value){tariffInfo.classList.add('hidden');formArea.classList.add('hidden');slots.innerHTML='';return}
+    if(!tariff.value){tariffInfo.classList.add('hidden');formArea.classList.add('hidden');slots.innerHTML='';validate();return}
     const meta=tariffMeta();
     tariffName.textContent=meta.name;tariffCopy.textContent=meta.copy;tariffPrice.textContent=meta.price+' / 30 Tage';
     tariffInfo.classList.remove('hidden');formArea.classList.remove('hidden');renderSlots();validate();
   });
   country.addEventListener('change',validate);
   continueBtn.addEventListener('click',()=>{notice.style.display='block';notice.scrollIntoView({behavior:'smooth',block:'nearest'})});
+  loadAccount();
 })();
 </script>
 </body>
