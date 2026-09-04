@@ -144,6 +144,12 @@
     }, true);
   }
 
+  function removeRedundantAffiliateDisclosure() {
+    const remove = () => document.querySelectorAll(".affiliate-disclosure").forEach(element => element.remove());
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", remove, { once: true });
+    else remove();
+  }
+
   function installPremiumContextButtons() {
     const path = String(window.location.pathname || "").replace(/\/+$/, "");
     if (!/(?:^|\/)(?:tipps|freigeschaltet)$/.test(path) || window.__betInsightPremiumContextButtonsInstalled) return;
@@ -323,6 +329,7 @@
 
   captureLegacyIngress();
   stripSensitiveAccessParams();
+  removeRedundantAffiliateDisclosure();
   installPremiumUpgradeRouting();
   installPremiumContextButtons();
   installDailyBundledTransport();
