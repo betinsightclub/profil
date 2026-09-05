@@ -1,0 +1,97 @@
+name: TEMP Tipp-Menü-Zähler verschieben
+
+on:
+  push:
+    paths:
+      - '.github/workflows/temp-menu-tip-badge.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Tipp-Zähler gezielt ins Hauptmenü verschieben
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('assets/tip-notifications.js')
+          text = path.read_text(encoding='utf-8')
+
+          old_style = '      .bi-tip-unread-badge{position:absolute;top:-9px;right:-9px;min-width:24px;height:24px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center;border:2px solid #fff;border-radius:999px;background:#ff394d;color:#fff;font-size:12px;font-weight:900;line-height:1;box-shadow:0 5px 16px rgba(255,57,77,.45);z-index:8}\\n'
+          new_style = old_style + '      .bi-tip-menu-target{position:relative!important}.bi-tip-menu-badge{position:absolute;right:34px;top:50%;transform:translateY(-50%);min-width:22px;height:22px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.92);border-radius:999px;background:#ff394d;color:#fff;font-size:11px;font-weight:900;line-height:1;box-shadow:0 4px 14px rgba(255,57,77,.42);z-index:9;pointer-events:none}\\n'
+          if '.bi-tip-menu-badge{' not in text:
+              if old_style not in text:
+                  raise SystemExit('Sicherheitsabbruch: CSS-Anker fehlt')
+              text = text.replace(old_style, new_style, 1)
+
+          old_block = '''  function renderBadge() {
+    if (!isDashboard()) return;
+    ensureStyles();
+    const count = unread();
+    const targets = tipTargets();
+    if (count <= 0) {
+      for (const target of targets) {
+        target.querySelectorAll(":scope > .bi-tip-unread-badge").forEach(badge => badge.remove());
+      }
+      return;
+    }
+    const label = count > 99 ? "99+" : String(count);
+    for (const target of targets) {
+      target.classList.add("bi-tip-notification-target");
+      let badge = target.querySelector(":scope > .bi-tip-unread-badge");
+      if (!badge) {
+        badge = document.createElement("span");
+        badge.className = "bi-tip-unread-badge";
+        badge.setAttribute("aria-label", "Neue ungesehene Tipps");
+        target.appendChild(badge);
+      }
+      if (badge.textContent !== label) badge.textContent = label;
+    }
+  }
+'''
+          new_block = '''  function renderBadge() {
+    if (!isDashboard()) return;
+    ensureStyles();
+    const count = unread();
+
+    // Alte Badge-Positionen (z. B. Dashboard-Button „Neue Tipps“) bewusst bereinigen.
+    document.querySelectorAll(".bi-tip-unread-badge,.bi-tip-menu-badge").forEach(badge => badge.remove());
+
+    // Final: genau eine rote Zahl am Hauptmenüpunkt „Tipps“.
+    const group = document.querySelector('.bi-nav-group[data-bi-nav-group="tips-group"]');
+    const target = group?.querySelector(':scope > .bi-nav-group-button') || null;
+    if (!target || count <= 0) return;
+
+    target.classList.add("bi-tip-menu-target");
+    const badge = document.createElement("span");
+    badge.className = "bi-tip-menu-badge";
+    badge.setAttribute("aria-label", "Neue ungesehene Tipps");
+    badge.textContent = count > 99 ? "99+" : String(count);
+    target.appendChild(badge);
+  }
+'''
+          if 'Final: genau eine rote Zahl am Hauptmenüpunkt' not in text:
+              if old_block not in text:
+                  raise SystemExit('Sicherheitsabbruch: renderBadge-Anker fehlt')
+              text = text.replace(old_block, new_block, 1)
+
+          text = text.replace('BetInsight Tipp-Benachrichtigungen · v1.4 · 2026-09-05', 'BetInsight Tipp-Benachrichtigungen · v1.5 · 2026-09-05', 1)
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Änderung speichern und temporären Workflow entfernen
+        run: |
+          git config user.name "BetInsight Bot"
+          git config user.email "betinsight.club@gmail.com"
+          git rm .github/workflows/temp-menu-tip-badge.yml
+          git add assets/tip-notifications.js
+          git commit -m "Show unread Tipp count in main Tipps menu"
+          git pull --rebase origin main
+          git push origin main
