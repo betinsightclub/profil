@@ -1,29 +1,19 @@
 {
   "version": 2,
   "sequence": 2,
-  "latest_tip_id": "",
-  "published_at": "",
+  "latest_tip_id": "BI-20260904-165206-FRA",
+  "published_at": "2026-09-04T14:52:08.276Z",
   "feature_started_at": "2026-09-05T14:25:00Z",
   "tips": [
     {
-      "sequence": 0,
+      "sequence": 1,
       "tipp_id": "BI-20260904-163328-FRA",
       "kickoff_at": "2026-09-05T15:30:00+02:00"
     },
     {
-      "sequence": 0,
+      "sequence": 2,
       "tipp_id": "BI-20260904-165206-FRA",
       "kickoff_at": "2026-09-05T18:30:00+02:00"
-    },
-    {
-      "sequence": 1,
-      "tipp_id": "__notification_baseline_1__",
-      "kickoff_at": "1970-01-01T00:00:00+00:00"
-    },
-    {
-      "sequence": 2,
-      "tipp_id": "__notification_baseline_2__",
-      "kickoff_at": "1970-01-01T00:00:00+00:00"
     }
   ]
 }
