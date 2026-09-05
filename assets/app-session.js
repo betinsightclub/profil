@@ -310,7 +310,7 @@
     if (window.__betInsightTipNotificationLoaderInstalled) return;
     window.__betInsightTipNotificationLoaderInstalled = true;
     const script = document.createElement("script");
-    script.src = appPath("assets/tip-notifications.js") + "?v=20260905-1";
+    script.src = appPath("assets/tip-notifications.js") + "?v=20260905-4";
     script.defer = true;
     script.dataset.biTipNotifications = "1";
     script.addEventListener("error", () => console.warn("BetInsight Tipp-Benachrichtigungen konnten nicht geladen werden."), { once: true });
