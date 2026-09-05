@@ -1,7 +1,8 @@
-/* BetInsight Tipp-Benachrichtigungen · v1.1 · 2026-09-05
+/* BetInsight Tipp-Benachrichtigungen · v1.2 · 2026-09-05
    Sparmodus:
    - regelmäßige Prüfung: nur statische tip-status.json von GitHub Pages = 0 Make-Credits
    - USER.CC (letzter_tipp_gesehen) wird nur zur gerätebezogenen Initialisierung und beim Öffnen der Tippseite genutzt
+   - auf der Tippseite werden bereits freigeschaltete Tipp-IDs clientseitig aus „Neue Tipps“ ausgeblendet
    - keine LIVE-ALARM-/Telegram-Logik
 */
 (() => {
@@ -11,6 +12,9 @@
 
   const PROFILE_URL = "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
   const SEEN_WRITE_URL = "https://hook.eu1.make.com/rba6hw9weyssdg1timisut854q823g4p";
+  const OPEN_TIPS_URL = "https://hook.eu1.make.com/36gm8kvlfcb7jwae8ypxe8oripquonq5";
+  const UNLOCKED_TIPS_URL = "https://hook.eu1.make.com/7q3edcra1gwxd7vvklv4l7gdxn7zbihr";
+  const UNLOCK_URL = "https://hook.eu1.make.com/k1qn9hlfqd7yhz55vwiotkojgpuqzxug";
   const POLL_MS = 180000;
   const baseTitle = String(document.title || "BetInsight").replace(/^\(\d+\)\s*/, "");
 
@@ -20,6 +24,9 @@
   let initialized = false;
   let lastObservedSequence = null;
   let tokenRetries = 0;
+  let unlockedIdsPromise = null;
+  let nativeFetch = null;
+  let filterInstalled = false;
 
   const clean = value => String(value ?? "").trim();
   const seq = value => {
@@ -65,6 +72,24 @@
   }
   function writePopupSeen(token, value) {
     try { localStorage.setItem(popupKey(token), String(seq(value))); } catch (_) {}
+  }
+
+  function parseArrayPayload(raw) {
+    let text = String(raw ?? "").replace(/^\uFEFF/, "").trim();
+    const first = text.indexOf("[");
+    const last = text.lastIndexOf("]");
+    if (first !== -1 && last > first) text = text.slice(first, last + 1).trim();
+    const data = JSON.parse(text);
+    return Array.isArray(data) ? data : [];
+  }
+
+  function parseObjectPayload(raw) {
+    let text = String(raw ?? "").replace(/^\uFEFF/, "").trim();
+    const first = text.indexOf("{");
+    const last = text.lastIndexOf("}");
+    if (first !== -1 && last > first) text = text.slice(first, last + 1).trim();
+    const data = JSON.parse(text);
+    return data && typeof data === "object" && !Array.isArray(data) ? data : {};
   }
 
   async function loadStatus() {
@@ -131,8 +156,15 @@
     if (!isDashboard()) return;
     ensureStyles();
     const count = unread();
+    const targets = tipTargets();
+    if (count <= 0) {
+      for (const target of targets) {
+        target.querySelectorAll(":scope > .bi-tip-unread-badge").forEach(badge => badge.remove());
+      }
+      return;
+    }
     const label = count > 99 ? "99+" : String(count);
-    for (const target of tipTargets()) {
+    for (const target of targets) {
       target.classList.add("bi-tip-notification-target");
       let badge = target.querySelector(":scope > .bi-tip-unread-badge");
       if (!badge) {
@@ -142,8 +174,6 @@
         target.appendChild(badge);
       }
       if (badge.textContent !== label) badge.textContent = label;
-      const hide = count === 0;
-      if (badge.hidden !== hide) badge.hidden = hide;
     }
   }
 
@@ -206,7 +236,6 @@
     }
     const server = await loadServerSeen(dashboardToken);
     if (server === null) {
-      // Konto nach Einführung dieser Funktion: vorhandene Tipps nicht rückwirkend als neu markieren.
       seenSequence = currentStatus.sequence;
       writeLocalSeen(dashboardToken, seenSequence);
       saveServerSeen(seenSequence);
@@ -215,6 +244,78 @@
       writeLocalSeen(dashboardToken, seenSequence);
     }
     return true;
+  }
+
+  async function loadUnlockedIds(fetchFn) {
+    const token = getDashboardToken();
+    if (!token) return new Set();
+    const response = await fetchFn(`${UNLOCKED_TIPS_URL}?token=${encodeURIComponent(token)}&cachebuster=${Date.now()}`, {
+      method: "GET", cache: "no-store", credentials: "omit"
+    });
+    if (!response.ok) throw new Error(`Freigeschaltete Tipps HTTP ${response.status}`);
+    const items = parseArrayPayload(await response.text());
+    return new Set(items.map(item => clean(item?.tipp_id ?? item?.["1"])).filter(Boolean));
+  }
+
+  function cloneResponseWithJson(response, payload) {
+    const headers = new Headers(response.headers);
+    headers.set("Content-Type", "application/json; charset=utf-8");
+    return new Response(JSON.stringify(payload), {
+      status: response.status,
+      statusText: response.statusText,
+      headers
+    });
+  }
+
+  function installUserTipFiltering() {
+    if (!isTips() || filterInstalled) return;
+    filterInstalled = true;
+    nativeFetch = window.fetch.bind(window);
+    unlockedIdsPromise = loadUnlockedIds(nativeFetch).catch(error => {
+      console.warn("BetInsight Tipp-Filter: Freigeschaltete IDs konnten nicht geladen werden", error);
+      return new Set();
+    });
+
+    window.fetch = async function(input, init) {
+      const requestUrl = typeof input === "string" ? input : clean(input?.url);
+      const response = await nativeFetch(input, init);
+
+      if (requestUrl.startsWith(OPEN_TIPS_URL)) {
+        try {
+          const ids = await unlockedIdsPromise;
+          const items = parseArrayPayload(await response.clone().text());
+          const filtered = items.filter(item => !ids.has(clean(item?.tipp_id)));
+          return cloneResponseWithJson(response, filtered);
+        } catch (error) {
+          console.warn("BetInsight Tipp-Filter: Offene Tipps konnten nicht gefiltert werden", error);
+          return response;
+        }
+      }
+
+      if (requestUrl.startsWith(UNLOCK_URL)) {
+        try {
+          const data = parseObjectPayload(await response.clone().text());
+          if ((data.status === "success" || data.status === "already_unlocked") && clean(data.tipp_id)) {
+            const ids = await unlockedIdsPromise;
+            ids.add(clean(data.tipp_id));
+            unlockedIdsPromise = Promise.resolve(ids);
+            setTimeout(() => {
+              try { if (typeof window.loadPage === "function") window.loadPage(); } catch (_) {}
+            }, 50);
+          }
+        } catch (error) {
+          console.warn("BetInsight Tipp-Filter: Freischaltungsantwort konnte nicht ausgewertet werden", error);
+        }
+      }
+
+      return response;
+    };
+
+    unlockedIdsPromise.then(() => {
+      setTimeout(() => {
+        try { if (typeof window.loadPage === "function") window.loadPage(); } catch (_) {}
+      }, 0);
+    });
   }
 
   async function check(first = false) {
@@ -263,6 +364,7 @@
 
   function start() {
     if (!isDashboard() && !isTips()) return;
+    installUserTipFiltering();
     installClickCapture();
     check(true);
     setTimeout(renderBadge, 1200);
