@@ -1,0 +1,51 @@
+name: BetInsight Tipp-Status aktualisieren
+
+on:
+  repository_dispatch:
+    types: [tip_published]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: betinsight-tip-status
+  cancel-in-progress: false
+
+jobs:
+  update-tip-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository laden
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Tipp-Status erhöhen
+        env:
+          TIP_ID: ${{ github.event.client_payload.tipp_id }}
+          PUBLISHED_AT: ${{ github.event.client_payload.published_at }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          path = Path("tip-status.json")
+          data = json.loads(path.read_text(encoding="utf-8"))
+          data["version"] = 1
+          data["sequence"] = int(data.get("sequence", 0)) + 1
+          data["latest_tip_id"] = os.environ.get("TIP_ID", "").strip()
+          data["published_at"] = os.environ.get("PUBLISHED_AT", "").strip()
+          path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+          PY
+
+      - name: Änderung speichern
+        run: |
+          git config user.name "BetInsight Bot"
+          git config user.email "betinsight.club@gmail.com"
+          git add tip-status.json
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "Update Tipp-Status: ${{ github.event.client_payload.tipp_id }}"
+          git push
