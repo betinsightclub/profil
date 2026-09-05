@@ -1,8 +1,9 @@
-/* BetInsight Tipp-Benachrichtigungen · v1.3 · 2026-09-05
+/* BetInsight Tipp-Benachrichtigungen · v1.4 · 2026-09-05
    Sparmodus:
    - regelmäßige Prüfung: nur statische tip-status.json von GitHub Pages = 0 Make-Credits
    - USER.CC (letzter_tipp_gesehen) wird nur zur gerätebezogenen Initialisierung und beim Öffnen der Tippseite genutzt
-   - auf der Tippseite werden bereits freigeschaltete Tipp-IDs clientseitig aus „Neue Tipps“ ausgeblendet
+   - abgelaufene Tipps werden ab Anpfiff weder als „neu“ gezählt noch auf der Tippseite angezeigt
+   - bereits freigeschaltete Tipp-IDs werden clientseitig aus „Neue Tipps“ ausgeblendet
    - keine LIVE-ALARM-/Telegram-Logik
 */
 (() => {
@@ -27,6 +28,7 @@
   let unlockedIdsPromise = null;
   let nativeFetch = null;
   let filterInstalled = false;
+  let expiryTimer = null;
 
   const clean = value => String(value ?? "").trim();
   const seq = value => {
@@ -92,6 +94,31 @@
     return data && typeof data === "object" && !Array.isArray(data) ? data : {};
   }
 
+  function isTrue(value) {
+    return value === true || value === 1 || clean(value).toLowerCase() === "true" || clean(value) === "1";
+  }
+
+  function payloadExpired(item) {
+    return Boolean(item && isTrue(item.expired));
+  }
+
+  function normalizeStatusTips(data) {
+    if (!Array.isArray(data?.tips)) return [];
+    return data.tips.map(item => ({
+      sequence: seq(item?.sequence),
+      tipId: clean(item?.tipp_id ?? item?.tip_id),
+      kickoffAt: clean(item?.kickoff_at ?? item?.expires_at)
+    })).filter(item => item.sequence > 0);
+  }
+
+  function statusTipActive(item, at = Date.now()) {
+    if (!item) return false;
+    if (!item.kickoffAt) return true;
+    const kickoff = Date.parse(item.kickoffAt);
+    if (!Number.isFinite(kickoff)) return true;
+    return at < kickoff;
+  }
+
   async function loadStatus() {
     const path = appPath("tip-status.json");
     const response = await fetch(`${path}?_=${Date.now()}`, { cache: "no-store", credentials: "omit" });
@@ -100,7 +127,8 @@
     return {
       sequence: seq(data.sequence),
       latestTipId: clean(data.latest_tip_id),
-      publishedAt: clean(data.published_at)
+      publishedAt: clean(data.published_at),
+      tips: normalizeStatusTips(data)
     };
   }
 
@@ -149,6 +177,12 @@
 
   function unread() {
     if (!currentStatus || seenSequence === null) return 0;
+    if (Array.isArray(currentStatus.tips) && currentStatus.tips.length) {
+      const now = Date.now();
+      return currentStatus.tips.reduce((count, item) => {
+        return count + (item.sequence > seenSequence && statusTipActive(item, now) ? 1 : 0);
+      }, 0);
+    }
     return Math.max(0, currentStatus.sequence - seenSequence);
   }
 
@@ -181,6 +215,25 @@
     const count = unread();
     renderBadge();
     document.title = count > 0 ? `(${count}) ${baseTitle}` : baseTitle;
+  }
+
+  function scheduleExpiryRender() {
+    if (expiryTimer) {
+      clearTimeout(expiryTimer);
+      expiryTimer = null;
+    }
+    if (!isDashboard() || !Array.isArray(currentStatus?.tips) || !currentStatus.tips.length) return;
+    const now = Date.now();
+    const future = currentStatus.tips
+      .map(item => Date.parse(item.kickoffAt))
+      .filter(value => Number.isFinite(value) && value > now)
+      .sort((a, b) => a - b);
+    if (!future.length) return;
+    const delay = Math.min(2147483000, Math.max(0, future[0] - now + 250));
+    expiryTimer = setTimeout(() => {
+      render();
+      scheduleExpiryRender();
+    }, delay);
   }
 
   function showToast() {
@@ -221,7 +274,7 @@
     const overlay = document.createElement("div");
     overlay.id = "biTipPopupOverlay";
     overlay.className = "bi-tip-popup-overlay";
-    overlay.innerHTML = `<div class="bi-tip-popup" role="dialog" aria-modal="true"><h3>🔥 ${count === 1 ? "Neuer BetInsight-Tipp verfügbar" : `${count} neue BetInsight-Tipps verfügbar`}</h3><p>${count === 1 ? "Seit deinem letzten Besuch wurde ein neuer Tipp veröffentlicht." : `Seit deinem letzten Besuch wurden ${count} neue Tipps veröffentlicht.`}</p><div class="bi-tip-popup-actions"><button class="bi-tip-popup-open" type="button">Tipp${count === 1 ? "" : "s"} ansehen</button><button class="bi-tip-popup-later" type="button">Später</button></div></div>`;
+    overlay.innerHTML = `<div class="bi-tip-popup" role="dialog" aria-modal="true"><h3>🔥 ${count === 1 ? "Neuer BetInsight-Tipp verfügbar" : `${count} neue BetInsight-Tipps verfügbar`}</h3><p>${count === 1 ? "Seit deinem letzten Besuch ist ein aktuell verfügbarer Tipp neu." : `Seit deinem letzten Besuch sind ${count} aktuell verfügbare Tipps neu.`}</p><div class="bi-tip-popup-actions"><button class="bi-tip-popup-open" type="button">Tipp${count === 1 ? "" : "s"} ansehen</button><button class="bi-tip-popup-later" type="button">Später</button></div></div>`;
     overlay.querySelector(".bi-tip-popup-open")?.addEventListener("click", openTips);
     overlay.querySelector(".bi-tip-popup-later")?.addEventListener("click", closePopup);
     overlay.addEventListener("click", event => { if (event.target === overlay) closePopup(); });
@@ -284,7 +337,7 @@
         try {
           const ids = await unlockedIdsPromise;
           const items = parseArrayPayload(await response.clone().text());
-          const filtered = items.filter(item => !ids.has(clean(item?.tipp_id)));
+          const filtered = items.filter(item => !ids.has(clean(item?.tipp_id)) && !payloadExpired(item));
           return cloneResponseWithJson(response, filtered);
         } catch (error) {
           console.warn("BetInsight Tipp-Filter: Offene Tipps konnten nicht gefiltert werden", error);
@@ -342,9 +395,11 @@
       if (!initialized) {
         initialized = await initializeSeen();
         render();
+        scheduleExpiryRender();
         showLoginPopup();
       } else {
         render();
+        scheduleExpiryRender();
         if (!first && previous !== null && next.sequence > previous && unread() > 0) showToast();
       }
       lastObservedSequence = next.sequence;
