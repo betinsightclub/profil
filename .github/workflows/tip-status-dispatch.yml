@@ -1,8 +1,21 @@
 name: BetInsight Tipp-Status aktualisieren
 
 on:
-  repository_dispatch:
-    types: [tip_published]
+  workflow_dispatch:
+    inputs:
+      tipp_id:
+        description: Tipp-ID
+        required: true
+        type: string
+      published_at:
+        description: Veröffentlichungszeitpunkt
+        required: true
+        type: string
+      dry_run:
+        description: Nur Verbindung testen
+        required: false
+        default: "false"
+        type: string
 
 permissions:
   contents: write
@@ -20,10 +33,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Verbindungstest
+        if: ${{ inputs.dry_run == 'true' }}
+        run: echo "GitHub-Workflow erreichbar"
+
       - name: Tipp-Status erhöhen
+        if: ${{ inputs.dry_run != 'true' }}
         env:
-          TIP_ID: ${{ github.event.client_payload.tipp_id }}
-          PUBLISHED_AT: ${{ github.event.client_payload.published_at }}
+          TIP_ID: ${{ inputs.tipp_id }}
+          PUBLISHED_AT: ${{ inputs.published_at }}
         run: |
           python - <<'PY'
           import json
@@ -40,6 +58,7 @@ jobs:
           PY
 
       - name: Änderung speichern
+        if: ${{ inputs.dry_run != 'true' }}
         run: |
           git config user.name "BetInsight Bot"
           git config user.email "betinsight.club@gmail.com"
@@ -47,5 +66,5 @@ jobs:
           if git diff --cached --quiet; then
             exit 0
           fi
-          git commit -m "Update Tipp-Status: ${{ github.event.client_payload.tipp_id }}"
+          git commit -m "Update Tipp-Status: ${{ inputs.tipp_id }}"
           git push
