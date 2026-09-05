@@ -42,7 +42,7 @@
 
   function installPremiumProvisionInfo() {
     if (!isRootDashboard() || window.__betinsightPremiumProvisionInfoInstalled) return;
-    window.__betInsightPremiumProvisionInfoInstalled = true;
+    window.__betinsightPremiumProvisionInfoInstalled = true;
 
     const apply = () => {
       const dialog = document.getElementById("membershipInfoPanel");
