@@ -4,33 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex,nofollow">
-  <title>BetInsight – Premium-Eingänge Vorschau</title>
+  <title>BetInsight – Weiterleitung zum Backoffice</title>
 </head>
-<body>
-  <div id="previewLoadState" style="font-family:Arial,sans-serif;padding:24px;background:#061d2a;color:#fff;min-height:100vh">
-    Sichere Backoffice-Vorschau wird geladen …
-  </div>
-
+<body style="margin:0;font-family:Arial,sans-serif;background:#061d2a;color:#fff;min-height:100vh">
+  <div style="padding:24px">Die Vorschau ist abgeschlossen. Weiterleitung zum normalen Backoffice …</div>
   <script>
-    (async function () {
-      try {
-        const response = await fetch("./index.html", { cache: "no-store" });
-        if (!response.ok) throw new Error("LIVE-Backoffice konnte nicht geladen werden (HTTP " + response.status + ").");
-        const liveHtml = await response.text();
-        const premiumScript = '<scr' + 'ipt src="./premium-eingaenge.js?v=20260905-1"></scr' + 'ipt>';
-        const previewMarker = '<!-- PREMIUM-EINGAENGE-PREVIEW · verändert das LIVE-index.html nicht -->';
-        const composed = liveHtml.replace(/<\/body>/i, premiumScript + previewMarker + "</body>");
-        document.open();
-        document.write(composed);
-        document.close();
-      } catch (error) {
-        const state = document.getElementById("previewLoadState");
-        if (state) {
-          state.innerHTML = "<strong>Vorschau konnte nicht geladen werden.</strong><br><br>" +
-            String(error && error.message ? error.message : error);
-        }
-      }
-    })();
+    window.location.replace("./");
   </script>
 </body>
 </html>
