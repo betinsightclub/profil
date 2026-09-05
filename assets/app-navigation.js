@@ -42,7 +42,7 @@
 
   function installPremiumProvisionInfo() {
     if (!isRootDashboard() || window.__betinsightPremiumProvisionInfoInstalled) return;
-    window.__betinsightPremiumProvisionInfoInstalled = true;
+    window.__betInsightPremiumProvisionInfoInstalled = true;
 
     const apply = () => {
       const dialog = document.getElementById("membershipInfoPanel");
@@ -193,8 +193,8 @@
     installPremiumProvisionInfo();
     addDashboardScope();
     try {
-      await loadScript("tip-expiry-guard.js");
-      await loadScript("app-session.js","BetInsightSession");
+      await loadScript("tip-expiry-guard.js?v=20260905-2");
+      await loadScript("app-session.js?v=20260905-4","BetInsightSession");
       await loadScript("i18n/core-v2.js","BetInsightI18n");
       await window.BetInsightI18n?.init?.();
       if (isRootDashboard()) await loadScript("i18n/dashboard-legacy.js");
