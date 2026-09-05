@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#03131d">
+  <title>Free Units · BetInsight</title>
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+  <link rel="stylesheet" href="../assets/app-navigation.css">
+  <script src="../assets/app-session.js"></script>
+  <script src="../assets/app-navigation-v2.js?v=20260830-9" defer></script>
+  <style>
+    *{box-sizing:border-box}html{min-height:100%}:root{--bg1:#03131d;--bg2:#062434;--bg3:#020c13;--card:#082636;--line:rgba(111,199,235,.18);--green:#0edca6;--blue:#169cff;--cyan:#18c9f3;--gold:#ffc14d;--text:#fff;--muted:#8fb5c8;--danger:#ff6b7a}body{margin:0;min-height:100vh;color:var(--text);font-family:Inter,Arial,sans-serif;background:radial-gradient(circle at 12% 0%,rgba(14,220,166,.12),transparent 30%),radial-gradient(circle at 88% 8%,rgba(22,156,255,.16),transparent 34%),linear-gradient(180deg,var(--bg1),var(--bg2) 48%,var(--bg3));background-attachment:fixed}.page{width:min(1180px,100%);margin:0 auto;padding:28px 22px 90px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:20px 22px;margin-bottom:22px;border:1px solid rgba(91,192,232,.24);border-radius:25px;background:linear-gradient(115deg,rgba(13,52,69,.97),rgba(5,28,41,.96));box-shadow:0 24px 60px rgba(0,0,0,.30);position:relative;overflow:hidden}.topbar:after{content:"";position:absolute;width:280px;height:280px;right:-100px;top:-170px;border-radius:50%;background:rgba(22,156,255,.16)}.brand{display:flex;align-items:center;gap:17px;position:relative;z-index:1}.brand img{width:108px;height:auto}.brand h1{font-size:clamp(26px,3.5vw,42px);line-height:1.05;margin:0 0 6px}.brand p{margin:0;color:var(--muted);font-size:14px}.badge{position:relative;z-index:1;border:1px solid rgba(14,220,166,.30);background:rgba(14,220,166,.08);color:#86f5d5;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:900;white-space:nowrap}.hero{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(300px,.75fr);gap:20px;margin-bottom:20px}.card{border:1px solid var(--line);border-radius:25px;background:linear-gradient(180deg,rgba(10,42,58,.96),rgba(5,27,39,.98));box-shadow:0 22px 55px rgba(0,0,0,.23)}.intro{padding:28px;position:relative;overflow:hidden}.intro:after{content:"🏆";position:absolute;right:22px;bottom:-18px;font-size:126px;opacity:.07;transform:rotate(-7deg)}.eyebrow{display:flex;align-items:center;gap:8px;color:#8edfff;font-size:13px;font-weight:900;letter-spacing:.9px;text-transform:uppercase}.dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 16px var(--green)}h2{margin:10px 0 9px;font-size:clamp(29px,4vw,46px);letter-spacing:-1px}.lead{margin:0;max-width:760px;color:#bdd7e4;line-height:1.6}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:22px}.metric{padding:14px;border-radius:17px;border:1px solid rgba(96,192,229,.15);background:rgba(3,21,31,.62)}.metric strong{display:block;font-size:22px;color:#fff}.metric span{display:block;color:var(--muted);font-size:11px;margin-top:3px}.daily{padding:22px;display:flex;flex-direction:column;justify-content:center}.daily-icon{width:54px;height:54px;border-radius:17px;display:grid;place-items:center;font-size:27px;background:rgba(14,220,166,.11);border:1px solid rgba(14,220,166,.25)}.daily h3{margin:14px 0 6px;font-size:21px}.daily p{margin:0 0 17px;color:var(--muted);line-height:1.5;font-size:13px}.btn{min-height:48px;border:0;border-radius:14px;padding:12px 16px;font:inherit;font-weight:950;cursor:pointer;text-decoration:none;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:8px}.btn-primary{color:#03171f;background:linear-gradient(135deg,#12e1ab,#1ca9ff);box-shadow:0 13px 28px rgba(15,198,190,.16)}.btn-secondary{color:#d9eff8;background:rgba(22,156,255,.09);border:1px solid rgba(22,156,255,.24)}.btn:disabled{opacity:.55;cursor:not-allowed}.section{padding:26px;margin-top:20px}.section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:18px}.section-head h3{margin:0;font-size:23px}.section-head p{margin:5px 0 0;color:var(--muted);font-size:13px;line-height:1.45}.pool{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.pill{padding:7px 10px;border-radius:999px;background:rgba(255,193,77,.09);border:1px solid rgba(255,193,77,.23);color:#ffd77f;font-size:11px;font-weight:900}.pill.green{background:rgba(14,220,166,.08);border-color:rgba(14,220,166,.22);color:#8bf4d4}.challenge-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr);gap:18px}.challenge{padding:22px;border-radius:20px;border:1px solid rgba(104,191,230,.17);background:rgba(3,21,31,.55)}.challenge-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.competition{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:#8edfff;font-weight:900}.challenge h4{font-size:22px;margin:6px 0 7px}.challenge p{color:#9fbfd0;font-size:13px;line-height:1.5;margin:0 0 16px}.factor{padding:9px 11px;border-radius:12px;background:rgba(14,220,166,.08);border:1px solid rgba(14,220,166,.19);color:#86f5d5;font-size:12px;font-weight:900;white-space:nowrap}.select{width:100%;min-height:50px;padding:0 13px;border-radius:14px;border:1px solid rgba(91,192,232,.26);background:#071f2c;color:#fff;font:inherit;font-size:14px;outline:none}.submit-row{display:flex;gap:10px;margin-top:12px}.submit-row .btn{flex:1}.status{margin-top:12px;padding:12px 13px;border-radius:14px;border:1px solid rgba(104,191,230,.14);background:rgba(3,18,27,.58);color:#9fc2d2;font-size:12px;line-height:1.45}.status.ok{border-color:rgba(14,220,166,.28);color:#9cf7dd;background:rgba(14,220,166,.07)}.status.error{border-color:rgba(255,107,122,.28);color:#ffc0c7;background:rgba(255,107,122,.07)}.timeline{padding:20px}.timeline h4{margin:0 0 13px;font-size:17px}.step{display:grid;grid-template-columns:74px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(104,191,230,.09)}.step:last-child{border-bottom:0}.step b{font-size:12px}.step span{color:var(--muted);font-size:11px}.step em{font-style:normal;color:#8bf4d4;font-size:12px;font-weight:900}.leaderboard{overflow:hidden}.table-wrap{overflow:auto;border-radius:17px;border:1px solid rgba(104,191,230,.12)}table{width:100%;border-collapse:collapse;min-width:680px;background:rgba(3,21,31,.46)}th,td{padding:12px 13px;border-bottom:1px solid rgba(104,191,230,.08);text-align:left;font-size:12px}th{color:#83bad1;background:rgba(12,49,67,.72);text-transform:uppercase;letter-spacing:.6px;font-size:10px}td strong{font-size:13px}.rank{font-size:16px;font-weight:950}.reward{color:#ffd77f;font-weight:900}.me{background:rgba(14,220,166,.07)}.empty{padding:28px;text-align:center;color:var(--muted);font-size:13px}.rules{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}.rule{padding:15px;border-radius:16px;border:1px solid rgba(104,191,230,.12);background:rgba(3,21,31,.50)}.rule b{display:block;margin-bottom:6px;font-size:13px}.rule span{color:var(--muted);font-size:11px;line-height:1.45}.footnote{margin-top:17px;color:#7099ad;font-size:11px;line-height:1.5}.preview{display:none;margin-bottom:15px;padding:10px 13px;border-radius:14px;border:1px solid rgba(255,193,77,.25);background:rgba(255,193,77,.08);color:#ffd783;font-size:12px;font-weight:850}.preview.show{display:block}.loading{opacity:.65}.toast{position:fixed;right:18px;bottom:18px;z-index:99;max-width:390px;padding:14px 16px;border-radius:15px;background:#0b3142;border:1px solid rgba(14,220,166,.28);box-shadow:0 18px 50px rgba(0,0,0,.35);color:#dffaf2;font-size:13px;transform:translateY(120px);opacity:0;transition:.25s}.toast.show{transform:translateY(0);opacity:1}.back{display:inline-flex;margin-top:20px;color:#8fc6dc;text-decoration:none;font-size:12px;font-weight:800}@media(max-width:900px){.hero,.challenge-grid{grid-template-columns:1fr}.rules{grid-template-columns:1fr 1fr}.pool{justify-content:flex-start}.section-head{flex-direction:column}}@media(max-width:620px){.page{padding:76px 12px 60px}.topbar{padding:15px;border-radius:19px}.brand img{width:74px}.brand h1{font-size:24px}.brand p{font-size:12px}.badge{display:none}.intro,.section{padding:18px}.metrics{grid-template-columns:1fr}.rules{grid-template-columns:1fr}.challenge-top{flex-direction:column}.submit-row{flex-direction:column}.step{grid-template-columns:64px 1fr auto}}
+  </style>
+</head>
+<body>
+<main class="page">
+  <div id="previewNotice" class="preview">Vorschau-Modus · Es werden keine echten Fan-Tipps gespeichert.</div>
+  <header class="topbar">
+    <div class="brand"><img src="../logo_betisight.club.png" alt="BetInsight"><div><h1>🎁 Free Units</h1><p>Belohnungen, Fan-Wissen und kostenlose Community-Challenges</p></div></div>
+    <div class="badge">KOSTENLOS</div>
+  </header>
+
+  <section class="hero">
+    <article class="card intro">
+      <div class="eyebrow"><span class="dot"></span>BetInsight Fans</div>
+      <h2>Dein Sportwissen zählt.</h2>
+      <p class="lead">Gib langfristige Saison-Prognosen ab, sammle Fan-Punkte und steige in der BetInsight Fan-Rangliste auf. Je früher du dich festlegst, desto wertvoller kann ein richtiger Tipp sein.</p>
+      <div class="metrics"><div class="metric"><strong>500</strong><span>Free Units im Saisonpool</span></div><div class="metric"><strong>Top 10</strong><span>erhalten 30 Tage Premium</span></div><div class="metric"><strong>#1</strong><span>erhält Premium Plus</span></div></div>
+    </article>
+    <aside class="card daily">
+      <div class="daily-icon">🎁</div><h3>Daily Bonus</h3><p>Dein bestehender Daily Claim bleibt unverändert. Hier gelangst du direkt zur bekannten täglichen Free-Unit-Funktion.</p><a class="btn btn-primary" href="../daily/">Daily Bonus öffnen</a>
+    </aside>
+  </section>
+
+  <section class="card section">
+    <div class="section-head"><div><h3>🏆 BetInsight Fan-Rangliste</h3><p>Kostenlose Saison-Challenges. Ein Tipp pro Frage – nach der Abgabe verbindlich.</p></div><div class="pool"><span class="pill">500 Units Pool</span><span class="pill green">Premium für Top 10</span></div></div>
+    <div id="challengeArea" class="challenge-grid loading"><div class="challenge"><div class="empty">Fan-Challenge wird geladen …</div></div><div class="card timeline"><div class="empty">Punktefaktor wird geladen …</div></div></div>
+  </section>
+
+  <section class="card section leaderboard">
+    <div class="section-head"><div><h3>Aktuelle Rangliste</h3><p>Bei Punktgleichheit entscheidet die frühere erfolgreiche Teilnahme.</p></div><div class="pool"><span class="pill">🥇 120 Units</span><span class="pill">🥈 90</span><span class="pill">🥉 70</span></div></div>
+    <div id="leaderboard"><div class="empty">Noch keine gewerteten Fan-Tipps.</div></div>
+    <div class="rules">
+      <div class="rule"><b>🆓 Kostenlos</b><span>Für die Teilnahme werden keine Units abgezogen.</span></div>
+      <div class="rule"><b>⏱ Früher = wertvoller</b><span>Der Punktefaktor sinkt im Laufe der Saison.</span></div>
+      <div class="rule"><b>🔒 Verbindlich</b><span>Pro Frage gilt eine abgegebene Auswahl. Kein Wechsel nach der Abgabe.</span></div>
+      <div class="rule"><b>🎁 Free Units</b><span>Gewonnene Pool-Units sind Bonus-/Geschenk-Units und nicht in der Wechselstube verkaufbar.</span></div>
+    </div>
+    <p class="footnote">Die Fan-Challenge ist ein kostenloses Community-Spiel ohne Einsatz und ohne Kaufpflicht. Ergebnisse werden nach dem offiziell feststehenden Wettbewerbsergebnis ausgewertet. Die Prämien der Top 10 werden nach Abschluss der Saison gemäß der veröffentlichten Rangliste vorgemerkt.</p>
+  </section>
+  <a class="back" href="../">← Zurück zum Profil</a>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+(() => {
+  'use strict';
+  const API = 'https://hook.eu1.make.com/hnt4mt6go4dew7evzvf57h8leb7gjgq1';
+  const params = new URLSearchParams(location.search);
+  const PREVIEW = params.get('preview') === '1';
+  const notice = document.getElementById('previewNotice');
+  const challengeArea = document.getElementById('challengeArea');
+  const leaderboardEl = document.getElementById('leaderboard');
+  const toastEl = document.getElementById('toast');
+  if (PREVIEW) notice.classList.add('show');
+
+  const previewData = {
+    status:'ok', user:{user_id:'PREVIEW',display_name:'BetInsight Fan'}, my_tips:[],
+    questions:[{frage_id:'BL1-MEISTER-2627',saison:'2026/27',sport:'Fußball',wettbewerb:'Bundesliga',titel:'Wer wird Deutscher Meister 2026/27?',beschreibung:'Gib deinen Saison-Tipp ab. Je früher du dich festlegst, desto höher ist dein Punktefaktor.',typ:'SINGLE',optionen:['FC Augsburg','1. FC Union Berlin','SV Werder Bremen','Borussia Dortmund','SV Elversberg','Eintracht Frankfurt','Sport-Club Freiburg','Hamburger SV','TSG Hoffenheim','1. FC Köln','RB Leipzig','Bayer 04 Leverkusen','1. FSV Mainz 05','Borussia Mönchengladbach','FC Bayern München','SC Paderborn 07','FC Schalke 04','VfB Stuttgart'],offen_ab:'2026-09-05T00:00:00+02:00',schliesst_am:'2027-01-31T23:59:59+01:00',status:'AKTIV',basis_punkte:100,faktor_1_bis:'2026-09-13T23:59:59+02:00',faktor_1:1.4,faktor_2_bis:'2026-10-31T23:59:59+01:00',faktor_2:1.25,faktor_3_bis:'2026-12-31T23:59:59+01:00',faktor_3:1.1,faktor_spaet:1}],
+    leaderboard:[{rang:1,user_id:'P1',name:'Fan Alex',punkte:280,richtige_tipps:2,tipps_gesamt:3,bonus_units:120,mitgliedschaft:'Premium Plus'},{rang:2,user_id:'P2',name:'Fan Mia',punkte:250,richtige_tipps:2,tipps_gesamt:3,bonus_units:90,mitgliedschaft:'Premium'},{rang:3,user_id:'P3',name:'Fan Luca',punkte:225,richtige_tipps:2,tipps_gesamt:4,bonus_units:70,mitgliedschaft:'Premium'}]
+  };
+
+  function token(){
+    if (PREVIEW) return 'PREVIEW';
+    try { return window.BetInsightSession?.getDashboardUuid?.() || window.BetInsightSession?.getProfileToken?.() || ''; } catch(e){ return ''; }
+  }
+  function toast(text){toastEl.textContent=text;toastEl.classList.add('show');setTimeout(()=>toastEl.classList.remove('show'),3200)}
+  function esc(v){return String(v??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]))}
+  function fmtDate(v){if(!v)return '–';const d=new Date(v);return isNaN(d)?esc(v):new Intl.DateTimeFormat('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}).format(d)}
+  function currentFactor(q){const n=Date.now();if(q.faktor_1_bis&&n<=new Date(q.faktor_1_bis).getTime())return q.faktor_1;if(q.faktor_2_bis&&n<=new Date(q.faktor_2_bis).getTime())return q.faktor_2;if(q.faktor_3_bis&&n<=new Date(q.faktor_3_bis).getTime())return q.faktor_3;return q.faktor_spaet||1}
+  function requestId(){return 'FAN-'+Date.now()+'-'+Math.random().toString(36).slice(2,10)}
+  async function api(payload){
+    const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),cache:'no-store'});
+    const text=await r.text(); let data; try{data=JSON.parse(text)}catch(e){throw new Error('Ungültige Serverantwort')}; return data;
+  }
+  async function load(){
+    if (PREVIEW) return render(previewData);
+    const t=token();
+    if(!t){ challengeArea.classList.remove('loading'); challengeArea.innerHTML='<div class="challenge"><div class="status error">Kein gültiger BetInsight-Zugang gefunden. Öffne diese Seite später über dein Profil.</div></div><div class="card timeline"><div class="empty">Anmeldung erforderlich.</div></div>'; return; }
+    try{const data=await api({action:'LOAD',token:t,request_id:requestId()}); if(data.status!=='ok')throw new Error(data.message||'Daten konnten nicht geladen werden'); render(data)}catch(e){challengeArea.classList.remove('loading');challengeArea.innerHTML='<div class="challenge"><div class="status error">'+esc(e.message)+'</div></div><div class="card timeline"><div class="empty">Bitte später erneut versuchen.</div></div>'}
+  }
+  function render(data){
+    challengeArea.classList.remove('loading');
+    const q=(data.questions||[]).find(x=>String(x.status).toUpperCase()==='AKTIV') || (data.questions||[])[0];
+    if(!q){challengeArea.innerHTML='<div class="challenge"><div class="empty">Aktuell ist keine Fan-Challenge geöffnet.</div></div><div class="card timeline"><div class="empty">Neue Saisonfragen folgen.</div></div>';renderLeaderboard(data);return}
+    const mine=(data.my_tips||[]).find(x=>x.frage_id===q.frage_id); const factor=currentFactor(q); const possible=Math.round(Number(q.basis_punkte||0)*Number(factor||1)*100)/100;
+    const options=(q.optionen||[]).map(o=>'<option value="'+esc(o)+'"'+(mine&&mine.auswahl===o?' selected':'')+'>'+esc(o)+'</option>').join('');
+    const locked=Boolean(mine);
+    challengeArea.innerHTML='<article class="challenge"><div class="challenge-top"><div><div class="competition">'+esc(q.wettbewerb)+' · '+esc(q.saison)+'</div><h4>'+esc(q.titel)+'</h4></div><div class="factor">Aktuell × '+Number(factor).toLocaleString('de-DE',{maximumFractionDigits:2})+'</div></div><p>'+esc(q.beschreibung)+'</p><select class="select" id="fanChoice" '+(locked?'disabled':'')+'><option value="">Bitte Verein auswählen</option>'+options+'</select><div class="submit-row"><button class="btn btn-primary" id="submitFan" '+(locked?'disabled':'')+'>'+(locked?'✓ Tipp gespeichert':'Tipp verbindlich abgeben')+'</button></div><div id="fanStatus" class="status '+(locked?'ok':'')+'">'+(locked?('Dein Tipp: <strong>'+esc(mine.auswahl)+'</strong> · Faktor × '+Number(mine.faktor||1).toLocaleString('de-DE')+' · bis zu '+Number(mine.moegliche_punkte||0).toLocaleString('de-DE')+' Punkte'):('Bei richtiger Prognose sind mit dem aktuellen Faktor bis zu <strong>'+possible.toLocaleString('de-DE')+' Punkte</strong> möglich.'))+'</div></article><aside class="card timeline"><h4>⏱ Punktefaktor</h4><div class="step"><b>bis '+fmtDate(q.faktor_1_bis)+'</b><span>sehr frühe Prognose</span><em>× '+Number(q.faktor_1).toLocaleString('de-DE')+'</em></div><div class="step"><b>bis '+fmtDate(q.faktor_2_bis)+'</b><span>frühe Saisonphase</span><em>× '+Number(q.faktor_2).toLocaleString('de-DE')+'</em></div><div class="step"><b>bis '+fmtDate(q.faktor_3_bis)+'</b><span>fortgeschrittene Saison</span><em>× '+Number(q.faktor_3).toLocaleString('de-DE')+'</em></div><div class="step"><b>danach</b><span>späte Prognose</span><em>× '+Number(q.faktor_spaet||1).toLocaleString('de-DE')+'</em></div><div class="status">Abgabeschluss: <strong>'+fmtDate(q.schliesst_am)+'</strong></div></aside>';
+    const btn=document.getElementById('submitFan'); if(btn&&!locked)btn.addEventListener('click',()=>submit(q,data)); renderLeaderboard(data);
+  }
+  function renderLeaderboard(data){const rows=data.leaderboard||[];if(!rows.length){leaderboardEl.innerHTML='<div class="empty">Noch keine gewerteten Fan-Tipps. Sobald Ergebnisse feststehen, entstehen automatisch Punkte und Platzierungen.</div>';return}const uid=String(data.user?.user_id||'');leaderboardEl.innerHTML='<div class="table-wrap"><table><thead><tr><th>Rang</th><th>Fan</th><th>Punkte</th><th>Richtige Tipps</th><th>Free Units</th><th>Bonus</th></tr></thead><tbody>'+rows.slice(0,10).map(r=>'<tr class="'+(String(r.user_id)===uid?'me':'')+'"><td class="rank">'+(r.rang===1?'🥇 ':r.rang===2?'🥈 ':r.rang===3?'🥉 ':'')+'#'+esc(r.rang)+'</td><td><strong>'+esc(r.name)+'</strong></td><td>'+Number(r.punkte||0).toLocaleString('de-DE')+'</td><td>'+Number(r.richtige_tipps||0).toLocaleString('de-DE')+'</td><td class="reward">'+Number(r.bonus_units||0).toLocaleString('de-DE')+'</td><td>'+esc(r.mitgliedschaft||'')+'</td></tr>').join('')+'</tbody></table></div>'}
+  async function submit(q,data){const select=document.getElementById('fanChoice'),status=document.getElementById('fanStatus'),btn=document.getElementById('submitFan'),choice=select.value;if(!choice){status.className='status error';status.textContent='Bitte zuerst einen Verein auswählen.';return}if(PREVIEW){status.className='status ok';status.innerHTML='Vorschau: Dein Tipp <strong>'+esc(choice)+'</strong> würde jetzt verbindlich gespeichert.';btn.disabled=true;btn.textContent='✓ Vorschau gespeichert';toast('Vorschau erfolgreich – keine echte Speicherung.');return}btn.disabled=true;btn.textContent='Wird gespeichert …';try{const result=await api({action:'SUBMIT',token:token(),frage_id:q.frage_id,auswahl:choice,request_id:requestId()});if(result.status!=='ok')throw new Error(result.message||'Tipp konnte nicht gespeichert werden');status.className='status ok';status.innerHTML='✓ '+esc(result.message)+' <strong>'+esc(result.auswahl)+'</strong> · Faktor × '+Number(result.faktor||1).toLocaleString('de-DE')+' · bis zu '+Number(result.moegliche_punkte||0).toLocaleString('de-DE')+' Punkte.';btn.textContent='✓ Tipp gespeichert';select.disabled=true;toast('Fan-Tipp gespeichert.');setTimeout(load,900)}catch(e){status.className='status error';status.textContent=e.message;btn.disabled=false;btn.textContent='Tipp verbindlich abgeben'}}
+  load();
+})();
+</script>
+</body>
+</html>
