@@ -1,4 +1,4 @@
-/* BetInsight Tipp-Benachrichtigungen · v1.4 · 2026-09-05
+/* BetInsight Tipp-Benachrichtigungen · v1.5 · 2026-09-05
    Sparmodus:
    - regelmäßige Prüfung: nur statische tip-status.json von GitHub Pages = 0 Make-Credits
    - USER.CC (letzter_tipp_gesehen) wird nur zur gerätebezogenen Initialisierung und beim Öffnen der Tippseite genutzt
@@ -158,6 +158,7 @@
     style.textContent = `
       .bi-tip-notification-target{position:relative!important}
       .bi-tip-unread-badge{position:absolute;top:-9px;right:-9px;min-width:24px;height:24px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center;border:2px solid #fff;border-radius:999px;background:#ff394d;color:#fff;font-size:12px;font-weight:900;line-height:1;box-shadow:0 5px 16px rgba(255,57,77,.45);z-index:8}
+      .bi-tip-menu-target{position:relative!important}.bi-tip-menu-badge{position:absolute;right:34px;top:50%;transform:translateY(-50%);min-width:22px;height:22px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.92);border-radius:999px;background:#ff394d;color:#fff;font-size:11px;font-weight:900;line-height:1;box-shadow:0 4px 14px rgba(255,57,77,.42);z-index:9;pointer-events:none}
       .bi-tip-toast{position:fixed;z-index:16000;right:18px;top:18px;width:min(360px,calc(100vw - 36px));padding:15px 17px;border:1px solid rgba(45,198,255,.40);border-radius:15px;background:linear-gradient(145deg,#0b4057,#061f2d);box-shadow:0 18px 48px rgba(0,0,0,.42);color:#fff;text-align:left}.bi-tip-toast strong{display:block;margin-bottom:5px;font-size:14px}.bi-tip-toast span{color:#bee5f5;font-size:12px;line-height:1.4}
       .bi-tip-popup-overlay{position:fixed;inset:0;z-index:16500;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(0,10,16,.72);backdrop-filter:blur(5px)}
       .bi-tip-popup{width:min(470px,100%);padding:24px;border:1px solid rgba(46,199,255,.43);border-radius:21px;background:linear-gradient(145deg,#0b4057,#061e2b 72%);box-shadow:0 28px 80px rgba(0,0,0,.55);text-align:left}.bi-tip-popup h3{margin:0 0 9px;color:#fff;font-size:22px}.bi-tip-popup p{margin:0;color:#c5e3f0;line-height:1.55;font-size:14px}
@@ -190,25 +191,21 @@
     if (!isDashboard()) return;
     ensureStyles();
     const count = unread();
-    const targets = tipTargets();
-    if (count <= 0) {
-      for (const target of targets) {
-        target.querySelectorAll(":scope > .bi-tip-unread-badge").forEach(badge => badge.remove());
-      }
-      return;
-    }
-    const label = count > 99 ? "99+" : String(count);
-    for (const target of targets) {
-      target.classList.add("bi-tip-notification-target");
-      let badge = target.querySelector(":scope > .bi-tip-unread-badge");
-      if (!badge) {
-        badge = document.createElement("span");
-        badge.className = "bi-tip-unread-badge";
-        badge.setAttribute("aria-label", "Neue ungesehene Tipps");
-        target.appendChild(badge);
-      }
-      if (badge.textContent !== label) badge.textContent = label;
-    }
+
+    // Alte Badge-Positionen (z. B. Dashboard-Button „Neue Tipps“) bewusst bereinigen.
+    document.querySelectorAll(".bi-tip-unread-badge,.bi-tip-menu-badge").forEach(badge => badge.remove());
+
+    // Final: genau eine rote Zahl am Hauptmenüpunkt „Tipps“.
+    const group = document.querySelector('.bi-nav-group[data-bi-nav-group="tips-group"]');
+    const target = group?.querySelector(':scope > .bi-nav-group-button') || null;
+    if (!target || count <= 0) return;
+
+    target.classList.add("bi-tip-menu-target");
+    const badge = document.createElement("span");
+    badge.className = "bi-tip-menu-badge";
+    badge.setAttribute("aria-label", "Neue ungesehene Tipps");
+    badge.textContent = count > 99 ? "99+" : String(count);
+    target.appendChild(badge);
   }
 
   function render() {
