@@ -1,4 +1,4 @@
-/* BetInsight Tipp-Benachrichtigungen · v1.2 · 2026-09-05
+/* BetInsight Tipp-Benachrichtigungen · v1.3 · 2026-09-05
    Sparmodus:
    - regelmäßige Prüfung: nur statische tip-status.json von GitHub Pages = 0 Make-Credits
    - USER.CC (letzter_tipp_gesehen) wird nur zur gerätebezogenen Initialisierung und beim Öffnen der Tippseite genutzt
@@ -55,8 +55,8 @@
     try { return clean(localStorage.getItem("betinsight_dashboard_token")); } catch (_) { return ""; }
   }
 
-  const seenKey = token => `betinsight_tip_seen_seq:${token}`;
-  const popupKey = token => `betinsight_tip_popup_seq:${token}`;
+  const seenKey = token => `betinsight_tip_seen_seq_v2:${token}`;
+  const popupKey = token => `betinsight_tip_popup_seq_v2:${token}`;
 
   function readLocalSeen(token) {
     try {
@@ -236,7 +236,7 @@
     }
     const server = await loadServerSeen(dashboardToken);
     if (server === null) {
-      seenSequence = currentStatus.sequence;
+      seenSequence = 0;
       writeLocalSeen(dashboardToken, seenSequence);
       saveServerSeen(seenSequence);
     } else {
