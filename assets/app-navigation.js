@@ -204,6 +204,7 @@
         await loadScript("dashboard-layout.js?v=20260902-2");
         await loadScript("account-history.js");
         await loadScript("i18n/dashboard-completion.js");
+        await loadScript("partner-invite-links.js?v=20260905-1");
       }
     } catch (error) {
       console.error("BetInsight multilingual navigation could not be loaded:", error);
