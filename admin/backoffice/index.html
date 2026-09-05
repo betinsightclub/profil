@@ -17,7 +17,7 @@
         const response = await fetch("./index-core-20260905.html?v=20260905-1", { cache: "no-store" });
         if (!response.ok) throw new Error("Backoffice-Kern konnte nicht geladen werden (HTTP " + response.status + ").");
         const coreHtml = await response.text();
-        const premiumScript = '<scr' + 'ipt src="./premium-eingaenge.js?v=20260905-1"></scr' + 'ipt>';
+        const premiumScript = '<scr' + 'ipt src="./premium-eingaenge.js?v=20260905-2"></scr' + 'ipt>';
         const marker = '<!-- PREMIUM-EINGAENGE-LIVE · Kernstand 2026-09-05 unverändert eingebunden -->';
         const composed = coreHtml.replace(/<\/body>/i, premiumScript + marker + "</body>");
         document.open();
