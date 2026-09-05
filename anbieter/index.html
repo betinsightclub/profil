@@ -29,7 +29,7 @@
         radial-gradient(circle at 88% 12%,rgba(33,208,122,.11),transparent 27%),
         linear-gradient(180deg,var(--deep) 0%,var(--bg) 48%,#002631 100%)
     }
-    button,select{font:inherit}
+    button,input,select{font:inherit}
     .page{width:min(1120px,calc(100% - 30px));margin:0 auto;padding:26px 0 90px}
     .topbar{display:flex;justify-content:center;align-items:center;min-height:88px;margin-bottom:18px}
     .logo-link{display:inline-flex;border-radius:16px}
@@ -54,6 +54,22 @@
     .country-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end}
     .field{display:grid;gap:7px}
     label{color:#dff7ff;font-size:.86rem;font-weight:850}
+    .country-tools{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:18px;margin-bottom:18px}
+    .country-search{
+      width:100%;min-height:52px;padding:0 15px;border:1px solid rgba(77,184,255,.32);border-radius:12px;
+      background:#062b3d;color:#fff;outline:none
+    }
+    .country-search::placeholder{color:#89a5b4}
+    .country-search:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(77,184,255,.12)}
+    .continent-label{margin-bottom:7px;color:#dff7ff;font-size:.86rem;font-weight:850}
+    .continent-filter{display:flex;flex-wrap:wrap;gap:8px}
+    .continent-button{
+      min-height:36px;padding:7px 11px;border:1px solid rgba(255,255,255,.12);border-radius:999px;
+      background:rgba(0,18,25,.34);color:#d8e9f1;font-size:.78rem;font-weight:850;cursor:pointer;transition:.16s
+    }
+    .continent-button:hover,.continent-button:focus-visible{border-color:rgba(77,184,255,.5);background:rgba(22,156,255,.10);outline:none}
+    .continent-button.active{border-color:rgba(33,208,122,.55);background:rgba(33,208,122,.13);color:#c8ffe4;box-shadow:0 0 0 2px rgba(33,208,122,.07)}
+    .country-search-hint{margin-top:8px;color:var(--muted);font-size:.76rem}
     select{
       width:100%;min-height:52px;padding:0 14px;border:1px solid rgba(77,184,255,.32);border-radius:12px;
       background:#062b3d;color:#fff;outline:none
@@ -105,7 +121,7 @@
     .legal h2{margin:0 0 8px;font-size:1.02rem}
     .legal p{margin:6px 0 0;color:var(--muted);font-size:.83rem}
     .footer{padding:27px 8px 0;color:#8fa5b0;font-size:.76rem;text-align:center}
-    @media(max-width:820px){.choices,.provider-grid{grid-template-columns:1fr}.country-row{grid-template-columns:1fr}.primary{width:100%}}
+    @media(max-width:820px){.choices,.provider-grid{grid-template-columns:1fr}.country-tools,.country-row{grid-template-columns:1fr}.primary{width:100%}}
     @media(max-width:650px){.page{width:min(100% - 18px,1120px);padding-top:78px;padding-bottom:100px}.hero{padding:34px 20px 30px}.selector{padding:20px 16px}.confirmed{align-items:flex-start;flex-direction:column}}
   </style>
 </head>
@@ -133,6 +149,26 @@
       </div>
 
       <div id="countryForm">
+        <div class="country-tools">
+          <div class="field">
+            <label id="countrySearchLabel" for="countrySearch">Land suchen</label>
+            <input id="countrySearch" class="country-search" type="search" autocomplete="off" spellcheck="false" placeholder="Deutschland, Brasilien, Italien …">
+          </div>
+          <div>
+            <div id="continentLabel" class="continent-label">Oder Kontinent auswählen</div>
+            <div class="continent-filter" id="continentFilter" role="group" aria-label="Kontinent auswählen">
+              <button class="continent-button active" type="button" data-continent="all" aria-pressed="true">🌍 Alle</button>
+              <button class="continent-button" type="button" data-continent="europe" aria-pressed="false">🇪🇺 Europa</button>
+              <button class="continent-button" type="button" data-continent="north-america" aria-pressed="false">🌎 Nordamerika</button>
+              <button class="continent-button" type="button" data-continent="south-america" aria-pressed="false">🌎 Südamerika</button>
+              <button class="continent-button" type="button" data-continent="asia" aria-pressed="false">🌏 Asien</button>
+              <button class="continent-button" type="button" data-continent="africa" aria-pressed="false">🌍 Afrika</button>
+              <button class="continent-button" type="button" data-continent="oceania" aria-pressed="false">🌊 Ozeanien</button>
+              <button class="continent-button" type="button" data-continent="other" aria-pressed="false">🧭 Weitere</button>
+            </div>
+            <div id="countrySearchHint" class="country-search-hint" aria-live="polite">Alle Länder werden angezeigt.</div>
+          </div>
+        </div>
         <div class="country-row">
           <div class="field">
             <label for="countrySelect" data-bi-i18n="providersPage.countryLabel">Land auswählen</label>
@@ -208,6 +244,12 @@
     const BATCH_MANIFEST_URL = '../assets/provider-whitelist-batches.json?v=20260831-1';
     const BI = window.BetInsightI18n;
     const t = (key, vars={}, fallback='') => BI?.t(key, vars, fallback) || fallback;
+    const countrySearch = document.getElementById('countrySearch');
+    const countrySearchLabel = document.getElementById('countrySearchLabel');
+    const continentLabel = document.getElementById('continentLabel');
+    const continentFilter = document.getElementById('continentFilter');
+    const countrySearchHint = document.getElementById('countrySearchHint');
+    const continentButtons = [...document.querySelectorAll('.continent-button')];
     const countrySelect = document.getElementById('countrySelect');
     const regionWrap = document.getElementById('regionWrap');
     const regionLabel = document.getElementById('regionLabel');
@@ -229,6 +271,26 @@
     let selectedCountry = '';
     let selectedRegion = '';
     let activeMode = '';
+    let activeContinent = 'all';
+
+    const CONTINENT_COUNTRIES = {
+      europe: new Set('AD AL AM AT AX AZ BA BE BG BY CH CY CZ DE DK EE ES FI FO FR GB GE GG GI GR HR HU IE IM IS IT JE LI LT LU LV MC MD ME MK MT NL NO PL PT RO RS RU SE SI SJ SK SM TR UA VA XK'.split(' ')),
+      'north-america': new Set('AG AI AW BB BL BM BQ BS BZ CA CR CU CW DM DO GD GL GP GT HN HT JM KN KY LC MF MQ MS MX NI PA PM PR SV SX TC TT US VC VG VI'.split(' ')),
+      'south-america': new Set('AR BO BR CL CO EC FK GF GS GY PE PY SR UY VE'.split(' ')),
+      asia: new Set('AE AF BD BH BN BT CN HK ID IL IN IO IQ IR JO JP KG KH KP KR KW KZ LA LB LK MM MN MO MV MY NP OM PH PK PS QA SA SG SY TH TJ TL TM TW UZ VN YE'.split(' ')),
+      africa: new Set('AO BF BI BJ BW CD CF CG CI CM CV DJ DZ EG EH ER ET GA GH GM GN GQ GW KE KM LR LS LY MA MG ML MR MU MW MZ NA NE NG RE RW SC SD SH SL SN SO SS ST SZ TD TG TN TZ UG YT ZA ZM ZW'.split(' ')),
+      oceania: new Set('AS AU CC CK CX FJ FM GU HM KI MH MP NC NF NR NU NZ PF PG PN PW SB TK TO TV UM VU WF WS'.split(' ')),
+      other: new Set('AQ BV TF'.split(' '))
+    };
+
+    const COUNTRY_TOOL_TEXT = {
+      de:{searchLabel:'Land suchen',searchPlaceholder:'Deutschland, Brasilien, Italien …',continentLabel:'Oder Kontinent auswählen',all:'Alle',europe:'Europa',northAmerica:'Nordamerika',southAmerica:'Südamerika',asia:'Asien',africa:'Afrika',oceania:'Ozeanien',other:'Weitere',allHint:'Alle Länder werden angezeigt.',matches:n=>`${n} ${n===1?'Land':'Länder'} passend zur Auswahl.`,none:'Kein Land passt zu deiner Suche.'},
+      en:{searchLabel:'Search country',searchPlaceholder:'Germany, Brazil, Italy …',continentLabel:'Or choose a continent',all:'All',europe:'Europe',northAmerica:'North America',southAmerica:'South America',asia:'Asia',africa:'Africa',oceania:'Oceania',other:'Other',allHint:'All countries are shown.',matches:n=>`${n} ${n===1?'country':'countries'} match your selection.`,none:'No country matches your search.'},
+      es:{searchLabel:'Buscar país',searchPlaceholder:'Alemania, Brasil, Italia …',continentLabel:'O elige un continente',all:'Todos',europe:'Europa',northAmerica:'Norteamérica',southAmerica:'Sudamérica',asia:'Asia',africa:'África',oceania:'Oceanía',other:'Otros',allHint:'Se muestran todos los países.',matches:n=>`${n} ${n===1?'país':'países'} coinciden con la selección.`,none:'Ningún país coincide con la búsqueda.'},
+      pt:{searchLabel:'Buscar país',searchPlaceholder:'Alemanha, Brasil, Itália …',continentLabel:'Ou escolha um continente',all:'Todos',europe:'Europa',northAmerica:'América do Norte',southAmerica:'América do Sul',asia:'Ásia',africa:'África',oceania:'Oceania',other:'Outros',allHint:'Todos os países são exibidos.',matches:n=>`${n} ${n===1?'país':'países'} correspondem à seleção.`,none:'Nenhum país corresponde à busca.'},
+      it:{searchLabel:'Cerca paese',searchPlaceholder:'Germania, Brasile, Italia …',continentLabel:'Oppure scegli un continente',all:'Tutti',europe:'Europa',northAmerica:'Nord America',southAmerica:'Sud America',asia:'Asia',africa:'Africa',oceania:'Oceania',other:'Altri',allHint:'Sono mostrati tutti i paesi.',matches:n=>`${n} ${n===1?'paese':'paesi'} corrispondono alla selezione.`,none:'Nessun paese corrisponde alla ricerca.'},
+      fr:{searchLabel:'Rechercher un pays',searchPlaceholder:'Allemagne, Brésil, Italie …',continentLabel:'Ou choisir un continent',all:'Tous',europe:'Europe',northAmerica:'Amérique du Nord',southAmerica:'Amérique du Sud',asia:'Asie',africa:'Afrique',oceania:'Océanie',other:'Autres',allHint:'Tous les pays sont affichés.',matches:n=>`${n} ${n===1?'pays':'pays'} correspondent à la sélection.`,none:'Aucun pays ne correspond à la recherche.'}
+    };
 
     function currentLang() { return BI?.getLanguage?.() || document.documentElement.lang || 'de'; }
     function displayNames() {
@@ -257,13 +319,49 @@
       if (countryCode === 'AT') return ['providersPage.federalStateLabel','providersPage.federalStatePlaceholder','Bundesland auswählen','Bitte Bundesland auswählen'];
       return ['providersPage.regionLabel','providersPage.regionPlaceholder','Region auswählen','Bitte Region auswählen'];
     }
+    function toolLanguage() {
+      const lang=String(currentLang()||'de').toLowerCase();
+      if (lang.startsWith('en')) return 'en';
+      if (lang.startsWith('es')) return 'es';
+      if (lang.startsWith('pt')) return 'pt';
+      if (lang.startsWith('it')) return 'it';
+      if (lang.startsWith('fr')) return 'fr';
+      return 'de';
+    }
+    function toolText() { return COUNTRY_TOOL_TEXT[toolLanguage()] || COUNTRY_TOOL_TEXT.de; }
+    function normalizeSearch(value) {
+      return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+    }
+    function countryMatchesContinent(code) {
+      return activeContinent==='all' || CONTINENT_COUNTRIES[activeContinent]?.has(code)===true;
+    }
+    function refreshCountryToolTexts() {
+      const copy=toolText();
+      countrySearchLabel.textContent=copy.searchLabel;
+      countrySearch.placeholder=copy.searchPlaceholder;
+      continentLabel.textContent=copy.continentLabel;
+      const labels={all:`🌍 ${copy.all}`,europe:`🇪🇺 ${copy.europe}`,'north-america':`🌎 ${copy.northAmerica}`,'south-america':`🌎 ${copy.southAmerica}`,asia:`🌏 ${copy.asia}`,africa:`🌍 ${copy.africa}`,oceania:`🌊 ${copy.oceania}`,other:`🧭 ${copy.other}`};
+      continentButtons.forEach(button=>{ button.textContent=labels[button.dataset.continent]||button.textContent; });
+    }
+    function updateCountrySearchHint(count) {
+      const copy=toolText();
+      const hasFilter=activeContinent!=='all' || normalizeSearch(countrySearch.value)!=='';
+      countrySearchHint.textContent=!count ? copy.none : (!hasFilter ? copy.allHint : copy.matches(count));
+    }
     function populateCountries(preserve='') {
       if (!config) return;
       const lang=currentLang();
-      const items=(config.country_codes||[]).map(code=>({code,name:countryName(code)})).sort((a,b)=>a.name.localeCompare(b.name,lang));
-      countrySelect.innerHTML=`<option value="">${escapeHtml(t('providersPage.countryPlaceholder',{},'Bitte Land auswählen'))}</option>`+
+      const query=normalizeSearch(countrySearch.value);
+      const items=(config.country_codes||[])
+        .map(code=>({code,name:countryName(code)}))
+        .filter(item=>countryMatchesContinent(item.code))
+        .filter(item=>!query || normalizeSearch(`${item.name} ${item.code}`).includes(query))
+        .sort((a,b)=>a.name.localeCompare(b.name,lang));
+      const placeholder=escapeHtml(t('providersPage.countryPlaceholder',{},'Bitte Land auswählen'));
+      countrySelect.innerHTML=`<option value="">${placeholder}</option>`+
         items.map(item=>`<option value="${escapeHtml(item.code)}">${flag(item.code)} ${escapeHtml(item.name)}</option>`).join('');
       if (preserve && items.some(item=>item.code===preserve)) countrySelect.value=preserve;
+      updateCountrySearchHint(items.length);
     }
     function populateRegions(countryCode, preserve='') {
       const regions=config?.regions?.[countryCode]||[];
@@ -347,6 +445,7 @@
       if (metaDescription) metaDescription.content=t('providersPage.metaDescription',{},'BetInsight Wettanbieter nach Land und Verfügbarkeit auswählen');
       const countryValue=countrySelect.value||selectedCountry;
       const regionValue=regionSelect.value||selectedRegion;
+      refreshCountryToolTexts();
       populateCountries(countryValue);
       populateRegions(countryValue,regionValue);
       updateConfirmState();
@@ -355,6 +454,27 @@
       if (!results.classList.contains('hidden') && activeMode) renderProviders(activeMode);
     }
 
+    countrySearch.addEventListener('input',()=>{
+      const preserve=countrySelect.value;
+      populateCountries(preserve);
+      if (!countrySelect.value) { populateRegions('',''); regionSelect.value=''; }
+      updateConfirmState();
+    });
+    continentFilter.addEventListener('click',event=>{
+      const button=event.target.closest('.continent-button');
+      if (!button) return;
+      activeContinent=button.dataset.continent||'all';
+      continentButtons.forEach(item=>{
+        const active=item===button;
+        item.classList.toggle('active',active);
+        item.setAttribute('aria-pressed',active?'true':'false');
+      });
+      const preserve=countrySelect.value;
+      const regionPreserve=regionSelect.value;
+      populateCountries(preserve);
+      populateRegions(countrySelect.value, countrySelect.value===preserve ? regionPreserve : '');
+      updateConfirmState();
+    });
     countrySelect.addEventListener('change',()=>{ populateRegions(countrySelect.value,''); regionSelect.value=''; updateConfirmState(); });
     regionSelect.addEventListener('change',updateConfirmState);
     confirmCountry.addEventListener('click',()=>{
@@ -366,7 +486,7 @@
     changeCountry.addEventListener('click',()=>{
       selectedCountry=''; selectedRegion=''; activeMode='';
       countryForm.classList.remove('hidden'); confirmedCountry.classList.add('hidden'); filterStep.classList.add('hidden'); results.classList.add('hidden');
-      countrySelect.value=''; populateRegions('',''); updateConfirmState(); countrySelect.focus();
+      countrySelect.value=''; populateRegions('',''); updateConfirmState(); countrySearch.focus();
     });
     document.querySelectorAll('.choice').forEach(button=>button.addEventListener('click',()=>{ renderProviders(button.dataset.mode); results.scrollIntoView({behavior:'smooth',block:'start'}); }));
     window.addEventListener('bi:languagechange',refreshLanguage);
@@ -405,7 +525,8 @@
       refreshLanguage();
     }).catch(error=>{
       console.error('BetInsight provider whitelist could not be loaded:',error);
-      countrySelect.innerHTML=`<option value="">${escapeHtml(t('providersPage.loadError',{},'Länderliste konnte nicht geladen werden'))}</option>`; confirmCountry.disabled=true;
+      countrySelect.innerHTML=`<option value="">${escapeHtml(t('providersPage.loadError',{},'Länderliste konnte nicht geladen werden'))}</option>`;
+      countrySearch.disabled=true; continentButtons.forEach(button=>button.disabled=true); countrySearchHint.textContent=t('providersPage.loadError',{},'Länderliste konnte nicht geladen werden'); confirmCountry.disabled=true;
     });
   })();
   </script>
