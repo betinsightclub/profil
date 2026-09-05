@@ -1,21 +1,8 @@
 name: BetInsight Tipp-Status aktualisieren
 
 on:
-  workflow_dispatch:
-    inputs:
-      tipp_id:
-        description: Tipp-ID
-        required: true
-        type: string
-      published_at:
-        description: Veröffentlichungszeitpunkt
-        required: true
-        type: string
-      dry_run:
-        description: Nur Verbindung testen
-        required: false
-        default: "false"
-        type: string
+  repository_dispatch:
+    types: [tip_published]
 
 permissions:
   contents: write
@@ -33,32 +20,76 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Verbindungstest
-        if: ${{ inputs.dry_run == 'true' }}
-        run: echo "GitHub-Workflow erreichbar"
-
-      - name: Tipp-Status erhöhen
-        if: ${{ inputs.dry_run != 'true' }}
+      - name: Tipp-Status aktualisieren
         env:
-          TIP_ID: ${{ inputs.tipp_id }}
-          PUBLISHED_AT: ${{ inputs.published_at }}
+          TIP_ID: ${{ github.event.client_payload.tipp_id }}
+          PUBLISHED_AT: ${{ github.event.client_payload.published_at }}
+          SPIEL_DATUM: ${{ github.event.client_payload.spiel_datum }}
+          ANPFIFF: ${{ github.event.client_payload.anpfiff }}
         run: |
           python - <<'PY'
           import json
           import os
+          from datetime import datetime
           from pathlib import Path
+          from zoneinfo import ZoneInfo
 
           path = Path("tip-status.json")
-          data = json.loads(path.read_text(encoding="utf-8"))
-          data["version"] = 1
-          data["sequence"] = int(data.get("sequence", 0)) + 1
-          data["latest_tip_id"] = os.environ.get("TIP_ID", "").strip()
-          data["published_at"] = os.environ.get("PUBLISHED_AT", "").strip()
+          if path.exists():
+              data = json.loads(path.read_text(encoding="utf-8"))
+          else:
+              data = {"version": 2, "sequence": 0, "tips": []}
+
+          tip_id = os.environ.get("TIP_ID", "").strip()
+          if not tip_id:
+              raise SystemExit("TIP_ID fehlt")
+
+          published_at = os.environ.get("PUBLISHED_AT", "").strip()
+          raw_date = os.environ.get("SPIEL_DATUM", "").strip()
+          raw_time = os.environ.get("ANPFIFF", "").strip()
+
+          def kickoff_iso(date_text, time_text):
+              if not date_text or not time_text:
+                  return ""
+              date_formats = ("%d.%m.%Y", "%Y-%m-%d", "%d.%m.%y")
+              time_formats = ("%H:%M", "%H:%M:%S")
+              for df in date_formats:
+                  for tf in time_formats:
+                      try:
+                          dt = datetime.strptime(f"{date_text} {time_text}", f"{df} {tf}")
+                          return dt.replace(tzinfo=ZoneInfo("Europe/Berlin")).isoformat()
+                      except ValueError:
+                          pass
+              return ""
+
+          kickoff_at = kickoff_iso(raw_date, raw_time)
+          data["version"] = 2
+          data.setdefault("feature_started_at", published_at)
+          tips = data.get("tips") if isinstance(data.get("tips"), list) else []
+
+          existing = next((item for item in tips if str(item.get("tipp_id", "")).strip() == tip_id), None)
+          if existing is None:
+              new_sequence = int(data.get("sequence", 0)) + 1
+              tips.append({
+                  "sequence": new_sequence,
+                  "tipp_id": tip_id,
+                  "kickoff_at": kickoff_at
+              })
+              data["sequence"] = new_sequence
+          else:
+              new_sequence = int(existing.get("sequence", data.get("sequence", 0)))
+              if kickoff_at:
+                  existing["kickoff_at"] = kickoff_at
+              data["sequence"] = max(int(data.get("sequence", 0)), new_sequence)
+
+          data["latest_tip_id"] = tip_id
+          data["published_at"] = published_at
+          data["tips"] = sorted(tips, key=lambda item: int(item.get("sequence", 0)))[-200:]
+
           path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
           PY
 
       - name: Änderung speichern
-        if: ${{ inputs.dry_run != 'true' }}
         run: |
           git config user.name "BetInsight Bot"
           git config user.email "betinsight.club@gmail.com"
@@ -66,5 +97,6 @@ jobs:
           if git diff --cached --quiet; then
             exit 0
           fi
-          git commit -m "Update Tipp-Status: ${{ inputs.tipp_id }}"
-          git push
+          git commit -m "Update Tipp-Status: ${{ github.event.client_payload.tipp_id }}"
+          git pull --rebase origin main
+          git push origin main
