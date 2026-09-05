@@ -306,6 +306,17 @@
     } catch (e) {}
   }
 
+  function loadTipNotifications() {
+    if (window.__betInsightTipNotificationLoaderInstalled) return;
+    window.__betInsightTipNotificationLoaderInstalled = true;
+    const script = document.createElement("script");
+    script.src = appPath("assets/tip-notifications.js") + "?v=20260905-1";
+    script.defer = true;
+    script.dataset.biTipNotifications = "1";
+    script.addEventListener("error", () => console.warn("BetInsight Tipp-Benachrichtigungen konnten nicht geladen werden."), { once: true });
+    document.head.appendChild(script);
+  }
+
   window.BetInsightSession = Object.freeze({
     dashboardStorageKey: DASHBOARD_STORAGE_KEY,
     profileStorageKey: PROFILE_STORAGE_KEY,
@@ -333,4 +344,5 @@
   installPremiumUpgradeRouting();
   installPremiumContextButtons();
   installDailyBundledTransport();
+  loadTipNotifications();
 })();
