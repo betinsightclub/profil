@@ -37,7 +37,10 @@
 
   const navigation = [
     {id:"dashboard",key:"nav.dashboard",fallback:"Dashboard",icon:icons.dashboard},
-    {id:"daily",key:"nav.daily",fallback:"Daily Bonus",icon:icons.daily},
+    {id:"free-units-group",key:"nav.freeUnits",fallback:"Free Units",icon:icons.daily,children:[
+      {id:"daily",key:"nav.daily",fallback:"Daily Bonus"},
+      {id:"fan-challenge",key:"nav.fanChallenge",fallback:"Fan Challenge"}
+    ]},
     {id:"tips-group",key:"nav.tips",fallback:"Tipps",icon:icons.tips,children:[
       {id:"tipps",key:"nav.newTips",fallback:"Neue Tipps"},
       {id:"freigeschaltet",key:"nav.unlockedTips",fallback:"Freigeschaltete Tipps"}
@@ -173,6 +176,7 @@
     switch (id) {
       case "dashboard": navigateProtected(""); break;
       case "daily": navigateProtected("daily"); break;
+      case "fan-challenge": navigateProtected("fan-challenge"); break;
       case "tipps": navigateAnyProtected("tipps"); break;
       case "freigeschaltet": navigateProtected("freigeschaltet"); break;
       case "kaufen": navigateProtected("pakete"); break;
@@ -218,11 +222,12 @@
     const second = parts[1] || "";
     if (first === "wechselboerse" && second === "angebote") return "angebote";
     if (first === "pakete") return "kaufen";
-    const known = ["daily","tipps","freigeschaltet","wechselboerse","verkaufen","meine-verkaufsangebote","wallet","anbieter","marketing-center","support"];
+    const known = ["daily","fan-challenge","tipps","freigeschaltet","wechselboerse","verkaufen","meine-verkaufsangebote","wallet","anbieter","marketing-center","support"];
     return known.includes(first) ? first : "dashboard";
   }
 
   function groupForRoute(id) {
+    if (["daily","fan-challenge"].includes(id)) return "free-units-group";
     if (["tipps","freigeschaltet"].includes(id)) return "tips-group";
     if (["wechselboerse","angebote","verkaufen","meine-verkaufsangebote"].includes(id)) return "exchange-group";
     if (["netzwerk","premium-provisionen","marketing-center"].includes(id)) return "network-group";
