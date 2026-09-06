@@ -56,9 +56,9 @@
     {id:"anbieter",key:"nav.providers",fallback:"Wettanbieter",icon:icons.providers},
     {id:"network-group",key:"nav.network",fallback:"Netzwerk & Provisionen",icon:icons.network,children:[
       {id:"netzwerk",key:"nav.unitCommissions",fallback:"Unit-Provisionen"},
-      {id:"premium-provisionen",key:"nav.premiumCommissions",fallback:"Premium-Provisionen"},
-      {id:"marketing-center",key:"nav.marketingCenter",fallback:"Marketing-Center"}
+      {id:"premium-provisionen",key:"nav.premiumCommissions",fallback:"Premium-Provisionen"}
     ]},
+    {id:"ressourcen",key:"nav.resources",fallback:"Academy & Ressourcen",fallbackEn:"Academy & Resources",icon:icons.membership},
     {id:"premium",key:"nav.membership",fallback:"Mitgliedschaft",icon:icons.membership},
     {id:"support",key:"nav.support",fallback:"Support",icon:icons.support}
   ];
@@ -188,6 +188,7 @@
       case "anbieter": session().navigateLocal("anbieter"); break;
       case "netzwerk": navigateProfileHash("netzwerk"); break;
       case "premium": navigateProfileHash("premium"); break;
+      case "ressourcen": navigateProtected("ressourcen"); break;
       case "marketing-center": navigateProtected("marketing-center"); break;
       case "support": navigateProtected("support"); break;
       case "premium-provisionen": {
@@ -222,7 +223,7 @@
     const second = parts[1] || "";
     if (first === "wechselboerse" && second === "angebote") return "angebote";
     if (first === "pakete") return "kaufen";
-    const known = ["daily","fan-challenge","tipps","freigeschaltet","wechselboerse","verkaufen","meine-verkaufsangebote","wallet","anbieter","marketing-center","support"];
+    const known = ["daily","fan-challenge","tipps","freigeschaltet","wechselboerse","verkaufen","meine-verkaufsangebote","wallet","anbieter","ressourcen","marketing-center","support"];
     return known.includes(first) ? first : "dashboard";
   }
 
@@ -230,7 +231,7 @@
     if (["daily","fan-challenge"].includes(id)) return "free-units-group";
     if (["tipps","freigeschaltet"].includes(id)) return "tips-group";
     if (["wechselboerse","angebote","verkaufen","meine-verkaufsangebote"].includes(id)) return "exchange-group";
-    if (["netzwerk","premium-provisionen","marketing-center"].includes(id)) return "network-group";
+    if (["netzwerk","premium-provisionen"].includes(id)) return "network-group";
     return "";
   }
 

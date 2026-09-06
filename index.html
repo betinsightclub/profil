@@ -122,7 +122,7 @@ Version: 2026.08.24-03
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BetInsight Profil & Empfehlungscenter</title>
 <link rel="stylesheet" href="assets/app-navigation.css">
-<script src="assets/app-navigation.js?v=20260830-7" defer></script>
+<script src="assets/app-navigation.js?v=20260906-resources-1" defer></script>
   <script src="assets/tip-notifications.js?v=20260905-4" defer></script>
 
 <style>
@@ -1096,8 +1096,8 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
         </button>
 
         <button class="footer-action footer-action-marketing" type="button" onclick="goMarketingCenter()">
-          <span class="footer-action-icon" aria-hidden="true">📣</span>
-          <span class="footer-action-label">Marketing-Center</span>
+          <span class="footer-action-icon" aria-hidden="true">🎓</span>
+          <span class="footer-action-label">Academy & Ressourcen</span>
         </button>
       </div>
       <div id="referralStatus" class="referral-status">Netzwerkdaten werden erst geladen, wenn du auf „Netzwerk laden“ klickst.</div>
@@ -1375,7 +1375,7 @@ function goBuyUnits(){const token=getActiveToken();if(token)location.href="https
 function goTipps(){const token=getActiveToken();if(token)location.href="https://betinsightclub.github.io/profil/tipps/?token="+encodeURIComponent(token)}
 function goFreigeschaltet(){const dashboardToken=getConfirmedDashboardToken();if(dashboardToken){location.href="https://betinsightclub.github.io/profil/freigeschaltet/?token="+encodeURIComponent(dashboardToken);return}const msg=document.getElementById("message");if(msg)msg.innerText="Freigeschaltete Tipps konnten noch nicht geöffnet werden, weil der persönliche Dashboard-Zugang fehlt."}
 function goUnitExchange(){const dashboardToken=getConfirmedDashboardToken();if(dashboardToken){location.href="https://betinsightclub.github.io/profil/wechselboerse/?token="+encodeURIComponent(dashboardToken);return}const msg=document.getElementById("message");if(msg)msg.innerText="Die Unit-Wechselstube konnte noch nicht geöffnet werden, weil der persönliche Dashboard-Zugang fehlt."}
-function goMarketingCenter(){const token=getActiveToken();const base="https://betinsightclub.github.io/profil/marketing-center/";location.href=token?base+"?token="+encodeURIComponent(token):base}
+function goMarketingCenter(){const token=getActiveToken();const base="https://betinsightclub.github.io/profil/ressourcen/";location.href=token?base+"?token="+encodeURIComponent(token):base}
 function goSupport(){const dashboardToken=getConfirmedDashboardToken();if(dashboardToken){location.href="https://betinsightclub.github.io/profil/support/?token="+encodeURIComponent(dashboardToken);return}const msg=document.getElementById("message");if(msg)msg.innerText="Der Support konnte noch nicht geöffnet werden, weil der persönliche Dashboard-Zugang fehlt."}
 
 function roundReferralUnits(value){return Math.round((safeNumber(value)+Number.EPSILON)*100)/100}
