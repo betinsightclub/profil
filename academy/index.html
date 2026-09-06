@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="theme-color" content="#06131d">
+  <title>BetInsight Academy | BetInsight Club</title>
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+  <link rel="stylesheet" href="../assets/app-navigation.css">
+  <script src="../assets/app-session.js"></script>
+  <script src="../assets/app-navigation-v2.js?v=20260906-resources-1" defer></script>
+  <style>
+    :root{--bg:#06131d;--panel:#0b2231;--panel2:#0f2d3e;--line:rgba(111,199,235,.18);--text:#f4fbff;--muted:#90adbd;--green:#19dfa8;--blue:#41abff;--gold:#ffc857;--shadow:0 22px 64px rgba(0,0,0,.31)}
+    *{box-sizing:border-box}html{color-scheme:dark}body{margin:0;min-height:100vh;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 8% 0%,rgba(65,171,255,.15),transparent 32rem),radial-gradient(circle at 92% 10%,rgba(25,223,168,.11),transparent 30rem),linear-gradient(180deg,#041019,var(--bg) 55%,#030b11)}a{color:inherit}.page{width:min(100% - 28px,1160px);margin:0 auto;padding:28px 0 58px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:34px}.logo{width:190px;max-width:54vw;height:auto}.back{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;text-decoration:none;background:rgba(10,33,48,.86);border:1px solid var(--line);border-radius:13px}.back:hover{border-color:rgba(65,171,255,.5)}.eyebrow{margin:0 0 11px;color:var(--blue);font-size:.78rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase}.hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(260px,.7fr);gap:28px;align-items:center;margin-bottom:34px;padding:30px;background:linear-gradient(145deg,rgba(13,42,58,.96),rgba(8,27,39,.96));border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}.hero h1{margin:0;font-size:clamp(2.3rem,7vw,4.4rem);line-height:.98;letter-spacing:-.055em}.hero p{max-width:720px;margin:17px 0 0;color:var(--muted);font-size:1.03rem;line-height:1.68}.academy-mark{display:grid;place-items:center;min-height:220px;font-size:5.8rem;background:radial-gradient(circle,rgba(65,171,255,.22),rgba(65,171,255,.02) 64%,transparent 65%);border-radius:24px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:18px;margin:36px 0 16px}.section-head h2{margin:0;font-size:clamp(1.45rem,4vw,2rem)}.section-head p{max-width:690px;margin:7px 0 0;color:var(--muted);line-height:1.55}.status{padding:7px 11px;color:#d8fff1;font-size:.76rem;font-weight:850;background:rgba(25,223,168,.1);border:1px solid rgba(25,223,168,.3);border-radius:999px}.guide-grid{display:grid;gap:16px}.guide{display:grid;grid-template-columns:190px minmax(0,1fr) auto;gap:22px;align-items:center;padding:20px;background:linear-gradient(150deg,rgba(15,45,62,.95),rgba(8,27,39,.98));border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.preview{display:block;overflow:hidden;border:1px solid rgba(65,171,255,.25);border-radius:16px;background:#061722}.preview img{display:block;width:100%;height:auto}.pdf-icon{display:grid;place-items:center;width:100%;min-height:135px;color:#081722;font-weight:950;background:linear-gradient(145deg,var(--blue),#a4d8ff);border-radius:16px}.copy h3{margin:0 0 8px;font-size:1.22rem}.copy p{margin:0;color:var(--muted);line-height:1.62}.actions{display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 15px;text-decoration:none;font-weight:900;border-radius:12px;border:1px solid rgba(255,255,255,.12);white-space:nowrap}.btn.primary{color:#051710;background:linear-gradient(135deg,var(--green),#78f3ca)}.btn.secondary{background:rgba(65,171,255,.12);border-color:rgba(65,171,255,.32)}.loading,.empty,.error{display:grid;place-items:center;min-height:150px;padding:26px;text-align:center;color:var(--muted);background:rgba(10,33,48,.68);border:1px solid var(--line);border-radius:20px}.note-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}.note{padding:18px;background:rgba(10,33,48,.72);border:1px solid var(--line);border-radius:18px}.note strong{display:block;margin-bottom:7px}.note p{margin:0;color:var(--muted);font-size:.9rem;line-height:1.55}.footer{margin-top:44px;padding-top:20px;color:#6f8c9c;font-size:.8rem;text-align:center;border-top:1px solid var(--line)}
+    @media(max-width:860px){.hero{grid-template-columns:1fr}.academy-mark{min-height:145px;font-size:4.5rem}.guide{grid-template-columns:150px 1fr}.actions{grid-column:1/-1;justify-content:flex-start}.note-grid{grid-template-columns:1fr}}
+    @media(max-width:620px){.page{width:min(100% - 20px,1160px);padding-top:18px}.topbar{align-items:flex-start}.logo{width:155px}.back{min-height:40px;padding:0 12px;font-size:.82rem}.hero{padding:22px}.guide{grid-template-columns:1fr}.preview{width:min(100%,280px);margin:0 auto}.actions{display:grid;grid-template-columns:1fr}.btn{width:100%}.section-head{display:block}.status{display:inline-block;margin-top:10px}}
+  </style>
+</head>
+<body>
+<main class="page">
+  <header class="topbar">
+    <img class="logo" src="../logo_betisight.club.png" alt="BetInsight Club">
+    <a class="back" href="../ressourcen/">← Academy & Ressourcen</a>
+  </header>
+
+  <section class="hero">
+    <div>
+      <p class="eyebrow">BetInsight Academy</p>
+      <h1>Lerne BetInsight Schritt für Schritt kennen.</h1>
+      <p>Kurze Anleitungen, verständliche PDFs und passende Videos helfen dir beim Einstieg. Neue Academy-Dokumente werden automatisch aus dem bestehenden BetInsight-Anleitungsordner ergänzt.</p>
+    </div>
+    <div class="academy-mark" aria-hidden="true">🎓</div>
+  </section>
+
+  <div class="section-head">
+    <div><h2>Academy-Inhalte</h2><p>Starte mit der Registrierung und öffne die Anleitung so, wie es für dich am besten passt: direkt als PDF, als Download oder – wenn vorhanden – als Video.</p></div>
+    <span class="status" id="guideStatus">Lädt …</span>
+  </div>
+
+  <div class="loading" id="loading">Academy-Inhalte werden geladen …</div>
+  <div class="error" id="error" hidden>Die Academy-Inhalte konnten gerade nicht automatisch geladen werden. Bitte die Seite später erneut öffnen.</div>
+  <div class="empty" id="empty" hidden>Noch keine Academy-PDF vorhanden.</div>
+  <div class="guide-grid" id="guideGrid" hidden></div>
+
+  <section class="note-grid" aria-label="Academy Hinweise">
+    <article class="note"><strong>📘 Verständlich aufgebaut</strong><p>Die Academy ist als Lernbereich gedacht – nicht als Vertriebsmaterial. Inhalte erklären Funktionen und Abläufe in klaren Schritten.</p></article>
+    <article class="note"><strong>🔄 Automatisch erweiterbar</strong><p>Weitere freigegebene PDF-Anleitungen im bestehenden Academy-Ordner erscheinen künftig automatisch auf dieser Seite.</p></article>
+    <article class="note"><strong>📥 Direkt verfügbar</strong><p>PDFs können angesehen oder gespeichert werden. Vorhandene Dateien wurden dafür nicht verschoben oder neu hochgeladen.</p></article>
+  </section>
+
+  <footer class="footer">© 2026 BetInsight Club · Academy</footer>
+</main>
+<script>
+(() => {
+  "use strict";
+  const API="https://api.github.com/repos/betinsightclub/profil/contents/marketing-center/downloads/anleitungen?ref=main";
+  const BASE="../marketing-center/downloads/anleitungen/";
+  const PREVIEW="../marketing-center/assets/academy/betinsight-academy-01-registrierung-vorschau.png";
+  const VIDEO="https://youtu.be/6rospCOUZRY";
+  const grid=document.getElementById("guideGrid"),loading=document.getElementById("loading"),error=document.getElementById("error"),empty=document.getElementById("empty"),status=document.getElementById("guideStatus");
+  const titleFrom=name=>/registrierung/i.test(name)?"Registrierung bei BetInsight – Schritt für Schritt":name.replace(/\.pdf$/i,"").replace(/[_-]+/g," ").replace(/\s+/g," ").trim();
+  const descFrom=name=>/registrierung/i.test(name)?"Die vorhandene BetInsight-Anleitung führt Schritt für Schritt durch die Registrierung.":"Freigegebene BetInsight Academy-Anleitung.";
+  const build=file=>{
+    const card=document.createElement("article");card.className="guide";
+    const url=BASE+encodeURIComponent(file.name);
+    const visual=document.createElement(/registrierung/i.test(file.name)?"a":"div");visual.className=/registrierung/i.test(file.name)?"preview":"pdf-icon";
+    if(visual.tagName==="A"){visual.href=url;visual.target="_blank";visual.rel="noopener";const img=document.createElement("img");img.src=PREVIEW;img.alt=titleFrom(file.name);visual.appendChild(img)}else visual.textContent="PDF";
+    const copy=document.createElement("div");copy.className="copy";copy.innerHTML=`<h3>${titleFrom(file.name)}</h3><p>${descFrom(file.name)}</p>`;
+    const actions=document.createElement("div");actions.className="actions";
+    if(/registrierung/i.test(file.name)){const v=document.createElement("a");v.className="btn secondary";v.href=VIDEO;v.target="_blank";v.rel="noopener noreferrer";v.textContent="▶ Video ansehen";actions.appendChild(v)}
+    const view=document.createElement("a");view.className="btn secondary";view.href=url;view.target="_blank";view.rel="noopener";view.textContent="PDF ansehen";
+    const download=document.createElement("a");download.className="btn primary";download.href=url;download.setAttribute("download",file.name);download.textContent="PDF herunterladen";actions.append(view,download);
+    card.append(visual,copy,actions);return card;
+  };
+  fetch(API,{headers:{Accept:"application/vnd.github+json"}}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(items=>{
+    const pdfs=items.filter(x=>x&&x.type==="file"&&/\.pdf$/i.test(x.name)).sort((a,b)=>a.name.localeCompare(b.name,"de"));loading.hidden=true;
+    if(!pdfs.length){empty.hidden=false;status.textContent="0 PDFs";return}
+    pdfs.forEach(f=>grid.appendChild(build(f)));grid.hidden=false;status.textContent=pdfs.length===1?"1 PDF verfügbar":`${pdfs.length} PDFs verfügbar`;
+  }).catch(()=>{loading.hidden=true;error.hidden=false;status.textContent="Nicht erreichbar"});
+})();
+</script>
+</body>
+</html>
