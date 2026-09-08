@@ -1,0 +1,271 @@
+/* BetInsight Dashboard Theme Layer v1.0 · 2026-09-08
+   UI only. Applies exclusively to the root member dashboard when html[data-bi-dashboard="1"] is set.
+   Business logic, tokens, balances, Make calls and routing are untouched.
+*/
+
+html[data-bi-dashboard="1"] body,
+html[data-bi-dashboard="1"] .dashboard-header,
+html[data-bi-dashboard="1"] .panel,
+html[data-bi-dashboard="1"] .account-stat,
+html[data-bi-dashboard="1"] .data-row,
+html[data-bi-dashboard="1"] .secure-access,
+html[data-bi-dashboard="1"] .referral-stat,
+html[data-bi-dashboard="1"] .referral-link-row,
+html[data-bi-dashboard="1"] .referral-linkbox,
+html[data-bi-dashboard="1"] .level-card,
+html[data-bi-dashboard="1"] .membership-card,
+html[data-bi-dashboard="1"] .premium-manager-dialog,
+html[data-bi-dashboard="1"] .membership-info-panel,
+html[data-bi-dashboard="1"] .referral-transfer-dialog {
+  transition: background .22s ease,border-color .22s ease,color .22s ease,box-shadow .22s ease;
+}
+
+/* BLUE remains the visual baseline. */
+html[data-bi-dashboard="1"][data-bi-theme="blue"] {
+  --bg1:#03131d;
+  --bg2:#062434;
+  --bg3:#020c13;
+  --panel:#07202e;
+  --panel2:#0a2a3a;
+  --border:rgba(104,191,230,.18);
+  --green:#0edca6;
+  --blue:#169cff;
+  --cyan:#18c9f3;
+  --muted:#83abc0;
+  --soft:#d7edf7;
+}
+
+/* GREEN — dark graphite/green, while semantic warning/error colors remain unchanged. */
+html[data-bi-dashboard="1"][data-bi-theme="green"] {
+  --bg1:#021713;
+  --bg2:#073229;
+  --bg3:#010d0b;
+  --panel:#082820;
+  --panel2:#0b352b;
+  --border:rgba(54,218,166,.20);
+  --green:#28e3ad;
+  --blue:#24d39d;
+  --cyan:#42e8bc;
+  --muted:#89b9ab;
+  --soft:#d9f8ee;
+}
+html[data-bi-dashboard="1"][data-bi-theme="green"] body {
+  background:
+    radial-gradient(circle at 14% 0%,rgba(40,227,173,.13),transparent 30%),
+    radial-gradient(circle at 88% 8%,rgba(23,169,125,.12),transparent 34%),
+    linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 48%,var(--bg3) 100%);
+}
+html[data-bi-dashboard="1"][data-bi-theme="green"] .dashboard-header {
+  border-color:rgba(55,222,171,.25);
+  background:linear-gradient(115deg,rgba(10,61,49,.98),rgba(3,31,25,.97));
+}
+html[data-bi-dashboard="1"][data-bi-theme="green"] .dashboard-header::after {background:rgba(35,211,157,.17)}
+html[data-bi-dashboard="1"][data-bi-theme="green"] .header-balance {
+  border-color:rgba(40,227,173,.30);
+  background:linear-gradient(145deg,rgba(4,27,22,.84),rgba(12,63,49,.76));
+}
+html[data-bi-dashboard="1"][data-bi-theme="green"] .panel {
+  border-color:rgba(58,209,164,.22);
+  background:linear-gradient(155deg,rgba(10,56,45,.98),rgba(3,31,27,.98));
+  box-shadow:0 22px 56px rgba(0,0,0,.30);
+}
+html[data-bi-dashboard="1"][data-bi-theme="green"] .panel::before {background:linear-gradient(180deg,#31e0ad,rgba(39,184,140,.24),transparent 88%)}
+html[data-bi-dashboard="1"][data-bi-theme="green"] .panel-title-accent {color:#4ae6b8}
+html[data-bi-dashboard="1"][data-bi-theme="green"] .data-row,
+html[data-bi-dashboard="1"][data-bi-theme="green"] .secure-access {
+  border-color:rgba(75,209,169,.13);
+  background:linear-gradient(145deg,rgba(0,0,0,.18),rgba(50,227,173,.025));
+}
+html[data-bi-dashboard="1"][data-bi-theme="green"] .masked-token,
+html[data-bi-dashboard="1"][data-bi-theme="green"] .referral-linkbox {background:rgba(0,20,15,.32)}
+html[data-bi-dashboard="1"][data-bi-theme="green"] .account-stat {
+  border-color:rgba(69,208,166,.15);
+  background:linear-gradient(145deg,rgba(3,32,25,.82),rgba(15,72,57,.58));
+}
+html[data-bi-dashboard="1"][data-bi-theme="green"] .account-stat-referral strong,
+html[data-bi-dashboard="1"][data-bi-theme="green"] .value-blue,
+html[data-bi-dashboard="1"][data-bi-theme="green"] .membership-value,
+html[data-bi-dashboard="1"][data-bi-theme="green"] .partner-id {color:#4de4b5}
+html[data-bi-dashboard="1"][data-bi-theme="green"] .referral-stat {
+  border-color:rgba(64,211,164,.16);
+  background:linear-gradient(145deg,rgba(3,35,28,.82),rgba(14,69,55,.62));
+}
+html[data-bi-dashboard="1"][data-bi-theme="green"] .referral-stat-label {color:#9ad6c4}
+html[data-bi-dashboard="1"][data-bi-theme="green"] .referral-link-row {
+  border-color:rgba(67,209,165,.16);
+  background:rgba(2,29,23,.48);
+}
+html[data-bi-dashboard="1"][data-bi-theme="green"] .level-card {
+  border-color:rgba(45,222,168,.24);
+  background:linear-gradient(145deg,rgba(3,37,29,.92),rgba(5,52,41,.80));
+}
+html[data-bi-dashboard="1"][data-bi-theme="green"] .level-number {
+  border-color:rgba(45,222,168,.34);
+  background:linear-gradient(145deg,rgba(45,222,168,.18),rgba(25,157,118,.10));
+}
+html[data-bi-dashboard="1"][data-bi-theme="green"] .network-table th {background:rgba(1,28,21,.78);color:#83cbb6}
+html[data-bi-dashboard="1"][data-bi-theme="green"] .membership-card.membership-premiumplus,
+html[data-bi-dashboard="1"][data-bi-theme="green"] .membership-card.membership-grace {
+  background:radial-gradient(circle at 100% 0%,rgba(255,171,46,.08),transparent 44%),linear-gradient(145deg,rgba(3,32,25,.82),rgba(15,72,57,.58));
+}
+html[data-bi-dashboard="1"][data-bi-theme="green"] .premium-manager-dialog,
+html[data-bi-dashboard="1"][data-bi-theme="green"] .referral-transfer-dialog {
+  border-color:rgba(55,218,170,.27);
+  background:linear-gradient(155deg,rgba(10,58,47,.995),rgba(3,30,25,.995));
+}
+html[data-bi-dashboard="1"][data-bi-theme="green"] .membership-info-panel {
+  border-color:rgba(59,211,166,.23);
+  background:radial-gradient(circle at 92% -10%,rgba(32,211,154,.14),transparent 34%),radial-gradient(circle at 4% 110%,rgba(77,228,181,.08),transparent 30%),linear-gradient(145deg,rgba(2,30,23,.99),rgba(8,58,45,.97));
+}
+html[data-bi-dashboard="1"][data-bi-theme="green"] .btn-blue,
+html[data-bi-dashboard="1"][data-bi-theme="green"] .network-refresh-button {background:linear-gradient(105deg,#087c61,#19c99a)}
+html[data-bi-dashboard="1"][data-bi-theme="green"] input {border-color:#28d6a4}
+
+/* LIGHT — complete readable dashboard, while preserving semantic action colors. */
+html[data-bi-dashboard="1"][data-bi-theme="light"] {
+  --bg1:#f5f9fb;
+  --bg2:#edf4f7;
+  --bg3:#e8f0f4;
+  --panel:#ffffff;
+  --panel2:#f6fafc;
+  --border:rgba(40,102,135,.16);
+  --green:#078b68;
+  --blue:#137fc3;
+  --cyan:#058ca8;
+  --muted:#617f90;
+  --soft:#284e62;
+}
+html[data-bi-dashboard="1"][data-bi-theme="light"] body {
+  color:#17384a;
+  background:
+    radial-gradient(circle at 14% 0%,rgba(18,157,118,.08),transparent 30%),
+    radial-gradient(circle at 88% 8%,rgba(22,142,218,.10),transparent 34%),
+    linear-gradient(180deg,#f8fbfd 0%,#eef5f8 48%,#e8f0f4 100%);
+}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .dashboard-header {
+  border-color:rgba(44,111,147,.18);
+  background:linear-gradient(115deg,rgba(255,255,255,.97),rgba(239,247,250,.98));
+  box-shadow:0 18px 45px rgba(37,75,95,.12);
+}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .dashboard-header::after {background:rgba(22,142,218,.10)}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .header-copy h1,
+html[data-bi-dashboard="1"][data-bi-theme="light"] .panel-title,
+html[data-bi-dashboard="1"][data-bi-theme="light"] .data-value,
+html[data-bi-dashboard="1"][data-bi-theme="light"] .network-level-line strong,
+html[data-bi-dashboard="1"][data-bi-theme="light"] .level-name,
+html[data-bi-dashboard="1"][data-bi-theme="light"] .level-metric-value,
+html[data-bi-dashboard="1"][data-bi-theme="light"] .premium-manager-dialog h3,
+html[data-bi-dashboard="1"][data-bi-theme="light"] .membership-info-head strong {color:#17384a}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .header-balance {
+  border-color:rgba(8,139,104,.22);
+  background:linear-gradient(145deg,#ffffff,#edf8f4);
+}
+html[data-bi-dashboard="1"][data-bi-theme="light"] #units {color:#078b68;text-shadow:none}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .panel {
+  border-color:rgba(42,105,138,.16);
+  background:linear-gradient(155deg,#ffffff,#f5fafc);
+  box-shadow:0 18px 46px rgba(37,75,95,.11);
+}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .panel::before {background:linear-gradient(180deg,#0aa079,#168bd0,transparent 88%)}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .panel-head {border-bottom-color:rgba(32,78,102,.09)}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .panel-title-accent {color:#087d65}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .privacy-toggle {
+  border-color:rgba(49,107,137,.16);
+  background:#edf4f7;
+  color:#264d61;
+}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .privacy-toggle.active {border-color:rgba(8,139,104,.28);background:rgba(8,139,104,.08);color:#08765b}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .data-row,
+html[data-bi-dashboard="1"][data-bi-theme="light"] .secure-access {
+  border-color:rgba(42,104,137,.12);
+  background:linear-gradient(145deg,#f8fbfc,#eef5f8);
+}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .masked-token,
+html[data-bi-dashboard="1"][data-bi-theme="light"] .referral-linkbox {
+  border-color:rgba(38,91,119,.10);
+  background:#eaf2f6;
+  color:#17384a;
+}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .account-stat {
+  border-color:rgba(41,101,132,.13);
+  background:linear-gradient(145deg,#ffffff,#edf5f8);
+}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .account-stat-referral {border-top-color:rgba(35,82,106,.10)}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .account-stat-referral strong,
+html[data-bi-dashboard="1"][data-bi-theme="light"] .value-blue,
+html[data-bi-dashboard="1"][data-bi-theme="light"] .membership-value,
+html[data-bi-dashboard="1"][data-bi-theme="light"] .partner-id {color:#137fc3}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .value-green {color:#078b68}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .value-cyan {color:#058ca8}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .value-orange {color:#b56700}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .security-box,
+html[data-bi-dashboard="1"][data-bi-theme="light"] .referral-footer-actions {border-top-color:rgba(32,78,102,.10)}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .referral-stat {
+  border-color:rgba(39,99,130,.13);
+  background:linear-gradient(145deg,#ffffff,#edf5f8);
+}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .referral-stat-label {color:#48758d}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .referral-link-row {
+  border-color:rgba(39,99,130,.12);
+  background:#f1f7f9;
+}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .structure-hint {border-color:rgba(8,139,104,.20);background:rgba(8,139,104,.07);color:#08765b}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .level-card {
+  border-color:rgba(8,139,104,.17);
+  background:linear-gradient(145deg,#ffffff,#edf7f4);
+}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .level-number {border-color:rgba(8,139,104,.25);background:linear-gradient(145deg,rgba(8,139,104,.10),rgba(19,127,195,.06));color:#078b68}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .level-metric {border-left-color:rgba(32,78,102,.10)}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .level-arrow {background:rgba(37,80,103,.07);color:#3c6275}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .level-body {border-top-color:rgba(32,78,102,.10)}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .network-table th,
+html[data-bi-dashboard="1"][data-bi-theme="light"] .network-table td {border-bottom-color:rgba(32,78,102,.09)}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .network-table th {background:#eaf2f6;color:#4c7488}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .network-table td {color:#27495a}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .membership-card.membership-premiumplus,
+html[data-bi-dashboard="1"][data-bi-theme="light"] .membership-card.membership-grace {background:radial-gradient(circle at 100% 0%,rgba(255,171,46,.08),transparent 44%),linear-gradient(145deg,#ffffff,#f7f2e8)}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .premium-progress {background:rgba(38,82,104,.10)}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .premium-runtime-content {border-color:rgba(41,101,132,.13)!important;background:#f1f7f9!important}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .membership-main {border-color:rgba(32,78,102,.10)!important}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .membership-info-button {border-color:rgba(42,101,132,.19);background:#edf4f7;color:#37657d}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .premium-manager-overlay {background:rgba(33,55,67,.42)}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .premium-manager-dialog,
+html[data-bi-dashboard="1"][data-bi-theme="light"] .referral-transfer-dialog {
+  border-color:rgba(42,105,138,.18);
+  background:linear-gradient(155deg,#ffffff,#f1f7f9);
+  box-shadow:0 24px 65px rgba(37,75,95,.20);
+  color:#17384a;
+}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .premium-manager-option {
+  border-color:rgba(39,99,130,.12);
+  background:#edf4f7;
+}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .premium-manager-close {background:rgba(39,86,110,.08);color:#274d61}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .membership-info-panel {
+  border-color:rgba(42,105,138,.16);
+  background:radial-gradient(circle at 92% -10%,rgba(22,142,218,.09),transparent 34%),radial-gradient(circle at 4% 110%,rgba(8,139,104,.05),transparent 30%),linear-gradient(145deg,#ffffff,#f1f7f9);
+  box-shadow:0 16px 38px rgba(37,75,95,.12);
+}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .membership-info-tier {border-color:rgba(37,91,119,.10);background:linear-gradient(155deg,#ffffff,#f3f7f9);color:#27495a}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .membership-info-head span,
+html[data-bi-dashboard="1"][data-bi-theme="light"] .membership-info-eyebrow,
+html[data-bi-dashboard="1"][data-bi-theme="light"] .membership-info-note,
+html[data-bi-dashboard="1"][data-bi-theme="light"] .telegram-live-message {color:#597b8d}
+html[data-bi-dashboard="1"][data-bi-theme="light"] input {background:#fff;color:#17384a;border-color:#137fc3}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .footer {color:rgba(30,69,89,.56)}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .private-row-hidden::after {background:#edf4f7;color:#17384a}
+html[data-bi-dashboard="1"][data-bi-theme="light"] .private-token-hidden::after,
+html[data-bi-dashboard="1"][data-bi-theme="light"] .private-value-hidden::after {color:#17384a}
+
+/* Keep primary action buttons readable in every theme. */
+html[data-bi-dashboard="1"] .btn-blue,
+html[data-bi-dashboard="1"] .btn-green,
+html[data-bi-dashboard="1"] .btn-orange,
+html[data-bi-dashboard="1"] .btn-red,
+html[data-bi-dashboard="1"] .btn-gray,
+html[data-bi-dashboard="1"] .support-button,
+html[data-bi-dashboard="1"] .footer-action,
+html[data-bi-dashboard="1"] .membership-upgrade-button,
+html[data-bi-dashboard="1"] .premium-manage-button,
+html[data-bi-dashboard="1"] .telegram-live-button,
+html[data-bi-dashboard="1"] .inline-copy-button {color:#fff}
