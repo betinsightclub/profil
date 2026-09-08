@@ -1,12 +1,16 @@
-/* BetInsight Theme Manager v1.1 · 2026-09-08
+/* BetInsight Theme Manager v1.2 · 2026-09-08
    UI-only theme layer. No business logic, tokens, payments or balances are changed.
    Choices: BetInsight Blue (default), BetInsight Green, Light, System.
+   v1.2: the root member dashboard also receives the full dashboard theme stylesheet.
 */
 (() => {
   "use strict";
 
   const STORAGE_KEY = "betinsight_theme";
   const THEMES = ["blue", "green", "light", "system"];
+  const SCRIPT_URL = document.currentScript?.src || new URL("assets/theme-manager.js", location.href).toString();
+  const ASSET_BASE = new URL("./", SCRIPT_URL);
+  const APP_ROOT = new URL("../", SCRIPT_URL);
   const LABELS = {
     de:{title:"Darstellung",blue:"BetInsight Blue",green:"BetInsight Green",light:"Hell",system:"System"},
     en:{title:"Appearance",blue:"BetInsight Blue",green:"BetInsight Green",light:"Light",system:"System"},
@@ -15,6 +19,23 @@
     it:{title:"Aspetto",blue:"BetInsight Blue",green:"BetInsight Green",light:"Chiaro",system:"Sistema"},
     fr:{title:"Apparence",blue:"BetInsight Blue",green:"BetInsight Green",light:"Clair",system:"Système"}
   };
+
+  function isRootDashboard() {
+    const current = location.pathname.replace(/\/+$/, "/");
+    const root = APP_ROOT.pathname.replace(/\/+$/, "/");
+    return current === root || current === `${root}index.html`;
+  }
+
+  function ensureDashboardThemeStyles() {
+    if (!isRootDashboard()) return;
+    document.documentElement.dataset.biDashboard = "1";
+    if (document.getElementById("bi-dashboard-theme-styles")) return;
+    const link = document.createElement("link");
+    link.id = "bi-dashboard-theme-styles";
+    link.rel = "stylesheet";
+    link.href = new URL("dashboard-theme.css?v=20260908-1", ASSET_BASE).toString();
+    document.head.appendChild(link);
+  }
 
   function lang() {
     const raw = String(window.BetInsightI18n?.getLanguage?.() || document.documentElement.lang || "de").toLowerCase();
@@ -135,6 +156,7 @@
   }
 
   ensureStyles();
+  ensureDashboardThemeStyles();
   applyTheme(preferredTheme(),false);
 
   if (window.matchMedia) {
