@@ -1,5 +1,6 @@
 /* BetInsight i18n core v2 · manifest-driven multilingual customer UI
-   Supports shared locales plus lazy page-specific locale scopes. */
+   Supports shared locales plus lazy page-specific locale scopes.
+   UI enhancement loader added 2026-09-08: theme + compact navigation only; business logic unchanged. */
 (() => {
   "use strict";
 
@@ -20,12 +21,58 @@
   let activeDictionary = {};
   let manifestPromise;
   let initPromise;
+  let uiEnhancementsPromise;
 
   const clean = value => String(value || "").trim().toLowerCase();
 
   function assetUrl(relative) {
     if (SCRIPT_URL) return new URL(relative, SCRIPT_URL).toString();
     return `/assets/i18n/${String(relative || "").replace(/^\.\//, "")}`;
+  }
+
+  function rootAssetUrl(relative) {
+    if (SCRIPT_URL) return new URL(`../${String(relative || "").replace(/^\.\//, "")}`, SCRIPT_URL).toString();
+    return `/assets/${String(relative || "").replace(/^\.\//, "")}`;
+  }
+
+  function loadUiScript(relative, globalName) {
+    if (globalName && window[globalName]) return Promise.resolve(window[globalName]);
+    const src = rootAssetUrl(relative);
+    const existing = [...document.scripts].find(script => script.src === src);
+    if (existing) {
+      return new Promise((resolve, reject) => {
+        const done = () => !globalName || window[globalName] ? resolve(globalName ? window[globalName] : true) : reject(new Error(`${globalName} missing`));
+        if (!globalName || window[globalName]) return done();
+        existing.addEventListener("load", done, {once:true});
+        existing.addEventListener("error", reject, {once:true});
+      });
+    }
+    return new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.defer = true;
+      script.dataset.biUiEnhancement = globalName || "1";
+      script.addEventListener("load", () => {
+        if (!globalName || window[globalName]) resolve(globalName ? window[globalName] : true);
+        else reject(new Error(`${globalName} missing`));
+      }, {once:true});
+      script.addEventListener("error", reject, {once:true});
+      document.head.appendChild(script);
+    });
+  }
+
+  function loadUiEnhancements() {
+    if (!uiEnhancementsPromise) {
+      uiEnhancementsPromise = (async () => {
+        await loadUiScript("theme-manager.js", "BetInsightTheme");
+        await loadUiScript("navigation-enhancements.js", "BetInsightNavigationEnhancements");
+        return true;
+      })().catch(error => {
+        console.error("BetInsight UI enhancements could not be loaded.", error);
+        return false;
+      });
+    }
+    return uiEnhancementsPromise;
   }
 
   async function loadManifest() {
@@ -267,13 +314,19 @@
 
   function init() {
     if (!initPromise) {
-      initPromise = (async () => { await loadManifest(); return setLanguage(preferredLanguage(), { persist: false }); })().catch(async () => {
+      initPromise = (async () => {
+        await loadManifest();
+        const language = await setLanguage(preferredLanguage(), { persist: false });
+        loadUiEnhancements();
+        return language;
+      })().catch(async () => {
         activeLanguage = defaultLanguage;
         activeDictionary = cloneDictionary(await loadDictionary(defaultLanguage));
         const scope = pageScope();
         if (scope) deepMerge(activeDictionary, await loadScopedDictionary(scope, defaultLanguage));
         document.documentElement.lang = defaultLanguage;
         apply(document);
+        loadUiEnhancements();
         return defaultLanguage;
       });
     }
