@@ -64,7 +64,7 @@
   function loadUiEnhancements() {
     if (!uiEnhancementsPromise) {
       uiEnhancementsPromise = (async () => {
-        await loadUiScript("theme-manager.js?v=20260908-3", "BetInsightTheme");
+        await loadUiScript("theme-manager.js?v=20260908-4", "BetInsightTheme");
         await loadUiScript("navigation-enhancements.js?v=20260908-2", "BetInsightNavigationEnhancements");
         return true;
       })().catch(error => {
