@@ -1,7 +1,8 @@
-/* BetInsight Bank-Flow UI v1.0 · 2026-09-01
+/* BetInsight Bank-Flow UI v1.1 · 2026-09-08
    UI-only enhancement for bank transfer confirmation and buyer purchase visibility.
    No Unit/account/Sheet mutations are implemented here except the explicit existing bank-report
    and seller-finalizer webhooks already protected server-side.
+   Bank-status refreshes are deliberately user-triggered to avoid repeated Make operations.
 */
 (() => {
   "use strict";
@@ -131,7 +132,7 @@
   function enhanceBuyerConfirmation() {
     document.addEventListener("click", e => {
       const button = e.target.closest?.("#bankPaidButton");
-      if (!button || button.disabled) return;
+      if (!button || button.disabled || button.dataset.mode === "status") return;
       e.preventDefault();
       e.stopPropagation();
       e.stopImmediatePropagation();
@@ -152,36 +153,14 @@
           progress.className = "bi-bank-progress show ok";
           progress.textContent = data.message || "Zahlung wurde gemeldet. Der Verkäufer prüft jetzt den Geldeingang.";
           const paidButton = document.getElementById("bankPaidButton");
-          if (paidButton) { paidButton.disabled = true; paidButton.textContent = "Zahlung gemeldet – Verkäufer prüft"; }
+          if (paidButton) { paidButton.dataset.mode = "status"; paidButton.disabled = false; paidButton.textContent = "Status aktualisieren"; }
           const timer = document.getElementById("bankTimer"); if (timer) timer.hidden = true;
           const result = document.getElementById("bankResult");
-          if (result) { result.textContent = "Zahlung gemeldet. Verkäufer prüft den tatsächlichen Geldeingang."; result.className = "result-box visible warn"; }
+          if (result) { result.textContent = "Zahlung gemeldet. Verkäufer prüft den tatsächlichen Geldeingang. Danach kannst du den Status gezielt aktualisieren."; result.className = "result-box visible warn"; }
           setTimeout(() => { const root=document.getElementById("biBankModal"); if(root){root.dataset.busy="0";root.classList.remove("is-open");} loadPurchases(true); }, 900);
-          startBuyerCompletionPoll(state);
         }
       });
     }, true);
-  }
-
-  let buyerPoll = null;
-  function startBuyerCompletionPoll(state) {
-    clearInterval(buyerPoll);
-    const check = async () => {
-      try {
-        const {status, message} = await postJson(BUYER_STATUS_ENDPOINT, {dashboard_token:state.token || token(), angebot_id:state.offerId});
-        if (status === "bank_completed") {
-          clearInterval(buyerPoll); buyerPoll = null;
-          localStorage.removeItem(STORAGE_KEY);
-          const paidButton = document.getElementById("bankPaidButton");
-          if (paidButton) { paidButton.disabled = true; paidButton.textContent = "Abgeschlossen – Units gutgeschrieben"; }
-          const result = document.getElementById("bankResult");
-          if (result) { result.textContent = message || "Verkäufer hat den Geldeingang bestätigt. Die Units wurden gutgeschrieben."; result.className = "result-box visible ok"; }
-          loadPurchases(true);
-        }
-      } catch (_) {}
-    };
-    check();
-    buyerPoll = setInterval(check, 10000);
   }
 
   function enhanceSellerConfirmation() {
@@ -219,7 +198,6 @@
 
   let purchases = [];
   let purchaseVisible = 3;
-  let purchaseRefreshTimer = null;
 
   function statusInfo(status) {
     const s = String(status || "").toUpperCase();
@@ -288,7 +266,7 @@
     more.hidden = shown.length >= purchases.length;
     const pending = purchases.some(row => isPending(row.status));
     state.className = "bi-purchases-state";
-    state.textContent = pending ? "Offener Vorgang erkannt – Status wird automatisch aktualisiert." : "Alle angezeigten Vorgänge sind abgeschlossen oder beendet.";
+    state.textContent = pending ? "Offener Vorgang erkannt – mit „Aktualisieren“ kannst du den Status gezielt prüfen." : "Alle angezeigten Vorgänge sind abgeschlossen oder beendet.";
   }
 
   async function loadPurchases(resetVisible = false) {
@@ -304,8 +282,6 @@
       purchases = Array.isArray(data) ? data : (Array.isArray(data?.purchases) ? data.purchases : []);
       if (resetVisible) purchaseVisible = 3;
       renderPurchases();
-      clearInterval(purchaseRefreshTimer);
-      if (purchases.some(row => isPending(row.status))) purchaseRefreshTimer = setInterval(() => loadPurchases(false), 12000);
     } catch (e) {
       console.error(e);
       if (state) {state.className = "bi-purchases-state error"; state.textContent = "Kaufstatus konnte gerade nicht geladen werden. Bitte erneut aktualisieren.";}
