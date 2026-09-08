@@ -1,0 +1,385 @@
+/* BetInsight Member Theme Layer v1.0 · 2026-09-08
+   UI only. Applies to approved member-facing pages via html[data-bi-member-page="1"].
+   No business logic, tokens, balances, payments, Make calls or routing are changed.
+*/
+
+html[data-bi-member-page="1"] body,
+html[data-bi-member-page="1"] .topbar,
+html[data-bi-member-page="1"] .hero,
+html[data-bi-member-page="1"] .card,
+html[data-bi-member-page="1"] .section-head,
+html[data-bi-member-page="1"] .tip-card,
+html[data-bi-member-page="1"] .result-card,
+html[data-bi-member-page="1"] .package-card,
+html[data-bi-member-page="1"] .selector,
+html[data-bi-member-page="1"] .offer-card,
+html[data-bi-member-page="1"] .balance-card,
+html[data-bi-member-page="1"] .saved,
+html[data-bi-member-page="1"] .thread,
+html[data-bi-member-page="1"] .modal,
+html[data-bi-member-page="1"] .guide,
+html[data-bi-member-page="1"] .choice,
+html[data-bi-member-page="1"] .presentation,
+html[data-bi-member-page="1"] .tools,
+html[data-bi-member-page="1"] .text-card,
+html[data-bi-member-page="1"] .video-card {
+  transition:background .22s ease,border-color .22s ease,color .22s ease,box-shadow .22s ease;
+}
+
+/* GREEN */
+html[data-bi-member-page="1"][data-bi-theme="green"]{
+  --bg:#061b16;--deep:#03120f;--bg1:#021713;--bg2:#073229;--bg3:#010d0b;
+  --panel:#0a2b23;--panel2:#0d392e;--surface:rgba(10,43,35,.96);--card:#0a2b23;
+  --text:#f3fff9;--t:#f3fff9;--soft:#d7f4eb;--muted:#8fb8aa;--m:#8fb8aa;
+  --line:rgba(54,211,164,.20);--l:rgba(54,211,164,.20);--border:rgba(54,211,164,.20);--border2:rgba(66,230,181,.36);
+  --accent:#28e3ad;--g:#28e3ad;--green:#28e3ad;--green2:#139d77;
+  --blue:#24c997;--blue2:#43dfb2;--b:#43dfb2;--cyan:#42e8bc;
+}
+html[data-bi-member-page="1"][data-bi-theme="green"] body{
+  background:radial-gradient(circle at 12% 0%,rgba(40,227,173,.13),transparent 31rem),radial-gradient(circle at 90% 10%,rgba(29,170,126,.10),transparent 30rem),linear-gradient(180deg,#031812,#082c24 52%,#02100d)!important;
+  color:var(--text)!important;
+}
+html[data-bi-member-page="1"][data-bi-theme="green"] .topbar,
+html[data-bi-member-page="1"][data-bi-theme="green"] .hero,
+html[data-bi-member-page="1"][data-bi-theme="green"] .card,
+html[data-bi-member-page="1"][data-bi-theme="green"] .section-head,
+html[data-bi-member-page="1"][data-bi-theme="green"] .selector,
+html[data-bi-member-page="1"][data-bi-theme="green"] .tip-card,
+html[data-bi-member-page="1"][data-bi-theme="green"] .result-card,
+html[data-bi-member-page="1"][data-bi-theme="green"] .package-card,
+html[data-bi-member-page="1"][data-bi-theme="green"] .offer-card,
+html[data-bi-member-page="1"][data-bi-theme="green"] .balance-card,
+html[data-bi-member-page="1"][data-bi-theme="green"] .saved,
+html[data-bi-member-page="1"][data-bi-theme="green"] .stat,
+html[data-bi-member-page="1"][data-bi-theme="green"] .thread,
+html[data-bi-member-page="1"][data-bi-theme="green"] .access,
+html[data-bi-member-page="1"][data-bi-theme="green"] .modal,
+html[data-bi-member-page="1"][data-bi-theme="green"] .guide,
+html[data-bi-member-page="1"][data-bi-theme="green"] .choice,
+html[data-bi-member-page="1"][data-bi-theme="green"] .presentation,
+html[data-bi-member-page="1"][data-bi-theme="green"] .tools,
+html[data-bi-member-page="1"][data-bi-theme="green"] .text-card,
+html[data-bi-member-page="1"][data-bi-theme="green"] .video-card,
+html[data-bi-member-page="1"][data-bi-theme="green"] .future-card,
+html[data-bi-member-page="1"][data-bi-theme="green"] .info-card{
+  border-color:rgba(54,211,164,.20)!important;
+}
+
+/* DAILY / FREE UNITS / FAN CHALLENGE */
+html[data-bi-page="daily"][data-bi-theme="green"] .topbar,
+html[data-bi-page="fan-challenge"][data-bi-theme="green"] .topbar,
+html[data-bi-page="free-units"][data-bi-theme="green"] .topbar{background:linear-gradient(115deg,rgba(10,61,49,.98),rgba(3,31,25,.97))!important}
+html[data-bi-page="daily"][data-bi-theme="green"] .card,
+html[data-bi-page="fan-challenge"][data-bi-theme="green"] .card,
+html[data-bi-page="free-units"][data-bi-theme="green"] .card{background:linear-gradient(180deg,rgba(10,55,44,.97),rgba(3,31,26,.98))!important}
+html[data-bi-page="daily"][data-bi-theme="green"] .rollerbox,
+html[data-bi-page="daily"][data-bi-theme="green"] .digit,
+html[data-bi-page="daily"][data-bi-theme="green"] .day,
+html[data-bi-page="daily"][data-bi-theme="green"] .rule,
+html[data-bi-page="daily"][data-bi-theme="green"] .history-item,
+html[data-bi-page="fan-challenge"][data-bi-theme="green"] .metric,
+html[data-bi-page="fan-challenge"][data-bi-theme="green"] .qcard,
+html[data-bi-page="fan-challenge"][data-bi-theme="green"] .challenge,
+html[data-bi-page="fan-challenge"][data-bi-theme="green"] .identity,
+html[data-bi-page="fan-challenge"][data-bi-theme="green"] .mytip,
+html[data-bi-page="fan-challenge"][data-bi-theme="green"] .trend-card,
+html[data-bi-page="fan-challenge"][data-bi-theme="green"] .rule,
+html[data-bi-page="free-units"][data-bi-theme="green"] .metric,
+html[data-bi-page="free-units"][data-bi-theme="green"] .challenge,
+html[data-bi-page="free-units"][data-bi-theme="green"] .rule{background:rgba(2,34,27,.58)!important;border-color:rgba(54,211,164,.18)!important}
+html[data-bi-page="daily"][data-bi-theme="green"] .digit{background:linear-gradient(180deg,#104b3d,#092f27 52%,#041d18)!important}
+html[data-bi-page="fan-challenge"][data-bi-theme="green"] .select,
+html[data-bi-page="free-units"][data-bi-theme="green"] .select{background:#082d25!important;border-color:rgba(54,211,164,.28)!important;color:#fff!important}
+html[data-bi-page="fan-challenge"][data-bi-theme="green"] table,
+html[data-bi-page="free-units"][data-bi-theme="green"] table{background:rgba(3,35,28,.52)!important}
+html[data-bi-page="fan-challenge"][data-bi-theme="green"] th,
+html[data-bi-page="free-units"][data-bi-theme="green"] th{background:rgba(9,64,50,.78)!important;color:#9bd8c5!important}
+
+/* TIPS */
+html[data-bi-page="tipps"][data-bi-theme="green"] .hero,
+html[data-bi-page="tipps"][data-bi-theme="green"] .section-head,
+html[data-bi-page="tipps"][data-bi-theme="green"] .tip-card,
+html[data-bi-page="tipps"][data-bi-theme="green"] .result-card,
+html[data-bi-page="freigeschaltet"][data-bi-theme="green"] .tip-card{background:linear-gradient(180deg,rgba(12,67,53,.97),rgba(4,39,32,.98))!important;border-color:rgba(54,211,164,.34)!important}
+html[data-bi-page="tipps"][data-bi-theme="green"] .preview-list,
+html[data-bi-page="tipps"][data-bi-theme="green"] .price,
+html[data-bi-page="tipps"][data-bi-theme="green"] .unlock-box,
+html[data-bi-page="tipps"][data-bi-theme="green"] .provider-panel,
+html[data-bi-page="freigeschaltet"][data-bi-theme="green"] .provider-panel,
+html[data-bi-page="freigeschaltet"][data-bi-theme="green"] .result-panel{background:rgba(2,35,28,.54)!important;border-color:rgba(54,211,164,.22)!important}
+html[data-bi-page="tipps"][data-bi-theme="green"] .upgrade-modal,
+html[data-bi-page="freigeschaltet"][data-bi-theme="green"] .upgrade-modal{background:linear-gradient(155deg,#0b493b,#06271f 70%)!important;border-color:rgba(54,211,164,.34)!important}
+
+/* PACKAGES / BUY */
+html[data-bi-page="pakete"][data-bi-theme="green"] .hero,
+html[data-bi-page="pakete"][data-bi-theme="green"] .package-card,
+html[data-bi-page="pakete"][data-bi-theme="green"] .trust-panel,
+html[data-bi-page="kaufen"][data-bi-theme="green"] .card{background:linear-gradient(155deg,rgba(10,58,47,.97),rgba(3,31,26,.98))!important;border-color:rgba(54,211,164,.22)!important}
+html[data-bi-page="pakete"][data-bi-theme="green"] .step{background:rgba(3,39,31,.72)!important;border-color:rgba(54,211,164,.16)!important}
+html[data-bi-page="pakete"][data-bi-theme="green"] .addon{background:linear-gradient(135deg,rgba(40,227,173,.13),rgba(2,38,30,.68))!important}
+
+/* EXCHANGE / WALLET / SELL */
+html[data-bi-page="wechselboerse"][data-bi-theme="green"] .topbar,
+html[data-bi-page="angebote"][data-bi-theme="green"] .topbar{background:rgba(5,45,35,.92)!important}
+html[data-bi-page="wechselboerse"][data-bi-theme="green"] .hero,
+html[data-bi-page="angebote"][data-bi-theme="green"] .hero,
+html[data-bi-page="angebote"][data-bi-theme="green"] .market-toolbar,
+html[data-bi-page="angebote"][data-bi-theme="green"] .offer-card,
+html[data-bi-page="angebote"][data-bi-theme="green"] .state-panel,
+html[data-bi-page="angebote"][data-bi-theme="green"] .purchase-panel,
+html[data-bi-page="wallet"][data-bi-theme="green"] .card,
+html[data-bi-page="wallet"][data-bi-theme="green"] .saved,
+html[data-bi-page="verkaufen"][data-bi-theme="green"] .card,
+html[data-bi-page="verkaufen"][data-bi-theme="green"] .balance-card,
+html[data-bi-page="meine-verkaufsangebote"][data-bi-theme="green"] .card{background:linear-gradient(155deg,rgba(10,52,42,.96),rgba(4,29,24,.98))!important;border-color:rgba(54,211,164,.20)!important}
+html[data-bi-page="wechselboerse"][data-bi-theme="green"] .wallet-section,
+html[data-bi-page="wallet"][data-bi-theme="green"] .saved-item,
+html[data-bi-page="wallet"][data-bi-theme="green"] .check,
+html[data-bi-page="verkaufen"][data-bi-theme="green"] .payment-option,
+html[data-bi-page="verkaufen"][data-bi-theme="green"] .summary,
+html[data-bi-page="verkaufen"][data-bi-theme="green"] .my-offer,
+html[data-bi-page="verkaufen"][data-bi-theme="green"] .bank-sale-item,
+html[data-bi-page="meine-verkaufsangebote"][data-bi-theme="green"] .offer,
+html[data-bi-page="meine-verkaufsangebote"][data-bi-theme="green"] .bank-payment{background:rgba(2,31,25,.52)!important;border-color:rgba(54,211,164,.17)!important}
+html[data-bi-page="wallet"][data-bi-theme="green"] select,
+html[data-bi-page="wallet"][data-bi-theme="green"] input[type="text"],
+html[data-bi-page="verkaufen"][data-bi-theme="green"] select,
+html[data-bi-page="meine-verkaufsangebote"][data-bi-theme="green"] .price-select,
+html[data-bi-page="angebote"][data-bi-theme="green"] select,
+html[data-bi-page="angebote"][data-bi-theme="green"] .txid-input{background:#082820!important;color:#f2fff9!important;border-color:rgba(54,211,164,.25)!important}
+
+/* PROVIDERS */
+html[data-bi-page="anbieter"][data-bi-theme="green"] .hero,
+html[data-bi-page="anbieter"][data-bi-theme="green"] .selector,
+html[data-bi-page="anbieter"][data-bi-theme="green"] .provider-card,
+html[data-bi-page="anbieter"][data-bi-theme="green"] .legal{background:linear-gradient(180deg,rgba(10,58,47,.96),rgba(4,34,28,.98))!important;border-color:rgba(54,211,164,.20)!important}
+html[data-bi-page="anbieter"][data-bi-theme="green"] .country-search,
+html[data-bi-page="anbieter"][data-bi-theme="green"] select{background:#082d25!important;color:#fff!important;border-color:rgba(54,211,164,.26)!important}
+html[data-bi-page="anbieter"][data-bi-theme="green"] .choice,
+html[data-bi-page="anbieter"][data-bi-theme="green"] .continent-button{background:rgba(2,31,25,.42)!important}
+
+/* RESOURCES / ACADEMY / MARKETING */
+html[data-bi-page="ressourcen"][data-bi-theme="green"] .choice,
+html[data-bi-page="academy"][data-bi-theme="green"] .hero,
+html[data-bi-page="academy"][data-bi-theme="green"] .guide,
+html[data-bi-page="academy"][data-bi-theme="green"] .note,
+html[data-bi-page="werbematerial"][data-bi-theme="green"] .quick a,
+html[data-bi-page="werbematerial"][data-bi-theme="green"] .presentation,
+html[data-bi-page="werbematerial"][data-bi-theme="green"] .tools,
+html[data-bi-page="werbematerial"][data-bi-theme="green"] .video-card,
+html[data-bi-page="werbematerial"][data-bi-theme="green"] .text-card,
+html[data-bi-page="werbematerial"][data-bi-theme="green"] .rules,
+html[data-bi-page="marketing-center"][data-bi-theme="green"] .quick-nav a,
+html[data-bi-page="marketing-center"][data-bi-theme="green"] .loading-box,
+html[data-bi-page="marketing-center"][data-bi-theme="green"] .error-box,
+html[data-bi-page="marketing-center"][data-bi-theme="green"] .empty-box,
+html[data-bi-page="marketing-center"][data-bi-theme="green"] .text-card,
+html[data-bi-page="marketing-center"][data-bi-theme="green"] .future-card,
+html[data-bi-page="marketing-center"][data-bi-theme="green"] .info-card,
+html[data-bi-page="marketing-center"][data-bi-theme="green"] .presentation-card{background:linear-gradient(155deg,rgba(10,55,44,.96),rgba(4,30,25,.98))!important;border-color:rgba(54,211,164,.19)!important}
+
+/* SUPPORT / ACCOUNT / PREMIUM UPGRADE */
+html[data-bi-page="support"][data-bi-theme="green"] .security,
+html[data-bi-page="support"][data-bi-theme="green"] .stat,
+html[data-bi-page="support"][data-bi-theme="green"] .card,
+html[data-bi-page="support"][data-bi-theme="green"] .thread,
+html[data-bi-page="support"][data-bi-theme="green"] .modal,
+html[data-bi-page="konto"][data-bi-theme="green"] .card,
+html[data-bi-page="konto"][data-bi-theme="green"] .email-login,
+html[data-bi-page="konto"][data-bi-theme="green"] .registration,
+html[data-bi-page="premium-upgrade"][data-bi-theme="green"] .hero,
+html[data-bi-page="premium-upgrade"][data-bi-theme="green"] .card{background:linear-gradient(155deg,rgba(10,55,44,.96),rgba(4,30,25,.98))!important;border-color:rgba(54,211,164,.20)!important}
+html[data-bi-page="support"][data-bi-theme="green"] .ticket,
+html[data-bi-page="support"][data-bi-theme="green"] textarea,
+html[data-bi-page="support"][data-bi-theme="green"] input,
+html[data-bi-page="support"][data-bi-theme="green"] select,
+html[data-bi-page="konto"][data-bi-theme="green"] .status,
+html[data-bi-page="premium-upgrade"][data-bi-theme="green"] .email-field,
+html[data-bi-page="premium-upgrade"][data-bi-theme="green"] select,
+html[data-bi-page="premium-upgrade"][data-bi-theme="green"] .slot{background:#082820!important;color:#f3fff9!important;border-color:rgba(54,211,164,.20)!important}
+
+/* LIGHT */
+html[data-bi-member-page="1"][data-bi-theme="light"]{
+  --bg:#eef5f8;--deep:#f8fbfd;--bg1:#f8fbfd;--bg2:#eef5f8;--bg3:#e8f0f4;
+  --panel:#ffffff;--panel2:#f4f9fb;--surface:#ffffff;--card:#ffffff;
+  --text:#17384a;--t:#17384a;--soft:#31566a;--muted:#617f90;--m:#617f90;
+  --line:rgba(40,102,135,.16);--l:rgba(40,102,135,.16);--border:rgba(40,102,135,.16);--border2:rgba(19,127,195,.26);
+  --accent:#078b68;--g:#078b68;--green:#078b68;--green2:#0b765c;
+  --blue:#137fc3;--blue2:#2f96d2;--b:#137fc3;--cyan:#058ca8;
+}
+html[data-bi-member-page="1"][data-bi-theme="light"] body{
+  background:radial-gradient(circle at 12% 0%,rgba(8,139,104,.07),transparent 30rem),radial-gradient(circle at 90% 10%,rgba(19,127,195,.09),transparent 30rem),linear-gradient(180deg,#f8fbfd,#eef5f8 52%,#e7eff3)!important;
+  color:#17384a!important;
+}
+html[data-bi-member-page="1"][data-bi-theme="light"] h1,
+html[data-bi-member-page="1"][data-bi-theme="light"] h2,
+html[data-bi-member-page="1"][data-bi-theme="light"] h3,
+html[data-bi-member-page="1"][data-bi-theme="light"] h4,
+html[data-bi-member-page="1"][data-bi-theme="light"] label,
+html[data-bi-member-page="1"][data-bi-theme="light"] legend{color:#17384a}
+html[data-bi-member-page="1"][data-bi-theme="light"] .topbar,
+html[data-bi-member-page="1"][data-bi-theme="light"] .hero,
+html[data-bi-member-page="1"][data-bi-theme="light"] .card,
+html[data-bi-member-page="1"][data-bi-theme="light"] .section-head,
+html[data-bi-member-page="1"][data-bi-theme="light"] .selector,
+html[data-bi-member-page="1"][data-bi-theme="light"] .tip-card,
+html[data-bi-member-page="1"][data-bi-theme="light"] .result-card,
+html[data-bi-member-page="1"][data-bi-theme="light"] .package-card,
+html[data-bi-member-page="1"][data-bi-theme="light"] .offer-card,
+html[data-bi-member-page="1"][data-bi-theme="light"] .balance-card,
+html[data-bi-member-page="1"][data-bi-theme="light"] .saved,
+html[data-bi-member-page="1"][data-bi-theme="light"] .stat,
+html[data-bi-member-page="1"][data-bi-theme="light"] .thread,
+html[data-bi-member-page="1"][data-bi-theme="light"] .access,
+html[data-bi-member-page="1"][data-bi-theme="light"] .modal,
+html[data-bi-member-page="1"][data-bi-theme="light"] .guide,
+html[data-bi-member-page="1"][data-bi-theme="light"] .choice,
+html[data-bi-member-page="1"][data-bi-theme="light"] .presentation,
+html[data-bi-member-page="1"][data-bi-theme="light"] .tools,
+html[data-bi-member-page="1"][data-bi-theme="light"] .text-card,
+html[data-bi-member-page="1"][data-bi-theme="light"] .video-card,
+html[data-bi-member-page="1"][data-bi-theme="light"] .future-card,
+html[data-bi-member-page="1"][data-bi-theme="light"] .info-card{
+  background:linear-gradient(155deg,#ffffff,#f4f9fb)!important;
+  border-color:rgba(40,102,135,.15)!important;
+  box-shadow:0 16px 40px rgba(37,75,95,.10)!important;
+  color:#17384a;
+}
+html[data-bi-member-page="1"][data-bi-theme="light"] .topbar:after{background:rgba(19,127,195,.08)!important}
+html[data-bi-member-page="1"][data-bi-theme="light"] .back,
+html[data-bi-member-page="1"][data-bi-theme="light"] .back-link,
+html[data-bi-member-page="1"][data-bi-theme="light"] .btn:not(.primary):not(.btn-primary):not(.btn-green):not(.btn-blue):not(.btn-red),
+html[data-bi-member-page="1"][data-bi-theme="light"] .wallet-link{background:#f4f8fa!important;color:#31566a!important;border-color:rgba(40,102,135,.16)!important}
+
+/* LIGHT - forms */
+html[data-bi-member-page="1"][data-bi-theme="light"] input:not([type="checkbox"]):not([type="radio"]),
+html[data-bi-member-page="1"][data-bi-theme="light"] select,
+html[data-bi-member-page="1"][data-bi-theme="light"] textarea{
+  background:#ffffff!important;color:#17384a!important;border-color:rgba(40,102,135,.22)!important;
+}
+html[data-bi-member-page="1"][data-bi-theme="light"] option{background:#fff;color:#17384a}
+
+/* LIGHT - daily / challenge */
+html[data-bi-page="daily"][data-bi-theme="light"] .rollerbox,
+html[data-bi-page="daily"][data-bi-theme="light"] .digit,
+html[data-bi-page="daily"][data-bi-theme="light"] .day,
+html[data-bi-page="daily"][data-bi-theme="light"] .rule,
+html[data-bi-page="daily"][data-bi-theme="light"] .history-item,
+html[data-bi-page="fan-challenge"][data-bi-theme="light"] .metric,
+html[data-bi-page="fan-challenge"][data-bi-theme="light"] .qcard,
+html[data-bi-page="fan-challenge"][data-bi-theme="light"] .challenge,
+html[data-bi-page="fan-challenge"][data-bi-theme="light"] .identity,
+html[data-bi-page="fan-challenge"][data-bi-theme="light"] .mytip,
+html[data-bi-page="fan-challenge"][data-bi-theme="light"] .trend-card,
+html[data-bi-page="fan-challenge"][data-bi-theme="light"] .rule,
+html[data-bi-page="free-units"][data-bi-theme="light"] .metric,
+html[data-bi-page="free-units"][data-bi-theme="light"] .challenge,
+html[data-bi-page="free-units"][data-bi-theme="light"] .rule{background:#f5f9fb!important;color:#17384a!important;border-color:rgba(40,102,135,.14)!important}
+html[data-bi-page="daily"][data-bi-theme="light"] .digit{background:linear-gradient(180deg,#ffffff,#e9f2f6)!important;color:#17384a!important;box-shadow:inset 0 1px 0 #fff,0 10px 22px rgba(37,75,95,.10)!important}
+html[data-bi-page="daily"][data-bi-theme="light"] .history-number,
+html[data-bi-page="fan-challenge"][data-bi-theme="light"] .qcard,
+html[data-bi-page="fan-challenge"][data-bi-theme="light"] .challenge,
+html[data-bi-page="free-units"][data-bi-theme="light"] .metric strong{color:#17384a!important}
+html[data-bi-page="fan-challenge"][data-bi-theme="light"] table,
+html[data-bi-page="free-units"][data-bi-theme="light"] table{background:#fff!important;color:#17384a!important}
+html[data-bi-page="fan-challenge"][data-bi-theme="light"] th,
+html[data-bi-page="free-units"][data-bi-theme="light"] th{background:#eaf2f6!important;color:#47738a!important}
+
+/* LIGHT - tips */
+html[data-bi-page="tipps"][data-bi-theme="light"] .preview-list,
+html[data-bi-page="tipps"][data-bi-theme="light"] .price,
+html[data-bi-page="tipps"][data-bi-theme="light"] .unlock-box,
+html[data-bi-page="tipps"][data-bi-theme="light"] .provider-panel,
+html[data-bi-page="freigeschaltet"][data-bi-theme="light"] .provider-panel,
+html[data-bi-page="freigeschaltet"][data-bi-theme="light"] .result-panel,
+html[data-bi-page="tipps"][data-bi-theme="light"] .pagination-panel,
+html[data-bi-page="tipps"][data-bi-theme="light"] .upgrade-benefit{background:#f1f7f9!important;color:#17384a!important;border-color:rgba(40,102,135,.15)!important}
+html[data-bi-page="tipps"][data-bi-theme="light"] .preview-row,
+html[data-bi-page="tipps"][data-bi-theme="light"] .provider-title,
+html[data-bi-page="freigeschaltet"][data-bi-theme="light"] .provider-title,
+html[data-bi-page="freigeschaltet"][data-bi-theme="light"] .analysis-text,
+html[data-bi-page="freigeschaltet"][data-bi-theme="light"] .result-led-text,
+html[data-bi-page="freigeschaltet"][data-bi-theme="light"] .result-led-text strong{color:#17384a!important}
+html[data-bi-page="tipps"][data-bi-theme="light"] .meta-item,
+html[data-bi-page="freigeschaltet"][data-bi-theme="light"] .meta-item{background:#eef5f8!important;color:#31566a!important;border-color:rgba(40,102,135,.12)!important}
+html[data-bi-page="tipps"][data-bi-theme="light"] .upgrade-modal,
+html[data-bi-page="freigeschaltet"][data-bi-theme="light"] .upgrade-modal{background:#fff!important;color:#17384a!important;border-color:rgba(40,102,135,.18)!important}
+
+/* LIGHT - packages / exchange */
+html[data-bi-page="pakete"][data-bi-theme="light"] .step,
+html[data-bi-page="pakete"][data-bi-theme="light"] .addon,
+html[data-bi-page="pakete"][data-bi-theme="light"] .trust-panel,
+html[data-bi-page="wechselboerse"][data-bi-theme="light"] .wallet-section,
+html[data-bi-page="angebote"][data-bi-theme="light"] .market-toolbar,
+html[data-bi-page="angebote"][data-bi-theme="light"] .price-box,
+html[data-bi-page="angebote"][data-bi-theme="light"] .state-panel,
+html[data-bi-page="angebote"][data-bi-theme="light"] .purchase-item,
+html[data-bi-page="angebote"][data-bi-theme="light"] .txid-panel,
+html[data-bi-page="wallet"][data-bi-theme="light"] .saved-item,
+html[data-bi-page="wallet"][data-bi-theme="light"] .check,
+html[data-bi-page="verkaufen"][data-bi-theme="light"] .payment-option,
+html[data-bi-page="verkaufen"][data-bi-theme="light"] .summary,
+html[data-bi-page="verkaufen"][data-bi-theme="light"] .my-offer,
+html[data-bi-page="verkaufen"][data-bi-theme="light"] .bank-sale-item,
+html[data-bi-page="meine-verkaufsangebote"][data-bi-theme="light"] .offer,
+html[data-bi-page="meine-verkaufsangebote"][data-bi-theme="light"] .bank-payment{background:#f4f9fb!important;color:#17384a!important;border-color:rgba(40,102,135,.14)!important}
+html[data-bi-page="angebote"][data-bi-theme="light"] .price-value,
+html[data-bi-page="angebote"][data-bi-theme="light"] .purchase-item strong,
+html[data-bi-page="meine-verkaufsangebote"][data-bi-theme="light"] .main strong,
+html[data-bi-page="meine-verkaufsangebote"][data-bi-theme="light"] .meta strong{color:#17384a}
+
+/* Keep the three main exchange action cards intentionally colored. */
+html[data-bi-page="wechselboerse"][data-bi-theme="light"] .action-card{color:#fff!important}
+html[data-bi-page="wechselboerse"][data-bi-theme="light"] .action-card h3{color:#fff!important}
+
+/* LIGHT - providers */
+html[data-bi-page="anbieter"][data-bi-theme="light"] .choice,
+html[data-bi-page="anbieter"][data-bi-theme="light"] .continent-button{background:#f3f8fa!important;color:#31566a!important;border-color:rgba(40,102,135,.14)!important}
+html[data-bi-page="anbieter"][data-bi-theme="light"] .provider-card,
+html[data-bi-page="anbieter"][data-bi-theme="light"] .legal{background:#fff!important;color:#17384a!important;border-color:rgba(40,102,135,.15)!important}
+
+/* LIGHT - resources / academy / marketing */
+html[data-bi-page="academy"][data-bi-theme="light"] .note,
+html[data-bi-page="werbematerial"][data-bi-theme="light"] .quick a,
+html[data-bi-page="werbematerial"][data-bi-theme="light"] .loading,
+html[data-bi-page="werbematerial"][data-bi-theme="light"] .error,
+html[data-bi-page="werbematerial"][data-bi-theme="light"] .empty,
+html[data-bi-page="werbematerial"][data-bi-theme="light"] .rules,
+html[data-bi-page="marketing-center"][data-bi-theme="light"] .quick-nav a,
+html[data-bi-page="marketing-center"][data-bi-theme="light"] .loading-box,
+html[data-bi-page="marketing-center"][data-bi-theme="light"] .error-box,
+html[data-bi-page="marketing-center"][data-bi-theme="light"] .empty-box{background:#f5f9fb!important;color:#17384a!important;border-color:rgba(40,102,135,.14)!important}
+html[data-bi-page="werbematerial"][data-bi-theme="light"] .copy-text,
+html[data-bi-page="marketing-center"][data-bi-theme="light"] .copy-text{background:#edf4f7!important;color:#31566a!important}
+
+/* LIGHT - support / account / premium upgrade */
+html[data-bi-page="support"][data-bi-theme="light"] .security,
+html[data-bi-page="support"][data-bi-theme="light"] .ticket,
+html[data-bi-page="support"][data-bi-theme="light"] .empty,
+html[data-bi-page="konto"][data-bi-theme="light"] .status,
+html[data-bi-page="konto"][data-bi-theme="light"] .registration,
+html[data-bi-page="premium-upgrade"][data-bi-theme="light"] .account-box,
+html[data-bi-page="premium-upgrade"][data-bi-theme="light"] .slot,
+html[data-bi-page="premium-upgrade"][data-bi-theme="light"] .summary{background:#f4f9fb!important;color:#17384a!important;border-color:rgba(40,102,135,.15)!important}
+html[data-bi-page="support"][data-bi-theme="light"] .tickettitle,
+html[data-bi-page="support"][data-bi-theme="light"] .empty strong,
+html[data-bi-page="konto"][data-bi-theme="light"] .lead,
+html[data-bi-page="konto"][data-bi-theme="light"] .access p,
+html[data-bi-page="premium-upgrade"][data-bi-theme="light"] .summary p{color:#31566a!important}
+
+/* Semantic colors stay semantic in every theme. */
+html[data-bi-member-page="1"] .error,
+html[data-bi-member-page="1"] .feedback.error,
+html[data-bi-member-page="1"] .status.error,
+html[data-bi-member-page="1"] .notice.error{--bi-semantic-error:1}
+html[data-bi-member-page="1"][data-bi-theme="light"] .result-badge.won,
+html[data-bi-member-page="1"][data-bi-theme="light"] .badge.ok,
+html[data-bi-member-page="1"][data-bi-theme="light"] .feedback.success,
+html[data-bi-member-page="1"][data-bi-theme="light"] .status.ok{color:#067457}
+html[data-bi-member-page="1"][data-bi-theme="light"] .result-badge.lost,
+html[data-bi-member-page="1"][data-bi-theme="light"] .feedback.error,
+html[data-bi-member-page="1"][data-bi-theme="light"] .status.error{color:#b83245}
+html[data-bi-member-page="1"][data-bi-theme="light"] footer,
+html[data-bi-member-page="1"][data-bi-theme="light"] .footer,
+html[data-bi-member-page="1"][data-bi-theme="light"] .footer-note,
+html[data-bi-member-page="1"][data-bi-theme="light"] .footnote{color:#6d8998!important}
