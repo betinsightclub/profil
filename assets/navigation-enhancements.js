@@ -1,6 +1,7 @@
-/* BetInsight Navigation Enhancements v1.0 · 2026-09-08
+/* BetInsight Navigation Enhancements v1.1 · 2026-09-09
    UI-only layer: keeps all existing routes/business logic intact.
-   Adds: Academy/Ressourcen accordion, language/settings section and theme switcher.
+   Adds: Academy/Ressourcen accordion, language/settings section, theme switcher
+   and the presentation-only member translation completion layer.
 */
 (() => {
   "use strict";
@@ -13,6 +14,19 @@
     try { return window.BetInsightI18n?.getLanguage?.() === "en" ? en : de; }
     catch (e) { return de; }
   };
+
+  function loadCompletion() {
+    if (window.BetInsightMemberCompletion) return;
+    const src = new URL("i18n/member-completion.js?v=20260909-1", ASSET_BASE).toString();
+    const existing = [...document.scripts].find(script => script.src === src || script.dataset.biMemberCompletion === "1");
+    if (existing) return;
+    const script = document.createElement("script");
+    script.src = src;
+    script.defer = true;
+    script.dataset.biMemberCompletion = "1";
+    script.addEventListener("error", () => console.warn("BetInsight translation completion layer could not be loaded."), {once:true});
+    document.head.appendChild(script);
+  }
 
   function navigateLocal(segment) {
     try {
@@ -158,6 +172,7 @@
   });
 
   function start() {
+    loadCompletion();
     apply();
     observer.observe(document.documentElement, {childList:true, subtree:true});
     window.addEventListener("bi:languagechange", () => setTimeout(apply, 0));
