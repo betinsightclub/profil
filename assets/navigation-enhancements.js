@@ -1,4 +1,4 @@
-/* BetInsight Navigation Enhancements v1.1 · 2026-09-09
+/* BetInsight Navigation Enhancements v1.2 · 2026-09-09
    UI-only layer: keeps all existing routes/business logic intact.
    Adds: Academy/Ressourcen accordion, language/settings section, theme switcher
    and the presentation-only member translation completion layer.
@@ -15,7 +15,22 @@
     catch (e) { return de; }
   };
 
+  function ensureCompletionScope() {
+    const parts = location.pathname.replace(/\/+$/, "").split("/").filter(Boolean);
+    if (parts[0] === "profil") parts.shift();
+    const first = String(parts[0] || "").toLowerCase();
+    let scope = "";
+    if (first === "free-units") scope = "fan-challenge";
+    else if (first === "premium-upgrade") scope = "premium-upgrade";
+    if (!scope || document.querySelector('meta[name="bi-i18n-scope"]')) return;
+    const meta = document.createElement("meta");
+    meta.name = "bi-i18n-scope";
+    meta.content = scope;
+    document.head.appendChild(meta);
+  }
+
   function loadCompletion() {
+    ensureCompletionScope();
     if (window.BetInsightMemberCompletion) return;
     const src = new URL("i18n/member-completion.js?v=20260909-1", ASSET_BASE).toString();
     const existing = [...document.scripts].find(script => script.src === src || script.dataset.biMemberCompletion === "1");
