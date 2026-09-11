@@ -201,7 +201,7 @@
       await loadScript("app-navigation-v2.js?v=20260906-resources-1");
       await loadScript("premium-network-handoff.js?v=20260830-9","BetInsightPremiumNetworkHandoff");
       if (isRootDashboard()) {
-        await loadScript("dashboard-layout.js?v=20260902-2");
+        await loadScript("dashboard-layout.js?v=20260911-1");
         await loadScript("account-history.js");
         await loadScript("i18n/dashboard-completion.js");
         await loadScript("partner-invite-links.js?v=20260905-1");
