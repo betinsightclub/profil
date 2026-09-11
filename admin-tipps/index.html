@@ -10,8 +10,12 @@ const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzi
 let html=await new Response(stream).text();
 html=html.replace('<title>BetInsight – Odds Tipp TEST</title>','<title>BetInsight – Tippbereich</title>')
 .replace('🔐 TEST-Sitzung wird geprüft','🔐 Sichere Sitzung wird geprüft')
+.replace('Dieses Modul nutzt dieselbe sichere Admin-Sitzung, veröffentlicht aber keinen produktiven Tipp.','Deine sichere Admin-Sitzung wird geprüft. Danach kannst du Tipps direkt veröffentlichen.')
 .replace('🧪 <strong>ISOLIERTER ODDS-TEST.</strong> Der produktive Tippgeber bleibt unverändert. Hier testen wir Spielzuordnung, Tippgeber-Referenzquote und die spätere Premium-Quotenlogik.','🚀 <strong>NEUES TIPPGEBER-TERMINAL · LIVE.</strong> Veröffentlichte Tipps gehen direkt in BetInsight. API-Spielzuordnung und Tippgeber-Referenzquote werden zusätzlich gespeichert.')
 .replace('Odds-fähigen Tipp vorbereiten','Odds-fähigen Tipp veröffentlichen')
+.replace('<a class="btn secondary" href="../admin-tipps/">Zum produktiven Tippbereich</a>','<a class="btn secondary" href="../admin/">← Admin Center</a>')
+.replace('<label for="notiz">Testnotiz</label>','<label for="notiz">Interne Notiz</label>')
+.replace('Diese Felder stammen aus dem produktiven Tippgeber. So geht beim späteren Austausch keine bestehende Funktion verloren.','Preis, Analyse und optionaler Live-Alarm werden zusammen mit dem Tipp gespeichert.')
 .replace('Wie im Original: nur bei einem zeitkritischen Live-Tipp aktivieren. Premium und Premium Plus erhalten denselben Alarm. <strong>Im TEST wird nichts versendet.</strong>','Nur bei einem zeitkritischen Live-Tipp aktivieren. Premium und Premium Plus erhalten denselben Alarm über die bestehende Live-Alarm-Strecke.')
 .replace('<h2>5. TEST-Struktur speichern</h2>','<h2>5. Tipp veröffentlichen</h2>')
 .replace('<p class="muted">Keine Live-Veröffentlichung und kein echter Live-Alarm. Dieser Datensatz geht ausschließlich an das isolierte Odds-Test-Szenario.</p>','<p class="muted">Mit Veröffentlichung wird der Tipp direkt in BetInsight gespeichert und erscheint wie bisher unter den neuen Tipps. Tippdetails bleiben bis zur Unit-Freischaltung geschützt.</p>')
