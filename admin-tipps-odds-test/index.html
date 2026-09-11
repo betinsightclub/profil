@@ -57,10 +57,47 @@
       <fieldset id="marketFieldset" disabled>
         <div id="gameSummary" class="summary">Noch kein Spiel bestätigt.</div>
         <div class="grid">
-          <div><label for="markt">Markt *</label><select id="markt"><option value="">Bitte auswählen</option><option value="1X2">1X2</option><option value="Über 2,5">Über 2,5</option><option value="Unter 2,5">Unter 2,5</option><option value="Beide treffen">Beide treffen</option><option value="Handicap">Handicap</option><option value="Doppelte Chance">Doppelte Chance</option></select></div>
-          <div><label for="selection">Auswahl *</label><select id="selection" disabled><option value="">Zuerst Markt auswählen</option></select></div>
+          <div><label for="markt">Markt *</label><select id="markt">
+            <option value="">Bitte auswählen</option>
+            <optgroup label="Spielergebnis">
+              <option value="1X2">1X2</option>
+              <option value="Doppelte Chance">Doppelte Chance</option>
+              <option value="Draw No Bet">Draw No Bet · Unentschieden = Einsatz zurück</option>
+              <option value="Qualifiziert sich">Qualifiziert sich / kommt weiter</option>
+            </optgroup>
+            <optgroup label="Gesamttore · Über / Unter">
+              <option value="Über 0,5 Tore">Über 0,5 Tore</option><option value="Unter 0,5 Tore">Unter 0,5 Tore</option>
+              <option value="Über 1,5 Tore">Über 1,5 Tore</option><option value="Unter 1,5 Tore">Unter 1,5 Tore</option>
+              <option value="Über 2,5 Tore">Über 2,5 Tore</option><option value="Unter 2,5 Tore">Unter 2,5 Tore</option>
+              <option value="Über 3,5 Tore">Über 3,5 Tore</option><option value="Unter 3,5 Tore">Unter 3,5 Tore</option>
+              <option value="Über 4,5 Tore">Über 4,5 Tore</option><option value="Unter 4,5 Tore">Unter 4,5 Tore</option>
+              <option value="Über 5,5 Tore">Über 5,5 Tore</option><option value="Unter 5,5 Tore">Unter 5,5 Tore</option>
+            </optgroup>
+            <optgroup label="Weitere häufige Märkte">
+              <option value="Beide treffen">Beide Teams treffen</option>
+              <option value="Handicap">Asian Handicap / Handicap</option>
+              <option value="Teamtore">Teamtore · Über / Unter</option>
+            </optgroup>
+            <optgroup label="1. Halbzeit">
+              <option value="1. Halbzeit 1X2">1. Halbzeit · 1X2</option>
+              <option value="1. Halbzeit Über 0,5">1. Halbzeit · Über 0,5 Tore</option><option value="1. Halbzeit Unter 0,5">1. Halbzeit · Unter 0,5 Tore</option>
+              <option value="1. Halbzeit Über 1,5">1. Halbzeit · Über 1,5 Tore</option><option value="1. Halbzeit Unter 1,5">1. Halbzeit · Unter 1,5 Tore</option>
+              <option value="1. Halbzeit Über 2,5">1. Halbzeit · Über 2,5 Tore</option><option value="1. Halbzeit Unter 2,5">1. Halbzeit · Unter 2,5 Tore</option>
+              <option value="1. Halbzeit Beide treffen">1. Halbzeit · Beide Teams treffen</option>
+            </optgroup>
+            <optgroup label="Spezialmärkte">
+              <option value="Korrektes Ergebnis">Korrektes Ergebnis</option>
+              <option value="Halbzeit/Endstand">Halbzeit / Endstand</option>
+              <option value="Ecken gesamt">Ecken gesamt · Über / Unter</option>
+              <option value="Karten gesamt">Karten gesamt · Über / Unter</option>
+              <option value="Eigener Markt">Eigener Markt</option>
+            </optgroup>
+          </select></div>
+          <div id="selectionWrap"><label for="selection">Auswahl *</label><select id="selection" disabled><option value="">Zuerst Markt auswählen</option></select></div>
           <div id="lineWrap" class="hidden"><label for="line">Linie / Handicap *</label><input id="line" type="number" step="0.25" placeholder="z. B. 2.5 oder -1"></div>
-          <div><label for="referenceMode">Quelle der Tippgeber-Quote *</label><select id="referenceMode"><option value="api">Buchmacher aus Odds-API · automatisch</option><option value="own">Eigener Buchmacher / Krypto · manuell</option><option value="research">Internet / Bild / Sport-KI · manuell</option></select></div>
+          <div id="customMarketWrap" class="hidden"><label for="customMarketName">Eigener Markt *</label><input id="customMarketName" placeholder="z. B. Tor in beiden Halbzeiten"></div>
+          <div id="customSelectionWrap" class="hidden"><label for="customSelectionName">Eigene Auswahl / Ergebnis *</label><input id="customSelectionName" placeholder="z. B. Ja oder 2:1"></div>
+          <div><label for="referenceMode">Quelle der Tippgeber-Quote *</label><select id="referenceMode"><option value="api">Whitelist/API-Anbieter · automatisch</option><option value="crypto">Krypto-Anbieter · manuell</option><option value="own">Sonstiger eigener Buchmacher · manuell</option><option value="research">Internet / Bild / Sport-KI · manuell</option></select></div>
         </div>
 
         <div id="apiSourceBox" class="source-box">
@@ -73,13 +110,15 @@
 
         <div id="manualSourceBox" class="source-box hidden">
           <div class="grid">
-            <div><label for="manualSourceName">Buchmacher / Quelle *</label><input id="manualSourceName" placeholder="z. B. BetFury, eigener Anbieter, Sport-KI"></div>
+            <div><label id="manualSourceNameLabel" for="manualSourceName">Buchmacher / Quelle *</label><input id="manualSourceName" placeholder="z. B. BetFury, eigener Anbieter, Sport-KI"></div>
             <div><label for="manualQuote">Quote *</label><input id="manualQuote" type="number" min="1" step="0.01" placeholder="z. B. 1.78"></div>
             <div class="full"><label for="manualSourceUrl">Quelle / Link (optional)</label><input id="manualSourceUrl" type="url" placeholder="https://..."></div>
           </div>
         </div>
 
         <div id="referencePicked" class="reference-picked hidden"></div>
+        <div id="quoteClassBox" class="summary hidden" style="margin-top:13px"></div>
+        <div class="hint" style="margin-top:10px"><strong>Premium-Logik:</strong> Die Tippgeber-Quote bestimmt nur die bestehende Quotenklasse. Premium sieht später die 2 persönlich gewählten Anbieter ohne Direktlink; Premium Plus die 5 persönlich gewählten Anbieter mit Spiel-Link.</div>
         <div class="grid" style="margin-top:16px"><div class="full"><label for="notiz">Testnotiz</label><textarea id="notiz" placeholder="Optional"></textarea></div></div>
         <div class="technical" id="technicalBox">Noch kein API-Spiel bestätigt.</div>
       </fieldset>
@@ -109,8 +148,29 @@
     'Bundesliga':'soccer_germany_bundesliga','2. Bundesliga':'soccer_germany_bundesliga2','3. Liga':'soccer_germany_liga3','DFB-Pokal':'soccer_germany_dfb_pokal','Premier League':'soccer_epl','Champions League':'soccer_uefa_champs_league','Europa League':'soccer_uefa_europa_league','Conference League':'soccer_uefa_europa_conference_league','La Liga':'soccer_spain_la_liga','Serie A':'soccer_italy_serie_a','Serie B':'soccer_italy_serie_b','Ligue 1':'soccer_france_ligue_one','Ligue 2':'soccer_france_ligue_two','Primeira Liga':'soccer_portugal_primeira_liga','Eredivisie':'soccer_netherlands_eredivisie','Österreich Bundesliga':'soccer_austria_bundesliga','Schweiz Super League':'soccer_switzerland_superleague','Brasilien Serie A':'soccer_brazil_campeonato','Brasilien Serie B':'soccer_brazil_serie_b','MLS':'soccer_usa_mls'
   };
   const marketMap={
-    '1X2':{key:'h2h',line:false},'Über 2,5':{key:'totals',line:true,fixedLine:'2.5',fixedSelection:'over'},'Unter 2,5':{key:'totals',line:true,fixedLine:'2.5',fixedSelection:'under'},'Beide treffen':{key:'btts',line:false},'Handicap':{key:'spreads',line:true},'Doppelte Chance':{key:'double_chance',line:false}
+    '1X2':{key:'h2h',kind:'threeway'},
+    'Doppelte Chance':{key:'double_chance',kind:'doublechance'},
+    'Draw No Bet':{key:'draw_no_bet',kind:'teams'},
+    'Qualifiziert sich':{key:'to_qualify',kind:'teams'},
+    'Beide treffen':{key:'btts',kind:'yesno'},
+    'Handicap':{key:'alternate_spreads',kind:'handicap',line:true},
+    'Teamtore':{key:'alternate_team_totals',kind:'teamtotal',line:true},
+    '1. Halbzeit 1X2':{key:'h2h_3_way_h1',kind:'threeway'},
+    '1. Halbzeit Beide treffen':{key:'btts_h1',kind:'yesno'},
+    'Korrektes Ergebnis':{key:'correct_score',kind:'score',customSelection:true},
+    'Halbzeit/Endstand':{key:'halftime_fulltime',kind:'htft'},
+    'Ecken gesamt':{key:'alternate_totals_corners',kind:'ou',line:true},
+    'Karten gesamt':{key:'alternate_totals_cards',kind:'ou',line:true},
+    'Eigener Markt':{key:'custom',kind:'custom',api:false,customMarket:true,customSelection:true}
   };
+  [0.5,1.5,2.5,3.5,4.5,5.5].forEach(n=>{
+    marketMap[`Über ${String(n).replace('.',',')} Tore`]={key:'alternate_totals',kind:'ou',line:true,fixedLine:String(n),fixedSelection:'over'};
+    marketMap[`Unter ${String(n).replace('.',',')} Tore`]={key:'alternate_totals',kind:'ou',line:true,fixedLine:String(n),fixedSelection:'under'};
+  });
+  [0.5,1.5,2.5].forEach(n=>{
+    marketMap[`1. Halbzeit Über ${String(n).replace('.',',')}`]={key:'alternate_totals_h1',kind:'ou',line:true,fixedLine:String(n),fixedSelection:'over'};
+    marketMap[`1. Halbzeit Unter ${String(n).replace('.',',')}`]={key:'alternate_totals_h1',kind:'ou',line:true,fixedLine:String(n),fixedSelection:'under'};
+  });
 
   function clean(v){return String(v??'').trim()}
   function escapeHtml(s){return clean(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -136,28 +196,61 @@
   function renderMatches(rows){const wrap=$('foundWrap');wrap.classList.remove('hidden');wrap.innerHTML='<h3 style="margin-bottom:8px">Gefundene API-Spiele</h3>'+rows.map((ev,i)=>`<div class="found-card ${i===0?'best':''}"><div class="found-main"><div class="found-title">${escapeHtml(ev.home_team)} – ${escapeHtml(ev.away_team)}</div><div class="found-meta">${escapeHtml(ev.sport_title||$('liga').value)} · ${escapeHtml(localDateTime(ev.commence_time))}</div></div><button class="btn ${i===0?'save':''}" type="button" data-event-index="${i}">Dieses Spiel verwenden</button></div>`).join('');wrap.querySelectorAll('[data-event-index]').forEach(btn=>btn.addEventListener('click',()=>confirmEvent(rows[Number(btn.dataset.eventIndex)])))}
   function confirmEvent(ev){selectedEvent={...ev,sport_key:ev.sport_key||leagueMap[$('liga').value]};$('spielDatum').value=toDateValue(ev.commence_time);$('anpfiff').value=toTimeValue(ev.commence_time);const box=$('confirmedEvent');box.classList.remove('hidden');box.innerHTML=`<strong>✓ API-Spiel bestätigt</strong><div style="margin-top:7px;font-weight:900">${escapeHtml(ev.home_team)} – ${escapeHtml(ev.away_team)}</div><div class="found-meta">${escapeHtml(ev.sport_title||$('liga').value)} · ${escapeHtml(localDateTime(ev.commence_time))}</div>`;$('gameSummary').innerHTML=`<strong>${escapeHtml(ev.home_team)} – ${escapeHtml(ev.away_team)}</strong><br><span class="muted">${escapeHtml($('liga').value)} · ${escapeHtml(localDateTime(ev.commence_time))}</span>`;$('marketFieldset').disabled=false;$('markt').value='';updateMarketUI();refreshTechnical();box.scrollIntoView({behavior:'smooth',block:'nearest'})}
 
-  function updateMarketUI(){selectedReference=null;clearReferenceUI();const name=$('markt').value,cfg=marketMap[name],sel=$('selection'),lineWrap=$('lineWrap'),line=$('line');if(!cfg){sel.disabled=true;sel.innerHTML='<option value="">Zuerst Markt auswählen</option>';lineWrap.classList.add('hidden');line.value='';$('oddsBtn').disabled=true;refreshTechnical();return}const h=selectedEvent?.home_team||'Heimteam',a=selectedEvent?.away_team||'Auswärtsteam';let options=[];if(name==='1X2')options=[['home',h+' gewinnt'],['draw','Unentschieden'],['away',a+' gewinnt']];else if(name==='Über 2,5')options=[['over','Über 2,5']];else if(name==='Unter 2,5')options=[['under','Unter 2,5']];else if(name==='Beide treffen')options=[['yes','Ja'],['no','Nein']];else if(name==='Handicap')options=[['home',h],['away',a]];else if(name==='Doppelte Chance')options=[['home_draw','1X · '+h+' oder Unentschieden'],['home_away','12 · '+h+' oder '+a],['draw_away','X2 · Unentschieden oder '+a]];sel.disabled=false;sel.innerHTML='<option value="">Bitte auswählen</option>'+options.map(o=>`<option value="${o[0]}">${escapeHtml(o[1])}</option>`).join('');if(options.length===1)sel.value=options[0][0];lineWrap.classList.toggle('hidden',!cfg.line);line.value=cfg.fixedLine||'';line.readOnly=!!cfg.fixedLine;updateOddsButton();refreshTechnical()}
-  function selectionChanged(){selectedReference=null;clearReferenceUI();updateOddsButton();refreshTechnical()}
-  function updateOddsButton(){const cfg=marketMap[$('markt').value];$('oddsBtn').disabled=!selectedEvent||!cfg||!clean($('selection').value)||(cfg.line&&!clean($('line').value))||$('referenceMode').value!=='api'}
-  function sourceModeChanged(){selectedReference=null;clearReferenceUI();const api=$('referenceMode').value==='api';$('apiSourceBox').classList.toggle('hidden',!api);$('manualSourceBox').classList.toggle('hidden',api);updateOddsButton();refreshSaveState()}
-  function clearReferenceUI(){lastOddsRows=[];$('oddsResults').classList.add('hidden');$('oddsResults').innerHTML='';$('oddsStatus').textContent='';$('referencePicked').classList.add('hidden');$('referencePicked').innerHTML=''}
+  function quoteClass(q){q=Number(q);if(!Number.isFinite(q)||q<1)return'';if(q<1.60)return'unter 1,60';if(q<=2.00)return'1,60–2,00';if(q<=3.00)return'2,01–3,00';return'über 3,00'}
+  function currentSelectionValue(){const cfg=marketMap[$('markt').value]||{};return cfg.customSelection?clean($('customSelectionName').value):clean($('selection').value)}
+  function currentMarketLabel(){const cfg=marketMap[$('markt').value]||{};return cfg.customMarket?clean($('customMarketName').value):clean($('markt').value)}
 
-  function wantedOutcome(marketKey,selection,line){const h=selectedEvent?.home_team||'',a=selectedEvent?.away_team||'';if(marketKey==='h2h'){if(selection==='home')return{name:h};if(selection==='away')return{name:a};return{name:'Draw'}}if(marketKey==='totals')return{name:selection==='over'?'Over':'Under',point:Number(line)};if(marketKey==='spreads')return{name:selection==='home'?h:a,point:Number(line)};if(marketKey==='btts')return{name:selection==='yes'?'Yes':'No'};if(marketKey==='double_chance'){if(selection==='home_draw')return{aliases:['Home or Draw',h+' or Draw','1X']};if(selection==='home_away')return{aliases:['Home or Away',h+' or '+a,'12']};return{aliases:['Draw or Away','Draw or '+a,'X2']}}return{}}
-  function outcomeMatches(o,w){const name=clean(o?.name).toLowerCase();if(w.aliases)return w.aliases.some(x=>name===clean(x).toLowerCase()||name.includes(clean(x).toLowerCase()));if(clean(w.name)&&name!==clean(w.name).toLowerCase())return false;if(Number.isFinite(w.point)){if(!Number.isFinite(Number(o?.point)))return false;if(Math.abs(Number(o.point)-w.point)>.001)return false}return true}
-  async function fetchOdds(){const cfg=marketMap[$('markt').value],selection=clean($('selection').value),line=clean($('line').value);if(!selectedEvent||!cfg||!selection){setStatus('oddsStatus','Zuerst Markt und Tipp auswählen.','error');return}$('oddsBtn').disabled=true;setStatus('oddsStatus','Quoten werden geladen …');try{const data=await rpc('betinsight_odds_event_odds_admin',{p_session_hash:sessionHash,p_sport_key:selectedEvent.sport_key,p_event_id:selectedEvent.id,p_market_key:cfg.key});const odds=data.odds||{};const wanted=wantedOutcome(cfg.key,selection,line);const rows=[];for(const b of (odds.bookmakers||[])){const market=(b.markets||[]).find(m=>m.key===cfg.key);if(!market)continue;const out=(market.outcomes||[]).find(o=>outcomeMatches(o,wanted));if(!out)continue;rows.push({bookmaker_key:b.key||'',bookmaker:b.title||b.key||'',price:Number(out.price),link:out.link||market.link||b.link||'',last_update:market.last_update||''})}rows.sort((x,y)=>y.price-x.price);lastOddsRows=rows;if(!rows.length){$('oddsResults').classList.add('hidden');setStatus('oddsStatus','Für genau diese Auswahl liefert die API aktuell keine passende Quote. Du kannst auf „Eigener Buchmacher / Krypto“ oder „Internet / Bild / Sport-KI“ wechseln.','error');return}renderOdds(rows);setStatus('oddsStatus',`${rows.length} Anbieter gefunden. Beste Quote: ${rows[0].price.toFixed(2)}. Bitte deine tatsächliche Tippgeber-Quelle wählen.`,'ok')}catch(e){setStatus('oddsStatus',e.message||'Quoten konnten nicht geladen werden.','error')}finally{updateOddsButton()}}
+  function updateMarketUI(){
+    selectedReference=null;clearReferenceUI();
+    const name=$('markt').value,cfg=marketMap[name],sel=$('selection'),lineWrap=$('lineWrap'),line=$('line');
+    $('selectionWrap').classList.remove('hidden');$('customMarketWrap').classList.add('hidden');$('customSelectionWrap').classList.add('hidden');
+    if(!cfg){sel.disabled=true;sel.innerHTML='<option value="">Zuerst Markt auswählen</option>';lineWrap.classList.add('hidden');line.value='';$('oddsBtn').disabled=true;refreshTechnical();return}
+    const h=selectedEvent?.home_team||'Heimteam',a=selectedEvent?.away_team||'Auswärtsteam';let options=[];
+    if(cfg.kind==='threeway')options=[['home',h+' gewinnt'],['draw','Unentschieden'],['away',a+' gewinnt']];
+    else if(cfg.kind==='teams')options=[['home',h],['away',a]];
+    else if(cfg.kind==='yesno')options=[['yes','Ja'],['no','Nein']];
+    else if(cfg.kind==='doublechance')options=[['home_draw','1X · '+h+' oder Unentschieden'],['home_away','12 · '+h+' oder '+a],['draw_away','X2 · Unentschieden oder '+a]];
+    else if(cfg.kind==='handicap')options=[['home',h],['away',a]];
+    else if(cfg.kind==='teamtotal')options=[['home_over',h+' · Über'],['home_under',h+' · Unter'],['away_over',a+' · Über'],['away_under',a+' · Unter']];
+    else if(cfg.kind==='ou')options=cfg.fixedSelection?[[cfg.fixedSelection,(cfg.fixedSelection==='over'?'Über ':'Unter ')+(cfg.fixedLine||'')]]:[['over','Über'],['under','Unter']];
+    else if(cfg.kind==='htft')options=[['home_home',h+' / '+h],['home_draw',h+' / Unentschieden'],['home_away',h+' / '+a],['draw_home','Unentschieden / '+h],['draw_draw','Unentschieden / Unentschieden'],['draw_away','Unentschieden / '+a],['away_home',a+' / '+h],['away_draw',a+' / Unentschieden'],['away_away',a+' / '+a]];
+    if(cfg.customSelection){$('selectionWrap').classList.add('hidden');$('customSelectionWrap').classList.remove('hidden');sel.disabled=true;sel.innerHTML='<option value="custom">Eigene Auswahl</option>';$('customSelectionName').value=''}
+    else{sel.disabled=false;sel.innerHTML='<option value="">Bitte auswählen</option>'+options.map(o=>`<option value="${o[0]}">${escapeHtml(o[1])}</option>`).join('');if(options.length===1)sel.value=options[0][0]}
+    if(cfg.customMarket){$('customMarketWrap').classList.remove('hidden');$('customMarketName').value='';if($('referenceMode').value==='api')$('referenceMode').value='own';sourceModeChanged()}
+    lineWrap.classList.toggle('hidden',!cfg.line);line.value=cfg.fixedLine||'';line.readOnly=!!cfg.fixedLine;
+    updateOddsButton();refreshTechnical();
+  }
+  function selectionChanged(){selectedReference=null;clearReferenceUI();updateOddsButton();refreshTechnical()}
+  function updateOddsButton(){const cfg=marketMap[$('markt').value];$('oddsBtn').disabled=!selectedEvent||!cfg||cfg.api===false||!currentSelectionValue()||(cfg.line&&!clean($('line').value))||$('referenceMode').value!=='api'}
+  function sourceModeChanged(){selectedReference=null;clearReferenceUI();const mode=$('referenceMode').value,api=mode==='api';$('apiSourceBox').classList.toggle('hidden',!api);$('manualSourceBox').classList.toggle('hidden',api);const label=$('manualSourceNameLabel');if(mode==='crypto'){label.textContent='Krypto-Anbieter *';$('manualSourceName').placeholder='z. B. BetFury'}else if(mode==='research'){label.textContent='Quelle / Rechercheweg *';$('manualSourceName').placeholder='z. B. Sport-KI, Bild, Website'}else{label.textContent='Buchmacher / Quelle *';$('manualSourceName').placeholder='z. B. eigener Buchmacher'}updateOddsButton();refreshSaveState()}
+  function clearReferenceUI(){lastOddsRows=[];$('oddsResults').classList.add('hidden');$('oddsResults').innerHTML='';$('oddsStatus').textContent='';$('referencePicked').classList.add('hidden');$('referencePicked').innerHTML='';$('quoteClassBox').classList.add('hidden');$('quoteClassBox').innerHTML=''}
+
+  function wantedOutcome(cfg,selection,line){const h=selectedEvent?.home_team||'',a=selectedEvent?.away_team||'',key=cfg.key;
+    if(['h2h','h2h_3_way_h1','draw_no_bet','to_qualify'].includes(key)){if(selection==='home')return{name:h};if(selection==='away')return{name:a};return{name:'Draw'}}
+    if(['alternate_totals','alternate_totals_h1','alternate_totals_corners','alternate_totals_cards'].includes(key))return{name:selection==='over'?'Over':'Under',point:Number(line)};
+    if(key==='alternate_spreads')return{name:selection==='home'?h:a,point:Number(line)};
+    if(key==='alternate_team_totals'){const team=selection.startsWith('home_')?h:a;const ou=selection.endsWith('_over')?'Over':'Under';return{name:ou,point:Number(line),description:team}}
+    if(key==='btts'||key==='btts_h1')return{name:selection==='yes'?'Yes':'No'};
+    if(key==='double_chance'){if(selection==='home_draw')return{aliases:['Home or Draw',h+' or Draw','1X']};if(selection==='home_away')return{aliases:['Home or Away',h+' or '+a,'12']};return{aliases:['Draw or Away','Draw or '+a,'X2']}}
+    if(key==='correct_score'){const x=clean(selection).replace(':','-');return{aliases:[x,x.replace('-',':')]}}
+    if(key==='halftime_fulltime'){const parts=selection.split('_');const map={home:'Home',draw:'Draw',away:'Away'};return{aliases:[`${map[parts[0]]}/${map[parts[1]]}`,`${map[parts[0]]} / ${map[parts[1]]}`]}}
+    return{}
+  }
+  function outcomeMatches(o,w){const name=clean(o?.name).toLowerCase(),desc=clean(o?.description).toLowerCase();if(w.aliases&&!w.aliases.some(x=>name===clean(x).toLowerCase()||name.includes(clean(x).toLowerCase())))return false;if(clean(w.name)&&name!==clean(w.name).toLowerCase())return false;if(clean(w.description)&&desc!==clean(w.description).toLowerCase()&&!desc.includes(clean(w.description).toLowerCase()))return false;if(Number.isFinite(w.point)){if(!Number.isFinite(Number(o?.point)))return false;if(Math.abs(Number(o.point)-w.point)>.001)return false}return true}
+  async function fetchOdds(){const cfg=marketMap[$('markt').value],selection=currentSelectionValue(),line=clean($('line').value);if(!selectedEvent||!cfg||cfg.api===false||!selection){setStatus('oddsStatus','Für diesen Markt bitte Markt/Tipp festlegen. Eigene Märkte werden manuell erfasst.','error');return}$('oddsBtn').disabled=true;setStatus('oddsStatus','Quoten werden geladen …');try{const data=await rpc('betinsight_odds_event_odds_admin',{p_session_hash:sessionHash,p_sport_key:selectedEvent.sport_key,p_event_id:selectedEvent.id,p_market_key:cfg.key});const odds=data.odds||{};const wanted=wantedOutcome(cfg,selection,line);const rows=[];for(const b of (odds.bookmakers||[])){const market=(b.markets||[]).find(m=>m.key===cfg.key);if(!market)continue;const out=(market.outcomes||[]).find(o=>outcomeMatches(o,wanted));if(!out)continue;rows.push({bookmaker_key:b.key||'',bookmaker:b.title||b.key||'',price:Number(out.price),link:out.link||market.link||b.link||'',last_update:market.last_update||''})}rows.sort((x,y)=>y.price-x.price);lastOddsRows=rows;if(!rows.length){$('oddsResults').classList.add('hidden');setStatus('oddsStatus','Für genau diesen Markt liefert die API bei diesem Spiel aktuell keine passende Quote. Du kannst Krypto, eigenen Buchmacher oder Recherche manuell verwenden.','error');return}renderOdds(rows);setStatus('oddsStatus',`${rows.length} Anbieter gefunden. Beste gefundene Quote: ${rows[0].price.toFixed(2)}. Die Tippgeber-Quote bleibt deine tatsächlich verwendete Quote.`,'ok')}catch(e){setStatus('oddsStatus',e.message||'Quoten konnten nicht geladen werden.','error')}finally{updateOddsButton()}}
   function renderOdds(rows){const box=$('oddsResults');box.classList.remove('hidden');box.innerHTML=`<div style="overflow:auto"><table class="odds-table"><thead><tr><th>Anbieter</th><th>Quote</th><th>Direktlink</th><th>Stand</th><th></th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td>${escapeHtml(r.bookmaker)}${i===0?' ⭐':''}</td><td class="price">${r.price.toFixed(2)}</td><td>${r.link?`<a class="link" href="${escapeHtml(r.link)}" target="_blank" rel="noopener">Zum Spiel ↗</a>`:'–'}</td><td>${escapeHtml(r.last_update?localDateTime(r.last_update):'–')}</td><td><button class="mini pick" type="button" data-quote-index="${i}">Als Tippgeber-Quote</button></td></tr>`).join('')}</tbody></table></div>`;box.querySelectorAll('[data-quote-index]').forEach(btn=>btn.addEventListener('click',()=>pickApiQuote(rows[Number(btn.dataset.quoteIndex)])))}
   function pickApiQuote(row){selectedReference={mode:'api',source_name:row.bookmaker,bookmaker_key:row.bookmaker_key,quote:row.price,link:row.link,last_update:row.last_update};$('referencePicked').classList.remove('hidden');$('referencePicked').innerHTML=`✓ Tippgeber-Referenz gewählt: <strong>${escapeHtml(row.bookmaker)} · ${Number(row.price).toFixed(2)}</strong>${row.link?' · Direktlink vorhanden':''}`;refreshSaveState()}
   function getReference(){if($('referenceMode').value==='api')return selectedReference;const name=clean($('manualSourceName').value),quote=Number($('manualQuote').value);if(!name||!Number.isFinite(quote)||quote<1)return null;return{mode:$('referenceMode').value,source_name:name,bookmaker_key:'',quote,link:clean($('manualSourceUrl').value),last_update:new Date().toISOString()}}
-  function refreshSaveState(){const ref=getReference(),cfg=marketMap[$('markt').value];$('saveBtn').disabled=!(selectedEvent&&cfg&&clean($('selection').value)&&(!cfg.line||clean($('line').value))&&ref)}
+  function refreshSaveState(){const ref=getReference(),cfg=marketMap[$('markt').value],sel=currentSelectionValue(),customOk=!cfg?.customMarket||clean($('customMarketName').value);$('saveBtn').disabled=!(selectedEvent&&cfg&&sel&&customOk&&(!cfg.line||clean($('line').value))&&ref);if(ref){$('quoteClassBox').classList.remove('hidden');$('quoteClassBox').innerHTML=`<strong>Bestehende Quotenklasse:</strong> ${escapeHtml(quoteClass(ref.quote))} · Tippgeber-Referenz ${Number(ref.quote).toFixed(2)}`}else{$('quoteClassBox').classList.add('hidden');$('quoteClassBox').innerHTML=''}}
 
-  function refreshTechnical(){const cfg=marketMap[$('markt').value]||{};$('technicalBox').innerHTML=selectedEvent?`event_id: ${escapeHtml(selectedEvent.id)}<br>sport_key: ${escapeHtml(selectedEvent.sport_key)}<br>market_key: ${escapeHtml(cfg.key||'–')}<br>selection_key: ${escapeHtml($('selection').value||'–')}<br>line: ${escapeHtml(cfg.line?($('line').value||'–'):'–')}`:'Noch kein API-Spiel bestätigt.';refreshSaveState()}
-  function selectionLabel(){const s=$('selection');return s.selectedIndex>=0?clean(s.options[s.selectedIndex]?.textContent):''}
-  function payload(){const cfg=marketMap[$('markt').value]||{},ref=getReference()||{};return{test_id:'ODDS-'+Date.now(),erstellt_am:new Date().toISOString(),admin_id:clean(verifiedSession?.adminId),admin_name:clean(verifiedSession?.name),sportart:'Fussball',liga:clean($('liga').value),home_team:clean(selectedEvent?.home_team),away_team:clean(selectedEvent?.away_team),spiel_datum:clean($('spielDatum').value),anpfiff:clean($('anpfiff').value),markt_label:clean($('markt').value),market_key:clean(cfg.key),selection_label:selectionLabel(),selection_key:clean($('selection').value),line:cfg.line?clean($('line').value):'',manuelle_quote:ref.quote?String(ref.quote):'',reference_mode:clean(ref.mode),reference_source_name:clean(ref.source_name),reference_bookmaker_key:clean(ref.bookmaker_key),reference_quote:ref.quote?String(ref.quote):'',reference_link:clean(ref.link),reference_last_update:clean(ref.last_update),api_sport_key:clean(selectedEvent?.sport_key),api_event_id:clean(selectedEvent?.id),api_event_home:clean(selectedEvent?.home_team),api_event_away:clean(selectedEvent?.away_team),api_commence_time:clean(selectedEvent?.commence_time),api_match_status:selectedEvent?'CONFIRMED':'PENDING_API',odds_api_status:selectedEvent?'EVENT_MATCHED':'PENDING',notiz:clean($('notiz').value),test_version:'ODDS-TEST-V0.3',quelle:'ADMIN_TIPPS_ODDS_TEST',published_to_live:'NEIN',raw_payload:'generated_in_browser'}}
-  function validate(p){if(!selectedEvent)return'Zuerst das API-Spiel abrufen und bestätigen.';if(!p.markt_label||!p.market_key)return'Markt auswählen.';if(!p.selection_key)return'Auswahl festlegen.';if(marketMap[p.markt_label]?.line&&!p.line)return'Linie / Handicap angeben.';if(!p.reference_source_name||!p.reference_quote)return'Tippgeber-Quelle und Referenzquote festlegen.';return''}
+  function refreshTechnical(){const cfg=marketMap[$('markt').value]||{};$('technicalBox').innerHTML=selectedEvent?`event_id: ${escapeHtml(selectedEvent.id)}<br>sport_key: ${escapeHtml(selectedEvent.sport_key)}<br>market_key: ${escapeHtml(cfg.key||'–')}<br>selection_key: ${escapeHtml(currentSelectionValue()||'–')}<br>line: ${escapeHtml(cfg.line?($('line').value||'–'):'–')}`:'Noch kein API-Spiel bestätigt.';refreshSaveState()}
+  function selectionLabel(){const cfg=marketMap[$('markt').value]||{};if(cfg.customSelection)return clean($('customSelectionName').value);const s=$('selection');return s.selectedIndex>=0?clean(s.options[s.selectedIndex]?.textContent):''}
+  function payload(){const cfg=marketMap[$('markt').value]||{},ref=getReference()||{},qClass=quoteClass(ref.quote);return{test_id:'ODDS-'+Date.now(),erstellt_am:new Date().toISOString(),admin_id:clean(verifiedSession?.adminId),admin_name:clean(verifiedSession?.name),sportart:'Fussball',liga:clean($('liga').value),home_team:clean(selectedEvent?.home_team),away_team:clean(selectedEvent?.away_team),spiel_datum:clean($('spielDatum').value),anpfiff:clean($('anpfiff').value),markt_label:currentMarketLabel(),market_key:clean(cfg.key),selection_label:selectionLabel(),selection_key:currentSelectionValue(),line:cfg.line?clean($('line').value):'',manuelle_quote:ref.quote?String(ref.quote):'',quote_klasse:qClass,reference_mode:clean(ref.mode),reference_source_name:clean(ref.source_name),reference_bookmaker_key:clean(ref.bookmaker_key),reference_quote:ref.quote?String(ref.quote):'',reference_link:clean(ref.link),reference_last_update:clean(ref.last_update),premium_slots:'2',premium_direktlinks:'NEIN',premium_plus_slots:'5',premium_plus_direktlinks:'JA',api_sport_key:clean(selectedEvent?.sport_key),api_event_id:clean(selectedEvent?.id),api_event_home:clean(selectedEvent?.home_team),api_event_away:clean(selectedEvent?.away_team),api_commence_time:clean(selectedEvent?.commence_time),api_match_status:selectedEvent?'CONFIRMED':'PENDING_API',odds_api_status:selectedEvent?'EVENT_MATCHED':'PENDING',notiz:clean($('notiz').value),test_version:'ODDS-TEST-V0.4',quelle:'ADMIN_TIPPS_ODDS_TEST',published_to_live:'NEIN',raw_payload:'generated_in_browser'}}
+  function validate(p){const cfg=marketMap[$('markt').value];if(!selectedEvent)return'Zuerst das API-Spiel abrufen und bestätigen.';if(!p.markt_label||!cfg)return'Markt auswählen.';if(cfg.customMarket&&!clean($('customMarketName').value))return'Eigenen Markt benennen.';if(!p.selection_key)return'Auswahl festlegen.';if(cfg.line&&!p.line)return'Linie / Handicap angeben.';if(!p.reference_source_name||!p.reference_quote)return'Tippgeber-Quelle und Referenzquote festlegen.';return''}
   function showPreview(){const p=payload(),err=validate(p);if(err){$('status').textContent=err;$('status').className='status error'}else{$('status').textContent='';$('preview').textContent=JSON.stringify(p,null,2)}}
   async function saveTest(){const p=payload(),err=validate(p);if(err){$('status').textContent=err;$('status').className='status error';return}$('saveBtn').disabled=true;$('status').textContent='TEST-Datensatz wird an Make gesendet …';$('status').className='status';try{const r=await fetch(TEST_WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});if(!r.ok)throw new Error('Make antwortet mit HTTP '+r.status);$('status').textContent='✓ TEST-Struktur gesendet. Kein Live-Tipp wurde veröffentlicht.';$('status').className='status ok';$('preview').textContent=JSON.stringify(p,null,2)}catch(e){$('status').textContent=e.message||'Senden fehlgeschlagen.';$('status').className='status error'}finally{refreshSaveState()}}
 
-  $('liga').addEventListener('change',loadLeagueEvents);$('homeTeam').addEventListener('change',populateAway);$('awayTeam').addEventListener('change',chooseMatchup);$('lookupBtn').addEventListener('click',lookupGame);$('markt').addEventListener('change',updateMarketUI);$('selection').addEventListener('change',selectionChanged);$('line').addEventListener('input',()=>{selectedReference=null;clearReferenceUI();updateOddsButton();refreshTechnical()});$('referenceMode').addEventListener('change',sourceModeChanged);$('manualSourceName').addEventListener('input',refreshSaveState);$('manualQuote').addEventListener('input',refreshSaveState);$('manualSourceUrl').addEventListener('input',refreshSaveState);$('oddsBtn').addEventListener('click',fetchOdds);$('previewBtn').addEventListener('click',showPreview);$('saveBtn').addEventListener('click',saveTest);
+  $('liga').addEventListener('change',loadLeagueEvents);$('homeTeam').addEventListener('change',populateAway);$('awayTeam').addEventListener('change',chooseMatchup);$('lookupBtn').addEventListener('click',lookupGame);$('markt').addEventListener('change',updateMarketUI);$('selection').addEventListener('change',selectionChanged);$('line').addEventListener('input',()=>{selectedReference=null;clearReferenceUI();updateOddsButton();refreshTechnical()});$('customMarketName').addEventListener('input',refreshTechnical);$('customSelectionName').addEventListener('input',()=>{selectedReference=null;clearReferenceUI();updateOddsButton();refreshTechnical()});$('referenceMode').addEventListener('change',sourceModeChanged);$('manualSourceName').addEventListener('input',refreshSaveState);$('manualQuote').addEventListener('input',refreshSaveState);$('manualSourceUrl').addEventListener('input',refreshSaveState);$('oddsBtn').addEventListener('click',fetchOdds);$('previewBtn').addEventListener('click',showPreview);$('saveBtn').addEventListener('click',saveTest);
   verifySession();
 })();
 </script>
