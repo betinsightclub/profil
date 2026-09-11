@@ -1,13 +1,14 @@
-/* BetInsight Netzwerk Cache-Sparmodus · 2026-09-02-02
+/* BetInsight Netzwerk Cache-Sparmodus · 2026-09-11-03
    Ziel: Netzwerk-Gesamtübersicht sofort anzeigen, ohne dass zuerst eine Ebene aufgeklappt werden muss.
    Ebenen 1–3 werden einmal gemeinsam geladen, kurzzeitig im Browser-Session-Cache gehalten und danach ohne weitere Make-Abfrage geöffnet.
    Zusätzlich zeigt die obere Netzwerk-Karte die Gesamtzahl der Partner sowie Ebene 1–3.
+   Gesamt verbrauchte Units und tatsächlich verbrauchte Kauf-Units werden getrennt dargestellt.
    Keine Unit-, Referral-, Zahlungs-, FIFO- oder Premium-Bestände werden geschrieben. */
 (() => {
   "use strict";
 
   const NETWORK_WEBHOOK_URL = "https://hook.eu1.make.com/yli7txai951a1huc8707xovumwomi2wz";
-  const CACHE_PREFIX = "betinsight_network_cache_v2:";
+  const CACHE_PREFIX = "betinsight_network_cache_v3:";
   const CACHE_TTL_MS = 5 * 60 * 1000;
   const AUTOLOAD_RETRY_MS = 180;
   const AUTOLOAD_MAX_TRIES = 35;
@@ -159,23 +160,25 @@
   function partnerSummary(partners){
     return partners.reduce((sum,p)=>{
       sum.purchased += num(first(p,["gekaufte_units","gekaufte_units_rest","35"],0));
-      sum.consumed += num(first(p,["verbrauchte_kauf_units","verbrauchte_units","consumed_units","34"],0));
+      sum.totalConsumed += num(first(p,["gesamt_verbrauchte_units","verbrauchte_units","34"],0));
+      sum.consumed += num(first(p,["verbrauchte_kauf_units","consumed_units","81"],0));
       sum.expected += num(first(p,["erwartete_referral_units","ref_erwartet","expected_units"],0));
       sum.released += num(first(p,["freigegebene_referral_units","ref_verfuegbar","released_units","available_units"],0));
       return sum;
-    },{partnerCount:partners.length,purchased:0,consumed:0,expected:0,released:0});
+    },{partnerCount:partners.length,purchased:0,totalConsumed:0,consumed:0,expected:0,released:0});
   }
 
   function loadedRows(partners){
-    if(!partners.length) return `<tr><td colspan="6" class="empty-row">In dieser Ebene sind aktuell keine Partner vorhanden.</td></tr>`;
+    if(!partners.length) return `<tr><td colspan="7" class="empty-row">In dieser Ebene sind aktuell keine Partner vorhanden.</td></tr>`;
     return partners.map(p=>{
       const bi=first(p,["bi_nummer","bi_number","ref_code","user_id","7","6"],"-");
       const sponsor=first(p,["sponsor","sponsor_ref","sponsor_code","sponsor_ref_code","8","9"],"-");
       const purchased=first(p,["gekaufte_units","gekaufte_units_rest","purchased_units","35"],0);
-      const consumed=first(p,["verbrauchte_kauf_units","verbrauchte_units","consumed_units","34"],0);
+      const totalConsumed=first(p,["gesamt_verbrauchte_units","verbrauchte_units","34"],0);
+      const consumed=first(p,["verbrauchte_kauf_units","consumed_units","81"],0);
       const expected=first(p,["erwartete_referral_units","ref_erwartet","expected_units"],0);
       const released=first(p,["freigegebene_referral_units","ref_verfuegbar","released_units","available_units"],0);
-      return `<tr><td class="partner-id">${esc(bi)}</td><td>${esc(sponsor)}</td><td>${fmt(purchased)}</td><td>${fmt(consumed)}</td><td>${fmt(expected)}</td><td>${fmt(released)}</td></tr>`;
+      return `<tr><td class="partner-id">${esc(bi)}</td><td>${esc(sponsor)}</td><td>${fmt(purchased)}</td><td>${fmt(totalConsumed)}</td><td>${fmt(consumed)}</td><td>${fmt(expected)}</td><td>${fmt(released)}</td></tr>`;
     }).join("");
   }
 
@@ -192,7 +195,7 @@
       <div class="level-metric"><div class="level-metric-label">Erwartet</div><div class="level-metric-value">${fmt(summary.expected)}</div></div>
       <div class="level-metric"><div class="level-metric-label">Freigegeben</div><div class="level-metric-value">${fmt(summary.released)}</div></div>
       <div class="level-arrow">${open?"⌃":"⌄"}</div></div>
-      <div class="level-body"><div class="table-wrap"><table class="network-table"><thead><tr><th>BI-Nummer</th><th>Sponsor</th><th>Gekaufte Units</th><th>Verbrauchte Kauf-Units</th><th>Erwartete Referral Units</th><th>Freigegebene Referral Units</th></tr></thead><tbody>${loadedRows(partners)}</tbody></table></div></div>`;
+      <div class="level-body"><div class="table-wrap"><table class="network-table"><thead><tr><th>BI-Nummer</th><th>Sponsor</th><th>Gekaufte Units</th><th>Gesamt verbrauchte Units</th><th>Verbrauchte Kauf-Units</th><th>Erwartete Referral Units</th><th>Freigegebene Referral Units</th></tr></thead><tbody>${loadedRows(partners)}</tbody></table></div></div>`;
     const top=document.getElementById("networkLevel"+level);
     if(top) top.textContent=fmt(summary.partnerCount);
     applyPrivacy(card);
