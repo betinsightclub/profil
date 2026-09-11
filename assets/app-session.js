@@ -197,6 +197,18 @@
     observer.observe(document.documentElement, { childList: true, subtree: true });
   }
 
+  function loadPremiumProviderDetails() {
+    const path = String(window.location.pathname || "").replace(/\/+$/, "");
+    if (!path.endsWith("/premium-upgrade") || window.__betInsightPremiumProviderDetailsLoaderInstalled) return;
+    window.__betInsightPremiumProviderDetailsLoaderInstalled = true;
+    const script = document.createElement("script");
+    script.src = appPath("assets/premium-provider-details.js") + "?v=20260911-1";
+    script.defer = true;
+    script.dataset.biPremiumProviderDetails = "1";
+    script.addEventListener("error", () => console.warn("BetInsight Premium Anbieterangabe konnte nicht geladen werden."), { once: true });
+    document.head.appendChild(script);
+  }
+
   function installDailyBundledTransport() {
     try {
       const path = String(window.location.pathname || "").replace(/\/+$/, "");
@@ -343,6 +355,7 @@
   removeRedundantAffiliateDisclosure();
   installPremiumUpgradeRouting();
   installPremiumContextButtons();
+  loadPremiumProviderDetails();
   installDailyBundledTransport();
   loadTipNotifications();
 })();
