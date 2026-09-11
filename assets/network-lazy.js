@@ -1,15 +1,15 @@
-/* BetInsight Netzwerk Cache-Sparmodus · 2026-09-11-04
+/* BetInsight Netzwerk Cache-Sparmodus · 2026-09-11-05
    Ziel: Netzwerk-Gesamtübersicht sofort anzeigen, ohne dass zuerst eine Ebene aufgeklappt werden muss.
-   Ebenen 1–3 werden einmal gemeinsam geladen, kurzzeitig im Browser-Session-Cache gehalten und danach ohne weitere Make-Abfrage geöffnet.
+   Ebenen 1–3 werden einmal gemeinsam geladen, kurzzeitig lokal zwischengespeichert und danach ohne weitere Make-Abfrage geöffnet.
    Zusätzlich zeigt die obere Netzwerk-Karte die Gesamtzahl der Partner sowie Ebene 1–3.
    Gesamt verbrauchte Units und tatsächlich verbrauchte Kauf-Units werden getrennt dargestellt.
-   Robustheitsfix: wartet ausreichend lange auf den bestätigten Dashboard-Zugang und startet bei Fokus/Sichtbarkeit erneut, ohne zusätzliche Make-Abfragen solange noch kein Token vorliegt.
+   Robustheitsfix: Dashboard-Zugang wird aus der bestätigten Session gelesen; bereits geladene Karten werden beim erneuten Öffnen nicht mehr durch Platzhalter überschrieben.
    Keine Unit-, Referral-, Zahlungs-, FIFO- oder Premium-Bestände werden geschrieben. */
 (() => {
   "use strict";
 
   const NETWORK_WEBHOOK_URL = "https://hook.eu1.make.com/yli7txai951a1huc8707xovumwomi2wz";
-  const CACHE_PREFIX = "betinsight_network_cache_v4:";
+  const CACHE_PREFIX = "betinsight_network_cache_v5:";
   const CACHE_TTL_MS = 5 * 60 * 1000;
   const AUTOLOAD_RETRY_MS = 250;
   const AUTOLOAD_MAX_TRIES = 480;
@@ -32,11 +32,24 @@
     for (const key of keys) if (obj && obj[key] !== undefined && obj[key] !== null && obj[key] !== "") return obj[key];
     return fallback;
   };
+  const isUuid = value => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value||"").trim());
 
   function getDashboardToken(){
-    return typeof window.getConfirmedDashboardToken === "function"
-      ? String(window.getConfirmedDashboardToken() || "").trim()
-      : "";
+    try{
+      if(typeof window.getConfirmedDashboardToken === "function"){
+        const confirmed=String(window.getConfirmedDashboardToken()||"").trim();
+        if(isUuid(confirmed)) return confirmed;
+      }
+    }catch(_){}
+    try{
+      const session=String(window.BetInsightSession?.getDashboardUuid?.()||"").trim();
+      if(isUuid(session)) return session;
+    }catch(_){}
+    try{
+      const stored=String(localStorage.getItem("betinsight_dashboard_token")||"").trim();
+      if(isUuid(stored)) return stored;
+    }catch(_){}
+    return "";
   }
 
   function cacheKey(token){
@@ -46,11 +59,11 @@
   function readCache(token){
     if(!token) return null;
     try{
-      const raw=sessionStorage.getItem(cacheKey(token));
+      const raw=localStorage.getItem(cacheKey(token));
       if(!raw) return null;
       const cached=JSON.parse(raw);
       if(!cached || !Number.isFinite(Number(cached.savedAt)) || Date.now()-Number(cached.savedAt)>CACHE_TTL_MS){
-        sessionStorage.removeItem(cacheKey(token));
+        localStorage.removeItem(cacheKey(token));
         return null;
       }
       if(!Array.isArray(cached.level1) || !Array.isArray(cached.level2) || !Array.isArray(cached.level3)) return null;
@@ -61,7 +74,7 @@
   function writeCache(token,levels){
     if(!token) return;
     try{
-      sessionStorage.setItem(cacheKey(token),JSON.stringify({
+      localStorage.setItem(cacheKey(token),JSON.stringify({
         savedAt:Date.now(),
         level1:Array.isArray(levels?.[1])?levels[1]:[],
         level2:Array.isArray(levels?.[2])?levels[2]:[],
@@ -311,7 +324,12 @@
         return;
       }
       networkState.autoLoadTries+=1;
-      if(networkState.autoLoadTries<AUTOLOAD_MAX_TRIES) networkState.autoLoadTimer=setTimeout(attempt,AUTOLOAD_RETRY_MS);
+      if(networkState.autoLoadTries<AUTOLOAD_MAX_TRIES){
+        networkState.autoLoadTimer=setTimeout(attempt,AUTOLOAD_RETRY_MS);
+      }else{
+        const status=document.getElementById("referralStatus");
+        if(status) status.textContent="Die Netzwerkdaten konnten nicht geladen werden. Bitte Seite neu öffnen.";
+      }
     };
     networkState.autoLoadTimer=setTimeout(attempt,60);
   }
@@ -326,7 +344,10 @@
       if(arrow) arrow.textContent="⌄";
       return;
     }
-    if(!networkState.loaded){await loadAll(level);return;}
+    if(!networkState.loaded){
+      try{await loadAll(level);}catch(_){scheduleOverviewLoad(true);}
+      return;
+    }
     card.classList.add("open");
     const arrow=card.querySelector(".level-arrow");
     if(arrow) arrow.textContent="⌃";
@@ -336,27 +357,34 @@
     ensureCards(false);
     const status=document.getElementById("referralStatus"), old=sourceButton?.innerText;
     const token=getDashboardToken();
-    if(networkState.loaded && (!token || networkState.token===token)){
+    if(networkState.loaded && token && networkState.token===token){
       if(status) status.textContent="Netzwerkübersicht ist bereits geladen.";
       if(sourceButton&&showFeedback){sourceButton.disabled=true;sourceButton.innerText="✅ Bereits geladen";setTimeout(()=>{sourceButton.disabled=false;sourceButton.innerText=old;},1200);}
       return;
     }
-    await loadAll(0,sourceButton);
+    try{await loadAll(0,sourceButton);}catch(_){scheduleOverviewLoad(true);}
   };
 
   window.prepareNetworkSection=()=>{
     const section=document.getElementById("referralSection");
     if(section) section.style.display="block";
     if(typeof window.setReferralLinks === "function") window.setReferralLinks({});
-    ensureCards(true);
-    ensurePartnerTotal();
 
     const token=getDashboardToken();
     if(networkState.loaded && token && networkState.token===token){
-      updateTotals();
+      ensureCards(false);
+      ensurePartnerTotal();
+      const levels={
+        1:levelState.get(1)?.partners||[],
+        2:levelState.get(2)?.partners||[],
+        3:levelState.get(3)?.partners||[]
+      };
+      renderAll(levels,0,token);
       return;
     }
 
+    ensureCards(true);
+    ensurePartnerTotal();
     resetState();
     if(token && restoreCachedOverview(token)) return;
 
