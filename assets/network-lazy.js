@@ -1,17 +1,18 @@
-/* BetInsight Netzwerk Cache-Sparmodus · 2026-09-11-03
+/* BetInsight Netzwerk Cache-Sparmodus · 2026-09-11-04
    Ziel: Netzwerk-Gesamtübersicht sofort anzeigen, ohne dass zuerst eine Ebene aufgeklappt werden muss.
    Ebenen 1–3 werden einmal gemeinsam geladen, kurzzeitig im Browser-Session-Cache gehalten und danach ohne weitere Make-Abfrage geöffnet.
    Zusätzlich zeigt die obere Netzwerk-Karte die Gesamtzahl der Partner sowie Ebene 1–3.
    Gesamt verbrauchte Units und tatsächlich verbrauchte Kauf-Units werden getrennt dargestellt.
+   Robustheitsfix: wartet ausreichend lange auf den bestätigten Dashboard-Zugang und startet bei Fokus/Sichtbarkeit erneut, ohne zusätzliche Make-Abfragen solange noch kein Token vorliegt.
    Keine Unit-, Referral-, Zahlungs-, FIFO- oder Premium-Bestände werden geschrieben. */
 (() => {
   "use strict";
 
   const NETWORK_WEBHOOK_URL = "https://hook.eu1.make.com/yli7txai951a1huc8707xovumwomi2wz";
-  const CACHE_PREFIX = "betinsight_network_cache_v3:";
+  const CACHE_PREFIX = "betinsight_network_cache_v4:";
   const CACHE_TTL_MS = 5 * 60 * 1000;
-  const AUTOLOAD_RETRY_MS = 180;
-  const AUTOLOAD_MAX_TRIES = 35;
+  const AUTOLOAD_RETRY_MS = 250;
+  const AUTOLOAD_MAX_TRIES = 480;
   const levelState = new Map([1,2,3].map(level => [level,{loaded:false,partners:[],summary:null}]));
   const networkState = {loaded:false,loading:false,token:"",autoLoadTimer:null,autoLoadTries:0};
 
@@ -377,6 +378,13 @@
       applyOverviewPrivacy();
     });
     if(section) observer.observe(section,{attributes:true,attributeFilter:["style","class"]});
+
+    window.addEventListener("focus",()=>{
+      if(!networkState.loaded && !networkState.loading) scheduleOverviewLoad(true);
+    });
+    document.addEventListener("visibilitychange",()=>{
+      if(document.visibilityState==="visible" && !networkState.loaded && !networkState.loading) scheduleOverviewLoad(true);
+    });
   }
 
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",install,{once:true}); else install();
