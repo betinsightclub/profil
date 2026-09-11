@@ -1,10 +1,11 @@
-/* BetInsight Dashboard-Layout · 2026-09-11-01
+/* BetInsight Dashboard-Layout · 2026-09-11-02
    Empfehlungslinks werden in den Profilzugang verschoben.
    Die obere Netzwerkübersicht wird automatisch aus dem Browser-Cache angezeigt; fehlt der Cache, werden Ebenen 1–3 einmal gemeinsam geladen.
    Entfernt: oberer Netzwerk-laden-Button, unterer Netzwerkdaten-laden-Button und Marketing-Center im Netzwerkbereich.
    Produktionsansicht: interne Cache-/Make-Hinweise werden vollständig ausgeblendet; obere Netzwerkübersicht kompakt.
    Performance-Fix: Netzwerk-DOM-Änderungen werden gebündelt; der Observer schreibt nicht mehr rekursiv in beobachtete Inhalte.
    Mitgliedschaft-Fix 2026-09-11: Tarifvergleich hat jetzt echte Aktionsbuttons; Menüpunkt Mitgliedschaft öffnet den Vergleich; externe Premium-Aktivierung/Verlängerung führt zur produktiven Premium-Upgrade-Seite.
+   Netzwerk-Fix 2026-09-11: lädt ausdrücklich die korrigierte v5 des Netzwerk-Sparmodus.
    Keine Unit-, Referral-, Tipp-, Zahlungs- oder Wechselstubenbestände werden verändert. */
 (() => {
   "use strict";
@@ -292,7 +293,7 @@
   function loadNetworkLazy() {
     if (document.querySelector('script[data-bi-network-lazy="1"]')) return;
     const script = document.createElement("script");
-    script.src = new URL("network-lazy.js?v=20260902-3", SCRIPT_BASE).toString();
+    script.src = new URL("network-lazy.js?v=20260911-5", SCRIPT_BASE).toString();
     script.async = false;
     script.dataset.biNetworkLazy = "1";
     script.addEventListener("error", () => console.error("BetInsight Netzwerk-Sparmodus konnte nicht geladen werden."), { once:true });
