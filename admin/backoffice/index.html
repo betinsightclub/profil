@@ -19,8 +19,9 @@
         const coreHtml = await response.text();
         const walletApprovalScript = '<scr' + 'ipt src="./wallet-approval.js?v=20260906-1"></scr' + 'ipt>';
         const premiumScript = '<scr' + 'ipt src="./premium-eingaenge.js?v=20260905-2"></scr' + 'ipt>';
-        const marker = '<!-- WALLET-FREIGABE-MASTER · PREMIUM-EINGAENGE-LIVE · Kernstand 2026-09-05 unverändert eingebunden -->';
-        const composed = coreHtml.replace(/<\/body>/i, walletApprovalScript + premiumScript + marker + "</body>");
+        const adminUnitCreditScript = '<scr' + 'ipt src="./admin-unit-credit.js?v=20260911-1"></scr' + 'ipt>';
+        const marker = '<!-- WALLET-FREIGABE-MASTER · PREMIUM-EINGAENGE-LIVE · ADMIN-UNIT-GUTSCHRIFT-MASTER · Kernstand 2026-09-05 unverändert eingebunden -->';
+        const composed = coreHtml.replace(/<\/body>/i, walletApprovalScript + premiumScript + adminUnitCreditScript + marker + "</body>");
         document.open();
         document.write(composed);
         document.close();
