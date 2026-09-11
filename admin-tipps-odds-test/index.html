@@ -8,7 +8,9 @@
   <title>BetInsight – Odds Tipp TEST</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <style>
-    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#0b3b55 0%,#061d2a 46%,#031018 100%);color:#fff;font-family:Arial,Helvetica,sans-serif;padding:26px 14px 50px}button,input,select,textarea,a{font:inherit}.page{width:min(980px,100%);margin:auto}.logo{display:block;width:175px;max-width:60vw;margin:4px auto 24px}.card{margin:0 auto 20px;padding:25px;border:1px solid rgba(0,218,255,.27);border-radius:22px;background:rgba(9,45,64,.96);box-shadow:0 18px 45px rgba(0,0,0,.32)}h1,h2,h3{margin-top:0}.muted{color:#b9d8e8;line-height:1.5}.test-banner{padding:15px 17px;border:1px solid rgba(255,190,74,.45);border-radius:14px;background:rgba(255,174,53,.10);color:#ffe0a3;font-weight:700;line-height:1.5}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.full{grid-column:1/-1}label{display:block;margin:0 0 7px;color:#dff5ff;font-weight:800;font-size:14px}input,select,textarea{width:100%;min-height:49px;padding:12px 13px;border:1px solid rgba(0,218,255,.34);border-radius:11px;background:#061d2a;color:#fff;outline:none}textarea{min-height:100px;resize:vertical}.hint{margin-top:6px;color:#84b5c8;font-size:12px;line-height:1.4}.technical{padding:16px;border:1px solid rgba(125,255,178,.28);border-radius:14px;background:rgba(125,255,178,.05)}.technical code{color:#8ff0cb}.preview{margin-top:18px;padding:16px;border-radius:14px;background:#041822;border:1px solid rgba(255,255,255,.12);white-space:pre-wrap;color:#d9edf6;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.5}.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}.btn{border:0;border-radius:999px;padding:13px 20px;font-weight:900;cursor:pointer;background:#16a8f5;color:#fff}.btn.secondary{background:transparent;border:1px solid rgba(0,218,255,.4);text-decoration:none}.btn.save{background:linear-gradient(135deg,#21d07a,#0d9e57);color:#01251a}.btn:disabled{opacity:.45;cursor:not-allowed}.status{min-height:22px;margin-top:13px;color:#ffcf75}.status.ok{color:#7dffb2}.hidden{display:none!important}.auth{text-align:center;max-width:600px}.spinner{width:40px;height:40px;margin:0 auto 16px;border:4px solid rgba(185,216,232,.22);border-top-color:#16a8f5;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}@media(max-width:700px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.card{padding:20px 16px}.actions{display:grid}.btn{width:100%}}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#0b3b55 0%,#061d2a 46%,#031018 100%);color:#fff;font-family:Arial,Helvetica,sans-serif;padding:26px 14px 50px}button,input,select,textarea,a{font:inherit}.page{width:min(980px,100%);margin:auto}.logo{display:block;width:175px;max-width:60vw;margin:4px auto 24px}.card{margin:0 auto 20px;padding:25px;border:1px solid rgba(0,218,255,.27);border-radius:22px;background:rgba(9,45,64,.96);box-shadow:0 18px 45px rgba(0,0,0,.32)}h1,h2,h3{margin-top:0}.muted{color:#b9d8e8;line-height:1.5}.test-banner{padding:15px 17px;border:1px solid rgba(255,190,74,.45);border-radius:14px;background:rgba(255,174,53,.10);color:#ffe0a3;font-weight:700;line-height:1.5}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.full{grid-column:1/-1}label{display:block;margin:0 0 7px;color:#dff5ff;font-weight:800;font-size:14px}input,select,textarea{width:100%;min-height:49px;padding:12px 13px;border:1px solid rgba(0,218,255,.34);border-radius:11px;background:#061d2a;color:#fff;outline:none}textarea{min-height:100px;resize:vertical}.hint{margin-top:7px;color:#84b5c8;font-size:12px;line-height:1.45}.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}.btn{border:0;border-radius:999px;padding:13px 20px;font-weight:900;cursor:pointer;background:#16a8f5;color:#fff;text-decoration:none}.btn.secondary{background:transparent;border:1px solid rgba(0,218,255,.4)}.btn.save{background:linear-gradient(135deg,#21d07a,#0d9e57);color:#01251a}.btn:disabled{opacity:.45;cursor:not-allowed}.status{min-height:22px;margin-top:13px;color:#ffcf75}.status.ok{color:#7dffb2}.status.error{color:#ff9da3}.hidden{display:none!important}.auth{text-align:center;max-width:600px}.spinner{width:40px;height:40px;margin:0 auto 16px;border:4px solid rgba(185,216,232,.22);border-top-color:#16a8f5;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    .lookup-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:18px}.lookup-row .btn{min-width:220px}.found-wrap{margin-top:18px}.found-card{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;padding:16px;border:1px solid rgba(0,218,255,.24);border-radius:15px;background:#061d2a;margin-top:10px}.found-main{min-width:0}.found-title{font-weight:900;font-size:17px}.found-meta{margin-top:5px;color:#a9cddd;font-size:13px;line-height:1.45}.found-card.best{border-color:rgba(125,255,178,.5);box-shadow:0 0 0 2px rgba(125,255,178,.07) inset}.confirm-box{margin-top:18px;padding:17px;border-radius:15px;background:rgba(125,255,178,.08);border:1px solid rgba(125,255,178,.32)}.confirm-box strong{color:#8ff0cb}.technical{margin-top:13px;padding:13px;border-radius:12px;background:rgba(0,0,0,.18);color:#a9cddd;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.5;overflow:auto}fieldset{border:0;padding:0;margin:0}fieldset:disabled{opacity:.48}.preview{margin-top:18px;padding:16px;border-radius:14px;background:#041822;border:1px solid rgba(255,255,255,.12);white-space:pre-wrap;color:#d9edf6;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.5}
+    @media(max-width:700px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.card{padding:20px 16px}.actions{display:grid}.btn{width:100%}.found-card{grid-template-columns:1fr}.lookup-row{display:grid}.lookup-row .btn{min-width:0;width:100%}}
   </style>
 </head>
 <body>
@@ -24,7 +26,7 @@
 
   <div id="app" class="hidden">
     <section class="card">
-      <div class="test-banner">🧪 <strong>ISOLIERTER ODDS-TEST.</strong> Dieses Modul schreibt niemals nach <strong>TIPPS</strong>, löst keine Units, keine Freischaltung und keinen Live-Alarm aus. Es dient ausschließlich der neuen API-/Marktstruktur.</div>
+      <div class="test-banner">🧪 <strong>ISOLIERTER ODDS-TEST.</strong> Der produktive Tippgeber bleibt unverändert. Hier testen wir nur Spielzuordnung, API-Markt und spätere Anbieterquoten.</div>
       <div style="margin-top:18px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center">
         <div><h1 style="margin-bottom:5px">Odds-fähigen Tipp vorbereiten</h1><div class="muted">Angemeldet als <strong id="adminName">Admin</strong></div></div>
         <a class="btn secondary" href="../admin-tipps/">Zum produktiven Tippbereich</a>
@@ -32,84 +34,114 @@
     </section>
 
     <section class="card">
-      <h2>1. Spiel eindeutig erfassen</h2>
+      <h2>1. Spieldaten eingeben</h2>
+      <p class="muted">Genau wie bisher eingeben. Erst mit <strong>„Spiel abrufen“</strong> wird die Odds-API gefragt.</p>
       <div class="grid">
-        <div><label for="liga">Liga / Wettbewerb *</label><input id="liga" placeholder="z. B. Bundesliga"></div>
+        <div><label for="liga">Liga / Wettbewerb *</label><input id="liga" list="ligaList" placeholder="z. B. 2. Bundesliga"><datalist id="ligaList"><option value="Bundesliga"><option value="2. Bundesliga"><option value="3. Liga"><option value="DFB-Pokal"><option value="Premier League"><option value="Champions League"><option value="Europa League"><option value="La Liga"><option value="Serie A"><option value="Ligue 1"><option value="Primeira Liga"><option value="Österreich Bundesliga"><option value="Schweiz Super League"><option value="Brasilien Serie A"></datalist></div>
         <div><label for="sportart">Sportart</label><input id="sportart" value="Fussball" readonly></div>
-        <div><label for="homeTeam">Heimteam *</label><input id="homeTeam" placeholder="z. B. Borussia Dortmund"></div>
-        <div><label for="awayTeam">Auswärtsteam *</label><input id="awayTeam" placeholder="z. B. Villarreal CF"></div>
+        <div><label for="homeTeam">Heimteam *</label><input id="homeTeam" placeholder="z. B. SV Darmstadt"></div>
+        <div><label for="awayTeam">Auswärtsteam *</label><input id="awayTeam" placeholder="z. B. Arminia Bielefeld"></div>
         <div><label for="spielDatum">Spieldatum *</label><input id="spielDatum" type="date"></div>
         <div><label for="anpfiff">Anpfiff *</label><input id="anpfiff" type="time"></div>
       </div>
-      <div class="hint">Nach Anschluss der Odds-API kommt hier die Suche/Bestätigung des echten API-Events hinzu. Bis dahin bleibt <code>api_event_id</code> bewusst leer.</div>
+      <div class="lookup-row">
+        <button id="lookupBtn" class="btn" type="button">🔎 Spiel abrufen</button>
+        <div id="lookupStatus" class="status"></div>
+      </div>
+      <div class="hint">Kleine Schreibfehler bei Mannschaftsnamen werden toleriert. BetInsight wählt aber nie stillschweigend ein Spiel aus – du bestätigst den Treffer einmal.</div>
+      <div id="foundWrap" class="found-wrap hidden"></div>
+      <div id="confirmedEvent" class="confirm-box hidden"></div>
     </section>
 
     <section class="card">
-      <h2>2. Markt so auswählen, dass eine API ihn versteht</h2>
-      <div class="grid">
-        <div><label for="markt">Markt *</label><select id="markt"><option value="">Bitte auswählen</option><option value="1X2">1X2</option><option value="Über 2,5">Über 2,5</option><option value="Unter 2,5">Unter 2,5</option><option value="Beide treffen">Beide treffen</option><option value="Handicap">Handicap</option><option value="Doppelte Chance">Doppelte Chance</option></select></div>
-        <div id="selectionWrap"><label for="selection">Auswahl *</label><select id="selection" disabled><option value="">Zuerst Markt auswählen</option></select></div>
-        <div id="lineWrap" class="hidden"><label for="line">Linie / Handicap *</label><input id="line" type="number" step="0.25" placeholder="z. B. 2.5 oder -1"></div>
-        <div><label for="manualQuote">Manuell erfasste Quote *</label><input id="manualQuote" type="number" min="1" step="0.01" placeholder="z. B. 1.78"></div>
-        <div class="full"><label for="notiz">Testnotiz</label><textarea id="notiz" placeholder="Optional"></textarea></div>
-      </div>
-      <div class="technical" style="margin-top:18px">
-        <strong>Technischer API-Schlüssel:</strong>
-        <div class="grid" style="margin-top:12px">
-          <div>Markt: <code id="marketKey">–</code></div>
-          <div>Auswahl: <code id="selectionKey">–</code></div>
-          <div>Linie: <code id="lineKey">–</code></div>
-          <div>Event-ID: <code>PENDING_API</code></div>
+      <h2>2. Markt und Auswahl festlegen</h2>
+      <p class="muted">Dieser Bereich wird erst aktiv, wenn das echte API-Spiel bestätigt wurde.</p>
+      <fieldset id="marketFieldset" disabled>
+        <div class="grid">
+          <div><label for="markt">Markt *</label><select id="markt"><option value="">Bitte auswählen</option><option value="1X2">1X2</option><option value="Über 2,5">Über 2,5</option><option value="Unter 2,5">Unter 2,5</option><option value="Beide treffen">Beide treffen</option><option value="Handicap">Handicap</option><option value="Doppelte Chance">Doppelte Chance</option></select></div>
+          <div><label for="selection">Auswahl *</label><select id="selection" disabled><option value="">Zuerst Markt auswählen</option></select></div>
+          <div id="lineWrap" class="hidden"><label for="line">Linie / Handicap *</label><input id="line" type="number" step="0.25" placeholder="z. B. 2.5 oder -1"></div>
+          <div><label for="manualQuote">Tippgeber-Quote / Referenzquote</label><input id="manualQuote" type="number" min="1" step="0.01" placeholder="optional, z. B. 1.78"></div>
+          <div class="full"><label for="notiz">Testnotiz</label><textarea id="notiz" placeholder="Optional"></textarea></div>
         </div>
-      </div>
+        <div class="technical" id="technicalBox">Noch kein API-Spiel bestätigt.</div>
+      </fieldset>
     </section>
 
     <section class="card">
-      <h2>3. Nur TEST-Struktur speichern</h2>
-      <p class="muted">Der erste echte Testdatensatz dient gleichzeitig dazu, Make die neue Payload-Struktur sicher lernen zu lassen. Danach wird der isolierte Schreibschritt in <strong>ODDS_TIPP_TEST</strong> angeschlossen.</p>
+      <h2>3. TEST-Struktur speichern</h2>
+      <p class="muted">Noch keine Live-Veröffentlichung. Der Datensatz geht ausschließlich an das isolierte Odds-Test-Szenario.</p>
       <div id="preview" class="preview">Noch keine Vorschau.</div>
-      <div class="actions"><button id="previewBtn" class="btn" type="button">Vorschau</button><button id="saveBtn" class="btn save" type="button">TEST-Struktur an Make senden</button><a class="btn secondary" href="../admin/">Abbrechen</a></div>
+      <div class="actions"><button id="previewBtn" class="btn" type="button">Vorschau</button><button id="saveBtn" class="btn save" type="button" disabled>TEST-Struktur an Make senden</button><a class="btn secondary" href="../admin/">Abbrechen</a></div>
       <div id="status" class="status"></div>
     </section>
   </div>
 </main>
 <script>
 (() => {
-  "use strict";
-  const AUTH_API_URL = "https://hook.eu1.make.com/rfmhuu4fkr9kjsv7o15r2kir8ezbersl";
-  const TEST_WEBHOOK_URL = "https://hook.eu1.make.com/ww8fvxsgsbg0e8b17mhdtbemvtkieixn";
-  const SESSION_KEY = "betinsight_admin_session_v1";
-  const $ = id => document.getElementById(id);
-  let verifiedSession = null;
+  'use strict';
+  const AUTH_API_URL='https://hook.eu1.make.com/rfmhuu4fkr9kjsv7o15r2kir8ezbersl';
+  const TEST_WEBHOOK_URL='https://hook.eu1.make.com/ww8fvxsgsbg0e8b17mhdtbemvtkieixn';
+  const SUPABASE_RPC='https://lszlaglwlixejzytrurg.supabase.co/rest/v1/rpc/betinsight_odds_event_search_admin';
+  const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxzemxhZ2x3bGl4ZWp6eXRydXJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2NDQ1ODYsImV4cCI6MjEwNDIyMDU4Nn0.vgTxsUC2tMgO9XIRWYdYMS-_TX_OMVeHGK5LIxIsXAU';
+  const SESSION_KEY='betinsight_admin_session_v1';
+  const $=id=>document.getElementById(id);
+  let verifiedSession=null, sessionHash='', selectedEvent=null;
 
-  function clean(v){return String(v||"").trim()}
+  const leagueMap={
+    'bundesliga':'soccer_germany_bundesliga','1 bundesliga':'soccer_germany_bundesliga','deutsche bundesliga':'soccer_germany_bundesliga',
+    '2 bundesliga':'soccer_germany_bundesliga2','zweite bundesliga':'soccer_germany_bundesliga2',
+    '3 liga':'soccer_germany_liga3','dfb pokal':'soccer_germany_dfb_pokal',
+    'premier league':'soccer_epl','epl':'soccer_epl','champions league':'soccer_uefa_champs_league','uefa champions league':'soccer_uefa_champs_league',
+    'europa league':'soccer_uefa_europa_league','conference league':'soccer_uefa_europa_conference_league','europa conference league':'soccer_uefa_europa_conference_league',
+    'la liga':'soccer_spain_la_liga','spanien la liga':'soccer_spain_la_liga','serie a':'soccer_italy_serie_a','serie a italien':'soccer_italy_serie_a',
+    'serie b':'soccer_italy_serie_b','ligue 1':'soccer_france_ligue_one','ligue 2':'soccer_france_ligue_two','primeira liga':'soccer_portugal_primeira_liga',
+    'eredivisie':'soccer_netherlands_eredivisie','österreich bundesliga':'soccer_austria_bundesliga','austrian bundesliga':'soccer_austria_bundesliga',
+    'schweiz super league':'soccer_switzerland_superleague','swiss superleague':'soccer_switzerland_superleague',
+    'brasilien serie a':'soccer_brazil_campeonato','brasil serie a':'soccer_brazil_campeonato','brasilien serie b':'soccer_brazil_serie_b','mls':'soccer_usa_mls'
+  };
+
+  const marketMap={
+    '1X2':{key:'h2h',line:false},'Über 2,5':{key:'totals',line:true,fixedLine:'2.5',fixedSelection:'over'},'Unter 2,5':{key:'totals',line:true,fixedLine:'2.5',fixedSelection:'under'},
+    'Beide treffen':{key:'btts',line:false},'Handicap':{key:'spreads',line:true},'Doppelte Chance':{key:'double_chance',line:false}
+  };
+
+  function clean(v){return String(v||'').trim()}
+  function normalize(v){return clean(v).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,' ').replace(/\b(fc|sv|sc|vfb|tsg|1)\b/g,' ').replace(/\s+/g,' ').trim()}
   function readSession(){try{const raw=sessionStorage.getItem(SESSION_KEY);if(!raw)return null;const s=JSON.parse(raw);return s?.token&&s?.adminId?s:null}catch(e){return null}}
   function clearSession(){try{sessionStorage.removeItem(SESSION_KEY)}catch(e){}}
   function expired(s){const ms=Number(s?.expiresMs||0);return !ms||Date.now()>=ms}
-  function bytesToHex(bytes){return Array.from(bytes,b=>b.toString(16).padStart(2,"0")).join("")}
-  async function sha256Hex(text){const data=new TextEncoder().encode(String(text||""));const digest=await crypto.subtle.digest("SHA-256",data);return bytesToHex(new Uint8Array(digest))}
-  async function authRequest(payload){const r=await fetch(AUTH_API_URL,{method:"POST",headers:{"Content-Type":"application/json"},cache:"no-store",credentials:"omit",body:JSON.stringify(payload)});const raw=await r.text();let data={};try{data=raw?JSON.parse(raw):{}}catch(e){}if(!r.ok||data?.ok!==true)throw new Error(data?.message||"Admin-Sitzung wurde abgelehnt.");if(data.session_valid!==undefined&&String(data.session_valid).toUpperCase()!=="JA")throw new Error("Admin-Sitzung ist nicht mehr gültig.");return data}
+  function bytesToHex(bytes){return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('')}
+  async function sha256Hex(text){const data=new TextEncoder().encode(String(text||''));const digest=await crypto.subtle.digest('SHA-256',data);return bytesToHex(new Uint8Array(digest))}
+  async function authRequest(payload){const r=await fetch(AUTH_API_URL,{method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',credentials:'omit',body:JSON.stringify(payload)});const raw=await r.text();let data={};try{data=raw?JSON.parse(raw):{}}catch(e){}if(!r.ok||data?.ok!==true)throw new Error(data?.message||'Admin-Sitzung wurde abgelehnt.');if(data.session_valid!==undefined&&String(data.session_valid).toUpperCase()!=='JA')throw new Error('Admin-Sitzung ist nicht mehr gültig.');return data}
 
-  async function verifySession(){const s=readSession();if(!s||expired(s)){clearSession();location.replace("../admin/");return}try{const h=await sha256Hex(s.token);const r=await authRequest({action:"verify",session_hash:h});verifiedSession={token:s.token,expiresMs:Number(r.expires_ms||s.expiresMs||0),adminId:String(r.admin_id||s.adminId||""),name:String(r.name||s.name||"Admin"),role:String(r.role||s.role||"ADMIN"),master:String(r.master||s.master||"NEIN")};sessionStorage.setItem(SESSION_KEY,JSON.stringify(verifiedSession));$("adminName").textContent=verifiedSession.name;$("authArea").classList.add("hidden");$("app").classList.remove("hidden")}catch(e){$("authSpinner").classList.add("hidden");$("authMessage").textContent=e.message||"Sitzungsprüfung fehlgeschlagen.";$("backAdmin").classList.remove("hidden")}}
+  async function verifySession(){const s=readSession();if(!s||expired(s)){clearSession();location.replace('../admin/');return}try{sessionHash=await sha256Hex(s.token);const r=await authRequest({action:'verify',session_hash:sessionHash});verifiedSession={token:s.token,expiresMs:Number(r.expires_ms||s.expiresMs||0),adminId:String(r.admin_id||s.adminId||''),name:String(r.name||s.name||'Admin'),role:String(r.role||s.role||'ADMIN'),master:String(r.master||s.master||'NEIN')};sessionStorage.setItem(SESSION_KEY,JSON.stringify(verifiedSession));$('adminName').textContent=verifiedSession.name;$('authArea').classList.add('hidden');$('app').classList.remove('hidden')}catch(e){$('authSpinner').classList.add('hidden');$('authMessage').textContent=e.message||'Sitzungsprüfung fehlgeschlagen.';$('backAdmin').classList.remove('hidden')}}
 
-  const marketMap = {
-    "1X2": {key:"h2h", line:false, options:[{v:"home",label:"Heimteam gewinnt"},{v:"draw",label:"Unentschieden"},{v:"away",label:"Auswärtsteam gewinnt"}]},
-    "Über 2,5": {key:"totals", line:true, fixedLine:"2.5", options:[{v:"over",label:"Über"}]},
-    "Unter 2,5": {key:"totals", line:true, fixedLine:"2.5", options:[{v:"under",label:"Unter"}]},
-    "Beide treffen": {key:"btts", line:false, options:[{v:"yes",label:"Ja"},{v:"no",label:"Nein"}]},
-    "Handicap": {key:"spreads", line:true, options:[{v:"home",label:"Heimteam"},{v:"away",label:"Auswärtsteam"}]},
-    "Doppelte Chance": {key:"double_chance", line:false, options:[{v:"home_draw",label:"1X · Heim oder Unentschieden"},{v:"home_away",label:"12 · Heim oder Auswärts"},{v:"draw_away",label:"X2 · Unentschieden oder Auswärts"}]}
-  };
+  function resolveSportKey(){const n=normalize($('liga').value);if(leagueMap[n])return leagueMap[n];for(const [k,v] of Object.entries(leagueMap)){if(n.includes(k)||k.includes(n))return v}return ''}
+  function bigrams(s){s=normalize(s).replace(/ /g,'');const out=[];for(let i=0;i<s.length-1;i++)out.push(s.slice(i,i+2));return out}
+  function sim(a,b){a=normalize(a);b=normalize(b);if(!a||!b)return 0;if(a===b)return 1;if(a.includes(b)||b.includes(a))return .94;const aa=bigrams(a),bb=bigrams(b);if(!aa.length||!bb.length)return 0;let hits=0,copy=[...bb];for(const x of aa){const i=copy.indexOf(x);if(i>=0){hits++;copy.splice(i,1)}}return (2*hits)/(aa.length+bb.length)}
+  function dateDistanceDays(iso,dateStr){if(!iso||!dateStr)return 9;const a=new Date(iso),b=new Date(dateStr+'T12:00:00Z');return Math.abs(a-b)/86400000}
+  function scoreEvent(ev){const h=sim($('homeTeam').value,ev.home_team),a=sim($('awayTeam').value,ev.away_team);const hs=sim($('homeTeam').value,ev.away_team),as=sim($('awayTeam').value,ev.home_team);const direct=h+a,swapped=(hs+as)-.25;let score=Math.max(direct,swapped);const dd=dateDistanceDays(ev.commence_time,$('spielDatum').value);if(dd<.6)score+=.45;else if(dd<1.6)score+=.18;return score}
+  function localDateTime(iso){try{return new Intl.DateTimeFormat('de-DE',{dateStyle:'medium',timeStyle:'short'}).format(new Date(iso))}catch(e){return iso}}
+  function resetEvent(){selectedEvent=null;$('confirmedEvent').classList.add('hidden');$('foundWrap').classList.add('hidden');$('foundWrap').innerHTML='';$('marketFieldset').disabled=true;$('saveBtn').disabled=true;$('markt').value='';updateMarketUI();$('technicalBox').textContent='Noch kein API-Spiel bestätigt.'}
 
-  function updateMarketUI(){const cfg=marketMap[$("markt").value];const sel=$("selection"),lineWrap=$("lineWrap"),line=$("line");if(!cfg){sel.disabled=true;sel.innerHTML='<option value="">Zuerst Markt auswählen</option>';lineWrap.classList.add("hidden");line.value="";$("marketKey").textContent="–";$("selectionKey").textContent="–";$("lineKey").textContent="–";return}sel.disabled=false;sel.innerHTML='<option value="">Bitte Auswahl treffen</option>'+cfg.options.map(o=>`<option value="${o.v}">${o.label}</option>`).join("");lineWrap.classList.toggle("hidden",!cfg.line);line.value=cfg.fixedLine||"";if(cfg.fixedLine)line.readOnly=true;else line.readOnly=false;$("marketKey").textContent=cfg.key;$("selectionKey").textContent="–";$("lineKey").textContent=cfg.line?(line.value||"–"):"–"}
-  function selectionLabel(){const sel=$("selection");return clean(sel.options[sel.selectedIndex]?.textContent)}
-  function payload(){const cfg=marketMap[$("markt").value]||{};return{test_id:"ODDS-"+Date.now(),erstellt_am:new Date().toISOString(),admin_id:clean(verifiedSession?.adminId),admin_name:clean(verifiedSession?.name),sportart:"Fussball",liga:clean($("liga").value),home_team:clean($("homeTeam").value),away_team:clean($("awayTeam").value),spiel_datum:clean($("spielDatum").value),anpfiff:clean($("anpfiff").value),markt_label:clean($("markt").value),market_key:clean(cfg.key),selection_label:selectionLabel(),selection_key:clean($("selection").value),line:cfg.line?clean($("line").value):"",manuelle_quote:clean($("manualQuote").value),api_sport_key:"",api_event_id:"",api_event_home:"",api_event_away:"",api_commence_time:"",api_match_status:"PENDING_API",odds_api_status:"NO_KEY_YET",notiz:clean($("notiz").value),test_version:"ODDS-TEST-V0.1",quelle:"ADMIN_TIPPS_ODDS_TEST",published_to_live:"NEIN",reserved_1:"",reserved_2:"",reserved_3:"",reserved_4:"",raw_payload:"generated_in_browser"}}
-  function validate(p){for(const [key,label] of [["liga","Liga / Wettbewerb"],["home_team","Heimteam"],["away_team","Auswärtsteam"],["spiel_datum","Spieldatum"],["anpfiff","Anpfiff"],["markt_label","Markt"],["selection_key","Auswahl"],["manuelle_quote","Quote"]])if(!p[key])return`Bitte ausfüllen: ${label}`;if(Number(p.manuelle_quote)<1)return"Bitte eine gültige Quote eintragen.";if(marketMap[p.markt_label]?.line&&!p.line)return"Bitte Linie / Handicap eintragen.";return""}
-  function preview(){const p=payload(),err=validate(p);$("status").className="status";if(err){$("status").textContent=err;return null}$("status").textContent="";$("preview").textContent=JSON.stringify(p,null,2);return p}
+  async function lookupGame(){const liga=clean($('liga').value),home=clean($('homeTeam').value),away=clean($('awayTeam').value),date=clean($('spielDatum').value);if(!liga||!home||!away||!date){setLookup('Bitte Liga, beide Teams und Spieldatum ausfüllen.','error');return}const sportKey=resolveSportKey();if(!sportKey){setLookup('Diese Liga ist im Test noch nicht zugeordnet. Bitte zunächst eine Liga aus der Vorschlagsliste verwenden.','error');return}resetEvent();$('lookupBtn').disabled=true;setLookup('Odds-API wird abgefragt …','');try{const r=await fetch(SUPABASE_RPC,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON,'Authorization':'Bearer '+SUPABASE_ANON},body:JSON.stringify({p_session_hash:sessionHash,p_sport_key:sportKey})});const raw=await r.text();let data={};try{data=raw?JSON.parse(raw):{}}catch(e){}if(!r.ok)throw new Error(data?.message||data?.error||'API-Abruf fehlgeschlagen.');const events=Array.isArray(data.events)?data.events:[];const ranked=events.map(ev=>({ev,score:scoreEvent(ev)})).sort((x,y)=>y.score-x.score).filter(x=>x.score>.62).slice(0,5);if(!ranked.length){setLookup('Kein ausreichend passendes Spiel gefunden. Schreibweise, Liga oder Datum prüfen.','error');return}renderMatches(ranked,sportKey);setLookup(ranked.length===1?'1 passendes Spiel gefunden. Bitte bestätigen.':ranked.length+' passende Spiele gefunden. Bitte das richtige bestätigen.','ok')}catch(e){setLookup(e.message||'Spielabruf fehlgeschlagen.','error')}finally{$('lookupBtn').disabled=false}}
+  function setLookup(msg,type){const el=$('lookupStatus');el.textContent=msg;el.className='status'+(type?' '+type:'')}
+  function renderMatches(rows,sportKey){const wrap=$('foundWrap');wrap.classList.remove('hidden');wrap.innerHTML='<h3 style="margin-bottom:8px">Gefundene API-Spiele</h3>'+rows.map((x,i)=>`<div class="found-card ${i===0?'best':''}"><div class="found-main"><div class="found-title">${escapeHtml(x.ev.home_team)} – ${escapeHtml(x.ev.away_team)}</div><div class="found-meta">${escapeHtml(x.ev.sport_title||$('liga').value)} · ${escapeHtml(localDateTime(x.ev.commence_time))}</div></div><button class="btn ${i===0?'save':''}" type="button" data-event-index="${i}">Dieses Spiel verwenden</button></div>`).join('');wrap.querySelectorAll('[data-event-index]').forEach(btn=>btn.addEventListener('click',()=>confirmEvent(rows[Number(btn.dataset.eventIndex)].ev,sportKey)))}
+  function escapeHtml(s){return clean(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  function confirmEvent(ev,sportKey){selectedEvent={...ev,sport_key:ev.sport_key||sportKey};const box=$('confirmedEvent');box.classList.remove('hidden');box.innerHTML=`<strong>✓ API-Spiel bestätigt</strong><div style="margin-top:7px;font-weight:900">${escapeHtml(ev.home_team)} – ${escapeHtml(ev.away_team)}</div><div class="found-meta">${escapeHtml(ev.sport_title||$('liga').value)} · ${escapeHtml(localDateTime(ev.commence_time))}</div><div class="technical">event_id: ${escapeHtml(ev.id)}<br>sport_key: ${escapeHtml(selectedEvent.sport_key)}<br>commence_time: ${escapeHtml(ev.commence_time)}</div>`;$('marketFieldset').disabled=false;$('saveBtn').disabled=false;updateMarketUI();box.scrollIntoView({behavior:'smooth',block:'nearest'})}
 
-  $("markt").addEventListener("change",updateMarketUI);$("selection").addEventListener("change",()=>{$("selectionKey").textContent=$("selection").value||"–"});$("line").addEventListener("input",()=>{$("lineKey").textContent=$("line").value||"–"});$("previewBtn").addEventListener("click",preview);
-  $("saveBtn").addEventListener("click",async()=>{const p=preview();if(!p)return;$("saveBtn").disabled=true;$("status").className="status";$("status").textContent="TEST-Struktur wird gesendet …";try{const response=await fetch(TEST_WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},cache:"no-store",credentials:"omit",body:JSON.stringify(p)});const raw=await response.text();if(!response.ok)throw new Error(raw||`HTTP ${response.status}`);$("status").className="status ok";$("status").textContent="✅ TEST-Struktur gesendet. Kein produktiver Tipp wurde veröffentlicht."}catch(e){$("status").textContent="❌ "+(e?.message||"TEST-Übertragung fehlgeschlagen.")}finally{$("saveBtn").disabled=false}});
-  updateMarketUI();verifySession();
+  function updateMarketUI(){const name=$('markt').value,cfg=marketMap[name],sel=$('selection'),lineWrap=$('lineWrap'),line=$('line');if(!cfg){sel.disabled=true;sel.innerHTML='<option value="">Zuerst Markt auswählen</option>';lineWrap.classList.add('hidden');line.value='';refreshTechnical();return}let options=[];const h=selectedEvent?.home_team||'Heimteam',a=selectedEvent?.away_team||'Auswärtsteam';if(name==='1X2')options=[['home',h+' gewinnt'],['draw','Unentschieden'],['away',a+' gewinnt']];else if(name==='Beide treffen')options=[['yes','Ja'],['no','Nein']];else if(name==='Handicap')options=[['home',h],['away',a]];else if(name==='Doppelte Chance')options=[['home_draw','1X · '+h+' oder Unentschieden'],['home_away','12 · '+h+' oder '+a],['draw_away','X2 · Unentschieden oder '+a]];else options=[[cfg.fixedSelection,name]];sel.disabled=false;sel.innerHTML='<option value="">Bitte auswählen</option>'+options.map(o=>`<option value="${o[0]}">${escapeHtml(o[1])}</option>`).join('');lineWrap.classList.toggle('hidden',!cfg.line);line.value=cfg.fixedLine||'';line.readOnly=!!cfg.fixedLine;refreshTechnical()}
+  function refreshTechnical(){const cfg=marketMap[$('markt').value]||{};$('technicalBox').innerHTML=selectedEvent?`event_id: ${escapeHtml(selectedEvent.id)}<br>sport_key: ${escapeHtml(selectedEvent.sport_key)}<br>market_key: ${escapeHtml(cfg.key||'–')}<br>selection_key: ${escapeHtml($('selection').value||'–')}<br>line: ${escapeHtml(cfg.line?($('line').value||'–'):'–')}`:'Noch kein API-Spiel bestätigt.'}
+  function selectionLabel(){const s=$('selection');return s.selectedIndex>=0?clean(s.options[s.selectedIndex]?.textContent):''}
+  function payload(){const cfg=marketMap[$('markt').value]||{};return{test_id:'ODDS-'+Date.now(),erstellt_am:new Date().toISOString(),admin_id:clean(verifiedSession?.adminId),admin_name:clean(verifiedSession?.name),sportart:'Fussball',liga:clean($('liga').value),home_team:clean($('homeTeam').value),away_team:clean($('awayTeam').value),spiel_datum:clean($('spielDatum').value),anpfiff:clean($('anpfiff').value),markt_label:clean($('markt').value),market_key:clean(cfg.key),selection_label:selectionLabel(),selection_key:clean($('selection').value),line:cfg.line?clean($('line').value):'',manuelle_quote:clean($('manualQuote').value),api_sport_key:clean(selectedEvent?.sport_key),api_event_id:clean(selectedEvent?.id),api_event_home:clean(selectedEvent?.home_team),api_event_away:clean(selectedEvent?.away_team),api_commence_time:clean(selectedEvent?.commence_time),api_match_status:selectedEvent?'CONFIRMED':'PENDING_API',odds_api_status:'EVENT_MATCHED',notiz:clean($('notiz').value),test_version:'ODDS-TEST-V0.2',quelle:'ADMIN_TIPPS_ODDS_TEST',published_to_live:'NEIN',raw_payload:'generated_in_browser'}}
+  function validate(p){if(!selectedEvent)return'Zuerst das API-Spiel abrufen und bestätigen.';if(!p.markt_label||!p.market_key)return'Markt auswählen.';if(!p.selection_key)return'Auswahl festlegen.';if(marketMap[p.markt_label]?.line&&!p.line)return'Linie / Handicap angeben.';return''}
+  function showPreview(){const p=payload(),err=validate(p);if(err){$('status').textContent=err;$('status').className='status error'}else{$('status').textContent='';$('preview').textContent=JSON.stringify(p,null,2)}}
+  async function saveTest(){const p=payload(),err=validate(p);if(err){$('status').textContent=err;$('status').className='status error';return}$('saveBtn').disabled=true;$('status').textContent='TEST-Datensatz wird an Make gesendet …';$('status').className='status';try{const r=await fetch(TEST_WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});if(!r.ok)throw new Error('Make antwortet mit HTTP '+r.status);$('status').textContent='✓ TEST-Struktur gesendet. Kein Live-Tipp wurde veröffentlicht.';$('status').className='status ok';$('preview').textContent=JSON.stringify(p,null,2)}catch(e){$('status').textContent=e.message||'Senden fehlgeschlagen.';$('status').className='status error'}finally{$('saveBtn').disabled=!selectedEvent}}
+
+  ['liga','homeTeam','awayTeam','spielDatum','anpfiff'].forEach(id=>$(id).addEventListener('input',resetEvent));
+  $('lookupBtn').addEventListener('click',lookupGame);$('markt').addEventListener('change',updateMarketUI);$('selection').addEventListener('change',refreshTechnical);$('line').addEventListener('input',refreshTechnical);$('previewBtn').addEventListener('click',showPreview);$('saveBtn').addEventListener('click',saveTest);
+  verifySession();
 })();
 </script>
 </body>
