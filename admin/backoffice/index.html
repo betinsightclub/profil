@@ -19,21 +19,18 @@
   <script>
     (async function () {
       try {
-        const response = await fetch("./index-core-20260905.html?v=20260912-2", { cache: "no-store" });
+        const response = await fetch("./index-core-20260905.html?v=20260912-3", { cache: "no-store" });
         if (!response.ok) throw new Error("Backoffice-Kern konnte nicht geladen werden (HTTP " + response.status + ").");
         const coreHtml = await response.text();
-
-        const referralDirectLink = '<a class="link-button" href="./referral-units.html?v=20260912-2" title="Referral-Unit-Verdienste öffnen">🧾 Referral-Units</a>';
-        const enhancedCore = coreHtml.replace('<div class="top-actions">', '<div class="top-actions">' + referralDirectLink);
 
         const walletApprovalScript = '<scr' + 'ipt src="./wallet-approval.js?v=20260906-1"></scr' + 'ipt>';
         const premiumScript = '<scr' + 'ipt src="./premium-eingaenge.js?v=20260905-2"></scr' + 'ipt>';
         const adminUnitCreditScript = '<scr' + 'ipt src="./admin-unit-credit.js?v=20260911-1"></scr' + 'ipt>';
         const networkMoveScript = '<scr' + 'ipt src="./network-move.js?v=20260911-1"></scr' + 'ipt>';
         const minimumEurLabelScript = '<scr' + 'ipt src="./minimum-eur-label.js?v=20260911-1"></scr' + 'ipt>';
-        const referralUnitHistoryScript = '<scr' + 'ipt src="./referral-unit-history.js?v=20260912-2"></scr' + 'ipt>';
-        const marker = '<!-- WALLET-FREIGABE-MASTER · PREMIUM-EINGAENGE-LIVE · ADMIN-UNIT-GUTSCHRIFT-MASTER · NETZWERK-STRUKTUR-MOVE-MASTER · MINIMUM-EUR-LABEL · REFERRAL-UNIT-HISTORY · Kernstand 2026-09-05 unverändert eingebunden -->';
-        const composed = enhancedCore.replace(/<\/body>/i, walletApprovalScript + premiumScript + adminUnitCreditScript + networkMoveScript + minimumEurLabelScript + referralUnitHistoryScript + marker + "</body>");
+        const provisionUnitUsageScript = '<scr' + 'ipt src="./provision-unit-usage.js?v=20260912-1"></scr' + 'ipt>';
+        const marker = '<!-- WALLET-FREIGABE-MASTER · PREMIUM-EINGAENGE-LIVE · ADMIN-UNIT-GUTSCHRIFT-MASTER · NETZWERK-STRUKTUR-MOVE-MASTER · MINIMUM-EUR-LABEL · KAUF-UNIT-VERBRAUCHSNACHWEIS · Kernstand 2026-09-05 unverändert eingebunden -->';
+        const composed = coreHtml.replace(/<\/body>/i, walletApprovalScript + premiumScript + adminUnitCreditScript + networkMoveScript + minimumEurLabelScript + provisionUnitUsageScript + marker + "</body>");
         document.open();
         document.write(composed);
         document.close();
