@@ -1,0 +1,72 @@
+name: Fix i18n Freeze 2026-09-13
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/fix-i18n-freeze-20260913.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch-i18n-freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply guarded i18n freeze fix
+        run: python3 .github/scripts/fix_i18n_freeze_20260913.py
+
+      - name: Validate JavaScript syntax
+        run: |
+          node --check assets/i18n/core-v2.js
+          node --check assets/i18n/member-completion.js
+          node --check assets/i18n/dashboard-legacy.js
+          node --check assets/app-navigation.js
+          node --check assets/navigation-enhancements.js
+
+      - name: Validate locale JSON
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          for lang in ('de','en','es','pt','it','fr'):
+              path=Path(f'assets/i18n/pages/dashboard/{lang}.json')
+              data=json.loads(path.read_text(encoding='utf-8'))
+              page=data['dashboardPage']
+              for key in ('balanceUpdatedRuntime','premiumPlusActiveRuntime','runtimeSync','accountMovements','loadAccountMovements','noAutomaticMake'):
+                  assert page.get(key), (lang,key)
+          print('dashboard locale runtime keys OK')
+          PY
+
+      - name: Validate freeze guards and cache busting
+        shell: bash
+        run: |
+          grep -q 'await loadUiEnhancements();' assets/i18n/core-v2.js
+          grep -q 'member-completion.js?v=20260913-1' assets/i18n/core-v2.js
+          grep -q 'navigation-enhancements.js?v=20260913-1' assets/i18n/core-v2.js
+          grep -q 'observer.takeRecords();' assets/i18n/member-completion.js
+          grep -q 'if (window.BetInsightMemberCompletion)' assets/i18n/dashboard-legacy.js
+          grep -q 'if (!window.BetInsightMemberCompletion) await loadScript("i18n/dashboard-completion.js")' assets/app-navigation.js
+          grep -q 'core-v2.js?v=20260913-1' assets/app-navigation.js
+          grep -q 'app-navigation.js?v=20260913-i18n-freeze-1' index.html
+          grep -q 'Idioma / País' assets/navigation-enhancements.js
+          git diff --check
+
+      - name: Commit presentation-layer fixes
+        shell: bash
+        run: |
+          git config user.name "BetInsight i18n Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html assets/app-navigation.js assets/navigation-enhancements.js assets/i18n/core-v2.js assets/i18n/member-completion.js assets/i18n/dashboard-legacy.js assets/i18n/pages/dashboard/de.json assets/i18n/pages/dashboard/en.json assets/i18n/pages/dashboard/es.json assets/i18n/pages/dashboard/pt.json assets/i18n/pages/dashboard/it.json assets/i18n/pages/dashboard/fr.json
+          if git diff --cached --quiet; then
+            echo "No i18n freeze changes required."
+            exit 0
+          fi
+          git commit -m "fix: stop multilingual DOM observer freeze"
+          git push
