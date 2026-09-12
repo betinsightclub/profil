@@ -10,9 +10,18 @@
   const ASSET_BASE = SCRIPT_URL ? new URL("./", SCRIPT_URL) : new URL("/assets/", location.origin);
   const APP_ROOT = new URL("../", ASSET_BASE);
 
+  const NAV_TEXT = Object.freeze({
+    "Academy & Ressourcen": {en:"Academy & Resources",es:"Academy y recursos",pt:"Academy e recursos",it:"Academy e risorse",fr:"Academy et ressources"},
+    "Werbematerial & Downloads": {en:"Marketing Material & Downloads",es:"Material promocional y descargas",pt:"Material de divulgação e downloads",it:"Materiale promozionale e download",fr:"Supports marketing et téléchargements"},
+    "Sprache / Land": {en:"Language / Country",es:"Idioma / País",pt:"Idioma / País",it:"Lingua / Paese",fr:"Langue / Pays"}
+  });
   const text = (de, en) => {
-    try { return window.BetInsightI18n?.getLanguage?.() === "en" ? en : de; }
-    catch (e) { return de; }
+    try {
+      const lang = String(window.BetInsightI18n?.getLanguage?.() || "de").toLowerCase().split("-")[0];
+      if (lang === "de") return de;
+      if (lang === "en") return en;
+      return NAV_TEXT[de]?.[lang] || de;
+    } catch (e) { return de; }
   };
 
   function ensureCompletionScope() {
@@ -82,7 +91,16 @@
   }
 
   function enhanceResources(sidebar) {
-    if (sidebar.querySelector('[data-bi-nav-group="resources-group"]')) return;
+    const existing = sidebar.querySelector('[data-bi-nav-group="resources-group"]');
+    if (existing) {
+      const groupLabel = existing.querySelector('.bi-nav-group-button .bi-nav-label');
+      if (groupLabel) groupLabel.textContent = text("Academy & Ressourcen", "Academy & Resources");
+      const academyLabel = existing.querySelector('[data-bi-enhancement-route="academy"] .bi-nav-label');
+      if (academyLabel) academyLabel.textContent = "BetInsight Academy";
+      const downloadsLabel = existing.querySelector('[data-bi-enhancement-route="werbematerial"] .bi-nav-label');
+      if (downloadsLabel) downloadsLabel.textContent = text("Werbematerial & Downloads", "Marketing Material & Downloads");
+      return;
+    }
     const original = sidebar.querySelector('[data-bi-nav-route="ressourcen"]');
     if (!original) return;
 
@@ -152,10 +170,12 @@
         language.dataset.biSettingsEnhanced = "1";
         const title = document.createElement("div");
         title.className = "bi-nav-settings-title bi-nav-language-title";
-        title.innerHTML = `<span aria-hidden="true">🌍</span><span>${text("Sprache / Land", "Language / Country")}</span>`;
+        title.innerHTML = `<span aria-hidden="true">🌍</span><span></span>`;
         language.prepend(title);
         language.classList.add("bi-language-settings-block");
       }
+      const languageTitle = language.querySelector(".bi-nav-language-title span:last-child");
+      if (languageTitle) languageTitle.textContent = text("Sprache / Land", "Language / Country");
       if (language.parentElement !== footer) footer.prepend(language);
       language.classList.remove("bi-language-switcher-under-logo");
     }

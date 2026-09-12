@@ -397,20 +397,29 @@
         const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
         while (walker.nextNode()) processText(walker.currentNode);
       }
-    } finally { applying=false; }
+    } finally {
+      if (observer) observer.takeRecords();
+      applying=false;
+    }
   }
 
   function startObserver() {
     if (observer || typeof MutationObserver !== "function") return;
     observer=new MutationObserver(records=>{
       if (applying) return;
-      for (const record of records) {
-        if (record.type === "characterData") processText(record.target);
-        else if (record.type === "attributes") processAttr(record.target,record.attributeName);
-        else record.addedNodes.forEach(node=>{
-          if (node.nodeType === Node.TEXT_NODE) processText(node);
-          else if (node.nodeType === Node.ELEMENT_NODE) walk(node);
-        });
+      applying=true;
+      try {
+        for (const record of records) {
+          if (record.type === "characterData") processText(record.target);
+          else if (record.type === "attributes") processAttr(record.target,record.attributeName);
+          else record.addedNodes.forEach(node=>{
+            if (node.nodeType === Node.TEXT_NODE) processText(node);
+            else if (node.nodeType === Node.ELEMENT_NODE) walk(node);
+          });
+        }
+      } finally {
+        observer.takeRecords();
+        applying=false;
       }
     });
     observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["placeholder","title","aria-label"]});

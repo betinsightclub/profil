@@ -231,7 +231,7 @@
   function applyPseudoLabels() {
     let style = document.getElementById("bi-dashboard-language-style");
     if (!style) { style = document.createElement("style"); style.id = "bi-dashboard-language-style"; document.head.appendChild(style); }
-    style.textContent = lang() === "en" ? `.private-row-hidden::after{content:"${t("privacyEmail",{},"Email protected")}"!important}.private-token-hidden::after{content:"${t("privacyAccess",{},"Personal access protected")}"!important}.private-value-hidden::after{content:"${t("privacyProtected",{},"Protected")}"!important}.membership-info-tier.current-tier::after{content:"${t("yourPlan",{},"YOUR PLAN")}"!important}` : "";
+    style.textContent = lang() !== "de" ? `.private-row-hidden::after{content:"${t("privacyEmail",{},"Protected")}"!important}.private-token-hidden::after{content:"${t("privacyAccess",{},"Protected")}"!important}.private-value-hidden::after{content:"${t("privacyProtected",{},"Protected")}"!important}.membership-info-tier.current-tier::after{content:"${t("yourPlan",{},"YOUR PLAN")}"!important}` : "";
   }
 
   function applyLocaleFunctions() {
@@ -289,6 +289,22 @@
   async function boot() {
     installSafeRouting();
     await i18n()?.init?.();
+
+    const refreshLocaleOnly = () => {
+      applyLocaleFunctions();
+      applyPseudoLabels();
+      document.title = t("title", {}, "BetInsight Profil & Empfehlungscenter");
+    };
+
+    // The six-language member completion layer is now the single DOM translator.
+    // Keep this legacy adapter for safe routing and number/date formatting only.
+    if (window.BetInsightMemberCompletion) {
+      refreshLocaleOnly();
+      window.addEventListener("bi:languagechange", refreshLocaleOnly);
+      return;
+    }
+
+    // Fallback for an unlikely completion-layer load failure.
     walk(document.body);
     const observer = new MutationObserver(records => {
       if (applying) return;

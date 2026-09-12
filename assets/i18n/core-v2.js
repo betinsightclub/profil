@@ -74,8 +74,8 @@
     if (!uiEnhancementsPromise) {
       uiEnhancementsPromise = (async () => {
         await loadUiScript("theme-manager.js?v=20260908-4", "BetInsightTheme");
-        await loadUiScript("navigation-enhancements.js?v=20260909-3", "BetInsightNavigationEnhancements");
-        await loadUiScript("i18n/member-completion.js?v=20260912-1", "BetInsightMemberCompletion");
+        await loadUiScript("i18n/member-completion.js?v=20260913-1", "BetInsightMemberCompletion");
+        await loadUiScript("navigation-enhancements.js?v=20260913-1", "BetInsightNavigationEnhancements");
         return true;
       })().catch(error => {
         console.error("BetInsight UI enhancements could not be loaded.", error);
@@ -327,7 +327,7 @@
       initPromise = (async () => {
         await loadManifest();
         const language = await setLanguage(preferredLanguage(), { persist: false });
-        loadUiEnhancements();
+        await loadUiEnhancements();
         return language;
       })().catch(async () => {
         activeLanguage = defaultLanguage;
@@ -336,7 +336,7 @@
         if (scope) deepMerge(activeDictionary, await loadScopedDictionary(scope, defaultLanguage));
         document.documentElement.lang = defaultLanguage;
         apply(document);
-        loadUiEnhancements();
+        await loadUiEnhancements();
         return defaultLanguage;
       });
     }
