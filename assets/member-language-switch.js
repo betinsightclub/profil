@@ -11,69 +11,38 @@
   if (/^\/admin(?:\/|$)/i.test(window.location.pathname)) return;
 
   const STORAGE_KEY = "betinsight_language";
-  const SUPPORTED = ["de", "en"];
+  const SUPPORTED = ["de", "en", "es", "pt", "it", "fr"];
+  const OPTIONS = {
+    de:"DE · Deutsch", en:"EN · English", es:"ES · Español",
+    pt:"PT · Português", it:"IT · Italiano", fr:"FR · Français"
+  };
 
   const LABELS = {
-    de: {
-      dashboard:"Dashboard",
-      daily:"Daily Bonus",
-      tipps:"Tipps",
-      "tipps-group":"Tipps",
-      freigeschaltet:"Freigeschaltete Tipps",
-      kaufen:"Units-Pakete kaufen",
-      "wechselboerse-group":"Unit-Wechselstube",
-      wechselboerse:"Übersicht",
-      angebote:"Angebote kaufen",
-      verkaufen:"Units verkaufen",
-      "meine-verkaufsangebote":"Meine Verkaufsangebote",
-      wallet:"Wallet",
-      anbieter:"Wettanbieter",
-      "netzwerk-group":"Netzwerk & Provisionen",
-      netzwerk:"Unit-Provisionen",
-      "premium-provisionen":"Premium-Provisionen",
-      "marketing-center":"Marketing-Center",
-      premium:"Mitgliedschaft",
-      support:"Support"
-    },
-    en: {
-      dashboard:"Dashboard",
-      daily:"Daily Bonus",
-      tipps:"Tips",
-      "tipps-group":"Tips",
-      freigeschaltet:"Unlocked Tips",
-      kaufen:"Buy Unit Packages",
-      "wechselboerse-group":"Unit Exchange",
-      wechselboerse:"Overview",
-      angebote:"Buy Offers",
-      verkaufen:"Sell Units",
-      "meine-verkaufsangebote":"My Sale Offers",
-      wallet:"Wallet",
-      anbieter:"Betting Providers",
-      "netzwerk-group":"Network & Commissions",
-      netzwerk:"Unit Commissions",
-      "premium-provisionen":"Premium Commissions",
-      "marketing-center":"Marketing Center",
-      premium:"Membership",
-      support:"Support"
-    }
+    de: {dashboard:"Dashboard",daily:"Daily Bonus",tipps:"Tipps","tipps-group":"Tipps",freigeschaltet:"Freigeschaltete Tipps",kaufen:"Units-Pakete kaufen","wechselboerse-group":"Unit-Wechselstube",wechselboerse:"Übersicht",angebote:"Angebote kaufen",verkaufen:"Units verkaufen","meine-verkaufsangebote":"Meine Verkaufsangebote",wallet:"Wallet",anbieter:"Wettanbieter","netzwerk-group":"Netzwerk & Provisionen",netzwerk:"Unit-Provisionen","premium-provisionen":"Premium-Provisionen","marketing-center":"Academy & Ressourcen",premium:"Mitgliedschaft",support:"Support",logout:"Ausloggen",settings:"Kontoeinstellungen"},
+    en: {dashboard:"Dashboard",daily:"Daily Bonus",tipps:"Tips","tipps-group":"Tips",freigeschaltet:"Unlocked Tips",kaufen:"Buy Unit Packages","wechselboerse-group":"Unit Exchange",wechselboerse:"Overview",angebote:"Buy Offers",verkaufen:"Sell Units","meine-verkaufsangebote":"My Sale Offers",wallet:"Wallet",anbieter:"Betting Providers","netzwerk-group":"Network & Commissions",netzwerk:"Unit Commissions","premium-provisionen":"Premium Commissions","marketing-center":"Academy & Resources",premium:"Membership",support:"Support",logout:"Log Out",settings:"Account Settings"},
+    es: {dashboard:"Panel",daily:"Bono diario",tipps:"Pronósticos","tipps-group":"Pronósticos",freigeschaltet:"Pronósticos desbloqueados",kaufen:"Comprar paquetes de Units","wechselboerse-group":"Intercambio de Units",wechselboerse:"Resumen",angebote:"Comprar ofertas",verkaufen:"Vender Units","meine-verkaufsangebote":"Mis ofertas de venta",wallet:"Wallet",anbieter:"Casas de apuestas","netzwerk-group":"Red y comisiones",netzwerk:"Comisiones de Units","premium-provisionen":"Comisiones Premium","marketing-center":"Academy y recursos",premium:"Membresía",support:"Soporte",logout:"Cerrar sesión",settings:"Configuración de la cuenta"},
+    pt: {dashboard:"Painel",daily:"Bônus diário",tipps:"Dicas","tipps-group":"Dicas",freigeschaltet:"Dicas desbloqueadas",kaufen:"Comprar pacotes de Units","wechselboerse-group":"Casa de câmbio de Units",wechselboerse:"Visão geral",angebote:"Comprar ofertas",verkaufen:"Vender Units","meine-verkaufsangebote":"Minhas ofertas de venda",wallet:"Wallet",anbieter:"Casas de apostas","netzwerk-group":"Rede e comissões",netzwerk:"Comissões de Units","premium-provisionen":"Comissões Premium","marketing-center":"Academy e recursos",premium:"Assinatura",support:"Suporte",logout:"Sair",settings:"Configurações da conta"},
+    it: {dashboard:"Dashboard",daily:"Bonus giornaliero",tipps:"Pronostici","tipps-group":"Pronostici",freigeschaltet:"Pronostici sbloccati",kaufen:"Acquista pacchetti Unit","wechselboerse-group":"Scambio Unit",wechselboerse:"Panoramica",angebote:"Acquista offerte",verkaufen:"Vendi Unit","meine-verkaufsangebote":"Le mie offerte di vendita",wallet:"Wallet",anbieter:"Bookmaker","netzwerk-group":"Rete e commissioni",netzwerk:"Commissioni Unit","premium-provisionen":"Commissioni Premium","marketing-center":"Academy e risorse",premium:"Abbonamento",support:"Supporto",logout:"Esci",settings:"Impostazioni account"},
+    fr: {dashboard:"Tableau de bord",daily:"Bonus quotidien",tipps:"Pronostics","tipps-group":"Pronostics",freigeschaltet:"Pronostics débloqués",kaufen:"Acheter des packs d'Units","wechselboerse-group":"Échange d'Units",wechselboerse:"Vue d'ensemble",angebote:"Acheter des offres",verkaufen:"Vendre des Units","meine-verkaufsangebote":"Mes offres de vente",wallet:"Wallet",anbieter:"Opérateurs de paris","netzwerk-group":"Réseau et commissions",netzwerk:"Commissions d'Units","premium-provisionen":"Commissions Premium","marketing-center":"Academy et ressources",premium:"Adhésion",support:"Support",logout:"Se déconnecter",settings:"Paramètres du compte"}
   };
 
   let active = "de";
   let wrapper = null;
   let select = null;
 
-  function readStored() {
-    try {
-      const value = String(localStorage.getItem(STORAGE_KEY) || "").toLowerCase();
-      return SUPPORTED.includes(value) ? value : "de";
-    } catch (_) {
-      return "de";
-    }
+  function normalize(value) {
+    const raw = String(value || "").trim().toLowerCase();
+    if (SUPPORTED.includes(raw)) return raw;
+    const short = raw.split("-")[0];
+    return SUPPORTED.includes(short) ? short : "";
   }
 
-  function persist(lang) {
-    try { localStorage.setItem(STORAGE_KEY, lang); } catch (_) {}
+  function readStored() {
+    try { return normalize(localStorage.getItem(STORAGE_KEY)) || "de"; }
+    catch (_) { return "de"; }
   }
+
+  function persist(lang) { try { localStorage.setItem(STORAGE_KEY, lang); } catch (_) {} }
 
   function injectStyles() {
     if (document.getElementById("bi-member-language-style")) return;
@@ -107,21 +76,16 @@
 
     const sidebar = document.getElementById("bi-nav-sidebar");
     if (sidebar) {
-      const logout = [...sidebar.querySelectorAll(".bi-nav-settings-link")].find(el => /Ausloggen|Log Out/i.test(el.textContent || ""));
-      const settings = [...sidebar.querySelectorAll(".bi-nav-settings-link")].find(el => /Kontoeinstellungen|Account Settings/i.test(el.textContent || ""));
-      if (logout) {
-        const span = logout.querySelector("span:last-child");
-        if (span) span.textContent = lang === "en" ? "Log Out" : "Ausloggen";
-      }
-      if (settings) {
-        const span = settings.querySelector("span:last-child");
-        if (span) span.textContent = lang === "en" ? "Account Settings" : "Kontoeinstellungen";
-      }
+      const links = [...sidebar.querySelectorAll(".bi-nav-settings-link")];
+      const logout = links.find(el => /Ausloggen|Log Out|Cerrar sesión|Sair|Esci|Se déconnecter/i.test(el.textContent || ""));
+      const settings = links.find(el => /Kontoeinstellungen|Account Settings|Configuración de la cuenta|Configurações da conta|Impostazioni account|Paramètres du compte/i.test(el.textContent || ""));
+      if (logout) { const span = logout.querySelector("span:last-child"); if (span) span.textContent = dictionary.logout; }
+      if (settings) { const span = settings.querySelector("span:last-child"); if (span) span.textContent = dictionary.settings; }
     }
   }
 
   async function applyLanguage(lang, { persistChoice = true } = {}) {
-    active = SUPPORTED.includes(lang) ? lang : "de";
+    active = normalize(lang) || "de";
     if (persistChoice) persist(active);
     if (select) select.value = active;
     document.documentElement.lang = active;
@@ -156,7 +120,7 @@
     select = document.createElement("select");
     select.className = "bi-member-language-select";
     select.setAttribute("aria-label", "Sprache / Language");
-    select.innerHTML = '<option value="de">DE · Deutsch</option><option value="en">EN · English</option>';
+    select.innerHTML = SUPPORTED.map(lang => `<option value="${lang}">${OPTIONS[lang]}</option>`).join("");
     select.value = active;
     select.addEventListener("change", () => applyLanguage(select.value));
 
