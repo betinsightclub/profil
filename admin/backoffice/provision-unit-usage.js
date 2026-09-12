@@ -9,6 +9,7 @@
   let nextCursor = 999999999;
   let hasMore = true;
   let loading = false;
+  let viewerAdminId = "";
 
   function esc(value) {
     return String(value ?? "")
@@ -29,10 +30,7 @@
   }
 
   function fmt(value, digits = 2) {
-    return num(value).toLocaleString("de-DE", {
-      minimumFractionDigits: digits,
-      maximumFractionDigits: digits
-    });
+    return num(value).toLocaleString("de-DE", { minimumFractionDigits: digits, maximumFractionDigits: digits });
   }
 
   function fmtEur(value) {
@@ -45,10 +43,7 @@
   }
 
   function fmtCrypto(value) {
-    return num(value).toLocaleString("de-DE", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 10
-    });
+    return num(value).toLocaleString("de-DE", { minimumFractionDigits: 0, maximumFractionDigits: 10 });
   }
 
   function shortUserId(value) {
@@ -62,11 +57,7 @@
     const d = new Date(raw);
     if (Number.isNaN(d.getTime())) return raw;
     return d.toLocaleString("de-DE", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
+      day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit"
     });
   }
 
@@ -76,14 +67,6 @@
     const amount = num(row[field]);
     if (!currency || !amount) return "";
     return `<div class="uup-crypto">${esc(fmtCrypto(amount))} ${esc(currency)}${network ? ` · ${esc(network)}` : ""}</div>`;
-  }
-
-  async function sha256Hex(text) {
-    const bytes = new TextEncoder().encode(String(text || ""));
-    const digest = await crypto.subtle.digest("SHA-256", bytes);
-    return Array.from(new Uint8Array(digest))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
   }
 
   function readSession() {
@@ -96,6 +79,22 @@
     } catch (_) {
       return null;
     }
+  }
+
+  function isSuperAdmin() {
+    return viewerAdminId === "ADM-001";
+  }
+
+  function ownCommissionFields() {
+    if (viewerAdminId === "ADM-002") return { eur: "martin_freigegeben_eur", crypto: "martin_freigegeben_crypto", label: "Martin · eigene Provision" };
+    if (viewerAdminId === "ADM-003") return { eur: "frank_freigegeben_eur", crypto: "frank_freigegeben_crypto", label: "Frank · eigene Provision" };
+    return null;
+  }
+
+  async function sha256Hex(text) {
+    const bytes = new TextEncoder().encode(String(text || ""));
+    const digest = await crypto.subtle.digest("SHA-256", bytes);
+    return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
   }
 
   function ensureStyles() {
@@ -112,9 +111,10 @@
       .uup-stat{padding:12px;border:1px solid rgba(185,216,232,.13);border-radius:12px;background:rgba(255,255,255,.035)}
       .uup-stat-label{color:#9fc7d8;font-size:11px;text-transform:uppercase;font-weight:800}.uup-stat-value{margin-top:5px;color:#fff;font-size:20px;font-weight:900}
       .uup-status{padding:12px 20px;color:#b9d8e8;font-size:13px}.uup-table-wrap{overflow-x:auto;border-top:1px solid rgba(185,216,232,.08)}
-      .uup-table{width:100%;min-width:1580px;border-collapse:collapse;font-size:12px}.uup-table th,.uup-table td{padding:10px 11px;text-align:left;vertical-align:top;border-bottom:1px solid rgba(185,216,232,.09)}
+      .uup-table{width:100%;min-width:1180px;border-collapse:collapse;font-size:12px}.uup-table th,.uup-table td{padding:10px 11px;text-align:left;vertical-align:top;border-bottom:1px solid rgba(185,216,232,.09)}
       .uup-table th{position:sticky;top:0;background:#082a3b;color:#9fd7e9;font-size:11px;text-transform:uppercase;letter-spacing:.03em;z-index:1}.uup-table td{color:#fff}
       .uup-positive{color:#82f5c8;font-weight:900}.uup-units{color:#ffda76;font-weight:900}.uup-mono{font-family:Consolas,Monaco,monospace;font-size:11px;overflow-wrap:anywhere}.uup-muted{color:#9fc7d8;font-size:11px;margin-top:3px}.uup-crypto{margin-top:4px;color:#8fdcff;font-size:11px;font-weight:800;white-space:nowrap}
+      .uup-privacy{display:inline-block;margin-top:6px;padding:4px 8px;border-radius:999px;background:rgba(0,212,138,.10);border:1px solid rgba(0,212,138,.25);color:#82f5c8;font-size:11px;font-weight:800}
       .uup-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 20px}.uup-empty{padding:24px;text-align:center;color:#b9d8e8}
       @media(max-width:760px){.uup-head{flex-direction:column}.uup-stats{grid-template-columns:1fr}.uup-footer{flex-direction:column;align-items:stretch}.uup-btn{width:100%}}
     `;
@@ -124,7 +124,6 @@
   function ensureBlock() {
     let block = document.getElementById("unitUsageProvisionBlock");
     if (block) return block;
-
     const panel = document.getElementById("tab-provisions");
     if (!panel) return null;
 
@@ -135,7 +134,7 @@
       <div class="uup-head">
         <div>
           <h3>Nachweis verbrauchter Kauf-Units · systemweit</h3>
-          <div class="uup-sub">Jede tatsächlich verbrauchte Kaufcharge wird als eigener Block dokumentiert. So ist dauerhaft nachvollziehbar, welcher User wie viele gekaufte Units verbraucht hat und welche Provision daraus für Luciano, Martin und Frank freigegeben wurde. EUR und die tatsächlich verwendete Abrechnungs-Kryptowährung werden gemeinsam angezeigt.</div>
+          <div class="uup-sub" id="uupIntro"></div>
         </div>
         <div class="uup-actions"><button type="button" class="uup-btn secondary" id="uupReload">Neu laden</button></div>
       </div>
@@ -143,10 +142,8 @@
       <div class="uup-status" id="uupStatus">Verbrauchsnachweise werden geladen …</div>
       <div class="uup-table-wrap">
         <table class="uup-table" aria-label="Systemweiter Nachweis verbrauchter Kauf-Units">
-          <thead><tr>
-            <th>Datum</th><th>User</th><th>Tipp / Spiel</th><th>Kaufcharge</th><th>Kauf-Units verbraucht</th><th>Netto zugeordnet</th><th>Unit-Pool freigegeben</th><th>Luciano</th><th>Martin</th><th>Frank</th><th>Tippgeber extra</th><th>Status</th>
-          </tr></thead>
-          <tbody id="uupBody"><tr><td colspan="12"><div class="uup-empty">Lade Daten …</div></td></tr></tbody>
+          <thead><tr id="uupHeadRow"></tr></thead>
+          <tbody id="uupBody"></tbody>
         </table>
       </div>
       <div class="uup-footer">
@@ -160,48 +157,90 @@
     return block;
   }
 
+  function renderStructure() {
+    const block = ensureBlock();
+    if (!block) return;
+    const own = ownCommissionFields();
+    const intro = block.querySelector("#uupIntro");
+    const head = block.querySelector("#uupHeadRow");
+
+    if (isSuperAdmin()) {
+      intro.innerHTML = `Jede tatsächlich verbrauchte Kaufcharge wird als eigener Block dokumentiert. Du siehst als Luciano/Superadmin die vollständige Aufteilung für Luciano, Martin und Frank sowie Netto- und Poolwerte. <span class="uup-privacy">Vollansicht nur ADM-001</span>`;
+      head.innerHTML = `<th>Datum</th><th>User</th><th>Tipp / Spiel</th><th>Kaufcharge</th><th>Kauf-Units verbraucht</th><th>Netto zugeordnet</th><th>Unit-Pool freigegeben</th><th>Luciano</th><th>Martin</th><th>Frank</th><th>Tippgeber extra</th><th>Status</th>`;
+    } else {
+      const label = own ? own.label : "Eigene Provision";
+      intro.innerHTML = `Jede tatsächlich verbrauchte Kaufcharge wird dokumentiert. Du siehst den Verbrauch und ausschließlich deine eigenen Provisionswerte. Beträge anderer Admins sowie Gesamt-Netto und Gesamt-Pool werden serverseitig nicht an dein Backoffice ausgeliefert. <span class="uup-privacy">Private Einzelansicht</span>`;
+      head.innerHTML = `<th>Datum</th><th>User</th><th>Tipp / Spiel</th><th>Kaufcharge</th><th>Kauf-Units verbraucht</th><th>${esc(label)}</th><th>Tippgeber extra · nur wenn eigen</th><th>Status</th>`;
+    }
+  }
+
   function renderStats() {
     const block = ensureBlock();
     if (!block) return;
     const consumed = loadedRows.reduce((sum, row) => sum + num(row.kauf_units_verbraucht), 0);
-    const pool = loadedRows.reduce((sum, row) => sum + num(row.nutzungspool_zugeordnet_eur), 0);
+    let thirdLabel = "Unit-Pool freigegeben · geladen";
+    let thirdValue = fmtEur(loadedRows.reduce((sum, row) => sum + num(row.nutzungspool_zugeordnet_eur), 0));
+
+    if (!isSuperAdmin()) {
+      const own = ownCommissionFields();
+      thirdLabel = own ? `${own.label} · geladen` : "Eigene Provision · geladen";
+      thirdValue = own ? fmtEur(loadedRows.reduce((sum, row) => sum + num(row[own.eur]), 0)) : "–";
+    }
+
     block.querySelector("#uupStats").innerHTML = `
       <div class="uup-stat"><div class="uup-stat-label">Geladene Verbrauchsblöcke</div><div class="uup-stat-value">${loadedRows.length}</div></div>
       <div class="uup-stat"><div class="uup-stat-label">Kauf-Units verbraucht · geladen</div><div class="uup-stat-value">${fmt(consumed)}</div></div>
-      <div class="uup-stat"><div class="uup-stat-label">Unit-Pool freigegeben · geladen</div><div class="uup-stat-value">${fmtEur(pool)}</div></div>
+      <div class="uup-stat"><div class="uup-stat-label">${esc(thirdLabel)}</div><div class="uup-stat-value">${thirdValue}</div></div>
     `;
   }
 
-  function rowHtml(row) {
+  function commonCells(row) {
     const userLabel = `User ${shortUserId(row.user_id)}`;
     const charge = String(row.paket_kauf_id || "–");
     const tip = String(row.tipp_id || "–");
     const game = String(row.spiel || "");
     return `
-      <tr>
-        <td>${esc(fmtDate(row.freigeschaltet_am))}</td>
-        <td><strong>${esc(userLabel)}</strong><div class="uup-muted">${esc(row.user_id || "")}</div></td>
-        <td><strong>${esc(tip)}</strong>${game ? `<div class="uup-muted">${esc(game)}</div>` : ""}<div class="uup-muted">Tippgeber: ${esc(row.tippgeber_name || "–")}</div></td>
-        <td><span class="uup-mono">${esc(charge)}</span><div class="uup-muted">${esc(row.paket_code || "")}</div></td>
-        <td class="uup-units">${fmt(row.kauf_units_verbraucht)} Units</td>
+      <td>${esc(fmtDate(row.freigeschaltet_am))}</td>
+      <td><strong>${esc(userLabel)}</strong><div class="uup-muted">${esc(row.user_id || "")}</div></td>
+      <td><strong>${esc(tip)}</strong>${game ? `<div class="uup-muted">${esc(game)}</div>` : ""}<div class="uup-muted">Tippgeber: ${esc(row.tippgeber_name || "–")}</div></td>
+      <td><span class="uup-mono">${esc(charge)}</span><div class="uup-muted">${esc(row.paket_code || "")}</div></td>
+      <td class="uup-units">${fmt(row.kauf_units_verbraucht)} Units</td>`;
+  }
+
+  function statusCell(row) {
+    return `<td><strong>${esc(row.abrechnungsstatus || "–")}</strong><div class="uup-muted">Prüfung: ${esc(row.pruefstatus || "–")}</div><div class="uup-muted">${esc(row.abrechnungsmonat || "")}</div></td>`;
+  }
+
+  function rowHtml(row) {
+    if (isSuperAdmin()) {
+      return `<tr>${commonCells(row)}
         <td>${fmtEur(row.zugeordneter_netto_eur)}${cryptoLine(row, "zugeordneter_netto_crypto")}</td>
         <td class="uup-positive">${fmtEur(row.nutzungspool_zugeordnet_eur)}${cryptoLine(row, "nutzungspool_zugeordnet_crypto")}</td>
         <td>${fmtEur(row.luciano_freigegeben_eur)}${cryptoLine(row, "luciano_freigegeben_crypto")}</td>
         <td>${fmtEur(row.martin_freigegeben_eur)}${cryptoLine(row, "martin_freigegeben_crypto")}</td>
         <td>${fmtEur(row.frank_freigegeben_eur)}${cryptoLine(row, "frank_freigegeben_crypto")}</td>
         <td>${fmtEur(row.tippgeber_freigegeben_eur)}${cryptoLine(row, "tippgeber_freigegeben_crypto")}</td>
-        <td><strong>${esc(row.abrechnungsstatus || "–")}</strong><div class="uup-muted">Prüfung: ${esc(row.pruefstatus || "–")}</div><div class="uup-muted">${esc(row.abrechnungsmonat || "")}</div></td>
-      </tr>
-    `;
+        ${statusCell(row)}</tr>`;
+    }
+
+    const own = ownCommissionFields();
+    const ownEur = own ? row[own.eur] : "";
+    const ownCrypto = own ? cryptoLine(row, own.crypto) : "";
+    return `<tr>${commonCells(row)}
+      <td class="uup-positive">${own ? fmtEur(ownEur) : "–"}${ownCrypto}</td>
+      <td>${fmtEur(row.tippgeber_freigegeben_eur)}${cryptoLine(row, "tippgeber_freigegeben_crypto")}</td>
+      ${statusCell(row)}</tr>`;
   }
 
   function renderRows() {
     const block = ensureBlock();
     if (!block) return;
+    renderStructure();
     const body = block.querySelector("#uupBody");
+    const colspan = isSuperAdmin() ? 12 : 8;
     body.innerHTML = loadedRows.length
       ? loadedRows.map(rowHtml).join("")
-      : `<tr><td colspan="12"><div class="uup-empty">Noch keine verbrauchten Kauf-Unit-Blöcke vorhanden.</div></td></tr>`;
+      : `<tr><td colspan="${colspan}"><div class="uup-empty">Noch keine verbrauchten Kauf-Unit-Blöcke vorhanden.</div></td></tr>`;
     renderStats();
     const more = block.querySelector("#uupMore");
     more.disabled = loading || !hasMore;
@@ -220,17 +259,17 @@
       headers: { "Content-Type": "application/json" },
       cache: "no-store",
       credentials: "omit",
-      body: JSON.stringify({
-        action: "unit_usage_history",
-        session_hash: sessionHash,
-        cursor: Number(cursor || 999999999)
-      })
+      body: JSON.stringify({ action: "unit_usage_history", session_hash: sessionHash, cursor: Number(cursor || 999999999) })
     });
     const raw = await response.text();
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     let data;
     try { data = JSON.parse(raw); } catch (_) { throw new Error("Ungültige Antwort vom Verbrauchsnachweis."); }
     if (!data || data.ok !== true || !Array.isArray(data.rows)) throw new Error("Verbrauchsnachweis konnte nicht gelesen werden.");
+    const validatedAdminId = String(data.viewer_admin_id || "").trim();
+    if (!validatedAdminId) throw new Error("Admin-Berechtigung konnte nicht bestätigt werden.");
+    if (viewerAdminId && viewerAdminId !== validatedAdminId) throw new Error("Admin-Berechtigung hat sich während der Sitzung geändert.");
+    viewerAdminId = validatedAdminId;
     return data.rows;
   }
 
@@ -247,10 +286,7 @@
       const known = new Set(loadedRows.map((row) => String(row.nutzungs_id || `${row.audit_seq}`)));
       visible.forEach((row) => {
         const key = String(row.nutzungs_id || `${row.audit_seq}`);
-        if (!known.has(key)) {
-          loadedRows.push(row);
-          known.add(key);
-        }
+        if (!known.has(key)) { loadedRows.push(row); known.add(key); }
       });
       hasMore = resultRows.length > PAGE_SIZE;
       if (visible.length) nextCursor = num(visible[visible.length - 1].audit_seq);
@@ -276,8 +312,11 @@
 
   function init() {
     ensureStyles();
+    const session = readSession();
+    viewerAdminId = session && session.adminId ? String(session.adminId) : "";
     const block = ensureBlock();
     if (!block) return;
+    renderRows();
     resetAndLoad();
   }
 
