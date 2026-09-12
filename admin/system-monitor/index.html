@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<!-- BETINSIGHT APP NOINDEX START -->
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+<!-- BETINSIGHT APP NOINDEX END -->
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#061d2a">
+<title>BetInsight – System-Überwachung</title>
+<style>
+:root{color-scheme:dark;--bg1:#0b3b55;--bg2:#061d2a;--bg3:#031018;--panel:rgba(9,45,64,.96);--panel2:rgba(4,27,39,.96);--border:rgba(0,218,255,.28);--text:#fff;--muted:#b9d8e8;--blue:#16a8f5;--green:#00d48a;--yellow:#ffda76;--red:#ff7d86;--shadow:0 18px 48px rgba(0,0,0,.34)}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:24px 14px 48px;background:radial-gradient(circle at top,var(--bg1),var(--bg2) 44%,var(--bg3));color:var(--text);font-family:Arial,Helvetica,sans-serif}.app{width:100%;max-width:1220px;margin:0 auto}.topbar,.panel{border:1px solid var(--border);border-radius:20px;background:var(--panel);box-shadow:var(--shadow)}.topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 20px;margin-bottom:18px}.brand{display:flex;align-items:center;gap:16px}.logo{width:110px;max-width:24vw}.eyebrow{color:var(--green);font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px}h1,h2,h3,p{margin-top:0}h1{font-size:clamp(27px,4vw,38px);margin-bottom:5px}h2{font-size:clamp(22px,3vw,30px);margin-bottom:7px}h3{font-size:18px;margin-bottom:7px}.muted{color:var(--muted)}.actions{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 14px;border-radius:11px;border:1px solid rgba(185,216,232,.25);background:rgba(255,255,255,.06);color:#fff;text-decoration:none;font-weight:800;cursor:pointer}.btn.primary{border:0;background:linear-gradient(135deg,#16a8f5,#0879bb)}.btn:hover{filter:brightness(1.07)}.panel{padding:20px;margin-bottom:18px}.hero{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:18px;align-items:stretch}.overall{display:flex;align-items:center;gap:16px;padding:18px;border:1px solid rgba(185,216,232,.14);border-radius:16px;background:rgba(255,255,255,.035)}.lamp{width:78px;height:78px;flex:0 0 78px;border-radius:50%;background:#6f7d84;box-shadow:0 0 0 10px rgba(255,255,255,.04),0 0 28px rgba(255,255,255,.12)}.lamp.ok{background:var(--green);box-shadow:0 0 0 10px rgba(0,212,138,.10),0 0 30px rgba(0,212,138,.35)}.lamp.warn{background:var(--yellow);box-shadow:0 0 0 10px rgba(255,218,118,.10),0 0 30px rgba(255,218,118,.30)}.lamp.critical{background:var(--red);box-shadow:0 0 0 10px rgba(255,125,134,.10),0 0 30px rgba(255,125,134,.32)}.overall-title{font-size:28px;font-weight:900}.overall-note{margin-top:5px;color:var(--muted);line-height:1.5}.phase{padding:18px;border:1px solid rgba(255,218,118,.25);border-radius:16px;background:rgba(255,218,118,.06)}.phase strong{display:block;margin-bottom:6px;color:#ffe49a}.phase div{color:#eadca9;line-height:1.45;font-size:13px}.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px}.kpi{padding:14px;border:1px solid rgba(185,216,232,.13);border-radius:14px;background:rgba(255,255,255,.035)}.kpi-label{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#9fc7d8;font-weight:800}.kpi-value{margin-top:6px;font-size:23px;font-weight:900}.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:14px}.table-wrap{overflow:auto;border:1px solid rgba(185,216,232,.12);border-radius:14px}.table{width:100%;min-width:960px;border-collapse:collapse;font-size:12px}.table th,.table td{padding:11px 12px;text-align:left;vertical-align:top;border-bottom:1px solid rgba(185,216,232,.09)}.table th{background:#082a3b;color:#9fd7e9;text-transform:uppercase;font-size:11px;position:sticky;top:0}.table td{color:#fff}.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:900;border:1px solid rgba(255,255,255,.15)}.badge.ok{color:#82f5c8;background:rgba(0,212,138,.10);border-color:rgba(0,212,138,.28)}.badge.warn{color:#ffe49a;background:rgba(255,218,118,.08);border-color:rgba(255,218,118,.28)}.badge.critical{color:#ffafb4;background:rgba(255,125,134,.09);border-color:rgba(255,125,134,.30)}.badge.unknown{color:#c7d6dd;background:rgba(255,255,255,.05)}.mono{font-family:Consolas,Monaco,monospace;font-size:11px;overflow-wrap:anywhere}.small{color:var(--muted);font-size:11px;line-height:1.45;margin-top:3px}.empty{padding:24px;text-align:center;color:var(--muted)}.notice{padding:13px 15px;border-radius:12px;border:1px solid rgba(255,218,118,.24);background:rgba(255,218,118,.06);color:#eadca9;line-height:1.5}.errorbox{display:none;padding:14px 16px;border:1px solid rgba(255,125,134,.33);border-radius:12px;background:rgba(255,125,134,.08);color:#ffc1c5;margin-bottom:18px}.footer{text-align:center;color:rgba(255,255,255,.48);font-size:12px;margin-top:22px}@media(max-width:900px){.hero{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.topbar{align-items:flex-start;flex-direction:column}.actions{width:100%;justify-content:flex-start}}@media(max-width:600px){.kpis{grid-template-columns:1fr}.overall{align-items:flex-start}.lamp{width:56px;height:56px;flex-basis:56px}.panel{padding:15px}.btn{width:100%}.actions{display:grid;grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="app">
+  <header class="topbar">
+    <div class="brand">
+      <img class="logo" src="/profil/logo_betisight.club.png" alt="BetInsight Club" onerror="this.style.display='none'">
+      <div><div class="eyebrow">Master · Control Center</div><h1>System-Überwachung</h1><div class="muted">Watchdog, Make-Szenarien und Datenkonsistenz</div></div>
+    </div>
+    <div class="actions"><a class="btn" href="../">← Admin Center</a><a class="btn" href="../backoffice/">Backoffice</a><button class="btn primary" id="reloadBtn" type="button">Neu laden</button></div>
+  </header>
+
+  <div id="errorBox" class="errorbox"></div>
+
+  <section class="panel">
+    <div class="hero">
+      <div class="overall"><div class="lamp" id="overallLamp"></div><div><div class="overall-title" id="overallTitle">Wird geprüft …</div><div class="overall-note" id="overallNote">Sichere Master-Session und Systemdaten werden geladen.</div></div></div>
+      <div class="phase"><strong>Phase 1 · Nur Überwachung</strong><div>Der Watchdog darf keine Unit-Bestände, Zahlungen oder Verkaufsreservierungen verändern. Automatische Reparaturen werden erst später für ausdrücklich freigegebene, sichere Fälle aktiviert.</div></div>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><div class="kpi-label">Geprüfte Komponenten</div><div class="kpi-value" id="kpiComponents">–</div></div>
+      <div class="kpi"><div class="kpi-label">Kritisch</div><div class="kpi-value" id="kpiCritical">–</div></div>
+      <div class="kpi"><div class="kpi-label">Warnungen</div><div class="kpi-value" id="kpiWarn">–</div></div>
+      <div class="kpi"><div class="kpi-label">Letzte Prüfung</div><div class="kpi-value" id="kpiLast" style="font-size:16px">–</div></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="section-head"><div><h2>Systemstatus</h2><div class="muted">Make-Szenarien und unabhängige Datenprüfungen aus SYSTEM_HEALTH.</div></div><span class="badge unknown" id="healthBadge">LÄDT</span></div>
+    <div class="table-wrap"><table class="table" aria-label="Systemstatus"><thead><tr><th>Status</th><th>Komponente</th><th>Letzter Lauf</th><th>Fehler 24h</th><th>Prüfung</th><th>Details</th></tr></thead><tbody id="healthBody"><tr><td colspan="6"><div class="empty">Systemstatus wird geladen …</div></td></tr></tbody></table></div>
+  </section>
+
+  <section class="panel">
+    <div class="section-head"><div><h2>Fehler & Warnungen</h2><div class="muted">Die letzten Einträge aus SYSTEM_FEHLER_LOG. In Phase 1 wird nichts automatisch korrigiert.</div></div><span class="badge unknown" id="errorBadge">LÄDT</span></div>
+    <div class="table-wrap"><table class="table" aria-label="Fehlerprotokoll"><thead><tr><th>Zeit</th><th>Stufe</th><th>Bereich</th><th>Fehler</th><th>Status</th><th>Maßnahme</th></tr></thead><tbody id="errorBody"><tr><td colspan="6"><div class="empty">Fehlerprotokoll wird geladen …</div></td></tr></tbody></table></div>
+  </section>
+
+  <section class="panel"><div class="notice"><strong>Wichtig:</strong> Diese Oberfläche liest ausschließlich die Watchdog-Tabellen. Der Make-API-Token bleibt im Apps Script und wird niemals an den Browser ausgeliefert.</div></section>
+  <footer class="footer">© 2026 BetInsight Club · Master System-Monitor v1.0 · READONLY</footer>
+</main>
+<script>
+"use strict";
+const AUTH_API_URL="https://hook.eu1.make.com/rfmhuu4fkr9kjsv7o15r2kir8ezbersl";
+const MONITOR_API_URL="https://hook.eu1.make.com/x7c67vx9q2v146cdalxi44yn9i5i1o8y";
+const SESSION_KEY="betinsight_admin_session_v1";
+let busy=false;
+const $=id=>document.getElementById(id);
+function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#039;")}
+async function sha256Hex(text){const bytes=new TextEncoder().encode(String(text||""));const digest=await crypto.subtle.digest("SHA-256",bytes);return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,"0")).join("")}
+function readSession(){try{const raw=sessionStorage.getItem(SESSION_KEY);if(!raw)return null;const s=JSON.parse(raw);return s?.token&&s?.adminId?s:null}catch(_){return null}}
+function isMaster(v){const master=String(v?.master||"").toUpperCase();const role=String(v?.role||"").toUpperCase();return master==="JA"||role==="MASTER"}
+function setError(text){const box=$("errorBox");box.textContent=text||"";box.style.display=text?"block":"none"}
+function statusClass(value){const s=String(value||"").toUpperCase();if(s==="OK"||s==="SUCCESS")return"ok";if(s==="WARN"||s==="WARNING")return"warn";if(s==="CRITICAL"||s==="ERROR")return"critical";return"unknown"}
+function badge(value){const s=String(value||"UNKNOWN").toUpperCase();return `<span class="badge ${statusClass(s)}">${esc(s)}</span>`}
+function fmtDate(v){if(!v)return"–";const d=new Date(v);if(Number.isNaN(d.getTime()))return esc(v);return d.toLocaleString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit"})}
+async function verifyMaster(session){const sessionHash=await sha256Hex(session.token);const response=await fetch(AUTH_API_URL,{method:"POST",headers:{"Content-Type":"application/json"},cache:"no-store",credentials:"omit",body:JSON.stringify({action:"verify",session_hash:sessionHash})});const raw=await response.text();let data={};try{data=raw?JSON.parse(raw):{}}catch(_){throw new Error("Session-Prüfung lieferte keine gültige Antwort.")}if(!response.ok||data?.ok!==true)throw new Error(data?.message||"Master-Session konnte nicht bestätigt werden.");if(!isMaster(data))throw new Error("Dieser Bereich ist ausschließlich für den Master-Admin freigegeben.");return sessionHash}
+async function fetchMonitor(sessionHash){const response=await fetch(MONITOR_API_URL,{method:"POST",headers:{"Content-Type":"application/json"},cache:"no-store",credentials:"omit",body:JSON.stringify({action:"system_monitor",session_hash:sessionHash})});const raw=await response.text();let data={};try{data=raw?JSON.parse(raw):{}}catch(_){throw new Error("System-Monitor lieferte keine gültige Antwort.")}if(!response.ok||data?.ok!==true)throw new Error(data?.message||"Systemstatus konnte nicht geladen werden.");return data}
+function render(data){const health=Array.isArray(data.health)?data.health:[];const errors=Array.isArray(data.errors)?data.errors:[];const critical=health.filter(r=>String(r.status||"").toUpperCase()==="CRITICAL").length;const warns=health.filter(r=>String(r.status||"").toUpperCase()==="WARN").length;const last=health.map(r=>new Date(r.checked_at||r.updated_at||0)).filter(d=>!Number.isNaN(d.getTime())).sort((a,b)=>b-a)[0];$("kpiComponents").textContent=health.length;$("kpiCritical").textContent=critical;$("kpiWarn").textContent=warns;$("kpiLast").textContent=last?last.toLocaleString("de-DE"):"Noch kein Lauf";
+let overall="UNKNOWN",title="Watchdog noch nicht aktiv",note="Es sind noch keine Health-Daten vorhanden. Sobald Apps Script eingerichtet und einmal gestartet wurde, erscheint hier der Live-Systemstatus.";if(health.length){if(critical){overall="CRITICAL";title="Kritischer Systemfehler";note="Mindestens eine überwachte Komponente ist kritisch. Bitte Fehlerprotokoll prüfen."}else if(warns){overall="WARN";title="System mit Warnungen";note="Das System läuft, aber mindestens eine Prüfung benötigt Aufmerksamkeit."}else{overall="OK";title="Systemstatus grün";note="Alle aktuell gemeldeten Watchdog-Prüfungen sind ohne kritischen Befund."}}const lamp=$("overallLamp");lamp.className="lamp "+statusClass(overall);$("overallTitle").textContent=title;$("overallNote").textContent=note;$("healthBadge").className="badge "+statusClass(overall);$("healthBadge").textContent=overall;
+$("healthBody").innerHTML=health.length?health.map(r=>`<tr><td>${badge(r.status)}</td><td><strong>${esc(r.component_name||r.component_id||"–")}</strong><div class="small">${esc(r.component_type||"")}</div></td><td>${fmtDate(r.checked_at)}<div class="small">${esc(r.last_execution_status||"")}</div></td><td>${esc(r.errors_24h||0)} Fehler<div class="small">${esc(r.warnings_24h||0)} Warnungen</div></td><td><strong>${esc(r.check_name||"–")}</strong><div class="small">${esc(r.actual_value||"")}</div></td><td>${esc(r.details||"–")}</td></tr>`).join(""):`<tr><td colspan="6"><div class="empty">Noch keine SYSTEM_HEALTH-Daten. Apps Script muss einmal gestartet werden.</div></td></tr>`;
+const openErrors=errors.filter(r=>!String(r.status||"").toUpperCase().includes("BEHOBEN")&&!String(r.status||"").toUpperCase().includes("RESOLVED"));const eCrit=openErrors.filter(r=>String(r.severity||"").toUpperCase()==="CRITICAL").length;const eWarn=openErrors.filter(r=>String(r.severity||"").toUpperCase()==="WARN").length;const eb=$("errorBadge");eb.className="badge "+(eCrit?"critical":eWarn?"warn":"ok");eb.textContent=openErrors.length?`${openErrors.length} OFFEN`:"KEINE OFFENEN";$("errorBody").innerHTML=errors.length?errors.map(r=>`<tr><td>${fmtDate(r.zeitpunkt||r.last_seen)}</td><td>${badge(r.severity)}</td><td><strong>${esc(r.scenario_name||r.pruefung||r.fehlerklasse||"–")}</strong><div class="small mono">${esc(r.scenario_id||r.referenz_id||"")}</div></td><td><strong>${esc(r.fehlerklasse||"Fehler")}</strong><div class="small">${esc(r.fehlertext||"")}</div></td><td>${badge(r.status)}</td><td>${esc(r.automatische_massnahme||"Keine Änderung")}</td></tr>`).join(""):`<tr><td colspan="6"><div class="empty">Noch keine Fehler protokolliert.</div></td></tr>`}
+async function load(){if(busy)return;busy=true;$("reloadBtn").disabled=true;$("reloadBtn").textContent="Lädt …";setError("");try{const session=readSession();if(!session)throw new Error("Keine Admin-Session gefunden. Bitte zuerst im Admin Center anmelden.");const hash=await verifyMaster(session);const data=await fetchMonitor(hash);render(data)}catch(error){console.error(error);setError(error?.message||String(error));$("overallLamp").className="lamp critical";$("overallTitle").textContent="Systemstatus nicht verfügbar";$("overallNote").textContent="Die sichere Überwachungsansicht konnte nicht geladen werden."}finally{busy=false;$("reloadBtn").disabled=false;$("reloadBtn").textContent="Neu laden"}}
+$("reloadBtn").addEventListener("click",load);load();
+</script>
+</body>
+</html>
