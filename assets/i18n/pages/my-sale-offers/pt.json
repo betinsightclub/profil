@@ -1,0 +1,23 @@
+{
+  "mySaleOffersPage": {
+    "title":"Minhas ofertas de venda | BetInsight Club",
+    "heading":"Minhas ofertas de venda",
+    "intro":"Aqui você vê suas ofertas de venda atualmente ativas ou reservadas para um comprador. Esta visão é somente para consulta.",
+    "current":"Atualmente à venda",
+    "currentCopy":"Ofertas ativas e atualmente reservadas.",
+    "loadingCount":"Carregando …",
+    "loading":"Suas ofertas de venda estão sendo carregadas.",
+    "note":"Esta página não altera Units, taxas nem ofertas. A função de cancelamento ainda não está liberada.",
+    "newOffer":"Criar nova oferta de venda",
+    "offerOne":"{{count}} oferta",
+    "offerMany":"{{count}} ofertas",
+    "empty":"No momento você não possui ofertas próprias à venda ou reservadas.",
+    "offerFallback":"Oferta",
+    "unitPrice":"Preço por Unit",
+    "totalPrice":"Preço total",
+    "reserved":"Reservada para comprador",
+    "active":"Ativa à venda",
+    "missingAccess":"Seu acesso pessoal ao dashboard ainda não está disponível neste dispositivo. Abra esta página pelo seu perfil BetInsight.",
+    "loadError":"Não foi possível carregar suas ofertas de venda agora. Tente novamente."
+  }
+}
