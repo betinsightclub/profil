@@ -19,7 +19,7 @@
   <script>
     (async function () {
       try {
-        const response = await fetch("./index-core-20260905.html?v=20260912-3", { cache: "no-store" });
+        const response = await fetch("./index-core-20260905.html?v=20260912-4", { cache: "no-store" });
         if (!response.ok) throw new Error("Backoffice-Kern konnte nicht geladen werden (HTTP " + response.status + ").");
         const coreHtml = await response.text();
 
@@ -28,8 +28,8 @@
         const adminUnitCreditScript = '<scr' + 'ipt src="./admin-unit-credit.js?v=20260911-1"></scr' + 'ipt>';
         const networkMoveScript = '<scr' + 'ipt src="./network-move.js?v=20260911-1"></scr' + 'ipt>';
         const minimumEurLabelScript = '<scr' + 'ipt src="./minimum-eur-label.js?v=20260911-1"></scr' + 'ipt>';
-        const provisionUnitUsageScript = '<scr' + 'ipt src="./provision-unit-usage.js?v=20260912-2"></scr' + 'ipt>';
-        const marker = '<!-- WALLET-FREIGABE-MASTER · PREMIUM-EINGAENGE-LIVE · ADMIN-UNIT-GUTSCHRIFT-MASTER · NETZWERK-STRUKTUR-MOVE-MASTER · MINIMUM-EUR-LABEL · KAUF-UNIT-VERBRAUCHSNACHWEIS · Kernstand 2026-09-05 unverändert eingebunden -->';
+        const provisionUnitUsageScript = '<scr' + 'ipt src="./provision-unit-usage.js?v=20260912-3"></scr' + 'ipt>';
+        const marker = '<!-- WALLET-FREIGABE-MASTER · PREMIUM-EINGAENGE-LIVE · ADMIN-UNIT-GUTSCHRIFT-MASTER · NETZWERK-STRUKTUR-MOVE-MASTER · MINIMUM-EUR-LABEL · KAUF-UNIT-VERBRAUCHSNACHWEIS-PRIVACY-v1 · Kernstand 2026-09-05 unverändert eingebunden -->';
         const composed = coreHtml.replace(/<\/body>/i, walletApprovalScript + premiumScript + adminUnitCreditScript + networkMoveScript + minimumEurLabelScript + provisionUnitUsageScript + marker + "</body>");
         document.open();
         document.write(composed);
