@@ -43,10 +43,37 @@
     return changed;
   }
 
+  function removePrivateTipsterExtraColumn() {
+    const head = document.getElementById('uupHeadRow');
+    const body = document.getElementById('uupBody');
+    if (!head || !body) return false;
+
+    const headers = Array.from(head.children);
+    let extraIndex = headers.findIndex((th) => (th.textContent || '').replace(/\s+/g, ' ').trim() === 'Tippgeber extra · nur wenn eigen');
+
+    if (extraIndex >= 0) {
+      headers[extraIndex].remove();
+      for (const row of body.querySelectorAll('tr')) {
+        if (row.children.length > extraIndex) row.children[extraIndex].remove();
+      }
+      return true;
+    }
+
+    const headerTexts = Array.from(head.children).map((th) => (th.textContent || '').replace(/\s+/g, ' ').trim());
+    const isPrivateView = headerTexts.includes('Eigene Provision') && head.children.length === 7;
+    if (!isPrivateView) return false;
+
+    for (const row of body.querySelectorAll('tr')) {
+      if (row.children.length === 8) row.children[6].remove();
+    }
+    return true;
+  }
+
   function applyCleanup() {
     simplifyProvisionCopy();
     simplifyUnitUsageIntro();
     simplifyOwnProvisionLabels();
+    removePrivateTipsterExtraColumn();
   }
 
   if (document.readyState === 'loading') {
@@ -58,6 +85,7 @@
   const observer = new MutationObserver(function () {
     simplifyUnitUsageIntro();
     simplifyOwnProvisionLabels();
+    removePrivateTipsterExtraColumn();
   });
 
   observer.observe(document.documentElement, { childList: true, subtree: true, characterData: true });
