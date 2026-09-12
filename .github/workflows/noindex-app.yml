@@ -1,0 +1,60 @@
+name: BetInsight App Noindex
+
+on:
+  push:
+    paths:
+      - '.github/noindex-app-trigger.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  noindex:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: App laden
+        uses: actions/checkout@v6
+
+      - name: Noindex anwenden
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/noindex_app.py
+
+      - name: Noindex prüfen
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check
+          python3 - <<'PY'
+          from pathlib import Path
+          missing=[]
+          for p in Path('.').rglob('*.html'):
+              if '.git' in p.parts or '.github' in p.parts:
+                  continue
+              text=p.read_text(encoding='utf-8')
+              if 'name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex"' not in text:
+                  missing.append(str(p))
+          if missing:
+              raise SystemExit('Noindex fehlt in: ' + ', '.join(missing))
+          print('OK: Alle App-HTML-Seiten sind noindex.')
+          PY
+          grep -q 'Allow: /' robots.txt
+          echo 'Geänderte Dateien:'
+          git status --short
+
+      - name: Noindex speichern
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/noindex-app-trigger.txt
+          git config user.name 'BetInsight SEO Builder'
+          git config user.email 'actions@github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'Keine Änderung notwendig.'
+          else
+            git commit -m 'SEO: Mitglieder-App konsequent auf noindex setzen'
+            git push
+          fi
