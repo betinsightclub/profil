@@ -1,0 +1,68 @@
+name: Fix PT visible gaps 2026-09-13
+
+on:
+  push:
+    paths:
+      - '.github/scripts/fix_pt_visible_gaps_20260913.py'
+      - '.github/workflows/fix-pt-visible-gaps-20260913.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-pt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Apply PT repair
+        run: python .github/scripts/fix_pt_visible_gaps_20260913.py
+
+      - name: Validate JSON
+        run: |
+          python -m json.tool assets/i18n/pages/support/pt.json >/dev/null
+          python -m json.tool assets/i18n/pages/resources/de.json >/dev/null
+          python -m json.tool assets/i18n/pages/resources/pt.json >/dev/null
+          python -m json.tool assets/i18n/pages/academy/de.json >/dev/null
+          python -m json.tool assets/i18n/pages/academy/pt.json >/dev/null
+          python -m json.tool assets/i18n/pages/werbematerial/de.json >/dev/null
+          python -m json.tool assets/i18n/pages/werbematerial/pt.json >/dev/null
+          python -m json.tool assets/i18n/pages/sell/de.json >/dev/null
+          python -m json.tool assets/i18n/pages/sell/pt.json >/dev/null
+          python -m json.tool assets/i18n/pages/offers/de.json >/dev/null
+          python -m json.tool assets/i18n/pages/offers/pt.json >/dev/null
+          python -m json.tool assets/i18n/pages/my-sale-offers/de.json >/dev/null
+          python -m json.tool assets/i18n/pages/my-sale-offers/pt.json >/dev/null
+
+      - name: Validate JavaScript syntax
+        run: |
+          node --check assets/i18n/core-v2.js
+          node --check assets/i18n/member-completion.js
+
+      - name: Validate Portuguese coverage markers
+        run: |
+          grep -q '"academy": "academy"' assets/i18n/core-v2.js
+          grep -q 'academy:"academy"' assets/i18n/member-completion.js
+          grep -q '"refresh": "↻ Atualizar"' assets/i18n/pages/support/pt.json
+          grep -q '"heading": "Conheça a BetInsight passo a passo."' assets/i18n/pages/academy/pt.json
+          grep -q '"heading": "Material de divulgação e downloads"' assets/i18n/pages/werbematerial/pt.json
+          grep -q '"legacyAmount": "Quantidade de venda"' assets/i18n/pages/sell/pt.json
+          grep -q '"legacyHero": "Escolha a oferta e a forma de pagamento"' assets/i18n/pages/offers/pt.json
+          grep -q '"legacyCurrent": "Atualmente à venda"' assets/i18n/pages/my-sale-offers/pt.json
+
+      - name: Commit PT repair
+        run: |
+          if git diff --quiet; then
+            echo 'No changes required.'
+            exit 0
+          fi
+          git config user.name 'BetInsight i18n Automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git add assets/i18n/core-v2.js assets/i18n/member-completion.js assets/i18n/pages
+          git commit -m 'i18n: complete visible Portuguese member pages'
+          git push origin main
