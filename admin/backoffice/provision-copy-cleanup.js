@@ -21,9 +21,32 @@
     return true;
   }
 
+  function simplifyOwnProvisionLabels() {
+    let changed = false;
+    const elements = document.querySelectorAll('.uup-stat-label, #uupHeadRow th');
+
+    for (const el of elements) {
+      const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
+
+      if (text === 'Martin · eigene Provision' || text === 'Frank · eigene Provision') {
+        el.textContent = 'Eigene Provision';
+        changed = true;
+        continue;
+      }
+
+      if (text === 'Martin · eigene Provision · geladen' || text === 'Frank · eigene Provision · geladen') {
+        el.textContent = 'Eigene Provision · geladen';
+        changed = true;
+      }
+    }
+
+    return changed;
+  }
+
   function applyCleanup() {
     simplifyProvisionCopy();
     simplifyUnitUsageIntro();
+    simplifyOwnProvisionLabels();
   }
 
   if (document.readyState === 'loading') {
@@ -34,6 +57,7 @@
 
   const observer = new MutationObserver(function () {
     simplifyUnitUsageIntro();
+    simplifyOwnProvisionLabels();
   });
 
   observer.observe(document.documentElement, { childList: true, subtree: true, characterData: true });
