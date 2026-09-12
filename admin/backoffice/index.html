@@ -25,13 +25,14 @@
 
         const walletApprovalScript = '<scr' + 'ipt src="./wallet-approval.js?v=20260906-1"></scr' + 'ipt>';
         const premiumScript = '<scr' + 'ipt src="./premium-eingaenge.js?v=20260905-2"></scr' + 'ipt>';
+        const premiumProvisionenScript = '<scr' + 'ipt src="./premium-provisionen.js?v=20260912-1"></scr' + 'ipt>';
         const adminUnitCreditScript = '<scr' + 'ipt src="./admin-unit-credit.js?v=20260911-1"></scr' + 'ipt>';
         const networkMoveScript = '<scr' + 'ipt src="./network-move.js?v=20260911-1"></scr' + 'ipt>';
         const minimumEurLabelScript = '<scr' + 'ipt src="./minimum-eur-label.js?v=20260911-1"></scr' + 'ipt>';
         const provisionUnitUsageScript = '<scr' + 'ipt src="./provision-unit-usage.js?v=20260912-3"></scr' + 'ipt>';
         const provisionCopyCleanupScript = '<scr' + 'ipt src="./provision-copy-cleanup.js?v=20260912-1"></scr' + 'ipt>';
-        const marker = '<!-- WALLET-FREIGABE-MASTER · PREMIUM-EINGAENGE-LIVE · ADMIN-UNIT-GUTSCHRIFT-MASTER · NETZWERK-STRUKTUR-MOVE-MASTER · MINIMUM-EUR-LABEL · KAUF-UNIT-VERBRAUCHSNACHWEIS-PRIVACY-v1 · PROVISIONS-COPY-CLEANUP-v1 · Kernstand 2026-09-05 unverändert eingebunden -->';
-        const composed = coreHtml.replace(/<\/body>/i, walletApprovalScript + premiumScript + adminUnitCreditScript + networkMoveScript + minimumEurLabelScript + provisionUnitUsageScript + provisionCopyCleanupScript + marker + "</body>");
+        const marker = '<!-- WALLET-FREIGABE-MASTER · PREMIUM-EINGAENGE-LIVE · PREMIUM-SOFORTPROVISIONEN-LIVE · ADMIN-UNIT-GUTSCHRIFT-MASTER · NETZWERK-STRUKTUR-MOVE-MASTER · MINIMUM-EUR-LABEL · KAUF-UNIT-VERBRAUCHSNACHWEIS-PRIVACY-v1 · PROVISIONS-COPY-CLEANUP-v1 · Kernstand 2026-09-05 unverändert eingebunden -->';
+        const composed = coreHtml.replace(/<\/body>/i, walletApprovalScript + premiumScript + premiumProvisionenScript + adminUnitCreditScript + networkMoveScript + minimumEurLabelScript + provisionUnitUsageScript + provisionCopyCleanupScript + marker + "</body>");
         document.open();
         document.write(composed);
         document.close();
