@@ -1,0 +1,51 @@
+name: Fix Member Multilingual Content 2026-09-12
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/fix-member-multilang-20260912.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch-member-i18n:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current live main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply guarded multilingual wiring patch
+        run: python3 .github/scripts/fix_member_multilang_20260912.py
+
+      - name: Validate JavaScript syntax
+        run: |
+          node --check assets/i18n/core-v2.js
+          node --check assets/i18n/member-completion.js
+          node --check assets/i18n/dashboard-legacy.js
+
+      - name: Validate protected invariants
+        shell: bash
+        run: |
+          grep -q '"es", "pt", "it", "fr"' assets/i18n/locales/manifest.json
+          grep -q 'member-completion.js?v=20260912-1' assets/i18n/core-v2.js
+          grep -q 'targetLanguage === "en"' assets/i18n/member-completion.js
+          grep -q 'pt:"pt-PT"' assets/i18n/dashboard-legacy.js
+          git diff --check
+
+      - name: Commit only presentation-layer i18n files
+        shell: bash
+        run: |
+          git config user.name "BetInsight i18n Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add assets/i18n/core-v2.js assets/i18n/member-completion.js assets/i18n/dashboard-legacy.js
+          if git diff --cached --quiet; then
+            echo "No multilingual wiring changes required."
+            exit 0
+          fi
+          git commit -m "i18n: connect member page content to six languages"
+          git push
