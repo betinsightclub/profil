@@ -44,6 +44,13 @@
     });
   }
 
+  function fmtCrypto(value) {
+    return num(value).toLocaleString("de-DE", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 10
+    });
+  }
+
   function shortUserId(value) {
     const raw = String(value ?? "").replace(/\D/g, "");
     return raw ? raw.slice(-6).padStart(6, "0") : "------";
@@ -61,6 +68,14 @@
       hour: "2-digit",
       minute: "2-digit"
     });
+  }
+
+  function cryptoLine(row, field) {
+    const currency = String(row.abrechnungs_waehrung || "").trim();
+    const network = String(row.abrechnungs_network || "").trim();
+    const amount = num(row[field]);
+    if (!currency || !amount) return "";
+    return `<div class="uup-crypto">${esc(fmtCrypto(amount))} ${esc(currency)}${network ? ` · ${esc(network)}` : ""}</div>`;
   }
 
   async function sha256Hex(text) {
@@ -90,16 +105,16 @@
     style.textContent = `
       .uup-card{margin-top:22px;border:1px solid rgba(0,218,255,.28);border-radius:18px;background:rgba(9,45,64,.96);overflow:hidden;box-shadow:0 16px 38px rgba(0,0,0,.22)}
       .uup-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:18px 20px;border-bottom:1px solid rgba(185,216,232,.14)}
-      .uup-head h3{margin:0 0 6px;font-size:20px}.uup-sub{color:#b9d8e8;font-size:13px;line-height:1.5;max-width:820px}
+      .uup-head h3{margin:0 0 6px;font-size:20px}.uup-sub{color:#b9d8e8;font-size:13px;line-height:1.5;max-width:850px}
       .uup-actions{display:flex;gap:8px;flex-wrap:wrap}.uup-btn{min-height:40px;border:0;border-radius:10px;padding:9px 13px;cursor:pointer;color:#fff;font-weight:800;background:linear-gradient(135deg,#16a8f5,#0879bb)}
       .uup-btn.secondary{border:1px solid rgba(185,216,232,.22);background:rgba(255,255,255,.06)}.uup-btn:disabled{opacity:.45;cursor:not-allowed}
       .uup-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:14px 20px;border-bottom:1px solid rgba(185,216,232,.10)}
       .uup-stat{padding:12px;border:1px solid rgba(185,216,232,.13);border-radius:12px;background:rgba(255,255,255,.035)}
       .uup-stat-label{color:#9fc7d8;font-size:11px;text-transform:uppercase;font-weight:800}.uup-stat-value{margin-top:5px;color:#fff;font-size:20px;font-weight:900}
       .uup-status{padding:12px 20px;color:#b9d8e8;font-size:13px}.uup-table-wrap{overflow-x:auto;border-top:1px solid rgba(185,216,232,.08)}
-      .uup-table{width:100%;min-width:1480px;border-collapse:collapse;font-size:12px}.uup-table th,.uup-table td{padding:10px 11px;text-align:left;vertical-align:top;border-bottom:1px solid rgba(185,216,232,.09)}
+      .uup-table{width:100%;min-width:1580px;border-collapse:collapse;font-size:12px}.uup-table th,.uup-table td{padding:10px 11px;text-align:left;vertical-align:top;border-bottom:1px solid rgba(185,216,232,.09)}
       .uup-table th{position:sticky;top:0;background:#082a3b;color:#9fd7e9;font-size:11px;text-transform:uppercase;letter-spacing:.03em;z-index:1}.uup-table td{color:#fff}
-      .uup-positive{color:#82f5c8;font-weight:900}.uup-units{color:#ffda76;font-weight:900}.uup-mono{font-family:Consolas,Monaco,monospace;font-size:11px;overflow-wrap:anywhere}.uup-muted{color:#9fc7d8;font-size:11px;margin-top:3px}
+      .uup-positive{color:#82f5c8;font-weight:900}.uup-units{color:#ffda76;font-weight:900}.uup-mono{font-family:Consolas,Monaco,monospace;font-size:11px;overflow-wrap:anywhere}.uup-muted{color:#9fc7d8;font-size:11px;margin-top:3px}.uup-crypto{margin-top:4px;color:#8fdcff;font-size:11px;font-weight:800;white-space:nowrap}
       .uup-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 20px}.uup-empty{padding:24px;text-align:center;color:#b9d8e8}
       @media(max-width:760px){.uup-head{flex-direction:column}.uup-stats{grid-template-columns:1fr}.uup-footer{flex-direction:column;align-items:stretch}.uup-btn{width:100%}}
     `;
@@ -120,7 +135,7 @@
       <div class="uup-head">
         <div>
           <h3>Nachweis verbrauchter Kauf-Units · systemweit</h3>
-          <div class="uup-sub">Jede tatsächlich verbrauchte Kaufcharge wird als eigener Block dokumentiert. Dadurch ist nachvollziehbar, welcher User wie viele gekaufte Units verbraucht hat und welche Provision daraus für Luciano, Martin und Frank freigegeben wurde.</div>
+          <div class="uup-sub">Jede tatsächlich verbrauchte Kaufcharge wird als eigener Block dokumentiert. So ist dauerhaft nachvollziehbar, welcher User wie viele gekaufte Units verbraucht hat und welche Provision daraus für Luciano, Martin und Frank freigegeben wurde. EUR und die tatsächlich verwendete Abrechnungs-Kryptowährung werden gemeinsam angezeigt.</div>
         </div>
         <div class="uup-actions"><button type="button" class="uup-btn secondary" id="uupReload">Neu laden</button></div>
       </div>
@@ -135,7 +150,7 @@
         </table>
       </div>
       <div class="uup-footer">
-        <div class="uup-status" id="uupFooterText" style="padding:0">Es werden immer 100 Buchungsblöcke pro Seite nachgeladen.</div>
+        <div class="uup-status" id="uupFooterText" style="padding:0">Es werden immer 100 Buchungsblöcke nachgeladen.</div>
         <button type="button" class="uup-btn" id="uupMore">Weitere 100 laden</button>
       </div>
     `;
@@ -169,13 +184,13 @@
         <td><strong>${esc(tip)}</strong>${game ? `<div class="uup-muted">${esc(game)}</div>` : ""}<div class="uup-muted">Tippgeber: ${esc(row.tippgeber_name || "–")}</div></td>
         <td><span class="uup-mono">${esc(charge)}</span><div class="uup-muted">${esc(row.paket_code || "")}</div></td>
         <td class="uup-units">${fmt(row.kauf_units_verbraucht)} Units</td>
-        <td>${fmtEur(row.zugeordneter_netto_eur)}</td>
-        <td class="uup-positive">${fmtEur(row.nutzungspool_zugeordnet_eur)}</td>
-        <td>${fmtEur(row.luciano_freigegeben_eur)}</td>
-        <td>${fmtEur(row.martin_freigegeben_eur)}</td>
-        <td>${fmtEur(row.frank_freigegeben_eur)}</td>
-        <td>${fmtEur(row.tippgeber_freigegeben_eur)}</td>
-        <td><strong>${esc(row.abrechnungsstatus || "–")}</strong><div class="uup-muted">Prüfung: ${esc(row.pruefstatus || "–")}</div></td>
+        <td>${fmtEur(row.zugeordneter_netto_eur)}${cryptoLine(row, "zugeordneter_netto_crypto")}</td>
+        <td class="uup-positive">${fmtEur(row.nutzungspool_zugeordnet_eur)}${cryptoLine(row, "nutzungspool_zugeordnet_crypto")}</td>
+        <td>${fmtEur(row.luciano_freigegeben_eur)}${cryptoLine(row, "luciano_freigegeben_crypto")}</td>
+        <td>${fmtEur(row.martin_freigegeben_eur)}${cryptoLine(row, "martin_freigegeben_crypto")}</td>
+        <td>${fmtEur(row.frank_freigegeben_eur)}${cryptoLine(row, "frank_freigegeben_crypto")}</td>
+        <td>${fmtEur(row.tippgeber_freigegeben_eur)}${cryptoLine(row, "tippgeber_freigegeben_crypto")}</td>
+        <td><strong>${esc(row.abrechnungsstatus || "–")}</strong><div class="uup-muted">Prüfung: ${esc(row.pruefstatus || "–")}</div><div class="uup-muted">${esc(row.abrechnungsmonat || "")}</div></td>
       </tr>
     `;
   }
