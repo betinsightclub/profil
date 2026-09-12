@@ -1,7 +1,8 @@
-/* BetInsight Navigation Enhancements v1.2 · 2026-09-09
+/* BetInsight Navigation Enhancements v1.3 · 2026-09-13
    UI-only layer: keeps all existing routes/business logic intact.
    Adds: Academy/Ressourcen accordion, language/settings section, theme switcher
    and the presentation-only member translation completion layer.
+   v1.3 prevents the navigation MutationObserver from retriggering itself.
 */
 (() => {
   "use strict";
@@ -24,6 +25,12 @@
     } catch (e) { return de; }
   };
 
+  const setTextIfChanged = (element, value) => {
+    if (!element) return;
+    const next = String(value ?? "");
+    if (element.textContent !== next) element.textContent = next;
+  };
+
   function ensureCompletionScope() {
     const parts = location.pathname.replace(/\/+$/, "").split("/").filter(Boolean);
     if (parts[0] === "profil") parts.shift();
@@ -41,7 +48,7 @@
   function loadCompletion() {
     ensureCompletionScope();
     if (window.BetInsightMemberCompletion) return;
-    const src = new URL("i18n/member-completion.js?v=20260909-1", ASSET_BASE).toString();
+    const src = new URL("i18n/member-completion.js?v=20260913-1", ASSET_BASE).toString();
     const existing = [...document.scripts].find(script => script.src === src || script.dataset.biMemberCompletion === "1");
     if (existing) return;
     const script = document.createElement("script");
@@ -94,11 +101,11 @@
     const existing = sidebar.querySelector('[data-bi-nav-group="resources-group"]');
     if (existing) {
       const groupLabel = existing.querySelector('.bi-nav-group-button .bi-nav-label');
-      if (groupLabel) groupLabel.textContent = text("Academy & Ressourcen", "Academy & Resources");
+      setTextIfChanged(groupLabel, text("Academy & Ressourcen", "Academy & Resources"));
       const academyLabel = existing.querySelector('[data-bi-enhancement-route="academy"] .bi-nav-label');
-      if (academyLabel) academyLabel.textContent = "BetInsight Academy";
+      setTextIfChanged(academyLabel, "BetInsight Academy");
       const downloadsLabel = existing.querySelector('[data-bi-enhancement-route="werbematerial"] .bi-nav-label');
-      if (downloadsLabel) downloadsLabel.textContent = text("Werbematerial & Downloads", "Marketing Material & Downloads");
+      setTextIfChanged(downloadsLabel, text("Werbematerial & Downloads", "Marketing Material & Downloads"));
       return;
     }
     const original = sidebar.querySelector('[data-bi-nav-route="ressourcen"]');
@@ -175,7 +182,7 @@
         language.classList.add("bi-language-settings-block");
       }
       const languageTitle = language.querySelector(".bi-nav-language-title span:last-child");
-      if (languageTitle) languageTitle.textContent = text("Sprache / Land", "Language / Country");
+      setTextIfChanged(languageTitle, text("Sprache / Land", "Language / Country"));
       if (language.parentElement !== footer) footer.prepend(language);
       language.classList.remove("bi-language-switcher-under-logo");
     }
@@ -197,24 +204,42 @@
   }
 
   let scheduled = false;
+  let applying = false;
   const observer = new MutationObserver(() => {
-    if (scheduled) return;
+    if (applying || scheduled) return;
     scheduled = true;
     requestAnimationFrame(() => {
       scheduled = false;
-      apply();
+      applying = true;
+      try {
+        apply();
+      } finally {
+        observer.takeRecords();
+        applying = false;
+      }
     });
   });
 
+  function runApplySafely() {
+    if (applying) return;
+    applying = true;
+    try {
+      apply();
+    } finally {
+      observer.takeRecords();
+      applying = false;
+    }
+  }
+
   function start() {
     loadCompletion();
-    apply();
+    runApplySafely();
     observer.observe(document.documentElement, {childList:true, subtree:true});
-    window.addEventListener("bi:languagechange", () => setTimeout(apply, 0));
+    window.addEventListener("bi:languagechange", () => setTimeout(runApplySafely, 0));
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, {once:true});
   else start();
 
-  window.BetInsightNavigationEnhancements = Object.freeze({apply});
+  window.BetInsightNavigationEnhancements = Object.freeze({apply: runApplySafely});
 })();
