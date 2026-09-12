@@ -24,8 +24,9 @@
         const adminUnitCreditScript = '<scr' + 'ipt src="./admin-unit-credit.js?v=20260911-1"></scr' + 'ipt>';
         const networkMoveScript = '<scr' + 'ipt src="./network-move.js?v=20260911-1"></scr' + 'ipt>';
         const minimumEurLabelScript = '<scr' + 'ipt src="./minimum-eur-label.js?v=20260911-1"></scr' + 'ipt>';
-        const marker = '<!-- WALLET-FREIGABE-MASTER · PREMIUM-EINGAENGE-LIVE · ADMIN-UNIT-GUTSCHRIFT-MASTER · NETZWERK-STRUKTUR-MOVE-MASTER · MINIMUM-EUR-LABEL · Kernstand 2026-09-05 unverändert eingebunden -->';
-        const composed = coreHtml.replace(/<\/body>/i, walletApprovalScript + premiumScript + adminUnitCreditScript + networkMoveScript + minimumEurLabelScript + marker + "</body>");
+        const referralUnitHistoryScript = '<scr' + 'ipt src="./referral-unit-history.js?v=20260912-1"></scr' + 'ipt>';
+        const marker = '<!-- WALLET-FREIGABE-MASTER · PREMIUM-EINGAENGE-LIVE · ADMIN-UNIT-GUTSCHRIFT-MASTER · NETZWERK-STRUKTUR-MOVE-MASTER · MINIMUM-EUR-LABEL · REFERRAL-UNIT-HISTORY · Kernstand 2026-09-05 unverändert eingebunden -->';
+        const composed = coreHtml.replace(/<\/body>/i, walletApprovalScript + premiumScript + adminUnitCreditScript + networkMoveScript + minimumEurLabelScript + referralUnitHistoryScript + marker + "</body>");
         document.open();
         document.write(composed);
         document.close();
