@@ -22,6 +22,7 @@
   let observer = null;
 
   const PAGE_SCOPE = Object.freeze({
+    dashboard:"dashboard",
     daily:"daily",
     "fan-challenge":"fan-challenge",
     tipps:"tips",
@@ -31,7 +32,9 @@
     verkaufen:"sell",
     "meine-verkaufsangebote":"my-sale-offers",
     anbieter:"providers",
+    "anbieter-auswahl":"providers",
     "marketing-center":"marketing-center",
+    "premium-upgrade":"premium-upgrade",
     support:"support"
   });
 
@@ -287,10 +290,10 @@
     return out;
   }
 
-  function pairLocales(de, en, map) {
-    const deFlat = flatten(de), enFlat = flatten(en);
-    Object.entries(deFlat).forEach(([key,source]) => {
-      const target = enFlat[key];
+  function pairLocales(sourceLocale, targetLocale, map) {
+    const sourceFlat = flatten(sourceLocale), targetFlat = flatten(targetLocale);
+    Object.entries(sourceFlat).forEach(([key,source]) => {
+      const target = targetFlat[key];
       if (source && typeof target === "string" && source !== target) map.set(source,target);
     });
   }
@@ -305,21 +308,26 @@
 
   async function buildDictionary(language = lang()) {
     const map = new Map();
-    if (language !== "en") { exact = map; templates = []; return; }
+    const targetLanguage = String(language || "de").toLowerCase().split("-")[0];
+    if (targetLanguage === "de") { exact = map; templates = []; return; }
 
     const sharedDe = await loadJson(new URL("./locales/de.json", I18N_ROOT));
-    const sharedEn = await loadJson(new URL("./locales/en.json", I18N_ROOT));
-    pairLocales(sharedDe,sharedEn,map);
+    const sharedTarget = await loadJson(new URL(`./locales/${encodeURIComponent(targetLanguage)}.json`, I18N_ROOT));
+    pairLocales(sharedDe, sharedTarget, map);
 
-    const id=pageId();
-    const scope=PAGE_SCOPE[id] || document.querySelector('meta[name="bi-i18n-scope"]')?.content || "";
+    const id = pageId();
+    const scope = PAGE_SCOPE[id] || document.querySelector('meta[name="bi-i18n-scope"]')?.content || "";
     if (scope) {
       const de = await loadJson(new URL(`./pages/${encodeURIComponent(scope)}/de.json`, I18N_ROOT));
-      const en = await loadJson(new URL(`./pages/${encodeURIComponent(scope)}/en.json`, I18N_ROOT));
-      pairLocales(de,en,map);
+      const target = await loadJson(new URL(`./pages/${encodeURIComponent(scope)}/${encodeURIComponent(targetLanguage)}.json`, I18N_ROOT));
+      pairLocales(de, target, map);
     }
 
-    Object.entries(EXTRAS[id] || {}).forEach(([source,target]) => map.set(source,target));
+    // Existing legacy extras were authored as DE -> EN. Keep them English-only;
+    // ES/PT/IT/FR use the proper keyed locale dictionaries instead of showing English.
+    if (targetLanguage === "en") {
+      Object.entries(EXTRAS[id] || {}).forEach(([source,target]) => map.set(source,target));
+    }
     exact = map;
     templates = [...map.entries()].map(([source,target])=>makeTemplate(source,target)).filter(Boolean);
   }

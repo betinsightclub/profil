@@ -10,9 +10,18 @@
   const dictionaries = new Map();
   const scopedDictionaries = new Map();
   const PAGE_SCOPES = Object.freeze({
-    "verkaufen": "sell",
+    "daily": "daily",
+    "fan-challenge": "fan-challenge",
+    "tipps": "tips",
+    "kaufen": "buy",
+    "pakete": "packages",
     "angebote": "offers",
+    "verkaufen": "sell",
+    "meine-verkaufsangebote": "my-sale-offers",
+    "anbieter": "providers",
+    "anbieter-auswahl": "providers",
     "marketing-center": "marketing-center",
+    "premium-upgrade": "premium-upgrade",
     "support": "support"
   });
   let supported = ["de", "en"];
@@ -66,6 +75,7 @@
       uiEnhancementsPromise = (async () => {
         await loadUiScript("theme-manager.js?v=20260908-4", "BetInsightTheme");
         await loadUiScript("navigation-enhancements.js?v=20260909-3", "BetInsightNavigationEnhancements");
+        await loadUiScript("i18n/member-completion.js?v=20260912-1", "BetInsightMemberCompletion");
         return true;
       })().catch(error => {
         console.error("BetInsight UI enhancements could not be loaded.", error);

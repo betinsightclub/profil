@@ -133,7 +133,7 @@
     "Profil wurde gefunden. Einzelne Anzeigen konnten noch nicht vollständig aufgebaut werden.":"Profile found. Some displays could not yet be built completely."
   });
 
-  function lang() { return i18n()?.getLanguage?.() === "en" ? "en" : "de"; }
+  function lang() { return String(i18n()?.getLanguage?.() || "de").toLowerCase().split("-")[0]; }
   function leadingTrailing(original, translated) {
     const lead = original.match(/^\s*/)?.[0] || "";
     const tail = original.match(/\s*$/)?.[0] || "";
@@ -235,7 +235,7 @@
   }
 
   function applyLocaleFunctions() {
-    const locale = lang() === "en" ? "en-US" : "de-DE";
+    const locale = ({de:"de-DE",en:"en-US",es:"es-ES",pt:"pt-PT",it:"it-IT",fr:"fr-FR"})[lang()] || "de-DE";
     window.formatNumber = value => new Intl.NumberFormat(locale,{maximumFractionDigits:2}).format(typeof window.safeNumber === "function" ? window.safeNumber(value) : Number(value||0));
     window.formatUnitsTwoDecimals = value => new Intl.NumberFormat(locale,{minimumFractionDigits:2,maximumFractionDigits:2}).format(typeof window.safeNumber === "function" ? window.safeNumber(value) : Number(value||0));
     window.formatDateTimeDe = date => (!(date instanceof Date)||Number.isNaN(date.getTime())) ? "–" : new Intl.DateTimeFormat(locale,{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(date);
