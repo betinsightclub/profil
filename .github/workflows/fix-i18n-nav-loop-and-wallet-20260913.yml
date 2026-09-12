@@ -1,0 +1,60 @@
+name: Fix i18n nav loop and wallet 2026-09-13
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/fix-i18n-nav-loop-and-wallet-20260913.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch-i18n:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply guarded repair
+        run: python3 .github/scripts/fix_i18n_nav_loop_and_wallet_20260913.py
+
+      - name: Validate JavaScript syntax
+        run: |
+          node --check assets/navigation-enhancements.js
+          node --check assets/i18n/core-v2.js
+          node --check assets/i18n/member-completion.js
+          node --check assets/app-navigation.js
+
+      - name: Validate Portuguese JSON
+        run: |
+          python3 -m json.tool assets/i18n/pages/wallet/pt.json >/dev/null
+          python3 -m json.tool assets/i18n/pages/sell/pt.json >/dev/null
+          python3 -m json.tool assets/i18n/pages/my-sale-offers/pt.json >/dev/null
+          python3 -m json.tool assets/i18n/pages/offers/pt.json >/dev/null
+          python3 -m json.tool assets/i18n/pages/packages/pt.json >/dev/null
+
+      - name: Validate loop guard and scopes
+        run: |
+          grep -q 'setTextIfChanged' assets/navigation-enhancements.js
+          grep -q 'observer.takeRecords' assets/navigation-enhancements.js
+          grep -q '"wallet": "wallet"' assets/i18n/core-v2.js
+          grep -q 'wallet:"wallet"' assets/i18n/member-completion.js
+          grep -q 'navigation-enhancements.js?v=20260913-2' assets/i18n/core-v2.js
+          grep -q 'i18n/core-v2.js?v=20260913-2' assets/app-navigation.js
+          git diff --check
+
+      - name: Commit repair
+        run: |
+          git config user.name "BetInsight i18n Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add assets/i18n/core-v2.js assets/i18n/member-completion.js assets/app-navigation.js
+          if git diff --cached --quiet; then
+            echo "No code patch required."
+            exit 0
+          fi
+          git commit -m "fix: prevent nav observer loop and enable wallet pt scope"
+          git push
