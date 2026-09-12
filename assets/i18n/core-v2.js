@@ -15,6 +15,7 @@
     "tipps": "tips",
     "kaufen": "buy",
     "pakete": "packages",
+    "wallet": "wallet",
     "angebote": "offers",
     "verkaufen": "sell",
     "meine-verkaufsangebote": "my-sale-offers",
@@ -75,7 +76,7 @@
       uiEnhancementsPromise = (async () => {
         await loadUiScript("theme-manager.js?v=20260908-4", "BetInsightTheme");
         await loadUiScript("i18n/member-completion.js?v=20260913-1", "BetInsightMemberCompletion");
-        await loadUiScript("navigation-enhancements.js?v=20260913-1", "BetInsightNavigationEnhancements");
+        await loadUiScript("navigation-enhancements.js?v=20260913-2", "BetInsightNavigationEnhancements");
         return true;
       })().catch(error => {
         console.error("BetInsight UI enhancements could not be loaded.", error);

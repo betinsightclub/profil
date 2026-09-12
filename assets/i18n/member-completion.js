@@ -27,6 +27,7 @@
     "fan-challenge":"fan-challenge",
     tipps:"tips",
     pakete:"packages",
+    wallet:"wallet",
     kaufen:"buy",
     angebote:"offers",
     verkaufen:"sell",

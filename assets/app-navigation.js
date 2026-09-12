@@ -221,7 +221,7 @@
     try {
       await loadScript("tip-expiry-guard.js?v=20260905-2");
       await loadScript("app-session.js?v=20260905-4","BetInsightSession");
-      await loadScript("i18n/core-v2.js?v=20260913-1","BetInsightI18n");
+      await loadScript("i18n/core-v2.js?v=20260913-2","BetInsightI18n");
       await window.BetInsightI18n?.init?.();
       if (isRootDashboard()) await loadScript("i18n/dashboard-legacy.js");
       await loadScript("app-navigation-v2.js?v=20260906-resources-1");
