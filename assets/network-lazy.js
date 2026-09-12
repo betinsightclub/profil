@@ -1,20 +1,19 @@
-/* BetInsight Netzwerk Cache-Sparmodus · 2026-09-11-05
-   Ziel: Netzwerk-Gesamtübersicht sofort anzeigen, ohne dass zuerst eine Ebene aufgeklappt werden muss.
-   Ebenen 1–3 werden einmal gemeinsam geladen, kurzzeitig lokal zwischengespeichert und danach ohne weitere Make-Abfrage geöffnet.
-   Zusätzlich zeigt die obere Netzwerk-Karte die Gesamtzahl der Partner sowie Ebene 1–3.
-   Gesamt verbrauchte Units und tatsächlich verbrauchte Kauf-Units werden getrennt dargestellt.
-   Robustheitsfix: Dashboard-Zugang wird aus der bestätigten Session gelesen; bereits geladene Karten werden beim erneuten Öffnen nicht mehr durch Platzhalter überschrieben.
-   Keine Unit-, Referral-, Zahlungs-, FIFO- oder Premium-Bestände werden geschrieben. */
+/* BetInsight Netzwerk Cache-Sparmodus · 2026-09-12-01 STUFE-1 LAZY
+   Stufe 1: Netzwerkdaten werden nicht mehr automatisch bei jedem Profilaufruf geladen.
+   Make wird erst aufgerufen, wenn der Nutzer den Netzwerkbereich wirklich erreicht,
+   eine Ebene oeffnet oder einen ausdruecklichen Netzwerk-Refresh ausloest.
+   Ebenen 1–3 werden dann einmal gemeinsam geladen und 5 Minuten lokal gecacht.
+   Keine Unit-, Referral-, Zahlungs-, FIFO- oder Premium-Bestaende werden geschrieben. */
 (() => {
   "use strict";
 
   const NETWORK_WEBHOOK_URL = "https://hook.eu1.make.com/yli7txai951a1huc8707xovumwomi2wz";
-  const CACHE_PREFIX = "betinsight_network_cache_v5:";
+  const CACHE_PREFIX = "betinsight_network_cache_v6:";
   const CACHE_TTL_MS = 5 * 60 * 1000;
-  const AUTOLOAD_RETRY_MS = 250;
-  const AUTOLOAD_MAX_TRIES = 480;
+  const TOKEN_RETRY_MS = 250;
+  const TOKEN_RETRY_MAX = 40;
   const levelState = new Map([1,2,3].map(level => [level,{loaded:false,partners:[],summary:null}]));
-  const networkState = {loaded:false,loading:false,token:"",autoLoadTimer:null,autoLoadTries:0};
+  const networkState = {loaded:false,loading:false,token:"",wanted:false,retryTimer:null,retryCount:0};
 
   const num = value => {
     if (typeof window.safeNumber === "function") return window.safeNumber(value);
@@ -52,9 +51,7 @@
     return "";
   }
 
-  function cacheKey(token){
-    return CACHE_PREFIX + token;
-  }
+  function cacheKey(token){ return CACHE_PREFIX + token; }
 
   function readCache(token){
     if(!token) return null;
@@ -130,6 +127,11 @@
     total.classList.toggle("private-value-hidden",privacyActive());
   }
 
+  function setStatus(text){
+    const status=document.getElementById("referralStatus");
+    if(status) status.textContent=text||"";
+  }
+
   function placeholderCard(level){
     const title=level===1?"Ebene 1 – direkte Partner":"Ebene "+level;
     return `<article class="level-card" id="levelCard${level}" data-bi-lazy-level="${level}">
@@ -142,7 +144,7 @@
         <div class="level-metric"><div class="level-metric-label">Freigegeben</div><div class="level-metric-value">–</div></div>
         <div class="level-arrow">⌄</div>
       </div>
-      <div class="level-body"><div class="bi-lazy-level-note"><strong>Netzwerkdaten werden geladen.</strong><br>Danach stehen alle Ebenen ohne weitere Abfrage bereit.</div></div>
+      <div class="level-body"><div class="bi-lazy-level-note"><strong>Netzwerkdaten werden bei Bedarf geladen.</strong><br>Beim Öffnen werden alle drei Ebenen gemeinsam geladen.</div></div>
     </article>`;
   }
 
@@ -198,7 +200,9 @@
 
   function renderLoadedLevel(level,partners,open=false){
     const state=levelState.get(level), summary=partnerSummary(partners), card=document.getElementById("levelCard"+level);
-    state.loaded=true; state.partners=partners; state.summary=summary;
+    state.loaded=true;
+    state.partners=partners;
+    state.summary=summary;
     if(!card) return;
     const title=level===1?"Ebene 1 – direkte Partner":"Ebene "+level;
     card.className="level-card"+(open?" open":"");
@@ -216,7 +220,9 @@
   }
 
   function updateTotals(){
-    const totalEl=document.getElementById("referralAllUnits"), pendingEl=document.getElementById("referralPendingUnits"), partnerTotalEl=document.getElementById("networkPartnerTotalValue");
+    const totalEl=document.getElementById("referralAllUnits");
+    const pendingEl=document.getElementById("referralPendingUnits");
+    const partnerTotalEl=document.getElementById("networkPartnerTotalValue");
     if(!networkState.loaded){
       if(totalEl) totalEl.textContent="–";
       if(pendingEl) pendingEl.textContent="–";
@@ -246,6 +252,7 @@
     const cached=readCache(token);
     if(!cached) return false;
     renderAll(cached,0,token);
+    setStatus("Netzwerkübersicht aus dem 5-Minuten-Zwischenspeicher geladen.");
     return true;
   }
 
@@ -291,47 +298,58 @@
     networkState.loading=true;
     networkState.token=token;
     document.getElementById("levelList")?.classList.add("bi-lazy-loading");
-    const status=document.getElementById("referralStatus"), old=sourceButton?.innerText;
+    const old=sourceButton?.innerText;
     if(sourceButton){sourceButton.disabled=true;sourceButton.innerText="⏳ Netzwerk wird geladen...";}
-    if(status) status.textContent="Netzwerkübersicht wird geladen.";
+    setStatus("Netzwerkübersicht wird geladen.");
     try{
       const levels=await requestAllLevels(token);
       writeCache(token,levels);
       renderAll(levels,openLevel,token);
-      if(status) status.textContent="Netzwerkübersicht ist aktuell.";
+      setStatus("Netzwerkübersicht ist aktuell · 5 Minuten zwischengespeichert.");
       if(sourceButton) sourceButton.innerText="✅ Netzwerk geladen";
     }catch(error){
       console.error("Netzwerk konnte nicht geladen werden:",error);
       networkState.loading=false;
-      if(status) status.textContent="Die Netzwerkdaten konnten nicht geladen werden. Bitte versuche es erneut.";
+      setStatus("Die Netzwerkdaten konnten nicht geladen werden. Bitte versuche es erneut.");
       if(sourceButton) sourceButton.innerText="❌ Fehler";
+      throw error;
     }finally{
       document.getElementById("levelList")?.classList.remove("bi-lazy-loading");
       if(sourceButton) setTimeout(()=>{sourceButton.disabled=false;sourceButton.innerText=old||"🔄 Netzwerk laden";},1600);
     }
   }
 
-  function scheduleOverviewLoad(resetTries=true){
-    if(resetTries) networkState.autoLoadTries=0;
-    if(networkState.autoLoadTimer) clearTimeout(networkState.autoLoadTimer);
+  function clearRetry(){
+    if(networkState.retryTimer){
+      clearTimeout(networkState.retryTimer);
+      networkState.retryTimer=null;
+    }
+  }
+
+  function requestWhenRelevant(openLevel=0){
+    networkState.wanted=true;
+    clearRetry();
     const attempt=()=>{
-      networkState.autoLoadTimer=null;
       if(networkState.loaded || networkState.loading) return;
       const token=getDashboardToken();
       if(token){
-        if(restoreCachedOverview(token)) return;
-        loadAll(0).catch(error=>console.warn("Netzwerkübersicht konnte noch nicht automatisch geladen werden:",error));
+        networkState.retryCount=0;
+        if(restoreCachedOverview(token)){
+          if(openLevel) window.toggleLevel(openLevel);
+          return;
+        }
+        loadAll(openLevel).catch(()=>{});
         return;
       }
-      networkState.autoLoadTries+=1;
-      if(networkState.autoLoadTries<AUTOLOAD_MAX_TRIES){
-        networkState.autoLoadTimer=setTimeout(attempt,AUTOLOAD_RETRY_MS);
+      networkState.retryCount+=1;
+      if(networkState.retryCount<TOKEN_RETRY_MAX && networkState.wanted){
+        networkState.retryTimer=setTimeout(attempt,TOKEN_RETRY_MS);
       }else{
-        const status=document.getElementById("referralStatus");
-        if(status) status.textContent="Die Netzwerkdaten konnten nicht geladen werden. Bitte Seite neu öffnen.";
+        networkState.retryCount=0;
+        setStatus("Netzwerkdaten stehen bereit, sobald der Profilzugang vollständig geladen ist.");
       }
     };
-    networkState.autoLoadTimer=setTimeout(attempt,60);
+    attempt();
   }
 
   window.toggleLevel=async level=>{
@@ -345,7 +363,7 @@
       return;
     }
     if(!networkState.loaded){
-      try{await loadAll(level);}catch(_){scheduleOverviewLoad(true);}
+      requestWhenRelevant(level);
       return;
     }
     card.classList.add("open");
@@ -355,25 +373,24 @@
 
   window.refreshNetworkData=async (showFeedback=false,sourceButton=null)=>{
     ensureCards(false);
-    const status=document.getElementById("referralStatus"), old=sourceButton?.innerText;
+    const old=sourceButton?.innerText;
     const token=getDashboardToken();
     if(networkState.loaded && token && networkState.token===token){
-      if(status) status.textContent="Netzwerkübersicht ist bereits geladen.";
+      setStatus("Netzwerkübersicht ist bereits geladen.");
       if(sourceButton&&showFeedback){sourceButton.disabled=true;sourceButton.innerText="✅ Bereits geladen";setTimeout(()=>{sourceButton.disabled=false;sourceButton.innerText=old;},1200);}
       return;
     }
-    try{await loadAll(0,sourceButton);}catch(_){scheduleOverviewLoad(true);}
+    requestWhenRelevant(0);
   };
 
   window.prepareNetworkSection=()=>{
     const section=document.getElementById("referralSection");
     if(section) section.style.display="block";
-    if(typeof window.setReferralLinks === "function") window.setReferralLinks({});
+    ensureCards(false);
+    ensurePartnerTotal();
 
     const token=getDashboardToken();
     if(networkState.loaded && token && networkState.token===token){
-      ensureCards(false);
-      ensurePartnerTotal();
       const levels={
         1:levelState.get(1)?.partners||[],
         2:levelState.get(2)?.partners||[],
@@ -383,36 +400,38 @@
       return;
     }
 
-    ensureCards(true);
-    ensurePartnerTotal();
-    resetState();
     if(token && restoreCachedOverview(token)) return;
-
-    const status=document.getElementById("referralStatus");
-    if(status) status.textContent="Netzwerkübersicht wird geladen.";
-    scheduleOverviewLoad(true);
+    setStatus("Netzwerkdaten werden erst beim Öffnen dieses Bereichs geladen.");
   };
+
+  function isNetworkHash(){
+    return String(location.hash||"").replace(/^#/,"").trim().toLowerCase()==="netzwerk";
+  }
 
   function install(){
     styleOnce();
     ensureCards(false);
     ensurePartnerTotal();
     const section=document.getElementById("referralSection");
-    if(section && getComputedStyle(section).display!=="none") window.prepareNetworkSection();
-    else scheduleOverviewLoad(true);
+    const token=getDashboardToken();
+    if(token) restoreCachedOverview(token);
+    if(!networkState.loaded) setStatus("Netzwerkdaten werden erst beim Öffnen dieses Bereichs geladen.");
 
-    const observer=new MutationObserver(()=>{
-      if(section && getComputedStyle(section).display!=="none" && !document.getElementById("levelList")?.querySelector("[data-bi-lazy-level]")) window.prepareNetworkSection();
-      applyOverviewPrivacy();
-    });
-    if(section) observer.observe(section,{attributes:true,attributeFilter:["style","class"]});
+    if(section && "IntersectionObserver" in window){
+      const observer=new IntersectionObserver(entries=>{
+        if(entries.some(entry=>entry.isIntersecting)){
+          observer.disconnect();
+          requestWhenRelevant(0);
+        }
+      },{rootMargin:"160px 0px",threshold:0.01});
+      observer.observe(section);
+    }
 
-    window.addEventListener("focus",()=>{
-      if(!networkState.loaded && !networkState.loading) scheduleOverviewLoad(true);
-    });
-    document.addEventListener("visibilitychange",()=>{
-      if(document.visibilityState==="visible" && !networkState.loaded && !networkState.loading) scheduleOverviewLoad(true);
-    });
+    if(isNetworkHash()) requestWhenRelevant(0);
+    window.addEventListener("hashchange",()=>{ if(isNetworkHash()) requestWhenRelevant(0); });
+
+    const privacyObserver=new MutationObserver(()=>applyOverviewPrivacy());
+    if(section) privacyObserver.observe(section,{attributes:true,attributeFilter:["style","class"]});
   }
 
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",install,{once:true}); else install();
