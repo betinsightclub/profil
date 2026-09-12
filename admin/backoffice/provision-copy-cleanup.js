@@ -10,9 +10,31 @@
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', simplifyProvisionCopy, { once: true });
-  } else {
-    simplifyProvisionCopy();
+  function simplifyUnitUsageIntro() {
+    const intro = document.getElementById('uupIntro');
+    if (!intro) return false;
+
+    const text = (intro.textContent || '').replace(/\s+/g, ' ').trim();
+    if (!text.includes('Beträge anderer Admins') && !text.includes('Private Einzelansicht')) return false;
+
+    intro.textContent = 'Jede tatsächlich verbrauchte Kaufcharge wird dokumentiert. Du siehst den Verbrauch und ausschließlich deine eigenen Provisionswerte.';
+    return true;
   }
+
+  function applyCleanup() {
+    simplifyProvisionCopy();
+    simplifyUnitUsageIntro();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyCleanup, { once: true });
+  } else {
+    applyCleanup();
+  }
+
+  const observer = new MutationObserver(function () {
+    simplifyUnitUsageIntro();
+  });
+
+  observer.observe(document.documentElement, { childList: true, subtree: true, characterData: true });
 })();
