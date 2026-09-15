@@ -2,4 +2,128 @@
 <html lang="de"><head>
 <!-- BETINSIGHT APP NOINDEX START -->
 <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
-<!-- BETINSIGHT APP NOINDEX END --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#061d2a"><title>BetInsight – Tippbereich</title><style>body{margin:0;background:#061d2a;color:#fff;font-family:Arial,sans-serif;display:grid;place-items:center;min-height:100vh}.load{padding:30px;text-align:center}.spin{width:42px;height:42px;margin:0 auto 16px;border:4px solid rgba(255,255,255,.18);border-top-color:#16a8f5;border-radius:50%;animation:s .8s linear infinite}@keyframes s{to{transform:rotate(360deg)}}#persistentBack{position:fixed;top:12px;left:12px;z-index:99999;display:inline-flex;align-items:center;justify-content:center;padding:10px 15px;border-radius:999px;background:#0d3347;border:1px solid rgba(0,218,255,.45);color:#fff;text-decoration:none;font-weight:700;font-size:14px;box-shadow:0 6px 18px rgba(0,0,0,.28)}#persistentBack:hover,#persistentBack:focus{background:#12455f;outline:none}@media(max-width:600px){#persistentBack{top:8px;left:8px;padding:9px 12px;font-size:13px}}</style></head><body><a id="persistentBack" href="/admin/">← Zurück zum Admin Center</a><div class="load"><div class="spin"></div><strong>BetInsight Tipp-Terminal · Kombi wird geladen …</strong></div><script>(async()=>{if(new URLSearchParams(window.location.search).get('mode')==='historisch'){window.location.replace('/admin-tipps/historisch/');return;}try{const files=['livev11.part0','livev11.part1','livev11.part2','livev11.part3'];const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260914-berlin-tz1',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Terminal-Datei '+x+' konnte nicht geladen werden');return r.text()})));const b=ps.join('').replace(/\s+/g,'');const bytes=Uint8Array.from(atob(b),c=>c.charCodeAt(0));const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));let html=await new Response(stream).text();html=html.replace('class="btn secondary hidden" id="backAdmin"','class="btn secondary" id="backAdmin"').replace('← Admin Center','← Zurück zum Admin Center');html=html.replace("new Intl.DateTimeFormat('en-CA',{year:'numeric',month:'2-digit',day:'2-digit'})","new Intl.DateTimeFormat('en-CA',{year:'numeric',month:'2-digit',day:'2-digit',timeZone:'Europe/Berlin'})").replace("new Intl.DateTimeFormat('de-DE',{hour:'2-digit',minute:'2-digit',hour12:false})","new Intl.DateTimeFormat('de-DE',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Europe/Berlin'})").replace("new Intl.DateTimeFormat('de-DE',{dateStyle:'medium',timeStyle:'short'})","new Intl.DateTimeFormat('de-DE',{dateStyle:'medium',timeStyle:'short',timeZone:'Europe/Berlin'})");html=html.replace('<body>','<body><a id="persistentBack" href="/admin/" style="position:fixed;top:12px;left:12px;z-index:99999;display:inline-flex;align-items:center;justify-content:center;padding:10px 15px;border-radius:999px;background:#0d3347;border:1px solid rgba(0,218,255,.45);color:#fff;text-decoration:none;font-weight:700;font-size:14px;box-shadow:0 6px 18px rgba(0,0,0,.28)">← Zurück zum Admin Center</a>');document.open();document.write(html);document.close()}catch(e){document.body.innerHTML='<a id="persistentBack" href="/admin/" style="position:fixed;top:12px;left:12px;z-index:99999;padding:10px 15px;border-radius:999px;background:#0d3347;border:1px solid rgba(0,218,255,.45);color:#fff;text-decoration:none;font-weight:700">← Zurück zum Admin Center</a><div class="load"><h2>Tipp-Terminal konnte nicht geladen werden</h2><p>'+String(e.message||e)+'</p><p>Bitte neu laden.</p></div>'}})();</script></body></html>
+<!-- BETINSIGHT APP NOINDEX END -->
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#061d2a"><title>BetInsight – Tippbereich</title>
+<style>body{margin:0;background:#061d2a;color:#fff;font-family:Arial,sans-serif;display:grid;place-items:center;min-height:100vh}.load{padding:30px;text-align:center}.spin{width:42px;height:42px;margin:0 auto 16px;border:4px solid rgba(255,255,255,.18);border-top-color:#16a8f5;border-radius:50%;animation:s .8s linear infinite}@keyframes s{to{transform:rotate(360deg)}}#persistentBack{position:fixed;top:12px;left:12px;z-index:99999;display:inline-flex;align-items:center;justify-content:center;padding:10px 15px;border-radius:999px;background:#0d3347;border:1px solid rgba(0,218,255,.45);color:#fff;text-decoration:none;font-weight:700;font-size:14px;box-shadow:0 6px 18px rgba(0,0,0,.28)}#persistentBack:hover,#persistentBack:focus{background:#12455f;outline:none}@media(max-width:600px){#persistentBack{top:8px;left:8px;padding:9px 12px;font-size:13px}}</style>
+</head><body><a id="persistentBack" href="/admin/">← Zurück zum Admin Center</a><div class="load"><div class="spin"></div><strong>BetInsight Tipp-Terminal · Kombi wird geladen …</strong></div>
+<script>
+(async()=>{
+  if(new URLSearchParams(window.location.search).get('mode')==='historisch'){
+    window.location.replace('/admin-tipps/historisch/');
+    return;
+  }
+  try{
+    const files=['livev11.part0','livev11.part1','livev11.part2','livev11.part3'];
+    const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260915-stability-combo2',{cache:'no-store'}).then(r=>{
+      if(!r.ok)throw new Error('Terminal-Datei '+x+' konnte nicht geladen werden');
+      return r.text();
+    })));
+    const b=ps.join('').replace(/\s+/g,'');
+    const bytes=Uint8Array.from(atob(b),c=>c.charCodeAt(0));
+    const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+    let html=await new Response(stream).text();
+
+    html=html.replace('class="btn secondary hidden" id="backAdmin"','class="btn secondary" id="backAdmin"').replace('← Admin Center','← Zurück zum Admin Center');
+    html=html.replace("new Intl.DateTimeFormat('en-CA',{year:'numeric',month:'2-digit',day:'2-digit'})","new Intl.DateTimeFormat('en-CA',{year:'numeric',month:'2-digit',day:'2-digit',timeZone:'Europe/Berlin'})")
+      .replace("new Intl.DateTimeFormat('de-DE',{hour:'2-digit',minute:'2-digit',hour12:false})","new Intl.DateTimeFormat('de-DE',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Europe/Berlin'})")
+      .replace("new Intl.DateTimeFormat('de-DE',{dateStyle:'medium',timeStyle:'short'})","new Intl.DateTimeFormat('de-DE',{dateStyle:'medium',timeStyle:'short',timeZone:'Europe/Berlin'})");
+
+    const enhancement=`<script>
+(()=>{
+  'use strict';
+  const clean=v=>String(v||'').trim();
+  const simpleOptions=(market,home,away)=>{
+    const m=clean(market),h=clean(home)||'Heimteam',a=clean(away)||'Auswärtsteam';
+    if(m==='1X2'||m==='1. Halbzeit 1X2')return [h+' gewinnt','Unentschieden',a+' gewinnt'];
+    if(m==='Doppelte Chance')return ['1X · '+h+' oder Unentschieden','12 · '+h+' oder '+a,'X2 · Unentschieden oder '+a];
+    if(m==='Draw No Bet'||m==='Qualifiziert sich'||m==='Qualifiziert sich / kommt weiter')return [h,a];
+    if(m==='Beide treffen'||m==='Beide Teams treffen'||m==='1. Halbzeit Beide treffen'||m==='1. Halbzeit · Beide Teams treffen')return ['Ja','Nein'];
+    if(/^Über [0-9],[0-9] Tore$/.test(m)||/^Unter [0-9],[0-9] Tore$/.test(m))return [m];
+    if(/^1\. Halbzeit.*Über [0-9],[0-9]/.test(m)||/^1\. Halbzeit.*Unter [0-9],[0-9]/.test(m))return [m.replace(/^1\. Halbzeit\s*[·-]?\s*/,'')];
+    if(m==='Teamtore'||m.indexOf('Teamtore')===0)return [h+' · Über',h+' · Unter',a+' · Über',a+' · Unter'];
+    if(m==='Halbzeit/Endstand'||m==='Halbzeit / Endstand')return [h+' / '+h,h+' / Unentschieden',h+' / '+a,'Unentschieden / '+h,'Unentschieden / Unentschieden','Unentschieden / '+a,a+' / '+h,a+' / Unentschieden',a+' / '+a];
+    return [];
+  };
+  const fieldByData=(card,names)=>{
+    for(const n of names){const el=card.querySelector('[data-field="'+n+'"]');if(el)return el;}
+    return null;
+  };
+  const fieldByLabel=(card,re)=>{
+    const labels=[...card.querySelectorAll('label')];
+    const lab=labels.find(x=>re.test(clean(x.textContent)));
+    if(!lab)return null;
+    if(lab.htmlFor){try{const el=card.querySelector('#'+CSS.escape(lab.htmlFor));if(el)return el;}catch(e){}}
+    return lab.parentElement&&lab.parentElement.querySelector('input,select,textarea');
+  };
+  const getField=(card,names,re)=>fieldByData(card,names)||fieldByLabel(card,re);
+  const parseTeams=(card)=>{
+    let home=getField(card,['home_team','home','heimteam'],/Heimteam/i),away=getField(card,['away_team','away','auswaertsteam'],/Ausw[aä]rtsteam/i);
+    let h=clean(home&&home.value),a=clean(away&&away.value);
+    if(!h||!a){const game=getField(card,['spiel'],/^Spiel/i);const parts=clean(game&&game.value).split(/\s+[–-]\s+/);if(!h)h=clean(parts[0]);if(!a)a=clean(parts[1]);}
+    return {home:h,away:a};
+  };
+  const originalTip=(card)=>getField(card,['tipp','selection','auswahl'],/Tipp\s*\/\s*Auswahl|^Tipp\b|^Auswahl\b/i);
+  const originalMarket=(card)=>getField(card,['markt','market'],/^Markt\b/i);
+
+  function syncComboCard(card){
+    if(!card||!card.querySelector)return;
+    const market=originalMarket(card),tip=originalTip(card);
+    if(!market||!tip)return;
+
+    if(market.tagName==='INPUT'&&!card.querySelector('[data-bi-market-helper="1"]')){
+      const helper=document.createElement('select');helper.setAttribute('data-bi-market-helper','1');helper.style.width='100%';helper.style.minHeight='49px';helper.style.padding='12px 13px';helper.style.borderRadius='11px';helper.style.border='1px solid rgba(0,218,255,.34)';helper.style.background='#061d2a';helper.style.color='#fff';
+      const main=document.getElementById('markt');
+      if(main&&main.tagName==='SELECT')helper.innerHTML=main.innerHTML;else helper.innerHTML='<option value="">Bitte auswählen</option><option>1X2</option><option>Doppelte Chance</option><option>Draw No Bet</option><option>Beide treffen</option><option>Handicap</option><option>Teamtore</option><option>Eigener Markt</option>';
+      [...helper.options].filter(o=>/Kombi/i.test(o.value||o.textContent)).forEach(o=>o.remove());
+      helper.value=market.value;market.style.display='none';market.parentNode.insertBefore(helper,market);
+      helper.addEventListener('change',()=>{market.value=helper.value;market.dispatchEvent(new Event('input',{bubbles:true}));market.dispatchEvent(new Event('change',{bubbles:true}));refreshSelection(card);});
+    }
+    refreshSelection(card);
+    if(!card.dataset.biComboBound){
+      card.dataset.biComboBound='1';
+      card.addEventListener('change',e=>{if(e.target!==card.querySelector('[data-bi-selection-helper="1"]'))setTimeout(()=>refreshSelection(card),0)});
+      card.addEventListener('input',e=>{if(e.target!==card.querySelector('[data-bi-selection-helper="1"]'))setTimeout(()=>refreshSelection(card),0)});
+    }
+  }
+
+  function refreshSelection(card){
+    let market=originalMarket(card),tip=originalTip(card);if(!market||!tip)return;
+    const mh=card.querySelector('[data-bi-market-helper="1"]');const marketValue=clean(mh?mh.value:market.value);
+    const teams=parseTeams(card);const options=simpleOptions(marketValue,teams.home,teams.away);
+    let helper=card.querySelector('[data-bi-selection-helper="1"]');
+    if(!options.length){if(helper)helper.remove();tip.style.display='';return;}
+    if(!helper){helper=document.createElement('select');helper.setAttribute('data-bi-selection-helper','1');helper.style.width='100%';helper.style.minHeight='49px';helper.style.padding='12px 13px';helper.style.borderRadius='11px';helper.style.border='1px solid rgba(0,218,255,.34)';helper.style.background='#061d2a';helper.style.color='#fff';tip.parentNode.insertBefore(helper,tip);helper.addEventListener('change',()=>{tip.value=helper.value;tip.dispatchEvent(new Event('input',{bubbles:true}));tip.dispatchEvent(new Event('change',{bubbles:true}));});}
+    const old=clean(tip.value);helper.innerHTML='<option value="">Bitte auswählen</option>'+options.map(x=>'<option value="'+String(x).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')+'">'+String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</option>').join('');
+    if(options.includes(old))helper.value=old;else if(options.length===1){helper.value=options[0];tip.value=options[0];tip.dispatchEvent(new Event('input',{bubbles:true}));}
+    tip.style.display='none';
+  }
+
+  function comboCards(){
+    let cards=[...document.querySelectorAll('[data-combo-leg],.combo-leg,[class*="combo-leg"]')];
+    if(cards.length)return [...new Set(cards)];
+    const candidates=[...document.querySelectorAll('div,section,fieldset')].filter(el=>{const t=clean(el.firstElementChild&&el.firstElementChild.textContent);return /^Auswahl\s+\d+/i.test(t)&&el.querySelectorAll('label').length>=3;});
+    return candidates.filter((el,i,a)=>!a.some(other=>other!==el&&el.contains(other)));
+  }
+  function enhanceCombos(){comboCards().forEach(syncComboCard);}
+
+  function stabilizeLeagueError(){
+    const status=document.getElementById('leagueStatus'),liga=document.getElementById('liga');if(!status||!liga)return;
+    const check=()=>{const txt=clean(status.textContent);if(!/statement timeout|canceling statement|statement due to|timeout/i.test(txt))return;const key=clean(liga.value);status.textContent='Die Spielabfrage hat zu lange gedauert. BetInsight versucht automatisch erneut …';status.className='status';if(key&&status.dataset.biRetried!==key){status.dataset.biRetried=key;setTimeout(()=>liga.dispatchEvent(new Event('change',{bubbles:true})),500)}else{status.textContent='Spielabfrage vorübergehend langsam. Bitte die Liga noch einmal auswählen.';status.className='status error';}};
+    new MutationObserver(check).observe(status,{childList:true,subtree:true,characterData:true});
+    liga.addEventListener('change',e=>{if(e.isTrusted)delete status.dataset.biRetried;});check();
+  }
+
+  const run=()=>{enhanceCombos();stabilizeLeagueError();};
+  const mo=new MutationObserver(()=>{clearTimeout(window.__biComboEnhanceTimer);window.__biComboEnhanceTimer=setTimeout(enhanceCombos,60)});
+  const start=()=>{run();mo.observe(document.body,{childList:true,subtree:true});};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+<\/script>`;
+    html=html.replace('</body>',enhancement+'</body>');
+    html=html.replace('<body>','<body><a id="persistentBack" href="/admin/" style="position:fixed;top:12px;left:12px;z-index:99999;display:inline-flex;align-items:center;justify-content:center;padding:10px 15px;border-radius:999px;background:#0d3347;border:1px solid rgba(0,218,255,.45);color:#fff;text-decoration:none;font-weight:700;font-size:14px;box-shadow:0 6px 18px rgba(0,0,0,.28)">← Zurück zum Admin Center</a>');
+    document.open();document.write(html);document.close();
+  }catch(e){
+    document.body.innerHTML='<a id="persistentBack" href="/admin/" style="position:fixed;top:12px;left:12px;z-index:99999;padding:10px 15px;border-radius:999px;background:#0d3347;border:1px solid rgba(0,218,255,.45);color:#fff;text-decoration:none;font-weight:700">← Zurück zum Admin Center</a><div class="load"><h2>Tipp-Terminal konnte nicht geladen werden</h2><p>'+String(e.message||e)+'</p><p>Bitte neu laden.</p></div>';
+  }
+})();
+</script></body></html>
