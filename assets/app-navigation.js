@@ -5,6 +5,7 @@
    - internal customer navigation no longer generates URLs containing profile/dashboard access values
    - Premium Network uses a short-lived one-time-code handoff
    - admin pages are not part of this migration
+   - selected users can receive a private Assist-mode switch without changing normal dashboard logic
 */
 (() => {
   "use strict";
@@ -13,6 +14,7 @@
   const ASSET_BASE = new URL("./", SCRIPT_URL);
   const APP_ROOT = new URL("../", SCRIPT_URL);
   const LANDING_PAGE_URL = "https://betinsight.club/";
+  const PROFILE_API_URL = "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
   const PROFILE_STORAGE_KEY = "betinsight_profile_token";
   const DASHBOARD_STORAGE_KEY = "betinsight_dashboard_token";
   const isUuid = value => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value||"").trim());
@@ -148,6 +150,74 @@
     return clean;
   }
 
+  function storedAccess() {
+    try {
+      return String(localStorage.getItem(DASHBOARD_STORAGE_KEY) || "").trim() || String(localStorage.getItem(PROFILE_STORAGE_KEY) || "").trim();
+    } catch (e) { return ""; }
+  }
+
+  function installAssistAccess() {
+    if (!isRootDashboard() || window.__betinsightAssistAccessInstalled) return;
+    window.__betinsightAssistAccessInstalled = true;
+
+    const attempt = async (remaining = 12) => {
+      let access = storedAccess();
+      if (!access) {
+        const params = new URLSearchParams(location.search);
+        access = String(params.get("dashboard_token") || params.get("token") || params.get("id") || "").trim();
+      }
+      if (!access) {
+        if (remaining > 0) setTimeout(() => attempt(remaining - 1), 650);
+        return;
+      }
+
+      try {
+        const [profileResponse, configResponse] = await Promise.all([
+          fetch(`${PROFILE_API_URL}?token=${encodeURIComponent(access)}&_=${Date.now()}`, {cache:"no-store", credentials:"omit"}),
+          fetch(new URL(`assist/config.json?_=${Date.now()}`, APP_ROOT), {cache:"no-store", credentials:"omit"})
+        ]);
+        if (!profileResponse.ok || !configResponse.ok) return;
+        const profile = await profileResponse.json();
+        const config = await configResponse.json();
+        if (!profile || profile.found === false) return;
+
+        const userId = String(profile.user_id || profile.userid || profile.id || "").trim();
+        const userConfig = Array.isArray(config?.users) ? config.users.find(user => String(user?.user_id || "").trim() === userId && user?.enabled !== false) : null;
+        if (!userConfig || document.getElementById("bi-assist-switch-card")) return;
+
+        const style = document.createElement("style");
+        style.id = "bi-assist-switch-style";
+        style.textContent = `
+          .bi-assist-switch-card{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:-4px 0 22px;padding:15px 18px;border:1px solid rgba(24,212,163,.24);border-radius:18px;background:linear-gradient(110deg,rgba(8,48,63,.96),rgba(5,31,44,.96));box-shadow:0 16px 42px rgba(0,0,0,.22)}
+          .bi-assist-switch-copy{min-width:0}.bi-assist-switch-copy strong{display:block;color:#f1fbff;font-size:14px}.bi-assist-switch-copy span{display:block;margin-top:4px;color:#95bacb;font-size:11px;line-height:1.4}
+          .bi-assist-switch{position:relative;display:inline-block;flex:0 0 auto;width:58px;height:32px}.bi-assist-switch input{opacity:0;width:0;height:0}.bi-assist-slider{position:absolute;inset:0;cursor:pointer;border-radius:999px;background:#294653;border:1px solid rgba(255,255,255,.12);transition:.2s}.bi-assist-slider:before{content:"";position:absolute;width:24px;height:24px;left:4px;top:3px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 3px 9px rgba(0,0,0,.35)}.bi-assist-switch input:checked+.bi-assist-slider{background:linear-gradient(90deg,#11c998,#18a8ff)}.bi-assist-switch input:checked+.bi-assist-slider:before{transform:translateX(26px)}
+          @media(max-width:620px){.bi-assist-switch-card{margin-top:0}.bi-assist-switch-copy strong{font-size:13px}}
+        `;
+        document.head.appendChild(style);
+
+        const card = document.createElement("div");
+        card.id = "bi-assist-switch-card";
+        card.className = "bi-assist-switch-card";
+        card.innerHTML = `<div class="bi-assist-switch-copy"><strong>🧭 Einfach-Modus</strong><span>Privater vereinfachter Zugang für deinen persönlichen Assist-Modus.</span></div><label class="bi-assist-switch" aria-label="Einfach-Modus öffnen"><input id="biAssistSwitch" type="checkbox"><span class="bi-assist-slider"></span></label>`;
+
+        const header = document.querySelector(".dashboard-header");
+        const page = document.querySelector(".page") || document.body;
+        if (header?.parentNode) header.insertAdjacentElement("afterend", card);
+        else page.insertAdjacentElement("afterbegin", card);
+
+        card.querySelector("#biAssistSwitch")?.addEventListener("change", event => {
+          if (event.target.checked) safeRoute("assist");
+        });
+      } catch (error) {
+        console.warn("BetInsight Assist-Zugang konnte nicht geprüft werden:", error);
+      }
+    };
+
+    const start = () => setTimeout(() => attempt(), 450);
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, {once:true});
+    else start();
+  }
+
   /* Install a synchronous safety patch before any dependency is loaded. The legacy dashboard
      starts its profile request in its inline script; these replacements make sure a fast response
      cannot trigger one of the former token-in-URL routes before the v2 stack is ready. */
@@ -217,6 +287,7 @@
     installLandingLogoLink();
     installCuratedProviderChoice();
     installPremiumProvisionInfo();
+    installAssistAccess();
     addDashboardScope();
     try {
       await loadScript("tip-expiry-guard.js?v=20260905-2");
