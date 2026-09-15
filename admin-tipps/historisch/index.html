@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#061d2a">
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+  <title>BetInsight – Historischen Tipp erfassen</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#0b3b55 0%,#061d2a 48%,#031018 100%);color:#fff;font-family:Arial,Helvetica,sans-serif;padding:26px 14px 50px}button,input,select,textarea,a{font:inherit}.page{width:min(1040px,100%);margin:auto}.logo{display:block;width:175px;max-width:60vw;margin:4px auto 24px}.card{margin:0 auto 20px;padding:25px;border:1px solid rgba(0,218,255,.27);border-radius:22px;background:rgba(9,45,64,.96);box-shadow:0 18px 45px rgba(0,0,0,.32)}h1,h2{margin-top:0}.muted{color:#b9d8e8;line-height:1.5}.notice{padding:15px 17px;border:1px solid rgba(255,190,74,.45);border-radius:14px;background:rgba(255,174,53,.10);color:#ffe0a3;font-weight:700;line-height:1.5}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.full{grid-column:1/-1}label{display:block;margin:0 0 7px;color:#dff5ff;font-weight:800;font-size:14px}input,select,textarea{width:100%;min-height:49px;padding:12px 13px;border:1px solid rgba(0,218,255,.34);border-radius:11px;background:#061d2a;color:#fff;outline:none}textarea{min-height:120px;resize:vertical}.hint{margin-top:7px;color:#84b5c8;font-size:12px;line-height:1.45}.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}.btn{border:0;border-radius:999px;padding:13px 20px;font-weight:900;cursor:pointer;background:#16a8f5;color:#fff;text-decoration:none}.btn.secondary{background:transparent;border:1px solid rgba(0,218,255,.4)}.btn.save{background:linear-gradient(135deg,#21d07a,#0d9e57);color:#01251a}.btn:disabled{opacity:.45;cursor:not-allowed}.status{min-height:22px;margin-top:13px;color:#ffcf75}.status.ok{color:#7dffb2}.status.error{color:#ff9da3}.hidden{display:none!important}.auth{text-align:center;max-width:600px}.spinner{width:40px;height:40px;margin:0 auto 16px;border:4px solid rgba(185,216,232,.22);border-top-color:#16a8f5;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.summary{margin-top:18px;padding:16px;border-radius:14px;background:#041822;border:1px solid rgba(255,255,255,.12);white-space:pre-wrap;color:#d9edf6;line-height:1.55}.master-badge{display:inline-flex;padding:4px 9px;border-radius:999px;border:1px solid rgba(0,212,138,.38);background:rgba(0,212,138,.10);color:#82f5c8;font-size:12px;font-weight:900;margin-left:8px}.toprow{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}.danger-note{margin-top:12px;color:#ffcf75;font-size:13px;line-height:1.5}
+    @media(max-width:760px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.card{padding:20px 16px}.actions{display:grid}.btn{width:100%}}
+  </style>
+</head>
+<body>
+<main class="page">
+  <img class="logo" src="/logo_betisight.club.png" alt="BetInsight Club">
+
+  <section id="authArea" class="card auth">
+    <div class="spinner" id="authSpinner"></div>
+    <h1>🔐 Master-Sitzung wird geprüft</h1>
+    <p id="authMessage" class="muted">Die historische Erfassung ist ausschließlich für den Master-Admin freigegeben.</p>
+    <div id="authError" class="status error hidden"></div>
+    <a class="btn secondary hidden" id="backAdmin" href="/admin/">← Zurück zum Admin Center</a>
+  </section>
+
+  <div id="app" class="hidden">
+    <section class="card">
+      <div class="toprow">
+        <div>
+          <h1 style="margin-bottom:6px">🗂️ Historischen Tipp nachtragen</h1>
+          <div class="muted">Angemeldet als <strong id="adminName">Luciano</strong><span class="master-badge">Master-Admin</span></div>
+        </div>
+        <a class="btn secondary" href="/admin/">← Admin Center</a>
+      </div>
+      <div class="notice" style="margin-top:18px">Nur historische Erfassung: Das Spiel darf rückwirkend manuell eingetragen werden. Es wird <strong>kein Live-Alarm</strong> ausgelöst und der Tipp wird <strong>nicht rückwirkend abgerechnet</strong>.</div>
+    </section>
+
+    <section class="card">
+      <h2>1. Historische Zuordnung</h2>
+      <div class="grid">
+        <div>
+          <label for="historicalTipSource">Quelle / Tippgeber *</label>
+          <select id="historicalTipSource">
+            <option value="ADM-001|BETINSIGHT_REDAKTION|Luciano">Eigener BetInsight-Tipp · Luciano</option>
+            <option value="ADM-002|TIPPGEBER|Martin">Tippgeber · Martin</option>
+            <option value="ADM-003|TIPPGEBER|Frank">Tippgeber · Frank</option>
+            <option value="ADM-001|BETINSIGHT_KI|BetInsight KI">BetInsight KI</option>
+          </select>
+        </div>
+        <div>
+          <label for="historicalPublishedAt">Ursprünglich veröffentlicht am *</label>
+          <input id="historicalPublishedAt" type="date">
+          <div class="hint">Das tatsächliche frühere Veröffentlichungsdatum – nicht das heutige Erfassungsdatum.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. Vergangenes Spiel manuell erfassen</h2>
+      <p class="muted">Hier gibt es bewusst keine Beschränkung auf aktuell von der Odds-API gelieferte Spiele. Mannschaften, Datum und Anpfiff werden im historischen Master-Modus manuell eingetragen.</p>
+      <div class="grid">
+        <div><label for="liga">Liga / Wettbewerb *</label><input id="liga" placeholder="z. B. Bundesliga"></div>
+        <div><label for="sportart">Sportart</label><input id="sportart" value="Fussball" readonly></div>
+        <div><label for="homeTeam">Heimteam *</label><input id="homeTeam" placeholder="z. B. Villarreal"></div>
+        <div><label for="awayTeam">Auswärtsteam *</label><input id="awayTeam" placeholder="z. B. Real Betis"></div>
+        <div><label for="spielDatum">Spieldatum *</label><input id="spielDatum" type="date"></div>
+        <div><label for="anpfiff">Anpfiff *</label><input id="anpfiff" type="time"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3. Tippdaten</h2>
+      <div class="grid">
+        <div>
+          <label for="markt">Markt *</label>
+          <select id="markt">
+            <option value="">Bitte auswählen</option>
+            <optgroup label="Spielergebnis">
+              <option value="1X2">1X2</option>
+              <option value="Doppelte Chance">Doppelte Chance</option>
+              <option value="Draw No Bet">Draw No Bet</option>
+              <option value="Qualifiziert sich">Qualifiziert sich / kommt weiter</option>
+            </optgroup>
+            <optgroup label="Gesamttore">
+              <option value="Über 0,5 Tore">Über 0,5 Tore</option><option value="Unter 0,5 Tore">Unter 0,5 Tore</option>
+              <option value="Über 1,5 Tore">Über 1,5 Tore</option><option value="Unter 1,5 Tore">Unter 1,5 Tore</option>
+              <option value="Über 2,5 Tore">Über 2,5 Tore</option><option value="Unter 2,5 Tore">Unter 2,5 Tore</option>
+              <option value="Über 3,5 Tore">Über 3,5 Tore</option><option value="Unter 3,5 Tore">Unter 3,5 Tore</option>
+              <option value="Über 4,5 Tore">Über 4,5 Tore</option><option value="Unter 4,5 Tore">Unter 4,5 Tore</option>
+              <option value="Über 5,5 Tore">Über 5,5 Tore</option><option value="Unter 5,5 Tore">Unter 5,5 Tore</option>
+            </optgroup>
+            <optgroup label="Weitere Märkte">
+              <option value="Beide treffen">Beide Teams treffen</option>
+              <option value="Handicap">Handicap</option>
+              <option value="Teamtore">Teamtore · Über / Unter</option>
+              <option value="1. Halbzeit 1X2">1. Halbzeit · 1X2</option>
+              <option value="1. Halbzeit Über/Unter">1. Halbzeit · Über / Unter</option>
+              <option value="1. Halbzeit Beide treffen">1. Halbzeit · Beide Teams treffen</option>
+              <option value="Korrektes Ergebnis">Korrektes Ergebnis</option>
+              <option value="Halbzeit/Endstand">Halbzeit / Endstand</option>
+              <option value="Ecken gesamt">Ecken gesamt · Über / Unter</option>
+              <option value="Karten gesamt">Karten gesamt · Über / Unter</option>
+              <option value="Eigener Markt">Eigener Markt</option>
+            </optgroup>
+          </select>
+        </div>
+        <div><label for="tipp">Tipp / Auswahl *</label><input id="tipp" placeholder="z. B. Villarreal gewinnt oder Unentschieden"></div>
+        <div><label for="quote">Quote *</label><input id="quote" type="number" min="1" step="0.01" placeholder="z. B. 1.35"></div>
+        <div><label for="preisUnits">Preis in Units *</label><input id="preisUnits" type="number" min="1" step="1" placeholder="z. B. 3"></div>
+        <div class="full"><label for="analyse">Analyse / Notiz</label><textarea id="analyse" placeholder="Optional"></textarea></div>
+      </div>
+      <div class="danger-note">Historische Tipps werden mit Status „historisch“ gespeichert. Dadurch bleiben sie von Tippgeber-Vergütung, rückwirkender Unit-Abrechnung und Live-Alarm ausgeschlossen.</div>
+    </section>
+
+    <section class="card">
+      <h2>4. Prüfen und speichern</h2>
+      <div id="preview" class="summary">Noch keine Vorschau.</div>
+      <div class="actions">
+        <button id="previewBtn" class="btn" type="button">Vorschau</button>
+        <button id="saveBtn" class="btn save" type="button">Historischen Tipp speichern</button>
+        <a class="btn secondary" href="/admin/">Abbrechen</a>
+      </div>
+      <div id="status" class="status"></div>
+    </section>
+  </div>
+</main>
+<script>
+(() => {
+  'use strict';
+  const AUTH_API_URL='https://hook.eu1.make.com/rfmhuu4fkr9kjsv7o15r2kir8ezbersl';
+  const PUBLISH_WEBHOOK_URL='https://hook.eu1.make.com/jnj854h9aeg5iqny6prd3owgt4mpcd51';
+  const SESSION_KEY='betinsight_admin_session_v1';
+  const $=id=>document.getElementById(id);
+  let verifiedSession=null,sessionHash='';
+
+  function clean(v){return String(v||'').trim()}
+  function readSession(){try{const raw=sessionStorage.getItem(SESSION_KEY);if(!raw)return null;const s=JSON.parse(raw);return s?.token&&s?.adminId?s:null}catch(e){return null}}
+  function clearSession(){try{sessionStorage.removeItem(SESSION_KEY)}catch(e){}}
+  function expired(s){const ms=Number(s?.expiresMs||0);return !ms||Date.now()>=ms}
+  function isMaster(s){return String(s?.master||'').toUpperCase()==='JA'||String(s?.role||'').toUpperCase()==='MASTER'}
+  function bytesToHex(bytes){return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('')}
+  async function sha256Hex(text){const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(String(text||'')));return bytesToHex(new Uint8Array(d))}
+  function showAuthError(msg){$('authSpinner').classList.add('hidden');$('authMessage').textContent='Zugriff nicht möglich.';$('authError').textContent=msg;$('authError').classList.remove('hidden');$('backAdmin').classList.remove('hidden')}
+  async function verifySession(){const s=readSession();if(!s){location.replace('/admin/');return}if(expired(s)){clearSession();location.replace('/admin/');return}try{sessionHash=await sha256Hex(s.token);const r=await fetch(AUTH_API_URL,{method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',credentials:'omit',body:JSON.stringify({action:'verify',session_hash:sessionHash})});const raw=await r.text();let data={};try{data=raw?JSON.parse(raw):{}}catch(e){throw new Error('Ungültige Antwort der Sitzungsprüfung.')}if(!r.ok||data?.ok!==true)throw new Error(data?.message||data?.error||'Admin-Sitzung wurde abgelehnt.');const v={adminId:clean(data.admin_id||s.adminId),name:clean(data.name||s.name||'Admin'),role:clean(data.role||s.role||'ADMIN'),master:clean(data.master||s.master||'NEIN'),expiresMs:Number(data.expires_ms||s.expiresMs||0)};if(v.adminId!=='ADM-001'||!isMaster(v)){showAuthError('Diese Seite ist ausschließlich für Luciano als Master-Admin freigegeben.');return}verifiedSession=v;$('adminName').textContent=v.name||'Luciano';$('authArea').classList.add('hidden');$('app').classList.remove('hidden')}catch(e){showAuthError(e.message||'Sitzungsprüfung fehlgeschlagen.')}}
+
+  function source(){const p=clean($('historicalTipSource').value).split('|');return{adminId:p[0]||'',source:p[1]||'',name:p[2]||''}}
+  function formatDateDE(v){if(!/^\d{4}-\d{2}-\d{2}$/.test(v))return v;const [y,m,d]=v.split('-');return `${d}.${m}.${y}`}
+  function createTippId(name){const n=new Date(),stamp=n.getFullYear().toString()+String(n.getMonth()+1).padStart(2,'0')+String(n.getDate()).padStart(2,'0')+'-'+String(n.getHours()).padStart(2,'0')+String(n.getMinutes()).padStart(2,'0')+String(n.getSeconds()).padStart(2,'0');return'BI-'+stamp+'-'+String(name||'ADM').replace(/[^A-Za-z]/g,'').substring(0,3).toUpperCase()}
+  function localToday(){const n=new Date(),y=n.getFullYear(),m=String(n.getMonth()+1).padStart(2,'0'),d=String(n.getDate()).padStart(2,'0');return `${y}-${m}-${d}`}
+  function validate(){for(const [id,label] of [['historicalPublishedAt','ursprüngliche Veröffentlichung'],['liga','Liga / Wettbewerb'],['homeTeam','Heimteam'],['awayTeam','Auswärtsteam'],['spielDatum','Spieldatum'],['anpfiff','Anpfiff'],['markt','Markt'],['tipp','Tipp / Auswahl'],['quote','Quote'],['preisUnits','Preis in Units']])if(!clean($(id).value))return`Bitte ausfüllen: ${label}.`;const pub=clean($('historicalPublishedAt').value),game=clean($('spielDatum').value),today=localToday();if(pub>today)return'Das ursprüngliche Veröffentlichungsdatum darf nicht in der Zukunft liegen.';if(game>today)return'Im historischen Modus darf das Spieldatum nicht in der Zukunft liegen.';if(pub>game)return'Das ursprüngliche Veröffentlichungsdatum darf nicht nach dem Spieldatum liegen.';const q=Number(clean($('quote').value));if(!q||q<1)return'Bitte eine gültige Quote ab 1,00 eintragen.';const units=Number(clean($('preisUnits').value));if(!Number.isInteger(units)||units<1)return'Bitte einen gültigen ganzzahligen Unit-Preis eintragen.';return''}
+  function payload(){const s=source(),id=createTippId(s.name);return{tipp_id:id,spiel:clean($('homeTeam').value)+' – '+clean($('awayTeam').value),liga:clean($('liga').value),markt:clean($('markt').value),tipp:clean($('tipp').value),quote:Number(clean($('quote').value)).toFixed(2),preis_units:Number(clean($('preisUnits').value)),status:'historisch',ersteller:s.name,admin_id:'ADM-001',ziel_tippgeber_id:s.adminId,tipp_quelle:s.source,sportart:'Fussball',spiel_datum:formatDateDE(clean($('spielDatum').value)),anpfiff:clean($('anpfiff').value),analyse:clean($('analyse').value),erstellt_am:formatDateDE(clean($('historicalPublishedAt').value)),live_alarm:'NEIN',live_alert_id:'LOG-'+id,live_spielstand:'',live_spielminute:'',live_gueltig_minuten:'',live_gueltig_bis:'',live_zielgruppe:'',api_match_status:'HISTORISCH_MANUELL',odds_api_status:'HISTORISCH_MANUELL',reference_mode:'MANUELL_HISTORISCH',reference_source_name:'',reference_quote:Number(clean($('quote').value)).toFixed(2),quote_klasse:'HISTORISCH',odds_terminal_version:'HIST-MASTER-V1.0',premium_quote_ready:'NEIN',quelle:'MASTER_HISTORISCH'}}
+  function previewText(p){return[`Quelle/Tippgeber: ${p.ersteller}`,`Spiel: ${p.spiel}`,`Liga: ${p.liga}`,`Spieldatum: ${p.spiel_datum} · ${p.anpfiff}`,`Markt: ${p.markt}`,`Tipp: ${p.tipp}`,`Quote: ${p.quote}`,`Preis: ${p.preis_units} Units`,`Ursprünglich veröffentlicht: ${p.erstellt_am}`,'','Status: HISTORISCH · kein Live-Alarm · keine rückwirkende Abrechnung'].join('\n')}
+  function setStatus(msg,kind=''){$('status').textContent=msg;$('status').className='status'+(kind?' '+kind:'')}
+  function doPreview(){const err=validate();if(err){setStatus(err,'error');return null}const p=payload();$('preview').textContent=previewText(p);setStatus('Vorschau aktualisiert.');return p}
+  async function save(){const p=doPreview();if(!p)return;if(!confirm('Historischen Tipp wirklich speichern?\n\n'+p.spiel+'\n'+p.markt+' → '+p.tipp+'\nQuote: '+p.quote+'\n\nEs wird kein Live-Alarm ausgelöst.'))return;$('saveBtn').disabled=true;setStatus('Historischer Tipp wird sicher gespeichert …');try{const r=await fetch(PUBLISH_WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',credentials:'omit',body:JSON.stringify({...p,admin_session_hash:sessionHash})});const raw=await r.text();let data={};try{data=raw?JSON.parse(raw):{}}catch(e){throw new Error('Der Server hat keine eindeutige Bestätigung geliefert.')}if(!r.ok)throw new Error(data?.message||data?.error||('HTTP '+r.status));if(data?.ok!==true||String(data?.published||'').toUpperCase()!=='JA'||String(data?.tipp_id||'')!==p.tipp_id)throw new Error('Die historische Speicherung wurde nicht vollständig bestätigt.');setStatus('✓ Historischer Tipp wurde gespeichert.','ok');$('saveBtn').textContent='✓ Gespeichert'}catch(e){setStatus(e.message||'Speichern fehlgeschlagen.','error');$('saveBtn').disabled=false}}
+
+  $('previewBtn').addEventListener('click',doPreview);$('saveBtn').addEventListener('click',save);verifySession();
+})();
+</script>
+</body>
+</html>
