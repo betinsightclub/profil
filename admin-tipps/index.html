@@ -14,7 +14,7 @@
   }
   try{
     const files=['livev11.part0','livev11.part1','livev11.part2','livev11.part3'];
-    const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260915-stability-combo2',{cache:'no-store'}).then(r=>{
+    const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260915-stability-timeout3',{cache:'no-store'}).then(r=>{
       if(!r.ok)throw new Error('Terminal-Datei '+x+' konnte nicht geladen werden');
       return r.text();
     })));
@@ -107,10 +107,33 @@
   function enhanceCombos(){comboCards().forEach(syncComboCard);}
 
   function stabilizeLeagueError(){
-    const status=document.getElementById('leagueStatus'),liga=document.getElementById('liga');if(!status||!liga)return;
-    const check=()=>{const txt=clean(status.textContent);if(!/statement timeout|canceling statement|statement due to|timeout/i.test(txt))return;const key=clean(liga.value);status.textContent='Die Spielabfrage hat zu lange gedauert. BetInsight versucht automatisch erneut …';status.className='status';if(key&&status.dataset.biRetried!==key){status.dataset.biRetried=key;setTimeout(()=>liga.dispatchEvent(new Event('change',{bubbles:true})),500)}else{status.textContent='Spielabfrage vorübergehend langsam. Bitte die Liga noch einmal auswählen.';status.className='status error';}};
-    new MutationObserver(check).observe(status,{childList:true,subtree:true,characterData:true});
-    liga.addEventListener('change',e=>{if(e.isTrusted)delete status.dataset.biRetried;});check();
+    const timeoutRe=/canceling statement due to statement timeout|statement timeout|statement due to|query timeout|timeout/i;
+    const liga=document.getElementById('liga');
+    const findStatus=()=>{
+      const preferred=document.getElementById('leagueStatus');
+      if(preferred&&timeoutRe.test(clean(preferred.textContent)))return preferred;
+      const nodes=[...document.querySelectorAll('.status,.error,[id*="status" i],[class*="status" i],p,small,span,div')]
+        .filter(el=>{const t=clean(el.textContent);return t&&t.length<500&&timeoutRe.test(t);})
+        .sort((a,b)=>clean(a.textContent).length-clean(b.textContent).length);
+      return nodes[0]||null;
+    };
+    const check=()=>{
+      const status=findStatus();if(!status)return;
+      const key=clean(liga&&liga.value);
+      status.textContent='Die Spielabfrage hat die Server-Zeitgrenze erreicht. BetInsight versucht automatisch erneut …';
+      status.classList.add('status');status.classList.remove('error');
+      if(liga&&key&&liga.dataset.biRetriedKey!==key){
+        liga.dataset.biRetriedKey=key;
+        setTimeout(()=>liga.dispatchEvent(new Event('change',{bubbles:true})),700);
+      }else{
+        status.textContent='Die Spielabfrage ist gerade zu langsam. Bitte die Liga noch einmal auswählen. Es wurden keine Tippdaten gespeichert.';
+        status.classList.add('error');
+      }
+    };
+    const observer=new MutationObserver(check);
+    observer.observe(document.body,{childList:true,subtree:true,characterData:true});
+    if(liga)liga.addEventListener('change',e=>{if(e.isTrusted)delete liga.dataset.biRetriedKey;setTimeout(check,0)});
+    check();
   }
 
   const run=()=>{enhanceCombos();stabilizeLeagueError();};
