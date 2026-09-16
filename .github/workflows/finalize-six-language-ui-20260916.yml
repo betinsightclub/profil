@@ -1,0 +1,51 @@
+name: Finalize Six-Language Member UI 2026-09-16
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/finalize-six-language-ui-20260916.yml
+
+permissions:
+  contents: write
+
+jobs:
+  finalize-six-language-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Normalize and validate six-language member UI
+        run: python3 .github/scripts/finalize_six_language_ui_20260916.py
+
+      - name: Validate JSON and changed files
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('.')
+          for p in (root/'assets/i18n/locales').glob('*.json'):
+              json.loads(p.read_text(encoding='utf-8'))
+          for p in (root/'assets/i18n/pages').glob('*/*.json'):
+              json.loads(p.read_text(encoding='utf-8'))
+          print('All locale JSON parses correctly')
+          PY
+          git diff --check
+
+      - name: Commit six-language normalization
+        shell: bash
+        run: |
+          git config user.name "BetInsight i18n Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add assets/i18n/locales/de.json assets/i18n/locales/en.json assets/i18n/locales/es.json assets/i18n/locales/pt.json assets/i18n/locales/it.json assets/i18n/locales/fr.json freigeschaltet/index.html
+          if git diff --cached --quiet; then
+            echo "No six-language normalization changes required."
+            exit 0
+          fi
+          git commit -m "fix: finalize six-language member UI"
+          git push
