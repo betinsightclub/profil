@@ -9,23 +9,20 @@
   <link rel="icon" type="image/x-icon" href="../favicon.ico">
   <style>
     *{box-sizing:border-box}
-    :root{--bg:#041722;--panel:#082536;--panel2:#0b3043;--line:rgba(80,195,235,.22);--text:#f4fbff;--muted:#9fc4d4;--blue:#18a8ff;--green:#18d4a3;--red:#ff6f7c}
+    :root{--line:rgba(80,195,235,.22);--text:#f4fbff;--muted:#9fc4d4;--green:#18d4a3;--blue:#18a8ff;--amber:#ffbd55}
     body{margin:0;min-height:100vh;font-family:Inter,Arial,sans-serif;color:var(--text);background:radial-gradient(circle at 12% 0%,rgba(24,212,163,.10),transparent 30%),radial-gradient(circle at 88% 0%,rgba(24,168,255,.13),transparent 34%),linear-gradient(180deg,#03131d,#062434 55%,#020d14);background-attachment:fixed}
-    .page{width:min(980px,100%);margin:0 auto;padding:28px 18px 80px}
+    .page{width:min(1040px,100%);margin:0 auto;padding:28px 18px 80px}
     .hero,.card{border:1px solid var(--line);border-radius:24px;background:linear-gradient(145deg,rgba(10,49,67,.96),rgba(5,29,42,.97));box-shadow:0 22px 60px rgba(0,0,0,.30)}
-    .hero{padding:24px;text-align:center;margin-bottom:20px;position:relative;overflow:hidden}
-    .logo{width:185px;max-width:68%;height:auto;margin:0 auto 12px;display:block}
-    h1{margin:4px 0 8px;font-size:clamp(28px,5vw,40px)}
-    .sub{margin:0 auto;color:var(--muted);line-height:1.55;max-width:650px}
-    .mode-row{margin:20px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
-    .mode-label{font-weight:900}
-    .switch{position:relative;display:inline-block;width:62px;height:34px}.switch input{opacity:0;width:0;height:0}.slider{position:absolute;inset:0;cursor:pointer;border-radius:99px;background:#294452;transition:.2s;border:1px solid rgba(255,255,255,.12)}.slider:before{content:"";position:absolute;width:26px;height:26px;left:4px;top:3px;border-radius:50%;background:white;transition:.2s;box-shadow:0 3px 10px rgba(0,0,0,.35)}.switch input:checked+.slider{background:linear-gradient(90deg,#0bc795,#19a8ff)}.switch input:checked+.slider:before{transform:translateX(28px)}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card{padding:22px}.card h2{margin:0 0 8px;font-size:21px}.muted{color:var(--muted);line-height:1.5}.status{display:inline-flex;align-items:center;gap:8px;padding:8px 11px;border-radius:999px;background:rgba(24,212,163,.10);border:1px solid rgba(24,212,163,.28);color:#caffef;font-weight:900;font-size:12px}.dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 12px rgba(24,212,163,.8)}
+    .hero{padding:24px;text-align:center;margin-bottom:20px}.logo{width:185px;max-width:68%;height:auto;margin:0 auto 12px;display:block}
+    h1{margin:4px 0 8px;font-size:clamp(28px,5vw,40px)}h2{margin:0 0 8px;font-size:21px}.sub,.muted{color:var(--muted);line-height:1.55}.sub{max-width:680px;margin:0 auto}
+    .status{display:inline-flex;align-items:center;gap:8px;padding:8px 11px;border-radius:999px;background:rgba(24,212,163,.10);border:1px solid rgba(24,212,163,.28);color:#caffef;font-weight:900;font-size:12px}.dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 12px rgba(24,212,163,.8)}
+    .mode-row{margin:20px auto 0;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}.mode-label{font-weight:900}.switch{position:relative;display:inline-block;width:62px;height:34px}.switch input{opacity:0;width:0;height:0}.slider{position:absolute;inset:0;cursor:pointer;border-radius:99px;background:#294452;transition:.2s;border:1px solid rgba(255,255,255,.12)}.slider:before{content:"";position:absolute;width:26px;height:26px;left:4px;top:3px;border-radius:50%;background:white;transition:.2s;box-shadow:0 3px 10px rgba(0,0,0,.35)}.switch input:checked+.slider{background:linear-gradient(90deg,#0bc795,#19a8ff)}.switch input:checked+.slider:before{transform:translateX(28px)}
+    .grid{display:grid;grid-template-columns:1fr 1.25fr;gap:18px}.card{padding:22px}.wide{grid-column:1/-1}
     .stake-wrap{margin-top:15px}.stake-label{display:block;margin-bottom:7px;color:#dff6ff;font-weight:900}.stake-input{width:100%;padding:15px 16px;border-radius:14px;border:1px solid rgba(77,193,235,.32);background:#041b28;color:#fff;font-size:22px;font-weight:900;outline:none}.stake-input:focus{border-color:#19b5ef;box-shadow:0 0 0 3px rgba(25,181,239,.10)}
-    .provider-list{display:grid;gap:11px;margin-top:14px}.provider{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border-radius:15px;background:rgba(255,255,255,.035);border:1px solid rgba(121,206,239,.15)}.provider strong{display:block}.provider small{color:var(--muted)}
-    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:45px;padding:11px 17px;border:0;border-radius:13px;background:linear-gradient(90deg,#188fff,#12bde9);color:#fff;font-weight:900;text-decoration:none;cursor:pointer}.btn.secondary{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);color:#eaf8ff}.btn:disabled{opacity:.48;cursor:not-allowed}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.wide{grid-column:1/-1}
-    .notice{padding:14px 15px;border-radius:14px;background:rgba(255,185,61,.06);border:1px solid rgba(255,185,61,.18);color:#d8e9f1;line-height:1.5;font-size:13px}.error{display:none;margin:28px auto;max-width:760px;padding:18px;border-radius:16px;background:rgba(124,22,34,.38);border:1px solid rgba(255,111,124,.45);color:#ffdce0;line-height:1.5}.loading{text-align:center;padding:80px 20px;color:#bde7f7}.app{display:none}
-    @media(max-width:760px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.hero{padding:21px 16px}.card{padding:19px 16px}.provider{align-items:flex-start;flex-direction:column}.btn{width:100%}.actions{display:grid}}
+    .provider-list{display:grid;gap:11px;margin-top:14px}.provider{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:14px;border-radius:15px;background:rgba(255,255,255,.035);border:1px solid rgba(121,206,239,.15)}.provider-slot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(24,168,255,.12);border:1px solid rgba(24,168,255,.28);font-weight:900}.provider strong{display:block}.provider small{display:block;margin-top:3px;color:var(--muted)}.provider.empty{border-style:dashed;opacity:.82}.provider.empty .provider-slot{background:rgba(255,189,85,.08);border-color:rgba(255,189,85,.24);color:#ffd48c}
+    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:45px;padding:11px 17px;border:0;border-radius:13px;background:linear-gradient(90deg,#188fff,#12bde9);color:#fff;font-weight:900;text-decoration:none;cursor:pointer}.btn.secondary{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);color:#eaf8ff}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+    .notice{padding:14px 15px;border-radius:14px;background:rgba(255,185,61,.06);border:1px solid rgba(255,185,61,.18);color:#d8e9f1;line-height:1.5;font-size:13px}.loading{text-align:center;padding:80px 20px;color:#bde7f7}.error{display:none;margin:28px auto;max-width:760px;padding:18px;border-radius:16px;background:rgba(124,22,34,.38);border:1px solid rgba(255,111,124,.45);color:#ffdce0;line-height:1.5}.app{display:none}
+    @media(max-width:780px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.hero{padding:21px 16px}.card{padding:19px 16px}.provider{grid-template-columns:auto 1fr}.provider .btn{grid-column:1/-1;width:100%}.actions{display:grid}.btn{width:100%}}
   </style>
 </head>
 <body>
@@ -36,155 +33,60 @@
       <img class="logo" src="../logo_betisight.club.png" alt="BetInsight Club">
       <div class="status"><span class="dot"></span> Privater Assist-Zugang aktiv</div>
       <h1>BetInsight Assist</h1>
-      <p class="sub">Vereinfachte Ansicht für ausgewählte Nutzer. Du kannst deinen Einsatz vor jedem Tipp selbst anpassen und arbeitest nur mit den für dich hinterlegten Anbietern.</p>
-      <div class="mode-row">
-        <span class="mode-label">Einfach-Modus</span>
-        <label class="switch" aria-label="Einfach-Modus ein- oder ausschalten">
-          <input id="modeSwitch" type="checkbox" checked>
-          <span class="slider"></span>
-        </label>
-        <span id="userLabel" class="muted"></span>
-      </div>
+      <p class="sub">Vereinfachte Ansicht für ausgewählte Nutzer. Bis zu fünf Anbieter können für diesen Zugang hinterlegt werden. Der Einsatz kann vor jedem Tipp selbst angepasst werden.</p>
+      <div class="mode-row"><span class="mode-label">Einfach-Modus</span><label class="switch" aria-label="Einfach-Modus ein- oder ausschalten"><input id="modeSwitch" type="checkbox" checked><span class="slider"></span></label><span id="userLabel" class="muted"></span></div>
     </section>
 
     <section class="grid">
       <div class="card">
         <h2>🎯 Persönlicher Einsatz</h2>
         <p class="muted">Hier kannst du den Betrag für den aktuellen Tipp jederzeit selbst ändern. Dein BetInsight-Profil muss dafür nicht angepasst werden.</p>
-        <div class="stake-wrap">
-          <label class="stake-label" for="stakeInput">Einsatz</label>
-          <input id="stakeInput" class="stake-input" type="number" inputmode="decimal" min="0" step="1" placeholder="Betrag eingeben">
-        </div>
+        <div class="stake-wrap"><label class="stake-label" for="stakeInput">Einsatz</label><input id="stakeInput" class="stake-input" type="number" inputmode="decimal" min="0" step="1" placeholder="Betrag eingeben"></div>
         <p id="stakeHint" class="muted" style="font-size:12px;margin:10px 0 0">Der zuletzt eingegebene Betrag wird nur auf diesem Gerät gespeichert.</p>
       </div>
 
       <div class="card">
         <h2>🏦 Deine Anbieter</h2>
-        <p class="muted">Es werden nur die Anbieter angezeigt, die für diesen Zugang hinterlegt sind.</p>
+        <p class="muted">Für diesen Assist-Zugang stehen genau fünf Anbieterplätze zur Verfügung.</p>
         <div id="providerList" class="provider-list"></div>
       </div>
 
       <div class="card wide">
         <h2>⚽ Aktuelle Tipps</h2>
-        <p class="muted">Die bestehende Tipp-Freischaltung bleibt unverändert. Im nächsten Schritt verbinden wir diese Assist-Seite mit Quoten-API und persönlicher Einsatzanzeige.</p>
-        <div class="actions">
-          <a id="tipsButton" class="btn" href="../tipps/">Aktuelle Tipps öffnen</a>
-          <a id="profileButton" class="btn secondary" href="../">Zum normalen Profil</a>
-        </div>
+        <p class="muted">Die bestehende Tipp-Freischaltung bleibt unverändert. Anbieter und Einsatz werden in dieser vereinfachten Ansicht ergänzt.</p>
+        <div class="actions"><a id="tipsButton" class="btn" href="../tipps/">Aktuelle Tipps öffnen</a><a id="profileButton" class="btn secondary" href="../">Zum normalen Profil</a></div>
       </div>
 
-      <div class="card wide">
-        <div class="notice"><strong>Wichtig:</strong> Die Assist-Seite setzt keine Wette automatisch. Sie vereinfacht Auswahl und Anzeige. Die endgültige Eingabe und Bestätigung erfolgt weiterhin beim jeweiligen Anbieter.</div>
-      </div>
+      <div class="card wide"><div class="notice"><strong>Wichtig:</strong> Die Assist-Seite setzt keine Wette automatisch. Sie vereinfacht Auswahl und Anzeige. Die endgültige Eingabe und Bestätigung erfolgt weiterhin beim jeweiligen Anbieter.</div></div>
     </section>
   </main>
 
   <script>
   (() => {
     "use strict";
-    const PROFILE_URL = "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
-    const DASHBOARD_KEY = "betinsight_dashboard_token";
-    const PROFILE_KEY = "betinsight_profile_token";
-    const STAKE_KEY_PREFIX = "betinsight_assist_stake:";
-    const base = location.hostname.toLowerCase() === "betinsightclub.github.io" ? "/profil/" : "/";
-    const clean = value => String(value ?? "").trim();
-    const isUuid = value => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(clean(value));
-
-    function showError(message) {
-      document.getElementById("loading").style.display = "none";
-      const box = document.getElementById("error");
-      box.textContent = message;
-      box.style.display = "block";
+    const PROFILE_URL="https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
+    const DASHBOARD_KEY="betinsight_dashboard_token",PROFILE_KEY="betinsight_profile_token",STAKE_KEY_PREFIX="betinsight_assist_stake:";
+    const base=location.hostname.toLowerCase()==="betinsightclub.github.io"?"/profil/":"/";
+    const clean=v=>String(v??"").trim();
+    const esc=v=>clean(v).replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    const isUuid=v=>/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(clean(v));
+    function showError(message){document.getElementById("loading").style.display="none";const box=document.getElementById("error");box.textContent=message;box.style.display="block"}
+    function queryAccess(){const p=new URLSearchParams(location.search),v=clean(p.get("dashboard_token")||p.get("token")||p.get("id"));if(!v)return"";try{localStorage.setItem(isUuid(v)?DASHBOARD_KEY:PROFILE_KEY,v);history.replaceState(null,"",location.pathname+location.hash)}catch(_){}return v}
+    function storedAccess(){try{return clean(localStorage.getItem(DASHBOARD_KEY))||clean(localStorage.getItem(PROFILE_KEY))}catch(_){return""}}
+    async function loadConfig(){const r=await fetch(`config.json?_=${Date.now()}`,{cache:"no-store",credentials:"omit"});if(!r.ok)throw new Error("Assist-Konfiguration konnte nicht geladen werden.");return r.json()}
+    async function loadProfile(access){const r=await fetch(`${PROFILE_URL}?token=${encodeURIComponent(access)}&_=${Date.now()}`,{cache:"no-store",credentials:"omit"});if(!r.ok)throw new Error("Profilprüfung fehlgeschlagen.");const d=await r.json();if(!d||d.found===false)throw new Error("Profil konnte nicht bestätigt werden.");return d}
+    function renderProviders(config){
+      const list=document.getElementById("providerList");
+      const source=Array.isArray(config.providers)?config.providers:[];
+      const slots=Array.from({length:5},(_,i)=>source.find(p=>Number(p?.slot)===i+1)||source[i]||null);
+      list.innerHTML=slots.map((provider,i)=>{
+        const name=clean(provider?.name),url=clean(provider?.url),note=clean(provider?.note)||"Persönlich hinterlegter Anbieter";
+        if(!name||provider?.enabled===false)return `<div class="provider empty"><span class="provider-slot">${i+1}</span><div><strong>Anbieterplatz ${i+1}</strong><small>Noch frei</small></div></div>`;
+        return `<div class="provider"><span class="provider-slot">${i+1}</span><div><strong>${esc(name)}</strong><small>${esc(note)}</small></div>${url?`<a class="btn" target="_blank" rel="noopener noreferrer" href="${esc(url)}">Anbieter öffnen</a>`:""}</div>`;
+      }).join("")
     }
-
-    function queryAccess() {
-      const params = new URLSearchParams(location.search);
-      const value = clean(params.get("dashboard_token") || params.get("token") || params.get("id"));
-      if (!value) return "";
-      try {
-        localStorage.setItem(isUuid(value) ? DASHBOARD_KEY : PROFILE_KEY, value);
-        history.replaceState(null, "", location.pathname + location.hash);
-      } catch (_) {}
-      return value;
-    }
-
-    function storedAccess() {
-      try { return clean(localStorage.getItem(DASHBOARD_KEY)) || clean(localStorage.getItem(PROFILE_KEY)); }
-      catch (_) { return ""; }
-    }
-
-    async function loadConfig() {
-      const response = await fetch(`config.json?_=${Date.now()}`, {cache:"no-store", credentials:"omit"});
-      if (!response.ok) throw new Error("Assist-Konfiguration konnte nicht geladen werden.");
-      return response.json();
-    }
-
-    async function loadProfile(access) {
-      const response = await fetch(`${PROFILE_URL}?token=${encodeURIComponent(access)}&_=${Date.now()}`, {cache:"no-store", credentials:"omit"});
-      if (!response.ok) throw new Error("Profilprüfung fehlgeschlagen.");
-      const data = await response.json();
-      if (!data || data.found === false) throw new Error("Profil konnte nicht bestätigt werden.");
-      return data;
-    }
-
-    function renderProviders(config) {
-      const list = document.getElementById("providerList");
-      const providers = Array.isArray(config.providers) ? config.providers.filter(p => p && p.enabled !== false && clean(p.name)) : [];
-      if (!providers.length) {
-        list.innerHTML = `<div class="provider"><div><strong>Noch kein Anbieter hinterlegt</strong><small>BetInsight kann für diesen Zugang später 1 bis 3 Anbieter freischalten.</small></div></div>`;
-        return;
-      }
-      list.innerHTML = providers.slice(0,3).map(provider => {
-        const name = clean(provider.name);
-        const url = clean(provider.url);
-        const note = clean(provider.note) || "Persönlich hinterlegter Anbieter";
-        return `<div class="provider"><div><strong>${name.replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}</strong><small>${note.replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}</small></div>${url ? `<a class="btn" target="_blank" rel="noopener noreferrer" href="${url.replace(/\"/g,'%22')}">Anbieter öffnen</a>` : ""}</div>`;
-      }).join("");
-    }
-
-    function configureStake(userId, config) {
-      const input = document.getElementById("stakeInput");
-      const key = STAKE_KEY_PREFIX + userId;
-      let saved = "";
-      try { saved = clean(localStorage.getItem(key)); } catch (_) {}
-      const configured = Number(config.default_stake);
-      if (saved) input.value = saved;
-      else if (Number.isFinite(configured) && configured > 0) input.value = configured;
-      const max = Number(config.max_stake);
-      if (Number.isFinite(max) && max > 0) {
-        input.max = String(max);
-        document.getElementById("stakeHint").textContent = `Du kannst den Einsatz selbst ändern. Hinterlegtes Maximum: ${max.toLocaleString("de-DE")} .`;
-      }
-      input.addEventListener("input", () => {
-        if (input.max && Number(input.value) > Number(input.max)) input.value = input.max;
-        try { localStorage.setItem(key, clean(input.value)); } catch (_) {}
-      });
-    }
-
-    async function start() {
-      const access = queryAccess() || storedAccess();
-      if (!access) return showError("Kein bestätigter BetInsight-Zugang gefunden. Bitte öffne zuerst dein normales Profil.");
-      try {
-        const [profile, config] = await Promise.all([loadProfile(access), loadConfig()]);
-        const userId = clean(profile.user_id || profile.userid || profile.id);
-        const userConfig = Array.isArray(config.users) ? config.users.find(u => clean(u.user_id) === userId && u.enabled !== false) : null;
-        if (!userId || !userConfig) return showError("Dieser BetInsight-Zugang ist nicht für den privaten Assist-Modus freigeschaltet.");
-
-        document.getElementById("userLabel").textContent = `User ${userId}`;
-        renderProviders(userConfig);
-        configureStake(userId, userConfig);
-        document.getElementById("tipsButton").href = base + "tipps/";
-        document.getElementById("profileButton").href = base;
-        document.getElementById("modeSwitch").addEventListener("change", event => {
-          if (!event.target.checked) location.assign(base);
-        });
-        document.getElementById("loading").style.display = "none";
-        document.getElementById("app").style.display = "block";
-      } catch (error) {
-        showError(error?.message || "Assist-Zugang konnte nicht geladen werden.");
-      }
-    }
-
+    function configureStake(userId,config){const input=document.getElementById("stakeInput"),key=STAKE_KEY_PREFIX+userId;let saved="";try{saved=clean(localStorage.getItem(key))}catch(_){}const configured=Number(config.default_stake);if(saved)input.value=saved;else if(Number.isFinite(configured)&&configured>0)input.value=configured;const max=Number(config.max_stake);if(Number.isFinite(max)&&max>0){input.max=String(max);document.getElementById("stakeHint").textContent=`Du kannst den Einsatz selbst ändern. Hinterlegtes Maximum: ${max.toLocaleString("de-DE")}.`}input.addEventListener("input",()=>{if(input.max&&Number(input.value)>Number(input.max))input.value=input.max;try{localStorage.setItem(key,clean(input.value))}catch(_){}})}
+    async function start(){const access=queryAccess()||storedAccess();if(!access)return showError("Kein bestätigter BetInsight-Zugang gefunden. Bitte öffne zuerst dein normales Profil.");try{const [profile,config]=await Promise.all([loadProfile(access),loadConfig()]);const userId=clean(profile.user_id||profile.userid||profile.id);const userConfig=Array.isArray(config.users)?config.users.find(u=>clean(u.user_id)===userId&&u.enabled!==false):null;if(!userId||!userConfig)return showError("Dieser BetInsight-Zugang ist nicht für den privaten Assist-Modus freigeschaltet.");document.getElementById("userLabel").textContent=`User ${userId}`;renderProviders(userConfig);configureStake(userId,userConfig);document.getElementById("tipsButton").href=base+"tipps/";document.getElementById("profileButton").href=base;document.getElementById("modeSwitch").addEventListener("change",e=>{if(!e.target.checked)location.assign(base)});document.getElementById("loading").style.display="none";document.getElementById("app").style.display="block"}catch(error){showError(error?.message||"Assist-Zugang konnte nicht geladen werden.")}}
     start();
   })();
   </script>
