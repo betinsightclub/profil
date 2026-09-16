@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - .github/workflows/add-werbematerial-language-download-note-20260916.yml
+      - .github/scripts/add_werbematerial_language_download_note_20260916.py
 
 permissions:
   contents: write
