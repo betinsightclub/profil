@@ -4,6 +4,9 @@ import json
 HTML = Path("werbematerial/index.html")
 text = HTML.read_text(encoding="utf-8")
 
+# Portuguese is represented by Portugal, not Brazil, across the download language row.
+text = text.replace("🇩🇪 🇬🇧 🇪🇸 🇧🇷 🇮🇹 🇫🇷", "🇩🇪 🇬🇧 🇪🇸 🇵🇹 🇮🇹 🇫🇷")
+
 css_anchor = '.format-count{padding:5px 9px;color:var(--muted);font-size:.72rem;font-weight:850;background:rgba(10,33,48,.76);border:1px solid var(--line);border-radius:999px}'
 css_extra = '.format-language-note{display:inline-flex;align-items:center;gap:5px;margin-left:12px;color:var(--muted);font-size:.72rem;font-weight:700;white-space:nowrap}.format-flags{font-size:.9rem;letter-spacing:.02em}'
 if '.format-language-note{' not in text:
@@ -17,7 +20,7 @@ if '.format-language-note{display:flex;margin:4px 0 0;white-space:normal}' not i
         raise SystemExit('Mobile CSS anchor not found')
     text = text.replace(mobile_anchor, mobile_anchor + '.format-language-note{display:flex;margin:4px 0 0;white-space:normal}', 1)
 
-note = '<span class="format-language-note"><span aria-hidden="true">🌐</span><span data-bi-i18n="marketingMaterialsPage.autoLanguageDownload">Download automatisch in deiner Sprache</span><span class="format-flags" aria-hidden="true">🇩🇪 🇬🇧 🇪🇸 🇧🇷 🇮🇹 🇫🇷</span></span>'
+note = '<span class="format-language-note"><span aria-hidden="true">🌐</span><span data-bi-i18n="marketingMaterialsPage.autoLanguageDownload">Download automatisch in deiner Sprache</span><span class="format-flags" aria-hidden="true">🇩🇪 🇬🇧 🇪🇸 🇵🇹 🇮🇹 🇫🇷</span></span>'
 replacements = {
     '<h3>Hochformat <span class="format-size" id="portraitSize"></span></h3>': '<h3>Hochformat <span class="format-size" id="portraitSize"></span>' + note + '</h3>',
     '<h3>Quadrat <span class="format-size" id="squareSize"></span></h3>': '<h3>Quadrat <span class="format-size" id="squareSize"></span>' + note + '</h3>',
@@ -52,9 +55,11 @@ for lang, value in translations.items():
 final = HTML.read_text(encoding='utf-8')
 if final.count('data-bi-i18n="marketingMaterialsPage.autoLanguageDownload"') != 3:
     raise SystemExit('Expected language-download note in exactly three format headers')
+if final.count('🇵🇹') != 3 or '🇧🇷' in final:
+    raise SystemExit('Portuguese download flag must be Portugal in all three format headers')
 for lang, value in translations.items():
     data = json.loads(Path(f'assets/i18n/pages/werbematerial/{lang}.json').read_text(encoding='utf-8'))
     if data.get('marketingMaterialsPage', {}).get('autoLanguageDownload') != value:
         raise SystemExit(f'Locale validation failed for {lang}')
 
-print('Werbematerial language download note added for portrait, square and landscape in DE/EN/ES/PT/IT/FR.')
+print('Werbematerial language download note uses Portugal for Portuguese in portrait, square and landscape.')
