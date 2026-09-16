@@ -1,10 +1,46 @@
 {
-  "version": "2026-09-15-01",
+  "version": "2026-09-16-01",
   "users": [
     {
       "user_id": "260000000",
       "enabled": true,
-      "providers": [],
+      "providers": [
+        {
+          "slot": 1,
+          "name": "BetFury",
+          "url": "https://betfury.com/",
+          "note": "Testanbieter",
+          "enabled": true
+        },
+        {
+          "slot": 2,
+          "name": "",
+          "url": "",
+          "note": "",
+          "enabled": true
+        },
+        {
+          "slot": 3,
+          "name": "",
+          "url": "",
+          "note": "",
+          "enabled": true
+        },
+        {
+          "slot": 4,
+          "name": "",
+          "url": "",
+          "note": "",
+          "enabled": true
+        },
+        {
+          "slot": 5,
+          "name": "",
+          "url": "",
+          "note": "",
+          "enabled": true
+        }
+      ],
       "default_stake": null,
       "max_stake": null
     }
