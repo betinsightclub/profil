@@ -1,0 +1,45 @@
+name: Add multilingual werbematerial download note
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/add-werbematerial-language-download-note-20260916.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply multilingual download note
+        run: python .github/scripts/add_werbematerial_language_download_note_20260916.py
+
+      - name: Validate JSON and diff
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for lang in ('de','en','es','pt','it','fr'):
+              p=Path(f'assets/i18n/pages/werbematerial/{lang}.json')
+              json.loads(p.read_text(encoding='utf-8'))
+          PY
+          git diff --check
+
+      - name: Commit changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "BetInsight Bot"
+          git config user.email "betinsight.club@gmail.com"
+          git add werbematerial/index.html assets/i18n/pages/werbematerial/de.json assets/i18n/pages/werbematerial/en.json assets/i18n/pages/werbematerial/es.json assets/i18n/pages/werbematerial/pt.json assets/i18n/pages/werbematerial/it.json assets/i18n/pages/werbematerial/fr.json
+          git commit -m "feat: show automatic language download note per image format"
+          git push
