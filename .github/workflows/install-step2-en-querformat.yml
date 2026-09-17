@@ -1,0 +1,54 @@
+name: Install Step 2 EN Querformat
+
+on:
+  push:
+    branches:
+      - querformat-sprachen-20260917
+    paths:
+      - .github/workflows/install-step2-en-querformat.yml
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout working branch
+        uses: actions/checkout@v4
+        with:
+          ref: querformat-sprachen-20260917
+          fetch-depth: 0
+
+      - name: Rebuild and verify EN WebP
+        shell: bash
+        run: |
+          set -euo pipefail
+          src='marketing-center/downloads/bilder/.incoming'
+          out='marketing-center/downloads/bilder/betinsight-11-jahre-analyse-vorteil-en-querformat.webp'
+          cat \
+            "$src/step2-en.part01" \
+            "$src/step2-en.part02" \
+            "$src/step2-en.part03" \
+            "$src/step2-en.part04" \
+            "$src/step2-en.part05" \
+            "$src/step2-en.part06" \
+            "$src/step2-en.part07" \
+            "$src/step2-en.part08" \
+            "$src/step2-en.part09" \
+            | base64 -d > "$out"
+          test "$(wc -c < "$out")" -eq 61298
+          file "$out" | grep -qi 'webp'
+          rm -f "$src"/step2-en.part0*
+          echo "Verified: $out ($(wc -c < "$out") bytes)"
+
+      - name: Commit EN Querformat image
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add marketing-center/downloads/bilder
+          git commit -m 'Add EN landscape translation for 11 Jahre Analyse'
+          git push origin HEAD:querformat-sprachen-20260917
