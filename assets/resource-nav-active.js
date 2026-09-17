@@ -195,3 +195,163 @@
     loadWerbematerialVideos();
   }
 })();
+
+/* BetInsight · Werbematerial: einzelne Textvorlage direkt per Flagge umschalten */
+(() => {
+  "use strict";
+
+  const LANGUAGES = [
+    {code:"de", flag:"🇩🇪", label:"Deutsch"},
+    {code:"en", flag:"🇬🇧", label:"English"},
+    {code:"es", flag:"🇪🇸", label:"Español"},
+    {code:"pt", flag:"🇵🇹", label:"Português"},
+    {code:"it", flag:"🇮🇹", label:"Italiano"},
+    {code:"fr", flag:"🇫🇷", label:"Français"}
+  ];
+
+  const TEMPLATE_MAP = {
+    copyTextNew1:{tag:"newCuriousTag", title:"newCuriousTitle", body:"newCuriousBody"},
+    copyTextNew2:{tag:"newTrustTag", title:"newTrustTitle", body:"newTrustBody"},
+    copyTextNew3:{tag:"newStoryTag", title:"newStoryTitle", body:"newStoryBody"},
+    copyText1:{tag:"whatsappTag", title:"whatsappTitle", body:"whatsappBody"},
+    copyText2:{tag:"telegramGeneralTag", title:"telegramGeneralTitle", body:"telegramGeneralBody"},
+    copyText3:{tag:"socialTag", title:"socialTitle", body:"socialBody"},
+    copyText4:{tag:"telegramPromoTag", title:"successTitle", body:"successBody"}
+  };
+
+  const localeCache = new Map();
+
+  function isWerbematerialPage() {
+    return /\/werbematerial\/?$/i.test(window.location.pathname);
+  }
+
+  function normalizeLanguage(value) {
+    const code = String(value || "de").toLowerCase().split("-")[0];
+    return LANGUAGES.some(item => item.code === code) ? code : "de";
+  }
+
+  function activePageLanguage() {
+    return normalizeLanguage(window.BetInsightI18n?.getLanguage?.() || document.documentElement.lang || "de");
+  }
+
+  function loadLocale(language) {
+    const lang = normalizeLanguage(language);
+    if (!localeCache.has(lang)) {
+      localeCache.set(lang,
+        fetch(`../assets/i18n/pages/werbematerial/${lang}.json`, {cache:"no-store"})
+          .then(response => {
+            if (!response.ok) throw new Error(`Locale ${lang}: ${response.status}`);
+            return response.json();
+          })
+          .then(data => data?.marketingMaterialsPage || {})
+      );
+    }
+    return localeCache.get(lang);
+  }
+
+  function injectStyles() {
+    if (document.getElementById("bi-template-language-styles")) return;
+    const style = document.createElement("style");
+    style.id = "bi-template-language-styles";
+    style.textContent = `
+      .template-language-switch{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin-top:10px;padding:9px 10px;background:rgba(4,15,23,.42);border:1px solid var(--line,rgba(111,199,235,.18));border-radius:12px}
+      .template-language-globe{display:grid;place-items:center;width:27px;height:28px;font-size:.88rem;opacity:.78}
+      .template-language-button{display:grid;place-items:center;width:34px;height:30px;padding:0;font-size:1.02rem;line-height:1;background:rgba(15,45,62,.62);border:1px solid rgba(111,199,235,.18);border-radius:9px;cursor:pointer;opacity:.68;filter:saturate(.82);transition:transform .16s ease,border-color .16s ease,background .16s ease,opacity .16s ease,box-shadow .16s ease}
+      .template-language-button:hover{transform:translateY(-1px);opacity:1;border-color:rgba(65,171,255,.55);background:rgba(65,171,255,.11)}
+      .template-language-button.is-active{opacity:1;filter:none;border-color:rgba(65,171,255,.78);background:rgba(65,171,255,.16);box-shadow:0 0 0 2px rgba(65,171,255,.08)}
+      .template-language-button:focus-visible{outline:2px solid var(--green,#19dfa8);outline-offset:2px}
+      .template-language-button[disabled]{cursor:wait;opacity:.45;transform:none}
+      @media(max-width:380px){.template-language-switch{gap:5px;padding-inline:7px}.template-language-button{width:32px}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function setActiveFlag(card, language) {
+    const lang = normalizeLanguage(language);
+    card.querySelectorAll(".template-language-button").forEach(button => {
+      const active = button.dataset.templateLanguage === lang;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+  }
+
+  async function applyTemplateLanguage(card, language) {
+    const copyButton = card.querySelector(".copy-button[data-copy-target]");
+    const bodyId = copyButton?.dataset.copyTarget;
+    const keys = TEMPLATE_MAP[bodyId];
+    const body = bodyId ? document.getElementById(bodyId) : null;
+    const tag = card.querySelector(".text-type");
+    const title = card.querySelector("h3");
+    if (!keys || !body || !tag || !title) return;
+
+    const lang = normalizeLanguage(language);
+    const controls = [...card.querySelectorAll(".template-language-button")];
+    controls.forEach(button => button.disabled = true);
+
+    try {
+      const locale = await loadLocale(lang);
+      if (locale[keys.tag]) tag.textContent = locale[keys.tag];
+      if (locale[keys.title]) title.textContent = locale[keys.title];
+      if (locale[keys.body]) body.textContent = locale[keys.body];
+      card.dataset.templateLanguage = lang;
+      setActiveFlag(card, lang);
+    } catch (error) {
+      console.warn("BetInsight template language switch", error);
+    } finally {
+      controls.forEach(button => button.disabled = false);
+    }
+  }
+
+  function addLanguageSwitch(card) {
+    if (card.querySelector(".template-language-switch")) return;
+    const copyButton = card.querySelector(".copy-button[data-copy-target]");
+    if (!copyButton || !TEMPLATE_MAP[copyButton.dataset.copyTarget]) return;
+
+    const row = document.createElement("div");
+    row.className = "template-language-switch";
+    row.setAttribute("role", "group");
+    row.setAttribute("aria-label", "Sprache der Textvorlage wählen");
+
+    const globe = document.createElement("span");
+    globe.className = "template-language-globe";
+    globe.textContent = "🌐";
+    globe.setAttribute("aria-hidden", "true");
+    row.appendChild(globe);
+
+    LANGUAGES.forEach(language => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "template-language-button";
+      button.dataset.templateLanguage = language.code;
+      button.textContent = language.flag;
+      button.title = language.label;
+      button.setAttribute("aria-label", language.label);
+      button.setAttribute("aria-pressed", "false");
+      button.addEventListener("click", () => applyTemplateLanguage(card, language.code));
+      row.appendChild(button);
+    });
+
+    copyButton.insertAdjacentElement("afterend", row);
+    const initialLanguage = activePageLanguage();
+    setActiveFlag(card, initialLanguage);
+    applyTemplateLanguage(card, initialLanguage);
+  }
+
+  function initTemplateLanguages() {
+    if (!isWerbematerialPage()) return;
+    injectStyles();
+    document.querySelectorAll("#texte .text-card").forEach(addLanguageSwitch);
+  }
+
+  window.addEventListener("bi:languagechange", () => {
+    if (!isWerbematerialPage()) return;
+    const lang = activePageLanguage();
+    document.querySelectorAll("#texte .text-card").forEach(card => applyTemplateLanguage(card, lang));
+  });
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initTemplateLanguages, {once:true});
+  } else {
+    initTemplateLanguages();
+  }
+})();
