@@ -6,6 +6,18 @@
 
   const STORAGE_KEY = "betinsight_language";
   const FALLBACK = "de";
+  const LANGUAGE_OPTIONS = Object.freeze({
+    de:{flag:"🇩🇪",label:"Deutsch"},
+    en:{flag:"🇬🇧",label:"English"},
+    es:{flag:"🇪🇸",label:"Español"},
+    pt:{flag:"🇵🇹",label:"Português"},
+    it:{flag:"🇮🇹",label:"Italiano"},
+    fr:{flag:"🇫🇷",label:"Français"}
+  });
+  const languageOptionLabel = language => {
+    const item = LANGUAGE_OPTIONS[language];
+    return item ? `${item.flag} ${item.label}` : String(language || "").toUpperCase();
+  };
   const SCRIPT_URL = document.currentScript?.src || "";
   const dictionaries = new Map();
   const scopedDictionaries = new Map();
@@ -304,7 +316,7 @@
     supported.forEach(language => {
       const option = document.createElement("option");
       option.value = language;
-      option.textContent = `${language.toUpperCase()} · ${t(`language.${language}`, {}, language.toUpperCase())}`;
+      option.textContent = languageOptionLabel(language);
       select.appendChild(option);
     });
     select.value = activeLanguage;
@@ -315,7 +327,7 @@
       select.setAttribute("aria-label", t("language.label", {}, "Sprache"));
       supported.forEach(language => {
         const option = [...select.options].find(item => item.value === language);
-        if (option) option.textContent = `${language.toUpperCase()} · ${t(`language.${language}`, {}, language.toUpperCase())}`;
+        if (option) option.textContent = languageOptionLabel(language);
       });
       wrapper.setAttribute("aria-label", t("language.label", {}, "Sprache"));
       placeSwitcherBelowMemberLogo(wrapper);
