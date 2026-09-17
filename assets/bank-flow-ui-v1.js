@@ -18,6 +18,6 @@
   }
 
   load("bank-flow-ui-v1-core.js?v=20260917-1")
-    .then(() => load("bank-proof-upload-v1.js?v=20260917-2"))
+    .then(() => load("bank-proof-upload-v1.js?v=20260917-3"))
     .catch(error => console.error(error));
 })();
