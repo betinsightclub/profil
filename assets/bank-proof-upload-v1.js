@@ -13,7 +13,6 @@
   if (!/\/wechselboerse\/angebote$/.test(path)) return;
 
   const token = () => window.BetInsightSession?.getDashboardUuid?.() || "";
-  const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 
   function installStyles() {
     if (document.getElementById("bi-bank-proof-style")) return;
@@ -35,8 +34,9 @@
   function isEligibleBankRow(row) {
     const text = String(row.textContent || "");
     const bank = /Banküberweisung/i.test(text);
-    const closed = /Abgelaufen|Storniert/i.test(text);
-    return bank && !closed && !!bookingFromRow(row);
+    const uploadPhase = /Zahlung gemeldet|Übertragung wird gebucht|Abgeschlossen/i.test(text);
+    const closedWithoutPayment = /Abgelaufen|Storniert/i.test(text);
+    return bank && uploadPhase && !closedWithoutPayment && !!bookingFromRow(row);
   }
 
   async function upload(box, file, booking) {
@@ -66,8 +66,8 @@
 
     state.className = "bi-proof-state ok";
     state.textContent = data.message || "Beleg sicher gespeichert und dieser Buchung zugeordnet.";
-    button.textContent = "Beleg ersetzen / erneut hochladen";
-    button.disabled = false;
+    button.textContent = data.status === "bank_proof_already_uploaded" ? "Beleg bereits gespeichert" : "Beleg gespeichert";
+    button.disabled = true;
     box.dataset.uploaded = "1";
   }
 
