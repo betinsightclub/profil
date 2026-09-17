@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'marketing-center/downloads/bilder/.incoming/querformat_translations_webp.zip'
+      - '.github/workflows/install-querformat-translations.yml'
 
 permissions:
   contents: write
@@ -22,30 +23,47 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          ZIP='marketing-center/downloads/bilder/.incoming/querformat_translations_webp.zip'
+          SOURCE='marketing-center/downloads/bilder/.incoming/querformat_translations_webp.zip'
           DEST='marketing-center/downloads/bilder'
-          if [ ! -f "$ZIP" ]; then
+          if [ ! -f "$SOURCE" ]; then
             echo 'Incoming archive already removed; nothing to do.'
             exit 0
           fi
           python - <<'PY'
           from pathlib import Path
-          import zipfile
-          zpath = Path('marketing-center/downloads/bilder/.incoming/querformat_translations_webp.zip')
+          import base64, zipfile
+
+          source = Path('marketing-center/downloads/bilder/.incoming/querformat_translations_webp.zip')
           dest = Path('marketing-center/downloads/bilder')
+          archive = source
+
+          # The staging blob may contain the ZIP itself or its base64 text.
+          if not zipfile.is_zipfile(source):
+              raw = source.read_bytes().strip()
+              decoded = base64.b64decode(raw, validate=True)
+              archive = Path('/tmp/querformat_translations_webp.zip')
+              archive.write_bytes(decoded)
+
+          if not zipfile.is_zipfile(archive):
+              raise SystemExit('Staged package is neither a ZIP nor a base64-encoded ZIP')
+
           allowed = {'.webp'}
-          with zipfile.ZipFile(zpath) as z:
+          installed = 0
+          with zipfile.ZipFile(archive) as z:
               for info in z.infolist():
                   name = Path(info.filename).name
                   if not name or Path(name).suffix.lower() not in allowed:
                       continue
                   if '/' in info.filename.strip('/') or '\\' in info.filename:
                       raise SystemExit(f'Unsafe archive entry: {info.filename}')
-                  data = z.read(info)
-                  (dest / name).write_bytes(data)
+                  (dest / name).write_bytes(z.read(info))
+                  installed += 1
                   print('installed', name)
+
+          if installed != 20:
+              raise SystemExit(f'Expected 20 translated WebP files, installed {installed}')
           PY
-          rm -f "$ZIP"
+          rm -f "$SOURCE"
           rmdir 'marketing-center/downloads/bilder/.incoming' 2>/dev/null || true
 
       - name: Commit installed images
@@ -54,7 +72,7 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add marketing-center/downloads/bilder .github/workflows/install-querformat-translations.yml
+          git add -A marketing-center/downloads/bilder
           if git diff --cached --quiet; then
             echo 'No changes to commit.'
             exit 0
