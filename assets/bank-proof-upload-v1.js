@@ -9,6 +9,7 @@
   const ENDPOINT = "https://hook.eu1.make.com/b8msm9217bae16nfb19np26ezenonuzu";
   const MAX_BYTES = 8 * 1024 * 1024;
   const ALLOWED = new Set(["image/png", "image/jpeg", "image/webp", "application/pdf"]);
+  const SUCCESS = new Set(["bank_proof_uploaded", "bank_proof_already_uploaded"]);
   const path = location.pathname.replace(/\/+$/, "") || "/";
   if (!/\/wechselboerse\/angebote$/.test(path)) return;
 
@@ -61,8 +62,10 @@
     const response = await fetch(ENDPOINT, {method:"POST", body:form, cache:"no-store"});
     const raw = String(await response.text() || "").replace(/^\uFEFF/, "").trim();
     let data = {};
-    try { data = JSON.parse(raw || "{}"); } catch (_) { data = {message:raw}; }
-    if (!response.ok || data.ok === false) throw new Error(data.message || "Der Beleg konnte nicht gespeichert werden.");
+    try { data = JSON.parse(raw || "{}"); } catch (_) { data = {}; }
+    if (!response.ok || data.ok !== true || !SUCCESS.has(String(data.status || ""))) {
+      throw new Error(data.message || "Der Beleg konnte nicht sicher bestätigt werden. Bitte erneut versuchen.");
+    }
 
     state.className = "bi-proof-state ok";
     state.textContent = data.message || "Beleg sicher gespeichert und dieser Buchung zugeordnet.";
