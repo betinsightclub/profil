@@ -24,32 +24,47 @@ jobs:
         run: |
           set -euo pipefail
           SOURCE='marketing-center/downloads/bilder/.incoming/querformat_translations_webp.zip'
-          DEST='marketing-center/downloads/bilder'
           if [ ! -f "$SOURCE" ]; then
             echo 'Incoming archive already removed; nothing to do.'
             exit 0
           fi
           python - <<'PY'
           from pathlib import Path
-          import base64, zipfile
+          import base64, io, re, zipfile
 
           source = Path('marketing-center/downloads/bilder/.incoming/querformat_translations_webp.zip')
           dest = Path('marketing-center/downloads/bilder')
-          archive = source
+          raw = source.read_bytes()
 
-          # The staging blob may contain the ZIP itself or its base64 text.
-          if not zipfile.is_zipfile(source):
-              raw = source.read_bytes().strip()
-              decoded = base64.b64decode(raw, validate=True)
-              archive = Path('/tmp/querformat_translations_webp.zip')
-              archive.write_bytes(decoded)
+          def as_zip(data):
+              bio = io.BytesIO(data)
+              return data if zipfile.is_zipfile(bio) else None
 
-          if not zipfile.is_zipfile(archive):
-              raise SystemExit('Staged package is neither a ZIP nor a base64-encoded ZIP')
+          candidate = as_zip(raw)
+
+          # Sometimes a binary upload can gain leading bytes. Recover from the first ZIP header.
+          if candidate is None:
+              pos = raw.find(b'PK\x03\x04')
+              if pos >= 0:
+                  candidate = as_zip(raw[pos:])
+
+          # Or the staged object may contain base64 text, potentially wrapped across lines.
+          if candidate is None:
+              try:
+                  cleaned = re.sub(rb'[^A-Za-z0-9+/=]', b'', raw)
+                  decoded = base64.b64decode(cleaned, validate=False)
+                  candidate = as_zip(decoded)
+              except Exception:
+                  candidate = None
+
+          if candidate is None:
+              print('staged size:', len(raw))
+              print('first 64 bytes:', raw[:64].hex())
+              raise SystemExit('Could not recover a valid ZIP from staged package')
 
           allowed = {'.webp'}
           installed = 0
-          with zipfile.ZipFile(archive) as z:
+          with zipfile.ZipFile(io.BytesIO(candidate)) as z:
               for info in z.infolist():
                   name = Path(info.filename).name
                   if not name or Path(name).suffix.lower() not in allowed:
