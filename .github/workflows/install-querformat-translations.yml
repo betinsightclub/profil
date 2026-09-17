@@ -1,0 +1,63 @@
+name: Install Querformat translations
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'marketing-center/downloads/bilder/.incoming/querformat_translations_webp.zip'
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract translated landscape images
+        shell: bash
+        run: |
+          set -euo pipefail
+          ZIP='marketing-center/downloads/bilder/.incoming/querformat_translations_webp.zip'
+          DEST='marketing-center/downloads/bilder'
+          if [ ! -f "$ZIP" ]; then
+            echo 'Incoming archive already removed; nothing to do.'
+            exit 0
+          fi
+          python - <<'PY'
+          from pathlib import Path
+          import zipfile
+          zpath = Path('marketing-center/downloads/bilder/.incoming/querformat_translations_webp.zip')
+          dest = Path('marketing-center/downloads/bilder')
+          allowed = {'.webp'}
+          with zipfile.ZipFile(zpath) as z:
+              for info in z.infolist():
+                  name = Path(info.filename).name
+                  if not name or Path(name).suffix.lower() not in allowed:
+                      continue
+                  if '/' in info.filename.strip('/') or '\\' in info.filename:
+                      raise SystemExit(f'Unsafe archive entry: {info.filename}')
+                  data = z.read(info)
+                  (dest / name).write_bytes(data)
+                  print('installed', name)
+          PY
+          rm -f "$ZIP"
+          rmdir 'marketing-center/downloads/bilder/.incoming' 2>/dev/null || true
+
+      - name: Commit installed images
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add marketing-center/downloads/bilder .github/workflows/install-querformat-translations.yml
+          if git diff --cached --quiet; then
+            echo 'No changes to commit.'
+            exit 0
+          fi
+          git commit -m 'Add translated landscape marketing images'
+          git push
