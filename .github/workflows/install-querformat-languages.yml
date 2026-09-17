@@ -1,0 +1,105 @@
+name: Install Querformat language images
+
+on:
+  push:
+    branches:
+      - querformat-sprachen-20260917
+    paths:
+      - .github/workflows/install-querformat-languages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout working branch
+        uses: actions/checkout@v4
+        with:
+          ref: querformat-sprachen-20260917
+
+      - name: Download prepared BetInsight package
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE_ID='1TAIWvqb2ofV7m20xZvFE_jVOOVt1zfW6'
+          curl -L --fail --retry 2 \
+            "https://drive.usercontent.google.com/download?id=${FILE_ID}&export=download&confirm=t" \
+            -o /tmp/betinsight-querformat.zip
+          echo "Downloaded bytes: $(wc -c </tmp/betinsight-querformat.zip)"
+          unzip -t /tmp/betinsight-querformat.zip
+
+      - name: Install translated landscape images
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/bi-package
+          mkdir -p /tmp/bi-package
+          unzip -q /tmp/betinsight-querformat.zip -d /tmp/bi-package
+          mkdir -p marketing-center/downloads/bilder
+          count=0
+          while IFS= read -r -d '' f; do
+            cp "$f" marketing-center/downloads/bilder/
+            count=$((count+1))
+          done < <(find /tmp/bi-package -type f \( \
+            -name '*-en-querformat.png' -o \
+            -name '*-es-querformat.png' -o \
+            -name '*-pt-querformat.png' -o \
+            -name '*-it-querformat.png' -o \
+            -name '*-fr-querformat.png' \
+          \) -print0)
+          test "$count" -eq 20
+          echo "Installed $count translated landscape images."
+
+      - name: Make neutral landscape images language-independent
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('werbematerial/index.html')
+          text = p.read_text(encoding='utf-8')
+          old = '''  const fileForActiveLanguage=file=>{\n    const fileLang=languageFromName(file?.name);\n    return fileLang?fileLang===activeLanguage():activeLanguage()==="de";\n  };'''
+          new = '''  const isLanguageNeutral=name=>/-neutral-(?:hochformat|querformat|quadrat)\\.(?:png|jpe?g|webp)$/i.test(String(name||""));\n  const fileForActiveLanguage=file=>{\n    if(isLanguageNeutral(file?.name))return true;\n    const fileLang=languageFromName(file?.name);\n    return fileLang?fileLang===activeLanguage():activeLanguage()==="de";\n  };'''
+          if old not in text:
+              raise SystemExit('Expected language-filter block not found; refusing unsafe edit')
+          p.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+      - name: Verify expected landscape set
+        shell: bash
+        run: |
+          set -euo pipefail
+          for stem in \
+            betinsight-11-jahre-analyse-vorteil \
+            betinsight-dir-entgeht-nichts \
+            betinsight-mittendrin-analyse \
+            betinsight-vorsprung-analyse-erfahrung
+          do
+            test -f "marketing-center/downloads/bilder/${stem}-querformat.png"
+            for lang in en es pt it fr; do
+              test -f "marketing-center/downloads/bilder/${stem}-${lang}-querformat.png"
+            done
+          done
+          for neutral in \
+            betinsight-analyse-center-neutral-querformat.png \
+            betinsight-analyse-monitorplatz-neutral-querformat.png \
+            betinsight-stadion-analyse-neutral-querformat.png
+          do
+            test -f "marketing-center/downloads/bilder/${neutral}"
+          done
+          echo 'Verified 4 translated motifs + 3 neutral motifs.'
+
+      - name: Commit prepared Querformat set to working branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add marketing-center/downloads/bilder werbematerial/index.html
+          if git diff --cached --quiet; then
+            echo 'Nothing to commit.'
+            exit 0
+          fi
+          git commit -m 'Add multilingual Querformat marketing images'
+          git push origin HEAD:querformat-sprachen-20260917
