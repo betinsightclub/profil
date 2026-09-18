@@ -1,0 +1,43 @@
+name: Install Querformat batch A
+
+on:
+  push:
+    branches:
+      - querformat-sprachen-20260917
+    paths:
+      - .github/workflows/install-querformat-batch-a.yml
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout working branch
+        uses: actions/checkout@v4
+        with:
+          ref: querformat-sprachen-20260917
+      - name: Install first two multilingual Querformat motifs
+        shell: bash
+        run: |
+          set -euo pipefail
+          unzip -o marketing-center/downloads/bilder/.incoming/querformat-11-jahre.zip -d marketing-center/downloads/bilder
+          unzip -o marketing-center/downloads/bilder/.incoming/querformat-dir-entgeht.zip -d marketing-center/downloads/bilder
+          for stem in betinsight-11-jahre-analyse-vorteil betinsight-dir-entgeht-nichts; do
+            test -f "marketing-center/downloads/bilder/${stem}-querformat.png"
+            for lang in en es pt it fr; do
+              test -f "marketing-center/downloads/bilder/${stem}-${lang}-querformat.webp"
+            done
+          done
+          rm -f marketing-center/downloads/bilder/.incoming/querformat-11-jahre.zip
+          rm -f marketing-center/downloads/bilder/.incoming/querformat-dir-entgeht.zip
+      - name: Commit installed files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add marketing-center/downloads/bilder
+          git commit -m 'Install first two multilingual Querformat motifs'
+          git push origin HEAD:querformat-sprachen-20260917
