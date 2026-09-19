@@ -227,7 +227,9 @@ BetInsight – Analyse. Struktur. Disziplin.</div>
   const tr=(key,vars,fallback)=>i18n()?.t?.(`marketingMaterialsPage.${key}`,vars||{},fallback)||fallback;
   const activeLanguage=()=>String(i18n()?.getLanguage?.()||document.documentElement.lang||"de").toLowerCase().split("-")[0];
   const languageFromName=name=>String(name||"").toLowerCase().match(/-(de|en|es|pt|it|fr)-(?:hochformat|querformat|quadrat)\.(?:png|jpe?g|webp)$/i)?.[1]||"";
+  const isLanguageNeutral=name=>/-neutral-(?:hochformat|querformat|quadrat)\.(?:png|jpe?g|webp)$/i.test(String(name||""));
   const fileForActiveLanguage=file=>{
+    if(isLanguageNeutral(file?.name))return true;
     const fileLang=languageFromName(file?.name);
     return fileLang?fileLang===activeLanguage():activeLanguage()==="de";
   };
