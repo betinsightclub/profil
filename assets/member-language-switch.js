@@ -13,8 +13,8 @@
   const STORAGE_KEY = "betinsight_language";
   const SUPPORTED = ["de", "en", "es", "pt", "it", "fr"];
   const OPTIONS = {
-    de:"🇩🇪 Deutsch", en:"🇬🇧 English", es:"🇪🇸 Español",
-    pt:"🇵🇹 Português", it:"🇮🇹 Italiano", fr:"🇫🇷 Français"
+    de:"🇩🇪 DE", en:"🇬🇧 EN", es:"🇪🇸 ES",
+    pt:"🇧🇷 PT", it:"🇮🇹 IT", fr:"🇫🇷 FR"
   };
 
   const LABELS = {
