@@ -50,7 +50,7 @@
     style.id = "bi-member-language-style";
     style.textContent = `
       .bi-member-language-switch{display:flex;align-items:center;gap:7px;margin:8px 12px 12px;padding:6px 8px;border:1px solid rgba(255,255,255,.10);border-radius:10px;background:rgba(255,255,255,.035);box-sizing:border-box}
-      .bi-member-language-icon{font-size:14px;line-height:1;flex:0 0 auto}
+      .bi-member-language-icon{display:none}
       .bi-member-language-select{width:100%;min-width:0;min-height:32px;padding:4px 26px 4px 8px;border:0;border-radius:8px;outline:none;background:#071d2a;color:#dceef5;font:800 11px/1 Inter,Arial,sans-serif;cursor:pointer}
       .bi-member-language-select:focus-visible{box-shadow:0 0 0 2px rgba(89,168,255,.45)}
     `;
