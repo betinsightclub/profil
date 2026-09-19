@@ -228,6 +228,11 @@ BetInsight – Analyse. Struktur. Disziplin.</div>
   const activeLanguage=()=>String(i18n()?.getLanguage?.()||document.documentElement.lang||"de").toLowerCase().split("-")[0];
   const languageFromName=name=>String(name||"").toLowerCase().match(/-(de|en|es|pt|it|fr)-(?:hochformat|querformat|quadrat)\.(?:png|jpe?g|webp)$/i)?.[1]||"";
   const isLanguageNeutral=name=>/-neutral-(?:hochformat|querformat|quadrat)\.(?:png|jpe?g|webp)$/i.test(String(name||""));
+  const isRedundantNeutralLanguageCopy=name=>/-neutral-(?:en|es|pt|it|fr)-(?:hochformat|querformat|quadrat)\.(?:png|jpe?g|webp)$/i.test(String(name||""));
+  const hiddenLegacyImages=new Set([
+    "betinsight-bis-zur-letzten-minute-quadrat.png",
+    "betinsight-vorsprung-analyse-stadion-quadrat.png"
+  ]);
   const fileForActiveLanguage=file=>{
     if(isLanguageNeutral(file?.name))return true;
     const fileLang=languageFromName(file?.name);
@@ -280,7 +285,7 @@ BetInsight – Analyse. Struktur. Disziplin.</div>
   };
 
   fetch(API,{headers:{Accept:"application/vnd.github+json"}}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(items=>{
-    allImageFiles=items.filter(x=>x&&x.type==="file"&&/\.(png|jpe?g|webp)$/i.test(x.name));
+    allImageFiles=items.filter(x=>x&&x.type==="file"&&/\.(png|jpe?g|webp)$/i.test(x.name)&&!isRedundantNeutralLanguageCopy(x.name)&&!hiddenLegacyImages.has(x.name));
     renderImages();
   }).catch(()=>{loading.hidden=true;empty.hidden=true;groups.hidden=true;error.hidden=false;status.textContent=tr("unavailable",{},"Nicht erreichbar")});
   window.addEventListener("bi:languagechange",()=>renderImages());
