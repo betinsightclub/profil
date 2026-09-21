@@ -619,7 +619,7 @@
       hier die URL einsetzen. Solange das Feld leer bleibt, zeigt die Datei
       bewusst Vorschau-Daten für das neue Design.
     */
-    const API_URL = "";
+    const API_URL = "https://hook.eu1.make.com/j883clzukqghxg9iiq91wxetue9wgoul";
 
     const params = new URLSearchParams(window.location.search);
     const dashboardId = params.get("id") || "";
@@ -705,38 +705,73 @@
     function normalizeData(raw) {
       if (Array.isArray(raw.levels)) return raw;
 
+      function partnersFor(level) {
+        const candidates = [
+          raw["partners_level" + level],
+          raw["ebene" + level + "_partner"],
+          raw["level" + level],
+          raw["ebene" + level]
+        ];
+        for (const value of candidates) {
+          if (Array.isArray(value)) return value;
+          if (typeof value === "string" && value.trim()) {
+            try {
+              const parsed = JSON.parse(value);
+              if (Array.isArray(parsed)) return parsed;
+            } catch (_) {}
+          }
+        }
+        return [];
+      }
+
+      function sum(partners, keys) {
+        return partners.reduce((total, partner) => {
+          for (const key of keys) {
+            if (partner && partner[key] !== undefined && partner[key] !== null && partner[key] !== "") {
+              const value = Number(String(partner[key]).replace(",", "."));
+              return total + (Number.isFinite(value) ? value : 0);
+            }
+          }
+          return total;
+        }, 0);
+      }
+
+      const level1 = partnersFor(1);
+      const level2 = partnersFor(2);
+      const level3 = partnersFor(3);
+
       return {
         ref_code: raw.ref_code || "",
         ref_link: raw.ref_link || "",
-        ref_erwartet: raw.ref_erwartet ?? raw.expected_units ?? 0,
+        ref_erwartet: raw.ref_erwartet ?? raw.ref_noch_erwartet ?? raw.expected_units ?? 0,
         ref_verfuegbar: raw.ref_verfuegbar ?? raw.released_units ?? raw.units ?? 0,
         levels: [
           {
             level: 1,
             label: "Ebene 1 – direkte Partner",
-            partner_count: Number(raw.direkte ?? raw.direkt_partner ?? 0),
-            purchased_units: Number(raw.ebene1_gekauft ?? 0),
-            expected_units: Number(raw.ebene1_erwartet ?? 0),
-            released_units: Number(raw.ebene1_frei ?? 0),
-            partners: Array.isArray(raw.ebene1_partner) ? raw.ebene1_partner : []
+            partner_count: Number(raw.direkte ?? raw.direkt_partner ?? level1.length),
+            purchased_units: Number(raw.ebene1_gekauft ?? sum(level1, ["gekaufte_units", "purchased_units", "gekaufte_units_rest"])),
+            expected_units: Number(raw.ebene1_erwartet ?? sum(level1, ["erwartete_referral_units", "ref_erwartet", "expected_units"])),
+            released_units: Number(raw.ebene1_frei ?? sum(level1, ["freigegebene_referral_units", "ref_verfuegbar", "released_units"])),
+            partners: level1
           },
           {
             level: 2,
             label: "Ebene 2",
-            partner_count: Number(raw.ebene2 ?? 0),
-            purchased_units: Number(raw.ebene2_gekauft ?? 0),
-            expected_units: Number(raw.ebene2_erwartet ?? 0),
-            released_units: Number(raw.ebene2_frei ?? 0),
-            partners: Array.isArray(raw.ebene2_partner) ? raw.ebene2_partner : []
+            partner_count: Number(raw.ebene2 ?? level2.length),
+            purchased_units: Number(raw.ebene2_gekauft ?? sum(level2, ["gekaufte_units", "purchased_units", "gekaufte_units_rest"])),
+            expected_units: Number(raw.ebene2_erwartet ?? sum(level2, ["erwartete_referral_units", "ref_erwartet", "expected_units"])),
+            released_units: Number(raw.ebene2_frei ?? sum(level2, ["freigegebene_referral_units", "ref_verfuegbar", "released_units"])),
+            partners: level2
           },
           {
             level: 3,
             label: "Ebene 3",
-            partner_count: Number(raw.ebene3 ?? 0),
-            purchased_units: Number(raw.ebene3_gekauft ?? 0),
-            expected_units: Number(raw.ebene3_erwartet ?? 0),
-            released_units: Number(raw.ebene3_frei ?? 0),
-            partners: Array.isArray(raw.ebene3_partner) ? raw.ebene3_partner : []
+            partner_count: Number(raw.ebene3 ?? level3.length),
+            purchased_units: Number(raw.ebene3_gekauft ?? sum(level3, ["gekaufte_units", "purchased_units", "gekaufte_units_rest"])),
+            expected_units: Number(raw.ebene3_erwartet ?? sum(level3, ["erwartete_referral_units", "ref_erwartet", "expected_units"])),
+            released_units: Number(raw.ebene3_frei ?? sum(level3, ["freigegebene_referral_units", "ref_verfuegbar", "released_units"])),
+            partners: level3
           }
         ]
       };
@@ -858,8 +893,8 @@
         setStatus("Daten wurden erfolgreich geladen.", "success");
       } catch (error) {
         console.error(error);
-        render(demoData);
-        setStatus("Der Make-Webhook konnte nicht geladen werden. Deshalb wird die Design-Vorschau gezeigt.", "error");
+        render({ ref_code: "", ref_link: "", ref_erwartet: 0, ref_verfuegbar: 0, levels: [] });
+        setStatus("Die echten Empfehlungsdaten konnten nicht geladen werden. Bitte später erneut versuchen.", "error");
       }
     }
 
