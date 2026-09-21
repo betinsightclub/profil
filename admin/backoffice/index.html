@@ -19,7 +19,7 @@
   <script>
     (async function () {
       try {
-        const response = await fetch("./index-core-20260905.html?v=20260921-1", { cache: "no-store" });
+        const response = await fetch("./index-core-20260905.html?v=20260921-2", { cache: "no-store" });
         if (!response.ok) throw new Error("Backoffice-Kern konnte nicht geladen werden (HTTP " + response.status + ").");
         const coreHtml = await response.text();
 
