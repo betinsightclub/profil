@@ -5497,7 +5497,28 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
     function renderActivities(provisions, payouts, wallets) {
       const entries = [];
 
-      (provisions || []).slice(0, 3).forEach(function (item) {
+      function activityTimestamp(value) {
+        const raw = String(value || "").trim();
+        if (!raw) return 0;
+
+        const parsed = Date.parse(raw);
+        if (Number.isFinite(parsed)) return parsed;
+
+        const german = raw.match(/^(\d{2})\.(\d{2})\.(\d{4})(?:\D+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+        if (german) {
+          return new Date(
+            Number(german[3]),
+            Number(german[2]) - 1,
+            Number(german[1]),
+            Number(german[4] || 0),
+            Number(german[5] || 0),
+            Number(german[6] || 0)
+          ).getTime();
+        }
+        return 0;
+      }
+
+      (provisions || []).forEach(function (item) {
         entries.push({
           date: item.date || item.zahlung_bestaetigt_am || '–',
           title: 'Provision · ' + (item.package || item.paket_code || 'Paket'),
@@ -5506,7 +5527,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
         });
       });
 
-      (payouts || []).slice(0, 2).forEach(function (item) {
+      (payouts || []).forEach(function (item) {
         entries.push({
           date: item.requested_at || '–',
           title: 'Auszahlung · ' + (item.currency || ''),
@@ -5521,7 +5542,6 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
           const status = String(item.status || item.wallet_status || '').trim().toLowerCase();
           return Boolean(address) && status !== 'nicht hinterlegt';
         })
-        .slice(0, 1)
         .forEach(function (item) {
           entries.push({
             date: item.changed_at || item.updated_at || '–',
@@ -5537,7 +5557,11 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
         return;
       }
 
-      activitySummary.innerHTML = entries.map(function (entry) {
+      entries.sort(function (a, b) {
+        return activityTimestamp(b.date) - activityTimestamp(a.date);
+      });
+
+      activitySummary.innerHTML = entries.slice(0, 5).map(function (entry) {
         return '<div class="activity-item"><div class="activity-date">' + escapeHtml(entry.date) + '</div><div><div class="activity-title">' + escapeHtml(entry.title) + '</div><div class="muted">' + escapeHtml(entry.detail) + '</div></div><div class="activity-value privacy-sensitive">' + escapeHtml(entry.value) + '</div></div>';
       }).join('');
     }
