@@ -16,6 +16,22 @@
   <style>
     :root{--bg:#06131d;--panel:#0b2231;--panel2:#0f2d3e;--line:rgba(111,199,235,.18);--text:#f4fbff;--muted:#90adbd;--green:#19dfa8;--blue:#41abff;--gold:#ffc857;--shadow:0 22px 64px rgba(0,0,0,.31)}
     *{box-sizing:border-box}html{color-scheme:dark}body{margin:0;min-height:100vh;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 8% 0%,rgba(65,171,255,.15),transparent 32rem),radial-gradient(circle at 92% 10%,rgba(25,223,168,.11),transparent 30rem),linear-gradient(180deg,#041019,var(--bg) 55%,#030b11)}a{color:inherit}[hidden]{display:none!important}.page{width:min(100% - 28px,1160px);margin:0 auto;padding:28px 0 58px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:34px}.logo{width:190px;max-width:54vw;height:auto}.back{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;text-decoration:none;background:rgba(10,33,48,.86);border:1px solid var(--line);border-radius:13px}.back:hover{border-color:rgba(65,171,255,.5)}.eyebrow{margin:0 0 11px;color:var(--blue);font-size:.78rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase}.hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(260px,.7fr);gap:28px;align-items:center;margin-bottom:34px;padding:30px;background:linear-gradient(145deg,rgba(13,42,58,.96),rgba(8,27,39,.96));border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}.hero h1{margin:0;font-size:clamp(2.3rem,7vw,4.4rem);line-height:.98;letter-spacing:-.055em}.hero p{max-width:720px;margin:17px 0 0;color:var(--muted);font-size:1.03rem;line-height:1.68}.academy-mark{display:grid;place-items:center;min-height:220px;font-size:5.8rem;background:radial-gradient(circle,rgba(65,171,255,.22),rgba(65,171,255,.02) 64%,transparent 65%);border-radius:24px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:18px;margin:36px 0 16px}.section-head h2{margin:0;font-size:clamp(1.45rem,4vw,2rem)}.section-head p{max-width:690px;margin:7px 0 0;color:var(--muted);line-height:1.55}.status{padding:7px 11px;color:#d8fff1;font-size:.76rem;font-weight:850;background:rgba(25,223,168,.1);border:1px solid rgba(25,223,168,.3);border-radius:999px}.guide-grid{display:grid;gap:16px}.guide{display:grid;grid-template-columns:190px minmax(0,1fr) auto;gap:22px;align-items:center;padding:20px;background:linear-gradient(150deg,rgba(15,45,62,.95),rgba(8,27,39,.98));border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.preview{display:block;overflow:hidden;border:1px solid rgba(65,171,255,.25);border-radius:16px;background:#061722}.preview img{display:block;width:100%;height:auto}.pdf-icon{display:grid;place-items:center;width:100%;min-height:135px;color:#081722;font-weight:950;background:linear-gradient(145deg,var(--blue),#a4d8ff);border-radius:16px}.copy h3{margin:0 0 8px;font-size:1.22rem}.copy p{margin:0;color:var(--muted);line-height:1.62}.actions{display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 15px;text-decoration:none;font-weight:900;border-radius:12px;border:1px solid rgba(255,255,255,.12);white-space:nowrap}.btn.primary{color:#051710;background:linear-gradient(135deg,var(--green),#78f3ca)}.btn.secondary{background:rgba(65,171,255,.12);border-color:rgba(65,171,255,.32)}.loading,.empty,.error{display:grid;place-items:center;min-height:150px;padding:26px;text-align:center;color:var(--muted);background:rgba(10,33,48,.68);border:1px solid var(--line);border-radius:20px}.note-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}.note{padding:18px;background:rgba(10,33,48,.72);border:1px solid var(--line);border-radius:18px}.note strong{display:block;margin-bottom:7px}.note p{margin:0;color:var(--muted);font-size:.9rem;line-height:1.55}.footer{margin-top:44px;padding-top:20px;color:#6f8c9c;font-size:.8rem;text-align:center;border-top:1px solid var(--line)}
+    .featured-guide{margin:8px 0 34px;padding:24px;background:linear-gradient(145deg,rgba(14,47,64,.98),rgba(7,26,38,.98));border:1px solid rgba(25,223,168,.28);border-radius:26px;box-shadow:var(--shadow)}
+    .featured-top{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:18px}
+    .featured-kicker{margin:0 0 7px;color:var(--green);font-size:.76rem;font-weight:900;letter-spacing:.11em;text-transform:uppercase}
+    .featured-top h2{margin:0;font-size:clamp(1.55rem,4vw,2.15rem);letter-spacing:-.025em}
+    .featured-top p{max-width:720px;margin:8px 0 0;color:var(--muted);line-height:1.6}
+    .founder-badge{flex:0 0 auto;padding:8px 11px;color:#dffff4;font-size:.74rem;font-weight:900;background:rgba(25,223,168,.10);border:1px solid rgba(25,223,168,.28);border-radius:999px;white-space:nowrap}
+    .featured-body{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(250px,.7fr);gap:20px;align-items:stretch}
+    .video-wrap{position:relative;overflow:hidden;aspect-ratio:16/9;background:#02080c;border:1px solid rgba(65,171,255,.24);border-radius:18px}
+    .video-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+    .featured-side{display:flex;flex-direction:column;justify-content:center;padding:20px;background:rgba(3,16,24,.42);border:1px solid var(--line);border-radius:18px}
+    .featured-side strong{font-size:1.04rem}
+    .featured-side p{margin:8px 0 18px;color:var(--muted);font-size:.92rem;line-height:1.58}
+    .featured-actions{display:grid;gap:9px}
+    .featured-actions .btn{width:100%}
+    @media(max-width:860px){.featured-body{grid-template-columns:1fr}.featured-top{display:block}.founder-badge{display:inline-block;margin-top:12px}}
+
     @media(max-width:860px){.hero{grid-template-columns:1fr}.academy-mark{min-height:145px;font-size:4.5rem}.guide{grid-template-columns:150px 1fr}.actions{grid-column:1/-1;justify-content:flex-start}.note-grid{grid-template-columns:1fr}}
     @media(max-width:620px){.page{width:min(100% - 20px,1160px);padding-top:18px}.topbar{align-items:flex-start}.logo{width:155px}.back{min-height:40px;padding:0 12px;font-size:.82rem}.hero{padding:22px}.guide{grid-template-columns:1fr}.preview{width:min(100%,280px);margin:0 auto}.actions{display:grid;grid-template-columns:1fr}.btn{width:100%}.section-head{display:block}.status{display:inline-block;margin-top:10px}}
   </style>
@@ -34,6 +50,31 @@
       <p>Kurze Anleitungen, verständliche PDFs und passende Videos helfen dir beim Einstieg. Neue Academy-Dokumente werden automatisch ergänzt.</p>
     </div>
     <div class="academy-mark" aria-hidden="true">🎓</div>
+  </section>
+
+  <section class="featured-guide" aria-label="Telegram Live-Alarm Anleitung">
+    <div class="featured-top">
+      <div>
+        <p class="featured-kicker">Neu · Telegram Live-Alarm</p>
+        <h2>Premium-Feature jetzt kostenlos aktivieren</h2>
+        <p>Für unsere bereits berechtigten ersten Mitglieder bleibt der Telegram Live-Alarm dauerhaft kostenlos. Die Einrichtung dauert nur wenige Augenblicke.</p>
+      </div>
+      <span class="founder-badge">🎁 Early-Member-Bonus</span>
+    </div>
+    <div class="featured-body">
+      <div class="video-wrap">
+        <iframe src="https://www.youtube-nocookie.com/embed/qrcyEiKwJ8Y?rel=0" title="BetInsight Telegram Live-Alarm aktivieren" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+      <div class="featured-side">
+        <strong>Schritt-für-Schritt-Anleitung</strong>
+        <p>Du kannst die Video-Anleitung direkt hier ansehen oder die PDF öffnen und für später herunterladen.</p>
+        <div class="featured-actions">
+          <a class="btn secondary" href="downloads/BetInsight_Telegram_Live_Alarm_Anleitung.pdf" target="_blank" rel="noopener">📄 PDF ansehen</a>
+          <a class="btn primary" href="downloads/BetInsight_Telegram_Live_Alarm_Anleitung.pdf" download="BetInsight_Telegram_Live_Alarm_Anleitung.pdf">⬇ PDF herunterladen</a>
+          <a class="btn secondary" href="https://youtu.be/qrcyEiKwJ8Y" target="_blank" rel="noopener noreferrer">▶ Auf YouTube öffnen</a>
+        </div>
+      </div>
+    </div>
   </section>
 
   <div class="section-head">
