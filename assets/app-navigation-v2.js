@@ -18,6 +18,8 @@
   const MOBILE_BREAKPOINT = 1179;
   const YOUTUBE_URL = "https://www.youtube.com/@betinsightclub";
   const TELEGRAM_URL = "https://t.me/betinsightclub_official";
+  const X_URL = "https://x.com/betinsightclub";
+  const FACEBOOK_URL = "https://www.facebook.com/betinsightclub";
   const ACCOUNT_SETTINGS_URL = "https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726";
   const SCRIPT_URL = document.currentScript?.src || "";
   const ASSET_BASE = SCRIPT_URL ? new URL("./", SCRIPT_URL) : new URL("/assets/", window.location.origin);
@@ -350,6 +352,7 @@
       .bi-social-link{display:grid;place-items:center;width:34px;height:34px;border:1px solid rgba(255,255,255,.10);border-radius:10px;background:rgba(3,24,35,.58);text-decoration:none;box-shadow:0 8px 20px rgba(0,0,0,.16);transition:transform .16s ease,border-color .16s ease,background .16s ease}
       .bi-social-link:hover,.bi-social-link:focus-visible{transform:translateY(-1px);border-color:rgba(89,168,255,.48);background:rgba(12,49,68,.52);outline:none}
       .bi-social-icon{display:block;width:20px;height:20px}
+      .bi-social-x{color:#fff;font:900 17px/1 Arial,Helvetica,sans-serif}
     `;
     document.head.appendChild(style);
   }
@@ -382,7 +385,27 @@
     telegram.title = telegramLabel;
     telegram.innerHTML = '<svg class="bi-social-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#229ED9"/><path d="M17.6 7.3 15 17c-.2.7-.8.9-1.4.5l-4-3-1.9 1.8c-.2.2-.4.4-.8.4l.3-4.1 7.4-6.7c.3-.3-.1-.5-.5-.2l-9.1 5.7-3.9-1.2c-.8-.3-.9-.9.2-1.3l15.2-5.9c.7-.3 1.4.2 1.1 1.4Z" fill="#fff"/></svg>';
 
-    links.append(youtube,telegram);
+    const x = document.createElement("a");
+    x.className = "bi-social-link bi-social-x";
+    x.href = X_URL;
+    x.target = "_blank";
+    x.rel = "noopener noreferrer";
+    const xLabel = socialText("BetInsight Club auf X öffnen","Open BetInsight Club on X");
+    x.setAttribute("aria-label", xLabel);
+    x.title = xLabel;
+    x.textContent = "X";
+
+    const facebook = document.createElement("a");
+    facebook.className = "bi-social-link bi-social-facebook";
+    facebook.href = FACEBOOK_URL;
+    facebook.target = "_blank";
+    facebook.rel = "noopener noreferrer";
+    const facebookLabel = socialText("BetInsight Club auf Facebook öffnen","Open BetInsight Club on Facebook");
+    facebook.setAttribute("aria-label", facebookLabel);
+    facebook.title = facebookLabel;
+    facebook.innerHTML = '<svg class="bi-social-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#1877F2"/><path d="M13.4 20v-7h2.35l.35-2.73h-2.7V8.53c0-.79.22-1.33 1.35-1.33h1.44V4.76c-.25-.03-1.1-.11-2.1-.11-2.08 0-3.5 1.27-3.5 3.61v2.01H8.24V13h2.35v7h2.81Z" fill="#fff"/></svg>';
+
+    links.append(youtube,telegram,x,facebook);
     footer.appendChild(links);
     page.appendChild(footer);
   }
