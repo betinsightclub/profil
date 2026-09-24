@@ -38,6 +38,7 @@ function textureMarks(a,m){
  if(a.hairTexture==="wavy"){for(let i=0;i<n;i++){const x=55+i*(70/(n-1)),amp=3+4*int;s+='<path d="M'+x+' '+(top+8)+' q'+amp+' 6 0 12 q-'+amp+' 6 0 12"/>'}return '<g stroke="#ffffff" stroke-opacity="'+(.10+.10*int)+'" fill="none" stroke-width="'+(1+int*.6)+'">'+s+'</g>'}
  const rad=a.hairTexture==="coily"?2.2+2.2*int:3.2+3*int;for(let i=0;i<n+3;i++){const x=53+(i%7)*12+(i%2)*3,y=top+11+Math.floor(i/7)*13;s+='<circle cx="'+x+'" cy="'+y+'" r="'+rad+'"/>'}return '<g fill="none" stroke="#ffffff" stroke-opacity="'+(.11+.11*int)+'" stroke-width="'+(.8+int*.7)+'">'+s+'</g>'
 }
+function textureSilhouette(a,m){const int=a.hairTextureIntensity/100;if(a.hairTexture==="straight"||int<.15)return "";const count=a.hairTexture==="coily"?11:a.hairTexture==="curly"?9:7,rad=(a.hairTexture==="coily"?4.2:a.hairTexture==="curly"?6.2:7.2)*(0.72+int*.38),y=m.top+8-(a.hairVolume-50)*.08;let s="";for(let i=0;i<count;i++){let x=(90-m.headW*.72)+i*((m.headW*1.44)/(count-1)),yy=y+((i%2)?3:-1)*(a.hairTexture==="wavy"?1.2:1);s+='<circle cx="'+x+'" cy="'+yy+'" r="'+rad+'" fill="'+a.hairColor+'"/>'}return '<g>'+s+'</g>'}
 function hair(a){
  const c=a.hairColor,t=a.hairStyle,m=metrics(a),vol=1+(a.hairVolume-50)*.009,len=(a.hairLengthLevel-50)*.55;let base="";
  if(t==="bald")return "";
@@ -49,7 +50,7 @@ function hair(a){
  else if(t==="medium")base='<path d="M'+(90-m.headW*.92)+' '+(m.cheekY-18)+' Q'+(90-m.headW*.82)+' '+(m.top-9)+' 90 '+(m.top-12)+' Q'+(90+m.headW*.82)+' '+(m.top-8)+' '+(90+m.headW*.92)+' '+(m.cheekY-18)+' L'+(90+m.cheekW)+' '+(m.cheekY+17+len*.45)+' Q111 '+(m.cheekY+1)+' 90 '+(m.cheekY-7)+' Q69 '+(m.cheekY+1)+' '+(90-m.cheekW)+' '+(m.cheekY+17+len*.45)+'Z" fill="'+c+'"/>';
  else if(t==="curly"||t==="coily"||t==="wavy"){const rr=(t==="coily"?7:t==="curly"?9:10)*vol,pts=[[-35,5],[-30,-8],[-18,-17],[-4,-22],[11,-20],[25,-12],[34,2],[-22,4],[-8,-4],[7,-5],[22,2]];base='<g fill="'+c+'">'+pts.map(q=>'<circle cx="'+(90+q[0]*vol)+'" cy="'+(m.top+28+q[1]*vol)+'" r="'+rr+'"/>').join("")+'</g>'}
  else base='<path d="M'+(90-m.headW*.88)+' '+(m.cheekY-24)+' Q'+(90-m.headW*.72)+' '+(m.top-8)+' 90 '+(m.top-11)+' Q'+(90+m.headW*.75)+' '+(m.top-7)+' '+(90+m.headW*.88)+' '+(m.cheekY-24)+' Q113 '+(m.top+23)+' 90 '+(m.top+22)+' Q66 '+(m.top+22)+' '+(90-m.headW*.88)+' '+(m.cheekY-24)+'Z" fill="'+c+'"/>';
- return base+textureMarks(a,m)
+ return base+textureSilhouette(a,m)+textureMarks(a,m)
 }
 function stubble(a,m){
  const density=a.beardDensity/100,coverage=a.stubbleCoverage/100,r=.35+(a.stubbleSize/100)*1.05,pts=[],top=m.mouthY-1-(coverage-.5)*16,bottom=m.chinY-2;
