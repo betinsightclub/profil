@@ -55,7 +55,7 @@
 (() => {
   "use strict";
   const PROFILE_WEBHOOK_URL="https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
-  const PAYMENT_WEBHOOK_URL="https://hook.eu1.make.com/uk8zqla4l5b0e1ybeoh5gd8bxbk69bfh";
+  const PAYMENT_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=payment-create";
   const $=id=>document.getElementById(id);
   const clean=v=>String(v||"").trim();
   const t=(key,vars={},fallback="")=>window.BetInsightI18n?.t(key,vars,fallback)||fallback;
@@ -79,7 +79,7 @@
     emailInput.value="";setEmailStatus(t('buyPage.emailLoadFailed',{},'E-Mail konnte nicht automatisch geladen werden. Bitte trage sie manuell ein.'));setDebug(t(lastError?'buyPage.debugNoMatch':'buyPage.debugNoProfile',{},lastError?'Debug: Kein passender Zugang gefunden.':'Debug: Zugang vorhanden, aber kein Profil gefunden.'))
   }
   function updatePreview(){const code=$('packageSelect').value,data=packageData[code];if(!data){$('preview').textContent=t('buyPage.noPackage',{},'Noch kein Paket gewählt');return}const optionText=$('packageSelect').selectedOptions[0]?.textContent||code;$('preview').textContent=t('buyPage.preview',{name:optionText,units:data.units,price:data.price},`${optionText} – ${data.units} für ${data.price}`)}
-  function goPay(){const email=$('buyerEmail').value.trim().toLowerCase(),code=$('packageSelect').value;if(!email){alert(t('buyPage.missingEmail',{},'Bitte registrierte E-Mail eingeben oder prüfen.'));return}if(!code){alert(t('buyPage.missingPackage',{},'Bitte Paket auswählen.'));return}try{localStorage.setItem('betinsight_email',email)}catch(e){}const paymentUrl=PAYMENT_WEBHOOK_URL+"?paket="+encodeURIComponent(code)+"&email="+encodeURIComponent(email);window.open(paymentUrl,'_blank','noopener')}
+  function goPay(){const email=$('buyerEmail').value.trim().toLowerCase(),code=$('packageSelect').value;if(!email){alert(t('buyPage.missingEmail',{},'Bitte registrierte E-Mail eingeben oder prüfen.'));return}if(!code){alert(t('buyPage.missingPackage',{},'Bitte Paket auswählen.'));return}try{localStorage.setItem('betinsight_email',email)}catch(e){}const paymentUrl=PAYMENT_WEBHOOK_URL+"&paket="+encodeURIComponent(code)+"&email="+encodeURIComponent(email);window.open(paymentUrl,'_blank','noopener')}
   $('packageSelect').addEventListener('change',updatePreview);$('payButton').addEventListener('click',goPay);window.addEventListener('bi:languagechange',updatePreview);window.BetInsightI18n?.init().then(()=>{updatePreview();loadEmail()});
 })();
 </script>
