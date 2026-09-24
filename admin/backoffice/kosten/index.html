@@ -88,10 +88,10 @@ Zweck: Session- und Master-geschützte Erfassung, Anzeige und Bearbeitung realer
 </main>
 <script>
 "use strict";
-const AUTH_API_URL="https://hook.eu1.make.com/rfmhuu4fkr9kjsv7o15r2kir8ezbersl";
-const DATA_API_URL="https://hook.eu1.make.com/hvkixmp4n1ego6exgprjn6x04oe4a6fw";
-const CREATE_COST_API_URL="https://hook.eu1.make.com/2u9vqh2mdlp286dl8czmbjr25lse64k8";
-const EDIT_COST_API_URL="https://hook.eu1.make.com/9n407dme82xv7767ui5grxdfe2q5dvoj";
+const AUTH_API_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=admin-auth";
+const DATA_API_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=backoffice-read";
+const CREATE_COST_API_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=cost-create";
+const EDIT_COST_API_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=cost-edit";
 const FX_API_BASE="https://api.frankfurter.dev/v1";
 const SESSION_KEY="betinsight_admin_session_v1";
 const $=id=>document.getElementById(id);
