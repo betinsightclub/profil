@@ -2903,29 +2903,29 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
   <script>
     "use strict";
 
-    const AUTH_API_URL = "https://hook.eu1.make.com/rfmhuu4fkr9kjsv7o15r2kir8ezbersl";
+    const AUTH_API_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=admin-auth";
     const SESSION_KEY = "betinsight_admin_session_v1";
     const COST_RATE_SESSION_API_READY = true;
-    const COST_RATE_API_URL = "https://hook.eu1.make.com/d0np6cadeelzhiqf8qmab97i5v5iw0oo";
+    const COST_RATE_API_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=cost-rate";
 
     // Bis die alten Make-Szenarien ebenfalls die Session serverseitig prüfen,
     // bleiben deren Schreib-/Finanzzugriffe absichtlich gesperrt.
     const BACKOFFICE_SESSION_API_READY = true;
     const WALLET_SESSION_API_READY = true;
-    const WALLET_API_URL = "https://hook.eu1.make.com/hypoxkxvfio7syw1cpxi7pre1i3znjid";
+    const WALLET_API_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=wallet-write";
     const TIPSTER_SESSION_API_READY = true; // Session-gesicherter Tippgeber-Schreibweg aktiv.
-    const TIPSTER_API_URL = "https://hook.eu1.make.com/2mtxmxp37qjcyv4mf9o846cl7z4hmh8m"; // Session-gesicherter Tippgeber-Webhook.
+    const TIPSTER_API_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=tipster-settings"; // Session-gesicherter Tippgeber-Webhook.
     const RESULT_SESSION_API_READY = true; // Session-gesicherter Master-Ergebnis-Schreibweg aktiv.
-    const RESULT_API_URL = "https://hook.eu1.make.com/k6qxta8xyae1mtnwbzu93g1798rylnwn"; // Session-gesicherter Master-Ergebnis-Webhook.
+    const RESULT_API_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=tip-result"; // Session-gesicherter Master-Ergebnis-Webhook.
     const TIP_MAINTENANCE_SESSION_API_READY = true; // Master-geschützte Archiv-/Testlöschfunktion aktiv.
-    const TIP_MAINTENANCE_API_URL = "https://hook.eu1.make.com/asljoa9gohywvf2r2t7pht8m2ny5xo91";
+    const TIP_MAINTENANCE_API_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=tip-maintenance";
     const TEST_PAYMENT_SESSION_API_READY = false;
     const PRIVACY_KEY = "betinsight_admin_privacy_active";
     const ROUTE_PREF_KEY = "betinsight_admin_route_payout_preference";
     const LOCAL_WALLET_KEY = "betinsight_admin_local_wallets";
     const TIPSTER_DRAFT_KEY = "betinsight_master_tipster_drafts";
 
-    const API_URL = "https://hook.eu1.make.com/hvkixmp4n1ego6exgprjn6x04oe4a6fw"; // Session-gesicherter READ-ONLY Backoffice-Datenwebhook.
+    const API_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=backoffice-read"; // Session-gesicherter READ-ONLY Backoffice-Datenwebhook.
     const TEST_PAYMENT_API_URL = ""; // Alt-Testzahlungs-Webhook während Session-Migration deaktiviert.
 
     const FALLBACK_TIPSTERS = [
