@@ -156,7 +156,7 @@ function formAvatar(){let name=$("#avatarModal").dataset.player||"Spieler";retur
 function putAvatar(a){a={...defaultAvatar($("#avatarModal").dataset.player||"Spieler"),...(a||{})};$("#aHeight").value=a.height||182;$("#aBuild").value=a.build||"athletic";$("#aSkin").value=a.skin||"#d7a17e";$("#aFaceShape").value=a.faceShape||"oval";$("#aFaceWidth").value=a.faceWidth??50;$("#aJawWidth").value=a.jawWidth??50;$("#aChinLength").value=a.chinLength??50;$("#aEyeSpacing").value=a.eyeSpacing??50;$("#aEyeSize").value=a.eyeSize??50;$("#aEyeY").value=a.eyeY??50;$("#aBrowY").value=a.browY??50;$("#aNoseLength").value=a.noseLength??50;$("#aMouthWidth").value=a.mouthWidth??50;$("#aHairStyle").value=a.hairStyle||(a.hairLength==="long"?"long":a.hairLength==="medium"?"medium":a.hairLength==="bald"?"bald":"short");$("#aHairTexture").value=a.hairTexture||"straight";$("#aHairColor").value=a.hairColor||"#3a2418";$("#aBeard").value=a.beard||"none";$("#aKitStyle").value=({stripe:"vertical",chest:"horizontal",v:"diagonal",sleeves:"halves"}[a.kitStyle]||a.kitStyle||"solid");$("#aStripeCount").value=a.stripeCount??5;$("#aStripeWidth").value=a.stripeWidth||"medium";$("#aKit1").value=a.kit1||"#25a9ff";$("#aKit2").value=a.kit2||"#f7c64e";$("#aKit3").value=a.kit3||"#ffffff";$("#aShirtNo").value=a.shirtNo||10;drawAvatar()}
 function openAvatar(name){let a=avFor(name)?.avatar||defaultAvatar(name);$("#avatarName").textContent=name;$("#avatarModal").dataset.player=name;putAvatar(a);$("#avatarStatus").textContent="";$("#avatarModal").classList.add("open")}
 function drawAvatar(){let name=$("#avatarModal").dataset.player||"Spieler";$("#avatarPreview").innerHTML=mannequin(formAvatar(),name,false)}
-function mannequin(a,name,mini=false){return window.TimeClashAvatar?.render?window.TimeClashAvatar.render(a,name,mini):'<svg viewBox="0 0 180 120"><rect width="180" height="120" fill="#0b2635"/><text x="90" y="64" text-anchor="middle" fill="#fff">'+esc(name)+'</text></svg>'}
+function mannequin(a,name,mini=false){const fallback=()=>'<svg viewBox="0 0 180 120"><rect width="180" height="120" fill="#0b2635"/><circle cx="90" cy="40" r="22" fill="#315063"/><path d="M52 112 Q58 67 90 65 Q122 67 128 112Z" fill="#315063"/><text x="90" y="108" text-anchor="middle" fill="#fff" font-size="9">'+esc(name)+'</text></svg>';try{return window.TimeClashAvatar?.render?window.TimeClashAvatar.render(a,name,mini):fallback()}catch(err){console.error("TIME CLASH avatar render failed",err);return fallback()}}
 function chosenAvatar(){return avFor(selected?.player)?.avatar||currentAvatar}
 function renderPreview(){if(!selected){$("#preview").innerHTML='<div class="notice" style="margin:20px">Noch kein Bild vorbereitet.</div>';return}let a=chosenAvatar();if(!a){$("#preview").innerHTML='<div class="notice" style="margin:20px">'+esc(t().missing)+'</div>';return}$("#preview").innerHTML=newspaperSvg(selected,a,$("#variant").value,$("#focus").value,$("#intensity").value)}
 function sceneFigure(a,name,pose){
@@ -211,9 +211,21 @@ async function publish(){if(!currentMedia)return;try{let d=await post({action:"p
 function exportPng(){let svg=$("#preview").querySelector("svg");if(!svg)return;let xml=new XMLSerializer().serializeToString(svg),img=new Image(),url=URL.createObjectURL(new Blob([xml],{type:"image/svg+xml"}));img.onload=()=>{let cv=document.createElement("canvas");cv.width=1200;cv.height=675;let ctx=cv.getContext("2d");ctx.drawImage(img,0,0,1200,675);URL.revokeObjectURL(url);cv.toBlob(blob=>{let a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="time-clash-"+(selected?.player||"bild").replace(/[^a-z0-9]+/gi,"-")+".png";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)},"image/png")};img.src=url}
 async function saveAvatar(){
  let player=$("#avatarModal").dataset.player;if(!player)return;try{let d=await postAvatar({action:"save_avatar",slug,player_name:player,avatar:formAvatar()});let i=data.avatars.findIndex(x=>String(x.player_name).toLowerCase()===player.toLowerCase());if(i>=0)data.avatars[i]=d.avatar;else data.avatars.push(d.avatar);$("#avatarStatus").textContent=ux().savedAvatar;renderPlayers();if(selected&&selected.player===player){currentAvatar=d.avatar.avatar;$("#makeBtn").disabled=false;selectMoment(selected)}setTimeout(()=>$("#avatarModal").classList.remove("open"),450)}catch(e){$("#avatarStatus").textContent="Speichern fehlgeschlagen: "+(e.data?.error||e.message)}}
+function safeUi(label,fn){try{fn();return true}catch(err){console.error("TIME CLASH UI "+label+" failed",err);return false}}
 async function init(){
  if(!slug||!token()){$("#lead").textContent=(UX[new URLSearchParams(location.search).get("lang")]||UX.de).restricted;return}
- try{let d=await post({action:"owner_report",slug});data=d;applyLang();renderReport();renderMoments();renderPlayers();renderMedia()}catch(e){let pre=UX[new URLSearchParams(location.search).get("lang")]||UX.de;$("#lead").textContent=e.status===403?pre.notOwner:pre.loadFail}
+ let pre=UX[new URLSearchParams(location.search).get("lang")]||UX.de;
+ try{
+  let d=await post({action:"owner_report",slug});data=d;
+  safeUi("language",applyLang);
+  safeUi("report",renderReport);
+  safeUi("moments",renderMoments);
+  safeUi("players",renderPlayers);
+  safeUi("media",renderMedia);
+ }catch(e){
+  console.error("TIME CLASH media load failed",e);
+  $("#lead").textContent=e.status===403?pre.notOwner:pre.loadFail;
+ }
 }
 $("#configBtn").onclick=()=>selected&&openAvatar(selected.player);$("#closeModal").onclick=()=>$("#avatarModal").classList.remove("open");$("#avatarModal").onclick=e=>{if(e.target===$("#avatarModal"))$("#avatarModal").classList.remove("open")};["aHeight","aBuild","aSkin","aFaceShape","aFaceWidth","aJawWidth","aChinLength","aEyeSpacing","aEyeSize","aEyeY","aBrowY","aNoseLength","aMouthWidth","aHairStyle","aHairTexture","aHairColor","aBeard","aKitStyle","aStripeCount","aStripeWidth","aShirtNo","aKit1","aKit2","aKit3"].forEach(id=>$("#"+id).oninput=drawAvatar);$("#autoAvatar").onclick=()=>putAvatar(defaultAvatar($("#avatarModal").dataset.player||"Spieler"));$("#saveAvatar").onclick=saveAvatar;$("#makeBtn").onclick=saveCurrent;$("#publishBtn").onclick=publish;$("#pngBtn").onclick=exportPng;["variant","focus","intensity"].forEach(id=>$("#"+id).onchange=renderPreview);init();
 </script>
