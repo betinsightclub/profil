@@ -150,10 +150,49 @@ function mannequin(a,name,mini=false){
 }
 function chosenAvatar(){return avFor(selected?.player)?.avatar||currentAvatar}
 function renderPreview(){if(!selected){$("#preview").innerHTML='<div class="notice" style="margin:20px">Noch kein Bild vorbereitet.</div>';return}let a=chosenAvatar();if(!a){$("#preview").innerHTML='<div class="notice" style="margin:20px">'+esc(t().missing)+'</div>';return}$("#preview").innerHTML=newspaperSvg(selected,a,$("#variant").value,$("#focus").value,$("#intensity").value)}
+function sceneFigure(a,name,pose){
+ let body=a.build==="slim"?.84:a.build==="stocky"?1.18:a.build==="strong"?1.1:1,skin=a.skin||"#d7a17e",hair=a.hairColor||"#3a2418",kit1=a.kit1||"#25a9ff",kit2=a.kit2||"#f7c64e",h=Math.max(165,Math.min(210,Number(a.height||182))),leg=118+(h-165)*.62;
+ let mode=String(pose||"auto"),rot=0,tx=842,ty=145,sc=1.72,la=[48,220],ra=[132,220],ll=[72,190+leg],rl=[108,190+leg];
+ if(mode.includes("celebration")||mode.includes("winner")){la=[34,86];ra=[146,86]}
+ if(mode.includes("header")){la=[30,135];ra=[150,135];ll=[68,190+leg];rl=[114,186+leg]}
+ if(mode.includes("save_dive_left")){rot=-25;tx=760;ty=245;la=[20,115];ra=[30,145];ll=[65,190+leg];rl=[125,180+leg]}
+ if(mode.includes("save_dive_right")){rot=25;tx=900;ty=205;la=[150,115];ra=[162,145];ll=[55,180+leg];rl=[115,190+leg]}
+ if(mode.includes("save_high")||mode.includes("fist")){la=[45,75];ra=[135,65]}
+ if(mode.includes("save_low")){la=[35,195];ra=[145,205];rot=8}
+ if(mode.includes("defense_slide")){rot=-16;tx=820;ty=235;la=[38,175];ra=[140,150];ll=[42,205+leg*.55];rl=[145,185+leg*.42]}
+ if(mode.includes("defense_header")){la=[40,125];ra=[140,125]}
+ if(mode.includes("defense_line")||mode.includes("last_second")){la=[30,150];ra=[150,150];rl=[145,188+leg*.6]}
+ if(mode.includes("shoulder")){rot=-6;la=[30,160];ra=[138,150]}
+ if(mode.includes("shot")||mode.includes("strike")||mode.includes("volley")||mode.includes("finish")){rot=-5;la=[42,155];ra=[138,135];ll=[72,190+leg];rl=[155,235]}
+ if(mode.includes("long_range")||mode.includes("power")){rot=-8;rl=[165,225]}
+ if(mode.includes("attack")||mode.includes("dribble")||mode.includes("sprint")||mode.includes("breakthrough")||mode.includes("counter")){rot=-7;tx=820;la=[38,185];ra=[140,118];ll=[60,190+leg];rl=[135,175+leg*.82]}
+ let torsoW=76*body,shoulderY=105;
+ let hairPath=a.hairLength==="bald"?"":a.hairLength==="long"?'<path d="M62 36 Q90 4 118 36 L114 90 Q91 70 66 90Z" fill="'+hair+'"/>':a.hairLength==="medium"?'<path d="M64 36 Q90 12 116 36 L112 61 Q90 49 68 61Z" fill="'+hair+'"/>':'<path d="M66 38 Q90 20 114 38 L111 53 Q90 45 69 53Z" fill="'+hair+'"/>';
+ let curls=(a.hairTexture==="curly"||a.hairTexture==="coily")?'<g fill="'+hair+'"><circle cx="67" cy="35" r="7"/><circle cx="79" cy="29" r="7"/><circle cx="91" cy="27" r="7"/><circle cx="103" cy="30" r="7"/><circle cx="114" cy="37" r="7"/></g>':"";
+ let beard=a.beard==="none"?"":a.beard==="mustache"?'<path d="M79 65 Q90 72 101 65 Q97 74 90 73 Q83 74 79 65Z" fill="'+hair+'"/>':a.beard==="full"?'<path d="M71 61 Q90 94 109 61 L104 84 Q90 99 76 84Z" fill="'+hair+'"/>':'<path d="M75 73 Q90 87 105 73 Q101 88 90 91 Q79 88 75 73Z" fill="'+hair+'" opacity=".78"/>';
+ let shirt='<path d="M'+(90-torsoW/2)+' 100 Q90 89 '+(90+torsoW/2)+' 100 L'+(90+torsoW/2-7)+' 185 L'+(90-torsoW/2+7)+' 185Z" fill="'+kit1+'"/>';
+ if(a.kitStyle==="stripe")shirt+='<rect x="83" y="99" width="14" height="87" fill="'+kit2+'"/>';
+ if(a.kitStyle==="chest")shirt+='<rect x="'+(90-torsoW/2)+'" y="132" width="'+torsoW+'" height="15" fill="'+kit2+'"/>';
+ if(a.kitStyle==="v")shirt+='<path d="M66 103 L90 126 L114 103" fill="none" stroke="'+kit2+'" stroke-width="7"/>';
+ let limb=(x1,y1,x2,y2,w=15)=>'<path d="M'+x1+' '+y1+' L'+x2+' '+y2+'" stroke="'+skin+'" stroke-width="'+w+'" stroke-linecap="round"/>';
+ let legs='<path d="M78 180 L'+ll[0]+' '+ll[1]+'" stroke="#102b3a" stroke-width="'+(22*body)+'" stroke-linecap="round"/><path d="M102 180 L'+rl[0]+' '+rl[1]+'" stroke="#102b3a" stroke-width="'+(22*body)+'" stroke-linecap="round"/>';
+ return '<g transform="translate('+tx+' '+ty+') scale('+sc+') rotate('+rot+' 90 170)"><ellipse cx="90" cy="'+(205+leg)+'" rx="'+(48*body)+'" ry="8" fill="#000" opacity=".28"/>'+legs+limb(65,shoulderY,la[0],la[1],16*body)+limb(115,shoulderY,ra[0],ra[1],16*body)+shirt+'<circle cx="90" cy="58" r="31" fill="'+skin+'"/>'+hairPath+curls+'<ellipse cx="80" cy="58" rx="2.5" ry="3" fill="#18252e"/><ellipse cx="100" cy="58" rx="2.5" ry="3" fill="#18252e"/>'+beard+'<text x="90" y="153" text-anchor="middle" fill="#fff" font-size="9" font-family="Arial" font-weight="900">'+esc(name).slice(0,18)+'</text></g>'
+}
+function sceneBall(pose){
+ let p=String(pose||"");
+ if(p.includes("header"))return '<circle cx="985" cy="142" r="25" fill="#fff" stroke="#111" stroke-width="4"/>';
+ if(p.includes("save_dive_left"))return '<circle cx="755" cy="310" r="24" fill="#fff" stroke="#111" stroke-width="4"/>';
+ if(p.includes("save_dive_right"))return '<circle cx="1110" cy="310" r="24" fill="#fff" stroke="#111" stroke-width="4"/>';
+ if(p.includes("save_high")||p.includes("fist"))return '<circle cx="1000" cy="185" r="24" fill="#fff" stroke="#111" stroke-width="4"/>';
+ if(p.includes("save_low"))return '<circle cx="1030" cy="470" r="24" fill="#fff" stroke="#111" stroke-width="4"/>';
+ if(p.includes("defense_slide")||p.includes("line_rescue"))return '<circle cx="1060" cy="500" r="23" fill="#fff" stroke="#111" stroke-width="4"/>';
+ if(p.includes("shot")||p.includes("strike")||p.includes("volley")||p.includes("finish")||p.includes("goal"))return '<circle cx="1080" cy="500" r="24" fill="#fff" stroke="#111" stroke-width="4"/>';
+ if(p.includes("attack")||p.includes("dribble")||p.includes("sprint")||p.includes("breakthrough")||p.includes("counter"))return '<circle cx="1035" cy="508" r="23" fill="#fff" stroke="#111" stroke-width="4"/>';
+ return ""
+}
 function newspaperSvg(x,a,variant,focus,intensity){
  let r=data.report,headline=(x.kind==="goal"?x.player.toUpperCase()+" IM MITTELPUNKT":x.kind==="save"?x.player.toUpperCase()+" HÄLT STARK":x.player.toUpperCase()+" SETZT DAS ZEICHEN"),pose=variant==="auto"?x.kind:variant,bg=intensity==="maximum"?"#521c24":intensity==="normal"?"#163247":"#102839";
- let figure=mannequin(a,x.player,false).replace('<svg viewBox="0 0 180 320">','<g transform="translate(850 170) scale(1.6)"><svg viewBox="0 0 180 320" width="180" height="320">').replace('</svg>','</svg></g>');
- let ball=(pose.includes("header")?'<circle cx="980" cy="145" r="25" fill="#fff" stroke="#111" stroke-width="4"/>':pose.includes("save")?'<circle cx="1035" cy="330" r="25" fill="#fff" stroke="#111" stroke-width="4"/>':pose.includes("shot")||x.kind==="goal"?'<circle cx="1000" cy="470" r="24" fill="#fff" stroke="#111" stroke-width="4"/>':"");
+ let figure=sceneFigure(a,x.player,pose),ball=sceneBall(pose);
  return '<svg viewBox="0 0 1200 675" xmlns="http://www.w3.org/2000/svg"><rect width="1200" height="675" fill="'+bg+'"/><rect x="48" y="44" width="1104" height="587" rx="26" fill="#071722" stroke="#315d72" stroke-width="2"/><text x="80" y="100" fill="#6ed7ff" font-size="24" font-family="Arial" font-weight="900">BETINSIGHT · TIME CLASH</text><text x="80" y="158" fill="#f5c54d" font-size="18" font-family="Arial" font-weight="900">SPIEL '+x.game+' · '+x.minute+'&#39;</text><text x="80" y="226" fill="#fff" font-size="44" font-family="Arial" font-weight="900">'+esc(headline)+'</text><text x="80" y="284" fill="#b9d0dc" font-size="24" font-family="Arial">'+esc(r.team_a)+'  '+r.series_a+' : '+r.series_b+'  '+esc(r.team_b)+'</text><foreignObject x="80" y="318" width="650" height="150"><div xmlns="http://www.w3.org/1999/xhtml" style="font:22px Arial;color:#d7e7ef;line-height:1.35">'+esc(x.event_text)+'</div></foreignObject><text x="80" y="570" fill="#8ea9b7" font-size="17" font-family="Arial">Szene: '+esc(variant)+' · '+esc(focus)+' · '+esc(intensity)+'</text>'+figure+ball+'</svg>'
 }
 async function saveCurrent(){
