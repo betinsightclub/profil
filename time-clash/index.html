@@ -126,6 +126,84 @@ const weatherList=["Leicht bewölkt · 18°C","Klar · 21°C","Flutlicht · 16°
 const phrases={neutral:["Das Mittelfeld ist hart umkämpft.","Beide Teams ordnen sich neu.","Das Tempo bleibt hoch.","Beide Mannschaften verschieben kompakt.","Das Spiel bleibt taktisch ausgeglichen."],a:["{A} schaltet schnell um.","{A} sucht den Weg über die Außen.","Ein Angriff von {A} nimmt Fahrt auf."],b:["{B} kombiniert sich ins letzte Drittel.","{B} erhöht den Druck.","{B} sucht die Lücke zwischen den Linien."],saveA:["🧤 Starke Parade von {A}!","🎯 {B} kommt zum Abschluss – gehalten!"],saveB:["🧤 {B} entschärft den Abschluss von {A}.","🎯 {A} zieht ab – der Torhüter ist zur Stelle!"],corner:["🚩 Ecke nach abgefälschtem Abschluss.","🚩 Der Ball wird zur Ecke geklärt."],foul:["💥 Foul im Mittelfeld. Der Schiedsrichter belässt es bei einer Ermahnung.","⚠️ Zweikampf zu spät – Freistoß."],chance:["🔥 Gefährlicher Angriff bis an den Strafraum.","⚡ Schneller Gegenstoß mit viel Raum.","🎯 Abschluss aus aussichtsreicher Position – knapp vorbei!"]};
 let pick=null,running=false,paused=false,fast=false,g=0,i=0,A=0,B=0,serA=0,serB=0,games=[],timer=null,seriesLen=5,chosenA=false,chosenB=false,kindAActive="nation",kindBActive="nation",activeMode="public",matchPoints=+(localStorage.getItem("biMatchPoints")||0),played=+(localStorage.getItem("biMatchPlayed")||0),correct=+(localStorage.getItem("biMatchCorrect")||0),streak=+(localStorage.getItem("biMatchStreak")||0),TA={name:"Italien 2006",flag:"🇮🇹",rating:82},TB={name:"Spanien 2026",flag:"🇪🇸",rating:83};
 const $=s=>document.querySelector(s), rnd=n=>Math.floor(Math.random()*n), one=a=>a[rnd(a.length)],fmt=s=>s.replaceAll("{A}",TA.name).replaceAll("{B}",TB.name);
+let selectedNewsScene=null;
+function sceneRegistered(){return !!ownerRef()}
+function sceneCapable(e){return ["goalA","goalB","targetA","targetB","defenseA","defenseB","shotA","shotB","chance"].includes(String(e?.type||""))}
+function sceneSideFromEvent(e){
+ if(e?.sceneSide)return e.sceneSide;
+ if(e?.type==="goalA"||e?.type==="shotA")return "A";
+ if(e?.type==="goalB"||e?.type==="shotB")return "B";
+ if(e?.type==="targetA")return "B";
+ if(e?.type==="targetB")return "A";
+ if(e?.type==="defenseA")return "A";
+ if(e?.type==="defenseB")return "B";
+ return null
+}
+function sceneKindFromEvent(e){
+ if(String(e?.type||"").startsWith("goal"))return "goal";
+ if(String(e?.type||"").startsWith("target"))return "save";
+ if(String(e?.type||"").startsWith("defense"))return "defense";
+ if(String(e?.type||"").startsWith("shot"))return "shot";
+ if(e?.type==="chance")return "attack";
+ return "auto"
+}
+function scenePlayerFromEvent(e){return e?.scenePlayer||e?.scorer||e?.player||""}
+function findScenePlayer(side,name){
+ let r=side?(rosterDB[(side==="A"?TA:TB).name]||[]):[];
+ return r.find(x=>String(x.name||"").toLowerCase()===String(name||"").toLowerCase())||{}
+}
+function firstHex(v,fallback){
+ let s=String(v||""),p=s.indexOf("#");
+ if(p<0)return fallback;
+ let h=s.slice(p,p+7);
+ return h.length===7?h:fallback
+}
+function teamSceneColors(side){
+ let t=side==="A"?TA:TB,cc=clubColors[t.base||t.name]||["#25a9ff","#f7c64e"];
+ if(side&&((side==="A"&&kindAActive==="myclub")||(side==="B"&&kindBActive==="myclub"))){
+   try{let own=JSON.parse(localStorage.getItem("biMyClub")||"null");if(own)return [own.c1||"#25a9ff",own.c2||"#f7c64e"]}catch(e){}
+ }
+ return [firstHex(cc[0],"#25a9ff"),firstHex(cc[1],"#f7c64e")]
+}
+function avatarDefaults(side,name,e){
+ let p=findScenePlayer(side,name),colors=teamSceneColors(side),seed=[...String(name||"Spieler")].reduce((a,ch)=>a+ch.charCodeAt(0),0);
+ let build=String(p.build||"").toLowerCase(),bt=build.includes("schlank")?"slim":build.includes("stämm")?"stocky":build.includes("kräft")?"strong":"athletic";
+ let hair=String(p.hair||"").toLowerCase(),hl=hair.includes("glat")?"bald":hair.includes("lang")?"long":hair.includes("mittel")?"medium":hair.includes("kurz")?"short":["veryshort","short","medium"][seed%3];
+ let hc=String(p.hairColor||"").toLowerCase(),hairColor=hc.includes("blond")?"#d8bd79":hc.includes("grau")?"#8b8b86":hc.includes("rot")?"#8b3c24":hc.includes("schwarz")?"#17130f":"#3a2418";
+ return {scene:sceneKindFromEvent(e),height:Math.max(165,Math.min(210,Number(p.height||182)||182)),build:bt,hairLength:hl,hairTexture:["straight","wavy","curly"][seed%3],hairColor,beard:["none","stubble","short","goatee"][seed%4],skin:["#f1c7a8","#d7a17e","#b87956","#8b563b","#5f3929"][seed%5],kitStyle:["solid","stripe","chest","sleeves","v"][seed%5],kit1:colors[0],kit2:colors[1]}
+}
+function setSceneForm(v){
+ $("#sceneKind").value=v.scene||"auto";$("#sceneHeight").value=v.height||182;$("#sceneBuild").value=v.build||"athletic";$("#sceneHairLength").value=v.hairLength||"short";$("#sceneHairTexture").value=v.hairTexture||"straight";$("#sceneHairColor").value=v.hairColor||"#3a2418";$("#sceneBeard").value=v.beard||"none";$("#sceneSkin").value=v.skin||"#d7a17e";$("#sceneKitStyle").value=v.kitStyle||"solid";$("#sceneKit1").value=v.kit1||"#25a9ff";$("#sceneKit2").value=v.kit2||"#f7c64e";renderScenePreview()
+}
+function getSceneForm(){return {scene:$("#sceneKind").value,height:Number($("#sceneHeight").value||182),build:$("#sceneBuild").value,hairLength:$("#sceneHairLength").value,hairTexture:$("#sceneHairTexture").value,hairColor:$("#sceneHairColor").value,beard:$("#sceneBeard").value,skin:$("#sceneSkin").value,kitStyle:$("#sceneKitStyle").value,kit1:$("#sceneKit1").value,kit2:$("#sceneKit2").value}}
+function cleanSvgText(v){return String(v||"").replaceAll("<","").replaceAll(">","").replaceAll("&","").slice(0,24)}
+function mannequinSvg(v,name){
+ let h=Math.max(165,Math.min(210,Number(v.height||182))),scale=(h-165)/45,body=v.build==="slim"?.82:v.build==="stocky"?1.18:v.build==="strong"?1.08:1,torsoW=88*body,leg=135+scale*28,shoulder=118*body,skin=v.skin,hair=v.hairColor;
+ let hairPath=v.hairLength==="bald"?"":v.hairLength==="long"?'<path d="M169 83 Q210 37 251 83 L246 165 Q235 128 210 127 Q183 127 174 165Z" fill="'+hair+'"/>':v.hairLength==="medium"?'<path d="M173 86 Q210 43 247 86 L241 121 Q211 98 179 121Z" fill="'+hair+'"/>':'<path d="M176 85 Q210 54 244 85 L240 105 Q211 90 180 105Z" fill="'+hair+'"/>';
+ let texture=(v.hairTexture==="curly"||v.hairTexture==="coily")?'<g fill="'+hair+'"><circle cx="180" cy="82" r="9"/><circle cx="194" cy="75" r="9"/><circle cx="209" cy="74" r="10"/><circle cx="224" cy="76" r="9"/><circle cx="239" cy="83" r="9"/></g>':"";
+ let beard=v.beard==="none"?"":v.beard==="mustache"?'<path d="M193 132 Q210 141 227 132 Q222 145 210 143 Q198 145 193 132Z" fill="'+hair+'"/>':v.beard==="goatee"?'<path d="M200 143 Q210 151 220 143 L216 166 Q210 174 204 166Z" fill="'+hair+'"/>':v.beard==="combo"?'<path d="M193 132 Q210 141 227 132 Q222 145 210 143 Q198 145 193 132Z" fill="'+hair+'"/><path d="M201 147 Q210 155 219 147 L216 166 Q210 173 204 166Z" fill="'+hair+'"/>':v.beard==="full"?'<path d="M181 128 Q210 178 239 128 L231 166 Q210 190 189 166Z" fill="'+hair+'" opacity=".9"/>':'<path d="M184 144 Q210 169 236 144 Q229 166 210 174 Q191 166 184 144Z" fill="'+hair+'" opacity="'+(v.beard==="stubble"?.35:.8)+'"/>';
+ let jersey='<rect x="'+(210-torsoW/2)+'" y="181" width="'+torsoW+'" height="145" rx="24" fill="'+v.kit1+'"/>';
+ if(v.kitStyle==="stripe")jersey+='<rect x="196" y="181" width="28" height="145" fill="'+v.kit2+'"/>';
+ if(v.kitStyle==="chest")jersey+='<rect x="'+(210-torsoW/2)+'" y="226" width="'+torsoW+'" height="28" fill="'+v.kit2+'"/>';
+ if(v.kitStyle==="v")jersey+='<path d="M175 190 L210 230 L245 190" fill="none" stroke="'+v.kit2+'" stroke-width="13"/>';
+ return '<svg viewBox="0 0 420 560" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#123b52"/><stop offset="1" stop-color="#04121b"/></linearGradient></defs><rect width="420" height="560" fill="url(#bg)"/><ellipse cx="210" cy="515" rx="'+(85*body)+'" ry="15" fill="#000" opacity=".28"/><rect x="'+(210-shoulder/2)+'" y="191" width="'+shoulder+'" height="54" rx="25" fill="'+v.kit2+'"/>'+jersey+'<path d="M'+(210-torsoW/2+12)+' 312 L190 '+(320+leg)+' L157 '+(320+leg)+' L166 306Z" fill="#102735"/><path d="M'+(210+torsoW/2-12)+' 312 L230 '+(320+leg)+' L263 '+(320+leg)+' L254 306Z" fill="#102735"/><circle cx="210" cy="118" r="50" fill="'+skin+'"/>'+hairPath+texture+'<ellipse cx="192" cy="119" rx="4" ry="5" fill="#18232b"/><ellipse cx="228" cy="119" rx="4" ry="5" fill="#18232b"/><path d="M198 145 Q210 151 222 145" stroke="#8e4d42" stroke-width="3" fill="none"/>'+beard+'<path d="M151 211 Q120 255 126 313" stroke="'+skin+'" stroke-width="'+(24*body)+'" stroke-linecap="round"/><path d="M269 211 Q300 255 294 313" stroke="'+skin+'" stroke-width="'+(24*body)+'" stroke-linecap="round"/><text x="210" y="353" text-anchor="middle" fill="#fff" font-size="18" font-family="Arial" font-weight="800">'+cleanSvgText(name||"SPIELER")+'</text></svg>'
+}
+function renderScenePreview(){if(!selectedNewsScene||!$("#scenePreview"))return;$("#scenePreview").innerHTML=mannequinSvg(getSceneForm(),selectedNewsScene.player||"SPIELER")}
+function chooseNewsScene(e,gameIndex,row){
+ if(!sceneRegistered())return;
+ document.querySelectorAll(".event.sceneSelected").forEach(x=>x.classList.remove("sceneSelected"));row?.classList.add("sceneSelected");
+ let side=sceneSideFromEvent(e),player=scenePlayerFromEvent(e),team=side==="A"?TA.name:side==="B"?TB.name:"";
+ selectedNewsScene={game:gameIndex+1,minute:Number(e.m||0),type:e.type,side,player,team,event:e,row};
+ $("#sceneStudio").classList.remove("hidden");$("#sceneStudio").classList.add("ready");$("#sceneChosenTitle").textContent=(player||team||"Szene")+" · "+Number(e.m||0)+"'";$("#sceneChosenText").textContent=e.msg||"Ausgewählte Ticker-Szene";
+ let key="biTcAvatar:"+team+":"+player,stored=null;try{stored=JSON.parse(localStorage.getItem(key)||"null")}catch(err){}
+ setSceneForm(stored||avatarDefaults(side,player,e));$("#sceneStatus").textContent="Szene ausgewählt. Passe das Aussehen nur an, wenn du das Zeitungsbild verwenden möchtest."
+}
+function saveSceneChoice(){
+ if(!selectedNewsScene)return;let avatar=getSceneForm(),key="biTcAvatar:"+selectedNewsScene.team+":"+selectedNewsScene.player;localStorage.setItem(key,JSON.stringify(avatar));selectedNewsScene.avatar=avatar;
+ if(selectedNewsScene.event)selectedNewsScene.event.news_scene={selected:true,scene:avatar.scene,player:selectedNewsScene.player,side:selectedNewsScene.side,avatar};
+ $("#sceneStatus").textContent="✓ Szene und Spieler-Look für den Zeitungsbericht vorgemerkt."
+}
+
 const clubColors={
 "1. FC Köln":["linear-gradient(135deg,#fff 0 48%,#d71920 48% 100%)","#111"],"Werder Bremen":["linear-gradient(135deg,#0b8f55,#fff)","#fff"],"1860 München":["linear-gradient(135deg,#6fc7e9 0 52%,#fff 52%)","#123"],"Eintracht Braunschweig":["linear-gradient(135deg,#ffd400,#1261a0)","#111"],"1. FC Nürnberg":["linear-gradient(135deg,#8b1020,#fff)","#fff"],"Bayern München":["linear-gradient(135deg,#d71920 0 38%,#fff 38% 62%,#1769aa 62%)","#fff"],"Borussia Mönchengladbach":["linear-gradient(135deg,#111 0 45%,#fff 45%)","#fff"],"Hamburger SV":["linear-gradient(135deg,#fff 0 33%,#1769aa 33% 66%,#111 66%)","#fff"],"VfB Stuttgart":["linear-gradient(135deg,#fff 0 48%,#d71920 48% 62%,#fff 62%)","#111"],"1. FC Kaiserslautern":["linear-gradient(135deg,#c8102e,#fff)","#fff"],"Borussia Dortmund":["linear-gradient(135deg,#ffe500 0 62%,#111 62%)","#111"],"VfL Wolfsburg":["linear-gradient(135deg,#65b32e,#fff)","#111"],"Bayer Leverkusen":["linear-gradient(135deg,#e32219 0 50%,#111 50%)","#fff"],"Real Madrid":["linear-gradient(135deg,#fff 0 55%,#6b3fa0 55%)","#111"],"AC Milan":["linear-gradient(90deg,#111 0 25%,#c8102e 25% 50%,#111 50% 75%,#c8102e 75%)","#fff"],"Liverpool":["linear-gradient(135deg,#c8102e,#fff)","#fff"],"FC Barcelona":["linear-gradient(90deg,#a50044 0 25%,#004d98 25% 50%,#a50044 50% 75%,#004d98 75%)","#fff"],"Ajax":["linear-gradient(135deg,#fff 0 35%,#d2122e 35% 65%,#fff 65%)","#111"],"Inter Mailand":["linear-gradient(90deg,#111 0 25%,#0068a8 25% 50%,#111 50% 75%,#0068a8 75%)","#fff"],"Manchester United":["linear-gradient(135deg,#da291c,#fbe122)","#fff"],"Chelsea":["linear-gradient(135deg,#034694,#fff)","#fff"],"Juventus":["linear-gradient(90deg,#111 0 25%,#fff 25% 50%,#111 50% 75%,#fff 75%)","#fff"],"Benfica":["linear-gradient(135deg,#e30613,#fff)","#fff"],"Nottingham Forest":["linear-gradient(135deg,#dd0000,#fff)","#fff"],"FC Porto":["linear-gradient(90deg,#fff 0 25%,#004f9e 25% 50%,#fff 50% 75%,#004f9e 75%)","#111"],"Manchester City":["linear-gradient(135deg,#6cabdd,#fff)","#123"],"Paris Saint-Germain":["linear-gradient(90deg,#004170 0 40%,#e30613 40% 60%,#004170 60%)","#fff"],"Blackburn Rovers":["linear-gradient(135deg,#fff 0 50%,#1b5dab 50%)","#111"],"Arsenal":["linear-gradient(135deg,#ef0107,#fff)","#fff"],"Leicester City":["linear-gradient(135deg,#003090,#fdbb30)","#fff"],"Atlético Madrid":["repeating-linear-gradient(90deg,#d71920 0 10px,#fff 10px 20px)","#123"],"AC Mailand":["linear-gradient(90deg,#111 0 25%,#c8102e 25% 50%,#111 50% 75%,#c8102e 75%)","#fff"],"Olympique Marseille":["linear-gradient(135deg,#2faee0,#fff)","#123"],"Sporting CP":["repeating-linear-gradient(0deg,#fff 0 9px,#159447 9px 18px)","#111"],"Flamengo":["repeating-linear-gradient(0deg,#111 0 11px,#c8102e 11px 22px)","#fff"],"Palmeiras":["linear-gradient(135deg,#006437,#fff)","#fff"],"Santos":["linear-gradient(135deg,#fff,#111)","#111"],"Corinthians":["linear-gradient(135deg,#fff 0 65%,#111 65%)","#111"],"River Plate":["linear-gradient(135deg,#fff 0 38%,#d71920 38% 58%,#fff 58%)","#111"],"Boca Juniors":["linear-gradient(0deg,#003b73 0 38%,#f4d000 38% 62%,#003b73 62%)","#fff"],"Al Ain":["linear-gradient(135deg,#6b2c91,#fff)","#fff"],"Shabab Al Ahli":["linear-gradient(135deg,#d71920,#fff)","#fff"],"Al Wasl":["linear-gradient(135deg,#f6c900,#111)","#111"],"Inter Miami":["linear-gradient(135deg,#f7b5cd,#111)","#111"],"Los Angeles FC":["linear-gradient(135deg,#111,#c8a45d)","#fff"],"Seattle Sounders":["linear-gradient(135deg,#236192,#5d9732)","#fff"]
 };
