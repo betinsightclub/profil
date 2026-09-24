@@ -64,6 +64,7 @@
 <script src="/time-clash/avatar-engine.js"></script>
 <script>
 const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash-media";
+const AVATAR_API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash-avatar-v2";
 const $=s=>document.querySelector(s),slug=new URLSearchParams(location.search).get("clash")||"";
 const token=()=>new URLSearchParams(location.search).get("token")||localStorage.getItem("betinsight_dashboard_token")||localStorage.getItem("betinsight_profile_token")||"";
 let data=null,selected=null,currentAvatar=null,currentMedia=null;
@@ -132,6 +133,7 @@ pt:{auto:"Automático",goal_shot_finish:"Finalização",goal_header_finish:"Golo
 function esc(v){return String(v||"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]))}
 function t(){return I18N[data?.report?.language]||I18N.de}
 async function post(body){let r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...body,credential:token()})}),d=await r.json();if(!r.ok)throw Object.assign(new Error(d.error||"request"),{data:d,status:r.status});return d}
+async function postAvatar(body){let r=await fetch(AVATAR_API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...body,credential:token()})}),d=await r.json();if(!r.ok)throw Object.assign(new Error(d.error||"request"),{data:d,status:r.status});return d}
 function avatarMap(){return new Map((data?.avatars||[]).map(x=>[String(x.player_name).toLowerCase(),x]))}
 function avFor(name){return avatarMap().get(String(name||"").toLowerCase())||null}
 function langCode(){return data?.report?.language||"de"}
@@ -208,7 +210,7 @@ function loadMedia(m){let x=(data.candidates||[]).find(c=>c.game===m.scene_game&
 async function publish(){if(!currentMedia)return;try{let d=await post({action:"publish",media_id:currentMedia.id,published:true});currentMedia=d.media;let i=data.media.findIndex(x=>x.id===d.media.id);if(i>=0)data.media[i]=d.media;renderMedia();$("#mediaStatus").textContent=ux().publishOk}catch(e){$("#mediaStatus").textContent="Veröffentlichen fehlgeschlagen."}}
 function exportPng(){let svg=$("#preview").querySelector("svg");if(!svg)return;let xml=new XMLSerializer().serializeToString(svg),img=new Image(),url=URL.createObjectURL(new Blob([xml],{type:"image/svg+xml"}));img.onload=()=>{let cv=document.createElement("canvas");cv.width=1200;cv.height=675;let ctx=cv.getContext("2d");ctx.drawImage(img,0,0,1200,675);URL.revokeObjectURL(url);cv.toBlob(blob=>{let a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="time-clash-"+(selected?.player||"bild").replace(/[^a-z0-9]+/gi,"-")+".png";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)},"image/png")};img.src=url}
 async function saveAvatar(){
- let player=$("#avatarModal").dataset.player;if(!player)return;try{let d=await post({action:"save_avatar",slug,player_name:player,avatar:formAvatar()});let i=data.avatars.findIndex(x=>String(x.player_name).toLowerCase()===player.toLowerCase());if(i>=0)data.avatars[i]=d.avatar;else data.avatars.push(d.avatar);$("#avatarStatus").textContent=ux().savedAvatar;renderPlayers();if(selected&&selected.player===player){currentAvatar=d.avatar.avatar;$("#makeBtn").disabled=false;selectMoment(selected)}setTimeout(()=>$("#avatarModal").classList.remove("open"),450)}catch(e){$("#avatarStatus").textContent="Speichern fehlgeschlagen: "+(e.data?.error||e.message)}}
+ let player=$("#avatarModal").dataset.player;if(!player)return;try{let d=await postAvatar({action:"save_avatar",slug,player_name:player,avatar:formAvatar()});let i=data.avatars.findIndex(x=>String(x.player_name).toLowerCase()===player.toLowerCase());if(i>=0)data.avatars[i]=d.avatar;else data.avatars.push(d.avatar);$("#avatarStatus").textContent=ux().savedAvatar;renderPlayers();if(selected&&selected.player===player){currentAvatar=d.avatar.avatar;$("#makeBtn").disabled=false;selectMoment(selected)}setTimeout(()=>$("#avatarModal").classList.remove("open"),450)}catch(e){$("#avatarStatus").textContent="Speichern fehlgeschlagen: "+(e.data?.error||e.message)}}
 async function init(){
  if(!slug||!token()){$("#lead").textContent=(UX[new URLSearchParams(location.search).get("lang")]||UX.de).restricted;return}
  try{let d=await post({action:"owner_report",slug});data=d;applyLang();renderReport();renderMoments();renderPlayers();renderMedia()}catch(e){let pre=UX[new URLSearchParams(location.search).get("lang")]||UX.de;$("#lead").textContent=e.status===403?pre.notOwner:pre.loadFail}
