@@ -2,6 +2,10 @@
 const esc=v=>String(v??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,Number(n)||0));
 const safe=(v,d,set)=>set.has(String(v))?String(v):d;
+const hexToRgb=hex=>{let s=String(hex||"").replace("#","");if(!/^[0-9a-fA-F]{6}$/.test(s))return{r:58,g:36,b:24};let n=parseInt(s,16);return{r:(n>>16)&255,g:(n>>8)&255,b:n&255}};
+const rgbToHex=(r,g,b)=>"#"+[r,g,b].map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,"0")).join("");
+const shadeHex=(hex,amt)=>{let q=hexToRgb(hex);return rgbToHex(q.r+amt,q.g+amt,q.b+amt)};
+
 const cfg=a=>{
  const out={
   height:clamp(a?.height||182,150,220),build:safe(a?.build,"athletic",new Set(["slim","athletic","strong","stocky"])),skin:a?.skin||"#d7a17e",
@@ -17,6 +21,17 @@ const cfg=a=>{
  };
  out.jawWidth=Math.min(out.jawWidth,out.faceWidth+12);out.chinWidth=Math.min(out.chinWidth,out.jawWidth+10);return out
 };
+function normalizeFace(a){
+ const x={...a},mix=(v,t,p)=>v+(t-v)*p;
+ x.headWidth=Math.max(x.faceWidth-9,Math.min(x.faceWidth+13,x.headWidth));
+ x.cheekWidth=Math.max(x.jawWidth-8,Math.min(x.faceWidth+10,x.cheekWidth));
+ x.jawWidth=Math.max(x.faceWidth-15,Math.min(x.faceWidth+9,x.jawWidth));
+ x.chinWidth=Math.max(x.jawWidth-17,Math.min(x.jawWidth+7,x.chinWidth));
+ const naturalEyes=50+(x.faceWidth-50)*.22;x.eyeSpacing=Math.max(34,Math.min(66,mix(x.eyeSpacing,naturalEyes,.16)));
+ x.noseWidth=Math.max(34,Math.min(66,x.noseWidth));x.mouthWidth=Math.max(x.noseWidth-9,Math.min(68,x.mouthWidth));
+ x.eyeY=Math.max(34,Math.min(66,x.eyeY));x.browY=Math.max(34,Math.min(66,x.browY));x.noseLength=Math.max(34,Math.min(66,x.noseLength));x.noseSize=Math.max(34,Math.min(66,x.noseSize));
+ return x
+}
 function metrics(a){
  const headW=52+(a.headWidth-50)*.32,templeW=headW+(a.faceWidth-50)*.18,cheekW=49+(a.cheekWidth-50)*.30,jawW=39+(a.jawWidth-50)*.27,chinW=21+(a.chinWidth-50)*.20;
  const top=18-(a.headHeight-50)*.16,cheekY=75+(a.headHeight-50)*.08,jawY=107+(a.headHeight-50)*.16,chinY=128+(a.chinLength-50)*.25+(a.headHeight-50)*.12;
@@ -33,24 +48,29 @@ function facePath(a){
 }
 function ears(a){const m=metrics(a),r=7+(a.earSize-50)*.08,y=m.cheekY-3,x=m.cheekW+3;return '<g fill="'+a.skin+'" stroke="#8d6554" stroke-width="1"><ellipse cx="'+(90-x)+'" cy="'+y+'" rx="'+(r*.62)+'" ry="'+r+'"/><ellipse cx="'+(90+x)+'" cy="'+y+'" rx="'+(r*.62)+'" ry="'+r+'"/></g><g fill="none" stroke="#9d715e" stroke-width="1" opacity=".55"><path d="M'+(90-x)+' '+(y-3)+' q5 3 0 8"/><path d="M'+(90+x)+' '+(y-3)+' q-5 3 0 8"/></g>'}
 function textureMarks(a,m){
- const c=a.hairColor,int=a.hairTextureIntensity/100,n=Math.max(3,Math.round(5+int*9)),top=m.top-5-(a.hairVolume-50)*.12;let s="";
- if(a.hairTexture==="straight"){for(let i=0;i<n;i++){const x=58+i*(64/(n-1));s+='<path d="M'+x+' '+(top+7)+' Q'+(x-2)+' '+(top+20)+' '+(x+1)+' '+(top+34)+'"/>'}return '<g stroke="#ffffff" stroke-opacity="'+(.09+.08*int)+'" fill="none" stroke-width="'+(1+int*.5)+'">'+s+'</g>'}
- if(a.hairTexture==="wavy"){for(let i=0;i<n;i++){const x=55+i*(70/(n-1)),amp=3+4*int;s+='<path d="M'+x+' '+(top+8)+' q'+amp+' 6 0 12 q-'+amp+' 6 0 12"/>'}return '<g stroke="#ffffff" stroke-opacity="'+(.10+.10*int)+'" fill="none" stroke-width="'+(1+int*.6)+'">'+s+'</g>'}
- const rad=a.hairTexture==="coily"?2.2+2.2*int:3.2+3*int;for(let i=0;i<n+3;i++){const x=53+(i%7)*12+(i%2)*3,y=top+11+Math.floor(i/7)*13;s+='<circle cx="'+x+'" cy="'+y+'" r="'+rad+'"/>'}return '<g fill="none" stroke="#ffffff" stroke-opacity="'+(.11+.11*int)+'" stroke-width="'+(.8+int*.7)+'">'+s+'</g>'
+ const int=a.hairTextureIntensity/100,n=Math.max(3,Math.round(4+int*8)),top=m.top-5-(a.hairVolume-50)*.12,dark=shadeHex(a.hairColor,-24),light=shadeHex(a.hairColor,16);let s="";
+ if(a.hairTexture==="straight"){for(let i=0;i<n;i++){const x=59+i*(62/Math.max(1,n-1));s+='<path d="M'+x+' '+(top+8)+' Q'+(x-1.5)+' '+(top+21)+' '+(x+1)+' '+(top+34)+'"/>'}return '<g stroke="'+dark+'" stroke-opacity="'+(.18+.16*int)+'" fill="none" stroke-width="'+(.8+int*.45)+'">'+s+'</g>'}
+ if(a.hairTexture==="wavy"){for(let i=0;i<n;i++){const x=57+i*(66/Math.max(1,n-1)),amp=2.5+4.5*int;s+='<path d="M'+x+' '+(top+8)+' q'+amp+' 5 0 10 q-'+amp+' 5 0 10 q'+amp+' 5 0 10"/>'}return '<g stroke="'+light+'" stroke-opacity="'+(.20+.18*int)+'" fill="none" stroke-width="'+(1+int*.55)+'">'+s+'</g>'}
+ const rad=a.hairTexture==="coily"?2.0+2.1*int:2.8+2.8*int;for(let i=0;i<n+5;i++){const x=54+(i%7)*11.5+(i%2)*2.5,y=top+10+Math.floor(i/7)*12;s+='<circle cx="'+x+'" cy="'+y+'" r="'+rad+'"/>'}return '<g fill="none" stroke="'+(a.hairTexture==="coily"?dark:light)+'" stroke-opacity="'+(.22+.22*int)+'" stroke-width="'+(.9+int*.65)+'">'+s+'</g>'
 }
-function textureSilhouette(a,m){const int=a.hairTextureIntensity/100;if(a.hairTexture==="straight"||int<.15)return "";const count=a.hairTexture==="coily"?11:a.hairTexture==="curly"?9:7,rad=(a.hairTexture==="coily"?4.2:a.hairTexture==="curly"?6.2:7.2)*(0.72+int*.38),y=m.top+8-(a.hairVolume-50)*.08;let s="";for(let i=0;i<count;i++){let x=(90-m.headW*.72)+i*((m.headW*1.44)/(count-1)),yy=y+((i%2)?3:-1)*(a.hairTexture==="wavy"?1.2:1);s+='<circle cx="'+x+'" cy="'+yy+'" r="'+rad+'" fill="'+a.hairColor+'"/>'}return '<g>'+s+'</g>'}
+function textureSilhouette(a,m){
+ const int=a.hairTextureIntensity/100;if(a.hairTexture==="straight"||int<.12)return "";
+ const count=a.hairTexture==="coily"?12:a.hairTexture==="curly"?10:8,rad=(a.hairTexture==="coily"?4.0:a.hairTexture==="curly"?5.8:6.8)*(0.70+int*.42),y=m.top+7-(a.hairVolume-50)*.10,fill=shadeHex(a.hairColor,a.hairTexture==="coily"?-12:8);let s="";
+ for(let i=0;i<count;i++){let x=(90-m.headW*.74)+i*((m.headW*1.48)/(count-1)),yy=y+((i%2)?2.5:-1.2);s+='<circle cx="'+x+'" cy="'+yy+'" r="'+rad+'" fill="'+fill+'" opacity="'+(.52+.3*int)+'"/>'}
+ return '<g>'+s+'</g>'
+}
 function hair(a){
  const c=a.hairColor,t=a.hairStyle,m=metrics(a),vol=1+(a.hairVolume-50)*.009,len=(a.hairLengthLevel-50)*.55;let base="";
  if(t==="bald")return "";
  if(t==="buzz")base='<path d="M'+(90-m.headW*.82)+' '+(m.cheekY-29)+' Q'+(90-m.headW*.72)+' '+(m.top-5)+' 90 '+(m.top-8)+' Q'+(90+m.headW*.72)+' '+(m.top-5)+' '+(90+m.headW*.82)+' '+(m.cheekY-29)+' Q112 '+(m.top+17)+' 90 '+(m.top+18)+' Q68 '+(m.top+17)+' '+(90-m.headW*.82)+' '+(m.cheekY-29)+'Z" fill="'+c+'" opacity=".92"/>';
  else if(t==="fade")base='<path d="M'+(90-m.headW*.88)+' '+(m.cheekY-22)+' Q'+(90-m.headW*.73)+' '+(m.top-8)+' 90 '+(m.top-11)+' Q'+(90+m.headW*.76)+' '+(m.top-7)+' '+(90+m.headW*.88)+' '+(m.cheekY-22)+' Q112 '+(m.top+21)+' 90 '+(m.top+20)+' Q68 '+(m.top+22)+' '+(90-m.headW*.88)+' '+(m.cheekY-22)+'Z" fill="'+c+'"/>';
- else if(t==="sidepart")base='<path d="M'+(90-m.headW*.9)+' '+(m.cheekY-20)+' Q'+(90-m.headW*.82)+' '+(m.top-9)+' 88 '+(m.top-13)+' Q'+(90+m.headW*.76)+' '+(m.top-8)+' '+(90+m.headW*.9)+' '+(m.cheekY-24)+' Q111 '+(m.top+20)+' 83 '+(m.top+22)+' Q64 '+(m.top+25)+' '+(90-m.headW*.9)+' '+(m.cheekY-20)+'Z" fill="'+c+'"/><path d="M84 '+(m.top-8)+' Q87 '+(m.top+10)+' 86 '+(m.top+31)+'" stroke="#ffffff3f" stroke-width="2"/>';
+ else if(t==="sidepart")base='<path d="M'+(90-m.headW*.9)+' '+(m.cheekY-20)+' Q'+(90-m.headW*.82)+' '+(m.top-9)+' 88 '+(m.top-13)+' Q'+(90+m.headW*.76)+' '+(m.top-8)+' '+(90+m.headW*.9)+' '+(m.cheekY-24)+' Q111 '+(m.top+20)+' 83 '+(m.top+22)+' Q64 '+(m.top+25)+' '+(90-m.headW*.9)+' '+(m.cheekY-20)+'Z" fill="'+c+'"/>';
  else if(t==="slick")base='<path d="M'+(90-m.headW*.82)+' '+(m.cheekY-25)+' Q'+(90-m.headW*.58)+' '+(m.top-10)+' 92 '+(m.top-13)+' Q'+(90+m.headW*.69)+' '+(m.top-5)+' '+(90+m.headW*.82)+' '+(m.cheekY-26)+' Q113 '+(m.top+20)+' 91 '+(m.top+19)+' Q67 '+(m.top+20)+' '+(90-m.headW*.82)+' '+(m.cheekY-25)+'Z" fill="'+c+'"/>';
  else if(t==="long")base='<path d="M'+(90-m.headW*.94)+' '+(m.cheekY-18)+' Q'+(90-m.headW*.84)+' '+(m.top-9)+' 90 '+(m.top-12)+' Q'+(90+m.headW*.84)+' '+(m.top-8)+' '+(90+m.headW*.94)+' '+(m.cheekY-18)+' L'+(90+m.cheekW+3)+' '+(m.jawY+18+len)+' Q112 '+(m.cheekY+14)+' 90 '+(m.cheekY+4)+' Q68 '+(m.cheekY+14)+' '+(90-m.cheekW-3)+' '+(m.jawY+18+len)+'Z" fill="'+c+'"/>';
  else if(t==="medium")base='<path d="M'+(90-m.headW*.92)+' '+(m.cheekY-18)+' Q'+(90-m.headW*.82)+' '+(m.top-9)+' 90 '+(m.top-12)+' Q'+(90+m.headW*.82)+' '+(m.top-8)+' '+(90+m.headW*.92)+' '+(m.cheekY-18)+' L'+(90+m.cheekW)+' '+(m.cheekY+17+len*.45)+' Q111 '+(m.cheekY+1)+' 90 '+(m.cheekY-7)+' Q69 '+(m.cheekY+1)+' '+(90-m.cheekW)+' '+(m.cheekY+17+len*.45)+'Z" fill="'+c+'"/>';
  else if(t==="curly"||t==="coily"||t==="wavy"){const rr=(t==="coily"?7:t==="curly"?9:10)*vol,pts=[[-35,5],[-30,-8],[-18,-17],[-4,-22],[11,-20],[25,-12],[34,2],[-22,4],[-8,-4],[7,-5],[22,2]];base='<g fill="'+c+'">'+pts.map(q=>'<circle cx="'+(90+q[0]*vol)+'" cy="'+(m.top+28+q[1]*vol)+'" r="'+rr+'"/>').join("")+'</g>'}
  else base='<path d="M'+(90-m.headW*.88)+' '+(m.cheekY-24)+' Q'+(90-m.headW*.72)+' '+(m.top-8)+' 90 '+(m.top-11)+' Q'+(90+m.headW*.75)+' '+(m.top-7)+' '+(90+m.headW*.88)+' '+(m.cheekY-24)+' Q113 '+(m.top+23)+' 90 '+(m.top+22)+' Q66 '+(m.top+22)+' '+(90-m.headW*.88)+' '+(m.cheekY-24)+'Z" fill="'+c+'"/>';
- return base+textureSilhouette(a,m)+textureMarks(a,m)
+ const hairLayer=base+textureSilhouette(a,m)+textureMarks(a,m),sx=Math.max(.84,Math.min(1.20,1+(a.hairVolume-50)*.006));return '<g transform="translate(90 0) scale('+sx+' 1) translate(-90 0)">'+hairLayer+'</g>'
 }
 function stubble(a,m){
  const density=a.beardDensity/100,coverage=a.stubbleCoverage/100,r=.35+(a.stubbleSize/100)*1.05,pts=[],top=m.mouthY-1-(coverage-.5)*16,bottom=m.chinY-2;
@@ -76,6 +96,9 @@ function kitPattern(a,id){
 }
 function bodyFront(a,name){const body=a.build==="slim"?.88:a.build==="stocky"?1.17:a.build==="strong"?1.09:1,chest=body*(1+(a.chestWidth-50)*.006),w=84*chest,leg=112+(a.height-165)*.45+(a.legLength-50)*.30,id="kitF"+Math.random().toString(36).slice(2,7);return '<defs>'+kitPattern(a,id)+'<linearGradient id="skinGrad" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fff" stop-opacity=".18"/><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".12"/></linearGradient><filter id="sh"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-opacity=".24"/></filter></defs><ellipse cx="90" cy="318" rx="'+(54*body)+'" ry="8" fill="#000" opacity=".28"/><path d="M'+(90-w/2)+' 150 Q90 136 '+(90+w/2)+' 150 L'+(90+w/2-8)+' 234 L'+(90-w/2+8)+' 234Z" fill="url(#'+id+')" filter="url(#sh)"/><path d="M'+(90-w/2+8)+' 227 L80 '+(287+leg*.22)+' L61 '+(287+leg*.22)+' L70 222Z" fill="#102c3c"/><path d="M'+(90+w/2-8)+' 227 L100 '+(287+leg*.22)+' L119 '+(287+leg*.22)+' L110 222Z" fill="#102c3c"/><path d="M'+(90-w/2)+' 150 Q90 136 '+(90+w/2)+' 150 L'+(90+w/2-8)+' 234 L'+(90-w/2+8)+' 234Z" fill="url(#skinGrad)" opacity=".28"/><text x="90" y="204" text-anchor="middle" fill="#fff" stroke="#000" stroke-width=".7" paint-order="stroke" font-size="12" font-weight="900">'+esc(name).slice(0,16)+'</text>'}
 function backPanel(a,name){const id="kitB"+Math.random().toString(36).slice(2,7),label=(a.shirtName||name||"").split(/\s+/).slice(-1)[0].toUpperCase().slice(0,12);return '<g transform="translate(178 32) scale(.63)"><defs>'+kitPattern(a,id)+'</defs><path d="M48 82 Q90 66 132 82 L124 182 L56 182Z" fill="url(#'+id+')" stroke="#ffffff22" stroke-width="1.5"/><text x="90" y="112" text-anchor="middle" fill="#fff" stroke="#000" stroke-width=".7" paint-order="stroke" font-size="14" font-weight="900">'+esc(label)+'</text><text x="90" y="160" text-anchor="middle" fill="#fff" stroke="#000" stroke-width="1.4" paint-order="stroke" font-size="46" font-weight="1000">'+esc(a.shirtNo)+'</text><text x="90" y="202" text-anchor="middle" fill="#a7c3d1" font-size="10">BACK</text></g>'}
-function render(a0,name,mini=false){const a=cfg(a0);return '<svg viewBox="0 0 300 360" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="bg" cx=".5" cy=".2" r=".9"><stop stop-color="#10435a"/><stop offset="1" stop-color="#031019"/></radialGradient><linearGradient id="faceLight" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fff" stop-opacity=".2"/><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".16"/></linearGradient></defs><rect width="300" height="360" rx="18" fill="url(#bg)"/><g transform="translate(38 6)">'+bodyFront(a,name)+ears(a)+'<path d="'+facePath(a)+'" fill="'+a.skin+'" stroke="#8d6554" stroke-width="1.15"/><path d="'+facePath(a)+'" fill="url(#faceLight)"/>'+facial(a)+beard(a)+hair(a)+'</g>'+backPanel(a,name)+'<text x="235" y="208" text-anchor="middle" fill="#8fb0bf" font-size="9">FRONT / BACK</text></svg>'}
-window.TimeClashAvatar={render,normalize:cfg,kitPattern};
+function render(a0,name,mini=false,mode="both"){
+ const a=normalizeFace(cfg(a0)),front=mode==="front",view=front?"0 0 220 360":"0 0 300 360",shift=front?20:38;
+ return '<svg viewBox="'+view+'" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="bg" cx=".5" cy=".2" r=".9"><stop stop-color="#10435a"/><stop offset="1" stop-color="#031019"/></radialGradient><linearGradient id="faceLight" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fff" stop-opacity=".16"/><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".13"/></linearGradient></defs><rect width="'+(front?220:300)+'" height="360" rx="18" fill="url(#bg)"/><g transform="translate('+shift+' 6)">'+bodyFront(a,name)+ears(a)+'<path d="'+facePath(a)+'" fill="'+a.skin+'" stroke="#8d6554" stroke-width="1.15"/><path d="'+facePath(a)+'" fill="url(#faceLight)"/>'+facial(a)+beard(a)+hair(a)+'</g>'+(front?'':backPanel(a,name)+'<text x="235" y="208" text-anchor="middle" fill="#8fb0bf" font-size="9">FRONT / BACK</text>')+'</svg>'
+}
+window.TimeClashAvatar={render,normalize:a=>normalizeFace(cfg(a)),kitPattern};
 })();
