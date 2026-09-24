@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#031720">
+<title>TIME CLASH Bericht – BetInsight</title>
+<link rel="icon" href="/favicon.ico">
+<style>
+:root{--bg:#020d14;--panel:#061b28;--line:#24516b;--gold:#f7c64e;--cyan:#74d9ff;--text:#f5fbff;--muted:#9eb5c3;--green:#3ce5a5;--red:#ff6b78}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 50% 0,#123b56,#020d14 65%);color:var(--text);font-family:Inter,system-ui,sans-serif;min-height:100vh}
+.wrap{width:min(1120px,calc(100% - 28px));margin:auto}
+header{border-bottom:1px solid #18425a;background:#03131e;position:sticky;top:0;z-index:20}
+.nav{min-height:84px;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:8px 0}
+.brand img{display:block;width:300px;height:64px;max-width:300px;object-fit:contain;object-position:left center}
+.nav nav{display:flex;align-items:center;gap:22px;flex-wrap:wrap;justify-content:flex-end}
+.nav a{color:#cfe5f1;text-decoration:none;font-size:14px;font-weight:800;white-space:nowrap}
+.nav a.active{color:var(--gold)}
+.hero{text-align:center;padding:42px 0 24px}
+.hero .eyebrow{color:var(--gold);font-weight:900;letter-spacing:.16em;font-size:12px}
+.hero h1{font-size:clamp(40px,7vw,68px);margin:6px 0}
+.hero p{color:var(--muted);margin:0}
+.back{margin-top:18px}
+.back a{color:var(--cyan);text-decoration:none;font-weight:900}
+.card{border:1px solid var(--line);background:#061b28;border-radius:20px;padding:20px;margin:16px 0}
+.summary{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px;text-align:center}
+.team h2{margin:4px 0;font-size:clamp(22px,4vw,34px)}
+.team small{color:var(--muted)}
+.series strong{display:block;font-size:42px;color:var(--gold)}
+.series span{color:var(--muted);font-size:12px}
+.meta{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+.pill{border:1px solid #315f78;border-radius:999px;padding:7px 11px;color:#cfe5f1;font-size:12px}
+.context{display:grid;gap:10px}
+.context p{margin:0;color:#c7dce7;line-height:1.55}
+.games{display:grid;gap:14px}
+.game{border:1px solid #1d4f69;border-radius:16px;background:#04131d;padding:16px}
+.gameHead{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.gameHead h3{margin:0}
+.score{font-size:24px;font-weight:1000;color:var(--gold)}
+.gameMeta{color:var(--muted);font-size:12px;margin-top:5px}
+.lines{margin:12px 0 0;padding-left:20px;color:#c8dce6}
+.lines li{margin:8px 0;line-height:1.45}
+.events{margin-top:14px;border-top:1px solid #16394d;padding-top:10px}
+.event{display:grid;grid-template-columns:48px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid #102f40}
+.event b{color:var(--gold)}
+.status{text-align:center;padding:28px;color:var(--muted)}
+.error{color:var(--red)}
+.footerActions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:24px 0 42px}
+.btn{display:inline-block;text-decoration:none;border:1px solid #2a6e94;background:#0a5278;color:#fff;border-radius:11px;padding:12px 18px;font-weight:900}
+.btn.primary{background:linear-gradient(135deg,#ffd969,#e8a92e);color:#10202a;border-color:var(--gold)}
+@media(max-width:760px){
+  .nav nav{display:none}
+  .brand img{width:230px;height:54px;max-width:230px}
+  .summary{grid-template-columns:1fr}
+  .series{order:3}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="/de/"><img src="https://raw.githubusercontent.com/betinsightclub/profil/main/logo_betisight.club.png" alt="BetInsight"></a>
+    <nav>
+      <a href="/de/">STARTSEITE</a>
+      <a href="/de/tipps/">TIPPS</a>
+      <a href="/time-clash/" class="active">TIME CLASH</a>
+      <a href="/de/statistik-vorschau/">STATISTIK</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="back"><a href="/time-clash/">← Zurück zu TIME CLASH</a></div>
+  <section class="hero">
+    <div class="eyebrow">BETINSIGHT MATCH LAB</div>
+    <h1>TIME CLASH BERICHT</h1>
+    <p>Gespeicherter Bericht der abgeschlossenen Simulation.</p>
+  </section>
+
+  <div id="status" class="card status">Bericht wird geladen …</div>
+
+  <section id="report" hidden>
+    <div class="card">
+      <div class="summary">
+        <div class="team"><small>TEAM A</small><h2 id="teamA">–</h2></div>
+        <div class="series"><span>SERIE</span><strong id="seriesScore">–</strong><span id="winner">–</span></div>
+        <div class="team"><small>TEAM B</small><h2 id="teamB">–</h2></div>
+      </div>
+      <div class="meta" id="meta"></div>
+    </div>
+
+    <div class="card">
+      <h2>Einordnung</h2>
+      <div class="context" id="context"></div>
+    </div>
+
+    <div class="card">
+      <h2>Spielberichte</h2>
+      <div class="games" id="games"></div>
+    </div>
+
+    <div class="footerActions">
+      <a class="btn primary" href="/time-clash/">Neuen TIME CLASH starten</a>
+      <a class="btn" href="/de/time-clash/mein-team/">Mein Team</a>
+    </div>
+  </section>
+</main>
+
+<script>
+const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash-report";
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+const slug=new URLSearchParams(location.search).get("clash")||"";
+const statusEl=document.getElementById("status");
+const reportEl=document.getElementById("report");
+
+function fallbackLines(r,g,i){
+  const ga=Number(g.ga||0),gb=Number(g.gb||0);
+  const winner=ga>gb?r.team_a:gb>ga?r.team_b:"Kein Sieger";
+  return [
+    r.team_a+" und "+r.team_b+" trafen im "+(i+1)+". Spiel der Serie aufeinander.",
+    g.venue?"Austragungsort: "+g.venue+(g.weather?" · "+g.weather:"")+".":"Die Partie wurde als TIME-CLASH-Simulation ausgetragen.",
+    "Endstand: "+r.team_a+" "+ga+":"+gb+" "+r.team_b+".",
+    winner==="Kein Sieger"?"Das Einzelspiel endete unentschieden.":winner+" gewann dieses Einzelspiel."
+  ];
+}
+
+function render(r){
+  document.title=r.team_a+" vs. "+r.team_b+" – TIME CLASH Bericht";
+  document.getElementById("teamA").textContent=r.team_a||"–";
+  document.getElementById("teamB").textContent=r.team_b||"–";
+  document.getElementById("seriesScore").textContent=(r.series_a??0)+" : "+(r.series_b??0);
+  document.getElementById("winner").textContent="Seriensieger: "+(r.winner||"–");
+  const date=r.created_at?new Date(r.created_at).toLocaleString("de-DE"):"";
+  document.getElementById("meta").innerHTML=[
+    r.series_length+" Spiele",
+    date,
+    r.prediction?"Dein Tipp: "+r.prediction:null,
+    r.prediction_correct===true?"Tipp richtig":r.prediction_correct===false?"Tipp daneben":null
+  ].filter(Boolean).map(x=>'<span class="pill">'+esc(x)+'</span>').join("");
+
+  const ctx=(r.report_summary&&Array.isArray(r.report_summary.context))?r.report_summary.context:[
+    "Dieser Bericht basiert ausschließlich auf den gespeicherten Daten der abgeschlossenen TIME-CLASH-Simulation.",
+    "TIME CLASH ist eine fiktive Unterhaltungssimulation und keine Wettprognose."
+  ];
+  document.getElementById("context").innerHTML=ctx.map(x=>"<p>"+esc(x)+"</p>").join("");
+
+  const reportGames=(r.report_summary&&Array.isArray(r.report_summary.games))?r.report_summary.games:[];
+  document.getElementById("games").innerHTML=(r.games||[]).map((g,i)=>{
+    const stored=reportGames.find(x=>Number(x.game)===i+1);
+    const lines=stored&&Array.isArray(stored.lines)?stored.lines:fallbackLines(r,g,i);
+    const ev=Array.isArray(g.ev)?g.ev:[];
+    const events=ev.length?'<div class="events">'+ev.map(e=>'<div class="event"><b>'+esc((e.m??"–")+"'")+'</b><span>'+esc(e.msg||"Ereignis")+'</span></div>').join("")+'</div>':"";
+    return '<article class="game"><div class="gameHead"><div><h3>Spiel '+(i+1)+'</h3><div class="gameMeta">'+esc(g.venue||"TIME CLASH Arena")+(g.weather?" · "+esc(g.weather):"")+'</div></div><div class="score">'+esc(r.team_a)+' '+Number(g.ga||0)+':'+Number(g.gb||0)+' '+esc(r.team_b)+'</div></div><ul class="lines">'+lines.map(x=>"<li>"+esc(x)+"</li>").join("")+"</ul>"+events+"</article>";
+  }).join("");
+
+  statusEl.hidden=true;
+  reportEl.hidden=false;
+}
+
+if(!slug){
+  statusEl.innerHTML='<span class="error">Kein Bericht ausgewählt.</span>';
+}else{
+  fetch(API+"?slug="+encodeURIComponent(slug),{cache:"no-store"})
+    .then(async x=>{const d=await x.json();if(!x.ok||!d.report)throw new Error(d.error||"not_found");return d.report})
+    .then(render)
+    .catch(()=>{statusEl.innerHTML='<span class="error">Der gespeicherte TIME-CLASH-Bericht konnte nicht geladen werden.</span><br><br><a class="btn" href="/time-clash/">Zurück zu TIME CLASH</a>'});
+}
+</script>
+</body>
+</html>
