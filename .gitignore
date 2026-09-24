@@ -1,0 +1,25 @@
+# Security: never commit local secrets or credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json
+secret*.json
+secrets*.json
+*.service-account.json
+
+# Make / automation exports and local blueprints
+*.blueprint.json
+*.blueprint.*.json
+*blueprint*.json
+
+# Local backups and temporary copies
+backup/
+backups/
+*.bak
+*.backup
+*-before-*
+*~ 
