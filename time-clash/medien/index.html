@@ -57,16 +57,16 @@
 </main>
 <div class="modal" id="avatarModal"><div class="modalBox"><div class="modalHead"><div><div class="eyebrow">SPIELER-LOOK</div><h2 id="avatarName">Spieler</h2></div><button class="close" id="closeModal">×</button></div><div class="modalGrid"><div class="preview" id="avatarPreview"></div><div>
 <div class="fields">
-<div class="field"><label>Größe</label><input id="aHeight" type="number" min="165" max="210" value="182"></div>
-<div class="field"><label>Körperbau</label><select id="aBuild"><option value="slim">Schlank</option><option value="athletic">Athletisch</option><option value="strong">Kräftig</option><option value="stocky">Stämmig</option></select></div>
-<div class="field"><label>Haarlänge</label><select id="aHairLength"><option value="bald">Glatze</option><option value="veryshort">Sehr kurz</option><option value="short">Kurz</option><option value="medium">Mittel</option><option value="long">Lang</option></select></div>
-<div class="field"><label>Haarstruktur</label><select id="aHairTexture"><option value="straight">Glatt</option><option value="wavy">Wellig</option><option value="curly">Lockig</option><option value="coily">Kraus</option></select></div>
-<div class="field"><label>Haarfarbe</label><input id="aHairColor" type="color" value="#3a2418"></div>
-<div class="field"><label>Bart</label><select id="aBeard"><option value="none">Kein Bart</option><option value="stubble">Stoppeln</option><option value="short">Kurzer Bart</option><option value="full">Vollbart</option><option value="goatee">Kinnbart</option><option value="mustache">Schnurrbart</option><option value="combo">Schnurrbart + Kinnbart</option></select></div>
-<div class="field"><label>Hautton</label><input id="aSkin" type="color" value="#d7a17e"></div>
-<div class="field"><label>Trikotstil</label><select id="aKitStyle"><option value="solid">Einfarbig</option><option value="stripe">Längsstreifen</option><option value="chest">Bruststreifen</option><option value="sleeves">Kontrastärmel</option><option value="v">V-Design</option></select></div>
-<div class="field"><label>Vereinsfarbe</label><input id="aKit1" type="color" value="#25a9ff"></div>
-<div class="field"><label>Zweitfarbe</label><input id="aKit2" type="color" value="#f7c64e"></div>
+<div class="field"><label id="lblHeight">Größe</label><input id="aHeight" type="number" min="165" max="210" value="182"></div>
+<div class="field"><label id="lblBuild">Körperbau</label><select id="aBuild"><option value="slim">Schlank</option><option value="athletic">Athletisch</option><option value="strong">Kräftig</option><option value="stocky">Stämmig</option></select></div>
+<div class="field"><label id="lblHairLength">Haarlänge</label><select id="aHairLength"><option value="bald">Glatze</option><option value="veryshort">Sehr kurz</option><option value="short">Kurz</option><option value="medium">Mittel</option><option value="long">Lang</option></select></div>
+<div class="field"><label id="lblHairTexture">Haarstruktur</label><select id="aHairTexture"><option value="straight">Glatt</option><option value="wavy">Wellig</option><option value="curly">Lockig</option><option value="coily">Kraus</option></select></div>
+<div class="field"><label id="lblHairColor">Haarfarbe</label><input id="aHairColor" type="color" value="#3a2418"></div>
+<div class="field"><label id="lblBeard">Bart</label><select id="aBeard"><option value="none">Kein Bart</option><option value="stubble">Stoppeln</option><option value="short">Kurzer Bart</option><option value="full">Vollbart</option><option value="goatee">Kinnbart</option><option value="mustache">Schnurrbart</option><option value="combo">Schnurrbart + Kinnbart</option></select></div>
+<div class="field"><label id="lblSkin">Hautton</label><input id="aSkin" type="color" value="#d7a17e"></div>
+<div class="field"><label id="lblKitStyle">Trikotstil</label><select id="aKitStyle"><option value="solid">Einfarbig</option><option value="stripe">Längsstreifen</option><option value="chest">Bruststreifen</option><option value="sleeves">Kontrastärmel</option><option value="v">V-Design</option></select></div>
+<div class="field"><label id="lblKit1">Vereinsfarbe</label><input id="aKit1" type="color" value="#25a9ff"></div>
+<div class="field"><label id="lblKit2">Zweitfarbe</label><input id="aKit2" type="color" value="#f7c64e"></div>
 </div>
 <div class="actions" style="margin-top:12px"><button class="btn" id="autoAvatar">✨ Auto-Vorschlag</button><button class="btn gold" id="saveAvatar">✓ Spieler speichern</button></div>
 <div class="sub" id="avatarStatus" style="margin-top:8px"></div>
