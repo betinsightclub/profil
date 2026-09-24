@@ -16,7 +16,7 @@ Sicherheitsprinzip:
   const PREMIUM_PANEL_ID = "tab-premium";
   const PREMIUM_TAB_ID = "premiumTabButton";
   const STYLE_ID = "premiumEingaengeStyle";
-  const PREMIUM_RULE_API_URL = "https://hook.eu1.make.com/6jrn446fmzuaqpqf66xs0ihege1c5cnp";
+  const PREMIUM_RULE_API_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=premium-rule";
 
   let lastPremiumData = null;
 
