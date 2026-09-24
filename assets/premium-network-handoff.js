@@ -13,7 +13,7 @@
 (() => {
   "use strict";
 
-  const ISSUE_URL = "https://hook.eu1.make.com/l12lvfgly1e4b9p1op3oohfbncnfwkqh";
+  const ISSUE_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=network-handoff-issue";
   const HANDOFF_URL = "https://betinsight.network/handoff/";
   const ACCOUNT_GATEWAY = "/konto/?next=premium-provisionen";
 
