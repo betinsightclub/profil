@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const API_URL = "https://hook.eu1.make.com/za1tggiwy1ffdm6ro28p2eqf1ci7tqx9";
+  const API_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=unit-usage";
   const SESSION_KEY = "betinsight_admin_session_v1";
   const PAGE_SIZE = 100;
 
