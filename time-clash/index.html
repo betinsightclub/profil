@@ -317,6 +317,7 @@ function roleFactor(p,kind){
  if(kind==="assist")return r==="Mittelfeld"?1.5:r==="Sturm"?1.15:r==="Abwehr" ? .75:r==="Torwart" ? .03:.8;
  if(kind==="corner"||kind==="shot"||kind==="chance")return r==="Sturm"?1.55:r==="Mittelfeld"?1.3:r==="Abwehr" ? .45:r==="Torwart"?0:.8;
  if(kind==="card")return r==="Abwehr"?1.35:r==="Mittelfeld"?1.1:r==="Sturm" ? .65:r==="Torwart" ? .25:.9;
+ if(kind==="defense")return r==="Abwehr"?1.8:r==="Mittelfeld"?1.15:r==="Torwart" ? .8:r==="Sturm" ? .25:.7;
  if(kind==="ownGoal")return r==="Abwehr"?1.8:r==="Torwart"?1.1:r==="Mittelfeld" ? .35:r==="Sturm" ? .08:.6;
  return r==="Torwart" ? .35:1
 }
@@ -351,6 +352,8 @@ function actor(side,minute,plans,kind="generic"){
 function assister(side,scorer,minute,plans){
  let r=lineupAtMinute(side,minute,plans).filter(p=>p.name!==scorer),p=weightedPick(r,x=>playerWeight(x,"assist"));return p?p.name:null
 }
+function goalkeeper(side,minute,plans){let r=lineupAtMinute(side,minute,plans),p=r.find(x=>String(x.prole)==="Torwart");return p?p.name:null}
+
 function rosterReady(side){return startingLineup(side).length>=11}
 function rosterLabel(side){let t=side==="A"?TA:TB;return t.name+": "+startingLineup(side).length+" Startspieler verfügbar"}
 function lineupMetrics(lineup){
@@ -376,23 +379,24 @@ function buildGame(idx){
  let sideProb=Math.max(.28,Math.min(.72,.5+(ma.attack+ma.midfield-mb.attack-mb.midfield)*.018+(ratingA-ratingB)*.004));
  let target=30+rnd(8),minutes=new Set([1,45,90]);while(minutes.size<target)minutes.add(3+rnd(86));
  [...minutes].sort((a,b)=>a-b).forEach(m=>{if(m===1||m===45||m===90||goals.some(g=>Math.abs(g.m-m)<2)||plans.A.some(s=>Math.abs(s.m-m)<1)||plans.B.some(s=>Math.abs(s.m-m)<1))return;let r=Math.random(),side=Math.random()<sideProb?"A":"B",nm=side==="A"?TA.name:TB.name;
-   if(r<.14){let p=actor(side,m,plans,"chance");ev.push({m,msg:p?"🔥 "+p+" treibt den Angriff für "+nm+" bis an den Strafraum.":"🔥 "+nm+" baut einen gefährlichen Angriff auf.",type:"chance"});}
-   else if(r<.27){let p=actor(side,m,plans,"shot");ev.push({m,msg:p?"⚡ "+p+" schaltet für "+nm+" schnell um und sucht den Abschluss.":"⚡ "+nm+" schaltet schnell um und sucht den Abschluss.",type:side==="A"?"shotA":"shotB"});}
-   else if(r<.38){let p=actor(side,m,plans,"shot");ev.push({m,msg:p?"🎯 "+p+" kommt für "+nm+" zum Abschluss – der Torhüter pariert!":"🎯 "+nm+" kommt zum Abschluss – der Torhüter pariert!",type:side==="A"?"targetA":"targetB"});}
+   if(r<.14){let p=actor(side,m,plans,"chance");ev.push({m,msg:p?"🔥 "+p+" treibt den Angriff für "+nm+" bis an den Strafraum.":"🔥 "+nm+" baut einen gefährlichen Angriff auf.",type:"chance",sceneKind:"attack",scenePlayer:p,sceneSide:side});}
+   else if(r<.27){let p=actor(side,m,plans,"shot");ev.push({m,msg:p?"⚡ "+p+" schaltet für "+nm+" schnell um und sucht den Abschluss.":"⚡ "+nm+" schaltet schnell um und sucht den Abschluss.",type:side==="A"?"shotA":"shotB",sceneKind:"shot",scenePlayer:p,sceneSide:side});}
+   else if(r<.38){let p=actor(side,m,plans,"shot"),def=side==="A"?"B":"A",keeper=goalkeeper(def,m,plans),dn=def==="A"?TA.name:TB.name;ev.push({m,msg:keeper?"🧤 "+keeper+" hält stark für "+dn+" gegen den Abschluss von "+(p||nm)+"!":p?"🎯 "+p+" kommt für "+nm+" zum Abschluss – der Torhüter pariert!":"🎯 "+nm+" kommt zum Abschluss – der Torhüter pariert!",type:side==="A"?"targetA":"targetB",sceneKind:"save",scenePlayer:keeper,sceneSide:def,attacker:p});}
    else if(r<.49){let p=actor(side,m,plans,"corner");ev.push({m,msg:p?"🚩 "+p+" holt eine Ecke für "+nm+" heraus.":"🚩 "+nm+" erzwingt einen Eckball.",type:side==="A"?"cornerA":"cornerB"});}
    else if(r<.62){let p=actor(side,m,plans,"generic");ev.push({m,msg:p?"💥 Foul an "+p+" ("+nm+"). Freistoß.":"💥 Foul gegen "+nm+". Freistoß für "+nm+".",type:side==="A"?"foulA":"foulB"});}
    else if(r<.69){let p=actor(side,m,plans,"card");ev.push({m,msg:p?"🟨 Gelbe Karte für "+p+" ("+nm+").":"🟨 Gelbe Karte gegen "+nm+" nach einem taktischen Foul.",type:side==="A"?"cardA":"cardB"});}
    else if(r<.77)ev.push({m,msg:"🚫 Abseits gegen "+nm+" – der Angriff wird zurückgepfiffen.",type:"offside"});
+   else if(r<.87){let def=side==="A"?"B":"A",dn=def==="A"?TA.name:TB.name,p=actor(def,m,plans,"defense");ev.push({m,msg:p?"🛡️ "+p+" klärt im letzten Moment für "+dn+".":"🛡️ "+dn+" verteidigt die Situation stark.",type:def==="A"?"defenseA":"defenseB",sceneKind:"defense",scenePlayer:p,sceneSide:def});}
    else ev.push({m,msg:one(phrases.neutral)});
  });
  goals.forEach(x=>{let tm=x.t==="A"?TA:TB,scorer=actor(x.t,x.m,plans,"goal"),assist=scorer?assister(x.t,scorer,x.m,plans):null;if(!scorer)return;let roll=Math.random();
    if(roll<.08){let opp=x.t==="A"?"B":"A",own=actor(opp,x.m,plans,"ownGoal");ev.push({m:x.m,msg:own?"⚽ EIGENTOR! "+own+" lenkt den Ball unglücklich ins eigene Tor. "+tm.name+" profitiert.":"⚽ EIGENTOR zugunsten von "+tm.name+".",type:x.t==="A"?"goalA":"goalB",ownGoal:true})}
-   else ev.push({m:x.m,msg:"⚽ TOR "+tm.name.toUpperCase()+"! "+scorer+" trifft."+(assist?" Vorlage: "+assist+".":""),type:x.t==="A"?"goalA":"goalB",scorer,assist});
+   else ev.push({m:x.m,msg:"⚽ TOR "+tm.name.toUpperCase()+"! "+scorer+" trifft."+(assist?" Vorlage: "+assist+".":""),type:x.t==="A"?"goalA":"goalB",scorer,assist,sceneKind:"goal",scenePlayer:scorer,sceneSide:x.t});
  });
  let used=goals.map(x=>x.m);if(Math.random()<.32){let m=10+rnd(75);while(used.some(x=>Math.abs(x-m)<4))m=10+rnd(75);let side=Math.random()<sideProb?"A":"B",sc=actor(side,m,plans,"goal"),nm=side==="A"?TA.name:TB.name;if(sc)ev.push({m,msg:"🚫 ABSEITS-TOR! "+sc+" trifft für "+nm+", doch die Fahne geht hoch – der Treffer zählt nicht.",type:"offsideGoal"})}
  ev.push({m:45,msg:"⏱ Halbzeit."},{m:90,msg:"⏱ Abpfiff."});ev.sort((x,y)=>x.m-y.m||((x.type||"").startsWith("sub")?-2:((x.type||"").startsWith("goal")?1:-1)));
  ga=ev.filter(e=>e.type==="goalA").length;gb=ev.filter(e=>e.type==="goalB").length;
- if(ga===gb){let side=Math.random()<sideProb?"A":"B",m=84+rnd(5),sc=actor(side,m,plans,"goal"),nm=side==="A"?TA.name:TB.name;if(sc){ev.push({m,msg:"⚽ SPÄTES TOR "+nm.toUpperCase()+"! "+sc+" entscheidet die Partie.",type:side==="A"?"goalA":"goalB",scorer:sc});ev.sort((x,y)=>x.m-y.m);ga=ev.filter(e=>e.type==="goalA").length;gb=ev.filter(e=>e.type==="goalB").length}}
+ if(ga===gb){let side=Math.random()<sideProb?"A":"B",m=84+rnd(5),sc=actor(side,m,plans,"goal"),nm=side==="A"?TA.name:TB.name;if(sc){ev.push({m,msg:"⚽ SPÄTES TOR "+nm.toUpperCase()+"! "+sc+" entscheidet die Partie.",type:side==="A"?"goalA":"goalB",scorer:sc,sceneKind:"goal",scenePlayer:sc,sceneSide:side});ev.sort((x,y)=>x.m-y.m);ga=ev.filter(e=>e.type==="goalA").length;gb=ev.filter(e=>e.type==="goalB").length}}
  let posA=Math.max(35,Math.min(65,Math.round(50+(ma.midfield-mb.midfield)*1.5+(ratingA-ratingB)*.12+(Math.random()-.5)*6)));
  return{ga,gb,ev,venue:venues[idx%venues.length],weather:one(weatherList),posA,subs:plans}
 }
