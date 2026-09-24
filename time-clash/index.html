@@ -213,12 +213,12 @@ function weightedPick(list,weightFn){
 }
 function roleFactor(p,kind){
  let r=String(p.prole||"Feldspieler");
- if(kind==="goal")return r==="Sturm"?2:r==="Mittelfeld"?1.15:r==="Abwehr"?.45:r==="Torwart"?.02:.8;
- if(kind==="assist")return r==="Mittelfeld"?1.5:r==="Sturm"?1.15:r==="Abwehr"?.75:r==="Torwart"?.03:.8;
- if(kind==="corner"||kind==="shot"||kind==="chance")return r==="Sturm"?1.55:r==="Mittelfeld"?1.3:r==="Abwehr"?.45:r==="Torwart"?0:.8;
- if(kind==="card")return r==="Abwehr"?1.35:r==="Mittelfeld"?1.1:r==="Sturm"?.65:r==="Torwart"?.25:.9;
- if(kind==="ownGoal")return r==="Abwehr"?1.8:r==="Torwart"?1.1:r==="Mittelfeld"?.35:r==="Sturm"?.08:.6;
- return r==="Torwart"?.35:1
+ if(kind==="goal")return r==="Sturm"?2:r==="Mittelfeld"?1.15:r==="Abwehr" ? .45:r==="Torwart" ? .02:.8;
+ if(kind==="assist")return r==="Mittelfeld"?1.5:r==="Sturm"?1.15:r==="Abwehr" ? .75:r==="Torwart" ? .03:.8;
+ if(kind==="corner"||kind==="shot"||kind==="chance")return r==="Sturm"?1.55:r==="Mittelfeld"?1.3:r==="Abwehr" ? .45:r==="Torwart"?0:.8;
+ if(kind==="card")return r==="Abwehr"?1.35:r==="Mittelfeld"?1.1:r==="Sturm" ? .65:r==="Torwart" ? .25:.9;
+ if(kind==="ownGoal")return r==="Abwehr"?1.8:r==="Torwart"?1.1:r==="Mittelfeld" ? .35:r==="Sturm" ? .08:.6;
+ return r==="Torwart" ? .35:1
 }
 function playerWeight(p,kind="generic"){return Math.pow(Math.max(1,Number(p.strength||1)),1.25)*roleFactor(p,kind)}
 function buildSubPlan(side){
