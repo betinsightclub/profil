@@ -200,8 +200,9 @@ function chooseNewsScene(e,gameIndex,row){
 }
 function saveSceneChoice(){
  if(!selectedNewsScene)return;let avatar=getSceneForm(),key="biTcAvatar:"+selectedNewsScene.team+":"+selectedNewsScene.player;localStorage.setItem(key,JSON.stringify(avatar));selectedNewsScene.avatar=avatar;
- if(selectedNewsScene.event)selectedNewsScene.event.news_scene={selected:true,scene:avatar.scene,player:selectedNewsScene.player,side:selectedNewsScene.side,avatar};
- $("#sceneStatus").textContent="✓ Szene und Spieler-Look für den Zeitungsbericht vorgemerkt."
+ games.forEach(gm=>(gm.ev||[]).forEach(ev=>{if(ev!==selectedNewsScene.event&&ev.news_scene)delete ev.news_scene}));
+ if(selectedNewsScene.event)selectedNewsScene.event.news_scene={selected:true,scene:avatar.scene,player:selectedNewsScene.player,side:selectedNewsScene.side,team:selectedNewsScene.team,minute:selectedNewsScene.minute,avatar};
+ $("#sceneStatus").textContent="✓ Diese Szene ist jetzt die ausgewählte Bildszene für den Zeitungsbericht."
 }
 
 const clubColors={
