@@ -842,7 +842,8 @@
           '<div class="post-actions">' +
             '<button class="post-action react-toggle" ' + (isMember ? "" : "disabled") + '>🙂 Reagieren</button>' +
             '<button class="post-action comment-focus" ' + (isMember ? "" : "disabled") + '>💬 Kommentieren</button>' +
-            '<button class="post-action share-post" data-post="' + esc(post.id) + '">↗ Teilen</button>' +\n            '<button class="post-action report-post" data-post="' + esc(post.id) + '" ' + (isMember ? "" : "disabled") + '>⚑ Melden</button>' +
+            '<button class="post-action share-post" data-post="' + esc(post.id) + '">↗ Teilen</button>' +
+            '<button class="post-action report-post" data-post="' + esc(post.id) + '" ' + (isMember ? "" : "disabled") + '>⚑ Melden</button>' +
           '</div>' +
           '<div class="reaction-menu">' +
             emotionCatalog.map(function(r){return '<button class="reaction-pick" data-name="' + esc(r.name) + '" data-icon="' + esc(r.icon) + '"><span>' + esc(r.icon) + '</span>' + esc(r.name) + '</button>';}).join("") +
