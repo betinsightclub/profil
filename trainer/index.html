@@ -586,21 +586,31 @@
       "use strict";
 
       var params = new URLSearchParams(location.search);
-      var coachSlug = clean(params.get("coach")) || "julian-varo";
-      var trainerName = clean(params.get("name")) || "Julian Varo";
-      var teamName = clean(params.get("team")) || "Atlas United";
-      var country = clean(params.get("country")) || "🇩🇪 Deutschland";
-      var refCode = cleanRef(params.get("ref") || params.get("ref_code")) || "DEMOREF";
-      var isOwner = params.get("owner") === "1";
-      var memberCredential = clean(params.get("id") || params.get("token") || params.get("credential") || "");
-      var clubId = clean(params.get("club_id") || params.get("club") || "");
-      var isMember = isOwner || params.get("member") === "1" || Boolean(memberCredential);
-      var serverMode = Boolean(memberCredential && clubId);
+      var publicSlug = clean(params.get("p") || params.get("slug") || "");
+      var requestedClubId = clean(params.get("club_id") || "");
+      var coachSlug = publicSlug;
+      var trainerName = "";
+      var teamName = "";
+      var country = "";
+      var refCode = cleanRef(params.get("ref") || params.get("ref_code") || "");
+      var sessionApi = window.BetInsightSession || null;
+      var memberCredential = "";
+      try{
+        memberCredential = sessionApi ? (sessionApi.getDashboardUuid() || sessionApi.getProfileToken() || "") :
+          (localStorage.getItem("betinsight_dashboard_token") || localStorage.getItem("betinsight_profile_token") || "");
+      }catch(_e){}
+      var clubId = requestedClubId;
+      var isOwner = false;
+      var isMember = Boolean(memberCredential);
+      var serverMode = false;
+      var currentProfile = null;
       var COMMUNITY_API = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/community-api";
+      var DEFAULT_COVER = "../betinsightcommunity/assets/hero-fussball-dunkel.png";
       var activeReportTarget = null;
       var selectedEmotion = null;
       var selectedImageData = "";
-      var storageKey = "betinsight_trainer_demo_posts_" + coachSlug;
+      var storageKey = "betinsight_trainer_posts";
+      var safeReturnUrl = memberCredential ? "/time-clash/" : "https://betinsight.club/de/time-clash/community/";
 
       function clean(value){
         if(!value) return "";
@@ -675,10 +685,7 @@
 
       function publicTrainerUrl(postId){
         var url = new URL(location.origin + location.pathname);
-        url.searchParams.set("coach",coachSlug);
-        url.searchParams.set("name",trainerName);
-        url.searchParams.set("team",teamName);
-        url.searchParams.set("country",country);
+        if(publicSlug) url.searchParams.set("p",publicSlug);
         if(postId) url.searchParams.set("post",postId);
         if(refCode) url.searchParams.set("ref",refCode);
         return url.toString();
@@ -689,19 +696,244 @@
       }
 
       function setIdentity(){
-        document.getElementById("trainerName").textContent = trainerName;
-        document.getElementById("teamName").textContent = teamName;
-        document.getElementById("countryName").textContent = country;
-        document.getElementById("aboutTeam").textContent = teamName;
-        document.getElementById("aboutCountry").textContent = country.replace(/^[^\wÀ-ÿ]+/,"");
-        document.getElementById("avatarFallback").textContent = initials(trainerName);
-        document.getElementById("composerInitials").textContent = initials(trainerName);
-        document.title = trainerName + " · " + teamName + " · BetInsight";
+        var shownName = trainerName || "Trainerprofil";
+        document.getElementById("trainerName").textContent = shownName;
+        document.getElementById("teamName").textContent = teamName || "Mannschaft";
+        document.getElementById("aboutTeam").textContent = teamName || "Mannschaft";
+        document.getElementById("composerInitials").textContent = initials(trainerName || teamName || "BI");
+        var badge=document.getElementById("avatarTeamInitials");
+        if(badge) badge.textContent=initials(teamName || "BI");
+
+        var countryName=document.getElementById("countryName");
+        var countrySeparator=document.getElementById("countrySeparator");
+        if(country){
+          countryName.textContent=country;
+          countryName.classList.remove("hidden");
+          countrySeparator.classList.remove("hidden");
+        }else{
+          countryName.textContent="";
+          countryName.classList.add("hidden");
+          countrySeparator.classList.add("hidden");
+        }
+
+        document.title = shownName + (teamName ? " · " + teamName : "") + " · BetInsight";
       }
 
       function setMode(){
         document.querySelectorAll(".owner-only").forEach(function(el){el.classList.toggle("hidden",!isOwner);});
         document.querySelectorAll(".viewer-only").forEach(function(el){el.classList.toggle("hidden",isOwner);});
+      }
+
+      function sameAppReturn(){
+        try{
+          if(!document.referrer) return "";
+          var ref=new URL(document.referrer);
+          if(ref.origin!==location.origin) return "";
+          if(!/^\/(?:profil\/)?time-clash(?:\/|$)/.test(ref.pathname)) return "";
+          var q=new URLSearchParams(ref.search);
+          ["token","id","dashboard_token","credential"].forEach(function(k){q.delete(k);});
+          return ref.pathname+(q.toString()?"?"+q.toString():"")+ref.hash;
+        }catch(_e){return ""}
+      }
+
+      function setupBackNavigation(){
+        var from=sameAppReturn();
+        safeReturnUrl=from || (memberCredential ? "/time-clash/" : "https://betinsight.club/de/time-clash/community/");
+        var back=document.getElementById("profileBackBtn");
+        if(back) back.onclick=function(){location.assign(safeReturnUrl);};
+      }
+
+      function renderRecentMatches(matches){
+        var list=document.getElementById("resultList");
+        if(!list) return;
+        var rows=Array.isArray(matches)?matches:[];
+        if(!rows.length){
+          list.innerHTML='<div class="empty-state">Noch keine Spiele gespeichert.</div>';
+          return;
+        }
+        list.innerHTML=rows.map(function(m){
+          var won=Boolean(m.won);
+          var badgeClass=won?"win":"loss";
+          var badge=won?"S":"N";
+          var opponent=esc(m.opponent_name||"Gegner");
+          var score=Number(m.own_goals||0)+":"+Number(m.opponent_goals||0);
+          var date="";
+          try{date=new Intl.DateTimeFormat("de-DE",{dateStyle:"medium"}).format(new Date(m.created_at));}catch(_e){}
+          return '<div class="result"><span class="result-badge '+badgeClass+'">'+badge+'</span><div><strong>'+esc(teamName||"Mannschaft")+' · '+opponent+'</strong><small>'+esc(date)+'</small></div><span class="score">'+score+'</span></div>';
+        }).join("");
+      }
+
+      function applyProfile(profile,ownerView){
+        if(!profile) return;
+        currentProfile=profile;
+        isOwner=Boolean(ownerView);
+        isMember=Boolean(memberCredential);
+        clubId=clean(profile.club_id||clubId);
+        publicSlug=clean(profile.public_slug||publicSlug);
+        coachSlug=publicSlug;
+        trainerName=clean(profile.display_name||"");
+        teamName=clean(profile.team_name||"");
+        country=clean(profile.country||"");
+        refCode=cleanRef(profile.public_ref_code||refCode);
+        serverMode=Boolean(memberCredential&&clubId);
+        storageKey="betinsight_trainer_posts_"+(clubId||publicSlug||"public");
+
+        setIdentity();
+        setMode();
+
+        var bio=document.getElementById("trainerBio");
+        if(bio) bio.textContent=profile.bio || (isOwner ? "Noch keine Beschreibung angelegt. Über „Bearbeiten“ kannst du dein Profil nach und nach ergänzen." : "");
+
+        var locationParts=[profile.city,profile.country].filter(Boolean);
+        var locationRow=document.getElementById("locationRow");
+        var aboutCountry=document.getElementById("aboutCountry");
+        if(locationRow&&aboutCountry){
+          locationRow.classList.toggle("hidden",!locationParts.length);
+          aboutCountry.textContent=locationParts.join(" · ");
+        }
+
+        var stats=profile.stats||{};
+        document.getElementById("statMatches").textContent=Number(stats.matches||0);
+        document.getElementById("statWins").textContent=Number(stats.wins||0);
+        document.getElementById("statRate").textContent=Number(stats.win_rate||0)+"%";
+
+        var since=document.getElementById("memberSinceChip");
+        if(since){
+          try{
+            since.textContent="Profil seit "+new Intl.DateTimeFormat("de-DE",{month:"short",year:"numeric"}).format(new Date(profile.created_at));
+          }catch(_e){since.textContent="BetInsight Trainerprofil"}
+        }
+
+        var cover=document.getElementById("coverImage");
+        cover.src=profile.media&&profile.media.cover&&profile.media.cover.public_url?profile.media.cover.public_url:DEFAULT_COVER;
+
+        var avatar=document.getElementById("avatarImage");
+        var fallback=document.getElementById("avatarFallback");
+        if(profile.media&&profile.media.avatar&&profile.media.avatar.public_url){
+          avatar.src=profile.media.avatar.public_url;
+          avatar.classList.remove("hidden");
+          fallback.classList.add("hidden");
+        }else{
+          avatar.removeAttribute("src");
+          avatar.classList.add("hidden");
+          fallback.classList.remove("hidden");
+        }
+
+        renderRecentMatches(profile.recent_matches||[]);
+        loadServerFeed();
+      }
+
+      async function fetchPublicProfile(){
+        var url=COMMUNITY_API+"?action=profile";
+        if(publicSlug) url+="&p="+encodeURIComponent(publicSlug);
+        else if(requestedClubId) url+="&club_id="+encodeURIComponent(requestedClubId);
+        else return null;
+        var response=await fetch(url,{method:"GET",cache:"no-store",credentials:"omit"});
+        var data=await response.json().catch(function(){return {};});
+        if(!response.ok||data.ok!==true) return null;
+        return data.profile||null;
+      }
+
+      async function loadProfileContext(){
+        setupBackNavigation();
+        var target=null,ownerView=false;
+
+        if(memberCredential && !publicSlug && !requestedClubId){
+          try{
+            var mine=await communityCall("my_profile",{credential:memberCredential});
+            target=mine.profile||null;
+            ownerView=Boolean(target);
+          }catch(error){
+            if(error.status===404){
+              document.getElementById("trainerName").textContent="Noch kein Team erstellt";
+              document.getElementById("teamName").textContent="Erstelle zuerst deine Mannschaft in TIME CLASH.";
+              document.getElementById("trainerBio").textContent="Sobald dein Team gespeichert ist, wird dieses Trainerprofil automatisch angelegt.";
+              setMode();
+              return;
+            }
+          }
+        }else{
+          target=await fetchPublicProfile();
+          if(target&&memberCredential){
+            try{
+              var own=await communityCall("my_profile",{credential:memberCredential});
+              if(own.profile&&own.profile.club_id===target.club_id){
+                target=own.profile;
+                ownerView=true;
+              }
+            }catch(_e){}
+          }
+        }
+
+        if(!target){
+          document.getElementById("trainerName").textContent="Profil nicht gefunden";
+          document.getElementById("teamName").textContent="Dieses Trainerprofil ist nicht öffentlich verfügbar.";
+          document.getElementById("trainerBio").textContent="";
+          document.getElementById("shareProfileBtn").disabled=true;
+          document.getElementById("copyInviteBtn").disabled=true;
+          setMode();
+          return;
+        }
+
+        applyProfile(target,ownerView);
+        if(requestedClubId&&!params.get("p")&&target.public_slug){
+          var canonical=new URL(location.href);
+          canonical.searchParams.delete("club_id");
+          canonical.searchParams.set("p",target.public_slug);
+          history.replaceState(null,"",canonical.pathname+"?"+canonical.searchParams.toString()+canonical.hash);
+        }
+        loadTrainerSuggestions();
+      }
+
+      async function loadTrainerSuggestions(){
+        var box=document.getElementById("trainerList");
+        if(!box) return;
+        try{
+          var response=await fetch(COMMUNITY_API+"?action=profiles",{cache:"no-store",credentials:"omit"});
+          var data=await response.json();
+          var profiles=(data.profiles||[]).filter(function(p){return p.club_id!==clubId;}).slice(0,4);
+          if(!profiles.length){
+            box.innerHTML='<div class="empty-state">Noch keine weiteren öffentlichen Trainerprofile.</div>';
+            return;
+          }
+          box.innerHTML=profiles.map(function(p){
+            var name=p.display_name||"Trainerprofil";
+            var line=(p.team_name||"Mannschaft")+(p.country?" · "+p.country:"");
+            return '<a class="trainer-card" href="?p='+encodeURIComponent(p.public_slug)+'"><div class="mini-avatar">'+esc(p.team_initials||initials(p.team_name||"BI"))+'</div><div><strong>'+esc(name)+'</strong><small>'+esc(line)+'</small></div><span class="go-arrow">›</span></a>';
+          }).join("");
+        }catch(_e){
+          box.innerHTML='<div class="empty-state">Weitere Trainerprofile sind momentan nicht verfügbar.</div>';
+        }
+      }
+
+      function openProfileEditor(){
+        if(!isOwner||!currentProfile) return;
+        document.getElementById("editDisplayName").value=currentProfile.custom_display_name||currentProfile.configured_coach_name||"";
+        document.getElementById("editCountry").value=currentProfile.country||"";
+        document.getElementById("editCity").value=currentProfile.city||"";
+        document.getElementById("editBio").value=currentProfile.bio||"";
+        document.getElementById("editVisibility").value=currentProfile.visibility||"public";
+        document.getElementById("profileEditModal").classList.add("show");
+      }
+
+      async function saveProfileEditor(){
+        if(!isOwner||!serverMode) return;
+        try{
+          var saved=await communityCall("update_profile",{
+            credential:memberCredential,
+            club_id:clubId,
+            display_name:document.getElementById("editDisplayName").value.trim(),
+            country:document.getElementById("editCountry").value.trim(),
+            city:document.getElementById("editCity").value.trim(),
+            bio:document.getElementById("editBio").value.trim(),
+            visibility:document.getElementById("editVisibility").value
+          });
+          document.getElementById("profileEditModal").classList.remove("show");
+          applyProfile(saved.profile,true);
+          showToast("Trainerprofil gespeichert.");
+        }catch(error){
+          showToast(error.data&&error.data.flags?moderationMessage(error.data.flags):"Profil konnte nicht gespeichert werden.");
+        }
       }
 
       var emotionCatalog = [
@@ -715,48 +947,7 @@
         {name:"Danke",icon:"🙏"}
       ];
 
-      var basePosts = [
-        {
-          id:"post-match-031",
-          author:trainerName,
-          team:teamName,
-          time:"vor 2 Std.",
-          text:"Starker Auftritt heute. Nach der Pause haben wir höher gepresst und das Zentrum enger gemacht. Das 3:1 war am Ende verdient. Den vollständigen Spielbericht habe ich in die Galerie gelegt.",
-          emotion:{name:"Gewonnen",icon:"🏆"},
-          image:"",
-          reactions:18,
-          comments:[
-            {name:"Leo Marini",text:"Die Umstellung zur Pause war genau richtig."},
-            {name:"Mara Voss",text:"Glückwunsch! Der Matchbericht liest sich stark."}
-          ]
-        },
-        {
-          id:"post-tactics-030",
-          author:trainerName,
-          team:teamName,
-          time:"gestern",
-          text:"Für das nächste Spiel teste ich zwei Varianten im Mittelfeld. Welche Aufstellung wirkt für euch stabiler: 4-2-3-1 oder 4-3-3?",
-          emotion:{name:"Heißer Tipp",icon:"🔥"},
-          image:"",
-          reactions:11,
-          comments:[
-            {name:"Owen Cross",text:"Gegen einen tiefen Gegner würde ich das 4-3-3 probieren."}
-          ]
-        },
-        {
-          id:"post-report-029",
-          author:trainerName,
-          team:teamName,
-          time:"vor 3 Tagen",
-          text:"Neuer interner Zeitungsbericht ist fertig: „Atlas dreht das Spiel“. Genau solche Berichte möchte ich nach wichtigen Partien sammeln.",
-          emotion:{name:"Jubel",icon:"🙌"},
-          image:"",
-          reactions:25,
-          comments:[]
-        }
-      ];
-
-      function readPosts(){
+      var basePosts = [];\n\n      function readPosts(){
         var custom = [];
         try{ custom = JSON.parse(localStorage.getItem(storageKey) || "[]"); }catch(e){}
         return custom.concat(basePosts);
@@ -771,8 +962,10 @@
 
       function renderPosts(){
         var feed = document.getElementById("postFeed");
+        var posts=readPosts();
         feed.innerHTML = "";
-        readPosts().forEach(function(post){
+        if(!posts.length) feed.innerHTML='<div class="card empty-state">Noch keine Beiträge veröffentlicht.</div>';
+        posts.forEach(function(post){
           feed.appendChild(renderPost(post));
         });
         var focusId = params.get("post");
@@ -798,7 +991,7 @@
           var posts=data.posts.map(function(p){
             var comments=(p.comments||[]).map(function(x){return {id:x.id,owner_ref:x.owner_ref,name:x.owner_ref,text:x.body};});
             return {
-              id:p.id,server:true,author:trainerName,team:teamName,
+              id:p.id,server:true,author:(trainerName||teamName||"Trainerprofil"),team:teamName,
               time:new Intl.DateTimeFormat("de-DE",{dateStyle:"short",timeStyle:"short"}).format(new Date(p.created_at)),
               text:p.body||"",
               emotion:codeToEmotion[p.emotion] || (p.emotion ? {name:p.emotion,icon:"🙂"} : null),
@@ -807,11 +1000,10 @@
               comments:comments
             };
           });
-          if(posts.length){
-            var feed=document.getElementById("postFeed");
-            feed.innerHTML="";
-            posts.forEach(function(post){feed.appendChild(renderPost(post));});
-          }
+          var feed=document.getElementById("postFeed");
+          feed.innerHTML="";
+          if(posts.length) posts.forEach(function(post){feed.appendChild(renderPost(post));});
+          else feed.innerHTML='<div class="card empty-state">Noch keine Beiträge veröffentlicht.</div>';
         }catch(_){}
       }
 
@@ -1105,7 +1297,7 @@
         };
       }
 
-      function bindFilePreview(inputId,imgId,fallbackId,options){
+      function bindFilePreview(inputId,imgId,fallbackId,options,purpose){
         var input = document.getElementById(inputId);
         input.addEventListener("change",async function(){
           var file = input.files && input.files[0];
@@ -1120,12 +1312,24 @@
             img.classList.remove("hidden");
             if(fallbackId) document.getElementById(fallbackId).classList.add("hidden");
 
-            showToast(
-              "Bild optimiert: " +
-              formatFileSize(result.originalBytes) +
-              " → " +
-              formatFileSize(result.blob.size)
-            );
+            if(isOwner&&serverMode&&purpose){
+              var uploaded=await communityCall("upload_media",{
+                credential:memberCredential,
+                club_id:clubId,
+                purpose:purpose,
+                data_url:result.dataUrl,
+                width:result.width,
+                height:result.height
+              });
+              var field=purpose==="avatar"?"avatar_media_id":"cover_media_id";
+              var payload={credential:memberCredential,club_id:clubId};
+              payload[field]=uploaded.media.id;
+              var saved=await communityCall("update_profile",payload);
+              currentProfile=saved.profile;
+              showToast("Bild optimiert und gespeichert. Es wird vor der öffentlichen Anzeige geprüft.");
+            }else{
+              showToast("Bild optimiert: "+formatFileSize(result.originalBytes)+" → "+formatFileSize(result.blob.size));
+            }
           }catch(error){
             input.value = "";
             showToast(error && error.message ? error.message : "Bild konnte nicht verarbeitet werden.");
@@ -1133,11 +1337,11 @@
         });
       }
 
-      setIdentity();
       setMode();
       renderPosts();
+      loadProfileContext();
 
-      document.getElementById("shareProfileBtn").addEventListener("click",function(){openShare("");});
+    document.getElementById("shareProfileBtn").addEventListener("click",function(){openShare("");});
       document.getElementById("copyInviteBtn").addEventListener("click",function(){copyText(publicTrainerUrl(""),"Einladungslink mit Referral-Code kopiert");});
       document.getElementById("closeShareModal").addEventListener("click",function(){document.getElementById("shareModal").classList.remove("show");});
       document.getElementById("copyShareModal").addEventListener("click",function(){copyText(document.getElementById("shareUrlField").value);document.getElementById("shareModal").classList.remove("show");});
@@ -1145,11 +1349,15 @@
       document.getElementById("closeReportModal").addEventListener("click",function(){document.getElementById("reportModal").classList.remove("show");activeReportTarget=null;});
       document.getElementById("sendReportBtn").addEventListener("click",sendActiveReport);
       document.getElementById("reportModal").addEventListener("click",function(e){if(e.target===e.currentTarget){e.currentTarget.classList.remove("show");activeReportTarget=null;}});
+      document.getElementById("editProfileBtn").addEventListener("click",openProfileEditor);
+      document.getElementById("closeProfileEdit").addEventListener("click",function(){document.getElementById("profileEditModal").classList.remove("show");});
+      document.getElementById("saveProfileEdit").addEventListener("click",saveProfileEditor);
+      document.getElementById("profileEditModal").addEventListener("click",function(e){if(e.target===e.currentTarget)e.currentTarget.classList.remove("show");});
 
       document.getElementById("coverEditBtn").addEventListener("click",function(){document.getElementById("coverInput").click();});
       document.getElementById("avatarEditBtn").addEventListener("click",function(){document.getElementById("avatarInput").click();});
-      bindFilePreview("coverInput","coverImage",null,{maxWidth:1600,maxHeight:900,targetBytes:520*1024,maxInputBytes:25*1024*1024});
-      bindFilePreview("avatarInput","avatarImage","avatarFallback",{maxWidth:512,maxHeight:512,targetBytes:180*1024,maxInputBytes:25*1024*1024});
+      bindFilePreview("coverInput","coverImage",null,{maxWidth:1600,maxHeight:900,targetBytes:520*1024,maxInputBytes:25*1024*1024},"cover");
+      bindFilePreview("avatarInput","avatarImage","avatarFallback",{maxWidth:512,maxHeight:512,targetBytes:180*1024,maxInputBytes:25*1024*1024},"avatar");
 
       document.getElementById("photoBtn").addEventListener("click",function(){document.getElementById("postImageInput").click();});
       document.getElementById("postImageInput").addEventListener("change",async function(){
@@ -1314,12 +1522,17 @@
         setTimeout(function(){document.getElementById("postText").focus();},350);
       });
 
-      document.getElementById("followBtn").addEventListener("click",function(){
+      document.getElementById("followBtn").addEventListener("click",async function(){
         if(!isMember){
           location.href = registrationUrl();
           return;
         }
-        this.textContent = this.textContent.indexOf("Folge") >= 0 ? "✓ Gefolgt" : "＋ Folgen";
+        if(!clubId) return;
+        var wantFollow=this.textContent.indexOf("Gefolgt")<0;
+        try{
+          await communityCall("follow",{credential:memberCredential,club_id:clubId,follow:wantFollow});
+          this.textContent=wantFollow?"✓ Gefolgt":"＋ Folgen";
+        }catch(_e){showToast("Folgen konnte nicht gespeichert werden.");}
       });
 
       document.getElementById("openGalleryBtn").addEventListener("click",function(){
@@ -1329,8 +1542,8 @@
         showToast("Der zentrale Trainer Feed wird als eigener Bereich angebunden.");
       });
       document.getElementById("accountBtn").addEventListener("click",function(){
-        if(isMember) showToast("Konto-Navigation wird mit dem BetInsight-Login verbunden.");
-        else location.href = registrationUrl();
+        if(isMember) location.href="/";
+        else location.href=registrationUrl();
       });
 
       var search = document.getElementById("profileSearch");
