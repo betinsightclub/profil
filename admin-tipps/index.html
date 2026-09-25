@@ -27,15 +27,15 @@
     // League bridge: Spanish second division (LaLiga 2 / Segunda División).
     // The Odds API sport key is soccer_spain_segunda_division.
     if(!html.includes('soccer_spain_segunda_division')){
-      const singleAlias="'la liga 2':'soccer_spain_segunda_division','laliga 2':'soccer_spain_segunda_division','segunda division':'soccer_spain_segunda_division','segunda division spanien':'soccer_spain_segunda_division','spanien la liga 2':'soccer_spain_segunda_division','spanien liga 2':'soccer_spain_segunda_division'";
+      const singleAlias="'la liga 2':'soccer_spain_segunda_division','laliga 2':'soccer_spain_segunda_division','laliga hypermotion':'soccer_spain_segunda_division','segunda division':'soccer_spain_segunda_division','segunda division spanien':'soccer_spain_segunda_division','spanien la liga 2':'soccer_spain_segunda_division','spanien liga 2':'soccer_spain_segunda_division'";
       html=html.replace(/('spanien la liga'\s*:\s*'soccer_spain_la_liga')/, '$1,'+singleAlias);
       if(!html.includes('soccer_spain_segunda_division')){
-        const doubleAlias='"la liga 2":"soccer_spain_segunda_division","laliga 2":"soccer_spain_segunda_division","segunda division":"soccer_spain_segunda_division","segunda division spanien":"soccer_spain_segunda_division","spanien la liga 2":"soccer_spain_segunda_division","spanien liga 2":"soccer_spain_segunda_division"';
+        const doubleAlias='"la liga 2":"soccer_spain_segunda_division","laliga 2":"soccer_spain_segunda_division","laliga hypermotion":"soccer_spain_segunda_division","segunda division":"soccer_spain_segunda_division","segunda division spanien":"soccer_spain_segunda_division","spanien la liga 2":"soccer_spain_segunda_division","spanien liga 2":"soccer_spain_segunda_division"';
         html=html.replace(/("spanien la liga"\s*:\s*"soccer_spain_la_liga")/, '$1,'+doubleAlias);
       }
     }
     if(!html.includes('value="LaLiga 2"')){
-      html=html.split('<option value="La Liga">').join('<option value="La Liga"><option value="LaLiga 2"><option value="Segunda División">');
+      html=html.split('<option value="La Liga">').join('<option value="La Liga"><option value="LaLiga 2"><option value="LALIGA HYPERMOTION"><option value="Segunda División">');
     }
 
     // Security bridge: the compressed Tipp-Terminal still contains legacy direct Make webhook URLs.
