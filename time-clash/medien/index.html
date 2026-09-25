@@ -62,7 +62,7 @@
 
 
 
-<script src="/time-clash/avatar-facepack-v5.js?v=20260925a"></script>
+<script src="/time-clash/avatar-facepack-v5.js?v=20260926a"></script>
 <script src="/time-clash/avatar-engine.js?v=20260925h"></script>
 <script>
 const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash-media";
@@ -224,6 +224,6 @@ async function init(){
   $("#lead").textContent=e.status===403?pre.notOwner:pre.loadFail;
  }
 }
-$("#configBtn").onclick=()=>selected&&openTeamConfigurator(selected.player);$("#makeBtn").onclick=saveCurrent;$("#publishBtn").onclick=publish;$("#pngBtn").onclick=exportPng;["variant","focus","intensity"].forEach(id=>$("#"+id).onchange=renderPreview);init();
+$("#configBtn").onclick=()=>selected&&openTeamConfigurator(selected.player);$("#makeBtn").onclick=saveCurrent;$("#publishBtn").onclick=publish;$("#pngBtn").onclick=exportPng;["variant","focus","intensity"].forEach(id=>$("#"+id).onchange=renderPreview);init();if(window.TimeClashFacepackReady?.then){window.TimeClashFacepackReady.then(()=>{if(data){safeUi("players",renderPlayers);if(selected)safeUi("preview",renderPreview)}})}
 </script>
 </body></html>
