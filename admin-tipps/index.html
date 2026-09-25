@@ -14,7 +14,7 @@
   }
   try{
     const files=['livev11.part0','livev11.part1','livev11.part2','livev11.part3'];
-    const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260915-stability-timeout3',{cache:'no-store'}).then(r=>{
+    const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260925-livealarm1-v2',{cache:'no-store'}).then(r=>{
       if(!r.ok)throw new Error('Terminal-Datei '+x+' konnte nicht geladen werden');
       return r.text();
     })));
@@ -183,27 +183,54 @@
   function mountLiveAlarmOne(){
     if(document.getElementById('biLiveAlarmOneWrap')) return;
 
-    const candidates=[...document.querySelectorAll('div,section,label')].filter(el=>{
-      const t=String(el.textContent||'').replace(/\\s+/g,' ').trim();
-      return t.includes('Live-Alarm für Premium-Mitglieder') &&
-        t.length<700 &&
-        !!el.querySelector('button,input[type="checkbox"],input[type="radio"]');
-    }).sort((a,b)=>String(a.textContent||'').length-String(b.textContent||'').length);
-
-    const premiumBox=candidates[0]||null;
-    if(!premiumBox) return;
-
     const wrap=document.createElement('div');
     wrap.id='biLiveAlarmOneWrap';
-    wrap.style.cssText='margin:0 0 10px;padding:10px 14px;border:1px solid rgba(0,218,255,.34);border-radius:12px;background:rgba(3,25,36,.78);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;';
+    wrap.style.cssText='margin:12px 0;padding:12px 14px;border:1px solid rgba(0,218,255,.55);border-radius:12px;background:#062a3b;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;box-shadow:0 0 0 1px rgba(0,218,255,.08) inset;';
     wrap.innerHTML=
-      '<label for="biLiveAlarmOne" style="display:flex;align-items:center;gap:10px;cursor:pointer;margin:0;color:#fff;font-weight:700">'+
-        '<input id="biLiveAlarmOne" name="live_alarm_1" type="checkbox" checked value="JA" style="width:18px;height:18px;accent-color:#00d48a;cursor:pointer">'+
-        '<span>'+LABEL+'</span>'+
+      '<label for="biLiveAlarmOne" style="display:flex;align-items:center;gap:10px;cursor:pointer;margin:0;color:#fff;font-weight:800;font-size:15px">'+
+        '<input id="biLiveAlarmOne" name="live_alarm_1" type="checkbox" checked value="JA" style="width:20px;height:20px;accent-color:#00d48a;cursor:pointer">'+
+        '<span>Live-Alarm 1</span>'+
       '</label>'+
-      '<small style="color:#b9d8e8;font-size:12px">Gründer-/Premium-Freigabe · standardmäßig aktiv</small>';
+      '<small style="color:#c7e9f7;font-size:12px">Gründer-/Premium-Freigabe · standardmäßig aktiviert</small>';
 
-    premiumBox.insertAdjacentElement('beforebegin',wrap);
+    // Bevorzugt direkt oberhalb des bestehenden Premium-Live-Alarms.
+    const premiumNodes=[...document.querySelectorAll('div,section,article,label')].filter(el=>{
+      const t=String(el.textContent||'').replace(/\\s+/g,' ').trim();
+      return t.includes('Live-Alarm für Premium-Mitglieder') && t.length<1200;
+    }).sort((a,b)=>String(a.textContent||'').length-String(b.textContent||'').length);
+    const premiumBox=premiumNodes[0]||null;
+    if(premiumBox && premiumBox.parentNode){
+      premiumBox.insertAdjacentElement('beforebegin',wrap);
+      return;
+    }
+
+    // Fallback in Abschnitt 3.
+    const heading=[...document.querySelectorAll('h1,h2,h3,h4')].find(el=>
+      /3\\.\\s*Original-Felder\\s*&\\s*Live-Alarm/i.test(String(el.textContent||''))
+    );
+    if(heading){
+      const section=heading.closest('section,article,.card,.panel,.box')||heading.parentElement;
+      if(section){
+        const intro=heading.nextElementSibling;
+        if(intro) intro.insertAdjacentElement('afterend',wrap);
+        else section.appendChild(wrap);
+        return;
+      }
+    }
+
+    // Letzter sichtbarer Fallback direkt vor Abschnitt 4.
+    const section4=[...document.querySelectorAll('h1,h2,h3,h4')].find(el=>
+      /4\\.\\s*Kundenvorschau/i.test(String(el.textContent||''))
+    );
+    if(section4){
+      const block=section4.closest('section,article,.card,.panel,.box')||section4.parentElement;
+      if(block && block.parentNode){
+        block.insertAdjacentElement('beforebegin',wrap);
+        return;
+      }
+    }
+
+    (document.querySelector('form')||document.body).appendChild(wrap);
   }
 
   const originalFetch=window.fetch.bind(window);
