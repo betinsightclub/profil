@@ -14,7 +14,7 @@
   }
   try{
     const files=['livev11.part0','livev11.part1','livev11.part2','livev11.part3'];
-    const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260925-laliga2-api-v9',{cache:'no-store'}).then(r=>{
+    const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260925-league-map-v11',{cache:'no-store'}).then(r=>{
       if(!r.ok)throw new Error('Terminal-Datei '+x+' konnte nicht geladen werden');
       return r.text();
     })));
@@ -50,7 +50,7 @@
     // League bridge: Spanish second division (LaLiga 2 / Segunda División).
     // Inject directly into leagueMap so the mapping works regardless of the surrounding formatting.
     if(!html.includes('soccer_spain_segunda_division')){
-      const aliases="'LaLiga 2':'soccer_spain_segunda_division','la liga 2':'soccer_spain_segunda_division','laliga 2':'soccer_spain_segunda_division','laliga hypermotion':'soccer_spain_segunda_division','segunda division':'soccer_spain_segunda_division','segunda division spanien':'soccer_spain_segunda_division','spanien la liga 2':'soccer_spain_segunda_division','spanien liga 2':'soccer_spain_segunda_division',";
+      const aliases="'LaLiga 2':'soccer_spain_segunda_division','Primera Liga':'soccer_portugal_primeira_liga','la liga 2':'soccer_spain_segunda_division','laliga 2':'soccer_spain_segunda_division','laliga hypermotion':'soccer_spain_segunda_division','segunda division':'soccer_spain_segunda_division','segunda division spanien':'soccer_spain_segunda_division','spanien la liga 2':'soccer_spain_segunda_division','spanien liga 2':'soccer_spain_segunda_division',";
       html=html.replace(/const\s+leagueMap\s*=\s*\{/, m=>m+aliases);
     }
 
