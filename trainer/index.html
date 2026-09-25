@@ -837,25 +837,130 @@
         t.remove();
       }
 
-      function bindFilePreview(inputId,imgId,fallbackId,maxMb){
+      function formatFileSize(bytes){
+        if(bytes >= 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+        return Math.max(1,Math.round(bytes / 1024)) + " KB";
+      }
+
+      function loadImageFile(file){
+        return new Promise(function(resolve,reject){
+          var objectUrl = URL.createObjectURL(file);
+          var image = new Image();
+          image.onload = function(){
+            URL.revokeObjectURL(objectUrl);
+            resolve(image);
+          };
+          image.onerror = function(){
+            URL.revokeObjectURL(objectUrl);
+            reject(new Error("Das Bild konnte nicht gelesen werden."));
+          };
+          image.src = objectUrl;
+        });
+      }
+
+      function canvasBlob(canvas,type,quality){
+        return new Promise(function(resolve){
+          canvas.toBlob(function(blob){ resolve(blob); },type,quality);
+        });
+      }
+
+      function blobDataUrl(blob){
+        return new Promise(function(resolve,reject){
+          var reader = new FileReader();
+          reader.onload = function(){ resolve(reader.result); };
+          reader.onerror = function(){ reject(new Error("Das verkleinerte Bild konnte nicht gelesen werden.")); };
+          reader.readAsDataURL(blob);
+        });
+      }
+
+      async function compressImageFile(file,options){
+        options = options || {};
+        var maxWidth = options.maxWidth || 1280;
+        var maxHeight = options.maxHeight || 1280;
+        var targetBytes = options.targetBytes || (320 * 1024);
+        var maxInputBytes = options.maxInputBytes || (25 * 1024 * 1024);
+
+        if(!file || !/^image\//i.test(file.type || "")){
+          throw new Error("Bitte eine gültige Bilddatei auswählen.");
+        }
+        if(file.size > maxInputBytes){
+          throw new Error("Das Ausgangsbild ist zu groß. Maximal " + formatFileSize(maxInputBytes) + " sind erlaubt.");
+        }
+
+        var image = await loadImageFile(file);
+        var sourceWidth = image.naturalWidth || image.width;
+        var sourceHeight = image.naturalHeight || image.height;
+        if(!sourceWidth || !sourceHeight) throw new Error("Ungültige Bildabmessungen.");
+
+        var scale = Math.min(1,maxWidth / sourceWidth,maxHeight / sourceHeight);
+        var width = Math.max(1,Math.round(sourceWidth * scale));
+        var height = Math.max(1,Math.round(sourceHeight * scale));
+        var bestBlob = null;
+
+        for(var resizeRound = 0; resizeRound < 6; resizeRound++){
+          var canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          var ctx = canvas.getContext("2d",{alpha:true});
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high";
+          ctx.drawImage(image,0,0,width,height);
+
+          for(var quality = 0.88; quality >= 0.44; quality -= 0.08){
+            var blob = await canvasBlob(canvas,"image/webp",quality);
+            if(!blob) blob = await canvasBlob(canvas,"image/jpeg",quality);
+            if(blob && (!bestBlob || blob.size < bestBlob.size)) bestBlob = blob;
+            if(blob && blob.size <= targetBytes){
+              return {
+                blob:blob,
+                dataUrl:await blobDataUrl(blob),
+                width:width,
+                height:height,
+                originalBytes:file.size
+              };
+            }
+          }
+
+          width = Math.max(320,Math.round(width * 0.84));
+          height = Math.max(180,Math.round(height * 0.84));
+        }
+
+        if(!bestBlob) throw new Error("Das Bild konnte nicht komprimiert werden.");
+
+        return {
+          blob:bestBlob,
+          dataUrl:await blobDataUrl(bestBlob),
+          width:width,
+          height:height,
+          originalBytes:file.size
+        };
+      }
+
+      function bindFilePreview(inputId,imgId,fallbackId,options){
         var input = document.getElementById(inputId);
-        input.addEventListener("change",function(){
+        input.addEventListener("change",async function(){
           var file = input.files && input.files[0];
           if(!file) return;
-          if(file.size > maxMb * 1024 * 1024){
-            showToast("Bitte ein Bild unter " + maxMb + " MB wählen.");
-            input.value = "";
-            return;
-          }
-          var reader = new FileReader();
-          reader.onload = function(){
+
+          showToast("Bild wird automatisch verkleinert …");
+
+          try{
+            var result = await compressImageFile(file,options);
             var img = document.getElementById(imgId);
-            img.src = reader.result;
+            img.src = result.dataUrl;
             img.classList.remove("hidden");
             if(fallbackId) document.getElementById(fallbackId).classList.add("hidden");
-            showToast("Bildvorschau angepasst. Zentrale Speicherung folgt mit dem Backend.");
-          };
-          reader.readAsDataURL(file);
+
+            showToast(
+              "Bild optimiert: " +
+              formatFileSize(result.originalBytes) +
+              " → " +
+              formatFileSize(result.blob.size)
+            );
+          }catch(error){
+            input.value = "";
+            showToast(error && error.message ? error.message : "Bild konnte nicht verarbeitet werden.");
+          }
         });
       }
 
@@ -875,22 +980,38 @@
       bindFilePreview("avatarInput","avatarImage","avatarFallback",2);
 
       document.getElementById("photoBtn").addEventListener("click",function(){document.getElementById("postImageInput").click();});
-      document.getElementById("postImageInput").addEventListener("change",function(){
+      document.getElementById("postImageInput").addEventListener("change",async function(){
         var file = this.files && this.files[0];
         if(!file) return;
-        if(file.size > 2 * 1024 * 1024){
-          showToast("Beitragsbilder bitte unter 2 MB.");
-          this.value = "";
-          return;
-        }
-        var reader = new FileReader();
-        reader.onload = function(){
-          selectedImageData = reader.result;
+
+        showToast("Beitragsbild wird automatisch verkleinert …");
+
+        try{
+          var result = await compressImageFile(file,{
+            maxWidth:1280,
+            maxHeight:1280,
+            targetBytes:320*1024,
+            maxInputBytes:25*1024*1024
+          });
+
+          selectedImageData = result.dataUrl;
           document.getElementById("postImagePreview").src = selectedImageData;
           document.getElementById("composerPreview").classList.add("show");
           updatePublishState();
-        };
-        reader.readAsDataURL(file);
+
+          showToast(
+            "Beitragsbild optimiert: " +
+            formatFileSize(result.originalBytes) +
+            " → " +
+            formatFileSize(result.blob.size)
+          );
+        }catch(error){
+          this.value = "";
+          selectedImageData = "";
+          document.getElementById("composerPreview").classList.remove("show");
+          updatePublishState();
+          showToast(error && error.message ? error.message : "Beitragsbild konnte nicht verarbeitet werden.");
+        }
       });
       document.getElementById("removePostImage").addEventListener("click",function(){
         selectedImageData = "";
