@@ -1,0 +1,63 @@
+name: Diagnose TIME CLASH face pack
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/diagnose-time-clash-facepack.yml'
+  workflow_dispatch:
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Find extra base64 character
+        run: |
+          python -m pip install --quiet pillow
+          python - <<'PY'
+          import base64, io, re
+          from pathlib import Path
+          from PIL import Image
+          chunks=[]
+          pat=re.compile(r'\+"([A-Za-z0-9+/=]+)";\s*$')
+          for i in range(1,7):
+              txt=Path(f"time-clash/avatar-facepack-v4-{i}.js").read_text()
+              m=pat.search(txt)
+              if not m:
+                  raise SystemExit(f"cannot parse chunk {i}")
+              chunks.append(m.group(1))
+          total=''.join(chunks)
+          print("chunk lengths:", [len(x) for x in chunks], "total:", len(total), "mod4:", len(total)%4)
+          starts=[]; a=0
+          for x in chunks:
+              starts.append(a); a+=len(x)
+          lo,hi=starts[3],starts[3]+len(chunks[3])
+          def works(pos):
+              s=total[:pos]+total[pos+1:]
+              try:
+                  raw=base64.b64decode(s, validate=True)
+                  im=Image.open(io.BytesIO(raw))
+                  im.load()
+                  return im.size==(576,576) and im.format=="WEBP"
+              except Exception:
+                  return False
+          priority=[lo,lo+1,hi-2,hi-1]
+          priority += [i for i in range(lo+2,hi-2) if total[i]==total[i-1] or total[i]==total[i+1]]
+          seen=set()
+          for pos in priority:
+              if pos in seen: continue
+              seen.add(pos)
+              if works(pos):
+                  print(f"FOUND_EXTRA_GLOBAL={pos}")
+                  print(f"FOUND_EXTRA_LOCAL_CHUNK4={pos-lo}")
+                  print(f"FOUND_EXTRA_CHAR={total[pos]}")
+                  raise SystemExit(0)
+          print("priority scan found nothing; scanning full chunk 4")
+          for pos in range(lo,hi):
+              if pos in seen: continue
+              if works(pos):
+                  print(f"FOUND_EXTRA_GLOBAL={pos}")
+                  print(f"FOUND_EXTRA_LOCAL_CHUNK4={pos-lo}")
+                  print(f"FOUND_EXTRA_CHAR={total[pos]}")
+                  raise SystemExit(0)
+          raise SystemExit("no valid repair found")
+          PY
