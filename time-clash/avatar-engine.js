@@ -33,11 +33,11 @@ function normalize(a={}){
  return {
   avatarVersion:3,kind:"player",
   height:clamp(a.height||182,150,220),build:["slim","athletic","strong","stocky"].includes(a.build)?a.build:"athletic",chestWidth:clamp(a.chestWidth??50,35,65),legLength:clamp(a.legLength??50,35,65),
-  faceAsset,skin:safeHex(a.skin,skinMap[faceAsset]||"#d7a17e"),skinBrightness:clamp(a.skinBrightness??0,-20,20),skinWarmth:clamp(a.skinWarmth??0,-20,20),
+  faceAsset,skin:safeHex(a.skin,skinMap[faceAsset]||"#d7a17e"),skinBrightness:clamp(a.skinBrightness??0,-40,25),skinWarmth:clamp(a.skinWarmth??0,-20,20),
   hairAsset:mapLegacyHair(a),browAsset:BROWS.includes(a.browAsset)?a.browAsset:"original",beardAsset:mapLegacyBeard(a),hairColor:safeHex(a.hairColor,"#3a2418"),
-  hairX:clamp(a.hairX??0,-35,35),hairY:clamp(a.hairY??0,-35,35),hairScale:clamp(a.hairScale??100,25,160),
-  browX:clamp(a.browX??0,-35,35),browY:clamp(a.browY??0,-35,35),browScale:clamp(a.browScale??100,25,160),
-  beardX:clamp(a.beardX??0,-35,35),beardY:clamp(a.beardY??0,-35,35),beardScale:clamp(a.beardScale??100,25,160),
+  hairX:clamp(a.hairX??0,-35,35),hairY:clamp(a.hairY??0,-35,35),hairScale:clamp(a.hairScale??100,10,200),
+  browX:clamp(a.browX??0,-35,35),browY:clamp(a.browY??0,-35,35),browScale:clamp(a.browScale??100,10,200),
+  beardX:clamp(a.beardX??0,-35,35),beardY:clamp(a.beardY??0,-35,35),beardScale:clamp(a.beardScale??100,10,200),
   kitStyle:["solid","vertical","horizontal","diagonal","halves","pinstripe","gradient"].includes(a.kitStyle)?a.kitStyle:"solid",stripeCount:clamp(a.stripeCount??5,2,9),stripeWidth:["narrow","medium","wide"].includes(a.stripeWidth)?a.stripeWidth:"medium",kit1:safeHex(a.kit1,"#25a9ff"),kit2:safeHex(a.kit2,"#f7c64e"),kit3:safeHex(a.kit3,"#ffffff"),shirtNo:clamp(a.shirtNo||10,1,99),shirtName:String(a.shirtName||"")
  };
 }
@@ -46,10 +46,10 @@ function normalizeCoach(a={}){
  if(COACH_FACES_F.includes(face))gender="female"; else if(COACH_FACES_M.includes(face))gender="male"; else {gender=gender==="female"?"female":"male";face=gender==="female"?COACH_FACES_F[0]:COACH_FACES_M[0]}
  const hairs=gender==="female"?HAIR_F:HAIR_M;
  return {avatarVersion:3,kind:"coach",gender,faceAsset:face,hairAsset:hairs.includes(a.hairAsset)?a.hairAsset:(gender==="female"?"hair/f-lob":"hair/m-short-classic"),browAsset:BROWS.includes(a.browAsset)?a.browAsset:"original",beardAsset:gender==="male"&&BEARDS.includes(a.beardAsset)?a.beardAsset:"none",hairColor:safeHex(a.hairColor,"#3a2418"),
-  skinBrightness:clamp(a.skinBrightness??0,-20,20),skinWarmth:clamp(a.skinWarmth??0,-20,20),
-  hairX:clamp(a.hairX??0,-35,35),hairY:clamp(a.hairY??0,-35,35),hairScale:clamp(a.hairScale??100,25,160),
-  browX:clamp(a.browX??0,-35,35),browY:clamp(a.browY??0,-35,35),browScale:clamp(a.browScale??100,25,160),
-  beardX:clamp(a.beardX??0,-35,35),beardY:clamp(a.beardY??0,-35,35),beardScale:clamp(a.beardScale??100,25,160)};
+  skinBrightness:clamp(a.skinBrightness??0,-40,25),skinWarmth:clamp(a.skinWarmth??0,-20,20),
+  hairX:clamp(a.hairX??0,-35,35),hairY:clamp(a.hairY??0,-35,35),hairScale:clamp(a.hairScale??100,10,200),
+  browX:clamp(a.browX??0,-35,35),browY:clamp(a.browY??0,-35,35),browScale:clamp(a.browScale??100,10,200),
+  beardX:clamp(a.beardX??0,-35,35),beardY:clamp(a.beardY??0,-35,35),beardScale:clamp(a.beardScale??100,10,200)};
 }
 function asset(key,x,y,w,h,filter="",attrs=""){
  if(!key||key==="none"||key==="original"||!A()?.cell(key))return "";
@@ -57,11 +57,11 @@ function asset(key,x,y,w,h,filter="",attrs=""){
 }
 function transformedAsset(key,x,y,w,h,filter="",tx=0,ty=0,scale=100,layer=""){
  if(!key||key==="none"||key==="original"||!A()?.cell(key))return "";
- const s=clamp(scale,25,160)/100,cx=x+w/2,cy=y+h/2;
+ const s=clamp(scale,10,200)/100,cx=x+w/2,cy=y+h/2;
  return `<g data-avatar-layer="${esc(layer)}" transform="translate(${clamp(tx,-35,35)} ${clamp(ty,-35,35)}) translate(${cx} ${cy}) scale(${s.toFixed(3)}) translate(${-cx} ${-cy})"${filter?` filter="url(#${filter})"`:""}>${A().svgImage(key,x,y,w,h)}</g>`;
 }
 function skinToneDef(fid,brightness=0,warmth=0){
- const b=clamp(brightness,-20,20),w=clamp(warmth,-20,20),m=1+b/100;
+ const b=clamp(brightness,-40,25),w=clamp(warmth,-20,20),m=1+b/100;
  const rr=m*(1+w*.0045),gg=m*(1+w*.0012),bb=m*(1-w*.0045);
  return `<filter id="${fid}" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="${rr.toFixed(3)} 0 0 0 0  0 ${gg.toFixed(3)} 0 0 0  0 0 ${bb.toFixed(3)} 0 0  0 0 0 1 0"/></filter>`;
 }
