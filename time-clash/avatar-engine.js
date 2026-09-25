@@ -6,7 +6,7 @@ const safeHex=(v,d)=>/^#[0-9a-fA-F]{6}$/.test(String(v||""))?String(v):d;
 const rgb=hex=>{const s=safeHex(hex,"#3a2418").slice(1),n=parseInt(s,16);return {r:(n>>16)&255,g:(n>>8)&255,b:n&255}};
 const id=()=>"tc"+Math.random().toString(36).slice(2,9);
 
-const PLAYER_FACES=["faces/player-m01","faces/player-m02","faces/player-m03"];
+const PLAYER_FACES=["faces/player-m01","faces/player-m02","faces/player-m03","faces/player-m04","faces/player-m05","faces/player-m06","faces/player-m07","faces/player-m08","faces/player-m09","faces/player-m10","faces/player-m11","faces/player-m12","faces/player-m13","faces/player-m14","faces/player-m15","faces/player-m16","faces/player-m17"];
 const COACH_FACES_M=["faces/coach-m01","faces/coach-m02","faces/coach-m03","faces/coach-m04"];
 const COACH_FACES_F=["faces/coach-f01","faces/coach-f02","faces/coach-f03","faces/coach-f05"];
 const HAIR_M=["none","hair/m-buzz","hair/m-short-classic","hair/m-short-textured","hair/m-sidepart","hair/m-messy","hair/m-curly","hair/m-long-wavy","hair/m-long-straight"];
@@ -29,7 +29,7 @@ function mapLegacyBeard(a){
  const b=String(a?.beard||"").toLowerCase(); if(b==="none"||!b)return "none"; if(b==="mustache")return "beard/beard-mustache"; if(b==="goatee")return "beard/beard-goatee"; if(b==="full")return "beard/beard-full"; if(b==="combo")return "beard/beard-anchor"; return "beard/beard-light";
 }
 function normalize(a={}){
- const faceAsset=mapLegacyFace(a),skinMap={"faces/player-m01":"#d7a17e","faces/player-m02":"#5a392d","faces/player-m03":"#d8a98d"};
+ const faceAsset=mapLegacyFace(a),skinMap={"faces/player-m01":"#d7a17e","faces/player-m02":"#5a392d","faces/player-m03":"#d8a98d","faces/player-m04":"#7b4d35","faces/player-m05":"#563629","faces/player-m06":"#d2a282","faces/player-m07":"#bd8665","faces/player-m08":"#bd825c","faces/player-m09":"#a46d4c","faces/player-m10":"#c99775","faces/player-m11":"#c38a61","faces/player-m12":"#ad7858","faces/player-m13":"#d0a07f","faces/player-m14":"#d8ae95","faces/player-m15":"#d0a080","faces/player-m16":"#ae7959","faces/player-m17":"#d9aa8f"};
  return {
   avatarVersion:3,kind:"player",
   height:clamp(a.height||182,150,220),build:["slim","athletic","strong","stocky"].includes(a.build)?a.build:"athletic",chestWidth:clamp(a.chestWidth??50,35,65),legLength:clamp(a.legLength??50,35,65),
