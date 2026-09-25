@@ -591,7 +591,12 @@
       var country = clean(params.get("country")) || "🇩🇪 Deutschland";
       var refCode = cleanRef(params.get("ref") || params.get("ref_code")) || "DEMOREF";
       var isOwner = params.get("owner") === "1";
-      var isMember = isOwner || params.get("member") === "1";
+      var memberCredential = clean(params.get("id") || params.get("token") || params.get("credential") || "");
+      var clubId = clean(params.get("club_id") || params.get("club") || "");
+      var isMember = isOwner || params.get("member") === "1" || Boolean(memberCredential);
+      var serverMode = Boolean(memberCredential && clubId);
+      var COMMUNITY_API = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/community-api";
+      var activeReportTarget = null;
       var selectedEmotion = null;
       var selectedImageData = "";
       var storageKey = "betinsight_trainer_demo_posts_" + coachSlug;
