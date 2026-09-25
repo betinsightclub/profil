@@ -976,8 +976,8 @@
 
       document.getElementById("coverEditBtn").addEventListener("click",function(){document.getElementById("coverInput").click();});
       document.getElementById("avatarEditBtn").addEventListener("click",function(){document.getElementById("avatarInput").click();});
-      bindFilePreview("coverInput","coverImage",null,4);
-      bindFilePreview("avatarInput","avatarImage","avatarFallback",2);
+      bindFilePreview("coverInput","coverImage",null,{maxWidth:1600,maxHeight:900,targetBytes:520*1024,maxInputBytes:25*1024*1024});
+      bindFilePreview("avatarInput","avatarImage","avatarFallback",{maxWidth:512,maxHeight:512,targetBytes:180*1024,maxInputBytes:25*1024*1024});
 
       document.getElementById("photoBtn").addEventListener("click",function(){document.getElementById("postImageInput").click();});
       document.getElementById("postImageInput").addEventListener("change",async function(){
