@@ -1,12 +1,16 @@
 (()=>{
-const A=()=>window.TimeClashAvatarAssets;
+const assetSource=key=>window.TimeClashExtraFaces?.cell?.(key)?window.TimeClashExtraFaces:window.TimeClashAvatarAssets;
+const A=()=>({
+ cell:key=>assetSource(key)?.cell?.(key)||null,
+ svgImage:(key,x,y,w,h,extra="")=>assetSource(key)?.svgImage?.(key,x,y,w,h,extra)||""
+});
 const esc=v=>String(v??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,Number(n)||0));
 const safeHex=(v,d)=>/^#[0-9a-fA-F]{6}$/.test(String(v||""))?String(v):d;
 const rgb=hex=>{const s=safeHex(hex,"#3a2418").slice(1),n=parseInt(s,16);return {r:(n>>16)&255,g:(n>>8)&255,b:n&255}};
 const id=()=>"tc"+Math.random().toString(36).slice(2,9);
 
-const PLAYER_FACES=["faces/player-m01","faces/player-m02","faces/player-m03"];
+const PLAYER_FACES=["faces/player-m01","faces/player-m02","faces/player-m03",...Array.from({length:14},(_,i)=>`faces/player-n${String(i+1).padStart(2,"0")}`)];
 const COACH_FACES_M=["faces/coach-m01","faces/coach-m02","faces/coach-m03","faces/coach-m04"];
 const COACH_FACES_F=["faces/coach-f01","faces/coach-f02","faces/coach-f03","faces/coach-f05"];
 const HAIR_M=["none","hair/m-buzz","hair/m-short-classic","hair/m-short-textured","hair/m-sidepart","hair/m-messy","hair/m-curly","hair/m-long-wavy","hair/m-long-straight"];
