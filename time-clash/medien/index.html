@@ -55,6 +55,7 @@
 </section>
 <section class="card" style="margin:18px 0 40px"><h3 id="savedTitle">Deine Medien zu diesem Bericht</h3><div class="mediaList" id="mediaList"></div></section>
 </main>
+<script src="/time-clash/avatar-assets-v3.js"></script>
 <script src="/time-clash/avatar-engine.js"></script>
 <script>
 const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash-media";
@@ -152,7 +153,8 @@ function mannequin(a,name,mini=false){const fallback=()=>'<svg viewBox="0 0 180 
 function chosenAvatar(){return avFor(selected?.player)?.avatar||currentAvatar}
 function renderPreview(){if(!selected){$("#preview").innerHTML='<div class="notice" style="margin:20px">Noch kein Bild vorbereitet.</div>';return}let a=chosenAvatar();if(!a){$("#preview").innerHTML='<div class="notice" style="margin:20px">'+esc(t().missing)+'</div>';return}$("#preview").innerHTML=newspaperSvg(selected,a,$("#variant").value,$("#focus").value,$("#intensity").value)}
 function sceneFigure(a,name,pose){
- let body=a.build==="slim"?.84:a.build==="stocky"?1.18:a.build==="strong"?1.1:1,skin=a.skin||"#d7a17e",hair=a.hairColor||"#3a2418",kit1=a.kit1||"#25a9ff",kit2=a.kit2||"#f7c64e",h=Math.max(165,Math.min(210,Number(a.height||182))),leg=118+(h-165)*.62;
+ a=window.TimeClashAvatar?.normalize?window.TimeClashAvatar.normalize(a):a;
+ let body=a.build==="slim"?.84:a.build==="stocky"?1.18:a.build==="strong"?1.1:1,skin=a.skin||"#d7a17e",kit1=a.kit1||"#25a9ff",h=Math.max(165,Math.min(210,Number(a.height||182))),leg=118+(h-165)*.62;
  let mode=String(pose||"auto"),rot=0,tx=842,ty=145,sc=1.72,la=[48,220],ra=[132,220],ll=[72,190+leg],rl=[108,190+leg];
  if(mode.includes("celebration")||mode.includes("winner")){la=[34,86];ra=[146,86]}
  if(mode.includes("header")){la=[30,135];ra=[150,135];ll=[68,190+leg];rl=[114,186+leg]}
@@ -168,14 +170,12 @@ function sceneFigure(a,name,pose){
  if(mode.includes("long_range")||mode.includes("power")){rot=-8;rl=[165,225]}
  if(mode.includes("attack")||mode.includes("dribble")||mode.includes("sprint")||mode.includes("breakthrough")||mode.includes("counter")){rot=-7;tx=820;la=[38,185];ra=[140,118];ll=[60,190+leg];rl=[135,175+leg*.82]}
  let torsoW=76*body,shoulderY=105;
- let hairPath=a.hairLength==="bald"?"":a.hairLength==="long"?'<path d="M62 36 Q90 4 118 36 L114 90 Q91 70 66 90Z" fill="'+hair+'"/>':a.hairLength==="medium"?'<path d="M64 36 Q90 12 116 36 L112 61 Q90 49 68 61Z" fill="'+hair+'"/>':'<path d="M66 38 Q90 20 114 38 L111 53 Q90 45 69 53Z" fill="'+hair+'"/>';
- let curls=(a.hairTexture==="curly"||a.hairTexture==="coily")?'<g fill="'+hair+'"><circle cx="67" cy="35" r="7"/><circle cx="79" cy="29" r="7"/><circle cx="91" cy="27" r="7"/><circle cx="103" cy="30" r="7"/><circle cx="114" cy="37" r="7"/></g>':"";
- let beard=a.beard==="none"?"":a.beard==="mustache"?'<path d="M79 65 Q90 72 101 65 Q97 74 90 73 Q83 74 79 65Z" fill="'+hair+'"/>':a.beard==="full"?'<path d="M71 61 Q90 94 109 61 L104 84 Q90 99 76 84Z" fill="'+hair+'"/>':'<path d="M75 73 Q90 87 105 73 Q101 88 90 91 Q79 88 75 73Z" fill="'+hair+'" opacity=".78"/>';
  let kitId="sceneKit"+Math.random().toString(36).slice(2,7),defs=window.TimeClashAvatar?.kitPattern?window.TimeClashAvatar.kitPattern(a,kitId):'<linearGradient id="'+kitId+'"><stop stop-color="'+kit1+'"/></linearGradient>';
  let shirt='<defs>'+defs+'</defs><path d="M'+(90-torsoW/2)+' 100 Q90 89 '+(90+torsoW/2)+' 100 L'+(90+torsoW/2-7)+' 185 L'+(90-torsoW/2+7)+' 185Z" fill="url(#'+kitId+')"/>';
  let limb=(x1,y1,x2,y2,w=15)=>'<path d="M'+x1+' '+y1+' L'+x2+' '+y2+'" stroke="'+skin+'" stroke-width="'+w+'" stroke-linecap="round"/>';
  let legs='<path d="M78 180 L'+ll[0]+' '+ll[1]+'" stroke="#102b3a" stroke-width="'+(22*body)+'" stroke-linecap="round"/><path d="M102 180 L'+rl[0]+' '+rl[1]+'" stroke="#102b3a" stroke-width="'+(22*body)+'" stroke-linecap="round"/>';
- return '<g transform="translate('+tx+' '+ty+') scale('+sc+') rotate('+rot+' 90 170)"><ellipse cx="90" cy="'+(205+leg)+'" rx="'+(48*body)+'" ry="8" fill="#000" opacity=".28"/>'+legs+limb(65,shoulderY,la[0],la[1],16*body)+limb(115,shoulderY,ra[0],ra[1],16*body)+shirt+'<text x="90" y="148" text-anchor="middle" fill="#fff" stroke="#000" stroke-width=".6" paint-order="stroke" font-size="24" font-family="Arial" font-weight="1000">'+esc(a.shirtNo||"")+'</text><circle cx="90" cy="58" r="31" fill="'+skin+'"/>'+hairPath+curls+'<ellipse cx="80" cy="58" rx="2.5" ry="3" fill="#18252e"/><ellipse cx="100" cy="58" rx="2.5" ry="3" fill="#18252e"/>'+beard+'</g>'
+ let head=window.TimeClashAvatar?.headSvg?window.TimeClashAvatar.headSvg(a,0,-7,180,145):'<circle cx="90" cy="58" r="31" fill="'+skin+'"/>';
+ return '<g transform="translate('+tx+' '+ty+') scale('+sc+') rotate('+rot+' 90 170)"><ellipse cx="90" cy="'+(205+leg)+'" rx="'+(48*body)+'" ry="8" fill="#000" opacity=".28"/>'+legs+limb(65,shoulderY,la[0],la[1],16*body)+limb(115,shoulderY,ra[0],ra[1],16*body)+shirt+'<text x="90" y="148" text-anchor="middle" fill="#fff" stroke="#000" stroke-width=".6" paint-order="stroke" font-size="24" font-family="Arial" font-weight="1000">'+esc(a.shirtNo||"")+'</text>'+head+'</g>'
 }
 function sceneBall(pose){
  let p=String(pose||"");
