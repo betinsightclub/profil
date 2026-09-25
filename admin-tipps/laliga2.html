@@ -50,7 +50,7 @@
     // League bridge: Spanish second division (LaLiga 2 / Segunda División).
     // Inject directly into leagueMap so the mapping works regardless of the surrounding formatting.
     if(!html.includes('soccer_spain_segunda_division')){
-      const aliases="'la liga 2':'soccer_spain_segunda_division','laliga 2':'soccer_spain_segunda_division','laliga hypermotion':'soccer_spain_segunda_division','segunda division':'soccer_spain_segunda_division','segunda division spanien':'soccer_spain_segunda_division','spanien la liga 2':'soccer_spain_segunda_division','spanien liga 2':'soccer_spain_segunda_division',";
+      const aliases="'LaLiga 2':'soccer_spain_segunda_division','la liga 2':'soccer_spain_segunda_division','laliga 2':'soccer_spain_segunda_division','laliga hypermotion':'soccer_spain_segunda_division','segunda division':'soccer_spain_segunda_division','segunda division spanien':'soccer_spain_segunda_division','spanien la liga 2':'soccer_spain_segunda_division','spanien liga 2':'soccer_spain_segunda_division',";
       html=html.replace(/const\s+leagueMap\s*=\s*\{/, m=>m+aliases);
     }
 
