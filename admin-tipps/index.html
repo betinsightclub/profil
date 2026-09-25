@@ -169,7 +169,110 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 <\/script>`;
-    html=html.replace('</body>',enhancement+'</body>');
+    const liveAlarmOneEnhancement=`<script>
+(()=>{
+  'use strict';
+  const FIELD='live_alarm_1';
+  const LABEL='Live-Alarm 1';
+
+  function alarmValue(){
+    const cb=document.getElementById('biLiveAlarmOne');
+    return !cb || cb.checked ? 'JA' : 'NEIN';
+  }
+
+  function mountLiveAlarmOne(){
+    if(document.getElementById('biLiveAlarmOneWrap')) return;
+
+    const candidates=[...document.querySelectorAll('div,section,label')].filter(el=>{
+      const t=String(el.textContent||'').replace(/\\s+/g,' ').trim();
+      return t.includes('Live-Alarm für Premium-Mitglieder') &&
+        t.length<700 &&
+        !!el.querySelector('button,input[type="checkbox"],input[type="radio"]');
+    }).sort((a,b)=>String(a.textContent||'').length-String(b.textContent||'').length);
+
+    const premiumBox=candidates[0]||null;
+    if(!premiumBox) return;
+
+    const wrap=document.createElement('div');
+    wrap.id='biLiveAlarmOneWrap';
+    wrap.style.cssText='margin:0 0 10px;padding:10px 14px;border:1px solid rgba(0,218,255,.34);border-radius:12px;background:rgba(3,25,36,.78);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;';
+    wrap.innerHTML=
+      '<label for="biLiveAlarmOne" style="display:flex;align-items:center;gap:10px;cursor:pointer;margin:0;color:#fff;font-weight:700">'+
+        '<input id="biLiveAlarmOne" name="live_alarm_1" type="checkbox" checked value="JA" style="width:18px;height:18px;accent-color:#00d48a;cursor:pointer">'+
+        '<span>'+LABEL+'</span>'+
+      '</label>'+
+      '<small style="color:#b9d8e8;font-size:12px">Gründer-/Premium-Freigabe · standardmäßig aktiv</small>';
+
+    premiumBox.insertAdjacentElement('beforebegin',wrap);
+  }
+
+  const originalFetch=window.fetch.bind(window);
+  window.fetch=async function(input,init){
+    const url=typeof input==='string' ? input : (input&&input.url ? String(input.url) : '');
+    const isPublish=url.includes('route=tip-historical-publish') ||
+      url.includes('jnj854h9aeg5iqny6prd3owgt4mpcd51');
+
+    if(!isPublish) return originalFetch(input,init);
+
+    let opts=init ? {...init} : {};
+    try{
+      const body=opts.body;
+      if(typeof body==='string'){
+        let changed=false;
+        try{
+          const obj=JSON.parse(body);
+          if(obj && typeof obj==='object' && obj.tipp_id){
+            obj[FIELD]=alarmValue();
+            opts.body=JSON.stringify(obj);
+            changed=true;
+          }
+        }catch(e){}
+        if(!changed){
+          try{
+            const p=new URLSearchParams(body);
+            if(p.has('tipp_id')){
+              p.set(FIELD,alarmValue());
+              opts.body=p.toString();
+            }
+          }catch(e){}
+        }
+      }else if(typeof URLSearchParams!=='undefined' && body instanceof URLSearchParams){
+        const p=new URLSearchParams(body);
+        if(p.has('tipp_id')){
+          p.set(FIELD,alarmValue());
+          opts.body=p;
+        }
+      }else if(typeof FormData!=='undefined' && body instanceof FormData){
+        if(body.has('tipp_id')){
+          const fd=new FormData();
+          for(const [k,v] of body.entries()) fd.append(k,v);
+          fd.set(FIELD,alarmValue());
+          opts.body=fd;
+        }
+      }
+    }catch(e){}
+
+    const response=await originalFetch(input,opts);
+    if(response && response.ok){
+      setTimeout(()=>{
+        const cb=document.getElementById('biLiveAlarmOne');
+        if(cb) cb.checked=true;
+      },500);
+    }
+    return response;
+  };
+
+  const boot=()=>{
+    mountLiveAlarmOne();
+    const mo=new MutationObserver(()=>mountLiveAlarmOne());
+    mo.observe(document.body,{childList:true,subtree:true});
+  };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
+  else boot();
+})();
+<\\/script>`;
+
+    html=html.replace('</body>',enhancement+liveAlarmOneEnhancement+'</body>');
     html=html.replace('<body>','<body><a id="persistentBack" href="/admin/" style="position:fixed;top:12px;left:12px;z-index:99999;display:inline-flex;align-items:center;justify-content:center;padding:10px 15px;border-radius:999px;background:#0d3347;border:1px solid rgba(0,218,255,.45);color:#fff;text-decoration:none;font-weight:700;font-size:14px;box-shadow:0 6px 18px rgba(0,0,0,.28)">← Zurück zum Admin Center</a>');
     document.open();document.write(html);document.close();
   }catch(e){
