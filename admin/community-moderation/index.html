@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#041823">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>Community Moderation · BetInsight Admin</title>
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico">
+  <style>
+    :root{--bg:#031720;--panel:#082735;--panel2:#061f2b;--line:rgba(126,211,255,.18);--text:#f4fbff;--muted:#9eb8c4;--blue:#1687ff;--green:#00d99b;--red:#ff6771;--gold:#f3c95c;--shadow:0 18px 55px rgba(0,0,0,.28)}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,rgba(22,135,255,.12),transparent 28rem),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    button,input,select,textarea{font:inherit}button{cursor:pointer}.wrap{width:min(calc(100% - 28px),1280px);margin:20px auto 50px}
+    .top{display:flex;gap:14px;justify-content:space-between;align-items:center;margin-bottom:18px}.top h1{margin:0;font-size:clamp(28px,4vw,42px);letter-spacing:-.035em}.top p{margin:5px 0 0;color:var(--muted)}
+    .btn{border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.05);color:white;padding:10px 13px;font-weight:850}.btn:hover{background:rgba(255,255,255,.08)}.btn.primary{border:0;background:linear-gradient(135deg,var(--blue),#0a69d8)}
+    .counts{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}.count{padding:17px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,var(--panel),var(--panel2));box-shadow:var(--shadow)}.count strong{display:block;font-size:28px}.count span{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.tab{border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.035);color:#bcd0d9;padding:8px 12px;font-weight:800}.tab.active{color:white;border-color:rgba(22,135,255,.5);background:rgba(22,135,255,.12)}
+    .queue{display:grid;gap:12px}.item{border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,var(--panel),var(--panel2));box-shadow:var(--shadow);overflow:hidden}.item-head{display:flex;gap:10px;justify-content:space-between;align-items:flex-start;padding:15px 16px 9px}.meta{color:var(--muted);font-size:12px}.badge{display:inline-flex;margin-right:6px;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:900;letter-spacing:.04em}.pending{background:rgba(243,201,92,.12);color:#ffe18e}.hidden-b{background:rgba(255,103,113,.12);color:#ff9aa1}.report-b{background:rgba(22,135,255,.12);color:#8dccff}
+    .body{padding:4px 16px 14px}.content{white-space:pre-wrap;color:#e4eef2}.flags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.flag{padding:4px 7px;border-radius:999px;border:1px solid rgba(255,255,255,.09);color:#a9c0ca;font-size:10px}
+    .media{max-width:420px;max-height:300px;border-radius:13px;border:1px solid var(--line);margin-top:10px}.actions{display:flex;gap:7px;flex-wrap:wrap;padding:11px 16px;border-top:1px solid rgba(255,255,255,.07)}.act{border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.04);color:white;padding:8px 10px;font-weight:850;font-size:12px}.act.good{border-color:rgba(0,217,155,.28);color:#83f1ce}.act.warn{border-color:rgba(243,201,92,.3);color:#ffe18e}.act.bad{border-color:rgba(255,103,113,.3);color:#ff9ba3}
+    .empty{padding:38px;text-align:center;border:1px dashed var(--line);border-radius:18px;color:var(--muted)}.loading{opacity:.6;pointer-events:none}.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,14px);opacity:0;transition:.2s;background:#062431;border:1px solid var(--line);border-radius:999px;padding:10px 14px;box-shadow:var(--shadow);font-weight:800;font-size:12px}.toast.show{opacity:1;transform:translate(-50%,0)}
+    @media(max-width:760px){.counts{grid-template-columns:repeat(2,1fr)}.top{align-items:flex-start;flex-direction:column}.actions{display:grid;grid-template-columns:repeat(2,1fr)}} 
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="top">
+      <div><h1>Community Moderation</h1><p>Posts, Kommentare, Bilder und Meldungen zentral prüfen.</p></div>
+      <div><button class="btn" onclick="location.href='../'">← Admin Center</button> <button class="btn primary" id="refreshBtn">↻ Aktualisieren</button></div>
+    </div>
+
+    <section class="counts">
+      <div class="count"><strong id="cPosts">–</strong><span>Posts prüfen</span></div>
+      <div class="count"><strong id="cComments">–</strong><span>Kommentare prüfen</span></div>
+      <div class="count"><strong id="cMedia">–</strong><span>Bilder prüfen</span></div>
+      <div class="count"><strong id="cReports">–</strong><span>Offene Meldungen</span></div>
+    </section>
+
+    <nav class="toolbar">
+      <button class="tab active" data-view="all">Alles</button>
+      <button class="tab" data-view="post">Posts</button>
+      <button class="tab" data-view="comment">Kommentare</button>
+      <button class="tab" data-view="media">Bilder</button>
+      <button class="tab" data-view="report">Meldungen</button>
+    </nav>
+
+    <section id="queue" class="queue"></section>
+  </main>
+  <div id="toast" class="toast"></div>
+
+<script>
+"use strict";
+const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/community-admin";
+const SESSION_KEY="betinsight_admin_session_v1";
+let dashboard=null,currentView="all",busy=false;
+
+function toast(msg){const e=document.getElementById("toast");e.textContent=msg;e.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("show"),1800)}
+function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function readSession(){try{const x=JSON.parse(sessionStorage.getItem(SESSION_KEY)||"null");return x&&x.token?x:null}catch(_){return null}}
+function hex(bytes){return Array.from(bytes,b=>b.toString(16).padStart(2,"0")).join("")}
+async function sha256(v){const d=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(String(v||"")));return hex(new Uint8Array(d))}
+async function call(payload){
+  const s=readSession();if(!s){location.href="../";throw new Error("Keine Admin-Sitzung")}
+  payload.session_hash=await sha256(s.token);
+  const r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},cache:"no-store",body:JSON.stringify(payload)});
+  const d=await r.json().catch(()=>({}));
+  if(r.status===401){location.href="../";throw new Error("Admin-Sitzung abgelaufen")}
+  if(!r.ok||d.ok!==true)throw new Error(d.error||"Moderationsserver nicht erreichbar");
+  return d;
+}
+function fmtDate(v){try{return new Intl.DateTimeFormat("de-DE",{dateStyle:"short",timeStyle:"short"}).format(new Date(v))}catch(_){return ""}}
+function typeName(t){return t==="post"?"Post":t==="comment"?"Kommentar":t==="media"?"Bild":"Meldung"}
+function statusBadge(x){const s=String(x.status||"");return '<span class="badge '+(s==="HIDDEN"?"hidden-b":"pending")+'">'+esc(s)+'</span>'}
+function flagsHtml(arr){return (arr||[]).map(x=>'<span class="flag">'+esc(x)+'</span>').join("")}
+function userButtons(owner){return '<button class="act warn" data-user="'+esc(owner)+'" data-user-action="WARN">Verwarnen</button><button class="act warn" data-user="'+esc(owner)+'" data-user-action="SUSPEND">7 Tage sperren</button><button class="act bad" data-user="'+esc(owner)+'" data-user-action="BAN">Sperren</button>'}
+function card(x){
+  if(x.kind==="report"){
+    return '<article class="item"><div class="item-head"><div><span class="badge report-b">MELDUNG</span><b>'+esc(x.reason)+'</b><div class="meta">'+esc(x.target_type)+' · '+esc(x.target_id)+' · '+fmtDate(x.created_at)+'</div></div><div class="meta">von '+esc(x.reporter_ref)+'</div></div><div class="body"><div class="content">'+esc(x.details||"Kein Zusatztext")+'</div></div><div class="actions"><button class="act good" data-dismiss="'+esc(x.target_type)+':'+esc(x.target_id)+'">Meldung verwerfen</button></div></article>';
+  }
+  const text=x.body?'<div class="content">'+esc(x.body)+'</div>':"";
+  const media=x.target_type==="media"?'<img class="media" src="'+esc(x.public_url)+'" alt="Zu prüfendes Bild">':"";
+  return '<article class="item"><div class="item-head"><div>'+statusBadge(x)+'<span class="badge report-b">'+typeName(x.target_type)+'</span><b>'+esc(x.owner_ref||"")+'</b><div class="meta">'+fmtDate(x.created_at)+' · Meldungen: '+Number(x.report_count||0)+'</div></div><div class="meta">Score '+Number(x.moderation_score||0)+'</div></div><div class="body">'+text+media+'<div class="flags">'+flagsHtml(x.moderation_flags)+'</div></div><div class="actions"><button class="act good" data-decision="PUBLISH" data-type="'+esc(x.target_type)+'" data-id="'+esc(x.id)+'">Freigeben</button><button class="act warn" data-decision="HIDE" data-type="'+esc(x.target_type)+'" data-id="'+esc(x.id)+'">Ausblenden</button><button class="act bad" data-decision="REJECT" data-type="'+esc(x.target_type)+'" data-id="'+esc(x.id)+'">Ablehnen</button><button class="act bad" data-decision="DELETE" data-type="'+esc(x.target_type)+'" data-id="'+esc(x.id)+'">Löschen</button>'+userButtons(x.owner_ref)+'</div></article>';
+}
+function render(){
+  const q=document.getElementById("queue");if(!dashboard){q.innerHTML='<div class="empty">Lade Prüfliste …</div>';return}
+  let items=[];
+  const Q=dashboard.queue||{};
+  if(currentView==="all"||currentView==="post")items.push(...(Q.posts||[]));
+  if(currentView==="all"||currentView==="comment")items.push(...(Q.comments||[]));
+  if(currentView==="all"||currentView==="media")items.push(...(Q.media||[]));
+  if(currentView==="all"||currentView==="report")items.push(...(Q.reports||[]).map(x=>({...x,kind:"report"})));
+  items.sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+  q.innerHTML=items.length?items.map(card).join(""):'<div class="empty">In diesem Bereich ist aktuell nichts zu prüfen.</div>';
+}
+async function load(){
+  if(busy)return;busy=true;document.body.classList.add("loading");
+  try{
+    dashboard=await call({action:"dashboard"});
+    document.getElementById("cPosts").textContent=dashboard.counts.posts;
+    document.getElementById("cComments").textContent=dashboard.counts.comments;
+    document.getElementById("cMedia").textContent=dashboard.counts.media;
+    document.getElementById("cReports").textContent=dashboard.counts.reports;
+    render();
+  }catch(e){toast(e.message||"Fehler beim Laden")}finally{busy=false;document.body.classList.remove("loading")}
+}
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");currentView=b.dataset.view;render()});
+document.getElementById("refreshBtn").onclick=load;
+document.getElementById("queue").addEventListener("click",async e=>{
+  const b=e.target.closest("button");if(!b||busy)return;
+  try{
+    if(b.dataset.decision){
+      const reason=prompt("Interner Grund / Notiz (optional):","")||"";
+      await call({action:"decide",target_type:b.dataset.type,target_id:b.dataset.id,decision:b.dataset.decision,reason});toast("Entscheidung gespeichert");await load();return;
+    }
+    if(b.dataset.userAction){
+      const reason=prompt("Grund für die Nutzermaßnahme:","")||"";
+      await call({action:"decide",target_type:"user",target_id:b.dataset.user,decision:b.dataset.userAction,reason,days:7});toast("Nutzermaßnahme gespeichert");await load();return;
+    }
+    if(b.dataset.dismiss){
+      const [type,id]=b.dataset.dismiss.split(":");
+      await call({action:"dismiss_reports",target_type:type,target_id:id,reason:"Kein Verstoß festgestellt"});toast("Meldung verworfen");await load();
+    }
+  }catch(err){toast(err.message||"Aktion fehlgeschlagen")}
+});
+load();
+</script>
+</body>
+</html>
