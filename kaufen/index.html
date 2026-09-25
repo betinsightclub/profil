@@ -54,7 +54,7 @@
 <script>
 (() => {
   "use strict";
-  const PROFILE_WEBHOOK_URL="https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
+  const PROFILE_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=profile-read";
   const PAYMENT_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=payment-create";
   const $=id=>document.getElementById(id);
   const clean=v=>String(v||"").trim();
@@ -70,7 +70,7 @@
     for(const value of values){expanded.push(value);if(!session?.isUuid?.(value)){if(/^BI-\d+$/i.test(value)){const n=value.slice(3);expanded.push(n,"BI"+n)}else if(/^BI\d+$/i.test(value)){const n=value.slice(2);expanded.push(n,"BI-"+n)}else if(/^\d+$/.test(value))expanded.push("BI-"+value,"BI"+value)}}
     return [...new Set(expanded.filter(Boolean))];
   }
-  async function fetchProfileCandidate(token){const response=await fetch(PROFILE_WEBHOOK_URL+"?token="+encodeURIComponent(token),{cache:"no-store"});if(!response.ok)throw new Error("HTTP "+response.status);return response.json()}
+  async function fetchProfileCandidate(token){const response=await fetch(PROFILE_WEBHOOK_URL+"&token="+encodeURIComponent(token),{cache:"no-store"});if(!response.ok)throw new Error("HTTP "+response.status);return response.json()}
   async function loadEmail(){
     const emailInput=$('buyerEmail'),candidates=accessCandidates();
     if(!candidates.length){emailInput.value="";setEmailStatus(t('buyPage.noAutoEmail',{},'Keine automatische E-Mail erkannt. Bitte trage deine registrierte E-Mail manuell ein.'));setDebug(t('buyPage.debugNoAccess',{},'Debug: Kein Zugang aktiv.'));return}
