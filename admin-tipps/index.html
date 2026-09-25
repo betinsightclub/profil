@@ -14,7 +14,7 @@
   }
   try{
     const files=['livev11.part0','livev11.part1','livev11.part2','livev11.part3'];
-    const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260925-laliga2-final-v7',{cache:'no-store'}).then(r=>{
+    const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260925-laliga2-api-v9',{cache:'no-store'}).then(r=>{
       if(!r.ok)throw new Error('Terminal-Datei '+x+' konnte nicht geladen werden');
       return r.text();
     })));
@@ -22,6 +22,16 @@
     const bytes=Uint8Array.from(atob(b),c=>c.charCodeAt(0));
     const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
     let html=await new Response(stream).text();
+
+    // Hard map LaLiga 2 into the actual live resolver before rendering.
+    html=html.replace(/function\\s+resolveSportKey\\s*\\(\\s*\\)\\s*\\{/, match=>match+
+      "const __biLiga2=String(document.getElementById('liga')?.value||'').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();"+
+      "if(__biLiga2==='laliga 2'||__biLiga2==='la liga 2'||__biLiga2==='segunda division'||__biLiga2==='laliga hypermotion')return 'soccer_spain_segunda_division';"
+    );
+    if(!html.includes("'laliga 2':'soccer_spain_segunda_division'")){
+      html=html.replace("'la liga':'soccer_spain_la_liga'","'la liga':'soccer_spain_la_liga','laliga 2':'soccer_spain_segunda_division','la liga 2':'soccer_spain_segunda_division','segunda division':'soccer_spain_segunda_division','laliga hypermotion':'soccer_spain_segunda_division'");
+    }
+
 
     // FINAL LaLiga-2 repair: modify the actual visible Liga <select> before rendering.
     html=html.replace(/(<select\b[^>]*\bid=(["'])liga\2[^>]*>)([\s\S]*?)(<\/select>)/i,(full,open,q,options,close)=>{
