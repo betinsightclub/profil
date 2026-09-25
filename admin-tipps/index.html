@@ -23,6 +23,33 @@
     const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
     let html=await new Response(stream).text();
 
+    // Security bridge: the compressed Tipp-Terminal still contains legacy direct Make webhook URLs.
+    // Since the Make scenarios are now gateway-protected, rewrite those URLs to the Supabase gateway
+    // before the terminal is rendered. This preserves the existing session/token logic unchanged.
+    const adminGateway='https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=';
+    const secureRouteMap={
+      'https://hook.eu1.make.com/rfmhuu4fkr9kjsv7o15r2kir8ezbersl':adminGateway+'admin-auth',
+      'https://hook.eu1.make.com/hvkixmp4n1ego6exgprjn6x04oe4a6fw':adminGateway+'backoffice-read',
+      'https://hook.eu1.make.com/hypoxkxvfio7syw1cpxi7pre1i3znjid':adminGateway+'wallet-write',
+      'https://hook.eu1.make.com/9y0a7nvseam40tqie3jyu39qv62lynp9':adminGateway+'wallet-approval',
+      'https://hook.eu1.make.com/87429uw78qxd9qhu5zttbxn9qfur0ys1':adminGateway+'unit-credit',
+      'https://hook.eu1.make.com/gqt1nfypadrxrc6zdo944xthtuuraz9q':adminGateway+'network-move',
+      'https://hook.eu1.make.com/6jrn446fmzuaqpqf66xs0ihege1c5cnp':adminGateway+'premium-rule',
+      'https://hook.eu1.make.com/asljoa9gohywvf2r2t7pht8m2ny5xo91':adminGateway+'tip-maintenance',
+      'https://hook.eu1.make.com/k6qxta8xyae1mtnwbzu93g1798rylnwn':adminGateway+'tip-result',
+      'https://hook.eu1.make.com/2mtxmxp37qjcyv4mf9o846cl7z4hmh8m':adminGateway+'tipster-settings',
+      'https://hook.eu1.make.com/d0np6cadeelzhiqf8qmab97i5v5iw0oo':adminGateway+'cost-rate',
+      'https://hook.eu1.make.com/2u9vqh2mdlp286dl8czmbjr25lse64k8':adminGateway+'cost-create',
+      'https://hook.eu1.make.com/9n407dme82xv7767ui5grxdfe2q5dvoj':adminGateway+'cost-edit',
+      'https://hook.eu1.make.com/za1tggiwy1ffdm6ro28p2eqf1ci7tqx9':adminGateway+'unit-usage',
+      'https://hook.eu1.make.com/1bc4yjg8rw171uu673xg48opf4snef72':adminGateway+'tip-manage',
+      'https://hook.eu1.make.com/jnj854h9aeg5iqny6prd3owgt4mpcd51':adminGateway+'tip-historical-publish',
+      'https://hook.eu1.make.com/x7c67vx9q2v146cdalxi44yn9i5i1o8y':adminGateway+'system-monitor'
+    };
+    for(const [legacyUrl,secureUrl] of Object.entries(secureRouteMap)){
+      html=html.split(legacyUrl).join(secureUrl);
+    }
+
     html=html.replace('class="btn secondary hidden" id="backAdmin"','class="btn secondary" id="backAdmin"').replace('← Admin Center','← Zurück zum Admin Center');
     html=html.replace("new Intl.DateTimeFormat('en-CA',{year:'numeric',month:'2-digit',day:'2-digit'})","new Intl.DateTimeFormat('en-CA',{year:'numeric',month:'2-digit',day:'2-digit',timeZone:'Europe/Berlin'})")
       .replace("new Intl.DateTimeFormat('de-DE',{hour:'2-digit',minute:'2-digit',hour12:false})","new Intl.DateTimeFormat('de-DE',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Europe/Berlin'})")
