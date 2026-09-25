@@ -1,5 +1,6 @@
 (()=>{
 const A=()=>window.TimeClashAvatarAssets;
+const P=()=>window.TimeClashBodyPack||{bodies:{},clothing:{},tattoos:{}};
 const esc=v=>String(v??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,Number(n)||0));
 const safeHex=(v,d)=>/^#[0-9a-fA-F]{6}$/.test(String(v||""))?String(v):d;
@@ -29,7 +30,7 @@ function mapLegacyBeard(a){
  const b=String(a?.beard||"").toLowerCase(); if(b==="none"||!b)return "none"; if(b==="mustache")return "beard/beard-mustache"; if(b==="goatee")return "beard/beard-goatee"; if(b==="full")return "beard/beard-full"; if(b==="combo")return "beard/beard-anchor"; return "beard/beard-light";
 }
 function normalize(a={}){
- const faceAsset=mapLegacyFace(a),skinMap={"faces/player-m01":"#d7a17e","faces/player-m02":"#5a392d","faces/player-m03":"#d8a98d","faces/player-m04":"#7b4d35","faces/player-m05":"#563629","faces/player-m06":"#d2a282","faces/player-m07":"#bd8665","faces/player-m08":"#bd825c","faces/player-m09":"#a46d4c","faces/player-m10":"#c99775","faces/player-m11":"#c38a61","faces/player-m12":"#ad7858","faces/player-m13":"#d0a07f","faces/player-m14":"#d8ae95","faces/player-m15":"#d0a080","faces/player-m16":"#ae7959","faces/player-m17":"#d9aa8f"};
+ const faceAsset=mapLegacyFace(a),pack=P(),defaultBody={slim:"slim",athletic:"athletic",strong:"strong-athletic",stocky:"power"}[a.build]||"athletic",skinMap={"faces/player-m01":"#d7a17e","faces/player-m02":"#5a392d","faces/player-m03":"#d8a98d","faces/player-m04":"#7b4d35","faces/player-m05":"#563629","faces/player-m06":"#d2a282","faces/player-m07":"#bd8665","faces/player-m08":"#bd825c","faces/player-m09":"#a46d4c","faces/player-m10":"#c99775","faces/player-m11":"#c38a61","faces/player-m12":"#ad7858","faces/player-m13":"#d0a07f","faces/player-m14":"#d8ae95","faces/player-m15":"#d0a080","faces/player-m16":"#ae7959","faces/player-m17":"#d9aa8f"};
  return {
   avatarVersion:3,kind:"player",
   height:clamp(a.height||182,150,220),build:["slim","athletic","strong","stocky"].includes(a.build)?a.build:"athletic",chestWidth:clamp(a.chestWidth??50,35,65),legLength:clamp(a.legLength??50,35,65),
@@ -38,6 +39,10 @@ function normalize(a={}){
   hairX:clamp(a.hairX??0,-35,35),hairY:clamp(a.hairY??0,-35,35),hairScale:clamp(a.hairScale??100,10,200),
   browX:clamp(a.browX??0,-35,35),browY:clamp(a.browY??0,-35,35),browScale:clamp(a.browScale??100,10,200),
   beardX:clamp(a.beardX??0,-35,35),beardY:clamp(a.beardY??0,-35,35),beardScale:clamp(a.beardScale??100,10,200),
+  bodyAsset:pack.bodies?.[a.bodyAsset]?a.bodyAsset:defaultBody,undershirtAsset:pack.clothing?.[a.undershirtAsset]?a.undershirtAsset:"none",
+  isCaptain:!!a.isCaptain,captainArmband:pack.clothing?.[a.captainArmband]?a.captainArmband:"captain-classic",
+  leftTattooAsset:pack.tattoos?.[a.leftTattooAsset]?a.leftTattooAsset:"",rightTattooAsset:pack.tattoos?.[a.rightTattooAsset]?a.rightTattooAsset:"",neckTattooAsset:pack.tattoos?.[a.neckTattooAsset]?a.neckTattooAsset:"",
+  leftTattooX:clamp(a.leftTattooX??0,-25,25),leftTattooY:clamp(a.leftTattooY??0,-35,35),leftTattooScale:clamp(a.leftTattooScale??100,45,170),rightTattooX:clamp(a.rightTattooX??0,-25,25),rightTattooY:clamp(a.rightTattooY??0,-35,35),rightTattooScale:clamp(a.rightTattooScale??100,45,170),neckTattooX:clamp(a.neckTattooX??0,-20,20),neckTattooY:clamp(a.neckTattooY??0,-20,20),neckTattooScale:clamp(a.neckTattooScale??100,45,170),
   kitStyle:["solid","vertical","horizontal","diagonal","halves","pinstripe","gradient"].includes(a.kitStyle)?a.kitStyle:"solid",stripeCount:clamp(a.stripeCount??5,2,9),stripeWidth:["narrow","medium","wide"].includes(a.stripeWidth)?a.stripeWidth:"medium",kit1:safeHex(a.kit1,"#25a9ff"),kit2:safeHex(a.kit2,"#f7c64e"),kit3:safeHex(a.kit3,"#ffffff"),shirtNo:clamp(a.shirtNo||10,1,99),shirtName:String(a.shirtName||"")
  };
 }
@@ -79,10 +84,25 @@ function kitPattern(a,pid){
  if(mode==="pinstripe")return `<pattern id="${pid}" width="${Math.max(8,base)}" height="100" patternUnits="userSpaceOnUse"><rect width="100%" height="100%" fill="${c1}"/><rect width="${Math.max(1.5,sw*.22)}" height="100" fill="${c2}"/></pattern>`;
  return `<pattern id="${pid}" width="${base*2}" height="100" patternUnits="userSpaceOnUse"><rect width="${base*2}" height="100" fill="${c1}"/><rect width="${sw}" height="100" fill="${c2}"/></pattern>`;
 }
-function bodyFront(a,name){
- const body=a.build==="slim"?.88:a.build==="stocky"?1.17:a.build==="strong"?1.09:1,chest=body*(1+(a.chestWidth-50)*.006),w=82*chest,leg=78+(a.height-165)*.35+(a.legLength-50)*.24,pid=id();
- return `<defs>${kitPattern(a,pid)}</defs><ellipse cx="90" cy="286" rx="${50*body}" ry="7" fill="#000" opacity=".28"/><path d="M${90-w/2} 126 Q90 112 ${90+w/2} 126 L${90+w/2-7} 214 L${90-w/2+7} 214Z" fill="url(#${pid})"/><path d="M${90-w/2+8} 207 L80 ${252+leg*.20} L62 ${252+leg*.20} L70 204Z" fill="#102c3c"/><path d="M${90+w/2-8} 207 L100 ${252+leg*.20} L118 ${252+leg*.20} L110 204Z" fill="#102c3c"/><text x="90" y="181" text-anchor="middle" fill="#fff" stroke="#000" stroke-width=".65" paint-order="stroke" font-size="11" font-weight="900">${esc(name).slice(0,16)}</text>`;
+function packImage(cat,key,x,y,w,h,attrs=""){
+ const item=P()?.[cat]?.[key],src=item?.src;if(!src)return "";
+ return `<image href="${src}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid meet"${attrs?" "+attrs:""}/>`;
 }
+function tattooImage(key,x,y,w,h,tx=0,ty=0,scale=100,mirror=false){
+ const item=P().tattoos?.[key];if(!item?.src)return "";const s=clamp(scale,45,170)/100,cx=x+w/2,cy=y+h/2;
+ return `<g opacity=".78" style="mix-blend-mode:multiply" transform="translate(${tx} ${ty}) translate(${cx} ${cy}) scale(${mirror?-s:s} ${s}) translate(${-cx} ${-cy})"><image href="${item.src}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid meet"/></g>`;
+}
+function bodyFront(a,name){
+ const body=a.build==="slim"?.88:a.build==="stocky"?1.17:a.build==="strong"?1.09:1,chest=body*(1+(a.chestWidth-50)*.006),w=82*chest,leg=78+(a.height-165)*.35+(a.legLength-50)*.24,pid=id(),src=P().bodies?.[a.bodyAsset]?.src;
+ if(!src)return `<defs>${kitPattern(a,pid)}</defs><ellipse cx="90" cy="286" rx="${50*body}" ry="7" fill="#000" opacity=".28"/><path d="M${90-w/2} 126 Q90 112 ${90+w/2} 126 L${90+w/2-7} 214 L${90-w/2+7} 214Z" fill="url(#${pid})"/><path d="M${90-w/2+8} 207 L80 ${252+leg*.20} L62 ${252+leg*.20} L70 204Z" fill="#102c3c"/><path d="M${90+w/2-8} 207 L100 ${252+leg*.20} L118 ${252+leg*.20} L110 204Z" fill="#102c3c"/><text x="90" y="181" text-anchor="middle" fill="#fff" stroke="#000" stroke-width=".65" paint-order="stroke" font-size="11" font-weight="900">${esc(name).slice(0,16)}</text>`;
+ const clip=id(),under=id();
+ const undershirt=a.undershirtAsset!=="none"?packImage("clothing",a.undershirtAsset,18,80,144,145,`clip-path="url(#${under})"`):"";
+ const rightTat=tattooImage(a.rightTattooAsset,27,126,31,94,a.rightTattooX,a.rightTattooY,a.rightTattooScale,false);
+ const leftTat=tattooImage(a.leftTattooAsset,122,126,31,94,a.leftTattooX,a.leftTattooY,a.leftTattooScale,true);
+ const captain=a.isCaptain?packImage("clothing",a.captainArmband,126,121,30,24):"";
+ return `<defs><clipPath id="${clip}"><rect x="16" y="76" width="148" height="222" rx="8"/></clipPath><clipPath id="${under}"><path d="M18 92H55V225H18ZM125 92H162V225H125ZM72 78H108V105H72Z"/></clipPath></defs><ellipse cx="90" cy="287" rx="49" ry="7" fill="#000" opacity=".24"/>${undershirt}<g clip-path="url(#${clip})"><image href="${src}" x="16" y="76" width="148" height="222" preserveAspectRatio="xMidYMin meet"/></g>${rightTat}${leftTat}${captain}<text x="90" y="160" text-anchor="middle" fill="#1d2a32" opacity=".72" font-size="16" font-weight="900">${esc(a.shirtNo)}</text>`;
+}
+function neckAccessory(a){return tattooImage(a.neckTattooAsset,79,82,22,28,a.neckTattooX,a.neckTattooY,a.neckTattooScale,false)}
 function backPanel(a,name){const pid=id(),label=(a.shirtName||name||"").split(/\s+/).slice(-1)[0].toUpperCase().slice(0,12);return `<g transform="translate(178 48) scale(.58)"><defs>${kitPattern(a,pid)}</defs><path d="M48 82 Q90 66 132 82 L124 182 L56 182Z" fill="url(#${pid})" stroke="#ffffff22" stroke-width="1.5"/><text x="90" y="112" text-anchor="middle" fill="#fff" stroke="#000" stroke-width=".7" paint-order="stroke" font-size="14" font-weight="900">${esc(label)}</text><text x="90" y="160" text-anchor="middle" fill="#fff" stroke="#000" stroke-width="1.4" paint-order="stroke" font-size="46" font-weight="1000">${esc(a.shirtNo)}</text></g>`}
 function headLayers(a,x=15,y=-16,w=150,h=150){
  const f=id(),sf=id(),defs=tintDef(f,a.hairColor)+skinToneDef(sf,a.skinBrightness,a.skinWarmth);
@@ -94,7 +114,7 @@ function headLayers(a,x=15,y=-16,w=150,h=150){
 }
 function render(a0,name,mini=false,mode="both"){
  const a=normalize(a0),front=mode==="front",view=front?"20 0 180 300":"0 0 300 320",shift=front?20:38,h=headLayers(a);
- return `<svg viewBox="${view}" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="bg" cx=".5" cy=".2" r=".9"><stop stop-color="#10435a"/><stop offset="1" stop-color="#031019"/></radialGradient>${h.defs}</defs><rect width="${front?220:300}" height="330" rx="18" fill="url(#bg)"/><g transform="translate(${shift} 8)">${bodyFront(a,name)}${h.html}</g>${front?"":backPanel(a,name)}</svg>`;
+ return `<svg viewBox="${view}" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="bg" cx=".5" cy=".2" r=".9"><stop stop-color="#10435a"/><stop offset="1" stop-color="#031019"/></radialGradient>${h.defs}</defs><rect width="${front?220:300}" height="330" rx="18" fill="url(#bg)"/><g transform="translate(${shift} 8)">${bodyFront(a,name)}${h.html}${neckAccessory(a)}</g>${front?"":backPanel(a,name)}</svg>`;
 }
 function headSvg(a0,x=0,y=0,w=180,h=145){const a=normalize(a0),layers=headLayers(a);return `<svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 180 145" overflow="visible"><defs>${layers.defs}</defs>${layers.html}</svg>`}
 function renderCoach(a0,name="Coach"){
@@ -105,5 +125,5 @@ function renderCoach(a0,name="Coach"){
   transformedAsset(a.hairAsset,x,y,w,h,f,a.hairX,a.hairY,a.hairScale,"hair");
  return `<svg viewBox="0 0 180 235" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cbg" cx=".5" cy=".18" r=".9"><stop stop-color="#174b63"/><stop offset="1" stop-color="#04131d"/></radialGradient>${defs}</defs><rect width="180" height="235" rx="16" fill="url(#cbg)"/><path d="M42 138 Q90 118 138 138 L148 228 H32Z" fill="#101b24"/><path d="M76 132 L90 151 L104 132 L118 228 H62Z" fill="#263744"/><path d="M85 147 L90 157 L95 147 L98 197 L90 207 L82 197Z" fill="#b88c3b" opacity=".9"/>${head}<text x="90" y="220" text-anchor="middle" fill="#fff" stroke="#000" stroke-width=".7" paint-order="stroke" font-size="12" font-weight="900">${esc(name).slice(0,18)}</text></svg>`;
 }
-window.TimeClashAvatar={render,renderCoach,headSvg,normalize,normalizeCoach,kitPattern,assets:{PLAYER_FACES,COACH_FACES_M,COACH_FACES_F,HAIR_M,HAIR_F,BROWS,BEARDS}};
+window.TimeClashAvatar={render,renderCoach,headSvg,normalize,normalizeCoach,kitPattern,assets:{PLAYER_FACES,COACH_FACES_M,COACH_FACES_F,HAIR_M,HAIR_F,BROWS,BEARDS,BODY_KEYS:Object.keys(P().bodies||{}),CLOTHING_KEYS:Object.keys(P().clothing||{}),TATTOO_KEYS:Object.keys(P().tattoos||{})}};
 })();
