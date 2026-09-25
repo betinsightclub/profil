@@ -14,7 +14,7 @@
   }
   try{
     const files=['livev11.part0','livev11.part1','livev11.part2','livev11.part3'];
-    const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260925-laliga2-livealarm1-v3',{cache:'no-store'}).then(r=>{
+    const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260925-laliga2-visible-v4',{cache:'no-store'}).then(r=>{
       if(!r.ok)throw new Error('Terminal-Datei '+x+' konnte nicht geladen werden');
       return r.text();
     })));
@@ -35,7 +35,10 @@
       }
     }
     if(!html.includes('value="LaLiga 2"')){
-      html=html.split('<option value="La Liga">').join('<option value="La Liga"><option value="LaLiga 2"><option value="LALIGA HYPERMOTION"><option value="Segunda División">');
+      html=html.replace(
+        '<option value="La Liga">La Liga</option>',
+        '<option value="La Liga">La Liga</option><option value="LaLiga 2">LaLiga 2 · Segunda División (LALIGA HYPERMOTION)</option>'
+      );
     }
 
     // Security bridge: the compressed Tipp-Terminal still contains legacy direct Make webhook URLs.
