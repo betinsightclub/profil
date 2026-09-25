@@ -12,8 +12,8 @@ const COACH_FACES_M=["faces/coach-m01","faces/coach-m02","faces/coach-m03","face
 const COACH_FACES_F=["faces/coach-f01","faces/coach-f02","faces/coach-f03","faces/coach-f05"];
 const HAIR_M=["none","hair/m-buzz","hair/m-short-classic","hair/m-short-textured","hair/m-sidepart","hair/m-messy","hair/m-curly","hair/m-long-wavy","hair/m-long-straight"];
 const HAIR_F=["none","hair/f-bun","hair/f-high-ponytail","hair/f-lob","hair/f-curly","hair/f-long-straight","hair/f-long-wavy"];
-const BROWS=["original","brows/b01","brows/b03","brows/b05","brows/b07"];
-const BEARDS=["none","beard/beard-light","beard/beard-anchor","beard/beard-goatee","beard/beard-mustache","beard/beard-full"];
+const BROWS=["none","original","brows/b01","brows/b03","brows/b05","brows/b07"];
+const BEARDS=["none","beard/stubble-light","beard/stubble-medium","beard/beard-light","beard/beard-anchor","beard/beard-goatee","beard/beard-mustache","beard/beard-full"];
 
 function mapLegacyFace(a){
  const raw=String(a?.faceAsset||""); if(PLAYER_FACES.includes(raw))return raw;
@@ -23,7 +23,7 @@ function mapLegacyFace(a){
 function mapLegacyHair(a){
  const raw=String(a?.hairAsset||""); if(HAIR_M.includes(raw))return raw;
  const h=String(a?.hairStyle||a?.hairLength||"").toLowerCase();
- if(h==="bald")return "none"; if(h==="buzz"||h==="fade")return "hair/m-buzz"; if(h==="sidepart")return "hair/m-sidepart"; if(h==="slick")return "hair/m-short-classic"; if(h==="curly"||h==="coily")return "hair/m-curly"; if(h==="wavy"||h==="medium")return "hair/m-messy"; if(h==="long")return "hair/m-long-wavy"; return "hair/m-short-textured";
+ if(!h)return "none"; if(h==="bald")return "none"; if(h==="buzz"||h==="fade")return "hair/m-buzz"; if(h==="sidepart")return "hair/m-sidepart"; if(h==="slick")return "hair/m-short-classic"; if(h==="curly"||h==="coily")return "hair/m-curly"; if(h==="wavy"||h==="medium")return "hair/m-messy"; if(h==="long")return "hair/m-long-wavy"; return "hair/m-short-textured";
 }
 function mapLegacyBeard(a){
  const raw=String(a?.beardAsset||""); if(BEARDS.includes(raw))return raw;
@@ -33,9 +33,9 @@ function normalize(a={}){
  const faceAsset=mapLegacyFace(a),pack=P(),defaultBody={slim:"slim",athletic:"athletic",strong:"strong-athletic",stocky:"power"}[a.build]||"athletic",skinMap={"faces/player-m01":"#d7a17e","faces/player-m02":"#5a392d","faces/player-m03":"#d8a98d","faces/player-m04":"#7b4d35","faces/player-m05":"#563629","faces/player-m06":"#d2a282","faces/player-m07":"#bd8665","faces/player-m08":"#bd825c","faces/player-m09":"#a46d4c","faces/player-m10":"#c99775","faces/player-m11":"#c38a61","faces/player-m12":"#ad7858","faces/player-m13":"#d0a07f","faces/player-m14":"#d8ae95","faces/player-m15":"#d0a080","faces/player-m16":"#ae7959","faces/player-m17":"#d9aa8f"};
  return {
   avatarVersion:3,kind:"player",
-  height:clamp(a.height||182,150,220),build:["slim","athletic","strong","stocky"].includes(a.build)?a.build:"athletic",chestWidth:clamp(a.chestWidth??50,35,65),legLength:clamp(a.legLength??50,35,65),
+  height:clamp(a.height||182,150,220),build:["slim","athletic","strong","stocky"].includes(a.build)?a.build:"athletic",chestWidth:clamp(a.chestWidth??50,35,65),legLength:clamp(a.legLength??50,35,65),headScale:clamp(a.headScale??100,80,120),headY:clamp(a.headY??0,-24,24),
   faceAsset,skin:safeHex(a.skin,skinMap[faceAsset]||"#d7a17e"),skinBrightness:clamp(a.skinBrightness??0,-40,25),skinWarmth:clamp(a.skinWarmth??0,-20,20),
-  hairAsset:mapLegacyHair(a),browAsset:BROWS.includes(a.browAsset)?a.browAsset:"original",beardAsset:mapLegacyBeard(a),hairColor:safeHex(a.hairColor,"#3a2418"),
+  hairAsset:mapLegacyHair(a),browAsset:BROWS.includes(a.browAsset)?a.browAsset:"none",beardAsset:mapLegacyBeard(a),hairColor:safeHex(a.hairColor,"#3a2418"),
   hairX:clamp(a.hairX??0,-35,35),hairY:clamp(a.hairY??0,-35,35),hairScale:clamp(a.hairScale??100,10,200),
   browX:clamp(a.browX??0,-35,35),browY:clamp(a.browY??0,-35,35),browScale:clamp(a.browScale??100,10,200),
   beardX:clamp(a.beardX??0,-35,35),beardY:clamp(a.beardY??0,-35,35),beardScale:clamp(a.beardScale??100,10,200),
@@ -60,8 +60,17 @@ function asset(key,x,y,w,h,filter="",attrs=""){
  if(!key||key==="none"||key==="original"||!A()?.cell(key))return "";
  return `<g${attrs?" "+attrs:""}${filter?` filter="url(#${filter})"`:""}>${A().svgImage(key,x,y,w,h)}</g>`;
 }
+function stubbleAsset(key,x,y,w,h,filter="",tx=0,ty=0,scale=100,layer=""){
+ const s=clamp(scale,10,200)/100,cx=x+w/2,cy=y+h/2,medium=String(key).includes("medium"),op=medium?.52:.30;
+ const pts=[[.34,.55],[.39,.57],[.44,.59],[.49,.60],[.54,.59],[.59,.57],[.64,.55],[.31,.60],[.36,.63],[.41,.65],[.46,.67],[.51,.68],[.56,.67],[.61,.65],[.66,.62],[.29,.65],[.34,.69],[.39,.72],[.44,.74],[.49,.75],[.54,.74],[.59,.72],[.64,.69],[.69,.65],[.36,.52],[.42,.53],[.48,.54],[.54,.53],[.60,.52]];
+ const marks=pts.map((p,i)=>`<ellipse cx="${(x+w*p[0]).toFixed(2)}" cy="${(y+h*p[1]).toFixed(2)}" rx="${medium?1.05:.78}" ry="${medium?1.45:1.05}" fill="#2b211c" opacity="${(op+(i%3)*.05).toFixed(2)}"/>`).join("");
+ const jaw=`<path d="M ${x+w*.28} ${y+h*.58} Q ${x+w*.33} ${y+h*.79} ${x+w*.50} ${y+h*.82} Q ${x+w*.67} ${y+h*.79} ${x+w*.72} ${y+h*.58}" fill="none" stroke="#2b211c" stroke-width="${medium?3.2:2.0}" stroke-linecap="round" opacity="${medium?.22:.13}"/>`;
+ return `<g data-avatar-layer="${esc(layer)}" transform="translate(${clamp(tx,-35,35)} ${clamp(ty,-35,35)}) translate(${cx} ${cy}) scale(${s.toFixed(3)}) translate(${-cx} ${-cy})"${filter?` filter="url(#${filter})"`:""}>${jaw}${marks}</g>`;
+}
 function transformedAsset(key,x,y,w,h,filter="",tx=0,ty=0,scale=100,layer=""){
- if(!key||key==="none"||key==="original"||!A()?.cell(key))return "";
+ if(!key||key==="none"||key==="original")return "";
+ if(String(key).startsWith("beard/stubble-"))return stubbleAsset(key,x,y,w,h,filter,tx,ty,scale,layer);
+ if(!A()?.cell(key))return "";
  const s=clamp(scale,10,200)/100,cx=x+w/2,cy=y+h/2;
  return `<g data-avatar-layer="${esc(layer)}" transform="translate(${clamp(tx,-35,35)} ${clamp(ty,-35,35)}) translate(${cx} ${cy}) scale(${s.toFixed(3)}) translate(${-cx} ${-cy})"${filter?` filter="url(#${filter})"`:""}>${A().svgImage(key,x,y,w,h)}</g>`;
 }
@@ -113,7 +122,7 @@ function headLayers(a,x=15,y=-16,w=150,h=150){
   transformedAsset(a.hairAsset,x,y,w,h,f,a.hairX,a.hairY,a.hairScale,"hair")};
 }
 function render(a0,name,mini=false,mode="both"){
- const a=normalize(a0),front=mode==="front",view=front?"20 0 180 300":"0 0 300 320",shift=front?20:38,h=headLayers(a,42,8,96,96);
+ const a=normalize(a0),front=mode==="front",view=front?"20 0 180 300":"0 0 300 320",shift=front?20:38,hs=96*(a.headScale/100),hx=90-hs/2,hy=8+a.headY,h=headLayers(a,hx,hy,hs,hs);
  return `<svg viewBox="${view}" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="bg" cx=".5" cy=".2" r=".9"><stop stop-color="#10435a"/><stop offset="1" stop-color="#031019"/></radialGradient>${h.defs}</defs><rect width="${front?220:300}" height="330" rx="18" fill="url(#bg)"/><g transform="translate(${shift} 8)">${bodyFront(a,name)}${h.html}${neckAccessory(a)}</g>${front?"":backPanel(a,name)}</svg>`;
 }
 function headSvg(a0,x=0,y=0,w=180,h=145){const a=normalize(a0),layers=headLayers(a);return `<svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 180 145" overflow="visible"><defs>${layers.defs}</defs>${layers.html}</svg>`}
