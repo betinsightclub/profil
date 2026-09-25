@@ -83,7 +83,7 @@ button,input,select{font:inherit}.page{width:min(100% - 32px,920px);margin:0 aut
 <script>
 "use strict";
 const WALLET_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=wallet-save";
-const WALLET_READ_WEBHOOK_URL="https://hook.eu1.make.com/456yvxtior92fsazzbkpuw6ywki6nz5r";
+const WALLET_READ_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=wallet-read";
 const BANK_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=bank-save";
 const dashboardToken=window.BetInsightSession?.getDashboardUuid?.()||"";
 const walletOptions={USDT_TRC20:{coin:"USDT",network:"TRON",standard:"TRC20",pattern:/^T[1-9A-HJ-NP-Za-km-z]{33}$/},TRX_TRON:{coin:"TRX",network:"TRON",standard:"NATIVE",pattern:/^T[1-9A-HJ-NP-Za-km-z]{33}$/}};
