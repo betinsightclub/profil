@@ -145,3 +145,84 @@ function render(a0,name,mini=false,mode="both"){
 }
 window.TimeClashAvatar={render,normalize:a=>normalizeFace(cfg(a)),kitPattern};
 })();
+
+/* TIME CLASH save-confirm reconciliation v1 */
+(function(){
+  let checking=false, lastChecked=0;
+  function looksLikeFalseSaveError(){
+    const a=document.getElementById("msg"), b=document.getElementById("topSaveMsg");
+    const t=((a?.textContent||"")+" "+(b?.textContent||"")).toLowerCase();
+    return t.includes("nicht mit dem server synchronisiert") ||
+      t.includes("could not be synchronized with the server") ||
+      t.includes("no se pudieron sincronizar") ||
+      t.includes("n’ont pas pu être synchronisées") ||
+      t.includes("non possono essere sincronizzate") ||
+      t.includes("não puderam ser sincronizadas");
+  }
+  async function reconcileSave(){
+    if(checking || !looksLikeFalseSaveError()) return;
+    const now=Date.now(); if(now-lastChecked<1200) return; lastChecked=now; checking=true;
+    try{
+      const credential=(typeof ownerRef==="function"?ownerRef():"")||"";
+      const api=(typeof CLUB_API!=="undefined"&&CLUB_API)||"https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash-club";
+      if(!credential) return;
+      const r=await fetch(api+"?credential="+encodeURIComponent(credential),{cache:"no-store"});
+      const d=await r.json();
+      if(!r.ok||!d?.club) return;
+      const q=id=>document.getElementById(id);
+      const expectedName=(q("clubName")?.value||"").trim();
+      const expectedShape=q("logoShape")?.value||"";
+      const expectedPattern=q("logoPattern")?.value||"";
+      const expectedOpacity=Number(q("watermarkOpacity")?.value||0);
+      const matches=
+        (!expectedName||String(d.club.club_name||"")===expectedName) &&
+        (!expectedShape||String(d.club.logo_shape||"")===expectedShape) &&
+        (!expectedPattern||String(d.club.logo_pattern||"")===expectedPattern) &&
+        Number(d.club.watermark_opacity??0)===expectedOpacity;
+      if(!matches) return;
+
+      // Der Server ist die Quelle der Wahrheit. Wenn der POST bereits gespeichert hat,
+      // darf ein nachgelagerter Browser-/Cachefehler nicht als fehlgeschlagener Save erscheinen.
+      try{
+        if(typeof currentProgress!=="undefined"&&d.progress) currentProgress=d.progress;
+        if(typeof currentBudget!=="undefined"&&d.progress?.budget) currentBudget=Number(d.progress.budget);
+      }catch(_e){}
+      try{
+        const cached=JSON.parse(localStorage.getItem("biMyClub")||"null")||{};
+        const merged={...cached,
+          name:d.club.club_name,
+          c1:d.club.primary_color,
+          c2:d.club.secondary_color,
+          c3:d.club.accent_color||cached.c3,
+          logoShape:d.club.logo_shape||cached.logoShape,
+          logoPattern:d.club.logo_pattern||cached.logoPattern,
+          watermarkOpacity:Number(d.club.watermark_opacity??cached.watermarkOpacity??30),
+          photo:d.club.watermark_url||cached.photo||"",
+          fieldKit:d.club.field_player_kit||cached.fieldKit,
+          goalkeeperKit:d.club.goalkeeper_kit||cached.goalkeeperKit,
+          coach:d.club.coach||cached.coach||{},
+          players:d.club.players||cached.players||[],
+          league:d.club.league||cached.league,
+          ratingPoints:d.club.rating_points,
+          winsTotal:Number(d.club.wins_total||0),
+          budget:Number(d.progress?.budget||cached.budget||100),
+          createdAt:d.club.created_at||cached.createdAt
+        };
+        try{localStorage.setItem("biMyClub",JSON.stringify(merged));}catch(cacheErr){console.warn("TIME CLASH local cache full; server save is intact",cacheErr);}
+        try{if(d.progress)localStorage.setItem("biMyClubProgress",JSON.stringify(d.progress));}catch(_e){}
+        try{if(typeof renderClubhouse==="function")renderClubhouse(merged);}catch(_e){}
+        try{if(typeof renderProgress==="function")renderProgress();}catch(_e){}
+        try{if(typeof paint==="function")paint();}catch(_e){}
+      }catch(_e){}
+      const success=(typeof saveStatusCopy==="function"?saveStatusCopy().ok:"✓ Team serverseitig gespeichert und für die Community aktualisiert.");
+      const msg=document.getElementById("msg"), top=document.getElementById("topSaveMsg");
+      if(msg)msg.innerHTML='<span class="ok">'+success+"</span>";
+      if(top)top.innerHTML='<span class="ok">'+success+"</span>";
+    }catch(e){console.warn("TIME CLASH save reconciliation",e)}
+    finally{checking=false}
+  }
+  window.addEventListener("load",()=>{
+    const nodes=[document.getElementById("msg"),document.getElementById("topSaveMsg")].filter(Boolean);
+    nodes.forEach(n=>new MutationObserver(()=>setTimeout(reconcileSave,60)).observe(n,{childList:true,subtree:true,characterData:true}));
+  });
+})();
