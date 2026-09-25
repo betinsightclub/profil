@@ -405,7 +405,7 @@
           <p class="teamline"><strong id="teamName">Mannschaft</strong><span id="countrySeparator" class="hidden"> · </span><span id="countryName" class="hidden"></span></p>
           <div class="chips">
             <span class="chip">⚽ Trainer</span>
-            <span class="chip premium hidden" id="membershipChip">★ Premium</span>
+            <span class="chip premium" id="gameRankChip">🏆 Startliga</span>
             <span class="chip" id="memberSinceChip">Profil wird geladen …</span>
           </div>
         </div>
@@ -438,9 +438,13 @@
             <div class="about-row"><span>🔗</span><span>Öffentliches Profil · teilbar</span></div>
           </div>
           <div class="stat-grid">
-            <div class="stat"><strong>14</strong><span>Spiele</span></div>
-            <div class="stat"><strong>9</strong><span>Siege</span></div>
-            <div class="stat"><strong>67%</strong><span>Quote</span></div>
+            <div class="stat"><strong id="statMatches">0</strong><span>Spiele</span></div>
+            <div class="stat"><strong id="statWins">0</strong><span>Siege</span></div>
+            <div class="stat"><strong id="statRate">0%</strong><span>Quote</span></div>
+          </div>
+          <div class="rank-panel" id="rankPanel">
+            <div class="rank-title">Durch Spiele erreichte Ränge</div>
+            <div class="rank-list" id="rankList"><span class="rank-empty">Noch kein Rang durch Spiele erreicht.</span></div>
           </div>
         </article>
 
@@ -753,6 +757,31 @@
         if(back) back.onclick=function(){location.assign(safeReturnUrl);};
       }
 
+      function renderGameRanks(profile){
+        var current=clean(profile&&profile.league||"Startliga")||"Startliga";
+        var chip=document.getElementById("gameRankChip");
+        if(chip) chip.textContent="🏆 "+current.replace("-Liga","");
+
+        var wins=Number(profile&&profile.stats&&profile.stats.wins||0);
+        var levels=[
+          {name:"Bronze",at:5,icon:"🥉"},
+          {name:"Silber",at:30,icon:"🥈"},
+          {name:"Gold",at:50,icon:"🥇"},
+          {name:"Platin",at:100,icon:"💠"},
+          {name:"Elite",at:200,icon:"🏆"}
+        ];
+        var earned=levels.filter(function(level){return wins>=level.at;});
+        var list=document.getElementById("rankList");
+        if(!list) return;
+        if(!earned.length){
+          list.innerHTML='<span class="rank-empty">Noch kein Rang durch Spiele erreicht.</span>';
+          return;
+        }
+        list.innerHTML=earned.map(function(level){
+          return '<span class="rank-badge">'+level.icon+" "+esc(level.name)+'</span>';
+        }).join("");
+      }
+
       function renderRecentMatches(matches){
         var list=document.getElementById("resultList");
         if(!list) return;
@@ -806,6 +835,7 @@
         document.getElementById("statMatches").textContent=Number(stats.matches||0);
         document.getElementById("statWins").textContent=Number(stats.wins||0);
         document.getElementById("statRate").textContent=Number(stats.win_rate||0)+"%";
+        renderGameRanks(profile);
 
         var since=document.getElementById("memberSinceChip");
         if(since){
