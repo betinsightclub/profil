@@ -446,8 +446,14 @@
 
         <article class="card card-pad">
           <div class="card-title"><h2>Berichte & Galerie</h2><a href="#gallery">Alle ansehen</a></div>
-          <div class="gallery-grid" id="gallery"><div class="empty-state" id="galleryEmpty" style="grid-column:1/-1">Noch keine Berichte oder Bilder vorhanden.</div></div>\n        </article>\n\n        <article class="card card-pad">\n          <div class="card-title"><h2>Letzte Spiele</h2><a href="#">Alle Berichte</a></div>
-          <div class="result-list" id="resultList"><div class="empty-state">Noch keine Spiele gespeichert.</div></div>\n        </article>\n      </aside>
+          <div class="gallery-grid" id="gallery"><div class="empty-state" id="galleryEmpty" style="grid-column:1/-1">Noch keine Berichte oder Bilder vorhanden.</div></div>
+        </article>
+
+        <article class="card card-pad">
+          <div class="card-title"><h2>Letzte Spiele</h2><a href="#">Alle Berichte</a></div>
+          <div class="result-list" id="resultList"><div class="empty-state">Noch keine Spiele gespeichert.</div></div>
+        </article>
+      </aside>
 
       <section class="column center-col">
         <article class="card composer owner-only" id="composerCard">
@@ -489,7 +495,11 @@
       <aside class="column right-col">
         <article class="card card-pad">
           <div class="card-title"><h2>Andere Trainer</h2><a href="#">Galerie</a></div>
-          <div class="trainer-list" id="trainerList"><div class="empty-state">Weitere Trainerprofile werden geladen …</div></div>\n        </article>\n\n        <article class="card card-pad">\n          <div class="card-title"><h2>Profil teilen</h2></div>
+          <div class="trainer-list" id="trainerList"><div class="empty-state">Weitere Trainerprofile werden geladen …</div></div>
+        </article>
+
+        <article class="card card-pad">
+          <div class="card-title"><h2>Profil teilen</h2></div>
           <div class="share-note">
             Jeder geteilte Profil- oder Beitragslink kann automatisch den <b>öffentlichen Referral-Code dieses Trainers</b> mitnehmen. Der geheime Dashboard-Token gehört niemals in einen öffentlichen Link.
           </div>
@@ -947,7 +957,9 @@
         {name:"Danke",icon:"🙏"}
       ];
 
-      var basePosts = [];\n\n      function readPosts(){
+      var basePosts = [];
+
+      function readPosts(){
         var custom = [];
         try{ custom = JSON.parse(localStorage.getItem(storageKey) || "[]"); }catch(e){}
         return custom.concat(basePosts);
