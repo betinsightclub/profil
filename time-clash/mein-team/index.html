@@ -352,7 +352,7 @@ function renderProgress(){let p=currentProgress||{},idx=Number(p.index||0),wins=
 function logoBackground(pattern,c1,c2,c3){switch(pattern){case"solid":return"linear-gradient("+c1+","+c1+")";case"vertical":return"repeating-linear-gradient(90deg,"+c1+" 0 16px,"+c2+" 16px 32px)";case"horizontal":return"repeating-linear-gradient(0deg,"+c1+" 0 16px,"+c2+" 16px 32px)";case"diagonal":return"repeating-linear-gradient(135deg,"+c1+" 0 15px,"+c2+" 15px 30px)";case"split_v":return"linear-gradient(90deg,"+c1+" 0 50%,"+c2+" 50% 100%)";case"split_h":return"linear-gradient(180deg,"+c1+" 0 50%,"+c2+" 50% 100%)";case"radial":return"radial-gradient(circle at 36% 30%,"+c3+" 0 4%,"+c1+" 28%,"+c2+" 100%)";default:return"linear-gradient(135deg,"+c1+" 0%,"+c2+" 72%,"+c3+" 140%)"}}
 function setBadgeInitials(el,name){let s=el?.querySelector(".badgeInitials");if(s)s.textContent=initials(name||"BI")}
 function applyClubBadge(el,m={}){if(!el)return;const c1=m.c1||"#25a9ff",c2=m.c2||"#f7c64e",c3=m.c3||"#ffffff",shape=m.logoShape||"shield",pattern=m.logoPattern||"gradient",opacity=Math.max(0,Math.min(80,Number(m.watermarkOpacity??30)));el.dataset.shape=shape;el.dataset.pattern=pattern;el.style.setProperty("--c1",c1);el.style.setProperty("--c2",c2);el.style.setProperty("--c3",c3);el.style.setProperty("--badge-bg",logoBackground(pattern,c1,c2,c3));el.style.setProperty("--wm-opacity",String(opacity/100));setBadgeInitials(el,m.name);if(m.photo){el.classList.add("hasPhoto");el.style.setProperty("--photo",'url("'+m.photo+'")')}else{el.classList.remove("hasPhoto");el.style.removeProperty("--photo")}}
-function renderClubhouse(m){if(!m)return;qs("#profileClub").textContent=m.name||"DEIN CLUB";qs("#profileLeague").textContent=String(m.league||currentProgress.name||"Startliga").replace("-Liga","")+" · "+(+m.winsTotal||currentProgress.wins||0)+" Siege";qs("#statPoints").textContent=+m.ratingPoints||0;let pb=qs("#profileBadge");applyClubBadge(pb,m);let hist=JSON.parse(localStorage.getItem("biMyClubHistory")||"[]");qs("#statMatches").textContent=hist.length;let wins=hist.filter(x=>x.won).length;qs("#statWins").textContent=wins;qs("#statGoals").textContent=hist.reduce((s,x)=>s+(+x.goals||0),0);if(hist.length)qs("#fixtures").innerHTML=hist.slice().reverse().slice(0,10).map(x=>'<div class="fixture"><span class="small">'+(x.date||"TIME CLASH")+'</span><span><b>'+(m.name||"Mein Club")+'</b> vs. '+(x.opponent||"Gegner")+'</span><span class="result">'+(x.score||"–")+'</span></div>').join("");let goals={};hist.forEach(x=>(x.scorers||[]).forEach(s=>goals[s]=(goals[s]||0)+1));let top=Object.entries(goals).sort((a,b)=>b[1]-a[1]).slice(0,3);if(top.length)qs("#scorers").innerHTML=top.map((x,i)=>'<div class="scorer"><div class="rank">#'+(i+1)+'</div><strong>'+x[0]+'</strong><span class="small">'+x[1]+' Tore</span></div>').join("")}function paint(){let n=qs("#clubName").value,op=Number(qs("#watermarkOpacity")?.value||30);if(qs("#watermarkOpacityValue"))qs("#watermarkOpacityValue").textContent=op+"%";applyClubBadge(qs("#badge"),{name:n,c1:qs("#c1").value,c2:qs("#c2").value,c3:qs("#c3").value,logoShape:qs("#logoShape").value,logoPattern:qs("#logoPattern").value,watermarkOpacity:op,photo:clubPhotoData});let t=qsa(".ps").filter(x=>!x.disabled).reduce((s,x)=>s+(+x.value||0),0);qs("#total").textContent=t+" / "+currentBudget;qs("#total").className="total "+(t===currentBudget?"ok":"bad");qs("#bar").style.width=Math.min(100,(t/currentBudget)*100)+"%"}document.addEventListener("input",paint);document.addEventListener("change",e=>{if(["logoShape","logoPattern","c1","c2","c3","watermarkOpacity"].includes(e.target?.id))paint()});let clubPhotoData="",clubPhotoCleared=false;
+function renderClubhouse(m){if(!m)return;qs("#profileClub").textContent=m.name||"DEIN CLUB";qs("#profileLeague").textContent=String(m.league||currentProgress.name||"Startliga").replace("-Liga","")+" · "+(+m.winsTotal||currentProgress.wins||0)+" Siege";qs("#statPoints").textContent=+m.ratingPoints||0;let pb=qs("#profileBadge");applyClubBadge(pb,m);let hist=[];try{let parsed=JSON.parse(localStorage.getItem("biMyClubHistory")||"[]");hist=Array.isArray(parsed)?parsed:[]}catch(e){console.warn("TIME CLASH history cache invalid",e);hist=[]}qs("#statMatches").textContent=hist.length;let wins=hist.filter(x=>x.won).length;qs("#statWins").textContent=wins;qs("#statGoals").textContent=hist.reduce((s,x)=>s+(+x.goals||0),0);if(hist.length)qs("#fixtures").innerHTML=hist.slice().reverse().slice(0,10).map(x=>'<div class="fixture"><span class="small">'+(x.date||"TIME CLASH")+'</span><span><b>'+(m.name||"Mein Club")+'</b> vs. '+(x.opponent||"Gegner")+'</span><span class="result">'+(x.score||"–")+'</span></div>').join("");let goals={};hist.forEach(x=>(x.scorers||[]).forEach(s=>goals[s]=(goals[s]||0)+1));let top=Object.entries(goals).sort((a,b)=>b[1]-a[1]).slice(0,3);if(top.length)qs("#scorers").innerHTML=top.map((x,i)=>'<div class="scorer"><div class="rank">#'+(i+1)+'</div><strong>'+x[0]+'</strong><span class="small">'+x[1]+' Tore</span></div>').join("")}function paint(){let n=qs("#clubName").value,op=Number(qs("#watermarkOpacity")?.value||30);if(qs("#watermarkOpacityValue"))qs("#watermarkOpacityValue").textContent=op+"%";applyClubBadge(qs("#badge"),{name:n,c1:qs("#c1").value,c2:qs("#c2").value,c3:qs("#c3").value,logoShape:qs("#logoShape").value,logoPattern:qs("#logoPattern").value,watermarkOpacity:op,photo:clubPhotoData});let t=qsa(".ps").filter(x=>!x.disabled).reduce((s,x)=>s+(+x.value||0),0);qs("#total").textContent=t+" / "+currentBudget;qs("#total").className="total "+(t===currentBudget?"ok":"bad");qs("#bar").style.width=Math.min(100,(t/currentBudget)*100)+"%"}document.addEventListener("input",paint);document.addEventListener("change",e=>{if(["logoShape","logoPattern","c1","c2","c3","watermarkOpacity"].includes(e.target?.id))paint()});let clubPhotoData="",clubPhotoCleared=false;
 async function compressClubPhoto(file){
  if(!file||!file.type.startsWith("image/"))throw new Error("invalid_image");
  if(file.size>6000000)throw new Error("too_large");
@@ -367,4 +367,73 @@ try{let m=JSON.parse(localStorage.getItem("biMyClub")||"null");if(m){loadedPlaye
 initPlayerConfigurator(loadedPlayers);initCoachConfigurator(loadedCoach);paint();if(window.TimeClashFacepackReady?.then){window.TimeClashFacepackReady.then(()=>{try{renderPcAssetPickers(pcForm());renderPcPreview()}catch(e){console.error("TIME CLASH facepack refresh failed",e)}})}qs("#save").onclick=async()=>{let name=qs("#clubName").value.trim(),names=qsa(".pn"),strengths=qsa(".ps"),total=strengths.filter(x=>!x.disabled).reduce((s,x)=>s+(+x.value||0),0);if(!name){qs("#msg").textContent="Bitte gib deinem Club einen Namen.";return}if(total!==currentBudget){qs("#msg").textContent="Bitte verteile genau "+currentBudget+" Stärkepunkte. Aktuell: "+total+".";return}if(names.some(x=>!x.value.trim())){qs("#msg").textContent="Bitte benenne alle 11 Stammspieler und alle 6 Ersatzspieler.";return}
 let shirtNumbers=qsa(".shirtNo").map(x=>Math.max(1,Math.min(99,Number(x.value||0))));if(new Set(shirtNumbers).size!==shirtNumbers.length){qs("#msg").innerHTML='<span class="bad">'+pcU().duplicateNo+'</span>';return}
 const buildLegacy={slim:"Schlank",athletic:"Athletisch",strong:"Kräftig",stocky:"Stämmig"},hairLegacy={bald:"Glatze",buzz:"Kurz",fade:"Kurz",short:"Kurz",sidepart:"Kurz",slick:"Kurz",wavy:"Mittel",curly:"Mittel",coily:"Mittel",medium:"Mittel",long:"Lang"};
-readKitControls();let players=names.map((x,i)=>{let look={...(playerLooks[i]||deterministicLook(i,{name:x.value.trim()}))};["kitStyle","stripeCount","stripeWidth","kit1","kit2","kit3","shirtNo","shirtName"].forEach(k=>delete look[k]);return {name:x.value.trim(),shirtNo:shirtNumbers[i],strength:strengths[i]&&!strengths[i].disabled?+strengths[i].value:5,prole:qsa(".prole")[i]?.value,age:qsa(".age")[i]?.value,height:qsa(".height")[i]?.value,trait:qsa(".trait")[i]?.value,build:buildLegacy[look.build]||"Athletisch",hair:look.hairAsset==="none"?"Glatze":String(look.hairAsset||"").includes("long")?"Lang":String(look.hairAsset||"").includes("curly")?"Mittel":"Kurz",hairColor:look.hairColor||"",appearance:look,appearanceConfigured:!!playerLookConfigured[i]}});let benchPlayers=players.slice(11);if(benchPlayers.length<6||!benchPlayers.some(p=>p.prole==="Torwart")){qs("#msg").textContent="Die Ersatzbank braucht mindestens 6 Spieler, darunter einen Ersatz-Torwart.";return}let oldClub=JSON.parse(localStorage.getItem("biMyClub")||"null"),savedClub={name,c1:qs("#c1").value,c2:qs("#c2").value,c3:qs("#c3").value,logoShape:qs("#logoShape").value,logoPattern:qs("#logoPattern").value,watermarkOpacity:Number(qs("#watermarkOpacity").value||30),photo:clubPhotoData,removeWatermark:clubPhotoCleared,fieldKit,goalkeeperKit,coach:{name:qs("#coachName").value.trim(),style:qs("#coachStyle").value,appearance:coachForm()},players,league:currentProgress.name||oldClub?.league||"Startliga",ratingPoints:oldClub?.ratingPoints||0,winsTotal:currentProgress.wins||oldClub?.winsTotal||0,budget:currentBudget,createdAt:oldClub?.createdAt||new Date().toISOString()};let o=ownerRef();if(!o){localStorage.setItem("biMyClub",JSON.stringify(savedClub));renderClubhouse(savedClub);qs("#msg").innerHTML='<span class="bad">'+saveStatusCopy().local+'</span>';return}try{let r=await fetch(CLUB_API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...savedClub,credential:o,language:teamPageLang})}),d=await r.json();if(!r.ok&&d.error==="name_policy"){qs("#msg").innerHTML='<span class="bad">'+(d.message||"Name nicht zulässig.")+"</span>";return}if(!r.ok||!d.club){let err=new Error(d.error||"save_failed");err.status=r.status;throw err}currentProgress=d.progress||currentProgress;currentBudget=Number(currentProgress.budget||currentBudget);savedClub.league=currentProgress.name||d.club.league;savedClub.ratingPoints=d.club.rating_points;savedClub.winsTotal=Number(d.club.wins_total||currentProgress.wins||0);savedClub.budget=currentBudget;savedClub.photo=d.club.watermark_url||savedClub.photo||"";savedClub.c3=d.club.accent_color||savedClub.c3;savedClub.logoShape=d.club.logo_shape||savedClub.logoShape;savedClub.logoPattern=d.club.logo_pattern||savedClub.logoPattern;savedClub.watermarkOpacity=Number(d.club.watermark_opacity??savedClub.watermarkOpacity);savedClub.fieldKit=d.club.field_player_kit||savedClub.fieldKit;savedClub.goalkeeperKit=d.club.goalkeeper_kit||savedClub.goalkeeperKit;fieldKit=savedClub.fieldKit;goalkeeperKit=savedClub.goalkeeperKit;clubPhotoCleared=false;delete savedClub.removeWatermark;localStorage.setItem("biMyClub",JSON.stringify(savedClub));localStorage.setItem("biMyClubProgress",JSON.stringify(currentProgress));renderClubhouse(savedClub);renderProgress();paint();qs("#profileOwner").textContent="Club-Besitzer · "+(d.owner_masked||"verifiziert");qs("#msg").innerHTML='<span class="ok">'+saveStatusCopy().ok+'</span>'}catch(e){let txt=(e?.status===401||e?.message==="invalid_identity")?saveStatusCopy().auth:saveStatusCopy().generic;qs("#msg").innerHTML='<span class="bad">'+txt+'</span>'}};</script></body></html>
+readKitControls();let players=names.map((x,i)=>{let look={...(playerLooks[i]||deterministicLook(i,{name:x.value.trim()}))};["kitStyle","stripeCount","stripeWidth","kit1","kit2","kit3","shirtNo","shirtName"].forEach(k=>delete look[k]);return {name:x.value.trim(),shirtNo:shirtNumbers[i],strength:strengths[i]&&!strengths[i].disabled?+strengths[i].value:5,prole:qsa(".prole")[i]?.value,age:qsa(".age")[i]?.value,height:qsa(".height")[i]?.value,trait:qsa(".trait")[i]?.value,build:buildLegacy[look.build]||"Athletisch",hair:look.hairAsset==="none"?"Glatze":String(look.hairAsset||"").includes("long")?"Lang":String(look.hairAsset||"").includes("curly")?"Mittel":"Kurz",hairColor:look.hairColor||"",appearance:look,appearanceConfigured:!!playerLookConfigured[i]}});let benchPlayers=players.slice(11);if(benchPlayers.length<6||!benchPlayers.some(p=>p.prole==="Torwart")){qs("#msg").textContent="Die Ersatzbank braucht mindestens 6 Spieler, darunter einen Ersatz-Torwart.";return}let oldClub=JSON.parse(localStorage.getItem("biMyClub")||"null"),savedClub={name,c1:qs("#c1").value,c2:qs("#c2").value,c3:qs("#c3").value,logoShape:qs("#logoShape").value,logoPattern:qs("#logoPattern").value,watermarkOpacity:Number(qs("#watermarkOpacity").value||30),photo:clubPhotoData,removeWatermark:clubPhotoCleared,fieldKit,goalkeeperKit,coach:{name:qs("#coachName").value.trim(),style:qs("#coachStyle").value,appearance:coachForm()},players,league:currentProgress.name||oldClub?.league||"Startliga",ratingPoints:oldClub?.ratingPoints||0,winsTotal:currentProgress.wins||oldClub?.winsTotal||0,budget:currentBudget,createdAt:oldClub?.createdAt||new Date().toISOString()};let o=ownerRef();if(!o){localStorage.setItem("biMyClub",JSON.stringify(savedClub));renderClubhouse(savedClub);qs("#msg").innerHTML='<span class="bad">'+saveStatusCopy().local+'</span>';return}let r=null,d=null;
+try{
+  r=await fetch(CLUB_API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...savedClub,credential:o,language:teamPageLang})});
+}catch(netErr){
+  console.error("TIME CLASH save network error",netErr);
+  qs("#msg").innerHTML='<span class="bad">Verbindung zum Server fehlgeschlagen. Grund: Netzwerk-/Browserfehler. Bitte Verbindung prüfen und erneut speichern.</span>';
+  return
+}
+try{
+  d=await r.json()
+}catch(jsonErr){
+  console.error("TIME CLASH save response parse error",jsonErr);
+  qs("#msg").innerHTML='<span class="bad">Der Server hat geantwortet (HTTP '+r.status+'), aber die Antwort konnte nicht gelesen werden. Fehlercode: invalid_server_response.</span>';
+  return
+}
+if(!r.ok&&d.error==="name_policy"){
+  qs("#msg").innerHTML='<span class="bad">'+(d.message||"Name nicht zulässig.")+"</span>";
+  return
+}
+if(!r.ok||!d.club){
+  let reason="";
+  if(r.status===401||d.error==="invalid_identity"){
+    reason=saveStatusCopy().auth
+  }else if(d.error==="team_budget_mismatch"){
+    reason="Team-Budget stimmt nicht. Erwartet: "+Number(d.required_budget||currentBudget)+" Punkte, gesendet: "+Number(d.current_total||0)+"."
+  }else if(d.error==="duplicate_shirt_number"){
+    reason="Mindestens eine Trikotnummer ist doppelt vergeben. Jede Nummer darf im Kader nur einmal vorkommen."
+  }else if(d.error==="reserve_goalkeeper_required"){
+    reason="Auf der Ersatzbank fehlt ein Ersatz-Torwart."
+  }else if(d.error==="invalid_club"){
+    reason="Die Clubdaten sind unvollständig. Clubname und alle 17 Spieler müssen vollständig vorhanden sein."
+  }else if(d.error==="server_error"||r.status>=500){
+    reason="Serverfehler beim Speichern. HTTP "+r.status+" · Fehlercode: "+(d.error||"server_error")+"."
+  }else if(r.ok&&!d.club){
+    reason="Der Server hat das Speichern beantwortet, aber keine Clubdaten zurückgegeben. Fehlercode: save_response_incomplete."
+  }else{
+    reason="Speichern abgelehnt. HTTP "+r.status+" · Fehlercode: "+(d.error||"unknown_error")+"."
+  }
+  qs("#msg").innerHTML='<span class="bad">'+reason+"</span>";
+  return
+}
+try{
+  currentProgress=d.progress||currentProgress;
+  currentBudget=Number(currentProgress.budget||currentBudget);
+  savedClub.league=currentProgress.name||d.club.league;
+  savedClub.ratingPoints=d.club.rating_points;
+  savedClub.winsTotal=Number(d.club.wins_total||currentProgress.wins||0);
+  savedClub.budget=currentBudget;
+  savedClub.photo=d.club.watermark_url||savedClub.photo||"";
+  savedClub.c3=d.club.accent_color||savedClub.c3;
+  savedClub.logoShape=d.club.logo_shape||savedClub.logoShape;
+  savedClub.logoPattern=d.club.logo_pattern||savedClub.logoPattern;
+  savedClub.watermarkOpacity=Number(d.club.watermark_opacity??savedClub.watermarkOpacity);
+  savedClub.fieldKit=d.club.field_player_kit||savedClub.fieldKit;
+  savedClub.goalkeeperKit=d.club.goalkeeper_kit||savedClub.goalkeeperKit;
+  fieldKit=savedClub.fieldKit;
+  goalkeeperKit=savedClub.goalkeeperKit;
+  clubPhotoCleared=false;
+  delete savedClub.removeWatermark;
+  localStorage.setItem("biMyClub",JSON.stringify(savedClub));
+  localStorage.setItem("biMyClubProgress",JSON.stringify(currentProgress));
+  renderClubhouse(savedClub);
+  renderProgress();
+  paint();
+  qs("#profileOwner").textContent="Club-Besitzer · "+(d.owner_masked||"verifiziert");
+  qs("#msg").innerHTML='<span class="ok">'+saveStatusCopy().ok+"</span>"
+}catch(uiErr){
+  console.error("TIME CLASH team saved but UI refresh failed",uiErr);
+  qs("#msg").innerHTML='<span class="bad">✓ Das Team wurde auf dem Server gespeichert. Nur die Anzeige konnte danach nicht aktualisiert werden. Bitte die Seite neu laden. Fehlerbereich: Anzeige/Browser.</span>'
+}};</script></body></html>
