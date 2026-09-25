@@ -14,7 +14,7 @@
   }
   try{
     const files=['livev11.part0','livev11.part1','livev11.part2','livev11.part3'];
-    const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260925-laliga2-visible-v4',{cache:'no-store'}).then(r=>{
+    const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260925-laliga2-domfix-v5',{cache:'no-store'}).then(r=>{
       if(!r.ok)throw new Error('Terminal-Datei '+x+' konnte nicht geladen werden');
       return r.text();
     })));
@@ -25,20 +25,10 @@
 
 
     // League bridge: Spanish second division (LaLiga 2 / Segunda División).
-    // The Odds API sport key is soccer_spain_segunda_division.
+    // Inject directly into leagueMap so the mapping works regardless of the surrounding formatting.
     if(!html.includes('soccer_spain_segunda_division')){
-      const singleAlias="'la liga 2':'soccer_spain_segunda_division','laliga 2':'soccer_spain_segunda_division','laliga hypermotion':'soccer_spain_segunda_division','segunda division':'soccer_spain_segunda_division','segunda division spanien':'soccer_spain_segunda_division','spanien la liga 2':'soccer_spain_segunda_division','spanien liga 2':'soccer_spain_segunda_division'";
-      html=html.replace(/('spanien la liga'\s*:\s*'soccer_spain_la_liga')/, '$1,'+singleAlias);
-      if(!html.includes('soccer_spain_segunda_division')){
-        const doubleAlias='"la liga 2":"soccer_spain_segunda_division","laliga 2":"soccer_spain_segunda_division","laliga hypermotion":"soccer_spain_segunda_division","segunda division":"soccer_spain_segunda_division","segunda division spanien":"soccer_spain_segunda_division","spanien la liga 2":"soccer_spain_segunda_division","spanien liga 2":"soccer_spain_segunda_division"';
-        html=html.replace(/("spanien la liga"\s*:\s*"soccer_spain_la_liga")/, '$1,'+doubleAlias);
-      }
-    }
-    if(!html.includes('value="LaLiga 2"')){
-      html=html.replace(
-        '<option value="La Liga">La Liga</option>',
-        '<option value="La Liga">La Liga</option><option value="LaLiga 2">LaLiga 2 · Segunda División (LALIGA HYPERMOTION)</option>'
-      );
+      const aliases="'la liga 2':'soccer_spain_segunda_division','laliga 2':'soccer_spain_segunda_division','laliga hypermotion':'soccer_spain_segunda_division','segunda division':'soccer_spain_segunda_division','segunda division spanien':'soccer_spain_segunda_division','spanien la liga 2':'soccer_spain_segunda_division','spanien liga 2':'soccer_spain_segunda_division',";
+      html=html.replace(/const\s+leagueMap\s*=\s*\{/, m=>m+aliases);
     }
 
     // Security bridge: the compressed Tipp-Terminal still contains legacy direct Make webhook URLs.
@@ -181,8 +171,31 @@
     check();
   }
 
-  const run=()=>{enhanceCombos();stabilizeLeagueError();};
-  const mo=new MutationObserver(()=>{clearTimeout(window.__biComboEnhanceTimer);window.__biComboEnhanceTimer=setTimeout(enhanceCombos,60)});
+  function ensureLeagueOptions(){
+    const liga=document.getElementById('liga');
+    if(!liga || liga.tagName!=='SELECT') return;
+
+    // Remove visually empty separator/placeholder rows, but keep the real "Bitte auswählen" row.
+    [...liga.options].forEach(o=>{
+      if(clean(o.textContent)==='') o.remove();
+    });
+
+    const already=[...liga.options].some(o=>clean(o.value)==='LaLiga 2' || /Segunda División|LALIGA HYPERMOTION/i.test(clean(o.textContent)));
+    if(!already){
+      const laLiga=[...liga.options].find(o=>/^La Liga$/i.test(clean(o.textContent)) || /^La Liga$/i.test(clean(o.value)));
+      const opt=document.createElement('option');
+      opt.value='LaLiga 2';
+      opt.textContent='LaLiga 2 · Segunda División (LALIGA HYPERMOTION)';
+      if(laLiga && laLiga.parentNode){
+        laLiga.insertAdjacentElement('afterend',opt);
+      }else{
+        liga.appendChild(opt);
+      }
+    }
+  }
+
+  const run=()=>{ensureLeagueOptions();enhanceCombos();stabilizeLeagueError();};
+  const mo=new MutationObserver(()=>{clearTimeout(window.__biComboEnhanceTimer);window.__biComboEnhanceTimer=setTimeout(()=>{ensureLeagueOptions();enhanceCombos();},60)});
   const start=()=>{run();mo.observe(document.body,{childList:true,subtree:true});};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
