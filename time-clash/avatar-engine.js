@@ -29,10 +29,11 @@ function mapLegacyBeard(a){
  const b=String(a?.beard||"").toLowerCase(); if(b==="none"||!b)return "none"; if(b==="mustache")return "beard/beard-mustache"; if(b==="goatee")return "beard/beard-goatee"; if(b==="full")return "beard/beard-full"; if(b==="combo")return "beard/beard-anchor"; return "beard/beard-light";
 }
 function normalize(a={}){
+ const faceAsset=mapLegacyFace(a),skinMap={"faces/player-m01":"#d7a17e","faces/player-m02":"#5a392d","faces/player-m03":"#d8a98d"};
  return {
   avatarVersion:3,kind:"player",
   height:clamp(a.height||182,150,220),build:["slim","athletic","strong","stocky"].includes(a.build)?a.build:"athletic",chestWidth:clamp(a.chestWidth??50,35,65),legLength:clamp(a.legLength??50,35,65),
-  faceAsset:mapLegacyFace(a),hairAsset:mapLegacyHair(a),browAsset:BROWS.includes(a.browAsset)?a.browAsset:"original",beardAsset:mapLegacyBeard(a),hairColor:safeHex(a.hairColor,"#3a2418"),
+  faceAsset,skin:safeHex(a.skin,skinMap[faceAsset]||"#d7a17e"),hairAsset:mapLegacyHair(a),browAsset:BROWS.includes(a.browAsset)?a.browAsset:"original",beardAsset:mapLegacyBeard(a),hairColor:safeHex(a.hairColor,"#3a2418"),
   kitStyle:["solid","vertical","horizontal","diagonal","halves","pinstripe","gradient"].includes(a.kitStyle)?a.kitStyle:"solid",stripeCount:clamp(a.stripeCount??5,2,9),stripeWidth:["narrow","medium","wide"].includes(a.stripeWidth)?a.stripeWidth:"medium",kit1:safeHex(a.kit1,"#25a9ff"),kit2:safeHex(a.kit2,"#f7c64e"),kit3:safeHex(a.kit3,"#ffffff"),shirtNo:clamp(a.shirtNo||10,1,99),shirtName:String(a.shirtName||"")
  };
 }
