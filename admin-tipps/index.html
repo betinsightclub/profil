@@ -14,7 +14,7 @@
   }
   try{
     const files=['livev11.part0','livev11.part1','livev11.part2','livev11.part3'];
-    const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260925-laliga2-domfix-v5',{cache:'no-store'}).then(r=>{
+    const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260925-laliga2-final-v7',{cache:'no-store'}).then(r=>{
       if(!r.ok)throw new Error('Terminal-Datei '+x+' konnte nicht geladen werden');
       return r.text();
     })));
@@ -22,6 +22,19 @@
     const bytes=Uint8Array.from(atob(b),c=>c.charCodeAt(0));
     const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
     let html=await new Response(stream).text();
+
+    // FINAL LaLiga-2 repair: modify the actual visible Liga <select> before rendering.
+    html=html.replace(/(<select\b[^>]*\bid=(["'])liga\2[^>]*>)([\s\S]*?)(<\/select>)/i,(full,open,q,options,close)=>{
+      let opts=options.replace(/<option\b([^>]*)>\s*<\/option>/gi,'');
+      const label='LaLiga 2 · Segunda División (LALIGA HYPERMOTION)';
+      if(!/LaLiga 2|Segunda División|LALIGA HYPERMOTION/i.test(opts)){
+        const laLigaRe=/(<option\b[^>]*value=(["'])La Liga\2[^>]*>\s*La Liga\s*<\/option>)/i;
+        if(laLigaRe.test(opts)) opts=opts.replace(laLigaRe,'$1<option value="LaLiga 2">'+label+'</option>');
+        else opts+='<option value="LaLiga 2">'+label+'</option>';
+      }
+      return open+opts+close;
+    });
+
 
 
     // League bridge: Spanish second division (LaLiga 2 / Segunda División).
