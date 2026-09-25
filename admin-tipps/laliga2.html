@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="de"><head>
+<!-- BETINSIGHT APP NOINDEX START -->
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+<!-- BETINSIGHT APP NOINDEX END -->
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#061d2a"><title>BetInsight – Tippbereich</title>
+<style>body{margin:0;background:#061d2a;color:#fff;font-family:Arial,sans-serif;display:grid;place-items:center;min-height:100vh}.load{padding:30px;text-align:center}.spin{width:42px;height:42px;margin:0 auto 16px;border:4px solid rgba(255,255,255,.18);border-top-color:#16a8f5;border-radius:50%;animation:s .8s linear infinite}@keyframes s{to{transform:rotate(360deg)}}#persistentBack{position:fixed;top:12px;left:12px;z-index:99999;display:inline-flex;align-items:center;justify-content:center;padding:10px 15px;border-radius:999px;background:#0d3347;border:1px solid rgba(0,218,255,.45);color:#fff;text-decoration:none;font-weight:700;font-size:14px;box-shadow:0 6px 18px rgba(0,0,0,.28)}#persistentBack:hover,#persistentBack:focus{background:#12455f;outline:none}@media(max-width:600px){#persistentBack{top:8px;left:8px;padding:9px 12px;font-size:13px}}</style>
+</head><body><a id="persistentBack" href="/admin/">← Zurück zum Admin Center</a><div class="load"><div class="spin"></div><strong>BetInsight Tipp-Terminal · Kombi wird geladen …</strong></div>
+<script>
+(async()=>{
+  if(new URLSearchParams(window.location.search).get('mode')==='historisch'){
+    window.location.replace('/admin-tipps/historisch/');
+    return;
+  }
+  try{
+    const files=['livev11.part0','livev11.part1','livev11.part2','livev11.part3'];
+    const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260925-laliga2-final-v8',{cache:'no-store'}).then(r=>{
+      if(!r.ok)throw new Error('Terminal-Datei '+x+' konnte nicht geladen werden');
+      return r.text();
+    })));
+    const b=ps.join('').replace(/\s+/g,'');
+    const bytes=Uint8Array.from(atob(b),c=>c.charCodeAt(0));
+    const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+    let html=await new Response(stream).text();
+
+    // FINAL LaLiga-2 repair: modify the actual visible Liga <select> before rendering.
+    html=html.replace(/(<select\b[^>]*\bid=(["'])liga\2[^>]*>)([\s\S]*?)(<\/select>)/i,(full,open,q,options,close)=>{
+      let opts=options.replace(/<option\b([^>]*)>\s*<\/option>/gi,'');
+      const label='LaLiga 2 · Segunda División (LALIGA HYPERMOTION)';
+      if(!/LaLiga 2|Segunda División|LALIGA HYPERMOTION/i.test(opts)){
+        const laLigaRe=/(<option\b[^>]*value=(["'])La Liga\2[^>]*>\s*La Liga\s*<\/option>)/i;
+        if(laLigaRe.test(opts)) opts=opts.replace(laLigaRe,'$1<option value="LaLiga 2">'+label+'</option>');
+        else opts+='<option value="LaLiga 2">'+label+'</option>';
+      }
+      return open+opts+close;
+    });
+
+
+
+    // League bridge: Spanish second division (LaLiga 2 / Segunda División).
+    // Inject directly into leagueMap so the mapping works regardless of the surrounding formatting.
+    if(!html.includes('soccer_spain_segunda_division')){
+      const aliases="'la liga 2':'soccer_spain_segunda_division','laliga 2':'soccer_spain_segunda_division','laliga hypermotion':'soccer_spain_segunda_division','segunda division':'soccer_spain_segunda_division','segunda division spanien':'soccer_spain_segunda_division','spanien la liga 2':'soccer_spain_segunda_division','spanien liga 2':'soccer_spain_segunda_division',";
+      html=html.replace(/const\s+leagueMap\s*=\s*\{/, m=>m+aliases);
+    }
+
+    // Security bridge: the compressed Tipp-Terminal still contains legacy direct Make webhook URLs.
+    // Since the Make scenarios are now gateway-protected, rewrite those URLs to the Supabase gateway
+    // before the terminal is rendered. This preserves the existing session/token logic unchanged.
+    const adminGateway='https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=';
+    const secureRouteMap={
+      'https://hook.eu1.make.com/rfmhuu4fkr9kjsv7o15r2kir8ezbersl':adminGateway+'admin-auth',
+      'https://hook.eu1.make.com/hvkixmp4n1ego6exgprjn6x04oe4a6fw':adminGateway+'backoffice-read',
+      'https://hook.eu1.make.com/hypoxkxvfio7syw1cpxi7pre1i3znjid':adminGateway+'wallet-write',
+      'https://hook.eu1.make.com/9y0a7nvseam40tqie3jyu39qv62lynp9':adminGateway+'wallet-approval',
+      'https://hook.eu1.make.com/87429uw78qxd9qhu5zttbxn9qfur0ys1':adminGateway+'unit-credit',
+      'https://hook.eu1.make.com/gqt1nfypadrxrc6zdo944xthtuuraz9q':adminGateway+'network-move',
+      'https://hook.eu1.make.com/6jrn446fmzuaqpqf66xs0ihege1c5cnp':adminGateway+'premium-rule',
+      'https://hook.eu1.make.com/asljoa9gohywvf2r2t7pht8m2ny5xo91':adminGateway+'tip-maintenance',
+      'https://hook.eu1.make.com/k6qxta8xyae1mtnwbzu93g1798rylnwn':adminGateway+'tip-result',
+      'https://hook.eu1.make.com/2mtxmxp37qjcyv4mf9o846cl7z4hmh8m':adminGateway+'tipster-settings',
+      'https://hook.eu1.make.com/d0np6cadeelzhiqf8qmab97i5v5iw0oo':adminGateway+'cost-rate',
+      'https://hook.eu1.make.com/2u9vqh2mdlp286dl8czmbjr25lse64k8':adminGateway+'cost-create',
+      'https://hook.eu1.make.com/9n407dme82xv7767ui5grxdfe2q5dvoj':adminGateway+'cost-edit',
+      'https://hook.eu1.make.com/za1tggiwy1ffdm6ro28p2eqf1ci7tqx9':adminGateway+'unit-usage',
+      'https://hook.eu1.make.com/1bc4yjg8rw171uu673xg48opf4snef72':adminGateway+'tip-manage',
+      'https://hook.eu1.make.com/jnj854h9aeg5iqny6prd3owgt4mpcd51':adminGateway+'tip-historical-publish',
+      'https://hook.eu1.make.com/x7c67vx9q2v146cdalxi44yn9i5i1o8y':adminGateway+'system-monitor'
+    };
+    for(const [legacyUrl,secureUrl] of Object.entries(secureRouteMap)){
+      html=html.split(legacyUrl).join(secureUrl);
+    }
+
+    html=html.replace('class="btn secondary hidden" id="backAdmin"','class="btn secondary" id="backAdmin"').replace('← Admin Center','← Zurück zum Admin Center');
+    html=html.replace("new Intl.DateTimeFormat('en-CA',{year:'numeric',month:'2-digit',day:'2-digit'})","new Intl.DateTimeFormat('en-CA',{year:'numeric',month:'2-digit',day:'2-digit',timeZone:'Europe/Berlin'})")
+      .replace("new Intl.DateTimeFormat('de-DE',{hour:'2-digit',minute:'2-digit',hour12:false})","new Intl.DateTimeFormat('de-DE',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Europe/Berlin'})")
+      .replace("new Intl.DateTimeFormat('de-DE',{dateStyle:'medium',timeStyle:'short'})","new Intl.DateTimeFormat('de-DE',{dateStyle:'medium',timeStyle:'short',timeZone:'Europe/Berlin'})");
+
+    const enhancement=`<script>
+(()=>{
+  'use strict';
+  const clean=v=>String(v||'').trim();
+  const simpleOptions=(market,home,away)=>{
+    const m=clean(market),h=clean(home)||'Heimteam',a=clean(away)||'Auswärtsteam';
+    if(m==='1X2'||m==='1. Halbzeit 1X2')return [h+' gewinnt','Unentschieden',a+' gewinnt'];
+    if(m==='Doppelte Chance')return ['1X · '+h+' oder Unentschieden','12 · '+h+' oder '+a,'X2 · Unentschieden oder '+a];
+    if(m==='Draw No Bet'||m==='Qualifiziert sich'||m==='Qualifiziert sich / kommt weiter')return [h,a];
+    if(m==='Beide treffen'||m==='Beide Teams treffen'||m==='1. Halbzeit Beide treffen'||m==='1. Halbzeit · Beide Teams treffen')return ['Ja','Nein'];
+    if(/^Über [0-9],[0-9] Tore$/.test(m)||/^Unter [0-9],[0-9] Tore$/.test(m))return [m];
+    if(/^1\. Halbzeit.*Über [0-9],[0-9]/.test(m)||/^1\. Halbzeit.*Unter [0-9],[0-9]/.test(m))return [m.replace(/^1\. Halbzeit\s*[·-]?\s*/,'')];
+    if(m==='Teamtore'||m.indexOf('Teamtore')===0)return [h+' · Über',h+' · Unter',a+' · Über',a+' · Unter'];
+    if(m==='Halbzeit/Endstand'||m==='Halbzeit / Endstand')return [h+' / '+h,h+' / Unentschieden',h+' / '+a,'Unentschieden / '+h,'Unentschieden / Unentschieden','Unentschieden / '+a,a+' / '+h,a+' / Unentschieden',a+' / '+a];
+    return [];
+  };
+  const fieldByData=(card,names)=>{
+    for(const n of names){const el=card.querySelector('[data-field="'+n+'"]');if(el)return el;}
+    return null;
+  };
+  const fieldByLabel=(card,re)=>{
+    const labels=[...card.querySelectorAll('label')];
+    const lab=labels.find(x=>re.test(clean(x.textContent)));
+    if(!lab)return null;
+    if(lab.htmlFor){try{const el=card.querySelector('#'+CSS.escape(lab.htmlFor));if(el)return el;}catch(e){}}
+    return lab.parentElement&&lab.parentElement.querySelector('input,select,textarea');
+  };
+  const getField=(card,names,re)=>fieldByData(card,names)||fieldByLabel(card,re);
+  const parseTeams=(card)=>{
+    let home=getField(card,['home_team','home','heimteam'],/Heimteam/i),away=getField(card,['away_team','away','auswaertsteam'],/Ausw[aä]rtsteam/i);
+    let h=clean(home&&home.value),a=clean(away&&away.value);
+    if(!h||!a){const game=getField(card,['spiel'],/^Spiel/i);const parts=clean(game&&game.value).split(/\s+[–-]\s+/);if(!h)h=clean(parts[0]);if(!a)a=clean(parts[1]);}
+    return {home:h,away:a};
+  };
+  const originalTip=(card)=>getField(card,['tipp','selection','auswahl'],/Tipp\s*\/\s*Auswahl|^Tipp\b|^Auswahl\b/i);
+  const originalMarket=(card)=>getField(card,['markt','market'],/^Markt\b/i);
+
+  function syncComboCard(card){
+    if(!card||!card.querySelector)return;
+    const market=originalMarket(card),tip=originalTip(card);
+    if(!market||!tip)return;
+
+    if(market.tagName==='INPUT'&&!card.querySelector('[data-bi-market-helper="1"]')){
+      const helper=document.createElement('select');helper.setAttribute('data-bi-market-helper','1');helper.style.width='100%';helper.style.minHeight='49px';helper.style.padding='12px 13px';helper.style.borderRadius='11px';helper.style.border='1px solid rgba(0,218,255,.34)';helper.style.background='#061d2a';helper.style.color='#fff';
+      const main=document.getElementById('markt');
+      if(main&&main.tagName==='SELECT')helper.innerHTML=main.innerHTML;else helper.innerHTML='<option value="">Bitte auswählen</option><option>1X2</option><option>Doppelte Chance</option><option>Draw No Bet</option><option>Beide treffen</option><option>Handicap</option><option>Teamtore</option><option>Eigener Markt</option>';
+      [...helper.options].filter(o=>/Kombi/i.test(o.value||o.textContent)).forEach(o=>o.remove());
+      helper.value=market.value;market.style.display='none';market.parentNode.insertBefore(helper,market);
+      helper.addEventListener('change',()=>{market.value=helper.value;market.dispatchEvent(new Event('input',{bubbles:true}));market.dispatchEvent(new Event('change',{bubbles:true}));refreshSelection(card);});
+    }
+    refreshSelection(card);
+    if(!card.dataset.biComboBound){
+      card.dataset.biComboBound='1';
+      card.addEventListener('change',e=>{if(e.target!==card.querySelector('[data-bi-selection-helper="1"]'))setTimeout(()=>refreshSelection(card),0)});
+      card.addEventListener('input',e=>{if(e.target!==card.querySelector('[data-bi-selection-helper="1"]'))setTimeout(()=>refreshSelection(card),0)});
+    }
+  }
+
+  function refreshSelection(card){
+    let market=originalMarket(card),tip=originalTip(card);if(!market||!tip)return;
+    const mh=card.querySelector('[data-bi-market-helper="1"]');const marketValue=clean(mh?mh.value:market.value);
+    const teams=parseTeams(card);const options=simpleOptions(marketValue,teams.home,teams.away);
+    let helper=card.querySelector('[data-bi-selection-helper="1"]');
+    if(!options.length){if(helper)helper.remove();tip.style.display='';return;}
+    if(!helper){helper=document.createElement('select');helper.setAttribute('data-bi-selection-helper','1');helper.style.width='100%';helper.style.minHeight='49px';helper.style.padding='12px 13px';helper.style.borderRadius='11px';helper.style.border='1px solid rgba(0,218,255,.34)';helper.style.background='#061d2a';helper.style.color='#fff';tip.parentNode.insertBefore(helper,tip);helper.addEventListener('change',()=>{tip.value=helper.value;tip.dispatchEvent(new Event('input',{bubbles:true}));tip.dispatchEvent(new Event('change',{bubbles:true}));});}
+    const old=clean(tip.value);helper.innerHTML='<option value="">Bitte auswählen</option>'+options.map(x=>'<option value="'+String(x).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')+'">'+String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</option>').join('');
+    if(options.includes(old))helper.value=old;else if(options.length===1){helper.value=options[0];tip.value=options[0];tip.dispatchEvent(new Event('input',{bubbles:true}));}
+    tip.style.display='none';
+  }
+
+  function comboCards(){
+    let cards=[...document.querySelectorAll('[data-combo-leg],.combo-leg,[class*="combo-leg"]')];
+    if(cards.length)return [...new Set(cards)];
+    const candidates=[...document.querySelectorAll('div,section,fieldset')].filter(el=>{const t=clean(el.firstElementChild&&el.firstElementChild.textContent);return /^Auswahl\s+\d+/i.test(t)&&el.querySelectorAll('label').length>=3;});
+    return candidates.filter((el,i,a)=>!a.some(other=>other!==el&&el.contains(other)));
+  }
+  function enhanceCombos(){comboCards().forEach(syncComboCard);}
+
+  function stabilizeLeagueError(){
+    const timeoutRe=/canceling statement due to statement timeout|statement timeout|statement due to|query timeout|timeout/i;
+    const liga=document.getElementById('liga');
+    const findStatus=()=>{
+      const preferred=document.getElementById('leagueStatus');
+      if(preferred&&timeoutRe.test(clean(preferred.textContent)))return preferred;
+      const nodes=[...document.querySelectorAll('.status,.error,[id*="status" i],[class*="status" i],p,small,span,div')]
+        .filter(el=>{const t=clean(el.textContent);return t&&t.length<500&&timeoutRe.test(t);})
+        .sort((a,b)=>clean(a.textContent).length-clean(b.textContent).length);
+      return nodes[0]||null;
+    };
+    const check=()=>{
+      const status=findStatus();if(!status)return;
+      const key=clean(liga&&liga.value);
+      status.textContent='Die Spielabfrage hat die Server-Zeitgrenze erreicht. BetInsight versucht automatisch erneut …';
+      status.classList.add('status');status.classList.remove('error');
+      if(liga&&key&&liga.dataset.biRetriedKey!==key){
+        liga.dataset.biRetriedKey=key;
+        setTimeout(()=>liga.dispatchEvent(new Event('change',{bubbles:true})),700);
+      }else{
+        status.textContent='Die Spielabfrage ist gerade zu langsam. Bitte die Liga noch einmal auswählen. Es wurden keine Tippdaten gespeichert.';
+        status.classList.add('error');
+      }
+    };
+    const observer=new MutationObserver(check);
+    observer.observe(document.body,{childList:true,subtree:true,characterData:true});
+    if(liga)liga.addEventListener('change',e=>{if(e.isTrusted)delete liga.dataset.biRetriedKey;setTimeout(check,0)});
+    check();
+  }
+
+  function ensureLeagueOptions(){
+    const liga=document.getElementById('liga');
+    if(!liga || liga.tagName!=='SELECT') return;
+
+    // Remove visually empty separator/placeholder rows, but keep the real "Bitte auswählen" row.
+    [...liga.options].forEach(o=>{
+      if(clean(o.textContent)==='') o.remove();
+    });
+
+    const already=[...liga.options].some(o=>clean(o.value)==='LaLiga 2' || /Segunda División|LALIGA HYPERMOTION/i.test(clean(o.textContent)));
+    if(!already){
+      const laLiga=[...liga.options].find(o=>/^La Liga$/i.test(clean(o.textContent)) || /^La Liga$/i.test(clean(o.value)));
+      const opt=document.createElement('option');
+      opt.value='LaLiga 2';
+      opt.textContent='LaLiga 2 · Segunda División (LALIGA HYPERMOTION)';
+      if(laLiga && laLiga.parentNode){
+        laLiga.insertAdjacentElement('afterend',opt);
+      }else{
+        liga.appendChild(opt);
+      }
+    }
+  }
+
+  const run=()=>{ensureLeagueOptions();enhanceCombos();stabilizeLeagueError();};
+  const mo=new MutationObserver(()=>{clearTimeout(window.__biComboEnhanceTimer);window.__biComboEnhanceTimer=setTimeout(()=>{ensureLeagueOptions();enhanceCombos();},60)});
+  const start=()=>{run();mo.observe(document.body,{childList:true,subtree:true});};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+<\/script>`;
+    const liveAlarmOneEnhancement=`<script>
+(()=>{
+  'use strict';
+  const FIELD='live_alarm_1';
+  const LABEL='Live-Alarm 1';
+
+  function alarmValue(){
+    const cb=document.getElementById('biLiveAlarmOne');
+    return !cb || cb.checked ? 'JA' : 'NEIN';
+  }
+
+  function mountLiveAlarmOne(){
+    if(document.getElementById('biLiveAlarmOneWrap')) return;
+
+    const wrap=document.createElement('div');
+    wrap.id='biLiveAlarmOneWrap';
+    wrap.style.cssText='margin:12px 0;padding:12px 14px;border:1px solid rgba(0,218,255,.55);border-radius:12px;background:#062a3b;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;box-shadow:0 0 0 1px rgba(0,218,255,.08) inset;';
+    wrap.innerHTML=
+      '<label for="biLiveAlarmOne" style="display:flex;align-items:center;gap:10px;cursor:pointer;margin:0;color:#fff;font-weight:800;font-size:15px">'+
+        '<input id="biLiveAlarmOne" name="live_alarm_1" type="checkbox" checked value="JA" style="width:20px;height:20px;accent-color:#00d48a;cursor:pointer">'+
+        '<span>Live-Alarm 1</span>'+
+      '</label>'+
+      '<small style="color:#c7e9f7;font-size:12px">Gründer-/Premium-Freigabe · standardmäßig aktiviert</small>';
+
+    // Bevorzugt direkt oberhalb des bestehenden Premium-Live-Alarms.
+    const premiumNodes=[...document.querySelectorAll('div,section,article,label')].filter(el=>{
+      const t=String(el.textContent||'').replace(/\\s+/g,' ').trim();
+      return t.includes('Live-Alarm für Premium-Mitglieder') && t.length<1200;
+    }).sort((a,b)=>String(a.textContent||'').length-String(b.textContent||'').length);
+    const premiumBox=premiumNodes[0]||null;
+    if(premiumBox && premiumBox.parentNode){
+      premiumBox.insertAdjacentElement('beforebegin',wrap);
+      return;
+    }
+
+    // Fallback in Abschnitt 3.
+    const heading=[...document.querySelectorAll('h1,h2,h3,h4')].find(el=>
+      /3\\.\\s*Original-Felder\\s*&\\s*Live-Alarm/i.test(String(el.textContent||''))
+    );
+    if(heading){
+      const section=heading.closest('section,article,.card,.panel,.box')||heading.parentElement;
+      if(section){
+        const intro=heading.nextElementSibling;
+        if(intro) intro.insertAdjacentElement('afterend',wrap);
+        else section.appendChild(wrap);
+        return;
+      }
+    }
+
+    // Letzter sichtbarer Fallback direkt vor Abschnitt 4.
+    const section4=[...document.querySelectorAll('h1,h2,h3,h4')].find(el=>
+      /4\\.\\s*Kundenvorschau/i.test(String(el.textContent||''))
+    );
+    if(section4){
+      const block=section4.closest('section,article,.card,.panel,.box')||section4.parentElement;
+      if(block && block.parentNode){
+        block.insertAdjacentElement('beforebegin',wrap);
+        return;
+      }
+    }
+
+    (document.querySelector('form')||document.body).appendChild(wrap);
+  }
+
+  const originalFetch=window.fetch.bind(window);
+  window.fetch=async function(input,init){
+    const url=typeof input==='string' ? input : (input&&input.url ? String(input.url) : '');
+    const isPublish=url.includes('route=tip-historical-publish') ||
+      url.includes('jnj854h9aeg5iqny6prd3owgt4mpcd51');
+
+    if(!isPublish) return originalFetch(input,init);
+
+    let opts=init ? {...init} : {};
+    try{
+      const body=opts.body;
+      if(typeof body==='string'){
+        let changed=false;
+        try{
+          const obj=JSON.parse(body);
+          if(obj && typeof obj==='object' && obj.tipp_id){
+            obj[FIELD]=alarmValue();
+            opts.body=JSON.stringify(obj);
+            changed=true;
+          }
+        }catch(e){}
+        if(!changed){
+          try{
+            const p=new URLSearchParams(body);
+            if(p.has('tipp_id')){
+              p.set(FIELD,alarmValue());
+              opts.body=p.toString();
+            }
+          }catch(e){}
+        }
+      }else if(typeof URLSearchParams!=='undefined' && body instanceof URLSearchParams){
+        const p=new URLSearchParams(body);
+        if(p.has('tipp_id')){
+          p.set(FIELD,alarmValue());
+          opts.body=p;
+        }
+      }else if(typeof FormData!=='undefined' && body instanceof FormData){
+        if(body.has('tipp_id')){
+          const fd=new FormData();
+          for(const [k,v] of body.entries()) fd.append(k,v);
+          fd.set(FIELD,alarmValue());
+          opts.body=fd;
+        }
+      }
+    }catch(e){}
+
+    const response=await originalFetch(input,opts);
+    if(response && response.ok){
+      setTimeout(()=>{
+        const cb=document.getElementById('biLiveAlarmOne');
+        if(cb) cb.checked=true;
+      },500);
+    }
+    return response;
+  };
+
+  const boot=()=>{
+    mountLiveAlarmOne();
+    const mo=new MutationObserver(()=>mountLiveAlarmOne());
+    mo.observe(document.body,{childList:true,subtree:true});
+  };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
+  else boot();
+})();
+<\/script>`;
+
+    html=html.replace('</body>',enhancement+liveAlarmOneEnhancement+'</body>');
+    html=html.replace('<body>','<body><a id="persistentBack" href="/admin/" style="position:fixed;top:12px;left:12px;z-index:99999;display:inline-flex;align-items:center;justify-content:center;padding:10px 15px;border-radius:999px;background:#0d3347;border:1px solid rgba(0,218,255,.45);color:#fff;text-decoration:none;font-weight:700;font-size:14px;box-shadow:0 6px 18px rgba(0,0,0,.28)">← Zurück zum Admin Center</a>');
+    document.open();document.write(html);document.close();
+  }catch(e){
+    document.body.innerHTML='<a id="persistentBack" href="/admin/" style="position:fixed;top:12px;left:12px;z-index:99999;padding:10px 15px;border-radius:999px;background:#0d3347;border:1px solid rgba(0,218,255,.45);color:#fff;text-decoration:none;font-weight:700">← Zurück zum Admin Center</a><div class="load"><h2>Tipp-Terminal konnte nicht geladen werden</h2><p>'+String(e.message||e)+'</p><p>Bitte neu laden.</p></div>';
+  }
+})();
+</script></body></html>
