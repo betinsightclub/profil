@@ -60,9 +60,9 @@
 <script>
 "use strict";
 const CREATE_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=sale-create";
-const OWN_OFFERS_WEBHOOK_URL="https://hook.eu1.make.com/r4vv6dolmdni4vppridgpaf5teaua6kr";
+const OWN_OFFERS_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=sale-own-read";
 const OFFER_MUTATION_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=sale-mutate";
-const BANK_SELLER_STATUS_WEBHOOK_URL="https://hook.eu1.make.com/bu14cujqmjbgbmrn353zowo1owhc4v3m";
+const BANK_SELLER_STATUS_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=sale-bank-status";
 const BANK_SELLER_CONFIRM_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=sale-bank-confirm";
 const dashboardToken=window.BetInsightSession?.getDashboardUuid?.()||"";
 const ALLOWED_PRICES=[.80,.85,.90,.95,1.00];
