@@ -1,0 +1,994 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#031720">
+  <meta name="description" content="Öffentliches BetInsight Trainerprofil mit Mannschaft, Spielberichten, Beiträgen, Reaktionen und Kommentaren.">
+  <meta property="og:title" content="BetInsight Trainerprofil">
+  <meta property="og:description" content="Trainer, Mannschaft, Spielberichte und öffentliche Beiträge auf BetInsight.">
+  <meta property="og:image" content="https://app.betinsight.club/betinsightcommunity/assets/hero-fussball-dunkel.png">
+  <meta property="og:type" content="profile">
+  <title>Trainerprofil · BetInsight</title>
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+  <style>
+    :root{
+      --bg:#06141d;
+      --bg2:#091d29;
+      --card:#0d2735;
+      --card2:#0a202c;
+      --line:rgba(143,203,230,.16);
+      --line2:rgba(143,203,230,.28);
+      --text:#f4fbff;
+      --muted:#9fb7c3;
+      --blue:#1687ff;
+      --blue2:#0b67cb;
+      --green:#16d69d;
+      --gold:#f3c95c;
+      --red:#ff6571;
+      --shadow:0 22px 70px rgba(0,0,0,.32);
+      --radius:18px;
+      --max:1320px;
+    }
+    *{box-sizing:border-box}
+    html{background:var(--bg);scroll-behavior:smooth}
+    body{
+      margin:0;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 12% 0,rgba(22,135,255,.11),transparent 28rem),
+        radial-gradient(circle at 92% 30%,rgba(22,214,157,.07),transparent 28rem),
+        var(--bg);
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      line-height:1.5;
+    }
+    button,input,textarea{font:inherit}
+    button{cursor:pointer}
+    a{color:inherit}
+    img{display:block;max-width:100%}
+    .appbar{
+      position:sticky;top:0;z-index:80;
+      background:rgba(3,20,29,.88);
+      border-bottom:1px solid rgba(255,255,255,.08);
+      backdrop-filter:blur(16px);
+    }
+    .appbar-inner{
+      width:min(calc(100% - 28px),var(--max));min-height:68px;margin:auto;
+      display:grid;grid-template-columns:auto minmax(280px,580px) auto;align-items:center;gap:18px;
+    }
+    .brand{display:flex;align-items:center;gap:10px;text-decoration:none;min-width:0}
+    .brand img{width:128px;height:auto}
+    .brand-badge{
+      display:none;width:40px;height:40px;border-radius:12px;background:#0b2e43;
+      place-items:center;font-weight:950;border:1px solid var(--line2)
+    }
+    .brand-badge b:last-child{color:var(--green)}
+    .global-search{
+      display:flex;align-items:center;gap:9px;min-height:42px;padding:0 14px;
+      border-radius:999px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.07);
+      color:var(--muted)
+    }
+    .global-search input{width:100%;border:0;outline:0;background:transparent;color:var(--text)}
+    .global-search input::placeholder{color:#829ca8}
+    .top-actions{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+    .icon-btn,.pill-btn{
+      border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);
+      transition:.18s ease
+    }
+    .icon-btn:hover,.pill-btn:hover{border-color:var(--line2);background:rgba(255,255,255,.08)}
+    .icon-btn{width:42px;height:42px;border-radius:50%;display:grid;place-items:center}
+    .pill-btn{min-height:42px;padding:0 14px;border-radius:12px;font-weight:800}
+    .pill-btn.primary{border-color:transparent;background:linear-gradient(135deg,var(--blue),var(--blue2))}
+    .shell{width:min(calc(100% - 28px),var(--max));margin:16px auto 50px}
+    .profile-head{
+      overflow:hidden;border:1px solid var(--line);border-radius:24px;background:var(--card2);box-shadow:var(--shadow)
+    }
+    .cover{
+      position:relative;height:clamp(240px,31vw,410px);overflow:hidden;
+      background:#0b2634
+    }
+    .cover img{width:100%;height:100%;object-fit:cover;object-position:center 58%}
+    .cover:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(3,18,27,.72))}
+    .cover-edit{
+      position:absolute;right:18px;bottom:18px;z-index:2;
+      border:1px solid rgba(255,255,255,.24);background:rgba(3,20,29,.82);color:white;
+      padding:10px 13px;border-radius:12px;font-weight:850;backdrop-filter:blur(12px)
+    }
+    .profile-main{
+      position:relative;display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:end;
+      padding:0 26px 20px
+    }
+    .avatar-wrap{position:relative;width:162px;height:96px}
+    .avatar{
+      position:absolute;left:0;bottom:0;width:154px;height:154px;border-radius:50%;overflow:hidden;
+      border:5px solid #08202c;background:linear-gradient(145deg,#163b4d,#0b2532);box-shadow:0 16px 44px rgba(0,0,0,.4);
+      display:grid;place-items:center
+    }
+    .avatar img{width:100%;height:100%;object-fit:cover}
+    .avatar-fallback{font-size:42px;font-weight:950;letter-spacing:-.05em;color:#dff5ff}
+    .avatar-edit{
+      position:absolute;right:6px;bottom:4px;width:38px;height:38px;border-radius:50%;z-index:2;
+      border:3px solid #08202c;background:#153a4b;color:#fff;display:grid;place-items:center
+    }
+    .identity{padding-top:14px;min-width:0}
+    .identity-top{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+    .identity h1{margin:0;font-size:clamp(27px,4vw,42px);line-height:1.05;letter-spacing:-.035em}
+    .verified{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--blue);font-size:13px;font-weight:950}
+    .teamline{margin:7px 0 0;color:#c8dbe4;font-size:15px}
+    .teamline strong{color:white}
+    .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+    .chip{
+      padding:5px 9px;border:1px solid rgba(255,255,255,.1);border-radius:999px;
+      color:#bcd1db;background:rgba(255,255,255,.035);font-size:12px;font-weight:800
+    }
+    .chip.premium{color:#ffe7a2;border-color:rgba(243,201,92,.28);background:rgba(243,201,92,.08)}
+    .profile-actions{display:flex;gap:9px;padding-bottom:2px;flex-wrap:wrap;justify-content:flex-end}
+    .profile-tabs{
+      display:flex;gap:4px;padding:0 22px;border-top:1px solid rgba(255,255,255,.07);
+      overflow:auto;scrollbar-width:none
+    }
+    .profile-tabs::-webkit-scrollbar{display:none}
+    .profile-tabs button{
+      flex:0 0 auto;padding:15px 14px 13px;border:0;border-bottom:3px solid transparent;
+      background:transparent;color:#9db6c2;font-weight:850
+    }
+    .profile-tabs button.active{color:#70baff;border-bottom-color:var(--blue)}
+    .layout{
+      display:grid;grid-template-columns:minmax(250px,.78fr) minmax(430px,1.35fr) minmax(250px,.77fr);
+      gap:16px;margin-top:16px;align-items:start
+    }
+    .column{display:grid;gap:16px}
+    .card{
+      border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(180deg,var(--card),var(--card2));
+      box-shadow:0 12px 34px rgba(0,0,0,.17)
+    }
+    .card-pad{padding:18px}
+    .card h2,.card h3{margin:0}
+    .card-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+    .card-title h2{font-size:19px;letter-spacing:-.015em}
+    .card-title a,.card-title button{border:0;background:transparent;color:#63b8ff;font-weight:800;text-decoration:none;padding:0}
+    .bio{margin:0 0 15px;color:#c2d3dc;font-size:14px}
+    .about-list{display:grid;gap:10px;color:#c4d6df;font-size:14px}
+    .about-row{display:grid;grid-template-columns:22px 1fr;gap:8px}
+    .about-row span:first-child{text-align:center}
+    .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:15px}
+    .stat{
+      text-align:center;padding:10px 6px;border:1px solid rgba(255,255,255,.08);border-radius:13px;
+      background:rgba(255,255,255,.03)
+    }
+    .stat strong{display:block;font-size:19px}.stat span{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#8da7b4}
+    .gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+    .gallery-item{
+      position:relative;aspect-ratio:1/1;overflow:hidden;border-radius:10px;background:#0b2230;border:1px solid rgba(255,255,255,.06)
+    }
+    .gallery-item img{width:100%;height:100%;object-fit:cover}
+    .gallery-item.report{
+      padding:9px;background:linear-gradient(145deg,#f5f0df,#d7d0bb);color:#13202a;font-family:Georgia,serif;
+      display:flex;flex-direction:column;justify-content:space-between
+    }
+    .gallery-item.report b{font-size:12px;line-height:1.05}.gallery-item.report small{font-size:8px;line-height:1.25;color:#4d5358}
+    .result-list{display:grid;gap:9px}
+    .result{
+      display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 11px;
+      border:1px solid rgba(255,255,255,.07);border-radius:12px;background:rgba(255,255,255,.025)
+    }
+    .result-badge{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-weight:950}
+    .result-badge.win{background:rgba(22,214,157,.14);color:#59efbd}
+    .result-badge.draw{background:rgba(243,201,92,.13);color:#ffe08a}
+    .result-badge.loss{background:rgba(255,101,113,.13);color:#ff8e97}
+    .result strong{font-size:13px}.result small{display:block;color:#829da9;font-size:11px}.score{font-size:15px;font-weight:950}
+    .composer{padding:16px}
+    .composer-top{display:grid;grid-template-columns:46px 1fr;gap:11px;align-items:start}
+    .mini-avatar{
+      width:46px;height:46px;border-radius:50%;display:grid;place-items:center;overflow:hidden;
+      background:#16384a;border:1px solid var(--line2);font-weight:950
+    }
+    .mini-avatar img{width:100%;height:100%;object-fit:cover}
+    .composer textarea{
+      width:100%;min-height:86px;resize:vertical;border:1px solid rgba(255,255,255,.08);outline:0;
+      border-radius:16px;background:rgba(255,255,255,.045);color:white;padding:13px 14px
+    }
+    .composer textarea:focus{border-color:rgba(22,135,255,.55);box-shadow:0 0 0 3px rgba(22,135,255,.08)}
+    .composer textarea::placeholder{color:#829da9}
+    .emotion-picker{
+      display:none;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:11px 0 0 57px
+    }
+    .emotion-picker.open{display:grid}
+    .emotion-option{
+      border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.03);color:#d8e7ed;
+      padding:8px 5px;text-align:center;font-size:11px
+    }
+    .emotion-option:hover,.emotion-option.selected{border-color:rgba(22,214,157,.4);background:rgba(22,214,157,.07)}
+    .emotion-option span{display:block;font-size:23px;margin-bottom:2px}
+    .composer-preview{display:none;margin:11px 0 0 57px;position:relative;max-width:230px}
+    .composer-preview.show{display:block}
+    .composer-preview img{width:100%;max-height:180px;object-fit:cover;border-radius:13px;border:1px solid var(--line)}
+    .composer-preview button{
+      position:absolute;right:6px;top:6px;width:28px;height:28px;border:0;border-radius:50%;background:rgba(2,15,22,.8);color:white
+    }
+    .composer-actions{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 0 57px;padding-top:11px;border-top:1px solid rgba(255,255,255,.07)
+    }
+    .composer-tools{display:flex;gap:5px;flex-wrap:wrap}
+    .tool-btn{
+      border:0;background:transparent;color:#a8c0cb;padding:8px 9px;border-radius:9px;font-weight:750
+    }
+    .tool-btn:hover{background:rgba(255,255,255,.055);color:white}
+    .post-submit{border:0;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-weight:900;padding:9px 16px}
+    .post-submit:disabled{opacity:.45;cursor:not-allowed}
+    .feed{display:grid;gap:16px}
+    .post{overflow:hidden}
+    .post-head{display:grid;grid-template-columns:48px 1fr auto;gap:10px;align-items:center;padding:16px 16px 8px}
+    .post-author strong{display:block;font-size:14px}.post-author small{display:block;color:#829da9;font-size:11px}
+    .more-btn{border:0;background:transparent;color:#8ea8b4;font-size:22px}
+    .post-body{padding:4px 16px 13px}
+    .post-text{margin:0;color:#e2edf2;font-size:15px;white-space:pre-wrap}
+    .post-emotion{
+      margin-top:11px;display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;
+      border:1px solid rgba(22,214,157,.18);background:rgba(22,214,157,.055);color:#c7f4e4;font-size:12px;font-weight:850
+    }
+    .post-emotion span{font-size:20px}
+    .post-image-wrap{margin-top:12px;overflow:hidden;border-radius:14px;border:1px solid rgba(255,255,255,.08)}
+    .post-image-wrap img{width:100%;max-height:520px;object-fit:cover}
+    .link-card{
+      margin-top:12px;padding:12px;border:1px solid rgba(22,135,255,.2);border-radius:13px;background:rgba(22,135,255,.055)
+    }
+    .link-card small{display:block;color:#7ebeff;font-weight:850;text-transform:uppercase;letter-spacing:.08em}
+    .link-card a{display:block;margin-top:4px;color:white;font-weight:850;text-decoration:none;word-break:break-all}
+    .post-metrics{display:flex;justify-content:space-between;gap:12px;padding:0 16px 10px;color:#8ca6b2;font-size:12px}
+    .reaction-summary{display:flex;align-items:center;gap:7px}
+    .reaction-stack{display:flex}
+    .reaction-stack span{
+      width:22px;height:22px;margin-left:-4px;border-radius:50%;display:grid;place-items:center;background:#0b2b3a;border:2px solid #0c2532;font-size:12px
+    }
+    .reaction-stack span:first-child{margin-left:0}
+    .post-actions{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:6px 10px;border-top:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07)
+    }
+    .post-action{
+      border:0;background:transparent;color:#a9c0ca;padding:9px 6px;border-radius:9px;font-weight:800
+    }
+    .post-action:hover,.post-action.active{background:rgba(255,255,255,.055);color:#fff}
+    .post-action.active{color:#62b8ff}
+    .reaction-menu{
+      display:none;grid-template-columns:repeat(8,1fr);gap:4px;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.06)
+    }
+    .reaction-menu.open{display:grid}
+    .reaction-pick{
+      border:0;background:transparent;padding:6px 2px;border-radius:10px;color:#9db7c3;font-size:9px
+    }
+    .reaction-pick:hover{background:rgba(255,255,255,.055);color:white}
+    .reaction-pick span{display:block;font-size:22px}
+    .comments{padding:10px 16px 14px}
+    .comment{display:grid;grid-template-columns:34px 1fr;gap:8px;margin-top:9px}
+    .comment .mini-avatar{width:34px;height:34px;font-size:11px}
+    .comment-bubble{padding:9px 11px;border-radius:14px;background:rgba(255,255,255,.055)}
+    .comment-bubble strong{display:block;font-size:12px}.comment-bubble p{margin:2px 0 0;color:#d2e1e7;font-size:13px}
+    .comment-meta{margin:3px 0 0 11px;color:#76909d;font-size:10px}
+    .comment-form{display:grid;grid-template-columns:34px 1fr auto;gap:7px;align-items:center;margin-top:11px}
+    .comment-form .mini-avatar{width:34px;height:34px;font-size:11px}
+    .comment-form input{
+      min-width:0;border:1px solid rgba(255,255,255,.07);outline:0;border-radius:999px;background:rgba(255,255,255,.045);
+      color:white;padding:9px 12px
+    }
+    .comment-form button{border:0;border-radius:999px;background:#123c52;color:#cdefff;width:34px;height:34px;font-weight:950}
+    .public-cta{
+      padding:10px 12px;margin-top:10px;border:1px solid rgba(22,135,255,.18);border-radius:12px;
+      background:rgba(22,135,255,.05);color:#b9cfda;font-size:12px
+    }
+    .public-cta a{color:#73c2ff;font-weight:850}
+    .trainer-list{display:grid;gap:10px}
+    .trainer-card{
+      display:grid;grid-template-columns:44px 1fr auto;gap:9px;align-items:center;padding:8px;
+      border-radius:12px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.025);text-decoration:none
+    }
+    .trainer-card:hover{border-color:rgba(22,135,255,.24)}
+    .trainer-card strong{display:block;font-size:12px}.trainer-card small{display:block;color:#819da9;font-size:10px}
+    .go-arrow{color:#69b9ff;font-weight:950}
+    .share-note{
+      padding:13px;border:1px solid rgba(22,214,157,.18);border-radius:13px;background:rgba(22,214,157,.045);
+      color:#bcd8ce;font-size:12px
+    }
+    .share-note b{color:#4be4b1}
+    .privacy-note{margin-top:10px;color:#77929e;font-size:10px}
+    .toast{
+      position:fixed;left:50%;bottom:26px;z-index:200;transform:translate(-50%,18px);
+      opacity:0;pointer-events:none;padding:11px 15px;border-radius:999px;border:1px solid var(--line2);
+      background:rgba(4,24,34,.96);box-shadow:0 18px 50px rgba(0,0,0,.42);color:white;font-size:12px;font-weight:800;
+      transition:.22s ease
+    }
+    .toast.show{opacity:1;transform:translate(-50%,0)}
+    .modal-backdrop{
+      display:none;position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.66);padding:20px;align-items:center;justify-content:center
+    }
+    .modal-backdrop.show{display:flex}
+    .modal{
+      width:min(100%,520px);border:1px solid var(--line2);border-radius:20px;background:#092331;box-shadow:var(--shadow);padding:20px
+    }
+    .modal h2{margin:0 0 8px}.modal p{color:#a9c0ca;font-size:13px}
+    .modal input{
+      width:100%;border:1px solid var(--line);border-radius:12px;background:#061a24;color:white;padding:11px 12px;outline:0
+    }
+    .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+    .hidden{display:none!important}
+    .preview-label{
+      position:fixed;right:14px;bottom:14px;z-index:70;padding:5px 8px;border-radius:999px;
+      background:rgba(0,0,0,.46);color:#96aab4;font-size:9px;pointer-events:none
+    }
+    @media(max-width:1100px){
+      .layout{grid-template-columns:minmax(230px,.8fr) minmax(430px,1.35fr)}
+      .right-col{grid-column:1/-1;grid-template-columns:repeat(3,1fr)}
+      .appbar-inner{grid-template-columns:auto 1fr auto}
+    }
+    @media(max-width:790px){
+      .appbar-inner{grid-template-columns:auto 1fr;gap:10px}
+      .global-search{display:none}
+      .top-actions .pill-btn:not(.primary){display:none}
+      .shell{width:min(calc(100% - 14px),var(--max));margin-top:7px}
+      .profile-head{border-radius:18px}
+      .cover{height:250px}
+      .profile-main{grid-template-columns:1fr;padding:0 16px 16px;gap:6px}
+      .avatar-wrap{width:120px;height:70px}
+      .avatar{width:112px;height:112px}
+      .avatar-fallback{font-size:30px}
+      .avatar-edit{right:0}
+      .identity{padding-top:6px}
+      .profile-actions{justify-content:flex-start;margin-top:10px}
+      .layout{display:flex;flex-direction:column}
+      .center-col{order:1;width:100%}
+      .left-col{order:2;width:100%}
+      .right-col{order:3;width:100%;display:grid;grid-template-columns:1fr}
+      .gallery-grid{grid-template-columns:repeat(3,1fr)}
+      .emotion-picker{margin-left:0;grid-template-columns:repeat(4,1fr)}
+      .composer-preview,.composer-actions{margin-left:0}
+      .profile-tabs{padding:0 7px}
+    }
+    @media(max-width:520px){
+      .appbar-inner{width:calc(100% - 16px);min-height:60px}
+      .brand img{display:none}.brand-badge{display:grid}
+      .top-actions .pill-btn.primary{font-size:12px;padding:0 10px}
+      .cover{height:205px}
+      .cover-edit{right:10px;bottom:10px;font-size:11px;padding:8px 10px}
+      .profile-tabs button{padding:13px 11px;font-size:12px}
+      .composer{padding:12px}
+      .composer-top{grid-template-columns:40px 1fr}
+      .mini-avatar{width:40px;height:40px}
+      .composer-actions{display:grid;grid-template-columns:1fr auto}
+      .tool-btn{padding:7px 6px;font-size:11px}
+      .reaction-menu{grid-template-columns:repeat(4,1fr)}
+      .post-actions{font-size:12px}
+    }
+  </style>
+</head>
+<body>
+  <header class="appbar">
+    <div class="appbar-inner">
+      <a class="brand" href="../">
+        <img src="../logo_betisight.club.png" alt="BetInsight.club">
+        <span class="brand-badge"><b>BI</b><b>C</b></span>
+      </a>
+      <label class="global-search" aria-label="Trainer und Mannschaften suchen">
+        <span>⌕</span>
+        <input id="profileSearch" type="search" placeholder="Trainer, Mannschaft oder Beitrag suchen">
+      </label>
+      <div class="top-actions">
+        <button class="pill-btn" id="openGalleryBtn">⚽ Galerie</button>
+        <button class="pill-btn primary" id="feedBtn">Trainer Feed</button>
+        <button class="icon-btn" id="accountBtn" aria-label="Konto">👤</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="profile-head">
+      <div class="cover">
+        <img id="coverImage" src="../betinsightcommunity/assets/hero-fussball-dunkel.png" alt="Profil-Hintergrund">
+        <button class="cover-edit owner-only" id="coverEditBtn">📷 Hintergrund ändern</button>
+        <input id="coverInput" class="hidden" type="file" accept="image/jpeg,image/png,image/webp">
+      </div>
+
+      <div class="profile-main">
+        <div class="avatar-wrap">
+          <div class="avatar" id="avatarBox">
+            <div class="avatar-fallback" id="avatarFallback">JV</div>
+            <img id="avatarImage" class="hidden" alt="Trainerbild">
+          </div>
+          <button class="avatar-edit owner-only" id="avatarEditBtn" aria-label="Trainerbild ändern">📷</button>
+          <input id="avatarInput" class="hidden" type="file" accept="image/jpeg,image/png,image/webp">
+        </div>
+
+        <div class="identity">
+          <div class="identity-top">
+            <h1 id="trainerName">Julian Varo</h1>
+            <span class="verified" title="BetInsight Trainerprofil">✓</span>
+          </div>
+          <p class="teamline"><strong id="teamName">Atlas United</strong> · <span id="countryName">🇩🇪 Deutschland</span></p>
+          <div class="chips">
+            <span class="chip">⚽ Trainer</span>
+            <span class="chip premium" id="membershipChip">★ Premium</span>
+            <span class="chip">Mitglied seit Sep. 2026</span>
+          </div>
+        </div>
+
+        <div class="profile-actions">
+          <button class="pill-btn primary owner-only" id="newPostTopBtn">＋ Beitrag</button>
+          <button class="pill-btn" id="shareProfileBtn">↗ Profil teilen</button>
+          <button class="pill-btn viewer-only" id="followBtn">＋ Folgen</button>
+        </div>
+      </div>
+
+      <nav class="profile-tabs" aria-label="Profilbereiche">
+        <button class="active">Beiträge</button>
+        <button>Spielberichte</button>
+        <button>Galerie</button>
+        <button>Mannschaft</button>
+        <button>Info</button>
+      </nav>
+    </section>
+
+    <section class="layout">
+      <aside class="column left-col">
+        <article class="card card-pad">
+          <div class="card-title"><h2>Über den Trainer</h2><button class="owner-only">Bearbeiten</button></div>
+          <p class="bio" id="trainerBio">Offensiver Fußball, klare Rollen und mutige Entscheidungen. Hier teile ich Spielberichte, Aufstellungen und Eindrücke aus meiner BetInsight-Mannschaft.</p>
+          <div class="about-list">
+            <div class="about-row"><span>🛡️</span><span>Trainer von <strong id="aboutTeam">Atlas United</strong></span></div>
+            <div class="about-row"><span>📍</span><span id="aboutCountry">Deutschland</span></div>
+            <div class="about-row"><span>🏟️</span><span>BetInsight Mannschaft erstellt</span></div>
+            <div class="about-row"><span>🔗</span><span>Öffentliches Profil · teilbar</span></div>
+          </div>
+          <div class="stat-grid">
+            <div class="stat"><strong>14</strong><span>Spiele</span></div>
+            <div class="stat"><strong>9</strong><span>Siege</span></div>
+            <div class="stat"><strong>67%</strong><span>Quote</span></div>
+          </div>
+        </article>
+
+        <article class="card card-pad">
+          <div class="card-title"><h2>Berichte & Galerie</h2><a href="#gallery">Alle ansehen</a></div>
+          <div class="gallery-grid" id="gallery">
+            <div class="gallery-item report"><b>ATLAS DREHT DAS SPIEL</b><small>3:1 nach taktischer Umstellung in der zweiten Halbzeit.</small></div>
+            <div class="gallery-item"><img src="../betinsightcommunity/assets/hero-fussball-dunkel.png" alt="Stadion"></div>
+            <div class="gallery-item report"><b>DER TRAINER ERKLÄRT</b><small>Warum das 4-2-3-1 heute den Unterschied machte.</small></div>
+            <div class="gallery-item report"><b>SPIELTAG 14</b><small>Ein Punkt, der sich wie zwei verlorene anfühlt.</small></div>
+            <div class="gallery-item"><img src="../betinsightcommunity/assets/analyse-tipster.webp" alt="Analyse"></div>
+            <div class="gallery-item report"><b>JUNGE SPIELER ÜBERZEUGEN</b><small>Zwei Talente schaffen den Sprung in die Startelf.</small></div>
+          </div>
+        </article>
+
+        <article class="card card-pad">
+          <div class="card-title"><h2>Letzte Spiele</h2><a href="#">Alle Berichte</a></div>
+          <div class="result-list">
+            <div class="result"><span class="result-badge win">S</span><div><strong>Atlas United · Nova City</strong><small>Heimspiel</small></div><span class="score">3:1</span></div>
+            <div class="result"><span class="result-badge draw">U</span><div><strong>Royal Eleven · Atlas United</strong><small>Auswärts</small></div><span class="score">2:2</span></div>
+            <div class="result"><span class="result-badge win">S</span><div><strong>Atlas United · FC North</strong><small>Heimspiel</small></div><span class="score">2:0</span></div>
+          </div>
+        </article>
+      </aside>
+
+      <section class="column center-col">
+        <article class="card composer owner-only" id="composerCard">
+          <div class="composer-top">
+            <div class="mini-avatar"><span id="composerInitials">JV</span></div>
+            <textarea id="postText" maxlength="1600" placeholder="Was möchtest du mit deiner Trainer-Community teilen?"></textarea>
+          </div>
+
+          <div class="emotion-picker" id="emotionPicker" aria-label="BetInsight Emotion auswählen">
+            <button class="emotion-option" data-emotion="Like" data-icon="👍"><span>👍</span>Like</button>
+            <button class="emotion-option" data-emotion="Live-Alarm" data-icon="🚨"><span>🚨</span>Live-Alarm</button>
+            <button class="emotion-option" data-emotion="Herz" data-icon="💚"><span>💚</span>Herz</button>
+            <button class="emotion-option" data-emotion="Jubel" data-icon="🙌"><span>🙌</span>Jubel</button>
+            <button class="emotion-option" data-emotion="Heißer Tipp" data-icon="🔥"><span>🔥</span>Heißer Tipp</button>
+            <button class="emotion-option" data-emotion="Gewonnen" data-icon="🏆"><span>🏆</span>Gewonnen</button>
+            <button class="emotion-option" data-emotion="Okay" data-icon="✅"><span>✅</span>Okay</button>
+            <button class="emotion-option" data-emotion="Danke" data-icon="🙏"><span>🙏</span>Danke</button>
+          </div>
+
+          <div class="composer-preview" id="composerPreview">
+            <img id="postImagePreview" alt="Bildvorschau">
+            <button id="removePostImage" aria-label="Bild entfernen">×</button>
+          </div>
+
+          <div class="composer-actions">
+            <div class="composer-tools">
+              <button class="tool-btn" id="photoBtn">🖼️ Bild</button>
+              <button class="tool-btn" id="emotionBtn">🙂 BetInsight Emotion</button>
+              <button class="tool-btn" id="reportBtn">📰 Spielbericht</button>
+              <input id="postImageInput" class="hidden" type="file" accept="image/jpeg,image/png,image/webp">
+            </div>
+            <button class="post-submit" id="publishPostBtn" disabled>Posten</button>
+          </div>
+        </article>
+
+        <div class="feed" id="postFeed"></div>
+      </section>
+
+      <aside class="column right-col">
+        <article class="card card-pad">
+          <div class="card-title"><h2>Andere Trainer</h2><a href="#">Galerie</a></div>
+          <div class="trainer-list">
+            <a class="trainer-card" href="?coach=leo-marini&name=Leo%20Marini&team=Vento%20Calcio&country=🇮🇹%20Italien">
+              <div class="mini-avatar">LM</div><div><strong>Leo Marini</strong><small>Vento Calcio · 🇮🇹</small></div><span class="go-arrow">›</span>
+            </a>
+            <a class="trainer-card" href="?coach=owen-cross&name=Owen%20Cross&team=Northbridge%20FC&country=🏴%20England">
+              <div class="mini-avatar">OC</div><div><strong>Owen Cross</strong><small>Northbridge FC · 🏴</small></div><span class="go-arrow">›</span>
+            </a>
+            <a class="trainer-card" href="?coach=rafa-solis&name=Rafa%20Solis&team=Solar%20Madrid&country=🇪🇸%20Spanien">
+              <div class="mini-avatar">RS</div><div><strong>Rafa Solis</strong><small>Solar Madrid · 🇪🇸</small></div><span class="go-arrow">›</span>
+            </a>
+          </div>
+        </article>
+
+        <article class="card card-pad">
+          <div class="card-title"><h2>Profil teilen</h2></div>
+          <div class="share-note">
+            Jeder geteilte Profil- oder Beitragslink kann automatisch den <b>öffentlichen Referral-Code dieses Trainers</b> mitnehmen. Der geheime Dashboard-Token gehört niemals in einen öffentlichen Link.
+          </div>
+          <button class="pill-btn" id="copyInviteBtn" style="width:100%;margin-top:11px">🔗 Einladungslink kopieren</button>
+          <div class="privacy-note">Öffentliche Besucher können lesen und teilen. Schreiben, kommentieren und reagieren ist für eingeloggte BetInsight-Mitglieder vorgesehen.</div>
+        </article>
+
+        <article class="card card-pad">
+          <div class="card-title"><h2>Community-Regeln</h2></div>
+          <div class="about-list">
+            <div class="about-row"><span>✓</span><span>Respektvoll und sportbezogen schreiben</span></div>
+            <div class="about-row"><span>✓</span><span>Keine externen Links in Kommentaren</span></div>
+            <div class="about-row"><span>✓</span><span>Beiträge und Kommentare können gemeldet werden</span></div>
+            <div class="about-row"><span>✓</span><span>Werbliche Links werden später separat geregelt</span></div>
+          </div>
+        </article>
+      </aside>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="shareModal">
+    <div class="modal">
+      <h2>Beitrag teilen</h2>
+      <p>Der öffentliche Link enthält automatisch den Referral-Code des Trainers. Private Dashboard-Tokens werden nicht übernommen.</p>
+      <input id="shareUrlField" readonly>
+      <div class="modal-actions">
+        <button class="pill-btn" id="closeShareModal">Schließen</button>
+        <button class="pill-btn primary" id="copyShareModal">Link kopieren</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Gespeichert</div>
+  <div class="preview-label">Trainerprofil · Frontend-Prototyp</div>
+
+  <script>
+    (function(){
+      "use strict";
+
+      var params = new URLSearchParams(location.search);
+      var coachSlug = clean(params.get("coach")) || "julian-varo";
+      var trainerName = clean(params.get("name")) || "Julian Varo";
+      var teamName = clean(params.get("team")) || "Atlas United";
+      var country = clean(params.get("country")) || "🇩🇪 Deutschland";
+      var refCode = cleanRef(params.get("ref") || params.get("ref_code")) || "DEMOREF";
+      var isOwner = params.get("owner") === "1";
+      var isMember = isOwner || params.get("member") === "1";
+      var selectedEmotion = null;
+      var selectedImageData = "";
+      var storageKey = "betinsight_trainer_demo_posts_" + coachSlug;
+
+      function clean(value){
+        if(!value) return "";
+        return String(value).trim().slice(0,120);
+      }
+
+      function cleanRef(value){
+        if(!value) return "";
+        var v = String(value).trim();
+        return /^[A-Za-z0-9_-]{2,50}$/.test(v) ? v : "";
+      }
+
+      function esc(value){
+        return String(value == null ? "" : value)
+          .replace(/&/g,"&amp;")
+          .replace(/</g,"&lt;")
+          .replace(/>/g,"&gt;")
+          .replace(/"/g,"&quot;")
+          .replace(/'/g,"&#039;");
+      }
+
+      function initials(name){
+        return String(name).split(/\s+/).filter(Boolean).slice(0,2).map(function(part){return part.charAt(0).toUpperCase();}).join("") || "TR";
+      }
+
+      function showToast(message){
+        var el = document.getElementById("toast");
+        el.textContent = message;
+        el.classList.add("show");
+        clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(function(){el.classList.remove("show");},1900);
+      }
+
+      function publicTrainerUrl(postId){
+        var url = new URL(location.origin + location.pathname);
+        url.searchParams.set("coach",coachSlug);
+        url.searchParams.set("name",trainerName);
+        url.searchParams.set("team",teamName);
+        url.searchParams.set("country",country);
+        if(postId) url.searchParams.set("post",postId);
+        if(refCode) url.searchParams.set("ref",refCode);
+        return url.toString();
+      }
+
+      function registrationUrl(){
+        return "https://betinsight.systeme.io/registrierung?ref=" + encodeURIComponent(refCode || "POOL");
+      }
+
+      function setIdentity(){
+        document.getElementById("trainerName").textContent = trainerName;
+        document.getElementById("teamName").textContent = teamName;
+        document.getElementById("countryName").textContent = country;
+        document.getElementById("aboutTeam").textContent = teamName;
+        document.getElementById("aboutCountry").textContent = country.replace(/^[^\wÀ-ÿ]+/,"");
+        document.getElementById("avatarFallback").textContent = initials(trainerName);
+        document.getElementById("composerInitials").textContent = initials(trainerName);
+        document.title = trainerName + " · " + teamName + " · BetInsight";
+      }
+
+      function setMode(){
+        document.querySelectorAll(".owner-only").forEach(function(el){el.classList.toggle("hidden",!isOwner);});
+        document.querySelectorAll(".viewer-only").forEach(function(el){el.classList.toggle("hidden",isOwner);});
+      }
+
+      var emotionCatalog = [
+        {name:"Like",icon:"👍"},
+        {name:"Live-Alarm",icon:"🚨"},
+        {name:"Herz",icon:"💚"},
+        {name:"Jubel",icon:"🙌"},
+        {name:"Heißer Tipp",icon:"🔥"},
+        {name:"Gewonnen",icon:"🏆"},
+        {name:"Okay",icon:"✅"},
+        {name:"Danke",icon:"🙏"}
+      ];
+
+      var basePosts = [
+        {
+          id:"post-match-031",
+          author:trainerName,
+          team:teamName,
+          time:"vor 2 Std.",
+          text:"Starker Auftritt heute. Nach der Pause haben wir höher gepresst und das Zentrum enger gemacht. Das 3:1 war am Ende verdient. Den vollständigen Spielbericht habe ich in die Galerie gelegt.",
+          emotion:{name:"Gewonnen",icon:"🏆"},
+          image:"",
+          reactions:18,
+          comments:[
+            {name:"Leo Marini",text:"Die Umstellung zur Pause war genau richtig."},
+            {name:"Mara Voss",text:"Glückwunsch! Der Matchbericht liest sich stark."}
+          ]
+        },
+        {
+          id:"post-tactics-030",
+          author:trainerName,
+          team:teamName,
+          time:"gestern",
+          text:"Für das nächste Spiel teste ich zwei Varianten im Mittelfeld. Welche Aufstellung wirkt für euch stabiler: 4-2-3-1 oder 4-3-3?",
+          emotion:{name:"Heißer Tipp",icon:"🔥"},
+          image:"",
+          reactions:11,
+          comments:[
+            {name:"Owen Cross",text:"Gegen einen tiefen Gegner würde ich das 4-3-3 probieren."}
+          ]
+        },
+        {
+          id:"post-report-029",
+          author:trainerName,
+          team:teamName,
+          time:"vor 3 Tagen",
+          text:"Neuer interner Zeitungsbericht ist fertig: „Atlas dreht das Spiel“. Genau solche Berichte möchte ich nach wichtigen Partien sammeln.",
+          emotion:{name:"Jubel",icon:"🙌"},
+          image:"",
+          reactions:25,
+          comments:[]
+        }
+      ];
+
+      function readPosts(){
+        var custom = [];
+        try{ custom = JSON.parse(localStorage.getItem(storageKey) || "[]"); }catch(e){}
+        return custom.concat(basePosts);
+      }
+
+      function saveCustomPost(post){
+        var list = [];
+        try{ list = JSON.parse(localStorage.getItem(storageKey) || "[]"); }catch(e){}
+        list.unshift(post);
+        localStorage.setItem(storageKey,JSON.stringify(list.slice(0,15)));
+      }
+
+      function renderPosts(){
+        var feed = document.getElementById("postFeed");
+        feed.innerHTML = "";
+        readPosts().forEach(function(post){
+          feed.appendChild(renderPost(post));
+        });
+        var focusId = params.get("post");
+        if(focusId){
+          setTimeout(function(){
+            var target = document.getElementById("card-" + CSS.escape(focusId));
+            if(target){
+              target.style.outline = "2px solid rgba(22,135,255,.55)";
+              target.scrollIntoView({behavior:"smooth",block:"center"});
+            }
+          },120);
+        }
+      }
+
+      function renderPost(post){
+        var article = document.createElement("article");
+        article.className = "card post";
+        article.id = "card-" + post.id;
+        var commentCount = Array.isArray(post.comments) ? post.comments.length : 0;
+        var reactionIcons = [post.emotion && post.emotion.icon ? post.emotion.icon : "👍","💚","🏆"];
+        var emotionHtml = post.emotion ? '<div class="post-emotion"><span>' + esc(post.emotion.icon) + '</span>' + esc(post.emotion.name) + '</div>' : "";
+        var imageHtml = post.image ? '<div class="post-image-wrap"><img src="' + esc(post.image) + '" alt="Beitragsbild"></div>' : "";
+        var commentsHtml = "";
+        (post.comments || []).forEach(function(c){
+          commentsHtml += '<div class="comment"><div class="mini-avatar">' + esc(initials(c.name)) + '</div><div><div class="comment-bubble"><strong>' + esc(c.name) + '</strong><p>' + esc(c.text) + '</p></div><div class="comment-meta">Gefällt mir · Antworten</div></div></div>';
+        });
+
+        var interactionHtml = isMember
+          ? '<form class="comment-form" data-post="' + esc(post.id) + '"><div class="mini-avatar">' + esc(initials(isOwner ? trainerName : "Mitglied")) + '</div><input maxlength="500" placeholder="Kommentar schreiben …" aria-label="Kommentar"><button aria-label="Kommentar senden">➤</button></form>'
+          : '<div class="public-cta">Du kannst diesen öffentlichen Beitrag lesen und teilen. <a href="' + esc(registrationUrl()) + '">Kostenlos anmelden</a>, um zu reagieren oder zu kommentieren.</div>';
+
+        article.innerHTML =
+          '<div class="post-head">' +
+            '<div class="mini-avatar">' + esc(initials(post.author || trainerName)) + '</div>' +
+            '<div class="post-author"><strong>' + esc(post.author || trainerName) + '</strong><small>' + esc(post.team || teamName) + ' · ' + esc(post.time || "gerade eben") + ' · 🌐</small></div>' +
+            '<button class="more-btn" aria-label="Beitragsmenü">•••</button>' +
+          '</div>' +
+          '<div class="post-body"><p class="post-text">' + esc(post.text) + '</p>' + emotionHtml + imageHtml + '</div>' +
+          '<div class="post-metrics"><div class="reaction-summary"><div class="reaction-stack"><span>' + reactionIcons[0] + '</span><span>' + reactionIcons[1] + '</span><span>' + reactionIcons[2] + '</span></div><span class="reaction-count">' + esc(post.reactions || 0) + '</span></div><span><span class="comment-count">' + commentCount + '</span> Kommentare · <span class="share-count">0</span> geteilt</span></div>' +
+          '<div class="post-actions">' +
+            '<button class="post-action react-toggle" ' + (isMember ? "" : "disabled") + '>🙂 Reagieren</button>' +
+            '<button class="post-action comment-focus" ' + (isMember ? "" : "disabled") + '>💬 Kommentieren</button>' +
+            '<button class="post-action share-post" data-post="' + esc(post.id) + '">↗ Teilen</button>' +
+          '</div>' +
+          '<div class="reaction-menu">' +
+            emotionCatalog.map(function(r){return '<button class="reaction-pick" data-name="' + esc(r.name) + '" data-icon="' + esc(r.icon) + '"><span>' + esc(r.icon) + '</span>' + esc(r.name) + '</button>';}).join("") +
+          '</div>' +
+          '<div class="comments">' + commentsHtml + interactionHtml + '</div>';
+
+        var reactToggle = article.querySelector(".react-toggle");
+        var reactionMenu = article.querySelector(".reaction-menu");
+        if(reactToggle && isMember){
+          reactToggle.addEventListener("click",function(){
+            reactionMenu.classList.toggle("open");
+          });
+        }
+
+        article.querySelectorAll(".reaction-pick").forEach(function(btn){
+          btn.addEventListener("click",function(){
+            reactionMenu.classList.remove("open");
+            reactToggle.classList.add("active");
+            reactToggle.textContent = btn.getAttribute("data-icon") + " " + btn.getAttribute("data-name");
+            var count = article.querySelector(".reaction-count");
+            if(!article.dataset.reacted){
+              count.textContent = String((parseInt(count.textContent,10) || 0) + 1);
+              article.dataset.reacted = "1";
+            }
+            showToast("Reaktion gespeichert: " + btn.getAttribute("data-name"));
+          });
+        });
+
+        var commentFocus = article.querySelector(".comment-focus");
+        if(commentFocus && isMember){
+          commentFocus.addEventListener("click",function(){
+            var input = article.querySelector(".comment-form input");
+            if(input) input.focus();
+          });
+        }
+
+        var form = article.querySelector(".comment-form");
+        if(form){
+          form.addEventListener("submit",function(e){
+            e.preventDefault();
+            var input = form.querySelector("input");
+            var value = input.value.trim();
+            if(!value) return;
+            if(/https?:\/\/|www\./i.test(value)){
+              showToast("Externe Links sind in Kommentaren nicht erlaubt.");
+              return;
+            }
+            var node = document.createElement("div");
+            node.className = "comment";
+            node.innerHTML = '<div class="mini-avatar">' + esc(initials(isOwner ? trainerName : "Mitglied")) + '</div><div><div class="comment-bubble"><strong>' + esc(isOwner ? trainerName : "BetInsight Mitglied") + '</strong><p>' + esc(value) + '</p></div><div class="comment-meta">gerade eben · Gefällt mir · Antworten</div></div>';
+            form.parentNode.insertBefore(node,form);
+            input.value = "";
+            var cc = article.querySelector(".comment-count");
+            cc.textContent = String((parseInt(cc.textContent,10) || 0) + 1);
+            showToast("Kommentar hinzugefügt");
+          });
+        }
+
+        article.querySelector(".share-post").addEventListener("click",function(){
+          openShare(post.id);
+          var sc = article.querySelector(".share-count");
+          sc.textContent = String((parseInt(sc.textContent,10) || 0) + 1);
+        });
+
+        return article;
+      }
+
+      function openShare(postId){
+        var url = publicTrainerUrl(postId);
+        document.getElementById("shareUrlField").value = url;
+        if(navigator.share){
+          navigator.share({title:trainerName + " · " + teamName,text:"Beitrag auf BetInsight ansehen",url:url}).catch(function(){});
+        }else{
+          document.getElementById("shareModal").classList.add("show");
+        }
+      }
+
+      function copyText(value,message){
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(value).then(function(){showToast(message || "Link kopiert");}).catch(function(){fallbackCopy(value,message);});
+        }else fallbackCopy(value,message);
+      }
+
+      function fallbackCopy(value,message){
+        var t = document.createElement("textarea");
+        t.value = value;document.body.appendChild(t);t.select();
+        try{document.execCommand("copy");showToast(message || "Link kopiert");}catch(e){showToast("Link konnte nicht automatisch kopiert werden");}
+        t.remove();
+      }
+
+      function bindFilePreview(inputId,imgId,fallbackId,maxMb){
+        var input = document.getElementById(inputId);
+        input.addEventListener("change",function(){
+          var file = input.files && input.files[0];
+          if(!file) return;
+          if(file.size > maxMb * 1024 * 1024){
+            showToast("Bitte ein Bild unter " + maxMb + " MB wählen.");
+            input.value = "";
+            return;
+          }
+          var reader = new FileReader();
+          reader.onload = function(){
+            var img = document.getElementById(imgId);
+            img.src = reader.result;
+            img.classList.remove("hidden");
+            if(fallbackId) document.getElementById(fallbackId).classList.add("hidden");
+            showToast("Bildvorschau angepasst. Zentrale Speicherung folgt mit dem Backend.");
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      setIdentity();
+      setMode();
+      renderPosts();
+
+      document.getElementById("shareProfileBtn").addEventListener("click",function(){openShare("");});
+      document.getElementById("copyInviteBtn").addEventListener("click",function(){copyText(publicTrainerUrl(""),"Einladungslink mit Referral-Code kopiert");});
+      document.getElementById("closeShareModal").addEventListener("click",function(){document.getElementById("shareModal").classList.remove("show");});
+      document.getElementById("copyShareModal").addEventListener("click",function(){copyText(document.getElementById("shareUrlField").value);document.getElementById("shareModal").classList.remove("show");});
+      document.getElementById("shareModal").addEventListener("click",function(e){if(e.target === e.currentTarget)e.currentTarget.classList.remove("show");});
+
+      document.getElementById("coverEditBtn").addEventListener("click",function(){document.getElementById("coverInput").click();});
+      document.getElementById("avatarEditBtn").addEventListener("click",function(){document.getElementById("avatarInput").click();});
+      bindFilePreview("coverInput","coverImage",null,4);
+      bindFilePreview("avatarInput","avatarImage","avatarFallback",2);
+
+      document.getElementById("photoBtn").addEventListener("click",function(){document.getElementById("postImageInput").click();});
+      document.getElementById("postImageInput").addEventListener("change",function(){
+        var file = this.files && this.files[0];
+        if(!file) return;
+        if(file.size > 2 * 1024 * 1024){
+          showToast("Beitragsbilder bitte unter 2 MB.");
+          this.value = "";
+          return;
+        }
+        var reader = new FileReader();
+        reader.onload = function(){
+          selectedImageData = reader.result;
+          document.getElementById("postImagePreview").src = selectedImageData;
+          document.getElementById("composerPreview").classList.add("show");
+          updatePublishState();
+        };
+        reader.readAsDataURL(file);
+      });
+      document.getElementById("removePostImage").addEventListener("click",function(){
+        selectedImageData = "";
+        document.getElementById("postImageInput").value = "";
+        document.getElementById("composerPreview").classList.remove("show");
+        updatePublishState();
+      });
+
+      document.getElementById("emotionBtn").addEventListener("click",function(){
+        document.getElementById("emotionPicker").classList.toggle("open");
+      });
+      document.querySelectorAll(".emotion-option").forEach(function(btn){
+        btn.addEventListener("click",function(){
+          document.querySelectorAll(".emotion-option").forEach(function(b){b.classList.remove("selected");});
+          btn.classList.add("selected");
+          selectedEmotion = {name:btn.getAttribute("data-emotion"),icon:btn.getAttribute("data-icon")};
+          updatePublishState();
+        });
+      });
+
+      document.getElementById("reportBtn").addEventListener("click",function(){
+        var area = document.getElementById("postText");
+        if(!area.value.trim()) area.value = "Neuer Spielbericht: ";
+        area.focus();
+        updatePublishState();
+      });
+
+      function updatePublishState(){
+        var hasText = document.getElementById("postText").value.trim().length > 0;
+        document.getElementById("publishPostBtn").disabled = !(hasText || selectedImageData || selectedEmotion);
+      }
+      document.getElementById("postText").addEventListener("input",updatePublishState);
+
+      document.getElementById("publishPostBtn").addEventListener("click",function(){
+        var text = document.getElementById("postText").value.trim();
+        if(!text && !selectedImageData && !selectedEmotion) return;
+        var post = {
+          id:"post-local-" + Date.now(),
+          author:trainerName,
+          team:teamName,
+          time:"gerade eben",
+          text:text,
+          emotion:selectedEmotion,
+          image:selectedImageData,
+          reactions:0,
+          comments:[]
+        };
+        try{
+          saveCustomPost(post);
+        }catch(e){
+          post.image = "";
+          try{saveCustomPost(post);}catch(ignore){}
+          showToast("Beitrag gespeichert, Bild nur als Vorschau. Backend-Speicher folgt.");
+        }
+        document.getElementById("postText").value = "";
+        selectedEmotion = null;
+        selectedImageData = "";
+        document.querySelectorAll(".emotion-option").forEach(function(b){b.classList.remove("selected");});
+        document.getElementById("emotionPicker").classList.remove("open");
+        document.getElementById("composerPreview").classList.remove("show");
+        document.getElementById("postImageInput").value = "";
+        updatePublishState();
+        renderPosts();
+        showToast("Beitrag im Prototyp veröffentlicht");
+      });
+
+      document.getElementById("newPostTopBtn").addEventListener("click",function(){
+        document.getElementById("composerCard").scrollIntoView({behavior:"smooth",block:"center"});
+        setTimeout(function(){document.getElementById("postText").focus();},350);
+      });
+
+      document.getElementById("followBtn").addEventListener("click",function(){
+        if(!isMember){
+          location.href = registrationUrl();
+          return;
+        }
+        this.textContent = this.textContent.indexOf("Folge") >= 0 ? "✓ Gefolgt" : "＋ Folgen";
+      });
+
+      document.getElementById("openGalleryBtn").addEventListener("click",function(){
+        document.getElementById("gallery").scrollIntoView({behavior:"smooth",block:"center"});
+      });
+      document.getElementById("feedBtn").addEventListener("click",function(){
+        showToast("Der zentrale Trainer Feed wird als eigener Bereich angebunden.");
+      });
+      document.getElementById("accountBtn").addEventListener("click",function(){
+        if(isMember) showToast("Konto-Navigation wird mit dem BetInsight-Login verbunden.");
+        else location.href = registrationUrl();
+      });
+
+      var search = document.getElementById("profileSearch");
+      search.addEventListener("keydown",function(e){
+        if(e.key === "Enter"){
+          e.preventDefault();
+          showToast("Globale Trainersuche wird mit der zentralen Galerie verbunden.");
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
