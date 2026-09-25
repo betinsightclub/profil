@@ -14,7 +14,7 @@
   }
   try{
     const files=['livev11.part0','livev11.part1','livev11.part2','livev11.part3'];
-    const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260925-laliga2-api-v9',{cache:'no-store'}).then(r=>{
+    const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260925-league-map-v10',{cache:'no-store'}).then(r=>{
       if(!r.ok)throw new Error('Terminal-Datei '+x+' konnte nicht geladen werden');
       return r.text();
     })));
@@ -22,6 +22,29 @@
     const bytes=Uint8Array.from(atob(b),c=>c.charCodeAt(0));
     const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
     let html=await new Response(stream).text();
+
+    // FORCE-LALIGA2-EXACT-V10
+    html=html.replace(/(<select\b[^>]*\bid=(["'])liga\2[^>]*>)([\s\S]*?)(<\/select>)/i,(full,open,q,options,close)=>{
+      let opts=options.replace(/<option\b([^>]*)>\s*<\/option>/gi,'');
+      opts=opts.replace(/<option\b[^>]*value=(["'])LaLiga 2\1[^>]*>[\s\S]*?<\/option>/gi,'');
+      const add='<option value="LaLiga 2">LaLiga 2 · Segunda División (LALIGA HYPERMOTION)</option>';
+      const la=/(<option\b[^>]*value=(["'])La Liga\2[^>]*>\s*La Liga\s*<\/option>)/i;
+      opts=la.test(opts)?opts.replace(la,'$1'+add):opts+add;
+      return open+opts+close;
+    });
+
+
+    // Exact live league-map aliases used by loadLeagueEvents().
+    // This terminal indexes leagueMap by the SELECT value case-sensitively.
+    html=html.replace(/const\s+leagueMap\s*=\s*\{/, match =>
+      match +
+      "'LaLiga 2':'soccer_spain_segunda_division'," +
+      "'LaLiga 2 · Segunda División (LALIGA HYPERMOTION)':'soccer_spain_segunda_division'," +
+      "'Segunda División':'soccer_spain_segunda_division'," +
+      "'LALIGA HYPERMOTION':'soccer_spain_segunda_division'," +
+      "'Primera Liga':'soccer_portugal_primeira_liga',"
+    );
+
 
     // Hard map LaLiga 2 into the actual live resolver before rendering.
     html=html.replace(/function\\s+resolveSportKey\\s*\\(\\s*\\)\\s*\\{/, match=>match+
