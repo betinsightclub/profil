@@ -105,6 +105,96 @@
       display:grid;place-items:center
     }
     .avatar img{width:100%;height:100%;object-fit:cover}
+    .avatar{
+      --rank-outer:#244454;
+      --rank-inner:#3c6577;
+      --rank-glow:rgba(0,0,0,.28);
+      border:4px solid var(--rank-inner);
+      box-shadow:
+        0 0 0 3px var(--rank-outer),
+        0 16px 44px rgba(0,0,0,.4),
+        0 0 0 0 var(--rank-glow);
+      transition:border-color .28s ease,box-shadow .28s ease,transform .28s ease;
+    }
+    .avatar.rank-start{
+      --rank-outer:#244454;
+      --rank-inner:#3c6577;
+      --rank-glow:rgba(60,101,119,.08);
+    }
+    .avatar.rank-bronze{
+      --rank-outer:#8c5a3c;
+      --rank-inner:#b97a56;
+      --rank-glow:rgba(217,160,123,.12);
+      box-shadow:
+        0 0 0 3px var(--rank-outer),
+        inset 0 0 0 2px rgba(217,160,123,.32),
+        0 16px 44px rgba(0,0,0,.4),
+        0 0 15px var(--rank-glow);
+    }
+    .avatar.rank-silver{
+      --rank-outer:#7d8994;
+      --rank-inner:#b7c0c9;
+      --rank-glow:rgba(226,232,238,.14);
+      box-shadow:
+        0 0 0 3px var(--rank-outer),
+        inset 0 0 0 2px rgba(226,232,238,.42),
+        0 16px 44px rgba(0,0,0,.4),
+        0 0 17px var(--rank-glow);
+    }
+    .avatar.rank-gold{
+      --rank-outer:#a77a12;
+      --rank-inner:#d4a62a;
+      --rank-glow:rgba(240,210,122,.22);
+      box-shadow:
+        0 0 0 3px var(--rank-outer),
+        inset 0 0 0 2px rgba(255,231,164,.5),
+        0 16px 44px rgba(0,0,0,.4),
+        0 0 20px var(--rank-glow);
+    }
+    .avatar.rank-platinum{
+      --rank-outer:#6f7f8b;
+      --rank-inner:#aebcc8;
+      --rank-glow:rgba(221,231,239,.24);
+      box-shadow:
+        0 0 0 3px var(--rank-outer),
+        inset 0 0 0 2px rgba(235,245,252,.58),
+        0 16px 44px rgba(0,0,0,.4),
+        0 0 23px var(--rank-glow);
+    }
+    .avatar.rank-elite{
+      --rank-outer:#b79a45;
+      --rank-inner:#d8dde5;
+      --rank-glow:rgba(255,223,120,.30);
+      box-shadow:
+        0 0 0 3px var(--rank-outer),
+        inset 0 0 0 2px rgba(255,241,184,.68),
+        0 16px 44px rgba(0,0,0,.42),
+        0 0 28px var(--rank-glow);
+    }
+    .avatar.rank-elite:after{
+      content:"✦";
+      position:absolute;
+      right:7px;
+      top:6px;
+      z-index:4;
+      width:25px;
+      height:25px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(145deg,#fff1b8,#b79a45);
+      color:#3f3210;
+      font-size:12px;
+      font-weight:950;
+      box-shadow:0 3px 10px rgba(0,0,0,.35);
+    }
+    .mini-avatar.rank-start{box-shadow:0 0 0 2px #244454}
+    .mini-avatar.rank-bronze{box-shadow:0 0 0 2px #b97a56,0 0 10px rgba(217,160,123,.12)}
+    .mini-avatar.rank-silver{box-shadow:0 0 0 2px #b7c0c9,0 0 10px rgba(226,232,238,.14)}
+    .mini-avatar.rank-gold{box-shadow:0 0 0 2px #d4a62a,0 0 12px rgba(240,210,122,.18)}
+    .mini-avatar.rank-platinum{box-shadow:0 0 0 2px #aebcc8,0 0 13px rgba(221,231,239,.20)}
+    .mini-avatar.rank-elite{box-shadow:0 0 0 2px #d8dde5,0 0 15px rgba(255,223,120,.26)}
+
     .avatar-fallback{position:relative;width:100%;height:100%;display:grid;place-items:center;color:#dff5ff}.avatar-ball{font-size:64px;line-height:1;filter:drop-shadow(0 8px 18px rgba(0,0,0,.28))}.avatar-team-initials{position:absolute;right:15px;bottom:13px;min-width:34px;height:34px;padding:0 7px;border-radius:999px;display:grid;place-items:center;background:#08202c;border:2px solid rgba(255,255,255,.72);font-size:11px;font-weight:950;letter-spacing:.05em;color:white}
     .avatar-edit{
       position:absolute;right:6px;bottom:4px;width:38px;height:38px;border-radius:50%;z-index:2;
@@ -757,12 +847,41 @@
         if(back) back.onclick=function(){location.assign(safeReturnUrl);};
       }
 
-      function renderGameRanks(profile){
-        var current=clean(profile&&profile.league||"Startliga")||"Startliga";
-        var chip=document.getElementById("gameRankChip");
-        if(chip) chip.textContent="🏆 "+current.replace("-Liga","");
+      function rankFromWins(wins){
+        wins=Number(wins||0);
+        if(wins>=200) return {key:"elite",label:"Elite",icon:"🏆"};
+        if(wins>=100) return {key:"platinum",label:"Platin",icon:"💠"};
+        if(wins>=50) return {key:"gold",label:"Gold",icon:"🥇"};
+        if(wins>=30) return {key:"silver",label:"Silber",icon:"🥈"};
+        if(wins>=5) return {key:"bronze",label:"Bronze",icon:"🥉"};
+        return {key:"start",label:"Startliga",icon:"⚽"};
+      }
 
+      function applyAvatarRankFrame(profile){
         var wins=Number(profile&&profile.stats&&profile.stats.wins||0);
+        var rank=rankFromWins(wins);
+        var avatar=document.getElementById("avatarBox");
+        if(avatar){
+          ["rank-start","rank-bronze","rank-silver","rank-gold","rank-platinum","rank-elite"].forEach(function(cls){avatar.classList.remove(cls);});
+          avatar.classList.add("rank-"+rank.key);
+          avatar.title=rank.label+" · durch Spiele erreicht";
+        }
+        document.querySelectorAll(".composer-top .mini-avatar").forEach(function(el){
+          ["rank-start","rank-bronze","rank-silver","rank-gold","rank-platinum","rank-elite"].forEach(function(cls){el.classList.remove(cls);});
+          el.classList.add("rank-"+rank.key);
+        });
+        return rank;
+      }
+
+      function renderGameRanks(profile){
+        var wins=Number(profile&&profile.stats&&profile.stats.wins||0);
+        var current=applyAvatarRankFrame(profile);
+        var chip=document.getElementById("gameRankChip");
+        if(chip){
+          chip.textContent=current.icon+" "+current.label;
+          chip.title=wins+" erspielte Siege";
+        }
+
         var levels=[
           {name:"Bronze",at:5,icon:"🥉"},
           {name:"Silber",at:30,icon:"🥈"},
@@ -874,6 +993,24 @@
         return data.profile||null;
       }
 
+      var lastProfileRefreshAt=0;
+      async function refreshProfileAfterPlay(){
+        if(document.hidden) return;
+        if(Date.now()-lastProfileRefreshAt<8000) return;
+        lastProfileRefreshAt=Date.now();
+        if(isOwner&&memberCredential){
+          try{
+            var mine=await communityCall("my_profile",{credential:memberCredential,club_id:clubId||undefined});
+            if(mine&&mine.profile) applyProfile(mine.profile,true);
+          }catch(_e){}
+        }else if(publicSlug){
+          try{
+            var pub=await fetchPublicProfile();
+            if(pub) applyProfile(pub,false);
+          }catch(_e){}
+        }
+      }
+
       async function loadProfileContext(){
         setupBackNavigation();
         var target=null,ownerView=false;
@@ -939,7 +1076,8 @@
           box.innerHTML=profiles.map(function(p){
             var name=p.display_name||"Trainerprofil";
             var line=(p.team_name||"Mannschaft")+(p.country?" · "+p.country:"");
-            return '<a class="trainer-card" href="?p='+encodeURIComponent(p.public_slug)+'"><div class="mini-avatar">'+esc(p.team_initials||initials(p.team_name||"BI"))+'</div><div><strong>'+esc(name)+'</strong><small>'+esc(line)+'</small></div><span class="go-arrow">›</span></a>';
+            var pr=rankFromWins(p.stats&&p.stats.wins||0);
+            return '<a class="trainer-card" href="?p='+encodeURIComponent(p.public_slug)+'"><div class="mini-avatar rank-'+pr.key+'" title="'+esc(pr.label)+'">'+esc(p.team_initials||initials(p.team_name||"BI"))+'</div><div><strong>'+esc(name)+'</strong><small>'+esc(line)+'</small></div><span class="go-arrow">›</span></a>';
           }).join("");
         }catch(_e){
           box.innerHTML='<div class="empty-state">Weitere Trainerprofile sind momentan nicht verfügbar.</div>';
@@ -1382,6 +1520,8 @@
       setMode();
       renderPosts();
       loadProfileContext();
+      document.addEventListener("visibilitychange",refreshProfileAfterPlay);
+      window.addEventListener("focus",refreshProfileAfterPlay);
 
     document.getElementById("shareProfileBtn").addEventListener("click",function(){openShare("");});
       document.getElementById("copyInviteBtn").addEventListener("click",function(){copyText(publicTrainerUrl(""),"Einladungslink mit Referral-Code kopiert");});
