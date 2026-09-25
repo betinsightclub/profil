@@ -105,7 +105,7 @@
       display:grid;place-items:center
     }
     .avatar img{width:100%;height:100%;object-fit:cover}
-    .avatar-fallback{font-size:42px;font-weight:950;letter-spacing:-.05em;color:#dff5ff}
+    .avatar-fallback{position:relative;width:100%;height:100%;display:grid;place-items:center;color:#dff5ff}.avatar-ball{font-size:64px;line-height:1;filter:drop-shadow(0 8px 18px rgba(0,0,0,.28))}.avatar-team-initials{position:absolute;right:15px;bottom:13px;min-width:34px;height:34px;padding:0 7px;border-radius:999px;display:grid;place-items:center;background:#08202c;border:2px solid rgba(255,255,255,.72);font-size:11px;font-weight:950;letter-spacing:.05em;color:white}
     .avatar-edit{
       position:absolute;right:6px;bottom:4px;width:38px;height:38px;border-radius:50%;z-index:2;
       border:3px solid #08202c;background:#153a4b;color:#fff;display:grid;place-items:center
@@ -290,7 +290,7 @@
       color:#bcd8ce;font-size:12px
     }
     .share-note b{color:#4be4b1}
-    .privacy-note{margin-top:10px;color:#77929e;font-size:10px}
+    .privacy-note{margin-top:10px;color:#77929e;font-size:10px}.empty-state{padding:18px 12px;border:1px dashed rgba(255,255,255,.11);border-radius:13px;color:#7f9aa7;text-align:center;font-size:12px}.profile-back{display:inline-flex;align-items:center;gap:6px}.profile-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.profile-edit-grid .wide{grid-column:1/-1}.profile-edit-label{display:grid;gap:5px;color:#b8ccd6;font-size:11px;font-weight:800}.profile-edit-label input,.profile-edit-label textarea,.profile-edit-label select{width:100%;border:1px solid var(--line);border-radius:12px;background:#061a24;color:white;padding:10px 11px;outline:0}.profile-edit-label textarea{min-height:100px;resize:vertical}@media(max-width:560px){.profile-edit-grid{grid-template-columns:1fr}.profile-edit-grid .wide{grid-column:auto}}
     .toast{
       position:fixed;left:50%;bottom:26px;z-index:200;transform:translate(-50%,18px);
       opacity:0;pointer-events:none;padding:11px 15px;border-radius:999px;border:1px solid var(--line2);
@@ -390,7 +390,7 @@
       <div class="profile-main">
         <div class="avatar-wrap">
           <div class="avatar" id="avatarBox">
-            <div class="avatar-fallback" id="avatarFallback">JV</div>
+            <div class="avatar-fallback" id="avatarFallback"><span class="avatar-ball">⚽</span><span class="avatar-team-initials" id="avatarTeamInitials">BI</span></div>
             <img id="avatarImage" class="hidden" alt="Trainerbild">
           </div>
           <button class="avatar-edit owner-only" id="avatarEditBtn" aria-label="Trainerbild ändern">📷</button>
@@ -399,14 +399,14 @@
 
         <div class="identity">
           <div class="identity-top">
-            <h1 id="trainerName">Julian Varo</h1>
+            <h1 id="trainerName">Trainerprofil</h1>
             <span class="verified" title="BetInsight Trainerprofil">✓</span>
           </div>
-          <p class="teamline"><strong id="teamName">Atlas United</strong> · <span id="countryName">🇩🇪 Deutschland</span></p>
+          <p class="teamline"><strong id="teamName">Mannschaft</strong><span id="countrySeparator" class="hidden"> · </span><span id="countryName" class="hidden"></span></p>
           <div class="chips">
             <span class="chip">⚽ Trainer</span>
-            <span class="chip premium" id="membershipChip">★ Premium</span>
-            <span class="chip">Mitglied seit Sep. 2026</span>
+            <span class="chip premium hidden" id="membershipChip">★ Premium</span>
+            <span class="chip" id="memberSinceChip">Profil wird geladen …</span>
           </div>
         </div>
 
@@ -429,11 +429,11 @@
     <section class="layout">
       <aside class="column left-col">
         <article class="card card-pad">
-          <div class="card-title"><h2>Über den Trainer</h2><button class="owner-only">Bearbeiten</button></div>
-          <p class="bio" id="trainerBio">Offensiver Fußball, klare Rollen und mutige Entscheidungen. Hier teile ich Spielberichte, Aufstellungen und Eindrücke aus meiner BetInsight-Mannschaft.</p>
+          <div class="card-title"><h2>Über den Trainer</h2><button class="owner-only" id="editProfileBtn">Bearbeiten</button></div>
+          <p class="bio" id="trainerBio"></p>
           <div class="about-list">
-            <div class="about-row"><span>🛡️</span><span>Trainer von <strong id="aboutTeam">Atlas United</strong></span></div>
-            <div class="about-row"><span>📍</span><span id="aboutCountry">Deutschland</span></div>
+            <div class="about-row"><span>🛡️</span><span>Trainerprofil von <strong id="aboutTeam">Mannschaft</strong></span></div>
+            <div class="about-row hidden" id="locationRow"><span>📍</span><span id="aboutCountry"></span></div>
             <div class="about-row"><span>🏟️</span><span>BetInsight Mannschaft erstellt</span></div>
             <div class="about-row"><span>🔗</span><span>Öffentliches Profil · teilbar</span></div>
           </div>
@@ -446,30 +446,13 @@
 
         <article class="card card-pad">
           <div class="card-title"><h2>Berichte & Galerie</h2><a href="#gallery">Alle ansehen</a></div>
-          <div class="gallery-grid" id="gallery">
-            <div class="gallery-item report"><b>ATLAS DREHT DAS SPIEL</b><small>3:1 nach taktischer Umstellung in der zweiten Halbzeit.</small></div>
-            <div class="gallery-item"><img src="../betinsightcommunity/assets/hero-fussball-dunkel.png" alt="Stadion"></div>
-            <div class="gallery-item report"><b>DER TRAINER ERKLÄRT</b><small>Warum das 4-2-3-1 heute den Unterschied machte.</small></div>
-            <div class="gallery-item report"><b>SPIELTAG 14</b><small>Ein Punkt, der sich wie zwei verlorene anfühlt.</small></div>
-            <div class="gallery-item"><img src="../betinsightcommunity/assets/analyse-tipster.webp" alt="Analyse"></div>
-            <div class="gallery-item report"><b>JUNGE SPIELER ÜBERZEUGEN</b><small>Zwei Talente schaffen den Sprung in die Startelf.</small></div>
-          </div>
-        </article>
-
-        <article class="card card-pad">
-          <div class="card-title"><h2>Letzte Spiele</h2><a href="#">Alle Berichte</a></div>
-          <div class="result-list">
-            <div class="result"><span class="result-badge win">S</span><div><strong>Atlas United · Nova City</strong><small>Heimspiel</small></div><span class="score">3:1</span></div>
-            <div class="result"><span class="result-badge draw">U</span><div><strong>Royal Eleven · Atlas United</strong><small>Auswärts</small></div><span class="score">2:2</span></div>
-            <div class="result"><span class="result-badge win">S</span><div><strong>Atlas United · FC North</strong><small>Heimspiel</small></div><span class="score">2:0</span></div>
-          </div>
-        </article>
-      </aside>
+          <div class="gallery-grid" id="gallery"><div class="empty-state" id="galleryEmpty" style="grid-column:1/-1">Noch keine Berichte oder Bilder vorhanden.</div></div>\n        </article>\n\n        <article class="card card-pad">\n          <div class="card-title"><h2>Letzte Spiele</h2><a href="#">Alle Berichte</a></div>
+          <div class="result-list" id="resultList"><div class="empty-state">Noch keine Spiele gespeichert.</div></div>\n        </article>\n      </aside>
 
       <section class="column center-col">
         <article class="card composer owner-only" id="composerCard">
           <div class="composer-top">
-            <div class="mini-avatar"><span id="composerInitials">JV</span></div>
+            <div class="mini-avatar"><span id="composerInitials">BI</span></div>
             <textarea id="postText" maxlength="1600" placeholder="Was möchtest du mit deiner Trainer-Community teilen?"></textarea>
           </div>
 
@@ -506,21 +489,7 @@
       <aside class="column right-col">
         <article class="card card-pad">
           <div class="card-title"><h2>Andere Trainer</h2><a href="#">Galerie</a></div>
-          <div class="trainer-list">
-            <a class="trainer-card" href="?coach=leo-marini&name=Leo%20Marini&team=Vento%20Calcio&country=🇮🇹%20Italien">
-              <div class="mini-avatar">LM</div><div><strong>Leo Marini</strong><small>Vento Calcio · 🇮🇹</small></div><span class="go-arrow">›</span>
-            </a>
-            <a class="trainer-card" href="?coach=owen-cross&name=Owen%20Cross&team=Northbridge%20FC&country=🏴%20England">
-              <div class="mini-avatar">OC</div><div><strong>Owen Cross</strong><small>Northbridge FC · 🏴</small></div><span class="go-arrow">›</span>
-            </a>
-            <a class="trainer-card" href="?coach=rafa-solis&name=Rafa%20Solis&team=Solar%20Madrid&country=🇪🇸%20Spanien">
-              <div class="mini-avatar">RS</div><div><strong>Rafa Solis</strong><small>Solar Madrid · 🇪🇸</small></div><span class="go-arrow">›</span>
-            </a>
-          </div>
-        </article>
-
-        <article class="card card-pad">
-          <div class="card-title"><h2>Profil teilen</h2></div>
+          <div class="trainer-list" id="trainerList"><div class="empty-state">Weitere Trainerprofile werden geladen …</div></div>\n        </article>\n\n        <article class="card card-pad">\n          <div class="card-title"><h2>Profil teilen</h2></div>
           <div class="share-note">
             Jeder geteilte Profil- oder Beitragslink kann automatisch den <b>öffentlichen Referral-Code dieses Trainers</b> mitnehmen. Der geheime Dashboard-Token gehört niemals in einen öffentlichen Link.
           </div>
@@ -553,6 +522,38 @@
     </div>
   </div>
 
+  <div class="modal-backdrop" id="profileEditModal">
+    <div class="modal">
+      <h2>Trainerprofil bearbeiten</h2>
+      <p>Diese Angaben sind öffentlich. Du kannst sie auch später jederzeit ergänzen oder ändern.</p>
+      <div class="profile-edit-grid">
+        <label class="profile-edit-label wide">Trainername
+          <input id="editDisplayName" maxlength="80" placeholder="Optional – z. B. dein Trainername">
+        </label>
+        <label class="profile-edit-label">Land
+          <input id="editCountry" maxlength="80" placeholder="Optional">
+        </label>
+        <label class="profile-edit-label">Stadt / Region
+          <input id="editCity" maxlength="80" placeholder="Optional">
+        </label>
+        <label class="profile-edit-label wide">Über mich
+          <textarea id="editBio" maxlength="600" placeholder="Optional – kurze Beschreibung deines Trainerprofils"></textarea>
+        </label>
+        <label class="profile-edit-label wide">Sichtbarkeit
+          <select id="editVisibility">
+            <option value="public">Öffentlich</option>
+            <option value="unlisted">Nur über direkten Link</option>
+            <option value="private">Privat</option>
+          </select>
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button class="pill-btn" id="closeProfileEdit">Abbrechen</button>
+        <button class="pill-btn primary" id="saveProfileEdit">Speichern</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-backdrop" id="reportModal">
     <div class="modal">
       <h2>Inhalt melden</h2>
@@ -578,7 +579,7 @@
   </div>
 
   <div class="toast" id="toast">Gespeichert</div>
-  <div class="preview-label">Trainerprofil · Frontend-Prototyp</div>
+  <div class="preview-label">BetInsight · Trainerprofil</div>
 
   <script>
     (function(){
