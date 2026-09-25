@@ -8,7 +8,7 @@ const shadeHex=(hex,amt)=>{let q=hexToRgb(hex);return rgbToHex(q.r+amt,q.g+amt,q
 
 const cfg=a=>{
  const out={
-  height:clamp(a?.height||182,150,220),build:safe(a?.build,"athletic",new Set(["slim","athletic","strong","stocky"])),skin:a?.skin||"#d7a17e",
+  height:clamp(a?.height||182,150,220),build:safe(a?.build,"athletic",new Set(["slim","athletic","strong","stocky"])),skin:a?.skin||"#d7a17e",faceBase:safe(a?.faceBase,"real01",new Set(["vector","real01","real02","real03","real04","real05","real06"])),
   faceShape:safe(a?.faceShape,"oval",new Set(["oval","round","square","long","diamond"])),
   headWidth:clamp(a?.headWidth??50,30,70),headHeight:clamp(a?.headHeight??50,30,70),faceWidth:clamp(a?.faceWidth??50,30,70),cheekWidth:clamp(a?.cheekWidth??50,30,70),jawWidth:clamp(a?.jawWidth??50,30,70),chinLength:clamp(a?.chinLength??50,30,70),chinWidth:clamp(a?.chinWidth??50,30,70),
   eyeSpacing:clamp(a?.eyeSpacing??50,30,70),eyeSize:clamp(a?.eyeSize??50,30,70),eyeY:clamp(a?.eyeY??50,30,70),eyeShape:clamp(a?.eyeShape??50,30,70),browY:clamp(a?.browY??50,30,70),browThickness:clamp(a?.browThickness??50,30,70),
@@ -112,6 +112,23 @@ function beard(a){
  if(b==="combo")return main+'<path d="M'+(90-mw-5)+' '+(m.mouthY-7)+' Q90 '+(m.mouthY-14)+' '+(90+mw+5)+' '+(m.mouthY-7)+' Q90 '+(m.mouthY+1)+' '+(90-mw-5)+' '+(m.mouthY-7)+'Z" fill="'+c+'"/>';return main
 }
 
+
+const REAL_FACE_BASES={
+ real01:{src:"/time-clash/assets/faces/real01.webp",skin:"#d7a17e"},
+ real02:{src:"/time-clash/assets/faces/real02.webp",skin:"#8e5f50"},
+ real03:{src:"/time-clash/assets/faces/real03.webp",skin:"#d8a98d"},
+ real04:{src:"/time-clash/assets/faces/real04.webp",skin:"#e0ad96"},
+ real05:{src:"/time-clash/assets/faces/real05.webp",skin:"#d0a08a"},
+ real06:{src:"/time-clash/assets/faces/real06.webp",skin:"#d9aa91"}
+};
+function realFaceLayer(a){
+ const b=REAL_FACE_BASES[a.faceBase];if(!b)return "";
+ const id="rf"+Math.random().toString(36).slice(2,9),p=facePath(a),m=metrics(a);
+ // The photographic/semi-real texture starts below the hairline. The scalp/hair is always rendered by our modular system.
+ const cut=Math.max(m.top+23,43),imgY=4+(a.headHeight-50)*.06,imgH=174+(a.headHeight-50)*.35,imgX=21-(a.headWidth-50)*.18,imgW=138+(a.headWidth-50)*.42;
+ return '<defs><clipPath id="'+id+'Face"><path d="'+p+'"/></clipPath><clipPath id="'+id+'Lower"><rect x="25" y="'+cut+'" width="130" height="'+(m.chinY-cut+18)+'"/></clipPath></defs><g clip-path="url(#'+id+'Face)"><path d="'+p+'" fill="'+a.skin+'"/><g clip-path="url(#'+id+'Lower)"><image href="'+b.src+'" x="'+imgX+'" y="'+imgY+'" width="'+imgW+'" height="'+imgH+'" preserveAspectRatio="xMidYMid slice" opacity=".98"/></g><path d="'+p+'" fill="url(#faceLight)" opacity=".35"/></g>'
+}
+function realFaceActive(a){return !!REAL_FACE_BASES[a.faceBase]}
 function faceDepth(a){
  const m=metrics(a),shadow=shadeHex(a.skin,-26),light=shadeHex(a.skin,18),warm=shadeHex(a.skin,-10);
  return '<g pointer-events="none"><path d="M'+(90-m.cheekW+7)+' '+(m.cheekY-2)+' Q'+(90-m.jawW)+' '+(m.jawY-3)+' '+(90-m.chinW)+' '+(m.chinY-7)+'" fill="none" stroke="'+shadow+'" stroke-opacity=".18" stroke-width="5" stroke-linecap="round"/><path d="M'+(90+m.cheekW-7)+' '+(m.cheekY-2)+' Q'+(90+m.jawW)+' '+(m.jawY-3)+' '+(90+m.chinW)+' '+(m.chinY-7)+'" fill="none" stroke="'+shadow+'" stroke-opacity=".12" stroke-width="4" stroke-linecap="round"/><ellipse cx="'+(90-m.cheekW*.46)+'" cy="'+(m.cheekY+7)+'" rx="'+(m.cheekW*.26)+'" ry="10" fill="'+warm+'" opacity=".08"/><ellipse cx="'+(90+m.cheekW*.42)+'" cy="'+(m.cheekY+7)+'" rx="'+(m.cheekW*.24)+'" ry="9" fill="'+light+'" opacity=".06"/><path d="M75 '+(m.top+24)+' Q90 '+(m.top+17)+' 105 '+(m.top+24)+'" fill="none" stroke="'+light+'" stroke-opacity=".10" stroke-width="4" stroke-linecap="round"/></g>'
@@ -140,10 +157,10 @@ function kitPattern(a,id){
 function bodyFront(a,name){const body=a.build==="slim"?.88:a.build==="stocky"?1.17:a.build==="strong"?1.09:1,chest=body*(1+(a.chestWidth-50)*.006),w=84*chest,leg=112+(a.height-165)*.45+(a.legLength-50)*.30,id="kitF"+Math.random().toString(36).slice(2,7);return '<defs>'+kitPattern(a,id)+'<linearGradient id="skinGrad" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fff" stop-opacity=".18"/><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".12"/></linearGradient><filter id="sh"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-opacity=".24"/></filter></defs><ellipse cx="90" cy="318" rx="'+(54*body)+'" ry="8" fill="#000" opacity=".28"/><path d="M'+(90-w/2)+' 150 Q90 136 '+(90+w/2)+' 150 L'+(90+w/2-8)+' 234 L'+(90-w/2+8)+' 234Z" fill="url(#'+id+')" filter="url(#sh)"/><path d="M'+(90-w/2+8)+' 227 L80 '+(287+leg*.22)+' L61 '+(287+leg*.22)+' L70 222Z" fill="#102c3c"/><path d="M'+(90+w/2-8)+' 227 L100 '+(287+leg*.22)+' L119 '+(287+leg*.22)+' L110 222Z" fill="#102c3c"/><path d="M'+(90-w/2)+' 150 Q90 136 '+(90+w/2)+' 150 L'+(90+w/2-8)+' 234 L'+(90-w/2+8)+' 234Z" fill="url(#skinGrad)" opacity=".28"/><text x="90" y="204" text-anchor="middle" fill="#fff" stroke="#000" stroke-width=".7" paint-order="stroke" font-size="12" font-weight="900">'+esc(name).slice(0,16)+'</text>'}
 function backPanel(a,name){const id="kitB"+Math.random().toString(36).slice(2,7),label=(a.shirtName||name||"").split(/\s+/).slice(-1)[0].toUpperCase().slice(0,12);return '<g transform="translate(178 32) scale(.63)"><defs>'+kitPattern(a,id)+'</defs><path d="M48 82 Q90 66 132 82 L124 182 L56 182Z" fill="url(#'+id+')" stroke="#ffffff22" stroke-width="1.5"/><text x="90" y="112" text-anchor="middle" fill="#fff" stroke="#000" stroke-width=".7" paint-order="stroke" font-size="14" font-weight="900">'+esc(label)+'</text><text x="90" y="160" text-anchor="middle" fill="#fff" stroke="#000" stroke-width="1.4" paint-order="stroke" font-size="46" font-weight="1000">'+esc(a.shirtNo)+'</text><text x="90" y="202" text-anchor="middle" fill="#a7c3d1" font-size="10">BACK</text></g>'}
 function render(a0,name,mini=false,mode="both"){
- const a=normalizeFace(cfg(a0)),front=mode==="front",view=front?"20 0 180 255":"0 0 300 360",shift=front?20:38;
- return '<svg viewBox="'+view+'" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="bg" cx=".5" cy=".2" r=".9"><stop stop-color="#10435a"/><stop offset="1" stop-color="#031019"/></radialGradient><linearGradient id="faceLight" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fff" stop-opacity=".10"/><stop offset=".52" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".10"/></linearGradient></defs><rect width="'+(front?220:300)+'" height="360" rx="18" fill="url(#bg)"/><g transform="translate('+shift+' 6)">'+bodyFront(a,name)+hairBack(a)+ears(a)+'<path d="'+facePath(a)+'" fill="'+a.skin+'" stroke="'+shadeHex(a.skin,-34)+'" stroke-opacity=".72" stroke-width=".9"/><path d="'+facePath(a)+'" fill="url(#faceLight)"/>'+faceDepth(a)+facial(a)+beard(a)+hairFront(a)+'</g>'+(front?'':backPanel(a,name)+'<text x="235" y="208" text-anchor="middle" fill="#8fb0bf" font-size="9">FRONT / BACK</text>')+'</svg>'
+ const a=normalizeFace(cfg(a0)),front=mode==="front",view=front?"20 0 180 255":"0 0 300 360",shift=front?20:38,real=realFaceActive(a);
+ return '<svg viewBox="'+view+'" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="bg" cx=".5" cy=".2" r=".9"><stop stop-color="#10435a"/><stop offset="1" stop-color="#031019"/></radialGradient><linearGradient id="faceLight" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fff" stop-opacity=".10"/><stop offset=".52" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".10"/></linearGradient></defs><rect width="'+(front?220:300)+'" height="360" rx="18" fill="url(#bg)"/><g transform="translate('+shift+' 6)">'+bodyFront(a,name)+hairBack(a)+ears(a)+(real?realFaceLayer(a):'<path d="'+facePath(a)+'" fill="'+a.skin+'" stroke="'+shadeHex(a.skin,-34)+'" stroke-opacity=".72" stroke-width=".9"/><path d="'+facePath(a)+'" fill="url(#faceLight)"/>'+faceDepth(a)+facial(a))+beard(a)+hairFront(a)+'</g>'+(front?'':backPanel(a,name)+'<text x="235" y="208" text-anchor="middle" fill="#8fb0bf" font-size="9">FRONT / BACK</text>')+'</svg>'
 }
-window.TimeClashAvatar={render,normalize:a=>normalizeFace(cfg(a)),kitPattern};
+window.TimeClashAvatar={render,normalize:a=>normalizeFace(cfg(a)),kitPattern,realFaceBases:REAL_FACE_BASES};
 })();
 
 /* TIME CLASH save-confirm reconciliation v1 */
