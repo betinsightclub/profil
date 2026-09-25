@@ -142,7 +142,128 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 <\/script>`;
-    html=html.replace('</body>',enhancement+'</body>');
+    const founderAlarmEnhancement=`<script>
+(()=>{
+  'use strict';
+  const FLAG='gruender_live_alarm';
+  const LABEL='Live-Alarm · Gründerfreigabe';
+
+  function flagValue(){
+    const cb=document.getElementById('biFounderLiveAlarm');
+    return cb && cb.checked ? 'JA' : 'NEIN';
+  }
+
+  function findLiveAlarmAnchor(){
+    const direct=document.querySelector('#liveAlarm,#live_alarm,input[name="live_alarm"],input[data-field="live_alarm"]');
+    if(direct)return direct;
+    const boxes=[...document.querySelectorAll('input[type="checkbox"]')];
+    return boxes.find(cb=>{
+      const scope=cb.closest('label,.field,.form-group,.form-row,.row,div')||cb.parentElement;
+      return scope && /LIVE[- ]?ALARM/i.test(String(scope.textContent||''));
+    })||null;
+  }
+
+  function ensureFounderAlarm(){
+    let cb=document.getElementById('biFounderLiveAlarm');
+    if(cb)return cb;
+
+    const wrap=document.createElement('div');
+    wrap.id='biFounderAlarmWrap';
+    wrap.setAttribute('data-bi-founder-alarm','1');
+    wrap.style.cssText='margin:10px 0 14px;padding:10px 12px;border:1px solid rgba(0,218,255,.28);border-radius:12px;background:rgba(6,29,42,.72);';
+    wrap.innerHTML='<label for="biFounderLiveAlarm" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin:0">'+
+      '<input id="biFounderLiveAlarm" type="checkbox" checked style="margin-top:3px;accent-color:#00d48a;transform:scale(1.12)">'+
+      '<span style="display:block;line-height:1.35"><strong style="display:block;color:#fff;font-size:14px">'+LABEL+'</strong>'+
+      '<small style="display:block;margin-top:2px;color:#b9d8e8;font-size:12px">Kurzhinweis an die in der Gründerphase freigeschalteten Premium-Nutzer. Standardmäßig aktiv – nur abwählen, wenn diese Meldung nicht gesendet werden soll.</small></span>'+
+      '</label>';
+
+    const anchor=findLiveAlarmAnchor();
+    if(anchor){
+      const block=anchor.closest('.field,.form-group,.form-row,.row,label')||anchor.parentElement;
+      if(block && block.parentNode){
+        block.insertAdjacentElement('afterend',wrap);
+        return document.getElementById('biFounderLiveAlarm');
+      }
+    }
+
+    const submit=[...document.querySelectorAll('button,input[type="submit"]')].find(el=>/veröffentlichen|tipp.*senden|tipp.*speichern/i.test(String(el.textContent||el.value||'')));
+    if(submit){
+      const block=submit.closest('.actions,.button-row,.form-actions')||submit.parentElement;
+      if(block && block.parentNode)block.parentNode.insertBefore(wrap,block);
+      else submit.insertAdjacentElement('beforebegin',wrap);
+      return document.getElementById('biFounderLiveAlarm');
+    }
+
+    const form=document.querySelector('form');
+    if(form){form.appendChild(wrap);return document.getElementById('biFounderLiveAlarm');}
+    return null;
+  }
+
+  const originalFetch=window.fetch.bind(window);
+  window.fetch=async function(input,init){
+    let opts=init ? {...init} : {};
+    let changed=false;
+    try{
+      const body=opts.body;
+      if(typeof body==='string'){
+        let patched=null;
+        try{
+          const obj=JSON.parse(body);
+          if(obj && typeof obj==='object' && obj.tipp_id && (obj.spiel_datum || obj.preis_units || Object.prototype.hasOwnProperty.call(obj,'live_alarm'))){
+            obj[FLAG]=flagValue();
+            patched=JSON.stringify(obj);
+          }
+        }catch(e){
+          try{
+            const p=new URLSearchParams(body);
+            if(p.has('tipp_id') && (p.has('spiel_datum')||p.has('preis_units')||p.has('live_alarm'))){
+              p.set(FLAG,flagValue());
+              patched=p.toString();
+            }
+          }catch(e2){}
+        }
+        if(patched!==null){opts.body=patched;changed=true;}
+      }else if(typeof URLSearchParams!=='undefined' && body instanceof URLSearchParams){
+        if(body.has('tipp_id')){
+          const p=new URLSearchParams(body);
+          p.set(FLAG,flagValue());
+          opts.body=p;changed=true;
+        }
+      }else if(typeof FormData!=='undefined' && body instanceof FormData){
+        if(body.has('tipp_id')){
+          const fd=new FormData();
+          for(const [k,v] of body.entries())fd.append(k,v);
+          fd.set(FLAG,flagValue());
+          opts.body=fd;changed=true;
+        }
+      }
+    }catch(e){}
+
+    const response=await originalFetch(input,opts);
+    if(changed && response && response.ok){
+      setTimeout(()=>{
+        const cb=document.getElementById('biFounderLiveAlarm');
+        if(cb)cb.checked=true;
+      },900);
+    }
+    return response;
+  };
+
+  document.addEventListener('reset',()=>setTimeout(()=>{
+    const cb=ensureFounderAlarm();
+    if(cb)cb.checked=true;
+  },0));
+
+  const boot=()=>{
+    ensureFounderAlarm();
+    const mo=new MutationObserver(()=>ensureFounderAlarm());
+    mo.observe(document.body,{childList:true,subtree:true});
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
+<\\/script>`;
+
+    html=html.replace('</body>',enhancement+founderAlarmEnhancement+'</body>');
     html=html.replace('<body>','<body><a id="persistentBack" href="/admin/" style="position:fixed;top:12px;left:12px;z-index:99999;display:inline-flex;align-items:center;justify-content:center;padding:10px 15px;border-radius:999px;background:#0d3347;border:1px solid rgba(0,218,255,.45);color:#fff;text-decoration:none;font-weight:700;font-size:14px;box-shadow:0 6px 18px rgba(0,0,0,.28)">← Zurück zum Admin Center</a>');
     document.open();document.write(html);document.close();
   }catch(e){
