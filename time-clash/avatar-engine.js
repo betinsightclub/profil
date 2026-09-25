@@ -33,7 +33,11 @@ function normalize(a={}){
  return {
   avatarVersion:3,kind:"player",
   height:clamp(a.height||182,150,220),build:["slim","athletic","strong","stocky"].includes(a.build)?a.build:"athletic",chestWidth:clamp(a.chestWidth??50,35,65),legLength:clamp(a.legLength??50,35,65),
-  faceAsset,skin:safeHex(a.skin,skinMap[faceAsset]||"#d7a17e"),hairAsset:mapLegacyHair(a),browAsset:BROWS.includes(a.browAsset)?a.browAsset:"original",beardAsset:mapLegacyBeard(a),hairColor:safeHex(a.hairColor,"#3a2418"),
+  faceAsset,skin:safeHex(a.skin,skinMap[faceAsset]||"#d7a17e"),skinBrightness:clamp(a.skinBrightness??0,-20,20),skinWarmth:clamp(a.skinWarmth??0,-20,20),
+  hairAsset:mapLegacyHair(a),browAsset:BROWS.includes(a.browAsset)?a.browAsset:"original",beardAsset:mapLegacyBeard(a),hairColor:safeHex(a.hairColor,"#3a2418"),
+  hairX:clamp(a.hairX??0,-35,35),hairY:clamp(a.hairY??0,-35,35),hairScale:clamp(a.hairScale??100,70,140),
+  browX:clamp(a.browX??0,-35,35),browY:clamp(a.browY??0,-35,35),browScale:clamp(a.browScale??100,70,140),
+  beardX:clamp(a.beardX??0,-35,35),beardY:clamp(a.beardY??0,-35,35),beardScale:clamp(a.beardScale??100,70,140),
   kitStyle:["solid","vertical","horizontal","diagonal","halves","pinstripe","gradient"].includes(a.kitStyle)?a.kitStyle:"solid",stripeCount:clamp(a.stripeCount??5,2,9),stripeWidth:["narrow","medium","wide"].includes(a.stripeWidth)?a.stripeWidth:"medium",kit1:safeHex(a.kit1,"#25a9ff"),kit2:safeHex(a.kit2,"#f7c64e"),kit3:safeHex(a.kit3,"#ffffff"),shirtNo:clamp(a.shirtNo||10,1,99),shirtName:String(a.shirtName||"")
  };
 }
@@ -41,11 +45,25 @@ function normalizeCoach(a={}){
  let face=String(a.faceAsset||COACH_FACES_M[0]),gender=String(a.gender||"");
  if(COACH_FACES_F.includes(face))gender="female"; else if(COACH_FACES_M.includes(face))gender="male"; else {gender=gender==="female"?"female":"male";face=gender==="female"?COACH_FACES_F[0]:COACH_FACES_M[0]}
  const hairs=gender==="female"?HAIR_F:HAIR_M;
- return {avatarVersion:3,kind:"coach",gender,faceAsset:face,hairAsset:hairs.includes(a.hairAsset)?a.hairAsset:(gender==="female"?"hair/f-lob":"hair/m-short-classic"),browAsset:BROWS.includes(a.browAsset)?a.browAsset:"original",beardAsset:gender==="male"&&BEARDS.includes(a.beardAsset)?a.beardAsset:"none",hairColor:safeHex(a.hairColor,"#3a2418")};
+ return {avatarVersion:3,kind:"coach",gender,faceAsset:face,hairAsset:hairs.includes(a.hairAsset)?a.hairAsset:(gender==="female"?"hair/f-lob":"hair/m-short-classic"),browAsset:BROWS.includes(a.browAsset)?a.browAsset:"original",beardAsset:gender==="male"&&BEARDS.includes(a.beardAsset)?a.beardAsset:"none",hairColor:safeHex(a.hairColor,"#3a2418"),
+  skinBrightness:clamp(a.skinBrightness??0,-20,20),skinWarmth:clamp(a.skinWarmth??0,-20,20),
+  hairX:clamp(a.hairX??0,-35,35),hairY:clamp(a.hairY??0,-35,35),hairScale:clamp(a.hairScale??100,70,140),
+  browX:clamp(a.browX??0,-35,35),browY:clamp(a.browY??0,-35,35),browScale:clamp(a.browScale??100,70,140),
+  beardX:clamp(a.beardX??0,-35,35),beardY:clamp(a.beardY??0,-35,35),beardScale:clamp(a.beardScale??100,70,140)};
 }
-function asset(key,x,y,w,h,filter=""){
+function asset(key,x,y,w,h,filter="",attrs=""){
  if(!key||key==="none"||key==="original"||!A()?.cell(key))return "";
- return `<g${filter?` filter="url(#${filter})"`:""}>${A().svgImage(key,x,y,w,h)}</g>`;
+ return `<g${attrs?" "+attrs:""}${filter?` filter="url(#${filter})"`:""}>${A().svgImage(key,x,y,w,h)}</g>`;
+}
+function transformedAsset(key,x,y,w,h,filter="",tx=0,ty=0,scale=100,layer=""){
+ if(!key||key==="none"||key==="original"||!A()?.cell(key))return "";
+ const s=clamp(scale,70,140)/100,cx=x+w/2,cy=y+h/2;
+ return `<g data-avatar-layer="${esc(layer)}" transform="translate(${clamp(tx,-35,35)} ${clamp(ty,-35,35)}) translate(${cx} ${cy}) scale(${s.toFixed(3)}) translate(${-cx} ${-cy})"${filter?` filter="url(#${filter})"`:""}>${A().svgImage(key,x,y,w,h)}</g>`;
+}
+function skinToneDef(fid,brightness=0,warmth=0){
+ const b=clamp(brightness,-20,20),w=clamp(warmth,-20,20),m=1+b/100;
+ const rr=m*(1+w*.0045),gg=m*(1+w*.0012),bb=m*(1-w*.0045);
+ return `<filter id="${fid}" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="${rr.toFixed(3)} 0 0 0 0  0 ${gg.toFixed(3)} 0 0 0  0 0 ${bb.toFixed(3)} 0 0  0 0 0 1 0"/></filter>`;
 }
 function tintDef(fid,color){
  const c=rgb(color),sr=Math.max(.08,c.r/170),sg=Math.max(.08,c.g/170),sb=Math.max(.08,c.b/170);
@@ -67,7 +85,12 @@ function bodyFront(a,name){
 }
 function backPanel(a,name){const pid=id(),label=(a.shirtName||name||"").split(/\s+/).slice(-1)[0].toUpperCase().slice(0,12);return `<g transform="translate(178 48) scale(.58)"><defs>${kitPattern(a,pid)}</defs><path d="M48 82 Q90 66 132 82 L124 182 L56 182Z" fill="url(#${pid})" stroke="#ffffff22" stroke-width="1.5"/><text x="90" y="112" text-anchor="middle" fill="#fff" stroke="#000" stroke-width=".7" paint-order="stroke" font-size="14" font-weight="900">${esc(label)}</text><text x="90" y="160" text-anchor="middle" fill="#fff" stroke="#000" stroke-width="1.4" paint-order="stroke" font-size="46" font-weight="1000">${esc(a.shirtNo)}</text></g>`}
 function headLayers(a,x=15,y=-16,w=150,h=150){
- const f=id(),defs=tintDef(f,a.hairColor);return {defs,html:asset(a.faceAsset,x,y,w,h)+asset(a.browAsset,x,y,w,h,f)+asset(a.beardAsset,x,y,w,h,f)+asset(a.hairAsset,x,y,w,h,f)};
+ const f=id(),sf=id(),defs=tintDef(f,a.hairColor)+skinToneDef(sf,a.skinBrightness,a.skinWarmth);
+ return {defs,html:
+  asset(a.faceAsset,x,y,w,h,sf,'data-avatar-layer="face"')+
+  transformedAsset(a.browAsset,x,y,w,h,f,a.browX,a.browY,a.browScale,"brow")+
+  transformedAsset(a.beardAsset,x,y,w,h,f,a.beardX,a.beardY,a.beardScale,"beard")+
+  transformedAsset(a.hairAsset,x,y,w,h,f,a.hairX,a.hairY,a.hairScale,"hair")};
 }
 function render(a0,name,mini=false,mode="both"){
  const a=normalize(a0),front=mode==="front",view=front?"20 0 180 300":"0 0 300 320",shift=front?20:38,h=headLayers(a);
@@ -75,8 +98,11 @@ function render(a0,name,mini=false,mode="both"){
 }
 function headSvg(a0,x=0,y=0,w=180,h=145){const a=normalize(a0),layers=headLayers(a);return `<svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 180 145" overflow="visible"><defs>${layers.defs}</defs>${layers.html}</svg>`}
 function renderCoach(a0,name="Coach"){
- const a=normalizeCoach(a0),f=id(),defs=tintDef(f,a.hairColor),x=15,y=-8,w=150,h=150;
- const head=asset(a.faceAsset,x,y,w,h)+asset(a.browAsset,x,y,w,h,f)+asset(a.beardAsset,x,y,w,h,f)+asset(a.hairAsset,x,y,w,h,f);
+ const a=normalizeCoach(a0),f=id(),sf=id(),defs=tintDef(f,a.hairColor)+skinToneDef(sf,a.skinBrightness,a.skinWarmth),x=15,y=-8,w=150,h=150;
+ const head=asset(a.faceAsset,x,y,w,h,sf,'data-avatar-layer="face"')+
+  transformedAsset(a.browAsset,x,y,w,h,f,a.browX,a.browY,a.browScale,"brow")+
+  transformedAsset(a.beardAsset,x,y,w,h,f,a.beardX,a.beardY,a.beardScale,"beard")+
+  transformedAsset(a.hairAsset,x,y,w,h,f,a.hairX,a.hairY,a.hairScale,"hair");
  return `<svg viewBox="0 0 180 235" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cbg" cx=".5" cy=".18" r=".9"><stop stop-color="#174b63"/><stop offset="1" stop-color="#04131d"/></radialGradient>${defs}</defs><rect width="180" height="235" rx="16" fill="url(#cbg)"/><path d="M42 138 Q90 118 138 138 L148 228 H32Z" fill="#101b24"/><path d="M76 132 L90 151 L104 132 L118 228 H62Z" fill="#263744"/><path d="M85 147 L90 157 L95 147 L98 197 L90 207 L82 197Z" fill="#b88c3b" opacity=".9"/>${head}<text x="90" y="220" text-anchor="middle" fill="#fff" stroke="#000" stroke-width=".7" paint-order="stroke" font-size="12" font-weight="900">${esc(name).slice(0,18)}</text></svg>`;
 }
 window.TimeClashAvatar={render,renderCoach,headSvg,normalize,normalizeCoach,kitPattern,assets:{PLAYER_FACES,COACH_FACES_M,COACH_FACES_F,HAIR_M,HAIR_F,BROWS,BEARDS}};
