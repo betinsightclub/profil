@@ -264,7 +264,7 @@
     .comment .mini-avatar{width:34px;height:34px;font-size:11px}
     .comment-bubble{padding:9px 11px;border-radius:14px;background:rgba(255,255,255,.055)}
     .comment-bubble strong{display:block;font-size:12px}.comment-bubble p{margin:2px 0 0;color:#d2e1e7;font-size:13px}
-    .comment-meta{margin:3px 0 0 11px;color:#76909d;font-size:10px}
+    .comment-meta{margin:3px 0 0 11px;color:#76909d;font-size:10px}.comment-report{border:0;background:transparent;color:#76909d;padding:0;margin-left:6px;font-size:10px}.comment-report:hover{color:#ff9aa1}
     .comment-form{display:grid;grid-template-columns:34px 1fr auto;gap:7px;align-items:center;margin-top:11px}
     .comment-form .mini-avatar{width:34px;height:34px;font-size:11px}
     .comment-form input{
@@ -553,6 +553,30 @@
     </div>
   </div>
 
+  <div class="modal-backdrop" id="reportModal">
+    <div class="modal">
+      <h2>Inhalt melden</h2>
+      <p>Wähle den Grund. Meldungen werden im Adminbereich geprüft. Drei unabhängige offene Meldungen können einen Beitrag vorübergehend ausblenden.</p>
+      <select id="reportReason">
+        <option value="spam">Spam / unerlaubte Werbung</option>
+        <option value="harassment">Beleidigung / Belästigung</option>
+        <option value="hate">Hass / diskriminierender Inhalt</option>
+        <option value="sexual">Sexueller Inhalt</option>
+        <option value="violence">Gewalt / Drohung</option>
+        <option value="fraud">Betrug / Scam</option>
+        <option value="personal_data">Persönliche Daten</option>
+        <option value="illegal">Möglicherweise rechtswidrig</option>
+        <option value="other">Sonstiger Grund</option>
+      </select>
+      <textarea id="reportDetails" maxlength="700" placeholder="Optional: kurze Erklärung"></textarea>
+      <div class="moderation-note">Missbräuchliche Meldungen werden ebenfalls protokolliert.</div>
+      <div class="modal-actions">
+        <button class="pill-btn" id="closeReportModal">Abbrechen</button>
+        <button class="pill-btn primary" id="sendReportBtn">Meldung senden</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast">Gespeichert</div>
   <div class="preview-label">Trainerprofil · Frontend-Prototyp</div>
 
@@ -602,6 +626,45 @@
         el.classList.add("show");
         clearTimeout(showToast.timer);
         showToast.timer = setTimeout(function(){el.classList.remove("show");},1900);
+      }
+
+      async function communityCall(action,payload,method){
+        method = method || "POST";
+        var url = COMMUNITY_API + "?action=" + encodeURIComponent(action);
+        var options = {method:method,cache:"no-store",credentials:"omit",headers:{"Content-Type":"application/json"}};
+        if(method !== "GET") options.body = JSON.stringify(payload || {});
+        var response = await fetch(url,options);
+        var data = await response.json().catch(function(){return {};});
+        if(!response.ok || data.ok === false){
+          var error = new Error(data.error || "Community-Funktion nicht erreichbar.");
+          error.data = data;
+          error.status = response.status;
+          throw error;
+        }
+        return data;
+      }
+
+      function moderationMessage(flags){
+        var map = {
+          external_link:"Externe Links sind nur über die spätere Werbefunktion erlaubt.",
+          personal_contact:"Telefonnummern und E-Mail-Adressen sind in normalen Beiträgen nicht erlaubt.",
+          threat:"Drohungen sind nicht erlaubt.",
+          sexual_minor:"Dieser Inhalt ist nicht erlaubt.",
+          extremist:"Dieser Inhalt ist nicht erlaubt.",
+          fraud:"Möglicher Betrugs-/Scam-Inhalt ist nicht erlaubt.",
+          unsafe_markup:"Unsicherer HTML-/Script-Inhalt ist nicht erlaubt.",
+          abuse:"Der Inhalt muss vor Veröffentlichung geprüft werden.",
+          spam:"Der Inhalt wurde als möglicher Spam erkannt."
+        };
+        return (flags || []).map(function(x){return map[x] || x;}).join(" ");
+      }
+
+      async function screenCommunityText(text,kind){
+        try{
+          return await communityCall("screen",{text:text,kind:kind||"post"});
+        }catch(error){
+          return {ok:true,decision:"PENDING_REVIEW",flags:["filter_unavailable"],score:50,text:text};
+        }
       }
 
       function publicTrainerUrl(postId){
@@ -718,6 +781,34 @@
         }
       }
 
+      async function loadServerFeed(){
+        if(!clubId) return;
+        try{
+          var url=COMMUNITY_API+"?action=feed&club_id="+encodeURIComponent(clubId);
+          var response=await fetch(url,{method:"GET",cache:"no-store",credentials:"omit"});
+          var data=await response.json();
+          if(!response.ok||data.ok!==true||!Array.isArray(data.posts)) return;
+          var codeToEmotion={LIKE:{name:"Like",icon:"👍"},LIVE_ALARM:{name:"Live-Alarm",icon:"🚨"},HEART:{name:"Herz",icon:"💚"},CHEER:{name:"Jubel",icon:"🙌"},HOT_TIP:{name:"Heißer Tipp",icon:"🔥"},WON:{name:"Gewonnen",icon:"🏆"},OK:{name:"Okay",icon:"✅"},THANKS:{name:"Danke",icon:"🙏"}};
+          var posts=data.posts.map(function(p){
+            var comments=(p.comments||[]).map(function(x){return {id:x.id,owner_ref:x.owner_ref,name:x.owner_ref,text:x.body};});
+            return {
+              id:p.id,server:true,author:trainerName,team:teamName,
+              time:new Intl.DateTimeFormat("de-DE",{dateStyle:"short",timeStyle:"short"}).format(new Date(p.created_at)),
+              text:p.body||"",
+              emotion:codeToEmotion[p.emotion] || (p.emotion ? {name:p.emotion,icon:"🙂"} : null),
+              image:p.media&&p.media.public_url?p.media.public_url:"",
+              reactions:(p.reactions||[]).length,
+              comments:comments
+            };
+          });
+          if(posts.length){
+            var feed=document.getElementById("postFeed");
+            feed.innerHTML="";
+            posts.forEach(function(post){feed.appendChild(renderPost(post));});
+          }
+        }catch(_){}
+      }
+
       function renderPost(post){
         var article = document.createElement("article");
         article.className = "card post";
@@ -728,7 +819,7 @@
         var imageHtml = post.image ? '<div class="post-image-wrap"><img src="' + esc(post.image) + '" alt="Beitragsbild"></div>' : "";
         var commentsHtml = "";
         (post.comments || []).forEach(function(c){
-          commentsHtml += '<div class="comment"><div class="mini-avatar">' + esc(initials(c.name)) + '</div><div><div class="comment-bubble"><strong>' + esc(c.name) + '</strong><p>' + esc(c.text) + '</p></div><div class="comment-meta">Gefällt mir · Antworten</div></div></div>';
+          commentsHtml += '<div class="comment"><div class="mini-avatar">' + esc(initials(c.name || c.owner_ref || "Mitglied")) + '</div><div><div class="comment-bubble"><strong>' + esc(c.name || c.owner_ref || "BetInsight Mitglied") + '</strong><p>' + esc(c.text || c.body || "") + '</p></div><div class="comment-meta">Gefällt mir · Antworten' + (c.id && isMember ? ' <button class="comment-report" data-comment-id="' + esc(c.id) + '">· Melden</button>' : '') + '</div></div></div>';
         });
 
         var interactionHtml = isMember
@@ -746,7 +837,7 @@
           '<div class="post-actions">' +
             '<button class="post-action react-toggle" ' + (isMember ? "" : "disabled") + '>🙂 Reagieren</button>' +
             '<button class="post-action comment-focus" ' + (isMember ? "" : "disabled") + '>💬 Kommentieren</button>' +
-            '<button class="post-action share-post" data-post="' + esc(post.id) + '">↗ Teilen</button>' +
+            '<button class="post-action share-post" data-post="' + esc(post.id) + '">↗ Teilen</button>' +\n            '<button class="post-action report-post" data-post="' + esc(post.id) + '" ' + (isMember ? "" : "disabled") + '>⚑ Melden</button>' +
           '</div>' +
           '<div class="reaction-menu">' +
             emotionCatalog.map(function(r){return '<button class="reaction-pick" data-name="' + esc(r.name) + '" data-icon="' + esc(r.icon) + '"><span>' + esc(r.icon) + '</span>' + esc(r.name) + '</button>';}).join("") +
@@ -771,6 +862,10 @@
               count.textContent = String((parseInt(count.textContent,10) || 0) + 1);
               article.dataset.reacted = "1";
             }
+            if(serverMode && post.server === true){
+              var reactionMap={Like:"LIKE","Live-Alarm":"LIVE_ALARM",Herz:"HEART",Jubel:"CHEER","Heißer Tipp":"HOT_TIP",Gewonnen:"WON",Okay:"OK",Danke:"THANKS"};
+              communityCall("react",{credential:memberCredential,post_id:post.id,reaction:reactionMap[btn.getAttribute("data-name")]||"LIKE"}).catch(function(){showToast("Reaktion konnte serverseitig nicht gespeichert werden.");});
+            }
             showToast("Reaktion gespeichert: " + btn.getAttribute("data-name"));
           });
         });
@@ -785,13 +880,33 @@
 
         var form = article.querySelector(".comment-form");
         if(form){
-          form.addEventListener("submit",function(e){
+          form.addEventListener("submit",async function(e){
             e.preventDefault();
             var input = form.querySelector("input");
             var value = input.value.trim();
             if(!value) return;
-            if(/https?:\/\/|www\./i.test(value)){
-              showToast("Externe Links sind in Kommentaren nicht erlaubt.");
+            var screening = await screenCommunityText(value,"comment");
+            if(screening.decision === "REJECTED"){
+              showToast(moderationMessage(screening.flags) || "Kommentar nicht zulässig.");
+              return;
+            }
+            if(serverMode && post.server === true){
+              try{
+                var saved = await communityCall("create_comment",{credential:memberCredential,post_id:post.id,text:value});
+                input.value = "";
+                if(saved.moderation && saved.moderation.status === "PENDING_REVIEW"){
+                  showToast("Kommentar gespeichert und zur Prüfung geschickt.");
+                }else{
+                  showToast("Kommentar veröffentlicht.");
+                }
+                return;
+              }catch(error){
+                showToast(error.data && error.data.flags ? moderationMessage(error.data.flags) : "Kommentar konnte nicht gespeichert werden.");
+                return;
+              }
+            }
+            if(screening.decision === "PENDING_REVIEW"){
+              showToast("Dieser Kommentar würde vor Veröffentlichung geprüft.");
               return;
             }
             var node = document.createElement("div");
@@ -811,7 +926,54 @@
           sc.textContent = String((parseInt(sc.textContent,10) || 0) + 1);
         });
 
+        var reportPost = article.querySelector(".report-post");
+        if(reportPost && isMember){
+          reportPost.addEventListener("click",function(){
+            openReport("post",post.id);
+          });
+        }
+        article.querySelectorAll(".comment-report").forEach(function(btn){
+          btn.addEventListener("click",function(){
+            openReport("comment",btn.getAttribute("data-comment-id"));
+          });
+        });
+
         return article;
+      }
+
+      function openReport(type,id){
+        if(!isMember){
+          showToast("Bitte anmelden, um Inhalte zu melden.");
+          return;
+        }
+        activeReportTarget={type:type,id:id};
+        document.getElementById("reportReason").value="spam";
+        document.getElementById("reportDetails").value="";
+        document.getElementById("reportModal").classList.add("show");
+      }
+
+      async function sendActiveReport(){
+        if(!activeReportTarget) return;
+        if(!serverMode){
+          document.getElementById("reportModal").classList.remove("show");
+          showToast("Meldesystem ist vorbereitet und wird mit dem echten Trainerkonto aktiv.");
+          activeReportTarget=null;
+          return;
+        }
+        try{
+          var result=await communityCall("report",{
+            credential:memberCredential,
+            target_type:activeReportTarget.type,
+            target_id:activeReportTarget.id,
+            reason:document.getElementById("reportReason").value,
+            details:document.getElementById("reportDetails").value.trim()
+          });
+          document.getElementById("reportModal").classList.remove("show");
+          showToast(result.temporarily_hidden ? "Gemeldet. Inhalt wurde vorläufig ausgeblendet." : "Meldung an Moderation gesendet.");
+          activeReportTarget=null;
+        }catch(error){
+          showToast("Meldung konnte nicht gespeichert werden.");
+        }
       }
 
       function openShare(postId){
@@ -973,6 +1135,9 @@
       document.getElementById("closeShareModal").addEventListener("click",function(){document.getElementById("shareModal").classList.remove("show");});
       document.getElementById("copyShareModal").addEventListener("click",function(){copyText(document.getElementById("shareUrlField").value);document.getElementById("shareModal").classList.remove("show");});
       document.getElementById("shareModal").addEventListener("click",function(e){if(e.target === e.currentTarget)e.currentTarget.classList.remove("show");});
+      document.getElementById("closeReportModal").addEventListener("click",function(){document.getElementById("reportModal").classList.remove("show");activeReportTarget=null;});
+      document.getElementById("sendReportBtn").addEventListener("click",sendActiveReport);
+      document.getElementById("reportModal").addEventListener("click",function(e){if(e.target===e.currentTarget){e.currentTarget.classList.remove("show");activeReportTarget=null;}});
 
       document.getElementById("coverEditBtn").addEventListener("click",function(){document.getElementById("coverInput").click();});
       document.getElementById("avatarEditBtn").addEventListener("click",function(){document.getElementById("avatarInput").click();});
@@ -1045,9 +1210,68 @@
       }
       document.getElementById("postText").addEventListener("input",updatePublishState);
 
-      document.getElementById("publishPostBtn").addEventListener("click",function(){
+      document.getElementById("publishPostBtn").addEventListener("click",async function(){
         var text = document.getElementById("postText").value.trim();
         if(!text && !selectedImageData && !selectedEmotion) return;
+
+        var screening = await screenCommunityText(text,"post");
+        if(screening.decision === "REJECTED"){
+          showToast(moderationMessage(screening.flags) || "Dieser Beitrag ist nicht zulässig.");
+          return;
+        }
+
+        if(serverMode){
+          try{
+            var mediaId=null;
+            if(selectedImageData){
+              var img=document.getElementById("postImagePreview");
+              var uploaded=await communityCall("upload_media",{
+                credential:memberCredential,
+                club_id:clubId,
+                purpose:"post",
+                data_url:selectedImageData,
+                width:img.naturalWidth||null,
+                height:img.naturalHeight||null
+              });
+              mediaId=uploaded.media && uploaded.media.id ? uploaded.media.id : null;
+            }
+
+            var saved=await communityCall("create_post",{
+              credential:memberCredential,
+              club_id:clubId,
+              text:text,
+              emotion:selectedEmotion ? selectedEmotion.name : "",
+              media_id:mediaId
+            });
+
+            document.getElementById("postText").value = "";
+            selectedEmotion = null;
+            selectedImageData = "";
+            document.querySelectorAll(".emotion-option").forEach(function(b){b.classList.remove("selected");});
+            document.getElementById("emotionPicker").classList.remove("open");
+            document.getElementById("composerPreview").classList.remove("show");
+            document.getElementById("postImageInput").value = "";
+            updatePublishState();
+
+            if(saved.moderation && saved.moderation.status === "PENDING_REVIEW"){
+              showToast("Beitrag gespeichert und zur Prüfung geschickt.");
+            }else{
+              showToast("Beitrag veröffentlicht.");
+            }
+            return;
+          }catch(error){
+            if(error.data && error.data.flags) showToast(moderationMessage(error.data.flags));
+            else if(error.data && error.data.error === "LINK_ADS_NOT_ACTIVE") showToast("Externe Links werden später nur über die Werbefunktion erlaubt.");
+            else showToast("Beitrag konnte nicht gespeichert werden.");
+            return;
+          }
+        }
+
+        if(screening.decision === "PENDING_REVIEW"){
+          showToast("Dieser Beitrag würde vor Veröffentlichung geprüft.");
+          return;
+        }
+
         var post = {
           id:"post-local-" + Date.now(),
           author:trainerName,
