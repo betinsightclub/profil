@@ -129,12 +129,12 @@ function render(a0,name,mini=false,mode="both"){
 }
 function headSvg(a0,x=0,y=0,w=180,h=145){const a=normalize(a0),layers=headLayers(a);return `<svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 180 145" overflow="visible"><defs>${layers.defs}</defs>${layers.html}</svg>`}
 function renderCoach(a0,name="Coach"){
- const a=normalizeCoach(a0),f=id(),sf=id(),cid=id(),body=CT()[a.bodyAsset],bodySrc=body?.src||"",defs=tintDef(f,a.hairColor)+skinToneDef(sf,a.skinBrightness,a.skinWarmth),hs=96*(a.headScale/100),x=90-hs/2+a.headX,y=8+(96-hs)/2+a.headY,w=hs,h=hs;
+ const a=normalizeCoach(a0),f=id(),sf=id(),cid=id(),body=CT()[a.bodyAsset],bodySrc=body?.src||"",bodyMask=bodySrc?`<mask id="${cid}"><image href="${bodySrc}" x="16" y="78" width="148" height="198" preserveAspectRatio="xMidYMin meet"/></mask>`:"",defs=tintDef(f,a.hairColor)+skinToneDef(sf,a.skinBrightness,a.skinWarmth)+bodyMask,hs=96*(a.headScale/100),x=90-hs/2+a.headX,y=8+(96-hs)/2+a.headY,w=hs,h=hs;
  const head=asset(a.faceAsset,x,y,w,h,sf,'data-avatar-layer="face"')+
   transformedAsset(a.browAsset,x,y,w,h,f,a.browX,a.browY,a.browScale,"brow")+
   transformedAsset(a.beardAsset,x,y,w,h,f,a.beardX,a.beardY,a.beardScale,"beard")+
   transformedAsset(a.hairAsset,x,y,w,h,f,a.hairX,a.hairY,a.hairScale,"hair");
- const tint=a.outfitTint>0?`<g opacity="${(a.outfitTint/100).toFixed(2)}" style="mix-blend-mode:color"><path d="M36 93 H144 V268 H36Z" fill="${a.outfitColor}"/></g>`:"";
+ const tint=a.outfitTint>0&&bodySrc?`<path d="M34 98 H146 V270 H34Z" fill="${a.outfitColor}" opacity="${(a.outfitTint/100).toFixed(2)}" style="mix-blend-mode:color" mask="url(#${cid})"/>`:"";
  const bodyHtml=bodySrc?`<g data-avatar-layer="coach-body"><image href="${bodySrc}" x="16" y="78" width="148" height="198" preserveAspectRatio="xMidYMin meet"/>${tint}</g>`:`<path d="M42 138 Q90 118 138 138 L148 270 H32Z" fill="#101b24"/>`;
  return `<svg viewBox="0 0 180 300" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cbg" cx=".5" cy=".18" r=".9"><stop stop-color="#174b63"/><stop offset="1" stop-color="#04131d"/></radialGradient>${defs}</defs><rect width="180" height="300" rx="16" fill="url(#cbg)"/>${bodyHtml}${head}<text x="90" y="290" text-anchor="middle" fill="#fff" stroke="#000" stroke-width=".7" paint-order="stroke" font-size="11" font-weight="900">${esc(name).slice(0,18)}</text></svg>`;
 }
