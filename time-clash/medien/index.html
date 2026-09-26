@@ -62,8 +62,12 @@
 
 
 
-<script src="/time-clash/avatar-facepack-v5.js?v=20260926b"></script>
-<script src="/time-clash/avatar-engine.js?v=20260925h"></script>
+<script src="/time-clash/avatar-face-assets-v6-1.js?v=20260926d"></script>
+<script src="/time-clash/avatar-face-assets-v6-2.js?v=20260926d"></script>
+<script src="/time-clash/avatar-face-assets-v6-3.js?v=20260926d"></script>
+<script src="/time-clash/avatar-face-assets-v6-4.js?v=20260926d"></script>
+<script src="/time-clash/avatar-face-assets-v6.js?v=20260926d"></script>
+<script src="/time-clash/avatar-engine.js?v=20260926d"></script>
 <script>
 const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash-media";
 const $=s=>document.querySelector(s),slug=new URLSearchParams(location.search).get("clash")||"";
@@ -224,6 +228,6 @@ async function init(){
   $("#lead").textContent=e.status===403?pre.notOwner:pre.loadFail;
  }
 }
-$("#configBtn").onclick=()=>selected&&openTeamConfigurator(selected.player);$("#makeBtn").onclick=saveCurrent;$("#publishBtn").onclick=publish;$("#pngBtn").onclick=exportPng;["variant","focus","intensity"].forEach(id=>$("#"+id).onchange=renderPreview);init();if(window.TimeClashFacepackReady?.then){window.TimeClashFacepackReady.then(()=>{if(data){safeUi("players",renderPlayers);if(selected)safeUi("preview",renderPreview)}})}
+$("#configBtn").onclick=()=>selected&&openTeamConfigurator(selected.player);$("#makeBtn").onclick=saveCurrent;$("#publishBtn").onclick=publish;$("#pngBtn").onclick=exportPng;["variant","focus","intensity"].forEach(id=>$("#"+id).onchange=renderPreview);init();
 </script>
 </body></html>
