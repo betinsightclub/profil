@@ -1,0 +1,37 @@
+name: Import TIME CLASH male hair assets
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-time-clash-hair.yml'
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download hairstyle assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p time-clash/assets/hair-real
+          curl -L --fail --retry 2 'https://media.canva.com/v2/image-resize/format:PNG/height:133/quality:100/uri:ifs%3A%2F%2FM%2F09b3aa9a-d993-41c5-a29a-b9ae57beebe5/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAP9k1QV-sVfZSDUuGsJrCM-E3h4UA_SgVCATJzVc0kMU&exp=1790455351&osig=AAAAAAAAAAAAAAAAAAAAAIklJlKgFKUsIJrBs8B44_kB4ybWUX8HDsxrtZS3X79g&signer=media-rpc&x-canva-quality=thumbnail' -o time-clash/assets/hair-real/m-french-crop-real.png
+          curl -L --fail --retry 2 'https://media.canva.com/v2/image-resize/format:PNG/height:133/quality:100/uri:ifs%3A%2F%2FM%2F00e20832-1993-4e8e-8a76-4af65066d751/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAABut13bAczn_er0dsxxIZ3KMT90KWzRSKxgSSE7aSONQ&exp=1790456329&osig=AAAAAAAAAAAAAAAAAAAAAH6ao1GFKIwvfChyAwxunigQ6huol3ft_4orkRqi47Ye&signer=media-rpc&x-canva-quality=thumbnail' -o time-clash/assets/hair-real/m-faux-hawk-real.png
+          curl -L --fail --retry 2 'https://media.canva.com/v2/image-resize/format:PNG/height:133/quality:100/uri:ifs%3A%2F%2FM%2Fd320df0c-f810-448f-aec1-1209d82942f7/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAN3xVAxn9oFETabIrb20_M9F6_Cq8ixVraibuCR4qzAc&exp=1790457235&osig=AAAAAAAAAAAAAAAAAAAAAF4cILu1rANIy9RBDM_HN0Pqp2aGtVPdpdjsf38yuHcx&signer=media-rpc&x-canva-quality=thumbnail' -o time-clash/assets/hair-real/m-modern-mohawk-real.png
+          curl -L --fail --retry 2 'https://media.canva.com/v2/image-resize/format:PNG/height:133/quality:100/uri:ifs%3A%2F%2FM%2Fb6d28ae6-1bc9-471c-b10a-ab516359d459/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAE5gtqRao45Zv8E8WdW7MB8onkmHKwlBDYWmbLDpF38j&exp=1790457160&osig=AAAAAAAAAAAAAAAAAAAAAHxuNdRPqicNFewZExu8lGdhSD_oXLxMNOTud0OOasVI&signer=media-rpc&x-canva-quality=thumbnail' -o time-clash/assets/hair-real/m-tight-curly-top-real.png
+          curl -L --fail --retry 2 'https://media.canva.com/v2/image-resize/format:PNG/height:133/quality:100/uri:ifs%3A%2F%2FM%2Fd17a89de-15b5-405b-b3b0-84c1f802c69d/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAANowBOVYSgz2uZpbs0C1OfIQ7iSymi-v7L7xYgDeFt5T&exp=1790454611&osig=AAAAAAAAAAAAAAAAAAAAAHrNM7hkd7J5QeTAUN6GvncWUwpRtjZC9oRzLZOvgIpr&signer=media-rpc&x-canva-quality=thumbnail' -o time-clash/assets/hair-real/m-cornrows-real.png
+          curl -L --fail --retry 2 'https://media.canva.com/v2/image-resize/format:PNG/height:133/quality:100/uri:ifs%3A%2F%2FM%2Fcfcfa208-9c77-4bdb-9db1-0877503b9ae2/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAALdRvqgXgAAzcOlBKlQ7bda7Ns1fHwS3ZJaXTxXbpaab&exp=1790454298&osig=AAAAAAAAAAAAAAAAAAAAALzmaW741WhZeGesv78XHFZJvvwlB8qNFbBmZC2r2Lqk&signer=media-rpc&x-canva-quality=thumbnail' -o time-clash/assets/hair-real/m-short-twisted-locs-real.png
+          curl -L --fail --retry 2 'https://media.canva.com/v2/image-resize/format:PNG/height:133/quality:100/uri:ifs%3A%2F%2FM%2F8f2b7ba0-9cba-4374-9ffc-1c9c40a8539c/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAFP6L4K7lbBTE1HYKy-ykrOTJE1g3MGXoD6ccAbGRr-M&exp=1790455505&osig=AAAAAAAAAAAAAAAAAAAAAETCrVx7he9-zKRh48SxSs6geZ-GXRg9yeJ_5nmI-XPH&signer=media-rpc&x-canva-quality=thumbnail' -o time-clash/assets/hair-real/m-medium-locs-real.png
+          curl -L --fail --retry 2 'https://media.canva.com/v2/image-resize/format:PNG/height:133/quality:100/uri:ifs%3A%2F%2FM%2Fca21f885-d7b5-4640-b5ed-d54c2d392d2c/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAMqlWHR4cWn79cr9Mdd91_4xvwrsPUpZ9_Qpf0pGX-Sa&exp=1790455039&osig=AAAAAAAAAAAAAAAAAAAAAIQfEkYfZdL1ZvJ-Zoi0HfhUhLxffKY5Sb9rw13r4cXL&signer=media-rpc&x-canva-quality=thumbnail' -o time-clash/assets/hair-real/m-short-curly-afro-real.png
+          curl -L --fail --retry 2 'https://media.canva.com/v2/image-resize/format:PNG/height:133/quality:100/uri:ifs%3A%2F%2FM%2F2251d696-2c56-43a7-bdc0-f7ce6898952e/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAAoJvtiEcdb5pbUVk1gAmm-ZFdGWuKktBDDVB9TKjP0W&exp=1790456084&osig=AAAAAAAAAAAAAAAAAAAAAKqgkWCzUD6TSlSIDJrX5-vg4uAwTPdgGY5SrxDowQsS&signer=media-rpc&x-canva-quality=thumbnail' -o time-clash/assets/hair-real/m-messy-side-swept-real.png
+          file time-clash/assets/hair-real/*.png
+      - name: Commit imported assets
+        shell: bash
+        run: |
+          git config user.name "BetInsight Asset Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add time-clash/assets/hair-real/*.png
+          git diff --cached --quiet && exit 0
+          git commit -m "Add TIME CLASH male hairstyle assets"
+          git push
