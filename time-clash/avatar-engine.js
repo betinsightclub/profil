@@ -1,7 +1,8 @@
 (()=>{
 const A=()=>window.TimeClashAvatarAssets;
 const P=()=>window.TimeClashBodyPack||{bodies:{},clothing:{},tattoos:{}};
-const CT=()=>window.TimeClashTrainerBodiesByKey||{};\nconst RB=()=>window.TimeClashBeardAssets||null;
+const CT=()=>window.TimeClashTrainerBodiesByKey||{};
+const RB=()=>window.TimeClashBeardAssets||null;
 const esc=v=>String(v??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,Number(n)||0));
 const safeHex=(v,d)=>/^#[0-9a-fA-F]{6}$/.test(String(v||""))?String(v):d;
