@@ -225,6 +225,46 @@
       background:transparent;color:#9db6c2;font-weight:850
     }
     .profile-tabs button.active{color:#70baff;border-bottom-color:var(--blue)}
+    .trophy-strip{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;min-height:24px}
+    .trophy-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border:1px solid rgba(247,198,78,.28);border-radius:999px;background:rgba(247,198,78,.08);color:#ffe4a0;font-size:11px;font-weight:900}
+    .trophy-empty{color:#809ba9;font-size:11px}
+    .profile-rankbar{padding:12px 22px 14px;border-top:1px solid rgba(255,255,255,.07)}
+    .ranking-card{border:1px solid rgba(99,184,255,.2);border-radius:14px;background:linear-gradient(145deg,rgba(9,40,56,.9),rgba(3,20,30,.9));padding:11px}
+    .ranking-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:8px}
+    .ranking-head b{font-size:13px}.ranking-head span{font-size:11px;color:#8eabb9}
+    .ranking-board{display:grid;gap:6px}
+    .ranking-row{display:grid;grid-template-columns:46px minmax(0,1fr) minmax(0,.8fr) auto auto;gap:8px;align-items:center;padding:8px 9px;border:1px solid rgba(255,255,255,.06);border-radius:10px;background:rgba(255,255,255,.025)}
+    .ranking-row.self{border-color:rgba(247,198,78,.4);background:rgba(247,198,78,.07)}
+    .ranking-row.podium-1{box-shadow:inset 3px 0 0 #f7c64e}.ranking-row.podium-2{box-shadow:inset 3px 0 0 #c9d2d8}.ranking-row.podium-3{box-shadow:inset 3px 0 0 #b77a45}
+    .ranking-pos{font-weight:950;color:#fff}.ranking-team{font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ranking-trainer{font-size:11px;color:#8fa9b6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ranking-points{font-weight:950;color:#70dfff;white-space:nowrap}
+    .rank-trend{font-weight:950;font-size:12px;white-space:nowrap}.rank-trend.up{color:#62e5a5}.rank-trend.down{color:#ff8e97}.rank-trend.same{color:#8da7b4}
+    .ranking-divider{height:1px;background:rgba(255,255,255,.08);margin:2px 0}
+    .profile-tab-panel{margin-top:16px}.profile-tab-panel.hidden{display:none!important}
+    .tab-wide{display:grid;gap:16px}
+    .tab-card{padding:18px}
+    .tab-card-title{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:14px}.tab-card-title h2{margin:0}.tab-card-title small{color:#829da9}
+    .report-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .report-card{display:grid;gap:8px;padding:14px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(255,255,255,.025)}
+    .report-card.win{border-color:rgba(22,214,157,.25)}.report-card.loss{border-color:rgba(255,101,113,.18)}
+    .report-top{display:flex;justify-content:space-between;gap:10px;align-items:center}.report-result{font-size:13px;font-weight:950}.report-result.win{color:#62e5a5}.report-result.loss{color:#ff8e97}
+    .report-match{font-size:16px;font-weight:950}.report-meta{color:#8da7b4;font-size:11px}.report-score{font-size:22px;font-weight:950}.report-link{justify-self:start;color:#63b8ff;text-decoration:none;font-weight:900;font-size:12px}
+    .full-gallery-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+    .gallery-full-item{min-height:165px;border:1px solid rgba(255,255,255,.07);border-radius:13px;overflow:hidden;background:#071c29;position:relative}
+    .gallery-full-item img{width:100%;height:100%;min-height:165px;object-fit:cover;display:block}
+    .gallery-scene-card{height:100%;min-height:165px;padding:14px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(145deg,#102c3c,#071822)}
+    .gallery-scene-card b{font-size:14px}.gallery-scene-card small{color:#8fa9b6;line-height:1.35}.gallery-scene-card a{color:#63b8ff;text-decoration:none;font-weight:900;font-size:11px}
+    .squad-block{display:grid;gap:10px;margin-top:8px}.squad-title{display:flex;justify-content:space-between;align-items:center}.squad-title h3{margin:0;font-size:16px}.squad-title span{color:#829da9;font-size:11px}
+    .squad-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    .player-card{display:grid;grid-template-columns:72px 1fr;gap:11px;align-items:center;padding:10px;border:1px solid rgba(255,255,255,.07);border-radius:13px;background:rgba(255,255,255,.025)}
+    .player-avatar{width:72px;height:72px;border-radius:12px;overflow:hidden;background:#0b2a39;display:grid;place-items:center;border:1px solid rgba(255,255,255,.06)}
+    .player-avatar svg{width:100%;height:100%;display:block}.player-avatar .fallback{font-weight:950;color:#92b1bf}
+    .player-data strong{display:block;font-size:13px}.player-data small{display:block;color:#89a4b2;font-size:10px;margin-top:3px}.player-goals{display:inline-flex;margin-top:6px;padding:3px 7px;border-radius:999px;background:rgba(22,214,157,.09);color:#78ecc2;font-size:10px;font-weight:900}
+    .info-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    .info-cell{padding:12px;border:1px solid rgba(255,255,255,.07);border-radius:12px;background:rgba(255,255,255,.025)}.info-cell span{display:block;color:#829da9;font-size:10px;text-transform:uppercase;letter-spacing:.08em}.info-cell b{display:block;margin-top:5px;font-size:14px}
+    .empty-wide{padding:24px;text-align:center;color:#829da9;border:1px dashed rgba(255,255,255,.1);border-radius:12px}
+    @media(max-width:980px){.ranking-row{grid-template-columns:42px minmax(0,1fr) auto auto}.ranking-trainer{grid-column:2}.report-grid{grid-template-columns:1fr}.full-gallery-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.squad-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.info-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:620px){.profile-rankbar{padding:10px}.ranking-row{grid-template-columns:40px 1fr auto;gap:6px}.ranking-trainer{grid-column:2}.ranking-points{grid-column:3;grid-row:1}.rank-trend{grid-column:3;grid-row:2}.full-gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.squad-grid,.info-grid{grid-template-columns:1fr}.player-card{grid-template-columns:64px 1fr}.player-avatar{width:64px;height:64px}}
+
     .layout{
       display:grid;grid-template-columns:minmax(250px,.78fr) minmax(430px,1.35fr) minmax(250px,.77fr);
       gap:16px;margin-top:16px;align-items:start
@@ -500,6 +540,7 @@
             <span class="chip premium" id="gameRankChip">🏆 Startliga</span>
             <span class="chip" id="memberSinceChip">Profil wird geladen …</span>
           </div>
+          <div class="trophy-strip" id="profileTrophies"><span class="trophy-empty">🏆 Noch kein Pokal gewonnen</span></div>
         </div>
 
         <div class="profile-actions">
@@ -509,16 +550,57 @@
         </div>
       </div>
 
+      <div class="profile-rankbar">
+        <div class="ranking-card">
+          <div class="ranking-head"><b>🏁 Gesamtrangliste · Clash Points</b><span id="rankingMeta">Rangliste wird geladen …</span></div>
+          <div class="ranking-board" id="rankingBoard"><div class="empty-state">Rangliste wird geladen …</div></div>
+        </div>
+      </div>
       <nav class="profile-tabs" aria-label="Profilbereiche">
-        <button class="active">Beiträge</button>
-        <button>Spielberichte</button>
-        <button>Galerie</button>
-        <button>Mannschaft</button>
-        <button>Info</button>
+        <button class="active" data-tab="posts">Beiträge</button>
+        <button data-tab="reports">Spielberichte</button>
+        <button data-tab="gallery">Galerie</button>
+        <button data-tab="squad">Mannschaft</button>
+        <button data-tab="info">Info</button>
       </nav>
     </section>
 
-    <section class="layout">
+    <section class="profile-tab-panel hidden tab-wide" id="tabReports">
+      <article class="card tab-card">
+        <div class="tab-card-title"><h2>📰 Spielberichte</h2><small id="reportCount">0 gespeicherte Serien</small></div>
+        <div class="report-grid" id="reportsGrid"><div class="empty-wide">Noch keine Spielberichte vorhanden.</div></div>
+      </article>
+    </section>
+
+    <section class="profile-tab-panel hidden tab-wide" id="tabGallery">
+      <article class="card tab-card">
+        <div class="tab-card-title"><h2>🖼️ Galerie</h2><small id="galleryCount">0 Medien</small></div>
+        <div class="full-gallery-grid" id="fullGallery"><div class="empty-wide" style="grid-column:1/-1">Noch keine veröffentlichten Bilder oder Spielszenen vorhanden.</div></div>
+      </article>
+    </section>
+
+    <section class="profile-tab-panel hidden tab-wide" id="tabSquad">
+      <article class="card tab-card">
+        <div class="tab-card-title"><h2>⚽ Mannschaft</h2><small id="squadCount">0 Spieler</small></div>
+        <div class="squad-block">
+          <div class="squad-title"><h3>Startelf</h3><span>Spieler 1–11</span></div>
+          <div class="squad-grid" id="starterGrid"><div class="empty-wide" style="grid-column:1/-1">Keine Startelf gespeichert.</div></div>
+        </div>
+        <div class="squad-block" style="margin-top:18px">
+          <div class="squad-title"><h3>Ersatzspieler</h3><span>Bank</span></div>
+          <div class="squad-grid" id="reserveGrid"><div class="empty-wide" style="grid-column:1/-1">Keine Ersatzspieler gespeichert.</div></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="profile-tab-panel hidden tab-wide" id="tabInfo">
+      <article class="card tab-card">
+        <div class="tab-card-title"><h2>ℹ️ Team & Trainer</h2><small>Echte Profildaten</small></div>
+        <div class="info-grid" id="infoGrid"></div>
+      </article>
+    </section>
+
+    <section class="layout profile-tab-panel" id="tabPosts">
       <aside class="column left-col">
         <article class="card card-pad">
           <div class="card-title"><h2>Über den Trainer</h2><button class="owner-only" id="editProfileBtn">Bearbeiten</button></div>
@@ -709,7 +791,7 @@
   <script src="/time-clash/assets/beard-real-b64-8p3.js?v=20260926a"></script>
   <script src="/time-clash/assets/beard-real-b64-9.js?v=20260926a"></script>
   <script src="/time-clash/assets/beard-pack-real.js?v=20260926a"></script>
-  <script src="/time-clash/avatar-engine.js?v=20260926q"></script>
+  <script src="/time-clash/avatar-engine.js?v=20260926r"></script>
 
   <script>
     (function(){
@@ -947,6 +1029,156 @@
         }).join("");
       }
 
+      function trendHtml(ranking){
+        var trend=ranking&&ranking.trend||"same";
+        var delta=Number(ranking&&ranking.delta||0);
+        if(trend==="up") return '<span class="rank-trend up">▲ '+delta+'</span>';
+        if(trend==="down") return '<span class="rank-trend down">▼ '+delta+'</span>';
+        return '<span class="rank-trend same">—</span>';
+      }
+
+      function rankingRow(entry,self){
+        if(!entry) return "";
+        var pos=Number(entry.position||0);
+        var cls="ranking-row "+(pos<=3?"podium-"+pos:"")+(self?" self":"");
+        var trainer=entry.trainer_name||"Trainer";
+        return '<div class="'+cls+'"><span class="ranking-pos">#'+pos+'</span><span class="ranking-team">'+esc(entry.team_name||teamName||"Mannschaft")+'</span><span class="ranking-trainer">'+esc(trainer)+'</span><span class="ranking-points">'+Number(entry.points||0)+' CP</span>'+(self?trendHtml(currentProfile&&currentProfile.ranking):'<span></span>')+'</div>';
+      }
+
+      function renderRanking(profile){
+        var ranking=profile&&profile.ranking||{};
+        var board=document.getElementById("rankingBoard");
+        var meta=document.getElementById("rankingMeta");
+        if(meta) meta.textContent=(ranking.position?"Eigener Platz #"+ranking.position:"Noch ohne Platz")+" · "+Number(ranking.total||0)+" Teams";
+        if(!board) return;
+        var top=Array.isArray(ranking.top3)?ranking.top3:[];
+        var html=top.map(function(x){return rankingRow(x,x.club_id===profile.club_id);}).join("");
+        var ownAlready=top.some(function(x){return x.club_id===profile.club_id;});
+        if(!ownAlready&&ranking.position){
+          html+='<div class="ranking-divider"></div>'+rankingRow({
+            position:ranking.position,
+            team_name:profile.team_name,
+            trainer_name:profile.display_name||profile.configured_coach_name||"Trainer",
+            points:ranking.points
+          },true);
+        }
+        board.innerHTML=html||'<div class="empty-state">Noch keine Ranglistendaten vorhanden.</div>';
+      }
+
+      function renderTrophies(profile){
+        var box=document.getElementById("profileTrophies");
+        if(!box) return;
+        var rows=Array.isArray(profile&&profile.trophies)?profile.trophies:[];
+        if(!rows.length){
+          box.innerHTML='<span class="trophy-empty">🏆 Noch kein Pokal gewonnen</span>';
+          return;
+        }
+        box.innerHTML=rows.map(function(t){
+          var place=t.place?(" · Platz "+Number(t.place)):"";
+          return '<span class="trophy-pill" title="'+esc((t.period_key||"")+place)+'">'+esc(t.icon||"🏆")+' '+esc(t.title||"Pokal")+esc(place)+'</span>';
+        }).join("");
+      }
+
+      function reportHref(slug){
+        return slug?"https://betinsight.club/de/time-clash/bericht/?clash="+encodeURIComponent(slug):"";
+      }
+
+      function renderReportsTab(profile){
+        var rows=Array.isArray(profile&&profile.match_reports)?profile.match_reports:[];
+        var grid=document.getElementById("reportsGrid"),count=document.getElementById("reportCount");
+        if(count) count.textContent=rows.length+" gespeicherte "+(rows.length===1?"Serie":"Serien");
+        if(!grid) return;
+        if(!rows.length){grid.innerHTML='<div class="empty-wide" style="grid-column:1/-1">Noch keine Spielberichte vorhanden.</div>';return}
+        grid.innerHTML=rows.map(function(m){
+          var won=Boolean(m.won),href=reportHref(m.public_slug),date="";
+          try{date=new Intl.DateTimeFormat("de-DE",{dateStyle:"medium"}).format(new Date(m.created_at));}catch(_e){}
+          var seriesScore=(m.own_series_points!=null&&m.opponent_series_points!=null)?(Number(m.own_series_points)+":"+Number(m.opponent_series_points)):(Number(m.own_series_wins||0)+":"+Number(m.opponent_series_wins||0));
+          return '<article class="report-card '+(won?"win":"loss")+'"><div class="report-top"><span class="report-result '+(won?"win":"loss")+'">'+(won?"✓ Sieg":"✕ Niederlage")+'</span><span class="report-meta">'+esc(date)+'</span></div><div class="report-match">'+esc(profile.team_name||"Mannschaft")+' – '+esc(m.opponent_name||"Gegner")+'</div><div><span class="report-score">'+seriesScore+'</span><div class="report-meta">Serienpunkte · '+Number(m.series_length||0)+' Spiele · Tore '+Number(m.own_goals||0)+':'+Number(m.opponent_goals||0)+'</div></div>'+(href?'<a class="report-link" href="'+href+'" target="_blank" rel="noopener">Ausführlichen Bericht öffnen →</a>':'<span class="report-meta">Bericht wird noch vorbereitet.</span>')+'</article>';
+        }).join("");
+      }
+
+      function renderGallery(profile){
+        var rows=Array.isArray(profile&&profile.gallery_media)?profile.gallery_media:[];
+        var full=document.getElementById("fullGallery"),mini=document.getElementById("gallery"),count=document.getElementById("galleryCount");
+        if(count) count.textContent=rows.length+" Medien";
+        function item(m,compact){
+          if(m.type==="image"&&m.public_url){
+            return '<div class="'+(compact?"gallery-item":"gallery-full-item")+'"><img src="'+esc(m.public_url)+'" alt="Community-Bild" loading="lazy"></div>';
+          }
+          var href=m.public_slug?"/time-clash/medien/?clash="+encodeURIComponent(m.public_slug):"";
+          if(compact){
+            return '<div class="gallery-item report"><b>'+esc(m.title||m.scene_type||"Spielszenen")+'</b><small>'+esc(m.player_name||m.event_text||"TIME CLASH")+'</small></div>';
+          }
+          return '<div class="gallery-full-item"><div class="gallery-scene-card"><div><b>📷 '+esc(m.title||m.scene_type||"Spielszenen")+'</b><small>'+esc(m.event_text||((m.player_name||"")+(m.team_name?" · "+m.team_name:""))||"TIME CLASH Szene")+'</small></div>'+(href?'<a href="'+href+'">Medien öffnen →</a>':'')+'</div></div>';
+        }
+        if(full) full.innerHTML=rows.length?rows.map(function(m){return item(m,false)}).join(""):'<div class="empty-wide" style="grid-column:1/-1">Noch keine veröffentlichten Bilder oder Spielszenen vorhanden.</div>';
+        if(mini) mini.innerHTML=rows.length?rows.slice(0,6).map(function(m){return item(m,true)}).join(""):'<div class="empty-state" style="grid-column:1/-1">Noch keine Berichte oder Bilder vorhanden.</div>';
+      }
+
+      function playerAvatarHtml(player){
+        if(player&&player.avatar_configured&&player.avatar&&window.TimeClashAvatar&&window.TimeClashAvatar.headSvg){
+          try{return window.TimeClashAvatar.headSvg(player.avatar,0,0,180,145)}catch(_e){}
+        }
+        return '<span class="fallback">'+esc(initials(player&&player.name||"SP"))+'</span>';
+      }
+
+      function playerCard(player){
+        return '<article class="player-card"><div class="player-avatar">'+playerAvatarHtml(player)+'</div><div class="player-data"><strong>#'+Number(player.shirt_no||0)+' · '+esc(player.name||"Spieler")+'</strong><small>'+esc(player.role||"Ohne Funktion")+(player.trait?" · "+esc(player.trait):"")+'</small><small>Stärke '+Number(player.strength||0)+(player.avatar_configured?" · Bild gespeichert":"")+'</small><span class="player-goals">⚽ '+Number(player.goals||0)+' Tore</span></div></article>';
+      }
+
+      function renderSquad(profile){
+        var squad=Array.isArray(profile&&profile.squad)?profile.squad:[];
+        var starters=squad.filter(function(p){return p.starter}),reserves=squad.filter(function(p){return !p.starter});
+        var s=document.getElementById("starterGrid"),r=document.getElementById("reserveGrid"),count=document.getElementById("squadCount");
+        if(count) count.textContent=squad.length+" Spieler";
+        if(s) s.innerHTML=starters.length?starters.map(playerCard).join(""):'<div class="empty-wide" style="grid-column:1/-1">Keine Startelf gespeichert.</div>';
+        if(r) r.innerHTML=reserves.length?reserves.map(playerCard).join(""):'<div class="empty-wide" style="grid-column:1/-1">Keine Ersatzspieler gespeichert.</div>';
+      }
+
+      function renderInfo(profile){
+        var box=document.getElementById("infoGrid");if(!box)return;
+        var stats=profile.stats||{},ranking=profile.ranking||{},created="";
+        try{created=new Intl.DateTimeFormat("de-DE",{dateStyle:"medium"}).format(new Date(profile.club_created_at||profile.created_at))}catch(_e){}
+        var cells=[
+          ["Trainer",profile.display_name||profile.configured_coach_name||"—"],
+          ["Mannschaft",profile.team_name||"—"],
+          ["Trainer-Stil",profile.coach_style||"—"],
+          ["Liga",profile.league||"Startliga"],
+          ["Clash Points",Number(profile.rating_points||0)],
+          ["Gesamtrang",ranking.position?("#"+ranking.position+" von "+Number(ranking.total||0)):"—"],
+          ["Siege",Number(stats.wins||0)],
+          ["Niederlagen",Number(stats.losses||0)],
+          ["Siegquote",Number(stats.win_rate||0)+"%"],
+          ["Tore",Number(stats.goals_for||0)+":"+Number(stats.goals_against||0)],
+          ["Ort",[profile.city,profile.country].filter(Boolean).join(" · ")||"—"],
+          ["Team erstellt",created||"—"]
+        ];
+        box.innerHTML=cells.map(function(x){return '<div class="info-cell"><span>'+esc(x[0])+'</span><b>'+esc(x[1])+'</b></div>'}).join("");
+      }
+
+      function renderProfileData(profile){
+        renderRanking(profile);
+        renderTrophies(profile);
+        renderReportsTab(profile);
+        renderGallery(profile);
+        renderSquad(profile);
+        renderInfo(profile);
+      }
+
+      function activateProfileTab(key){
+        var map={posts:"tabPosts",reports:"tabReports",gallery:"tabGallery",squad:"tabSquad",info:"tabInfo"};
+        Object.keys(map).forEach(function(k){
+          var el=document.getElementById(map[k]);if(el)el.classList.toggle("hidden",k!==key);
+        });
+        document.querySelectorAll(".profile-tabs button[data-tab]").forEach(function(btn){btn.classList.toggle("active",btn.dataset.tab===key)});
+      }
+
+      function setupProfileTabs(){
+        document.querySelectorAll(".profile-tabs button[data-tab]").forEach(function(btn){
+          btn.addEventListener("click",function(){activateProfileTab(btn.dataset.tab||"posts")});
+        });
+      }
+
       function configuredCoachHost(){
         var box=document.getElementById("avatarBox");
         if(!box) return null;
@@ -1060,6 +1292,7 @@
         }
 
         renderRecentMatches(profile.recent_matches||[]);
+        renderProfileData(profile);
         loadServerFeed();
       }
 
@@ -1600,6 +1833,8 @@
 
       setMode();
       renderPosts();
+      setupProfileTabs();
+      activateProfileTab("posts");
       loadProfileContext();
       document.addEventListener("visibilitychange",refreshProfileAfterPlay);
       window.addEventListener("focus",refreshProfileAfterPlay);
@@ -1799,7 +2034,8 @@
       });
 
       document.getElementById("openGalleryBtn").addEventListener("click",function(){
-        document.getElementById("gallery").scrollIntoView({behavior:"smooth",block:"center"});
+        activateProfileTab("gallery");
+        document.querySelector(".profile-tabs").scrollIntoView({behavior:"smooth",block:"start"});
       });
       document.getElementById("feedBtn").addEventListener("click",function(){
         showToast("Der zentrale Trainer Feed wird als eigener Bereich angebunden.");
