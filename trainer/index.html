@@ -678,10 +678,8 @@
 
         <article class="card card-pad">
           <div class="card-title"><h2>Profil teilen</h2></div>
-          <div class="share-note">
-            Jeder geteilte Profil- oder Beitragslink kann automatisch den <b>öffentlichen Referral-Code dieses Trainers</b> mitnehmen. Der geheime Dashboard-Token gehört niemals in einen öffentlichen Link.
-          </div>
-          <button class="pill-btn" id="copyInviteBtn" style="width:100%;margin-top:11px">🔗 Einladungslink kopieren</button>
+          <!-- Intern: Geteilte Profil-/Beitragslinks dürfen den öffentlichen Referral-Code mitnehmen; geheime Dashboard-Tokens niemals öffentlich ausgeben. -->
+          <button class="pill-btn" id="copyInviteBtn" style="width:100%">🔗 Einladungslink kopieren</button>
           <div class="privacy-note">Öffentliche Besucher können lesen und teilen. Schreiben, kommentieren und reagieren ist für eingeloggte BetInsight-Mitglieder vorgesehen.</div>
         </article>
 
@@ -701,7 +699,7 @@
   <div class="modal-backdrop" id="shareModal">
     <div class="modal">
       <h2>Beitrag teilen</h2>
-      <p>Der öffentliche Link enthält automatisch den Referral-Code des Trainers. Private Dashboard-Tokens werden nicht übernommen.</p>
+      <p>Link zum Beitrag teilen oder kopieren.</p>
       <input id="shareUrlField" readonly>
       <div class="modal-actions">
         <button class="pill-btn" id="closeShareModal">Schließen</button>
