@@ -6,6 +6,13 @@ const esc=v=>String(v??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&g
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,Number(n)||0));
 const safeHex=(v,d)=>/^#[0-9a-fA-F]{6}$/.test(String(v||""))?String(v):d;
 const rgb=hex=>{const s=safeHex(hex,"#3a2418").slice(1),n=parseInt(s,16);return {r:(n>>16)&255,g:(n>>8)&255,b:n&255}};
+const PLAYER_SKIN_MAP={"faces/player-m01":"#d7a17e","faces/player-m02":"#5a392d","faces/player-m03":"#d8a98d","faces/player-m04":"#7b4d35","faces/player-m05":"#563629","faces/player-m06":"#d2a282","faces/player-m07":"#bd8665","faces/player-m08":"#bd825c","faces/player-m09":"#a46d4c","faces/player-m10":"#c99775","faces/player-m11":"#c38a61","faces/player-m12":"#ad7858","faces/player-m13":"#d0a07f","faces/player-m14":"#d8ae95","faces/player-m15":"#d0a080","faces/player-m16":"#ae7959","faces/player-m17":"#d9aa8f","presets/player-hair-p01":"#c58a68","presets/player-hair-p02":"#bd8260","presets/player-hair-p03":"#c69272","presets/player-hair-p04":"#c28a68"};
+const COACH_SKIN_MAP={"faces/coach-m01":"#c88f70","faces/coach-m02":"#b97e60","faces/coach-m03":"#c99a79","faces/coach-m04":"#694536","faces/coach-f01":"#d6a58b","faces/coach-f02":"#754b39","faces/coach-f03":"#d2a087","faces/coach-f05":"#c99a82"};
+function toneHex(hex,brightness=0,warmth=0){
+ const q=rgb(hex),b=clamp(brightness,-40,25),w=clamp(warmth,-20,20),m=1+b/100;
+ const cv=n=>Math.max(0,Math.min(255,Math.round(n))).toString(16).padStart(2,"0");
+ return "#"+cv(q.r*m*(1+w*.0045))+cv(q.g*m*(1+w*.0012))+cv(q.b*m*(1-w*.0045));
+}
 const id=()=>"tc"+Math.random().toString(36).slice(2,9);
 
 const PLAYER_FACES=["faces/player-m01","faces/player-m02","faces/player-m03","faces/player-m04","faces/player-m05","faces/player-m06","faces/player-m07","faces/player-m08","faces/player-m09","faces/player-m10","faces/player-m11","faces/player-m12","faces/player-m13","faces/player-m14","faces/player-m15","faces/player-m16","faces/player-m17"];
@@ -32,11 +39,11 @@ function mapLegacyBeard(a){
  const b=String(a?.beard||"").toLowerCase(); if(b==="none"||!b)return "none"; if(b==="mustache")return "beard/beard-mustache"; if(b==="goatee")return "beard/beard-goatee"; if(b==="full")return "beard/beard-full"; if(b==="combo")return "beard/beard-anchor"; return "beard/beard-light";
 }
 function normalize(a={}){
- const faceAsset=mapLegacyFace(a),faceIsPreset=PLAYER_FACE_PRESETS.includes(faceAsset),pack=P(),defaultBody={slim:"slim",athletic:"athletic",strong:"strong-athletic",stocky:"power"}[a.build]||"athletic",skinMap={"faces/player-m01":"#d7a17e","faces/player-m02":"#5a392d","faces/player-m03":"#d8a98d","faces/player-m04":"#7b4d35","faces/player-m05":"#563629","faces/player-m06":"#d2a282","faces/player-m07":"#bd8665","faces/player-m08":"#bd825c","faces/player-m09":"#a46d4c","faces/player-m10":"#c99775","faces/player-m11":"#c38a61","faces/player-m12":"#ad7858","faces/player-m13":"#d0a07f","faces/player-m14":"#d8ae95","faces/player-m15":"#d0a080","faces/player-m16":"#ae7959","faces/player-m17":"#d9aa8f","presets/player-hair-p01":"#c58a68","presets/player-hair-p02":"#bd8260","presets/player-hair-p03":"#c69272","presets/player-hair-p04":"#c28a68"};
+ const faceAsset=mapLegacyFace(a),faceIsPreset=PLAYER_FACE_PRESETS.includes(faceAsset),pack=P(),defaultBody={slim:"slim",athletic:"athletic",strong:"strong-athletic",stocky:"power"}[a.build]||"athletic",skinBrightness=clamp(a.skinBrightness??0,-40,25),skinWarmth=clamp(a.skinWarmth??0,-20,20),skin=toneHex(PLAYER_SKIN_MAP[faceAsset]||"#d7a17e",faceIsPreset?0:skinBrightness,faceIsPreset?0:skinWarmth);
  return {
   avatarVersion:3,kind:"player",
   height:clamp(a.height||182,150,220),build:["slim","athletic","strong","stocky"].includes(a.build)?a.build:"athletic",chestWidth:clamp(a.chestWidth??50,35,65),legLength:clamp(a.legLength??50,35,65),headScale:clamp(a.headScale??100,70,140),headX:clamp(a.headX??0,-35,35),headY:clamp(a.headY??0,-35,35),
-  faceAsset,skin:safeHex(a.skin,skinMap[faceAsset]||"#d7a17e"),skinBrightness:clamp(a.skinBrightness??0,-40,25),skinWarmth:clamp(a.skinWarmth??0,-20,20),
+  faceAsset,skin,skinBrightness,skinWarmth,
   hairAsset:faceIsPreset?"none":mapLegacyHair(a),browAsset:faceIsPreset?"none":(BROWS.includes(a.browAsset)?a.browAsset:"none"),beardAsset:faceIsPreset?"none":mapLegacyBeard(a),hairColor:safeHex(a.hairColor,"#3a2418"),
   hairX:clamp(a.hairX??0,-35,35),hairY:clamp(a.hairY??0,-35,35),hairScale:clamp(a.hairScale??100,10,200),
   browX:clamp(a.browX??0,-35,35),browY:clamp(a.browY??0,-35,35),browScale:clamp(a.browScale??100,10,200),
@@ -51,9 +58,9 @@ function normalize(a={}){
 function normalizeCoach(a={}){
  let face=String(a.faceAsset||COACH_FACES_M[0]),gender=String(a.gender||"");
  if(COACH_FACES_F.includes(face))gender="female"; else if(COACH_FACES_M.includes(face))gender="male"; else {gender=gender==="female"?"female":"male";face=gender==="female"?COACH_FACES_F[0]:COACH_FACES_M[0]}
- const hairs=gender==="female"?HAIR_F:HAIR_M,pack=window.TimeClashTrainerBodies||{male:[],female:[]},allowed=(pack[gender]||[]).map(x=>x.key),fallback=gender==="female"?"coach-m-suit-open":"coach-m-tracksuit";
- return {avatarVersion:4,kind:"coach",gender,bodyAsset:allowed.includes(a.bodyAsset)?a.bodyAsset:fallback,outfitColor:safeHex(a.outfitColor,"#223647"),outfitTint:clamp(a.outfitTint??0,0,70),faceAsset:face,hairAsset:hairs.includes(a.hairAsset)?a.hairAsset:"none",browAsset:BROWS.includes(a.browAsset)?a.browAsset:"none",beardAsset:gender==="male"&&BEARDS.includes(a.beardAsset)?a.beardAsset:"none",hairColor:safeHex(a.hairColor,"#3a2418"),
-  skinBrightness:clamp(a.skinBrightness??0,-40,25),skinWarmth:clamp(a.skinWarmth??0,-20,20),headScale:clamp(a.headScale??100,70,140),headX:clamp(a.headX??0,-35,35),headY:clamp(a.headY??0,-35,35),
+ const hairs=gender==="female"?HAIR_F:HAIR_M,pack=window.TimeClashTrainerBodies||{male:[],female:[]},allowed=(pack[gender]||[]).map(x=>x.key),fallback=gender==="female"?"coach-m-suit-open":"coach-m-tracksuit",skinBrightness=clamp(a.skinBrightness??0,-40,25),skinWarmth=clamp(a.skinWarmth??0,-20,20),skin=toneHex(COACH_SKIN_MAP[face]||"#c99879",skinBrightness,skinWarmth);
+ return {avatarVersion:4,kind:"coach",gender,bodyAsset:allowed.includes(a.bodyAsset)?a.bodyAsset:fallback,outfitColor:safeHex(a.outfitColor,"#223647"),outfitTint:clamp(a.outfitTint??0,0,70),faceAsset:face,hairAsset:hairs.includes(a.hairAsset)?a.hairAsset:"none",browAsset:BROWS.includes(a.browAsset)?a.browAsset:"none",beardAsset:gender==="male"&&BEARDS.includes(a.beardAsset)?a.beardAsset:"none",hairColor:safeHex(a.hairColor,"#3a2418"),skin,
+  skinBrightness,skinWarmth,headScale:clamp(a.headScale??100,70,140),headX:clamp(a.headX??0,-35,35),headY:clamp(a.headY??0,-35,35),
   hairX:clamp(a.hairX??0,-35,35),hairY:clamp(a.hairY??0,-35,35),hairScale:clamp(a.hairScale??100,10,200),
   browX:clamp(a.browX??0,-35,35),browY:clamp(a.browY??0,-35,35),browScale:clamp(a.browScale??100,10,200),
   beardX:clamp(a.beardX??0,-35,35),beardY:clamp(a.beardY??0,-35,35),beardScale:clamp(a.beardScale??100,10,200)};
@@ -111,7 +118,7 @@ function bodyFront(a,name){
  const rightTat=a.undershirtAsset?"" : tattooImage(a.rightTattooAsset,27,126,31,94,a.rightTattooX,a.rightTattooY,a.rightTattooScale,false);
  const leftTat=a.undershirtAsset?"" : tattooImage(a.leftTattooAsset,122,126,31,94,a.leftTattooX,a.leftTattooY,a.leftTattooScale,true);
  const captain=a.isCaptain?packImage("clothing",a.captainArmband,126,121,30,24):"";
- return `<defs>${kitPattern(a,pid)}<clipPath id="${clip}"><rect x="16" y="76" width="148" height="222" rx="8"/></clipPath><clipPath id="${under}"><path d="M18 132H55V225H18ZM125 132H162V225H125ZM72 78H108V102H72Z"/></clipPath><mask id="${bodyMask}"><image href="${src}" x="16" y="76" width="148" height="222" preserveAspectRatio="xMidYMin meet"/></mask></defs><ellipse cx="90" cy="287" rx="49" ry="7" fill="#000" opacity=".24"/><g clip-path="url(#${clip})"><image href="${src}" x="16" y="76" width="148" height="222" preserveAspectRatio="xMidYMin meet"/></g><g mask="url(#${bodyMask})"><path d="M${90-w/2} 102 Q90 90 ${90+w/2} 102 L${90+w/2-5} 214 L${90-w/2+5} 214Z" fill="url(#${pid})" opacity=".72" style="mix-blend-mode:multiply"/><path d="M52 208 H128 L120 267 H60Z" fill="url(#${pid})" opacity=".72" style="mix-blend-mode:multiply"/><path d="M18 124 H55 V226 H18ZM125 124 H162 V226 H125ZM72 76 H108 V102 H72ZM48 258 H132 V300 H48Z" fill="${a.skin}" opacity=".30" style="mix-blend-mode:multiply"/></g>${undershirt}${rightTat}${leftTat}${captain}<text x="90" y="160" text-anchor="middle" fill="#ffffff" stroke="#00000088" stroke-width=".8" paint-order="stroke" font-size="16" font-weight="900">${esc(a.shirtNo)}</text>`;
+ return `<defs>${kitPattern(a,pid)}<clipPath id="${clip}"><rect x="16" y="76" width="148" height="222" rx="8"/></clipPath><clipPath id="${under}"><path d="M18 132H55V225H18ZM125 132H162V225H125ZM72 78H108V102H72Z"/></clipPath><mask id="${bodyMask}"><image href="${src}" x="16" y="76" width="148" height="222" preserveAspectRatio="xMidYMin meet"/></mask></defs><ellipse cx="90" cy="287" rx="49" ry="7" fill="#000" opacity=".24"/><g clip-path="url(#${clip})"><image href="${src}" x="16" y="76" width="148" height="222" preserveAspectRatio="xMidYMin meet"/></g><g mask="url(#${bodyMask})"><path d="M${90-w/2} 102 Q90 90 ${90+w/2} 102 L${90+w/2-5} 214 L${90-w/2+5} 214Z" fill="url(#${pid})" opacity=".72" style="mix-blend-mode:multiply"/><path d="M52 208 H128 L120 267 H60Z" fill="url(#${pid})" opacity=".72" style="mix-blend-mode:multiply"/><path d="M18 124 H55 V226 H18ZM125 124 H162 V226 H125ZM72 76 H108 V102 H72ZM48 258 H132 V300 H48Z" fill="${a.skin}" opacity=".72" style="mix-blend-mode:color"/><path d="M18 124 H55 V226 H18ZM125 124 H162 V226 H125ZM72 76 H108 V102 H72ZM48 258 H132 V300 H48Z" fill="${a.skin}" opacity=".34" style="mix-blend-mode:multiply"/></g>${undershirt}${rightTat}${leftTat}${captain}<text x="90" y="160" text-anchor="middle" fill="#ffffff" stroke="#00000088" stroke-width=".8" paint-order="stroke" font-size="16" font-weight="900">${esc(a.shirtNo)}</text>`;
 }
 function neckAccessory(a){return tattooImage(a.neckTattooAsset,79,82,22,28,a.neckTattooX,a.neckTattooY,a.neckTattooScale,false)}
 function backPanel(a,name){const pid=id(),label=(a.shirtName||name||"").split(/\s+/).slice(-1)[0].toUpperCase().slice(0,12);return `<g transform="translate(178 48) scale(.58)"><defs>${kitPattern(a,pid)}</defs><path d="M48 82 Q90 66 132 82 L124 182 L56 182Z" fill="url(#${pid})" stroke="#ffffff22" stroke-width="1.5"/><text x="90" y="112" text-anchor="middle" fill="#fff" stroke="#000" stroke-width=".7" paint-order="stroke" font-size="14" font-weight="900">${esc(label)}</text><text x="90" y="160" text-anchor="middle" fill="#fff" stroke="#000" stroke-width="1.4" paint-order="stroke" font-size="46" font-weight="1000">${esc(a.shirtNo)}</text></g>`}
@@ -128,6 +135,16 @@ function render(a0,name,mini=false,mode="both"){
  return `<svg viewBox="${view}" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="bg" cx=".5" cy=".2" r=".9"><stop stop-color="#10435a"/><stop offset="1" stop-color="#031019"/></radialGradient>${h.defs}</defs><rect width="${front?220:300}" height="330" rx="18" fill="url(#bg)"/><g transform="translate(${shift} 8)">${bodyFront(a,name)}${h.html}${neckAccessory(a)}</g>${front?"":backPanel(a,name)}</svg>`;
 }
 function headSvg(a0,x=0,y=0,w=180,h=145){const a=normalize(a0),layers=headLayers(a);return `<svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 180 145" overflow="visible"><defs>${layers.defs}</defs>${layers.html}</svg>`}
+function coachSkinZones(key){
+ const hands="M17 188 H47 V249 H17 Z M133 188 H163 V249 H133 Z";
+ const neck="M70 78 H110 V119 H70 Z";
+ const forearms="M17 132 H52 V249 H17 Z M128 132 H163 V249 H128 Z";
+ const chest="M65 82 H115 V139 H65 Z";
+ if(key==="coach-m-turtleneck")return neck+" "+forearms;
+ if(key==="coach-f-polo")return neck+" "+forearms;
+ if(key==="coach-f-dark-suit-neckline"||key==="coach-f-taupe-suit-neckline"||key==="coach-f-skirt-blazer"||key==="coach-m-suit-open")return chest+" "+hands;
+ return neck+" "+hands;
+}
 function renderCoach(a0,name="Coach"){
  const a=normalizeCoach(a0),f=id(),sf=id(),cid=id(),body=CT()[a.bodyAsset],bodySrc=body?.src||"",bodyMask=bodySrc?`<mask id="${cid}"><image href="${bodySrc}" x="16" y="78" width="148" height="198" preserveAspectRatio="xMidYMin meet"/></mask>`:"",defs=tintDef(f,a.hairColor)+skinToneDef(sf,a.skinBrightness,a.skinWarmth)+bodyMask,hs=96*(a.headScale/100),x=90-hs/2+a.headX,y=8+(96-hs)/2+a.headY,w=hs,h=hs;
  const head=asset(a.faceAsset,x,y,w,h,sf,'data-avatar-layer="face"')+
@@ -135,7 +152,8 @@ function renderCoach(a0,name="Coach"){
   transformedAsset(a.beardAsset,x,y,w,h,f,a.beardX,a.beardY,a.beardScale,"beard")+
   transformedAsset(a.hairAsset,x,y,w,h,f,a.hairX,a.hairY,a.hairScale,"hair");
  const tint=a.outfitTint>0&&bodySrc?`<path d="M34 98 H146 V270 H34Z" fill="${a.outfitColor}" opacity="${(a.outfitTint/100).toFixed(2)}" style="mix-blend-mode:color" mask="url(#${cid})"/>`:"";
- const bodyHtml=bodySrc?`<g data-avatar-layer="coach-body"><image href="${bodySrc}" x="16" y="78" width="148" height="198" preserveAspectRatio="xMidYMin meet"/>${tint}</g>`:`<path d="M42 138 Q90 118 138 138 L148 270 H32Z" fill="#101b24"/>`;
+ const skinZones=coachSkinZones(a.bodyAsset),skinTint=bodySrc?`<g mask="url(#${cid})"><path d="${skinZones}" fill="${a.skin}" opacity=".72" style="mix-blend-mode:color"/><path d="${skinZones}" fill="${a.skin}" opacity=".34" style="mix-blend-mode:multiply"/></g>`:"";
+ const bodyHtml=bodySrc?`<g data-avatar-layer="coach-body"><image href="${bodySrc}" x="16" y="78" width="148" height="198" preserveAspectRatio="xMidYMin meet"/>${skinTint}${tint}</g>`:`<path d="M42 138 Q90 118 138 138 L148 270 H32Z" fill="#101b24"/>`;
  return `<svg viewBox="0 0 180 300" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cbg" cx=".5" cy=".18" r=".9"><stop stop-color="#174b63"/><stop offset="1" stop-color="#04131d"/></radialGradient>${defs}</defs><rect width="180" height="300" rx="16" fill="url(#cbg)"/>${bodyHtml}${head}<text x="90" y="290" text-anchor="middle" fill="#fff" stroke="#000" stroke-width=".7" paint-order="stroke" font-size="11" font-weight="900">${esc(name).slice(0,18)}</text></svg>`;
 }
 window.TimeClashAvatar={render,renderCoach,headSvg,normalize,normalizeCoach,kitPattern,assets:{PLAYER_FACES,PLAYER_FACE_PRESETS,COACH_FACES_M,COACH_FACES_F,HAIR_M,HAIR_F,BROWS,BEARDS,BODY_KEYS:Object.keys(P().bodies||{}),CLOTHING_KEYS:Object.keys(P().clothing||{}),TATTOO_KEYS:Object.keys(P().tattoos||{})}};
