@@ -1,0 +1,35 @@
+name: Import TIME CLASH female hair assets
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-time-clash-female-hair.yml'
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download female hairstyle assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p time-clash/assets/hair-real
+          curl -L --fail --retry 2 'https://media.canva.com/v2/image-resize/format:PNG/height:133/quality:100/uri:ifs%3A%2F%2FM%2Fbf0a429b-45e3-4d9a-9df5-bd40a8265cde/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAIsXkTQw_AYGAOpf7Dm6afjwuQToouvHvTZfqFRmi9Nn&exp=1790461718&osig=AAAAAAAAAAAAAAAAAAAAALMwxURvxnTv1HtxlIx0JHO9LKQZ8VR63imiaUZDeF-o&signer=media-rpc&x-canva-quality=thumbnail' -o time-clash/assets/hair-real/f-shoulder-waves-real.png
+          curl -L --fail --retry 2 'https://media.canva.com/v2/image-resize/format:PNG/height:133/quality:100/uri:ifs%3A%2F%2FM%2F177dae74-bcf3-4892-bd41-e72bbfa1d35b/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAMp9YYPar6a9dDibnjMbu9FKUwh1Alomqj6gzTCgK1Jj&exp=1790462920&osig=AAAAAAAAAAAAAAAAAAAAAIfkVx2QPB1nIt3Amsll2OvTnrfMfDJtLydxR9ytA_j1&signer=media-rpc&x-canva-quality=thumbnail' -o time-clash/assets/hair-real/f-asymmetric-bob-real.png
+          curl -L --fail --retry 2 'https://media.canva.com/v2/image-resize/format:PNG/height:133/quality:100/uri:ifs%3A%2F%2FM%2F82ad9cb1-fbde-48cd-9d10-4c03c7fc7c42/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAEmA5ejc_GPxblR1YZIkk_rMr50M_yHt6nN8enUXqgB_&exp=1790463255&osig=AAAAAAAAAAAAAAAAAAAAADkjwlwrKT6Fwl1wmMIINoGXzi1pojQ2P-S5po23LIj0&signer=media-rpc&x-canva-quality=thumbnail' -o time-clash/assets/hair-real/f-low-ponytail-real.png
+          curl -L --fail --retry 2 'https://media.canva.com/v2/image-resize/format:PNG/height:133/quality:100/uri:ifs%3A%2F%2FM%2F8209c6c6-cc87-4892-8775-6d311109b8e6/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAJUVvJV6yxvD_5sF4jZZx9oVdDal-x1raabdpG5WUem1&exp=1790461657&osig=AAAAAAAAAAAAAAAAAAAAAOfP2E7zuCEf1hF2aDMvF1UDUCBjH3vL-HpkNJ9zNa8u&signer=media-rpc&x-canva-quality=thumbnail' -o time-clash/assets/hair-real/f-low-chignon-real.png
+          curl -L --fail --retry 2 'https://media.canva.com/v2/image-resize/format:PNG/height:133/quality:100/uri:ifs%3A%2F%2FM%2F7e9d7174-323b-4cd7-9f68-9694f7a2508a/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAAouh41If4jkrC-Xi-nEU7LWRr2CkB35VUPUmYPUBaaj&exp=1790463767&osig=AAAAAAAAAAAAAAAAAAAAAOoLagC8O-H9jJ14vTh1s1usCDNiSkV2jqRjyLEA5Eqi&signer=media-rpc&x-canva-quality=thumbnail' -o time-clash/assets/hair-real/f-sport-braided-ponytail-real.png
+          curl -L --fail --retry 2 'https://media.canva.com/v2/image-resize/format:PNG/height:133/quality:100/uri:ifs%3A%2F%2FM%2F3b63ed50-c50e-4d40-8927-c334055ab98f/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAMaLKjcFgmhrEJF1Gj355KTv76meO-KhH8RtdlUirxWh&exp=1790462554&osig=AAAAAAAAAAAAAAAAAAAAALnaLqbqXP2phX3UteN1_FOyGMoErMfopKEjhj2IUyNC&signer=media-rpc&x-canva-quality=thumbnail' -o time-clash/assets/hair-real/f-medium-box-braids-real.png
+          curl -L --fail --retry 2 'https://media.canva.com/v2/image-resize/format:PNG/height:133/quality:100/uri:ifs%3A%2F%2FM%2F61b16bf1-0be2-437b-b81d-2a26e26c63f2/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAJUBWp_exjia167LLkUjJkuj4ZE3XXks3wnN8OuKw2L1&exp=1790462747&osig=AAAAAAAAAAAAAAAAAAAAAAYrdmRC6PlYLiGKQQuoCEJchmYuIjckYLLymIkvlkWK&signer=media-rpc&x-canva-quality=thumbnail' -o time-clash/assets/hair-real/f-high-afro-puff-real.png
+          file time-clash/assets/hair-real/f-*.png
+      - name: Commit imported assets
+        shell: bash
+        run: |
+          git config user.name "BetInsight Asset Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add time-clash/assets/hair-real/f-*.png
+          git diff --cached --quiet && exit 0
+          git commit -m "Add TIME CLASH female hairstyle assets"
+          git push
