@@ -51,7 +51,7 @@ function normalize(a={}){
 function normalizeCoach(a={}){
  let face=String(a.faceAsset||COACH_FACES_M[0]),gender=String(a.gender||"");
  if(COACH_FACES_F.includes(face))gender="female"; else if(COACH_FACES_M.includes(face))gender="male"; else {gender=gender==="female"?"female":"male";face=gender==="female"?COACH_FACES_F[0]:COACH_FACES_M[0]}
- const hairs=gender==="female"?HAIR_F:HAIR_M,pack=window.TimeClashTrainerBodies||{male:[],female:[]},allowed=(pack[gender]||[]).map(x=>x.key),fallback=gender==="female"?"coach-f-closed-suit":"coach-m-tracksuit";
+ const hairs=gender==="female"?HAIR_F:HAIR_M,pack=window.TimeClashTrainerBodies||{male:[],female:[]},allowed=(pack[gender]||[]).map(x=>x.key),fallback=gender==="female"?"coach-m-suit-open":"coach-m-tracksuit";
  return {avatarVersion:4,kind:"coach",gender,bodyAsset:allowed.includes(a.bodyAsset)?a.bodyAsset:fallback,outfitColor:safeHex(a.outfitColor,"#223647"),outfitTint:clamp(a.outfitTint??0,0,70),faceAsset:face,hairAsset:hairs.includes(a.hairAsset)?a.hairAsset:"none",browAsset:BROWS.includes(a.browAsset)?a.browAsset:"none",beardAsset:gender==="male"&&BEARDS.includes(a.beardAsset)?a.beardAsset:"none",hairColor:safeHex(a.hairColor,"#3a2418"),
   skinBrightness:clamp(a.skinBrightness??0,-40,25),skinWarmth:clamp(a.skinWarmth??0,-20,20),headScale:clamp(a.headScale??100,70,140),headX:clamp(a.headX??0,-35,35),headY:clamp(a.headY??0,-35,35),
   hairX:clamp(a.hairX??0,-35,35),hairY:clamp(a.hairY??0,-35,35),hairScale:clamp(a.hairScale??100,10,200),
