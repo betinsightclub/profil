@@ -791,7 +791,7 @@ function effectiveMetrics(side,plans,dismissals=null){
 }
 function spacedGoalMinutes(total){let out=[],tries=0;while(out.length<total&&tries++<1500){let m=7+rnd(82);if(out.every(x=>Math.abs(x-m)>=6))out.push(m)}return out.sort((a,b)=>a-b)}
 function shuffleCopy(list){let a=[...list];for(let x=a.length-1;x>0;x--){let y=rnd(x+1);[a[x],a[y]]=[a[y],a[x]]}return a}
-function keeperSaveChance(strength){return Math.max(.16,Math.min(.9,.16+(Math.max(1,Math.min(25,strength))-5)*.037))}
+function keeperSaveChance(strength){return Math.max(.10,Math.min(.92,.12+(Math.max(1,Math.min(25,strength))-5)*.04))}
 function buildGame(idx){
  let plans={A:buildSubPlan("A"),B:buildSubPlan("B")},dismissals={A:{},B:{}},yellows={A:{},B:{}},ev=[{m:1,msg:"⚽ Anpfiff! Spiel "+(idx+1)+" der TIME-CLASH-Serie läuft."}],ratingA=TA.rating,ratingB=TB.rating;
  let preA=effectiveMetrics("A",plans,dismissals),preB=effectiveMetrics("B",plans,dismissals);
@@ -802,7 +802,7 @@ function buildGame(idx){
    let r=Math.random(),side=Math.random()<sideProb?"A":"B",nm=side==="A"?TA.name:TB.name;
    if(r<.13){let p=actor(side,m,plans,"chance",dismissals);ev.push({m,msg:p?"🔥 "+p+" treibt den Angriff für "+nm+" bis an den Strafraum.":"🔥 "+nm+" baut einen gefährlichen Angriff auf.",type:"chance",sceneKind:"attack",scenePlayer:p,sceneSide:side});}
    else if(r<.25){let p=actor(side,m,plans,"shot",dismissals);ev.push({m,msg:p?"⚡ "+p+" schaltet für "+nm+" schnell um und sucht den Abschluss.":"⚡ "+nm+" schaltet schnell um und sucht den Abschluss.",type:side==="A"?"shotA":"shotB",sceneKind:"shot",scenePlayer:p,sceneSide:side});}
-   else if(r<.36){let p=actor(side,m,plans,"shot",dismissals),def=side==="A"?"B":"A",kp=goalkeeperObj(def,m,plans,dismissals),dn=def==="A"?TA.name:TB.name,k=Number(kp?.strength||5),quality=keeperSaveChance(k);let suffix=quality>.72?" mit einer herausragenden Parade":quality<.35?" mit Mühe":"";ev.push({m,msg:kp?"🧤 "+kp.name+" hält"+suffix+" für "+dn+" gegen den Abschluss von "+(p||nm)+"!":p?"🎯 "+p+" kommt für "+nm+" zum Abschluss.":"🎯 "+nm+" kommt zum Abschluss.",type:side==="A"?"targetA":"targetB",sceneKind:"save",scenePlayer:kp?.name||null,sceneSide:def,attacker:p});}
+   else if(r<.36){let p=actor(side,m,plans,"shot",dismissals),def=side==="A"?"B":"A",kp=goalkeeperObj(def,m,plans,dismissals),dn=def==="A"?TA.name:TB.name,k=Number(kp?.strength||5),quality=keeperSaveChance(k),saved=Math.random()<quality;let msg=saved?(kp?"🧤 "+kp.name+" pariert für "+dn+" gegen den Abschluss von "+(p||nm)+"!":"🧤 "+dn+" verteidigt den Abschluss."):(kp?"⚠️ "+kp.name+" kann den Ball nur abklatschen lassen – "+dn+" bleibt unter Druck.":"⚠️ "+dn+" lässt eine große Chance zu.");ev.push({m,msg,type:side==="A"?"targetA":"targetB",sceneKind:saved?"save":"shot",scenePlayer:saved?kp?.name:(p||null),sceneSide:saved?def:side,attacker:p});}
    else if(r<.47){let p=actor(side,m,plans,"corner",dismissals);ev.push({m,msg:p?"🚩 "+p+" holt eine Ecke für "+nm+" heraus.":"🚩 "+nm+" erzwingt einen Eckball.",type:side==="A"?"cornerA":"cornerB"});}
    else if(r<.60){let p=actor(side,m,plans,"generic",dismissals);ev.push({m,msg:p?"💥 Foul an "+p+" ("+nm+"). Freistoß.":"💥 Foul gegen "+nm+". Freistoß für "+nm+".",type:side==="A"?"foulA":"foulB"});}
    else if(r<.665){
@@ -832,9 +832,8 @@ function buildGame(idx){
  let ma=effectiveMetrics("A",plans,dismissals),mb=effectiveMetrics("B",plans,dismissals);
  let keeperA=(goalkeeperStrength("A",20,plans,dismissals)+goalkeeperStrength("A",72,plans,dismissals))/2,keeperB=(goalkeeperStrength("B",20,plans,dismissals)+goalkeeperStrength("B",72,plans,dismissals))/2;
  let ratingGap=(ratingA-ratingB)*.018,qualityShift=(Math.random()-.5)*.32;
- let lambdaA=1.18+ratingGap+(ma.attack-mb.defense)*.09+(ma.midfield-mb.midfield)*.035+(12.5-keeperB)*.12+(ma.count-mb.count)*.16+qualityShift;
- let lambdaB=1.18-ratingGap+(mb.attack-ma.defense)*.09+(mb.midfield-ma.midfield)*.035+(12.5-keeperA)*.12+(mb.count-ma.count)*.16-qualityShift;
- lambdaA=Math.max(.12,Math.min(4.4,lambdaA));lambdaB=Math.max(.12,Math.min(4.4,lambdaB));
+ let saveA=keeperSaveChance(keeperA),saveB=keeperSaveChance(keeperB),baseA=1.24+ratingGap+(ma.attack-mb.defense)*.09+(ma.midfield-mb.midfield)*.035+(ma.count-mb.count)*.16+qualityShift,baseB=1.24-ratingGap+(mb.attack-ma.defense)*.09+(mb.midfield-ma.midfield)*.035+(mb.count-ma.count)*.16-qualityShift,avgSave=.42;
+ let lambdaA=Math.max(.08,Math.min(4.8,baseA*((1-saveB)/(1-avgSave)))),lambdaB=Math.max(.08,Math.min(4.8,baseB*((1-saveA)/(1-avgSave))));
  let ga=Math.min(6,poisson(lambdaA)),gb=Math.min(6,poisson(lambdaB));
  let sides=[];for(let x=0;x<ga;x++)sides.push("A");for(let x=0;x<gb;x++)sides.push("B");sides.sort(()=>Math.random()-.5);
  let goals=spacedGoalMinutes(sides.length).map((m,n)=>({m,t:sides[n]}));
