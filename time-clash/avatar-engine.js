@@ -117,7 +117,7 @@ function backPanel(a,name){const pid=id(),label=(a.shirtName||name||"").split(/\
 function headLayers(a,x=15,y=-16,w=150,h=150){
  const f=id(),sf=id(),defs=tintDef(f,a.hairColor)+skinToneDef(sf,a.skinBrightness,a.skinWarmth);
  return {defs,html:
-  asset(a.faceAsset,x,y,w,h,sf,'data-avatar-layer="face"')+
+  asset(a.faceAsset,x,y,w,h,PLAYER_FACE_PRESETS.includes(a.faceAsset)?"":sf,'data-avatar-layer="face"')+
   transformedAsset(a.browAsset,x,y,w,h,f,a.browX,a.browY,a.browScale,"brow")+
   transformedAsset(a.beardAsset,x,y,w,h,f,a.beardX,a.beardY,a.beardScale,"beard")+
   transformedAsset(a.hairAsset,x,y,w,h,f,a.hairX,a.hairY,a.hairScale,"hair")};
