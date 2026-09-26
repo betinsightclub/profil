@@ -8,6 +8,7 @@ const rgb=hex=>{const s=safeHex(hex,"#3a2418").slice(1),n=parseInt(s,16);return 
 const id=()=>"tc"+Math.random().toString(36).slice(2,9);
 
 const PLAYER_FACES=["faces/player-m01","faces/player-m02","faces/player-m03","faces/player-m04","faces/player-m05","faces/player-m06","faces/player-m07","faces/player-m08","faces/player-m09","faces/player-m10","faces/player-m11","faces/player-m12","faces/player-m13","faces/player-m14","faces/player-m15","faces/player-m16","faces/player-m17"];
+const PLAYER_FACE_PRESETS=["presets/player-hair-p01","presets/player-hair-p02","presets/player-hair-p03","presets/player-hair-p04"];
 const COACH_FACES_M=["faces/coach-m01","faces/coach-m02","faces/coach-m03","faces/coach-m04"];
 const COACH_FACES_F=["faces/coach-f01","faces/coach-f02","faces/coach-f03","faces/coach-f05"];
 const HAIR_M=["none","hair/m-buzz","hair/m-short-classic","hair/m-short-textured","hair/m-sidepart","hair/m-messy","hair/m-curly","hair/m-long-wavy","hair/m-long-straight"];
@@ -16,7 +17,7 @@ const BROWS=["none","original","brows/b01","brows/b03","brows/b05","brows/b07"];
 const BEARDS=["none","beard/stubble-light","beard/stubble-medium","beard/beard-light","beard/beard-anchor","beard/beard-goatee","beard/beard-mustache","beard/beard-full"];
 
 function mapLegacyFace(a){
- const raw=String(a?.faceAsset||""); if(PLAYER_FACES.includes(raw))return raw;
+ const raw=String(a?.faceAsset||""); if(PLAYER_FACES.includes(raw)||PLAYER_FACE_PRESETS.includes(raw))return raw;
  const old=String(a?.faceBase||""); const m={real01:PLAYER_FACES[0],real02:PLAYER_FACES[1],real03:PLAYER_FACES[2],real04:PLAYER_FACES[0],real05:PLAYER_FACES[1],real06:PLAYER_FACES[2],vector:PLAYER_FACES[0]};
  return m[old]||PLAYER_FACES[0];
 }
@@ -30,12 +31,12 @@ function mapLegacyBeard(a){
  const b=String(a?.beard||"").toLowerCase(); if(b==="none"||!b)return "none"; if(b==="mustache")return "beard/beard-mustache"; if(b==="goatee")return "beard/beard-goatee"; if(b==="full")return "beard/beard-full"; if(b==="combo")return "beard/beard-anchor"; return "beard/beard-light";
 }
 function normalize(a={}){
- const faceAsset=mapLegacyFace(a),pack=P(),defaultBody={slim:"slim",athletic:"athletic",strong:"strong-athletic",stocky:"power"}[a.build]||"athletic",skinMap={"faces/player-m01":"#d7a17e","faces/player-m02":"#5a392d","faces/player-m03":"#d8a98d","faces/player-m04":"#7b4d35","faces/player-m05":"#563629","faces/player-m06":"#d2a282","faces/player-m07":"#bd8665","faces/player-m08":"#bd825c","faces/player-m09":"#a46d4c","faces/player-m10":"#c99775","faces/player-m11":"#c38a61","faces/player-m12":"#ad7858","faces/player-m13":"#d0a07f","faces/player-m14":"#d8ae95","faces/player-m15":"#d0a080","faces/player-m16":"#ae7959","faces/player-m17":"#d9aa8f"};
+ const faceAsset=mapLegacyFace(a),faceIsPreset=PLAYER_FACE_PRESETS.includes(faceAsset),pack=P(),defaultBody={slim:"slim",athletic:"athletic",strong:"strong-athletic",stocky:"power"}[a.build]||"athletic",skinMap={"faces/player-m01":"#d7a17e","faces/player-m02":"#5a392d","faces/player-m03":"#d8a98d","faces/player-m04":"#7b4d35","faces/player-m05":"#563629","faces/player-m06":"#d2a282","faces/player-m07":"#bd8665","faces/player-m08":"#bd825c","faces/player-m09":"#a46d4c","faces/player-m10":"#c99775","faces/player-m11":"#c38a61","faces/player-m12":"#ad7858","faces/player-m13":"#d0a07f","faces/player-m14":"#d8ae95","faces/player-m15":"#d0a080","faces/player-m16":"#ae7959","faces/player-m17":"#d9aa8f","presets/player-hair-p01":"#c58a68","presets/player-hair-p02":"#bd8260","presets/player-hair-p03":"#c69272","presets/player-hair-p04":"#c28a68"};
  return {
   avatarVersion:3,kind:"player",
   height:clamp(a.height||182,150,220),build:["slim","athletic","strong","stocky"].includes(a.build)?a.build:"athletic",chestWidth:clamp(a.chestWidth??50,35,65),legLength:clamp(a.legLength??50,35,65),headScale:clamp(a.headScale??100,80,120),headY:clamp(a.headY??0,-24,24),
   faceAsset,skin:safeHex(a.skin,skinMap[faceAsset]||"#d7a17e"),skinBrightness:clamp(a.skinBrightness??0,-40,25),skinWarmth:clamp(a.skinWarmth??0,-20,20),
-  hairAsset:mapLegacyHair(a),browAsset:BROWS.includes(a.browAsset)?a.browAsset:"none",beardAsset:mapLegacyBeard(a),hairColor:safeHex(a.hairColor,"#3a2418"),
+  hairAsset:faceIsPreset?"none":mapLegacyHair(a),browAsset:faceIsPreset?"none":(BROWS.includes(a.browAsset)?a.browAsset:"none"),beardAsset:faceIsPreset?"none":mapLegacyBeard(a),hairColor:safeHex(a.hairColor,"#3a2418"),
   hairX:clamp(a.hairX??0,-35,35),hairY:clamp(a.hairY??0,-35,35),hairScale:clamp(a.hairScale??100,10,200),
   browX:clamp(a.browX??0,-35,35),browY:clamp(a.browY??0,-35,35),browScale:clamp(a.browScale??100,10,200),
   beardX:clamp(a.beardX??0,-35,35),beardY:clamp(a.beardY??0,-35,35),beardScale:clamp(a.beardScale??100,10,200),
@@ -134,5 +135,5 @@ function renderCoach(a0,name="Coach"){
   transformedAsset(a.hairAsset,x,y,w,h,f,a.hairX,a.hairY,a.hairScale,"hair");
  return `<svg viewBox="0 0 180 235" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cbg" cx=".5" cy=".18" r=".9"><stop stop-color="#174b63"/><stop offset="1" stop-color="#04131d"/></radialGradient>${defs}</defs><rect width="180" height="235" rx="16" fill="url(#cbg)"/><path d="M42 138 Q90 118 138 138 L148 228 H32Z" fill="#101b24"/><path d="M76 132 L90 151 L104 132 L118 228 H62Z" fill="#263744"/><path d="M85 147 L90 157 L95 147 L98 197 L90 207 L82 197Z" fill="#b88c3b" opacity=".9"/>${head}<text x="90" y="220" text-anchor="middle" fill="#fff" stroke="#000" stroke-width=".7" paint-order="stroke" font-size="12" font-weight="900">${esc(name).slice(0,18)}</text></svg>`;
 }
-window.TimeClashAvatar={render,renderCoach,headSvg,normalize,normalizeCoach,kitPattern,assets:{PLAYER_FACES,COACH_FACES_M,COACH_FACES_F,HAIR_M,HAIR_F,BROWS,BEARDS,BODY_KEYS:Object.keys(P().bodies||{}),CLOTHING_KEYS:Object.keys(P().clothing||{}),TATTOO_KEYS:Object.keys(P().tattoos||{})}};
+window.TimeClashAvatar={render,renderCoach,headSvg,normalize,normalizeCoach,kitPattern,assets:{PLAYER_FACES,PLAYER_FACE_PRESETS,COACH_FACES_M,COACH_FACES_F,HAIR_M,HAIR_F,BROWS,BEARDS,BODY_KEYS:Object.keys(P().bodies||{}),CLOTHING_KEYS:Object.keys(P().clothing||{}),TATTOO_KEYS:Object.keys(P().tattoos||{})}};
 })();
