@@ -3,6 +3,7 @@ const A=()=>window.TimeClashAvatarAssets;
 const P=()=>window.TimeClashBodyPack||{bodies:{},clothing:{},tattoos:{}};
 const CT=()=>window.TimeClashTrainerBodiesByKey||{};
 const RB=()=>window.TimeClashBeardAssets||null;
+const RH=()=>window.TimeClashHairAssets||null;
 const esc=v=>String(v??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,Number(n)||0));
 const safeHex=(v,d)=>/^#[0-9a-fA-F]{6}$/.test(String(v||""))?String(v):d;
@@ -20,7 +21,7 @@ const PLAYER_FACES=["faces/player-m01","faces/player-m02","faces/player-m03","fa
 const PLAYER_FACE_PRESETS=["presets/player-hair-p01","presets/player-hair-p02","presets/player-hair-p03","presets/player-hair-p04"];
 const COACH_FACES_M=["faces/coach-m01","faces/coach-m02","faces/coach-m03","faces/coach-m04"];
 const COACH_FACES_F=["faces/coach-f01","faces/coach-f02","faces/coach-f03","faces/coach-f05"];
-const HAIR_M=["none","hair/m-buzz","hair/m-short-classic","hair/m-short-textured","hair/m-sidepart","hair/m-messy","hair/m-curly","hair/m-long-wavy","hair/m-long-straight"];
+const HAIR_M=["none","hair/m-buzz","hair/m-short-classic","hair/m-short-textured","hair/m-sidepart","hair/m-messy","hair/m-curly","hair/m-long-wavy","hair/m-long-straight","hair/m-french-crop-real","hair/m-faux-hawk-real","hair/m-modern-mohawk-real","hair/m-tight-curly-top-real","hair/m-cornrows-real","hair/m-short-twisted-locs-real","hair/m-medium-locs-real","hair/m-short-curly-afro-real","hair/m-messy-side-swept-real"];
 const HAIR_F=["none","hair/f-bun","hair/f-high-ponytail","hair/f-lob","hair/f-curly","hair/f-long-straight","hair/f-long-wavy"];
 const BROWS=["none","original","brows/b01","brows/b03","brows/b05","brows/b07"];
 const BEARDS=["none","beard/stubble-light","beard/stubble-medium","beard/beard-light","beard/beard-anchor","beard/beard-goatee","beard/beard-mustache","beard/beard-full","beard/horseshoe-real","beard/jaw-chin-real","beard/anchor-full-real","beard/vandyke-real","beard/full-boxed-real","beard/chinstrap-moustache-real","beard/chin-puff-real","beard/soul-patch-real","beard/circle-boxed-real","beard/moustache-classic-real","beard/moustache-pencil-real","beard/moustache-chevron-real","beard/anchor-light-real"];
@@ -80,7 +81,7 @@ function stubbleAsset(key,x,y,w,h,filter="",tx=0,ty=0,scale=100,layer=""){
 function transformedAsset(key,x,y,w,h,filter="",tx=0,ty=0,scale=100,layer=""){
  if(!key||key==="none"||key==="original")return "";
  if(String(key).startsWith("beard/stubble-"))return stubbleAsset(key,x,y,w,h,filter,tx,ty,scale,layer);
- const source=RB()?.cell?.(key)?RB():A();
+ const source=RH()?.cell?.(key)?RH():RB()?.cell?.(key)?RB():A();
  if(!source?.cell?.(key))return "";
  const s=clamp(scale,10,200)/100,cx=x+w/2,cy=y+h/2;
  return `<g data-avatar-layer="${esc(layer)}" transform="translate(${clamp(tx,-35,35)} ${clamp(ty,-35,35)}) translate(${cx} ${cy}) scale(${s.toFixed(3)}) translate(${-cx} ${-cy})"${filter?` filter="url(#${filter})"`:""}>${source.svgImage(key,x,y,w,h)}</g>`;
