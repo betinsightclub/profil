@@ -105,6 +105,8 @@
       display:grid;place-items:center
     }
     .avatar img{width:100%;height:100%;object-fit:cover}
+    .configured-coach-avatar{position:absolute;inset:0;display:grid;place-items:center;overflow:hidden;border-radius:50%;z-index:2}
+    .configured-coach-avatar svg{width:100%;height:100%;display:block}
     .avatar{
       --rank-outer:#244454;
       --rank-inner:#3c6577;
@@ -930,21 +932,47 @@
         }).join("");
       }
 
+      function configuredCoachHost(){
+        var box=document.getElementById("avatarBox");
+        if(!box) return null;
+        var host=document.getElementById("configuredCoachAvatar");
+        if(!host){
+          host=document.createElement("div");
+          host.id="configuredCoachAvatar";
+          host.className="configured-coach-avatar hidden";
+          box.appendChild(host);
+        }
+        return host;
+      }
+
+      function clearConfiguredCoachAvatar(){
+        var host=document.getElementById("configuredCoachAvatar");
+        if(host){
+          host.innerHTML="";
+          host.classList.add("hidden");
+        }
+      }
+
       function renderConfiguredCoachAvatar(profile){
         var appearance=profile&&profile.coach_appearance;
         if(!appearance || typeof appearance!=="object" || !window.TimeClashAvatar || !window.TimeClashAvatar.renderCoachPortrait) return false;
         try{
           var svg=window.TimeClashAvatar.renderCoachPortrait(appearance);
           if(!svg) return false;
+          var host=configuredCoachHost();
           var avatar=document.getElementById("avatarImage");
           var fallback=document.getElementById("avatarFallback");
-          avatar.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
-          avatar.classList.remove("hidden");
+          if(!host) return false;
+          host.innerHTML=svg;
+          host.classList.remove("hidden");
+          avatar.removeAttribute("src");
+          avatar.classList.add("hidden");
           fallback.classList.add("hidden");
           avatar.dataset.source="configured-coach";
           return true;
         }catch(error){
           console.error("Trainerbild aus TIME CLASH konnte nicht gerendert werden",error);
+          clearConfiguredCoachAvatar();
           return false;
         }
       }
@@ -998,11 +1026,13 @@
         var fallback=document.getElementById("avatarFallback");
         var configuredCoachAvatar=renderConfiguredCoachAvatar(profile);
         if(!configuredCoachAvatar && profile.media&&profile.media.avatar&&profile.media.avatar.public_url){
+          clearConfiguredCoachAvatar();
           avatar.src=profile.media.avatar.public_url;
           avatar.classList.remove("hidden");
           fallback.classList.add("hidden");
           avatar.dataset.source="uploaded";
         }else if(!configuredCoachAvatar){
+          clearConfiguredCoachAvatar();
           avatar.removeAttribute("src");
           avatar.classList.add("hidden");
           fallback.classList.remove("hidden");
