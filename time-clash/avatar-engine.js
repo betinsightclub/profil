@@ -136,13 +136,18 @@ function render(a0,name,mini=false,mode="both"){
 }
 function headSvg(a0,x=0,y=0,w=180,h=145){const a=normalize(a0),layers=headLayers(a);return `<svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 180 145" overflow="visible"><defs>${layers.defs}</defs>${layers.html}</svg>`}
 function coachSkinZones(key){
- const hands="M17 188 H47 V249 H17 Z M133 188 H163 V249 H133 Z";
+ const hands="M18 202 H48 V252 H18 Z M132 202 H162 V252 H132 Z";
  const neck="M78 78 H102 V108 Q90 116 78 108 Z";
- const forearms="M17 132 H52 V249 H17 Z M128 132 H163 V249 H128 Z";
- const openNeck="M78 79 Q90 88 102 79 L100 104 Q90 111 80 104 Z";
- if(key==="coach-m-turtleneck")return neck+" "+forearms;
- if(key==="coach-f-polo")return neck+" "+forearms;
- if(key==="coach-f-dark-suit-neckline"||key==="coach-f-taupe-suit-neckline"||key==="coach-f-skirt-blazer"||key==="coach-m-suit-open")return openNeck+" "+hands;
+ const openNeck="M77 79 Q90 90 103 79 L100 111 Q90 118 80 111 Z";
+ const fullArms="M17 128 H53 V252 H17 Z M127 128 H163 V252 H127 Z";
+ const forearms="M18 151 H53 V252 H18 Z M127 151 H162 V252 H127 Z";
+ const skirtLegs="M54 224 H86 V278 H54 Z M94 224 H126 V278 H94 Z";
+ if(key==="coach-m-polo")return neck+" "+fullArms;
+ if(key==="coach-f-polo")return openNeck+" "+fullArms;
+ if(key==="coach-f-dark-suit-neckline"||key==="coach-f-taupe-suit-neckline")return openNeck+" "+forearms;
+ if(key==="coach-f-skirt-blazer")return openNeck+" "+forearms+" "+skirtLegs;
+ if(key==="coach-m-suit-open")return openNeck+" "+hands;
+ if(key==="coach-m-turtleneck"||key==="coach-m-tracksuit"||key==="coach-m-suit-tie"||key==="coach-m-overcoat"||key==="coach-f-tracksuit"||key==="coach-f-closed-suit")return hands;
  return neck+" "+hands;
 }
 function renderCoach(a0,name="Coach"){
