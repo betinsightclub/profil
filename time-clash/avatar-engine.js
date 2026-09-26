@@ -136,12 +136,12 @@ function render(a0,name,mini=false,mode="both"){
 }
 function headSvg(a0,x=0,y=0,w=180,h=145){const a=normalize(a0),layers=headLayers(a);return `<svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 180 145" overflow="visible"><defs>${layers.defs}</defs>${layers.html}</svg>`}
 function coachSkinZones(key){
- const hands="M18 202 H48 V252 H18 Z M132 202 H162 V252 H132 Z";
- const neck="M78 78 H102 V108 Q90 116 78 108 Z";
- const openNeck="M77 79 Q90 90 103 79 L100 111 Q90 118 80 111 Z";
- const fullArms="M17 128 H53 V252 H17 Z M127 128 H163 V252 H127 Z";
- const forearms="M18 151 H53 V252 H18 Z M127 151 H162 V252 H127 Z";
- const skirtLegs="M54 224 H86 V278 H54 Z M94 224 H126 V278 H94 Z";
+ const hands="M24 198 C20 211 20 228 23 241 C25 249 30 254 36 253 C42 251 46 240 47 226 C48 215 47 204 44 198 Z M136 198 C133 204 132 215 133 226 C134 240 138 251 144 253 C150 254 155 249 157 241 C160 228 160 211 156 198 Z";
+ const neck="M79 79 C82 88 98 88 101 79 L100 105 C97 111 83 111 80 105 Z";
+ const openNeck="M77 80 C82 90 98 90 103 80 L100 109 C97 115 83 115 80 109 Z";
+ const fullArms="M29 128 C23 144 20 167 21 191 C21 215 25 238 32 249 C36 254 42 252 45 246 C49 235 50 216 49 196 C48 172 45 147 42 129 Z M138 129 C135 147 132 172 131 196 C130 216 131 235 135 246 C138 252 144 254 148 249 C155 238 159 215 159 191 C160 167 157 144 151 128 Z";
+ const forearms="M28 151 C23 165 21 184 22 205 C22 224 26 242 32 249 C36 253 42 251 45 245 C48 234 49 216 48 198 C47 179 44 163 41 151 Z M139 151 C136 163 133 179 132 198 C131 216 132 234 135 245 C138 251 144 253 148 249 C154 242 158 224 158 205 C159 184 157 165 152 151 Z";
+ const skirtLegs="M58 225 C57 239 57 257 59 273 C61 279 67 282 73 280 C79 278 82 270 82 258 L82 226 Z M98 226 L98 258 C98 270 101 278 107 280 C113 282 119 279 121 273 C123 257 123 239 122 225 Z";
  if(key==="coach-m-polo")return neck+" "+fullArms;
  if(key==="coach-f-polo")return openNeck+" "+fullArms;
  if(key==="coach-f-dark-suit-neckline"||key==="coach-f-taupe-suit-neckline")return openNeck+" "+forearms;
@@ -151,13 +151,13 @@ function coachSkinZones(key){
  return neck+" "+hands;
 }
 function renderCoach(a0,name="Coach"){
- const a=normalizeCoach(a0),f=id(),sf=id(),cid=id(),body=CT()[a.bodyAsset],bodySrc=body?.src||"",bodyMask=bodySrc?`<mask id="${cid}"><image href="${bodySrc}" x="16" y="78" width="148" height="198" preserveAspectRatio="xMidYMin meet"/></mask>`:"",defs=tintDef(f,a.hairColor)+skinToneDef(sf,a.skinBrightness,a.skinWarmth)+bodyMask,hs=96*(a.headScale/100),x=90-hs/2+a.headX,y=8+(96-hs)/2+a.headY,w=hs,h=hs;
+ const a=normalizeCoach(a0),f=id(),sf=id(),cid=id(),soft=id(),body=CT()[a.bodyAsset],bodySrc=body?.src||"",bodyMask=bodySrc?`<mask id="${cid}"><image href="${bodySrc}" x="16" y="78" width="148" height="198" preserveAspectRatio="xMidYMin meet"/></mask>`:"",softDef=`<filter id="${soft}" x="-12%" y="-12%" width="124%" height="124%"><feGaussianBlur stdDeviation="1.6"/></filter>`,defs=tintDef(f,a.hairColor)+skinToneDef(sf,a.skinBrightness,a.skinWarmth)+bodyMask+softDef,hs=96*(a.headScale/100),x=90-hs/2+a.headX,y=8+(96-hs)/2+a.headY,w=hs,h=hs;
  const head=asset(a.faceAsset,x,y,w,h,sf,'data-avatar-layer="face"')+
   transformedAsset(a.browAsset,x,y,w,h,f,a.browX,a.browY,a.browScale,"brow")+
   transformedAsset(a.beardAsset,x,y,w,h,f,a.beardX,a.beardY,a.beardScale,"beard")+
   transformedAsset(a.hairAsset,x,y,w,h,f,a.hairX,a.hairY,a.hairScale,"hair");
  const tint=a.outfitTint>0&&bodySrc?`<path d="M34 98 H146 V270 H34Z" fill="${a.outfitColor}" opacity="${(a.outfitTint/100).toFixed(2)}" style="mix-blend-mode:color" mask="url(#${cid})"/>`:"";
- const skinZones=coachSkinZones(a.bodyAsset),skinTint=bodySrc?`<g mask="url(#${cid})"><path d="${skinZones}" fill="${a.skin}" opacity=".72" style="mix-blend-mode:color"/><path d="${skinZones}" fill="${a.skin}" opacity=".34" style="mix-blend-mode:multiply"/></g>`:"";
+ const skinZones=coachSkinZones(a.bodyAsset),skinTint=bodySrc?`<g mask="url(#${cid})" filter="url(#${soft})"><path d="${skinZones}" fill="${a.skin}" opacity=".44" style="mix-blend-mode:color"/><path d="${skinZones}" fill="${a.skin}" opacity=".16" style="mix-blend-mode:multiply"/></g>`:"";
  const bodyHtml=bodySrc?`<g data-avatar-layer="coach-body"><image href="${bodySrc}" x="16" y="78" width="148" height="198" preserveAspectRatio="xMidYMin meet"/>${skinTint}${tint}</g>`:`<path d="M42 138 Q90 118 138 138 L148 270 H32Z" fill="#101b24"/>`;
  return `<svg viewBox="0 0 180 300" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cbg" cx=".5" cy=".18" r=".9"><stop stop-color="#174b63"/><stop offset="1" stop-color="#04131d"/></radialGradient>${defs}</defs><rect width="180" height="300" rx="16" fill="url(#cbg)"/>${bodyHtml}${head}<text x="90" y="290" text-anchor="middle" fill="#fff" stroke="#000" stroke-width=".7" paint-order="stroke" font-size="11" font-weight="900">${esc(name).slice(0,18)}</text></svg>`;
 }
