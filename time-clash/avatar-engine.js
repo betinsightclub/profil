@@ -161,5 +161,9 @@ function renderCoach(a0,name="Coach"){
  const bodyHtml=bodySrc?`<g data-avatar-layer="coach-body"><image href="${bodySrc}" x="16" y="78" width="148" height="198" preserveAspectRatio="xMidYMin meet"/>${skinTint}${tint}</g>`:`<path d="M42 138 Q90 118 138 138 L148 270 H32Z" fill="#101b24"/>`;
  return `<svg viewBox="0 0 180 300" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cbg" cx=".5" cy=".18" r=".9"><stop stop-color="#174b63"/><stop offset="1" stop-color="#04131d"/></radialGradient>${defs}</defs><rect width="180" height="300" rx="16" fill="url(#cbg)"/>${bodyHtml}${head}<text x="90" y="290" text-anchor="middle" fill="#fff" stroke="#000" stroke-width=".7" paint-order="stroke" font-size="11" font-weight="900">${esc(name).slice(0,18)}</text></svg>`;
 }
-window.TimeClashAvatar={render,renderCoach,headSvg,normalize,normalizeCoach,kitPattern,assets:{PLAYER_FACES,PLAYER_FACE_PRESETS,COACH_FACES_M,COACH_FACES_F,HAIR_M,HAIR_F,BROWS,BEARDS,BODY_KEYS:Object.keys(P().bodies||{}),CLOTHING_KEYS:Object.keys(P().clothing||{}),TATTOO_KEYS:Object.keys(P().tattoos||{})}};
+function renderCoachPortrait(a0){
+ const svg=renderCoach(a0,"");
+ return svg.replace('viewBox="0 0 180 300"','viewBox="0 0 180 180"').replace(/<text x="90" y="290"[\s\S]*?<\/text>/,"");
+}
+window.TimeClashAvatar={render,renderCoach,renderCoachPortrait,headSvg,normalize,normalizeCoach,kitPattern,assets:{PLAYER_FACES,PLAYER_FACE_PRESETS,COACH_FACES_M,COACH_FACES_F,HAIR_M,HAIR_F,BROWS,BEARDS,BODY_KEYS:Object.keys(P().bodies||{}),CLOTHING_KEYS:Object.keys(P().clothing||{}),TATTOO_KEYS:Object.keys(P().tattoos||{})}};
 })();
