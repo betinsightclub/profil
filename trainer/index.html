@@ -685,6 +685,15 @@
   <div class="toast" id="toast">Gespeichert</div>
   <div class="preview-label">BetInsight · Trainerprofil</div>
 
+  <script src="/time-clash/avatar-assets-v3.js?v=20260925f"></script>
+  <script src="/time-clash/avatar-face-assets-v6-1.js?v=20260926d"></script>
+  <script src="/time-clash/avatar-face-assets-v6-2.js?v=20260926d"></script>
+  <script src="/time-clash/avatar-face-assets-v6-3.js?v=20260926d"></script>
+  <script src="/time-clash/avatar-face-assets-v6-4.js?v=20260926d"></script>
+  <script src="/time-clash/avatar-face-assets-v6.js?v=20260926d"></script>
+  <script src="/time-clash/assets/trainer-body-pack.js?v=20260926b"></script>
+  <script src="/time-clash/avatar-engine.js?v=20260926n"></script>
+
   <script>
     (function(){
       "use strict";
@@ -921,6 +930,25 @@
         }).join("");
       }
 
+      function renderConfiguredCoachAvatar(profile){
+        var appearance=profile&&profile.coach_appearance;
+        if(!appearance || typeof appearance!=="object" || !window.TimeClashAvatar || !window.TimeClashAvatar.renderCoachPortrait) return false;
+        try{
+          var svg=window.TimeClashAvatar.renderCoachPortrait(appearance);
+          if(!svg) return false;
+          var avatar=document.getElementById("avatarImage");
+          var fallback=document.getElementById("avatarFallback");
+          avatar.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
+          avatar.classList.remove("hidden");
+          fallback.classList.add("hidden");
+          avatar.dataset.source="configured-coach";
+          return true;
+        }catch(error){
+          console.error("Trainerbild aus TIME CLASH konnte nicht gerendert werden",error);
+          return false;
+        }
+      }
+
       function applyProfile(profile,ownerView){
         if(!profile) return;
         currentProfile=profile;
@@ -968,14 +996,22 @@
 
         var avatar=document.getElementById("avatarImage");
         var fallback=document.getElementById("avatarFallback");
-        if(profile.media&&profile.media.avatar&&profile.media.avatar.public_url){
+        var configuredCoachAvatar=renderConfiguredCoachAvatar(profile);
+        if(!configuredCoachAvatar && profile.media&&profile.media.avatar&&profile.media.avatar.public_url){
           avatar.src=profile.media.avatar.public_url;
           avatar.classList.remove("hidden");
           fallback.classList.add("hidden");
-        }else{
+          avatar.dataset.source="uploaded";
+        }else if(!configuredCoachAvatar){
           avatar.removeAttribute("src");
           avatar.classList.add("hidden");
           fallback.classList.remove("hidden");
+          delete avatar.dataset.source;
+        }
+        var avatarEdit=document.getElementById("avatarEditBtn");
+        if(avatarEdit){
+          avatarEdit.classList.toggle("hidden",configuredCoachAvatar || !isOwner);
+          avatarEdit.title=configuredCoachAvatar?"Trainerbild wird automatisch aus TIME CLASH übernommen":"Trainerbild ändern";
         }
 
         renderRecentMatches(profile.recent_matches||[]);
