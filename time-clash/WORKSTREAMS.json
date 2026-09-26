@@ -1,0 +1,47 @@
+{
+  "updated_at": "2026-09-26",
+  "policy": "parallel-safe",
+  "merge_gate": {
+    "fresh_branch_from_main": true,
+    "behind_by_must_equal": 0,
+    "full_file_replacement_on_shared_files": false
+  },
+  "workstreams": {
+    "face_head": {
+      "reserved_paths": [
+        "time-clash/avatar-facepack-v5.js"
+      ],
+      "rule": "Only face/head workstream edits this file."
+    },
+    "hair_brows_beards": {
+      "reserved_paths": [
+        "time-clash/avatar-assets-v3.js"
+      ],
+      "rule": "Only modular hair/brow/beard workstream edits this file."
+    },
+    "body_clothing_tattoos": {
+      "reserved_paths": [
+        "time-clash/assets/avatar-bodypack-v1/**"
+      ],
+      "shared_patch_paths": [
+        "time-clash/avatar-engine.js",
+        "time-clash/mein-team/index.html"
+      ],
+      "rule": "Patch only body/clothing/tattoo blocks in shared files."
+    },
+    "media_newspaper": {
+      "reserved_paths": [
+        "time-clash/medien/index.html"
+      ],
+      "rule": "Keep separate unless explicitly required."
+    },
+    "app_i18n": {
+      "open_pr": 6,
+      "rule": "Separate from TIME CLASH avatar work."
+    }
+  },
+  "shared_files": {
+    "time-clash/avatar-engine.js": "patch-only",
+    "time-clash/mein-team/index.html": "patch-only"
+  }
+}
