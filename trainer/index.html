@@ -2204,7 +2204,7 @@
       document.getElementById("publishPostBtn").addEventListener("click",async function(){
         var text = document.getElementById("postText").value.trim();
         if(!text && !selectedImageData && !selectedEmotion) return;
-        var inlineLink=/(?:https?:\/\/|www\.|(?:^|\s)[a-z0-9-]+\.(?:com|net|org|club|io|gg|de|fr|it|es|pt|br)(?:\/|\s|$)|t\.me\/|wa\.me\/)/i;
+        var inlineLink=/(?:https?:\/\/|www\.|(?:^|[\s(])(?:[a-z0-9-]+\.)+(?:com|net|org|club|io|gg|de|fr|it|es|pt|br|co|uk|us|me|info|biz|app|ai)(?=[\/\s,.;:!?)]|$)|t\.me\/|wa\.me\/)/i;
         if(inlineLink.test(text)){
           showToast("Links sind im Beitragstext nicht erlaubt. Nutze das separate Link-Feld.");
           return;
