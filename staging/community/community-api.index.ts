@@ -192,7 +192,9 @@ function screenText(raw:string,kind:"post"|"comment"|"profile",allowExternalLink
   if(SPAM_RE.test(text)){flags.push("spam");severity=Math.max(severity,55)}
   if(EMAIL_RE.test(text)||PHONE_RE.test(text)){flags.push("personal_contact");severity=Math.max(severity,90)}
   if(URL_RE.test(text)&&!allowExternalLink){flags.push("external_link_review");severity=Math.max(severity,55)}
-  const decision=severity>=90?"REJECTED":severity>=50?"PENDING_REVIEW":"PUBLISHED";
+  const needsLinkReview=flags.includes("external_link_review");
+  const hasAutoRejectFlag=flags.some(x=>["abuse","spam","fraud","unsafe_markup","threat","sexual_minor","extremist","personal_contact"].includes(x));
+  const decision=(severity>=90||hasAutoRejectFlag)?"REJECTED":needsLinkReview?"PENDING_REVIEW":"PUBLISHED";
   return {text,flags,score:severity,decision};
 }
 async function clubFor(owner:string,clubId?:string){
