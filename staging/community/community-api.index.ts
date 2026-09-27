@@ -565,15 +565,31 @@ Deno.serve(async(req:Request)=>{
         }
       }
       const mediaMap=new Map(media.map((m:any)=>[m.id,m]));
-      const out=(posts||[]).map((p:any)=>({
+      const clubIds=[...new Set((posts||[]).map((p:any)=>p.club_id).filter(Boolean))];
+      let profileRows:any[]=[],clubRows:any[]=[];
+      if(clubIds.length){
+        const [pp,cc]=await Promise.all([
+          admin.from("community_trainer_profiles").select("club_id,display_name,public_slug").in("club_id",clubIds),
+          admin.from("time_clash_user_clubs").select("id,club_name,coach").in("id",clubIds)
+        ]);
+        if(pp.error)throw pp.error;if(cc.error)throw cc.error;profileRows=pp.data||[];clubRows=cc.data||[];
+      }
+      const profileMap=new Map(profileRows.map((x:any)=>[x.club_id,x])),clubMap=new Map(clubRows.map((x:any)=>[x.id,x]));
+      const out=(posts||[]).map((p:any)=>{
+        const pp:any=profileMap.get(p.club_id)||{},cc:any=clubMap.get(p.club_id)||{};
+        return {
         ...p,
+        author:clean(pp.display_name||cc.coach?.name||"Trainer",80),
+        team_name:clean(cc.club_name||"Mannschaft",120),
+        public_slug:pp.public_slug||null,
         comments:comments.filter((x:any)=>x.post_id===p.id),
         reactions:reactions.filter((x:any)=>x.post_id===p.id),
         media:p.media_id&&mediaMap.has(p.media_id)?{
           ...mediaMap.get(p.media_id),
           public_url:SUPABASE_URL+"/storage/v1/object/public/community-media/"+mediaMap.get(p.media_id).storage_path
         }:null
-      }));
+      }});
+      });
       return json({ok:true,posts:out},200,origin);
     }
 
