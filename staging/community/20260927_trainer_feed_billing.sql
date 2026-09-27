@@ -27,6 +27,21 @@ begin
   end if;
 end $$;
 
+create table if not exists public.community_membership_state (
+  owner_ref text primary key,
+  raw_tier text not null default 'BASIS',
+  effective_tier text not null default 'BASIS',
+  effective_status text not null default 'BASIS',
+  payment_confirmed boolean not null default false,
+  premium_until timestamptz,
+  grace_until timestamptz,
+  auto_renew text,
+  tariff_code text,
+  units_available numeric(12,2) not null default 0,
+  profile_synced_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists public.community_post_charges (
   id uuid primary key default gen_random_uuid(),
   post_id uuid unique references public.community_posts(id) on delete cascade,
@@ -59,6 +74,9 @@ begin
       check (charge_status in ('PENDING','PAID','FAILED','REFUNDED'));
   end if;
 end $$;
+
+create index if not exists community_membership_state_effective_idx
+  on public.community_membership_state(effective_tier,effective_status,updated_at desc);
 
 create index if not exists community_posts_scope_status_created_idx
   on public.community_posts(distribution_scope,status,created_at desc);
