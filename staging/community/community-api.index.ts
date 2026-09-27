@@ -719,8 +719,7 @@ Deno.serve(async(req:Request)=>{
         if(!mq.data) return json({ok:false,error:"MEDIA_NOT_FOUND"},404,origin);
         if(mq.data.status!=="PUBLISHED")return json({ok:false,error:"MEDIA_NOT_READY"},409,origin);
       }
-      const m=who.membership||membershipInfo(who.profile);
-      const month=monthKeyBerlin();
+      const m=who.membership||membershipInfo(who.profile),month=monthKeyBerlin();
       const price=scope==="GLOBAL"?globalPricing(m.effectiveTier):{unit_cost:0,monthly_limit:null};
       const used=scope==="GLOBAL"?await globalUsage(who.owner,month):0;
       if(scope==="GLOBAL"&&price.monthly_limit!=null&&used>=price.monthly_limit)
@@ -729,53 +728,56 @@ Deno.serve(async(req:Request)=>{
         return json({ok:false,error:"INSUFFICIENT_UNITS",required:price.unit_cost,available:m.unitsAvailable},402,origin);
 
       const postId=crypto.randomUUID();
-      let charge:any=null;
-      if(scope==="GLOBAL"){
+      const requiresReview=textResult.decision==="PENDING_REVIEW";
+      const initialStatus=scope==="GLOBAL"&&!requiresReview?"PAYMENT_PENDING":requiresReview?"PENDING_REVIEW":"PUBLISHED";
+      const externalUrl=URL_RE.test(textResult.text)?clean((textResult.text.match(/https?:\/\/[^\s]+/i)||[])[0],1000)||null:null;
+      const baseRow:any={
+        id:postId,club_id:club.id,owner_ref:who.owner,body:textResult.text,emotion:clean(body.emotion,40)||null,
+        media_id:mediaId,external_url:externalUrl,distribution_scope:scope,billing_tier:m.effectiveTier,
+        unit_cost:Number(price.unit_cost||0),unit_charge_status:scope==="GLOBAL"?"PENDING":"NOT_REQUIRED",
+        billing_month:scope==="GLOBAL"?month:null,membership_status_snapshot:m.effectiveStatus,
+        premium_until_snapshot:m.premiumUntil,status:initialStatus,moderation_flags:textResult.flags,
+        moderation_score:textResult.score,published_at:initialStatus==="PUBLISHED"?new Date().toISOString():null
+      };
+      const ins=await admin.from("community_posts").insert(baseRow).select().single();
+      if(ins.error)throw ins.error;
+
+      let finalPost:any=ins.data,charge:any=null;
+      if(scope==="GLOBAL"&&!requiresReview){
         try{
           charge=await unitCall({
             action:"charge",owner_ref:who.owner,credential:clean(body.credential||body.token,300),
             units:price.unit_cost,request_id:"COMMUNITY_POST:"+postId,
             reason:"community_global_post",tier:m.effectiveTier,month_key:month
           });
+          const patch:any={
+            status:"PUBLISHED",unit_charge_status:"PAID",
+            billing_reference:clean(charge?.reference||charge?.transaction_id||"",160)||null,
+            paid_at:new Date().toISOString(),published_at:new Date().toISOString(),updated_at:new Date().toISOString()
+          };
+          const up=await admin.from("community_posts").update(patch).eq("id",postId).select().single();
+          if(up.error)throw up.error;finalPost=up.data;
+          const aq=await admin.from("community_post_charges").insert({
+            post_id:postId,owner_ref:who.owner,club_id:club.id,distribution_scope:"GLOBAL",
+            tier_snapshot:m.effectiveTier,membership_status_snapshot:m.effectiveStatus,premium_until_snapshot:m.premiumUntil,
+            month_key:month,unit_cost:price.unit_cost,charge_status:"PAID",
+            external_reference:patch.billing_reference,balance_before:Number(charge?.balance_before??m.unitsAvailable),
+            balance_after:Number(charge?.balance_after??(m.unitsAvailable-price.unit_cost)),charged_at:new Date().toISOString(),updated_at:new Date().toISOString()
+          });
+          if(aq.error)console.error("post charge audit",aq.error.message);
         }catch(e:any){
-          return json({ok:false,error:e?.message||"UNIT_CHARGE_FAILED",detail:e?.data||null},502,origin);
+          await admin.from("community_posts").update({status:"PAYMENT_FAILED",unit_charge_status:"FAILED",updated_at:new Date().toISOString()}).eq("id",postId);
+          return json({ok:false,error:e?.message||"UNIT_CHARGE_FAILED",post_id:postId,detail:e?.data||null},502,origin);
         }
       }
-      const status=textResult.decision==="PENDING_REVIEW"?"PENDING_REVIEW":"PUBLISHED";
-      const externalUrl=URL_RE.test(textResult.text)?clean((textResult.text.match(/https?:\/\/[^\s]+/i)||[])[0],1000)||null:null;
-      const ins=await admin.from("community_posts").insert({
-        id:postId,club_id:club.id,owner_ref:who.owner,body:textResult.text,emotion:clean(body.emotion,40)||null,
-        media_id:mediaId,external_url:externalUrl,distribution_scope:scope,
-        billing_tier:m.effectiveTier,unit_cost:Number(price.unit_cost||0),
-        unit_charge_status:scope==="GLOBAL"?"PAID":"NOT_REQUIRED",billing_month:scope==="GLOBAL"?month:null,
-        billing_reference:scope==="GLOBAL"?clean(charge?.reference||charge?.transaction_id||"",160)||null:null,
-        paid_at:scope==="GLOBAL"?new Date().toISOString():null,membership_status_snapshot:m.effectiveStatus,
-        premium_until_snapshot:m.premiumUntil,status,moderation_flags:textResult.flags,moderation_score:textResult.score,
-        published_at:status==="PUBLISHED"?new Date().toISOString():null
-      }).select().single();
-      if(ins.error){
-        if(scope==="GLOBAL"&&charge){
-          try{await unitCall({action:"refund",owner_ref:who.owner,units:price.unit_cost,request_id:"COMMUNITY_POST:"+postId,reference:charge?.reference||charge?.transaction_id||"",reason:"community_post_insert_failed"})}catch(_){}
-        }
-        throw ins.error;
-      }
-      if(scope==="GLOBAL"){
-        const aq=await admin.from("community_post_charges").insert({
-          post_id:postId,owner_ref:who.owner,club_id:club.id,distribution_scope:"GLOBAL",
-          tier_snapshot:m.effectiveTier,membership_status_snapshot:m.effectiveStatus,premium_until_snapshot:m.premiumUntil,
-          month_key:month,unit_cost:price.unit_cost,charge_status:"PAID",
-          external_reference:clean(charge?.reference||charge?.transaction_id||"",160)||null,
-          balance_before:Number(charge?.balance_before??m.unitsAvailable),balance_after:Number(charge?.balance_after??(m.unitsAvailable-price.unit_cost)),
-          charged_at:new Date().toISOString(),updated_at:new Date().toISOString()
-        });
-        if(aq.error)console.error("post charge audit",aq.error.message);
-      }
+
       await admin.from("community_user_state").update({last_post_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("owner_ref",who.owner);
-      return json({ok:true,post:ins.data,moderation:{status,flags:textResult.flags},billing:{
-        scope,tier:m.effectiveTier,status:scope==="GLOBAL"?"PAID":"NOT_REQUIRED",unit_cost:Number(price.unit_cost||0),
-        monthly_limit:price.monthly_limit,used_after:scope==="GLOBAL"?used+1:used,
-        remaining:scope==="GLOBAL"&&price.monthly_limit!=null?Math.max(0,price.monthly_limit-used-1):null,
-        balance_after:scope==="GLOBAL"?Number(charge?.balance_after??(m.unitsAvailable-price.unit_cost)):m.unitsAvailable
+      const chargeStatus=scope==="GLOBAL"?(requiresReview?"PENDING":"PAID"):"NOT_REQUIRED";
+      return json({ok:true,post:finalPost,moderation:{status:requiresReview?"PENDING_REVIEW":"PUBLISHED",flags:textResult.flags},billing:{
+        scope,tier:m.effectiveTier,status:chargeStatus,unit_cost:Number(price.unit_cost||0),
+        monthly_limit:price.monthly_limit,used_after:scope==="GLOBAL"&&!requiresReview?used+1:used,
+        remaining:scope==="GLOBAL"&&price.monthly_limit!=null?Math.max(0,price.monthly_limit-used-(requiresReview?0:1)):null,
+        balance_after:scope==="GLOBAL"&&!requiresReview?Number(charge?.balance_after??(m.unitsAvailable-price.unit_cost)):m.unitsAvailable
       }},201,origin);
     }
 
