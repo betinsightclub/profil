@@ -112,7 +112,8 @@ function userButtons(owner){return '<button class="act warn" data-user="'+esc(ow
 function card(x){
   if(x.kind==="report"){
     const t=x.target||{},preview=t.body||t.bio||t.display_name||"Zielinhalt nicht mehr vorhanden";
-    const targetBox='<div class="report-target"><b>Gemeldeter Inhalt · '+esc(t.owner_ref||"")+'</b><div class="content">'+esc(preview)+'</div><div class="meta">Status: '+esc(t.status||t.visibility||"—")+(t.unit_charge_status?' · Feed-Zahlung: '+esc(t.unit_charge_status):'')+'</div></div>';
+    const link=t.external_url?'<div class="meta" style="margin-top:7px">🔗 '+esc(t.external_url)+'</div>':"";
+    const targetBox='<div class="report-target"><b>Gemeldeter Inhalt · '+esc(t.owner_ref||"")+'</b><div class="content">'+esc(preview)+'</div>'+link+'<div class="meta">Status: '+esc(t.status||t.visibility||"—")+(t.unit_charge_status?' · Feed-Zahlung: '+esc(t.unit_charge_status):'')+'</div></div>';
     let targetActions='';
     if(["post","comment","media"].includes(x.target_type)&&t.id){
       targetActions='<button class="act warn" data-decision="HIDE" data-type="'+esc(x.target_type)+'" data-id="'+esc(x.target_id)+'">Inhalt ausblenden</button><button class="act bad" data-decision="DELETE" data-type="'+esc(x.target_type)+'" data-id="'+esc(x.target_id)+'">Inhalt löschen</button>';
@@ -120,6 +121,7 @@ function card(x){
     return '<article class="item"><div class="item-head"><div><span class="badge report-b">MELDUNG</span><b>'+esc(x.reason)+'</b><div class="meta">'+esc(x.target_type)+' · '+esc(x.target_id)+' · '+fmtDate(x.created_at)+'</div></div><div class="meta">von '+esc(x.reporter_ref)+'</div></div><div class="body"><div class="content">'+esc(x.details||"Kein Zusatztext")+'</div>'+targetBox+'</div><div class="actions"><button class="act good" data-dismiss="'+esc(x.target_type)+':'+esc(x.target_id)+'">Meldung verwerfen</button>'+targetActions+(t.owner_ref?userButtons(t.owner_ref):"")+'</div></article>';
   }
   const text=x.body?'<div class="content">'+esc(x.body)+'</div>':"";
+  const link=x.external_url?'<div class="report-target"><b>Externer Link</b><div class="content">'+esc(x.external_url)+'</div><div class="meta">'+(x.unit_charge_status==="RESERVED"?"Units reserviert · bei Freigabe endgültig verbuchen":"Abrechnung: "+esc(x.unit_charge_status||"—"))+'</div></div>':"";
   const media=x.target_type==="media"?'<img class="media" src="'+esc(x.public_url)+'" alt="Zu prüfendes Bild">':"";
   return '<article class="item"><div class="item-head"><div>'+statusBadge(x)+'<span class="badge report-b">'+typeName(x.target_type)+'</span><b>'+esc(x.owner_ref||"")+'</b><div class="meta">'+fmtDate(x.created_at)+' · Meldungen: '+Number(x.report_count||0)+'</div></div><div class="meta">Score '+Number(x.moderation_score||0)+'</div></div><div class="body">'+text+media+'<div class="flags">'+flagsHtml(x.moderation_flags)+'</div></div><div class="actions"><button class="act good" data-decision="PUBLISH" data-type="'+esc(x.target_type)+'" data-id="'+esc(x.id)+'">Freigeben</button><button class="act warn" data-decision="HIDE" data-type="'+esc(x.target_type)+'" data-id="'+esc(x.id)+'">Ausblenden</button><button class="act bad" data-decision="REJECT" data-type="'+esc(x.target_type)+'" data-id="'+esc(x.id)+'">Ablehnen</button><button class="act bad" data-decision="DELETE" data-type="'+esc(x.target_type)+'" data-id="'+esc(x.id)+'">Löschen</button>'+userButtons(x.owner_ref)+'</div></article>';
 }
