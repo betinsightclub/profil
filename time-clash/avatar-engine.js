@@ -137,7 +137,7 @@ function render(a0,name,mini=false,mode="both"){
  const a=normalize(a0),front=mode==="front",view=front?"20 0 180 300":"0 0 300 320",shift=front?20:38,hs=96*(a.headScale/100),hx=90-hs/2+a.headX,hy=8+a.headY,h=headLayers(a,hx,hy,hs,hs);
  return `<svg viewBox="${view}" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="bg" cx=".5" cy=".2" r=".9"><stop stop-color="#10435a"/><stop offset="1" stop-color="#031019"/></radialGradient>${h.defs}</defs><rect width="${front?220:300}" height="330" rx="18" fill="url(#bg)"/><g transform="translate(${shift} 8)">${bodyFront(a,name)}${h.html}${neckAccessory(a)}</g>${front?"":backPanel(a,name)}</svg>`;
 }
-function headSvg(a0,x=0,y=0,w=180,h=145){const a=normalize(a0),layers=headLayers(a);return `<svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 180 145" overflow="visible"><defs>${layers.defs}</defs>${layers.html}</svg>`}
+function headSvg(a0,x=0,y=0,w=180,h=145){const a=normalize(a0),layers=headLayers(a,15,-10,150,150);return `<svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 -28 180 180" overflow="visible" preserveAspectRatio="xMidYMid meet"><defs>${layers.defs}</defs>${layers.html}</svg>`}
 function coachSkinZones(key){
  const hands="M24 198 C20 211 20 228 23 241 C25 249 30 254 36 253 C42 251 46 240 47 226 C48 215 47 204 44 198 Z M136 198 C133 204 132 215 133 226 C134 240 138 251 144 253 C150 254 155 249 157 241 C160 228 160 211 156 198 Z";
  const neck="M79 79 C82 88 98 88 101 79 L100 105 C97 111 83 111 80 105 Z";
