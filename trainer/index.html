@@ -912,6 +912,254 @@
         de:{flag:"🇩🇪",code:"DE"}, en:{flag:"🇬🇧",code:"EN"}, es:{flag:"🇪🇸",code:"ES"},
         fr:{flag:"🇫🇷",code:"FR"}, it:{flag:"🇮🇹",code:"IT"}, pt:{flag:"🇵🇹",code:"PT"}
       };
+      var TRAINER_TEXT = {
+        en:{
+          "Galerie":"Gallery","Trainer Feed":"Trainer Feed","Trainer, Mannschaft oder Beitrag suchen":"Search trainer, team or post",
+          "Hintergrund ändern":"Change cover","Trainerprofil":"Trainer profile","Mannschaft":"Team","Trainer":"Coach","Startliga":"Starting league",
+          "Profil wird geladen …":"Loading profile …","Noch kein Pokal gewonnen":"No trophy won yet","Beitrag":"Post","Profil teilen":"Share profile","Folgen":"Follow",
+          "Gesamtrangliste · Clash Points":"Overall ranking · Clash Points","Rangliste wird geladen …":"Loading ranking …","Beiträge":"Posts","Spielberichte":"Match reports",
+          "Info":"Info","gespeicherte Serien":"saved series","Noch keine Spielberichte vorhanden.":"No match reports yet.","Medien":"media",
+          "Noch keine veröffentlichten Bilder oder Spielszenen vorhanden.":"No published images or match scenes yet.","Spieler":"players","Startelf":"Starting XI",
+          "Spieler 1–11":"Players 1–11","Keine Startelf gespeichert.":"No starting XI saved.","Ersatzspieler":"Substitutes","Bank":"Bench","Keine Ersatzspieler gespeichert.":"No substitutes saved.",
+          "Team & Trainer":"Team & coach","Echte Profildaten":"Real profile data","Über den Trainer":"About the coach","Bearbeiten":"Edit","Trainerprofil von":"Coach profile of",
+          "BetInsight Mannschaft erstellt":"BetInsight team created","Öffentliches Profil · teilbar":"Public profile · shareable","Spiele":"Matches","Siege":"Wins","Quote":"Rate",
+          "Durch Spiele erreichte Ränge":"Ranks earned through matches","Noch kein Rang durch Spiele erreicht.":"No rank earned through matches yet.","Berichte & Galerie":"Reports & gallery",
+          "Alle ansehen":"View all","Noch keine Berichte oder Bilder vorhanden.":"No reports or images yet.","Letzte Spiele":"Recent matches","Alle Berichte":"All reports","Noch keine Spiele gespeichert.":"No matches saved yet.",
+          "Like":"Like","Live-Alarm":"Live alert","Herz":"Heart","Jubel":"Cheer","Heißer Tipp":"Hot tip","Gewonnen":"Won","Okay":"Okay","Danke":"Thanks",
+          "Nur auf meinem Profil":"Only on my profile","Kostenlos · 0 Units":"Free · 0 units","Trainer Feed + alle Profile":"Trainer Feed + all profiles","Preis wird geladen …":"Loading price …",
+          "Eigene Profilbeiträge bleiben kostenlos. Nur die globale Veröffentlichung kostet Units.":"Posts on your own profile stay free. Only global publishing costs units.",
+          "Externen Link hinzufügen":"Add external link","Links sind nur über dieses Feld erlaubt. Die Units werden bis zur Freigabe reserviert.":"Links are only allowed through this field. Units are reserved until approval.",
+          "Bild":"Image","Emoji":"Emoji","BetInsight Sticker":"BetInsight sticker","Spielbericht":"Match report","Posten":"Post",
+          "Andere Trainer":"Other coaches","Weitere Trainerprofile werden geladen …":"Loading more coach profiles …","Einladungslink kopieren":"Copy invitation link",
+          "Öffentliche Besucher können lesen und teilen. Schreiben, kommentieren und reagieren ist für eingeloggte BetInsight-Mitglieder vorgesehen.":"Public visitors can read and share. Posting, commenting and reacting are for signed-in BetInsight members.",
+          "Community-Regeln":"Community rules","Respektvoll und sportbezogen schreiben":"Write respectfully and keep it sports-related","Keine externen Links in Kommentaren":"No external links in comments",
+          "Beiträge und Kommentare können gemeldet werden":"Posts and comments can be reported","Externe Links nur über das separate Link-Feld bei globalen Posts":"External links only through the separate link field on global posts",
+          "Beitrag teilen":"Share post","Link zum Beitrag teilen oder kopieren.":"Share or copy the post link.","Schließen":"Close","Link kopieren":"Copy link",
+          "Trainerprofil bearbeiten":"Edit coach profile","Diese Angaben sind öffentlich. Du kannst sie auch später jederzeit ergänzen oder ändern.":"This information is public. You can add or change it at any time later.",
+          "Trainername":"Coach name","Land":"Country","Stadt / Region":"City / region","Über mich":"About me","Sichtbarkeit":"Visibility","Öffentlich":"Public","Nur über direkten Link":"Direct link only","Privat":"Private",
+          "Abbrechen":"Cancel","Speichern":"Save","Inhalt melden":"Report content","Wähle den Grund. Meldungen werden im Adminbereich geprüft. Drei unabhängige offene Meldungen können einen Beitrag vorübergehend ausblenden.":"Choose a reason. Reports are reviewed in the admin area. Three independent open reports can temporarily hide a post.",
+          "Spam / unerlaubte Werbung":"Spam / unauthorized advertising","Beleidigung / Belästigung":"Insult / harassment","Hass / diskriminierender Inhalt":"Hate / discriminatory content","Sexueller Inhalt":"Sexual content",
+          "Gewalt / Drohung":"Violence / threat","Betrug / Scam":"Fraud / scam","Persönliche Daten":"Personal data","Möglicherweise rechtswidrig":"Possibly illegal","Sonstiger Grund":"Other reason",
+          "Missbräuchliche Meldungen werden ebenfalls protokolliert.":"Abusive reports are also logged.","Meldung senden":"Send report","Gespeichert":"Saved",
+          "Trainer und Mannschaften suchen":"Search coaches and teams","Konto":"Account","Trainerbild ändern":"Change coach image","Profilbereiche":"Profile sections","Emoji auswählen":"Choose emoji","BetInsight Sticker auswählen":"Choose BetInsight sticker","Bild entfernen":"Remove image",
+          "Was möchtest du mit deiner Trainer-Community teilen?":"What would you like to share with your coach community?","Optional – z. B. dein Trainername":"Optional – e.g. your coach name","Optional – kurze Beschreibung deines Trainerprofils":"Optional – short description of your coach profile","Optional: kurze Erklärung":"Optional: short explanation",
+          "Profil nicht gefunden":"Profile not found","Dieses Trainerprofil ist nicht öffentlich verfügbar.":"This coach profile is not publicly available.","Noch keine weiteren öffentlichen Trainerprofile.":"No other public coach profiles yet.","Weitere Trainerprofile sind momentan nicht verfügbar.":"More coach profiles are currently unavailable.",
+          "Niederlagen":"Losses","Siegquote":"Win rate","Tore":"Goals","Ort":"Location","Team erstellt":"Team created","Trainer-Stil":"Coach style","Liga":"League","Gesamtrang":"Overall rank",
+          "Ausführlichen Bericht öffnen →":"Open full report →","Bericht wird noch vorbereitet.":"Report is still being prepared.","Noch keine Beiträge veröffentlicht.":"No posts published yet.","Gefällt mir":"Like","Antworten":"Reply","Kommentare":"Comments","Teilen":"Share","gerade eben":"just now"
+        },
+        es:{
+          "Galerie":"Galería","Trainer Feed":"Feed de entrenadores","Trainer, Mannschaft oder Beitrag suchen":"Buscar entrenador, equipo o publicación",
+          "Hintergrund ändern":"Cambiar portada","Trainerprofil":"Perfil del entrenador","Mannschaft":"Equipo","Trainer":"Entrenador","Startliga":"Liga inicial",
+          "Profil wird geladen …":"Cargando perfil …","Noch kein Pokal gewonnen":"Aún no ha ganado ningún trofeo","Beitrag":"Publicación","Profil teilen":"Compartir perfil","Folgen":"Seguir",
+          "Gesamtrangliste · Clash Points":"Clasificación general · Clash Points","Rangliste wird geladen …":"Cargando clasificación …","Beiträge":"Publicaciones","Spielberichte":"Informes de partidos",
+          "Info":"Información","gespeicherte Serien":"series guardadas","Noch keine Spielberichte vorhanden.":"Aún no hay informes de partidos.","Medien":"archivos multimedia",
+          "Noch keine veröffentlichten Bilder oder Spielszenen vorhanden.":"Aún no hay imágenes ni escenas de partidos publicadas.","Spieler":"jugadores","Startelf":"Once inicial",
+          "Spieler 1–11":"Jugadores 1–11","Keine Startelf gespeichert.":"No hay once inicial guardado.","Ersatzspieler":"Suplentes","Bank":"Banquillo","Keine Ersatzspieler gespeichert.":"No hay suplentes guardados.",
+          "Team & Trainer":"Equipo y entrenador","Echte Profildaten":"Datos reales del perfil","Über den Trainer":"Sobre el entrenador","Bearbeiten":"Editar","Trainerprofil von":"Perfil de entrenador de",
+          "BetInsight Mannschaft erstellt":"Equipo BetInsight creado","Öffentliches Profil · teilbar":"Perfil público · compartible","Spiele":"Partidos","Siege":"Victorias","Quote":"Porcentaje",
+          "Durch Spiele erreichte Ränge":"Rangos alcanzados jugando","Noch kein Rang durch Spiele erreicht.":"Aún no se ha alcanzado ningún rango jugando.","Berichte & Galerie":"Informes y galería",
+          "Alle ansehen":"Ver todo","Noch keine Berichte oder Bilder vorhanden.":"Aún no hay informes ni imágenes.","Letzte Spiele":"Últimos partidos","Alle Berichte":"Todos los informes","Noch keine Spiele gespeichert.":"Aún no hay partidos guardados.",
+          "Like":"Me gusta","Live-Alarm":"Alerta en vivo","Herz":"Corazón","Jubel":"Celebración","Heißer Tipp":"Consejo destacado","Gewonnen":"Ganado","Okay":"De acuerdo","Danke":"Gracias",
+          "Nur auf meinem Profil":"Solo en mi perfil","Kostenlos · 0 Units":"Gratis · 0 unidades","Trainer Feed + alle Profile":"Feed de entrenadores + todos los perfiles","Preis wird geladen …":"Cargando precio …",
+          "Eigene Profilbeiträge bleiben kostenlos. Nur die globale Veröffentlichung kostet Units.":"Las publicaciones en tu propio perfil siguen siendo gratuitas. Solo la publicación global cuesta unidades.",
+          "Externen Link hinzufügen":"Añadir enlace externo","Links sind nur über dieses Feld erlaubt. Die Units werden bis zur Freigabe reserviert.":"Los enlaces solo están permitidos a través de este campo. Las unidades se reservan hasta la aprobación.",
+          "Bild":"Imagen","Emoji":"Emoji","BetInsight Sticker":"Sticker de BetInsight","Spielbericht":"Informe del partido","Posten":"Publicar",
+          "Andere Trainer":"Otros entrenadores","Weitere Trainerprofile werden geladen …":"Cargando más perfiles de entrenadores …","Einladungslink kopieren":"Copiar enlace de invitación",
+          "Öffentliche Besucher können lesen und teilen. Schreiben, kommentieren und reagieren ist für eingeloggte BetInsight-Mitglieder vorgesehen.":"Los visitantes pueden leer y compartir. Publicar, comentar y reaccionar está reservado a miembros de BetInsight con sesión iniciada.",
+          "Community-Regeln":"Reglas de la comunidad","Respektvoll und sportbezogen schreiben":"Escribe con respeto y sobre temas deportivos","Keine externen Links in Kommentaren":"Sin enlaces externos en los comentarios",
+          "Beiträge und Kommentare können gemeldet werden":"Las publicaciones y comentarios se pueden denunciar","Externe Links nur über das separate Link-Feld bei globalen Posts":"Enlaces externos solo mediante el campo separado en publicaciones globales",
+          "Beitrag teilen":"Compartir publicación","Link zum Beitrag teilen oder kopieren.":"Comparte o copia el enlace de la publicación.","Schließen":"Cerrar","Link kopieren":"Copiar enlace",
+          "Trainerprofil bearbeiten":"Editar perfil del entrenador","Diese Angaben sind öffentlich. Du kannst sie auch später jederzeit ergänzen oder ändern.":"Estos datos son públicos. Puedes completarlos o modificarlos en cualquier momento.",
+          "Trainername":"Nombre del entrenador","Land":"País","Stadt / Region":"Ciudad / región","Über mich":"Sobre mí","Sichtbarkeit":"Visibilidad","Öffentlich":"Público","Nur über direkten Link":"Solo mediante enlace directo","Privat":"Privado",
+          "Abbrechen":"Cancelar","Speichern":"Guardar","Inhalt melden":"Denunciar contenido","Wähle den Grund. Meldungen werden im Adminbereich geprüft. Drei unabhängige offene Meldungen können einen Beitrag vorübergehend ausblenden.":"Elige el motivo. Las denuncias se revisan en el área de administración. Tres denuncias abiertas independientes pueden ocultar temporalmente una publicación.",
+          "Spam / unerlaubte Werbung":"Spam / publicidad no autorizada","Beleidigung / Belästigung":"Insulto / acoso","Hass / diskriminierender Inhalt":"Odio / contenido discriminatorio","Sexueller Inhalt":"Contenido sexual",
+          "Gewalt / Drohung":"Violencia / amenaza","Betrug / Scam":"Fraude / estafa","Persönliche Daten":"Datos personales","Möglicherweise rechtswidrig":"Posiblemente ilegal","Sonstiger Grund":"Otro motivo",
+          "Missbräuchliche Meldungen werden ebenfalls protokolliert.":"Las denuncias abusivas también quedan registradas.","Meldung senden":"Enviar denuncia","Gespeichert":"Guardado",
+          "Trainer und Mannschaften suchen":"Buscar entrenadores y equipos","Konto":"Cuenta","Trainerbild ändern":"Cambiar imagen del entrenador","Profilbereiche":"Secciones del perfil","Emoji auswählen":"Elegir emoji","BetInsight Sticker auswählen":"Elegir sticker de BetInsight","Bild entfernen":"Eliminar imagen",
+          "Was möchtest du mit deiner Trainer-Community teilen?":"¿Qué quieres compartir con tu comunidad de entrenadores?","Optional – z. B. dein Trainername":"Opcional – p. ej., tu nombre de entrenador","Optional – kurze Beschreibung deines Trainerprofils":"Opcional – breve descripción de tu perfil de entrenador","Optional: kurze Erklärung":"Opcional: breve explicación",
+          "Profil nicht gefunden":"Perfil no encontrado","Dieses Trainerprofil ist nicht öffentlich verfügbar.":"Este perfil de entrenador no está disponible públicamente.","Noch keine weiteren öffentlichen Trainerprofile.":"Aún no hay otros perfiles públicos de entrenadores.","Weitere Trainerprofile sind momentan nicht verfügbar.":"Actualmente no hay más perfiles de entrenadores disponibles.",
+          "Niederlagen":"Derrotas","Siegquote":"Porcentaje de victorias","Tore":"Goles","Ort":"Ubicación","Team erstellt":"Equipo creado","Trainer-Stil":"Estilo del entrenador","Liga":"Liga","Gesamtrang":"Clasificación general",
+          "Ausführlichen Bericht öffnen →":"Abrir informe completo →","Bericht wird noch vorbereitet.":"El informe aún se está preparando.","Noch keine Beiträge veröffentlicht.":"Aún no hay publicaciones.","Gefällt mir":"Me gusta","Antworten":"Responder","Kommentare":"Comentarios","Teilen":"Compartir","gerade eben":"ahora mismo"
+        },
+        fr:{
+          "Galerie":"Galerie","Trainer Feed":"Fil des entraîneurs","Trainer, Mannschaft oder Beitrag suchen":"Rechercher un entraîneur, une équipe ou une publication",
+          "Hintergrund ändern":"Changer la couverture","Trainerprofil":"Profil de l’entraîneur","Mannschaft":"Équipe","Trainer":"Entraîneur","Startliga":"Ligue de départ",
+          "Profil wird geladen …":"Chargement du profil …","Noch kein Pokal gewonnen":"Aucun trophée remporté pour le moment","Beitrag":"Publication","Profil teilen":"Partager le profil","Folgen":"Suivre",
+          "Gesamtrangliste · Clash Points":"Classement général · Clash Points","Rangliste wird geladen …":"Chargement du classement …","Beiträge":"Publications","Spielberichte":"Rapports de match",
+          "Info":"Infos","gespeicherte Serien":"séries enregistrées","Noch keine Spielberichte vorhanden.":"Aucun rapport de match pour le moment.","Medien":"médias",
+          "Noch keine veröffentlichten Bilder oder Spielszenen vorhanden.":"Aucune image ni scène de match publiée pour le moment.","Spieler":"joueurs","Startelf":"Onze de départ",
+          "Spieler 1–11":"Joueurs 1–11","Keine Startelf gespeichert.":"Aucun onze de départ enregistré.","Ersatzspieler":"Remplaçants","Bank":"Banc","Keine Ersatzspieler gespeichert.":"Aucun remplaçant enregistré.",
+          "Team & Trainer":"Équipe et entraîneur","Echte Profildaten":"Données réelles du profil","Über den Trainer":"À propos de l’entraîneur","Bearbeiten":"Modifier","Trainerprofil von":"Profil d’entraîneur de",
+          "BetInsight Mannschaft erstellt":"Équipe BetInsight créée","Öffentliches Profil · teilbar":"Profil public · partageable","Spiele":"Matchs","Siege":"Victoires","Quote":"Taux",
+          "Durch Spiele erreichte Ränge":"Rangs obtenus en jouant","Noch kein Rang durch Spiele erreicht.":"Aucun rang obtenu en jouant pour le moment.","Berichte & Galerie":"Rapports et galerie",
+          "Alle ansehen":"Tout voir","Noch keine Berichte oder Bilder vorhanden.":"Aucun rapport ni image pour le moment.","Letzte Spiele":"Derniers matchs","Alle Berichte":"Tous les rapports","Noch keine Spiele gespeichert.":"Aucun match enregistré.",
+          "Like":"J’aime","Live-Alarm":"Alerte en direct","Herz":"Cœur","Jubel":"Célébration","Heißer Tipp":"Conseil chaud","Gewonnen":"Gagné","Okay":"OK","Danke":"Merci",
+          "Nur auf meinem Profil":"Uniquement sur mon profil","Kostenlos · 0 Units":"Gratuit · 0 unités","Trainer Feed + alle Profile":"Fil des entraîneurs + tous les profils","Preis wird geladen …":"Chargement du prix …",
+          "Eigene Profilbeiträge bleiben kostenlos. Nur die globale Veröffentlichung kostet Units.":"Les publications sur votre propre profil restent gratuites. Seule la publication globale coûte des unités.",
+          "Externen Link hinzufügen":"Ajouter un lien externe","Links sind nur über dieses Feld erlaubt. Die Units werden bis zur Freigabe reserviert.":"Les liens sont autorisés uniquement via ce champ. Les unités sont réservées jusqu’à l’approbation.",
+          "Bild":"Image","Emoji":"Emoji","BetInsight Sticker":"Sticker BetInsight","Spielbericht":"Rapport de match","Posten":"Publier",
+          "Andere Trainer":"Autres entraîneurs","Weitere Trainerprofile werden geladen …":"Chargement d’autres profils d’entraîneurs …","Einladungslink kopieren":"Copier le lien d’invitation",
+          "Öffentliche Besucher können lesen und teilen. Schreiben, kommentieren und reagieren ist für eingeloggte BetInsight-Mitglieder vorgesehen.":"Les visiteurs peuvent lire et partager. Publier, commenter et réagir est réservé aux membres BetInsight connectés.",
+          "Community-Regeln":"Règles de la communauté","Respektvoll und sportbezogen schreiben":"Écrivez avec respect et restez dans le thème du sport","Keine externen Links in Kommentaren":"Aucun lien externe dans les commentaires",
+          "Beiträge und Kommentare können gemeldet werden":"Les publications et commentaires peuvent être signalés","Externe Links nur über das separate Link-Feld bei globalen Posts":"Liens externes uniquement via le champ séparé des publications globales",
+          "Beitrag teilen":"Partager la publication","Link zum Beitrag teilen oder kopieren.":"Partager ou copier le lien de la publication.","Schließen":"Fermer","Link kopieren":"Copier le lien",
+          "Trainerprofil bearbeiten":"Modifier le profil de l’entraîneur","Diese Angaben sind öffentlich. Du kannst sie auch später jederzeit ergänzen oder ändern.":"Ces informations sont publiques. Vous pouvez les compléter ou les modifier à tout moment.",
+          "Trainername":"Nom de l’entraîneur","Land":"Pays","Stadt / Region":"Ville / région","Über mich":"À propos de moi","Sichtbarkeit":"Visibilité","Öffentlich":"Public","Nur über direkten Link":"Lien direct uniquement","Privat":"Privé",
+          "Abbrechen":"Annuler","Speichern":"Enregistrer","Inhalt melden":"Signaler le contenu","Wähle den Grund. Meldungen werden im Adminbereich geprüft. Drei unabhängige offene Meldungen können einen Beitrag vorübergehend ausblenden.":"Choisissez le motif. Les signalements sont examinés dans l’administration. Trois signalements ouverts indépendants peuvent masquer temporairement une publication.",
+          "Spam / unerlaubte Werbung":"Spam / publicité non autorisée","Beleidigung / Belästigung":"Insulte / harcèlement","Hass / diskriminierender Inhalt":"Haine / contenu discriminatoire","Sexueller Inhalt":"Contenu sexuel",
+          "Gewalt / Drohung":"Violence / menace","Betrug / Scam":"Fraude / arnaque","Persönliche Daten":"Données personnelles","Möglicherweise rechtswidrig":"Potentiellement illégal","Sonstiger Grund":"Autre motif",
+          "Missbräuchliche Meldungen werden ebenfalls protokolliert.":"Les signalements abusifs sont également enregistrés.","Meldung senden":"Envoyer le signalement","Gespeichert":"Enregistré",
+          "Trainer und Mannschaften suchen":"Rechercher des entraîneurs et des équipes","Konto":"Compte","Trainerbild ändern":"Changer l’image de l’entraîneur","Profilbereiche":"Sections du profil","Emoji auswählen":"Choisir un emoji","BetInsight Sticker auswählen":"Choisir un sticker BetInsight","Bild entfernen":"Supprimer l’image",
+          "Was möchtest du mit deiner Trainer-Community teilen?":"Que souhaitez-vous partager avec votre communauté d’entraîneurs ?","Optional – z. B. dein Trainername":"Facultatif – p. ex. votre nom d’entraîneur","Optional – kurze Beschreibung deines Trainerprofils":"Facultatif – courte description de votre profil d’entraîneur","Optional: kurze Erklärung":"Facultatif : brève explication",
+          "Profil nicht gefunden":"Profil introuvable","Dieses Trainerprofil ist nicht öffentlich verfügbar.":"Ce profil d’entraîneur n’est pas disponible publiquement.","Noch keine weiteren öffentlichen Trainerprofile.":"Aucun autre profil public d’entraîneur pour le moment.","Weitere Trainerprofile sind momentan nicht verfügbar.":"D’autres profils d’entraîneurs ne sont pas disponibles pour le moment.",
+          "Niederlagen":"Défaites","Siegquote":"Taux de victoire","Tore":"Buts","Ort":"Lieu","Team erstellt":"Équipe créée","Trainer-Stil":"Style de l’entraîneur","Liga":"Ligue","Gesamtrang":"Classement général",
+          "Ausführlichen Bericht öffnen →":"Ouvrir le rapport complet →","Bericht wird noch vorbereitet.":"Le rapport est encore en préparation.","Noch keine Beiträge veröffentlicht.":"Aucune publication pour le moment.","Gefällt mir":"J’aime","Antworten":"Répondre","Kommentare":"Commentaires","Teilen":"Partager","gerade eben":"à l’instant"
+        },
+        it:{
+          "Galerie":"Galleria","Trainer Feed":"Feed allenatori","Trainer, Mannschaft oder Beitrag suchen":"Cerca allenatore, squadra o post",
+          "Hintergrund ändern":"Cambia copertina","Trainerprofil":"Profilo allenatore","Mannschaft":"Squadra","Trainer":"Allenatore","Startliga":"Lega iniziale",
+          "Profil wird geladen …":"Caricamento profilo …","Noch kein Pokal gewonnen":"Nessun trofeo vinto finora","Beitrag":"Post","Profil teilen":"Condividi profilo","Folgen":"Segui",
+          "Gesamtrangliste · Clash Points":"Classifica generale · Clash Points","Rangliste wird geladen …":"Caricamento classifica …","Beiträge":"Post","Spielberichte":"Rapporti partita",
+          "Info":"Info","gespeicherte Serien":"serie salvate","Noch keine Spielberichte vorhanden.":"Nessun rapporto partita disponibile.","Medien":"media",
+          "Noch keine veröffentlichten Bilder oder Spielszenen vorhanden.":"Nessuna immagine o scena di partita pubblicata.","Spieler":"giocatori","Startelf":"Formazione titolare",
+          "Spieler 1–11":"Giocatori 1–11","Keine Startelf gespeichert.":"Nessuna formazione titolare salvata.","Ersatzspieler":"Riserve","Bank":"Panchina","Keine Ersatzspieler gespeichert.":"Nessuna riserva salvata.",
+          "Team & Trainer":"Squadra e allenatore","Echte Profildaten":"Dati reali del profilo","Über den Trainer":"Informazioni sull’allenatore","Bearbeiten":"Modifica","Trainerprofil von":"Profilo allenatore di",
+          "BetInsight Mannschaft erstellt":"Squadra BetInsight creata","Öffentliches Profil · teilbar":"Profilo pubblico · condivisibile","Spiele":"Partite","Siege":"Vittorie","Quote":"Percentuale",
+          "Durch Spiele erreichte Ränge":"Gradi raggiunti giocando","Noch kein Rang durch Spiele erreicht.":"Nessun grado raggiunto giocando.","Berichte & Galerie":"Rapporti e galleria",
+          "Alle ansehen":"Vedi tutto","Noch keine Berichte oder Bilder vorhanden.":"Nessun rapporto o immagine disponibile.","Letzte Spiele":"Ultime partite","Alle Berichte":"Tutti i rapporti","Noch keine Spiele gespeichert.":"Nessuna partita salvata.",
+          "Like":"Mi piace","Live-Alarm":"Allarme live","Herz":"Cuore","Jubel":"Esultanza","Heißer Tipp":"Dritta calda","Gewonnen":"Vinto","Okay":"OK","Danke":"Grazie",
+          "Nur auf meinem Profil":"Solo sul mio profilo","Kostenlos · 0 Units":"Gratis · 0 unità","Trainer Feed + alle Profile":"Feed allenatori + tutti i profili","Preis wird geladen …":"Caricamento prezzo …",
+          "Eigene Profilbeiträge bleiben kostenlos. Nur die globale Veröffentlichung kostet Units.":"I post sul tuo profilo restano gratuiti. Solo la pubblicazione globale costa unità.",
+          "Externen Link hinzufügen":"Aggiungi link esterno","Links sind nur über dieses Feld erlaubt. Die Units werden bis zur Freigabe reserviert.":"I link sono consentiti solo tramite questo campo. Le unità vengono riservate fino all’approvazione.",
+          "Bild":"Immagine","Emoji":"Emoji","BetInsight Sticker":"Sticker BetInsight","Spielbericht":"Rapporto partita","Posten":"Pubblica",
+          "Andere Trainer":"Altri allenatori","Weitere Trainerprofile werden geladen …":"Caricamento di altri profili allenatore …","Einladungslink kopieren":"Copia link di invito",
+          "Öffentliche Besucher können lesen und teilen. Schreiben, kommentieren und reagieren ist für eingeloggte BetInsight-Mitglieder vorgesehen.":"I visitatori possono leggere e condividere. Pubblicare, commentare e reagire è riservato ai membri BetInsight connessi.",
+          "Community-Regeln":"Regole della community","Respektvoll und sportbezogen schreiben":"Scrivi con rispetto e resta in tema sportivo","Keine externen Links in Kommentaren":"Nessun link esterno nei commenti",
+          "Beiträge und Kommentare können gemeldet werden":"Post e commenti possono essere segnalati","Externe Links nur über das separate Link-Feld bei globalen Posts":"Link esterni solo tramite il campo separato nei post globali",
+          "Beitrag teilen":"Condividi post","Link zum Beitrag teilen oder kopieren.":"Condividi o copia il link del post.","Schließen":"Chiudi","Link kopieren":"Copia link",
+          "Trainerprofil bearbeiten":"Modifica profilo allenatore","Diese Angaben sind öffentlich. Du kannst sie auch später jederzeit ergänzen oder ändern.":"Queste informazioni sono pubbliche. Puoi aggiungerle o modificarle in qualsiasi momento.",
+          "Trainername":"Nome allenatore","Land":"Paese","Stadt / Region":"Città / regione","Über mich":"Su di me","Sichtbarkeit":"Visibilità","Öffentlich":"Pubblico","Nur über direkten Link":"Solo tramite link diretto","Privat":"Privato",
+          "Abbrechen":"Annulla","Speichern":"Salva","Inhalt melden":"Segnala contenuto","Wähle den Grund. Meldungen werden im Adminbereich geprüft. Drei unabhängige offene Meldungen können einen Beitrag vorübergehend ausblenden.":"Scegli il motivo. Le segnalazioni vengono controllate nell’area admin. Tre segnalazioni aperte indipendenti possono nascondere temporaneamente un post.",
+          "Spam / unerlaubte Werbung":"Spam / pubblicità non autorizzata","Beleidigung / Belästigung":"Insulto / molestie","Hass / diskriminierender Inhalt":"Odio / contenuto discriminatorio","Sexueller Inhalt":"Contenuto sessuale",
+          "Gewalt / Drohung":"Violenza / minaccia","Betrug / Scam":"Frode / truffa","Persönliche Daten":"Dati personali","Möglicherweise rechtswidrig":"Potenzialmente illegale","Sonstiger Grund":"Altro motivo",
+          "Missbräuchliche Meldungen werden ebenfalls protokolliert.":"Anche le segnalazioni abusive vengono registrate.","Meldung senden":"Invia segnalazione","Gespeichert":"Salvato",
+          "Trainer und Mannschaften suchen":"Cerca allenatori e squadre","Konto":"Account","Trainerbild ändern":"Cambia immagine allenatore","Profilbereiche":"Sezioni del profilo","Emoji auswählen":"Scegli emoji","BetInsight Sticker auswählen":"Scegli sticker BetInsight","Bild entfernen":"Rimuovi immagine",
+          "Was möchtest du mit deiner Trainer-Community teilen?":"Cosa vuoi condividere con la tua community di allenatori?","Optional – z. B. dein Trainername":"Facoltativo – ad es. il tuo nome da allenatore","Optional – kurze Beschreibung deines Trainerprofils":"Facoltativo – breve descrizione del profilo allenatore","Optional: kurze Erklärung":"Facoltativo: breve spiegazione",
+          "Profil nicht gefunden":"Profilo non trovato","Dieses Trainerprofil ist nicht öffentlich verfügbar.":"Questo profilo allenatore non è disponibile pubblicamente.","Noch keine weiteren öffentlichen Trainerprofile.":"Non ci sono ancora altri profili pubblici di allenatori.","Weitere Trainerprofile sind momentan nicht verfügbar.":"Al momento non sono disponibili altri profili allenatore.",
+          "Niederlagen":"Sconfitte","Siegquote":"Percentuale vittorie","Tore":"Gol","Ort":"Località","Team erstellt":"Squadra creata","Trainer-Stil":"Stile allenatore","Liga":"Lega","Gesamtrang":"Classifica generale",
+          "Ausführlichen Bericht öffnen →":"Apri rapporto completo →","Bericht wird noch vorbereitet.":"Il rapporto è ancora in preparazione.","Noch keine Beiträge veröffentlicht.":"Nessun post pubblicato.","Gefällt mir":"Mi piace","Antworten":"Rispondi","Kommentare":"Commenti","Teilen":"Condividi","gerade eben":"proprio ora"
+        },
+        pt:{
+          "Galerie":"Galeria","Trainer Feed":"Feed de treinadores","Trainer, Mannschaft oder Beitrag suchen":"Pesquisar treinador, equipa ou publicação",
+          "Hintergrund ändern":"Alterar capa","Trainerprofil":"Perfil do treinador","Mannschaft":"Equipa","Trainer":"Treinador","Startliga":"Liga inicial",
+          "Profil wird geladen …":"A carregar perfil …","Noch kein Pokal gewonnen":"Ainda não ganhou nenhum troféu","Beitrag":"Publicação","Profil teilen":"Partilhar perfil","Folgen":"Seguir",
+          "Gesamtrangliste · Clash Points":"Classificação geral · Clash Points","Rangliste wird geladen …":"A carregar classificação …","Beiträge":"Publicações","Spielberichte":"Relatórios de jogos",
+          "Info":"Informação","gespeicherte Serien":"séries guardadas","Noch keine Spielberichte vorhanden.":"Ainda não existem relatórios de jogos.","Medien":"multimédia",
+          "Noch keine veröffentlichten Bilder oder Spielszenen vorhanden.":"Ainda não existem imagens ou cenas de jogo publicadas.","Spieler":"jogadores","Startelf":"Onze inicial",
+          "Spieler 1–11":"Jogadores 1–11","Keine Startelf gespeichert.":"Nenhum onze inicial guardado.","Ersatzspieler":"Suplentes","Bank":"Banco","Keine Ersatzspieler gespeichert.":"Nenhum suplente guardado.",
+          "Team & Trainer":"Equipa e treinador","Echte Profildaten":"Dados reais do perfil","Über den Trainer":"Sobre o treinador","Bearbeiten":"Editar","Trainerprofil von":"Perfil de treinador de",
+          "BetInsight Mannschaft erstellt":"Equipa BetInsight criada","Öffentliches Profil · teilbar":"Perfil público · partilhável","Spiele":"Jogos","Siege":"Vitórias","Quote":"Taxa",
+          "Durch Spiele erreichte Ränge":"Níveis alcançados através dos jogos","Noch kein Rang durch Spiele erreicht.":"Ainda não foi alcançado nenhum nível através dos jogos.","Berichte & Galerie":"Relatórios e galeria",
+          "Alle ansehen":"Ver tudo","Noch keine Berichte oder Bilder vorhanden.":"Ainda não existem relatórios ou imagens.","Letzte Spiele":"Jogos recentes","Alle Berichte":"Todos os relatórios","Noch keine Spiele gespeichert.":"Ainda não existem jogos guardados.",
+          "Like":"Gosto","Live-Alarm":"Alerta ao vivo","Herz":"Coração","Jubel":"Celebração","Heißer Tipp":"Dica quente","Gewonnen":"Ganho","Okay":"OK","Danke":"Obrigado",
+          "Nur auf meinem Profil":"Apenas no meu perfil","Kostenlos · 0 Units":"Grátis · 0 unidades","Trainer Feed + alle Profile":"Feed de treinadores + todos os perfis","Preis wird geladen …":"A carregar preço …",
+          "Eigene Profilbeiträge bleiben kostenlos. Nur die globale Veröffentlichung kostet Units.":"As publicações no teu próprio perfil continuam gratuitas. Apenas a publicação global custa unidades.",
+          "Externen Link hinzufügen":"Adicionar link externo","Links sind nur über dieses Feld erlaubt. Die Units werden bis zur Freigabe reserviert.":"Os links só são permitidos através deste campo. As unidades ficam reservadas até à aprovação.",
+          "Bild":"Imagem","Emoji":"Emoji","BetInsight Sticker":"Sticker BetInsight","Spielbericht":"Relatório do jogo","Posten":"Publicar",
+          "Andere Trainer":"Outros treinadores","Weitere Trainerprofile werden geladen …":"A carregar mais perfis de treinadores …","Einladungslink kopieren":"Copiar link de convite",
+          "Öffentliche Besucher können lesen und teilen. Schreiben, kommentieren und reagieren ist für eingeloggte BetInsight-Mitglieder vorgesehen.":"Os visitantes podem ler e partilhar. Publicar, comentar e reagir é reservado a membros BetInsight com sessão iniciada.",
+          "Community-Regeln":"Regras da comunidade","Respektvoll und sportbezogen schreiben":"Escreve com respeito e mantém o tema desportivo","Keine externen Links in Kommentaren":"Sem links externos nos comentários",
+          "Beiträge und Kommentare können gemeldet werden":"Publicações e comentários podem ser denunciados","Externe Links nur über das separate Link-Feld bei globalen Posts":"Links externos apenas através do campo separado em publicações globais",
+          "Beitrag teilen":"Partilhar publicação","Link zum Beitrag teilen oder kopieren.":"Partilha ou copia o link da publicação.","Schließen":"Fechar","Link kopieren":"Copiar link",
+          "Trainerprofil bearbeiten":"Editar perfil do treinador","Diese Angaben sind öffentlich. Du kannst sie auch später jederzeit ergänzen oder ändern.":"Estas informações são públicas. Podes completá-las ou alterá-las a qualquer momento.",
+          "Trainername":"Nome do treinador","Land":"País","Stadt / Region":"Cidade / região","Über mich":"Sobre mim","Sichtbarkeit":"Visibilidade","Öffentlich":"Público","Nur über direkten Link":"Apenas por link direto","Privat":"Privado",
+          "Abbrechen":"Cancelar","Speichern":"Guardar","Inhalt melden":"Denunciar conteúdo","Wähle den Grund. Meldungen werden im Adminbereich geprüft. Drei unabhängige offene Meldungen können einen Beitrag vorübergehend ausblenden.":"Escolhe o motivo. As denúncias são analisadas na área de administração. Três denúncias abertas independentes podem ocultar temporariamente uma publicação.",
+          "Spam / unerlaubte Werbung":"Spam / publicidade não autorizada","Beleidigung / Belästigung":"Insulto / assédio","Hass / diskriminierender Inhalt":"Ódio / conteúdo discriminatório","Sexueller Inhalt":"Conteúdo sexual",
+          "Gewalt / Drohung":"Violência / ameaça","Betrug / Scam":"Fraude / burla","Persönliche Daten":"Dados pessoais","Möglicherweise rechtswidrig":"Possivelmente ilegal","Sonstiger Grund":"Outro motivo",
+          "Missbräuchliche Meldungen werden ebenfalls protokolliert.":"Denúncias abusivas também são registadas.","Meldung senden":"Enviar denúncia","Gespeichert":"Guardado",
+          "Trainer und Mannschaften suchen":"Pesquisar treinadores e equipas","Konto":"Conta","Trainerbild ändern":"Alterar imagem do treinador","Profilbereiche":"Secções do perfil","Emoji auswählen":"Escolher emoji","BetInsight Sticker auswählen":"Escolher sticker BetInsight","Bild entfernen":"Remover imagem",
+          "Was möchtest du mit deiner Trainer-Community teilen?":"O que queres partilhar com a tua comunidade de treinadores?","Optional – z. B. dein Trainername":"Opcional – por ex., o teu nome de treinador","Optional – kurze Beschreibung deines Trainerprofils":"Opcional – breve descrição do teu perfil de treinador","Optional: kurze Erklärung":"Opcional: breve explicação",
+          "Profil nicht gefunden":"Perfil não encontrado","Dieses Trainerprofil ist nicht öffentlich verfügbar.":"Este perfil de treinador não está disponível publicamente.","Noch keine weiteren öffentlichen Trainerprofile.":"Ainda não existem outros perfis públicos de treinadores.","Weitere Trainerprofile sind momentan nicht verfügbar.":"Neste momento não existem mais perfis de treinadores disponíveis.",
+          "Niederlagen":"Derrotas","Siegquote":"Taxa de vitórias","Tore":"Golos","Ort":"Local","Team erstellt":"Equipa criada","Trainer-Stil":"Estilo do treinador","Liga":"Liga","Gesamtrang":"Classificação geral",
+          "Ausführlichen Bericht öffnen →":"Abrir relatório completo →","Bericht wird noch vorbereitet.":"O relatório ainda está a ser preparado.","Noch keine Beiträge veröffentlicht.":"Ainda não existem publicações.","Gefällt mir":"Gosto","Antworten":"Responder","Kommentare":"Comentários","Teilen":"Partilhar","gerade eben":"agora mesmo"
+        }
+      };
+      var trainerOriginalText=new WeakMap(),trainerLastText=new WeakMap(),trainerObserver=null;
+      function trainerLocale(){
+        return ({de:"de-DE",en:"en-GB",es:"es-ES",fr:"fr-FR",it:"it-IT",pt:"pt-PT"})[trainerLanguage]||"de-DE";
+      }
+      function trainerTranslateCore(source){
+        if(trainerLanguage==="de") return source;
+        var dict=TRAINER_TEXT[trainerLanguage]||{};
+        if(Object.prototype.hasOwnProperty.call(dict,source)) return dict[source];
+        var prefixes=["⚽ ","🏆 ","＋ ","↗ ","🏁 ","📰 ","🖼️ ","ℹ️ ","🔗 ","😊 ","🏷️ ","📷 ","🛡️ ","📍 "];
+        for(var i=0;i<prefixes.length;i++){
+          if(source.indexOf(prefixes[i])===0){
+            var rest=source.slice(prefixes[i].length);
+            var translated=trainerTranslateCore(rest);
+            if(translated!==rest) return prefixes[i]+translated;
+          }
+        }
+        var m;
+        if((m=source.match(/^Profil seit (.+)$/))) return ({en:"Profile since ",es:"Perfil desde ",fr:"Profil depuis ",it:"Profilo dal ",pt:"Perfil desde "}[trainerLanguage]||"Profil seit ")+m[1];
+        if((m=source.match(/^Eigener Platz #(\d+) · (\d+) Teams$/))) return ({en:"Your rank #",es:"Tu puesto #",fr:"Votre place #",it:"Posizione #",pt:"A tua posição #"}[trainerLanguage]||"Eigener Platz #")+m[1]+" · "+m[2]+" "+({en:"teams",es:"equipos",fr:"équipes",it:"squadre",pt:"equipas"}[trainerLanguage]||"Teams");
+        if((m=source.match(/^(\d+) gespeicherte Serien$/))) return m[1]+" "+(dict["gespeicherte Serien"]||"gespeicherte Serien");
+        if((m=source.match(/^(\d+) Medien$/))) return m[1]+" "+(dict["Medien"]||"Medien");
+        if((m=source.match(/^(\d+) Spieler$/))) return m[1]+" "+(dict["Spieler"]||"Spieler");
+        if((m=source.match(/^(\d+) Spiele$/))) return m[1]+" "+(dict["Spiele"]||"Spiele");
+        if((m=source.match(/^(\d+) Siege$/))) return m[1]+" "+(dict["Siege"]||"Siege");
+        if((m=source.match(/^(\d+)% Quote$/))) return m[1]+"% "+(dict["Quote"]||"Quote");
+        if((m=source.match(/^(\d+) Kommentare$/))) return m[1]+" "+(dict["Kommentare"]||"Kommentare");
+        if((m=source.match(/^⚽ (\d+) Tore$/))) return "⚽ "+m[1]+" "+(dict["Tore"]||"Tore");
+        return source;
+      }
+      function trainerTranslateText(raw){
+        var s=String(raw==null?"":raw),lead=(s.match(/^\s*/)||[""])[0],trail=(s.match(/\s*$/)||[""])[0];
+        var core=s.slice(lead.length,s.length-trail.length);
+        return lead+trainerTranslateCore(core)+trail;
+      }
+      function applyTrainerTranslations(root){
+        root=root||document;
+        var walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+        var nodes=[],node;
+        while((node=walker.nextNode())) nodes.push(node);
+        nodes.forEach(function(n){
+          if(!n.parentElement||n.parentElement.closest("script,style")) return;
+          if(!trainerOriginalText.has(n)) trainerOriginalText.set(n,n.nodeValue);
+          var source=trainerOriginalText.get(n),translated=trainerTranslateText(source);
+          trainerLastText.set(n,translated);
+          if(n.nodeValue!==translated) n.nodeValue=translated;
+        });
+        root.querySelectorAll&&root.querySelectorAll("[placeholder],[aria-label],[title]").forEach(function(el){
+          ["placeholder","aria-label","title"].forEach(function(attr){
+            if(!el.hasAttribute(attr)) return;
+            var key="trainerSource"+attr.replace(/-([a-z])/g,function(_,x){return x.toUpperCase()}).replace(/^./,function(x){return x.toUpperCase()});
+            if(!el.dataset[key]) el.dataset[key]=el.getAttribute(attr)||"";
+            el.setAttribute(attr,trainerTranslateText(el.dataset[key]));
+          });
+        });
+      }
+      function startTrainerTranslationObserver(){
+        if(trainerObserver) return;
+        trainerObserver=new MutationObserver(function(mutations){
+          mutations.forEach(function(m){
+            if(m.type==="characterData"){
+              var n=m.target;
+              if(trainerLastText.get(n)===n.nodeValue) return;
+              trainerOriginalText.set(n,n.nodeValue);
+              applyTrainerTranslations(n.parentNode||document);
+            }else{
+              m.addedNodes&&m.addedNodes.forEach(function(n){
+                if(n.nodeType===Node.TEXT_NODE){
+                  trainerOriginalText.set(n,n.nodeValue);
+                  applyTrainerTranslations(n.parentNode||document);
+                }else if(n.nodeType===Node.ELEMENT_NODE) applyTrainerTranslations(n);
+              });
+            }
+          });
+        });
+        trainerObserver.observe(document.body,{subtree:true,childList:true,characterData:true});
+      }
       function preferredTrainerLanguage(){
         var q=String(params.get("lang")||"").toLowerCase();
         if(TRAINER_LANGUAGES[q]) return q;
@@ -1010,6 +1258,7 @@
             url.searchParams.set("lang",lang);
             history.replaceState(null,"",url.pathname+"?"+url.searchParams.toString()+url.hash);
             paint();
+            applyTrainerTranslations(document);
             close();
             window.dispatchEvent(new CustomEvent("bi:languagechange",{detail:{language:lang,source:"trainer"}}));
           });
@@ -1018,6 +1267,8 @@
           if(!document.getElementById("trainerLang").contains(e.target)) close();
         });
         paint();
+        applyTrainerTranslations(document);
+        startTrainerTranslationObserver();
       }
 
       function showToast(message){
@@ -1048,7 +1299,7 @@
         return tier==="PREMIUM_PLUS"?"Premium Plus":tier==="PREMIUM"?"Premium":"Basis";
       }
       function unitLabel(value){
-        return Number(value||0).toLocaleString("de-DE",{minimumFractionDigits:1,maximumFractionDigits:2})+" Units";
+        return Number(value||0).toLocaleString(trainerLocale(),{minimumFractionDigits:1,maximumFractionDigits:2})+" Units";
       }
       function currentUnitBalance(){
         var m=globalPricingState&&globalPricingState.membership||{};
@@ -1270,7 +1521,7 @@
           var opponent=esc(m.opponent_name||"Gegner");
           var score=Number(m.own_goals||0)+":"+Number(m.opponent_goals||0);
           var date="";
-          try{date=new Intl.DateTimeFormat("de-DE",{dateStyle:"medium"}).format(new Date(m.created_at));}catch(_e){}
+          try{date=new Intl.DateTimeFormat(trainerLocale(),{dateStyle:"medium"}).format(new Date(m.created_at));}catch(_e){}
           return '<div class="result"><span class="result-badge '+badgeClass+'">'+badge+'</span><div><strong>'+esc(teamName||"Mannschaft")+' · '+opponent+'</strong><small>'+esc(date)+'</small></div><span class="score">'+score+'</span></div>';
         }).join("");
       }
@@ -1337,7 +1588,7 @@
         if(!rows.length){grid.innerHTML='<div class="empty-wide" style="grid-column:1/-1">Noch keine Spielberichte vorhanden.</div>';return}
         grid.innerHTML=rows.map(function(m){
           var won=Boolean(m.won),href=reportHref(m.public_slug),date="";
-          try{date=new Intl.DateTimeFormat("de-DE",{dateStyle:"medium"}).format(new Date(m.created_at));}catch(_e){}
+          try{date=new Intl.DateTimeFormat(trainerLocale(),{dateStyle:"medium"}).format(new Date(m.created_at));}catch(_e){}
           var seriesScore=(m.own_series_points!=null&&m.opponent_series_points!=null)?(Number(m.own_series_points)+":"+Number(m.opponent_series_points)):(Number(m.own_series_wins||0)+":"+Number(m.opponent_series_wins||0));
           return '<article class="report-card '+(won?"win":"loss")+'"><div class="report-top"><span class="report-result '+(won?"win":"loss")+'">'+(won?"✓ Sieg":"✕ Niederlage")+'</span><span class="report-meta">'+esc(date)+'</span></div><div class="report-match">'+esc(profile.team_name||"Mannschaft")+' – '+esc(m.opponent_name||"Gegner")+'</div><div><span class="report-score">'+seriesScore+'</span><div class="report-meta">Serienpunkte · '+Number(m.series_length||0)+' Spiele · Tore '+Number(m.own_goals||0)+':'+Number(m.opponent_goals||0)+'</div></div>'+(href?'<a class="report-link" href="'+href+'" target="_blank" rel="noopener">Ausführlichen Bericht öffnen →</a>':'<span class="report-meta">Bericht wird noch vorbereitet.</span>')+'</article>';
         }).join("");
@@ -1390,7 +1641,7 @@
       function renderInfo(profile){
         var box=document.getElementById("infoGrid");if(!box)return;
         var stats=profile.stats||{},ranking=profile.ranking||{},created="";
-        try{created=new Intl.DateTimeFormat("de-DE",{dateStyle:"medium"}).format(new Date(profile.club_created_at||profile.created_at))}catch(_e){}
+        try{created=new Intl.DateTimeFormat(trainerLocale(),{dateStyle:"medium"}).format(new Date(profile.club_created_at||profile.created_at))}catch(_e){}
         var cells=[
           ["Trainer",profile.display_name||profile.configured_coach_name||"—"],
           ["Mannschaft",profile.team_name||"—"],
@@ -1514,7 +1765,7 @@
         var since=document.getElementById("memberSinceChip");
         if(since){
           try{
-            since.textContent="Profil seit "+new Intl.DateTimeFormat("de-DE",{month:"short",year:"numeric"}).format(new Date(profile.created_at));
+            since.textContent="Profil seit "+new Intl.DateTimeFormat(trainerLocale(),{month:"short",year:"numeric"}).format(new Date(profile.created_at));
           }catch(_e){since.textContent="BetInsight Trainerprofil"}
         }
 
@@ -1768,7 +2019,7 @@
             return {
               id:p.id,server:true,author:(p.author||trainerName||teamName||"Trainerprofil"),team:(p.team_name||teamName||"Mannschaft"),
               publicSlug:p.public_slug||"",distributionScope:p.distribution_scope||"PROFILE",
-              time:new Intl.DateTimeFormat("de-DE",{dateStyle:"short",timeStyle:"short"}).format(new Date(p.created_at)),
+              time:new Intl.DateTimeFormat(trainerLocale(),{dateStyle:"short",timeStyle:"short"}).format(new Date(p.created_at)),
               text:p.body||"",emotion:codeToEmotion[p.emotion]||(p.emotion?{name:p.emotion,icon:"🙂"}:null),
               image:p.media&&p.media.public_url?p.media.public_url:"",reactions:(p.reactions||[]).length,comments:comments
             };
