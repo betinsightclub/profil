@@ -1004,9 +1004,10 @@
         }
       }
 
-      function publicTrainerUrl(postId){
+      function publicTrainerUrl(postId,slugOverride){
         var url = new URL(location.origin + location.pathname);
-        if(publicSlug) url.searchParams.set("p",publicSlug);
+        var slug=clean(slugOverride||publicSlug);
+        if(slug) url.searchParams.set("p",slug);
         if(postId) url.searchParams.set("post",postId);
         if(refCode) url.searchParams.set("ref",refCode);
         return url.toString();
@@ -1815,7 +1816,7 @@
         }
 
         article.querySelector(".share-post").addEventListener("click",function(){
-          openShare(post.id);
+          openShare(post.id,post.publicSlug);
           var sc = article.querySelector(".share-count");
           sc.textContent = String((parseInt(sc.textContent,10) || 0) + 1);
         });
@@ -1870,8 +1871,8 @@
         }
       }
 
-      function openShare(postId){
-        var url = publicTrainerUrl(postId);
+      function openShare(postId,slugOverride){
+        var url = publicTrainerUrl(postId,slugOverride);
         document.getElementById("shareUrlField").value = url;
         if(navigator.share){
           navigator.share({title:trainerName + " · " + teamName,text:"Beitrag auf BetInsight ansehen",url:url}).catch(function(){});
