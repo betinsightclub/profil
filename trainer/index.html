@@ -208,6 +208,7 @@
     .verified{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--blue);font-size:13px;font-weight:950}
     .teamline{margin:7px 0 0;color:#c8dbe4;font-size:15px}
     .teamline strong{color:white}
+    .country-flag{display:inline-block;margin-right:4px;font-size:1.05em;line-height:1;vertical-align:-.08em}
     .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
     .chip{
       padding:5px 9px;border:1px solid rgba(255,255,255,.1);border-radius:999px;
@@ -743,7 +744,7 @@
           <input id="editDisplayName" maxlength="80" placeholder="Optional – z. B. dein Trainername">
         </label>
         <label class="profile-edit-label">Land
-          <input id="editCountry" maxlength="80" placeholder="Optional">
+          <input id="editCountry" maxlength="80" placeholder="z. B. BR, DE, AT, CH">
         </label>
         <label class="profile-edit-label">Stadt / Region
           <input id="editCity" maxlength="80" placeholder="Optional">
@@ -873,6 +874,59 @@
         return String(name).split(/\s+/).filter(Boolean).slice(0,2).map(function(part){return part.charAt(0).toUpperCase();}).join("") || "TR";
       }
 
+      function countryCode(value){
+        var raw=clean(value||"");
+        if(!raw) return "";
+        if(/^[A-Za-z]{2}$/.test(raw)) return raw.toUpperCase();
+        var key=raw.toLowerCase();
+        try{key=key.normalize("NFD").replace(/[\u0300-\u036f]/g,"");}catch(_e){}
+        var aliases={
+          "deutschland":"DE","germany":"DE","alemania":"DE","alemanha":"DE","germania":"DE","allemagne":"DE",
+          "brasil":"BR","brazil":"BR","brasilien":"BR","bresil":"BR",
+          "singapur":"SG","singapore":"SG","singapura":"SG","singapour":"SG",
+          "osterreich":"AT","austria":"AT","autriche":"AT",
+          "schweiz":"CH","switzerland":"CH","suiza":"CH","suica":"CH","svizzera":"CH","suisse":"CH",
+          "frankreich":"FR","france":"FR","francia":"FR","franca":"FR",
+          "italien":"IT","italy":"IT","italia":"IT","italie":"IT",
+          "spanien":"ES","spain":"ES","espana":"ES","espanha":"ES","spagna":"ES","espagne":"ES",
+          "portugal":"PT",
+          "vereinigtes konigreich":"GB","grossbritannien":"GB","united kingdom":"GB","great britain":"GB","reino unido":"GB","royaume-uni":"GB",
+          "usa":"US","united states":"US","vereinigte staaten":"US","estados unidos":"US",
+          "kanada":"CA","canada":"CA",
+          "niederlande":"NL","netherlands":"NL","paises bajos":"NL","paises baixos":"NL","paesi bassi":"NL","pays-bas":"NL",
+          "irland":"IE","ireland":"IE","irlanda":"IE","irlande":"IE",
+          "australien":"AU","australia":"AU","australie":"AU",
+          "philippinen":"PH","philippines":"PH","filipinas":"PH","filippine":"PH",
+          "indonesien":"ID","indonesia":"ID","indonesie":"ID",
+          "norwegen":"NO","norway":"NO","noruega":"NO","norvegia":"NO","norvege":"NO"
+        };
+        return aliases[key]||"";
+      }
+
+      function countryFlag(value){
+        var code=countryCode(value);
+        if(!code||code.length!==2) return "";
+        return String.fromCodePoint(code.charCodeAt(0)+127397,code.charCodeAt(1)+127397);
+      }
+
+      function countryLabel(value){
+        var raw=clean(value||"");
+        var code=countryCode(raw);
+        if(!raw) return "";
+        if(!code) return raw;
+        try{
+          var lang=String(document.documentElement.lang||"de").toLowerCase().split("-")[0]||"de";
+          var names=new Intl.DisplayNames([lang],{type:"region"});
+          return names.of(code)||code;
+        }catch(_e){return code;}
+      }
+
+      function countryDisplay(value){
+        var flag=countryFlag(value);
+        var label=countryLabel(value);
+        return [flag,label].filter(Boolean).join(" ");
+      }
+
       function showToast(message){
         var el = document.getElementById("toast");
         el.textContent = message;
@@ -944,7 +998,7 @@
         var countryName=document.getElementById("countryName");
         var countrySeparator=document.getElementById("countrySeparator");
         if(country){
-          countryName.textContent=country;
+          countryName.textContent=countryDisplay(country);
           countryName.classList.remove("hidden");
           countrySeparator.classList.remove("hidden");
         }else{
@@ -1067,7 +1121,9 @@
         var pos=Number(entry.position||0);
         var cls="ranking-row "+(pos<=3?"podium-"+pos:"")+(self?" self":"");
         var trainer=entry.trainer_name||"Trainer";
-        return '<div class="'+cls+'"><span class="ranking-pos">#'+pos+'</span><span class="ranking-team">'+esc(entry.team_name||teamName||"Mannschaft")+'</span><span class="ranking-trainer">'+esc(trainer)+'</span><span class="ranking-points">'+Number(entry.points||0)+' CP</span>'+(self?trendHtml(currentProfile&&currentProfile.ranking):'<span></span>')+'</div>';
+        var team=entry.team_name||teamName||"Mannschaft";
+        var flag=countryFlag(entry.country||"");
+        return '<div class="'+cls+'"><span class="ranking-pos">#'+pos+'</span><span class="ranking-team">'+(flag?'<span class="country-flag" title="'+esc(countryLabel(entry.country))+'">'+esc(flag)+'</span> ':'')+esc(team)+'</span><span class="ranking-trainer">'+esc(trainer)+'</span><span class="ranking-points">'+Number(entry.points||0)+' CP</span>'+(self?trendHtml(currentProfile&&currentProfile.ranking):'<span></span>')+'</div>';
       }
 
       function renderRanking(profile){
@@ -1084,6 +1140,7 @@
             position:ranking.position,
             team_name:profile.team_name,
             trainer_name:profile.display_name||profile.configured_coach_name||"Trainer",
+            country:profile.country||"",
             points:ranking.points
           },true);
         }
@@ -1181,7 +1238,7 @@
           ["Niederlagen",Number(stats.losses||0)],
           ["Siegquote",Number(stats.win_rate||0)+"%"],
           ["Tore",Number(stats.goals_for||0)+":"+Number(stats.goals_against||0)],
-          ["Ort",[profile.city,profile.country].filter(Boolean).join(" · ")||"—"],
+          ["Ort",[profile.city,countryDisplay(profile.country)].filter(Boolean).join(" · ")||"—"],
           ["Team erstellt",created||"—"]
         ];
         box.innerHTML=cells.map(function(x){return '<div class="info-cell"><span>'+esc(x[0])+'</span><b>'+esc(x[1])+'</b></div>'}).join("");
@@ -1276,7 +1333,7 @@
         var bio=document.getElementById("trainerBio");
         if(bio) bio.textContent=profile.bio || (isOwner ? "Noch keine Beschreibung angelegt. Über „Bearbeiten“ kannst du dein Profil nach und nach ergänzen." : "");
 
-        var locationParts=[profile.city,profile.country].filter(Boolean);
+        var locationParts=[profile.city,countryDisplay(profile.country)].filter(Boolean);
         var locationRow=document.getElementById("locationRow");
         var aboutCountry=document.getElementById("aboutCountry");
         if(locationRow&&aboutCountry){
@@ -1420,7 +1477,7 @@
           }
           box.innerHTML=profiles.map(function(p){
             var name=p.display_name||"Trainerprofil";
-            var line=(p.team_name||"Mannschaft")+(p.country?" · "+p.country:"");
+            var line=(countryFlag(p.country)?countryFlag(p.country)+" ":"")+(p.team_name||"Mannschaft")+(p.country?" · "+countryLabel(p.country):"");
             var pr=rankFromWins(p.stats&&p.stats.wins||0);
             return '<a class="trainer-card" href="?p='+encodeURIComponent(p.public_slug)+'"><div class="mini-avatar rank-'+pr.key+'" title="'+esc(pr.label)+'">'+esc(p.team_initials||initials(p.team_name||"BI"))+'</div><div><strong>'+esc(name)+'</strong><small>'+esc(line)+'</small></div><span class="go-arrow">›</span></a>';
           }).join("");
