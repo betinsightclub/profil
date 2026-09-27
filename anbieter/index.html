@@ -13,6 +13,7 @@
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="stylesheet" href="../assets/app-navigation.css">
   <script src="../assets/i18n/core-v2.js"></script>
+  <script src="../assets/regional-restrictions.js?v=20260927-1"></script>
   <script src="../assets/app-navigation.js?v=20260831-3" defer></script>
   <style>
     :root{
@@ -413,8 +414,18 @@
       confirmedLabel.textContent=`${flag(selectedCountry)} ${selectedLocationText()}`;
     }
     function showStatus(message) { providerGrid.innerHTML=''; statusBox.textContent=message; statusBox.classList.remove('hidden'); }
+    function showBrazilBlocked() {
+      const regional=window.BetInsightRegionalRestrictions;
+      const msg=regional?.getMessages?.() || {title:'Für Brasilien derzeit nicht verfügbar',body:'BetInsight zeigt Nutzern in Brasilien derzeit keine Wettanbieter, Casino-Angebote, Affiliate-Links oder anbieterbezogenen Quotenfunktionen.'};
+      results.classList.remove('hidden');
+      filterStep.classList.add('hidden');
+      resultsSubtitle.textContent=msg.title;
+      showStatus(msg.body);
+    }
     function renderProviders(mode=activeMode) {
       if (!selectedCountry) return;
+      const regional=window.BetInsightRegionalRestrictions;
+      if (regional?.isBrazilBlocked?.(selectedCountry)) { showBrazilBlocked(); return; }
       activeMode=mode;
       results.classList.remove('hidden');
       statusBox.classList.add('hidden');
@@ -483,11 +494,18 @@
     confirmCountry.addEventListener('click',()=>{
       selectedCountry=countrySelect.value; selectedRegion=regionSelect.value;
       if (!selectedCountry) return;
+      const regional=window.BetInsightRegionalRestrictions;
+      regional?.rememberCountry?.(selectedCountry);
       updateConfirmedLabel();
-      countryForm.classList.add('hidden'); confirmedCountry.classList.remove('hidden'); filterStep.classList.remove('hidden'); results.classList.add('hidden'); activeMode='';
+      countryForm.classList.add('hidden'); confirmedCountry.classList.remove('hidden'); results.classList.add('hidden'); activeMode='';
+      if (regional?.isBrazilBlocked?.(selectedCountry)) { showBrazilBlocked(); return; }
+      filterStep.classList.remove('hidden');
+      const returnTarget=new URLSearchParams(location.search).get('return');
+      if (returnTarget==='anbieter-auswahl') { location.href='../anbieter-auswahl/'; }
     });
     changeCountry.addEventListener('click',()=>{
       selectedCountry=''; selectedRegion=''; activeMode='';
+      window.BetInsightRegionalRestrictions?.clearRememberedCountry?.();
       countryForm.classList.remove('hidden'); confirmedCountry.classList.add('hidden'); filterStep.classList.add('hidden'); results.classList.add('hidden');
       countrySelect.value=''; populateRegions('',''); updateConfirmState(); countrySearch.focus();
     });
