@@ -5,8 +5,8 @@ Live-Seite: https://betinsightclub.github.io/profil/admin/support/
 
 Projekt: BetInsight
 Datei: profil/admin/support/index.html
-Version: 2026.08.18-01
-Anwendungs-Version: 1.2.0
+Version: 2026.09.27-02
+Anwendungs-Version: 2.0.0
 Stand: 18.08.2026
 Status: MASTER-SUPPORT – sichere Antworten + Ticket schließen aktiviert
 
@@ -42,7 +42,7 @@ WICHTIG:
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#061d2a">
-  <meta name="application-version" content="1.2.0">
+  <meta name="application-version" content="2.0.0">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Master Support | BetInsight Club</title>
 
@@ -326,7 +326,7 @@ WICHTIG:
       </article>
     </section>
 
-    <footer class="footer">© 2026 BetInsight Club · Master Support · isolierter Support-Reader · Admin-Sitzung v2.1</footer>
+    <footer class="footer">© 2026 BetInsight Club · Master Support · geschützter Admin-Gateway · Admin-Sitzung v2.4</footer>
   </main>
 
   <section class="access-denied" id="accessDenied">
@@ -339,7 +339,9 @@ WICHTIG:
   <script>
     "use strict";
 
-    const SUPPORT_READER_URL = "https://script.google.com/macros/s/AKfycbwgL2fh-4oBoaWBbtkSXaaKaEhcSIxtjPCENRObyfkMS0luNunCnjqSVt0PFTnGhZ9P/exec";
+    const SUPPORT_READ_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=master-support-read";
+    const SUPPORT_REPLY_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=master-support-reply";
+    const SUPPORT_CLOSE_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=master-support-close";
     const SESSION_KEY = "betinsight_admin_session_v1";
 
     let session = null;
@@ -443,9 +445,16 @@ WICHTIG:
 
 
     async function reader(payload){
-      const response = await fetch(SUPPORT_READER_URL,{
+      const action = String(payload?.action || "");
+      const endpoint = action === "admin_reply"
+        ? SUPPORT_REPLY_URL
+        : action === "admin_close"
+          ? SUPPORT_CLOSE_URL
+          : SUPPORT_READ_URL;
+
+      const response = await fetch(endpoint,{
         method:"POST",
-        headers:{"Content-Type":"text/plain;charset=UTF-8"},
+        headers:{"Content-Type":"application/json"},
         body:JSON.stringify(payload),
         cache:"no-store",
         redirect:"follow",
@@ -453,10 +462,11 @@ WICHTIG:
       });
       const raw = await response.text();
       let data;
-      try{data = raw ? JSON.parse(raw) : {}}catch(_){throw new Error("Support-Reader hat keine gültige JSON-Antwort geliefert.")}
+      try{data = raw ? JSON.parse(raw) : {}}catch(_){throw new Error("Master-Support hat keine gültige JSON-Antwort geliefert.")}
       if(!data || data.success !== true){
         const err = new Error(data?.message || "Master-Support konnte nicht geladen werden.");
         err.code = data?.error || "READER_ERROR";
+        err.httpStatus = response.status;
         throw err;
       }
       return data;
@@ -472,9 +482,13 @@ WICHTIG:
     function renderTickets(){
       const list = $("ticketList");
       const query = $("searchInput").value.trim().toLowerCase();
+      const filterValue = $("statusFilter").value;
       list.innerHTML = "";
 
       const filtered = tickets.filter(ticket => {
+        const open = ticket.offen === true || String(ticket.status || "").toUpperCase() === "OFFEN";
+        if(filterValue === "OFFEN" && !open) return false;
+        if(filterValue === "GESCHLOSSEN" && open) return false;
         if(!query) return true;
         return [ticket.ticket_id,ticket.user_id,ticket.betreff,ticket.kategorie,ticket.status].some(v=>String(v||"").toLowerCase().includes(query));
       });
@@ -517,9 +531,20 @@ WICHTIG:
       $("ticketList").innerHTML = '<div class="empty"><span class="loading"><i class="spinner"></i>Tickets werden geladen …</span></div>';
 
       try{
-        const data = await reader({action:"admin_list",session_hash:sessionHash,status:$("statusFilter").value,limit:200});
+        const data = await reader({action:"admin_list",session_hash:sessionHash,limit:200});
         tickets = Array.isArray(data.tickets) ? data.tickets : [];
-        setCounts(data.counts || {});
+
+        const openCount = tickets.filter(ticket =>
+          ticket.offen === true || String(ticket.status || "").toUpperCase() === "OFFEN"
+        ).length;
+        const unreadCount = tickets.reduce((sum,ticket) => sum + Number(ticket.support_ungelesen || 0),0);
+        setCounts({
+          all:tickets.length,
+          open:openCount,
+          closed:Math.max(0,tickets.length-openCount),
+          support_unread:unreadCount
+        });
+
         status(true,"Master verbunden");
         if(data.admin?.name) $("adminName").textContent = data.admin.name;
         renderTickets();
@@ -736,7 +761,7 @@ WICHTIG:
     }
 
     $("refreshButton").addEventListener("click",async()=>{await loadTickets();if(selectedTicketId) await openThread(selectedTicketId)});
-    $("statusFilter").addEventListener("change",async()=>{selectedTicketId="";$("thread").classList.remove("show");$("threadPlaceholder").style.display="grid";await loadTickets()});
+    $("statusFilter").addEventListener("change",()=>{selectedTicketId="";selectedTicket=null;$("thread").classList.remove("show");$("threadPlaceholder").style.display="grid";renderTickets()});
     $("searchInput").addEventListener("input",renderTickets);
     $("replyMessage").addEventListener("input",updateReplyCounter);
     $("replyButton").addEventListener("click",sendMasterReply);
