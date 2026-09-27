@@ -361,6 +361,12 @@
     .post-scope-btn.global.active{border-color:rgba(243,201,92,.5);background:rgba(243,201,92,.08)}
     .post-billing-hint{margin:8px 0 0 57px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.025);color:#88a5b2;font-size:10px}
     .post-billing-hint strong{color:#dcecf3}
+    .post-link-option{margin:9px 0 0 57px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.025);padding:10px 12px}
+    .post-link-option.hidden{display:none}.post-link-check{display:flex;align-items:center;gap:8px;color:#cfe0e7;font-size:12px;font-weight:800}.post-link-check input{width:16px;height:16px;accent-color:#1687ff}
+    .post-link-field{display:none;margin-top:9px}.post-link-field.show{display:block}.post-link-field input{width:100%;border:1px solid rgba(126,211,255,.18);border-radius:10px;background:#061e29;color:#eefaff;padding:10px 11px;outline:none}
+    .post-link-field input:focus{border-color:rgba(22,135,255,.55);box-shadow:0 0 0 2px rgba(22,135,255,.08)}
+    .post-link-note{display:block;margin-top:6px;color:#809da9;font-size:10px;line-height:1.4}
+    .post-link-warning{color:#ffd778}.post-link-error{color:#ff8f97}
     .feed-mode-note{display:none;margin-bottom:12px;padding:10px 12px;border:1px solid rgba(22,135,255,.18);border-radius:12px;background:rgba(22,135,255,.05);color:#a8c3cf;font-size:11px}
     .feed-mode-note.show{display:block}
     @media(max-width:620px){.post-scope{grid-template-columns:1fr}.post-scope,.post-billing-hint{margin-left:0}}
@@ -722,6 +728,16 @@
             </button>
           </div>
           <div class="post-billing-hint" id="postBillingHint">Eigene Profilbeiträge bleiben kostenlos. Nur die globale Veröffentlichung kostet Units.</div>
+          <div class="post-link-option hidden" id="postLinkOption">
+            <label class="post-link-check">
+              <input type="checkbox" id="postLinkEnabled" disabled>
+              <span>Externen Link hinzufügen</span>
+            </label>
+            <div class="post-link-field" id="postLinkField">
+              <input id="postExternalUrl" type="url" maxlength="1000" inputmode="url" placeholder="https://…">
+              <small class="post-link-note" id="postLinkNote">Links sind nur über dieses Feld erlaubt. Die Units werden bis zur Freigabe reserviert.</small>
+            </div>
+          </div>
           <div class="composer-actions">
             <div class="composer-tools">
               <button class="tool-btn" id="photoBtn">🖼️ Bild</button>
@@ -757,7 +773,7 @@
             <div class="about-row"><span>✓</span><span>Respektvoll und sportbezogen schreiben</span></div>
             <div class="about-row"><span>✓</span><span>Keine externen Links in Kommentaren</span></div>
             <div class="about-row"><span>✓</span><span>Beiträge und Kommentare können gemeldet werden</span></div>
-            <div class="about-row"><span>✓</span><span>Werbliche Links werden später separat geregelt</span></div>
+            <div class="about-row"><span>✓</span><span>Externe Links nur über das separate Link-Feld bei globalen Posts</span></div>
           </div>
         </article>
       </aside>
@@ -891,6 +907,7 @@
       var selectedDistributionScope = "PROFILE";
       var globalPricingState = null;
       var feedMode = "profile";
+      var postLinkEnabled = false;
       var storageKey = "betinsight_trainer_posts";
       var safeReturnUrl = memberCredential ? "/time-clash/" : "https://betinsight.club/de/time-clash/community/";
 
@@ -948,6 +965,34 @@
       function unitLabel(value){
         return Number(value||0).toLocaleString("de-DE",{minimumFractionDigits:1,maximumFractionDigits:2})+" Units";
       }
+      function currentUnitBalance(){
+        var m=globalPricingState&&globalPricingState.membership||{};
+        return Number(m.unitsAvailable??m.units_available??0)||0;
+      }
+      function hasEnoughForGlobal(){
+        if(!globalPricingState)return false;
+        var p=globalPricingState.pricing||{};
+        if(p.monthly_limit!=null&&Number(p.remaining||0)<=0)return false;
+        return currentUnitBalance()+1e-9>=Number(p.unit_cost||0);
+      }
+      function renderLinkOption(){
+        var box=document.getElementById("postLinkOption"),check=document.getElementById("postLinkEnabled"),field=document.getElementById("postLinkField"),note=document.getElementById("postLinkNote");
+        if(!box||!check||!field||!note)return;
+        var global=selectedDistributionScope==="GLOBAL",enough=global&&hasEnoughForGlobal();
+        box.classList.toggle("hidden",!global);
+        check.disabled=!enough;
+        if(!global||!enough){
+          check.checked=false;postLinkEnabled=false;field.classList.remove("show");
+          document.getElementById("postExternalUrl").value="";
+        }
+        if(global&&!enough){
+          note.textContent="Für einen globalen Link-Post ist zuerst genügend Unit-Guthaben erforderlich.";
+          note.className="post-link-note post-link-warning";
+        }else{
+          note.textContent="Links sind nur über dieses Feld erlaubt. Die Units werden bis zur Freigabe reserviert.";
+          note.className="post-link-note";
+        }
+      }
       function renderPostPricing(){
         var price=document.getElementById("globalPostPrice"),hint=document.getElementById("postBillingHint"),submit=document.getElementById("publishPostBtn");
         if(!price||!hint)return;
@@ -958,11 +1003,12 @@
           var p=globalPricingState.pricing||{},m=globalPricingState.membership||{};
           var limit=p.monthly_limit==null?"ohne festgelegtes Monatslimit":((p.remaining==null?p.monthly_limit:p.remaining)+" von "+p.monthly_limit+" in diesem Monat noch verfügbar");
           price.textContent=unitLabel(p.unit_cost)+" · "+tierLabel(m.effectiveTier||m.effective_tier)+" · "+limit;
-          hint.innerHTML='Tarif: <strong>'+esc(tierLabel(m.effectiveTier||m.effective_tier))+'</strong> · Status: <strong>'+esc(m.effectiveStatus||m.effective_status||"")+'</strong> · Global: <strong>'+esc(unitLabel(p.unit_cost))+'</strong> pro Beitrag. Beiträge mit Link gehen zur Prüfung.';
+          hint.innerHTML='Tarif: <strong>'+esc(tierLabel(m.effectiveTier||m.effective_tier))+'</strong> · Status: <strong>'+esc(m.effectiveStatus||m.effective_status||"")+'</strong> · Global: <strong>'+esc(unitLabel(p.unit_cost))+'</strong> pro Beitrag. Links nur über das separate Link-Feld.';
         }
         if(submit)submit.textContent=selectedDistributionScope==="GLOBAL"&&globalPricingState
           ? "Global posten · "+unitLabel(globalPricingState.pricing.unit_cost)
           : "Posten";
+        renderLinkOption();
       }
       async function loadPostPricing(){
         if(!isOwner||!memberCredential||!serverMode)return;
@@ -977,13 +1023,18 @@
       }
       function selectPostScope(scope){
         selectedDistributionScope=scope==="GLOBAL"?"GLOBAL":"PROFILE";
+        if(selectedDistributionScope!=="GLOBAL"){
+          postLinkEnabled=false;
+          var c=document.getElementById("postLinkEnabled"),u=document.getElementById("postExternalUrl");
+          if(c)c.checked=false;if(u)u.value="";
+        }
         document.querySelectorAll(".post-scope-btn").forEach(function(b){b.classList.toggle("active",b.dataset.scope===selectedDistributionScope);});
         renderPostPricing();
       }
 
       function moderationMessage(flags){
         var map = {
-          external_link_review:"Beiträge mit externem Link werden vor der Veröffentlichung geprüft.",
+          external_link_in_text:"Links gehören nicht in den Beitragstext. Nutze beim globalen Post das separate Link-Feld.",
           personal_contact:"Telefonnummern und E-Mail-Adressen sind in normalen Beiträgen nicht erlaubt.",
           threat:"Drohungen sind nicht erlaubt.",
           sexual_minor:"Dieser Inhalt ist nicht erlaubt.",
@@ -2137,6 +2188,12 @@
 
       document.getElementById("scopeProfileBtn").addEventListener("click",function(){selectPostScope("PROFILE");});
       document.getElementById("scopeGlobalBtn").addEventListener("click",function(){selectPostScope("GLOBAL");});
+      document.getElementById("postLinkEnabled").addEventListener("change",function(){
+        if(this.checked&&!hasEnoughForGlobal()){this.checked=false;showToast("Für einen Link-Post fehlt das erforderliche Unit-Guthaben.");return}
+        postLinkEnabled=this.checked;
+        document.getElementById("postLinkField").classList.toggle("show",postLinkEnabled);
+        if(postLinkEnabled)setTimeout(function(){document.getElementById("postExternalUrl").focus();},60);
+      });
 
       function updatePublishState(){
         var hasText = document.getElementById("postText").value.trim().length > 0;
@@ -2147,6 +2204,17 @@
       document.getElementById("publishPostBtn").addEventListener("click",async function(){
         var text = document.getElementById("postText").value.trim();
         if(!text && !selectedImageData && !selectedEmotion) return;
+        var inlineLink=/(?:https?:\/\/|www\.|(?:^|\s)[a-z0-9-]+\.(?:com|net|org|club|io|gg|de|fr|it|es|pt|br)(?:\/|\s|$)|t\.me\/|wa\.me\/)/i;
+        if(inlineLink.test(text)){
+          showToast("Links sind im Beitragstext nicht erlaubt. Nutze das separate Link-Feld.");
+          return;
+        }
+        var externalUrl=postLinkEnabled?document.getElementById("postExternalUrl").value.trim():"";
+        if(postLinkEnabled){
+          if(selectedDistributionScope!=="GLOBAL"){showToast("Links sind nur bei globalen Beiträgen möglich.");return}
+          if(!hasEnoughForGlobal()){showToast("Nicht genügend Units für den globalen Link-Post.");return}
+          try{var parsedUrl=new URL(externalUrl);if(!/^https?:$/.test(parsedUrl.protocol))throw new Error()}catch(_e){showToast("Bitte einen gültigen http(s)-Link eintragen.");return}
+        }
 
         var screening = await screenCommunityText(text,"post");
         if(screening.decision === "REJECTED"){
@@ -2163,7 +2231,10 @@
               if(gp.monthly_limit!=null&&Number(gp.remaining||0)<=0){
                 showToast("Dein Monatslimit für globale Beiträge ist erreicht.");return;
               }
-              var ok=confirm("Diesen Beitrag im Trainer Feed und auf allen Profilen veröffentlichen? Kosten: "+unitLabel(gp.unit_cost)+".");
+              var confirmText=postLinkEnabled
+                ? "Diesen Link-Beitrag zur Prüfung senden? "+unitLabel(gp.unit_cost)+" werden bis zur Freigabe reserviert."
+                : "Diesen Beitrag im Trainer Feed und auf allen Profilen veröffentlichen? Kosten: "+unitLabel(gp.unit_cost)+".";
+              var ok=confirm(confirmText);
               if(!ok)return;
             }
             var mediaId=null;
@@ -2186,7 +2257,9 @@
               text:text,
               emotion:selectedEmotion ? selectedEmotion.name : "",
               media_id:mediaId,
-              distribution_scope:selectedDistributionScope
+              distribution_scope:selectedDistributionScope,
+              link_enabled:postLinkEnabled,
+              external_url:externalUrl
             });
 
             document.getElementById("postText").value = "";
@@ -2197,10 +2270,16 @@
             document.getElementById("emojiPicker").classList.remove("open");
             document.getElementById("composerPreview").classList.remove("show");
             document.getElementById("postImageInput").value = "";
+            postLinkEnabled=false;
+            document.getElementById("postLinkEnabled").checked=false;
+            document.getElementById("postExternalUrl").value="";
+            document.getElementById("postLinkField").classList.remove("show");
             updatePublishState();
 
-            if(saved.moderation && saved.moderation.status === "PENDING_REVIEW"){
-              showToast("Link erkannt: Beitrag gespeichert und zur Prüfung geschickt.");
+            if(saved.billing&&saved.billing.status==="RESERVED"){
+              showToast("Link-Post gespeichert · Units reserviert · wartet auf Freigabe.");
+            }else if(saved.moderation && saved.moderation.status === "PENDING_REVIEW"){
+              showToast("Beitrag gespeichert und zur Prüfung geschickt.");
             }else if(saved.billing&&saved.billing.scope==="GLOBAL"){
               showToast("Global veröffentlicht · "+unitLabel(saved.billing.unit_cost)+" abgebucht.");
             }else{
@@ -2213,6 +2292,9 @@
             if(error.data && error.data.flags)showToast(moderationMessage(error.data.flags));
             else if(error.data&&error.data.error==="INSUFFICIENT_UNITS")showToast("Nicht genügend Units für die globale Veröffentlichung.");
             else if(error.data&&error.data.error==="MONTHLY_GLOBAL_LIMIT")showToast("Monatslimit für globale Beiträge erreicht.");
+            else if(error.data&&error.data.error==="LINK_IN_TEXT_NOT_ALLOWED")showToast("Links sind im Text nicht erlaubt. Nutze das separate Link-Feld.");
+            else if(error.data&&error.data.error==="LINK_CHECK_REQUIRED")showToast("Bitte den Link-Schalter aktivieren.");
+            else if(error.data&&error.data.error==="INVALID_EXTERNAL_URL")showToast("Der Link ist ungültig.");
             else if(error.data&&error.data.error==="BILLING_NOT_CONFIGURED")showToast("Unit-Abrechnung ist noch nicht aktiviert.");
             else showToast("Beitrag konnte nicht gespeichert werden.");
             return;
