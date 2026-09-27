@@ -43,7 +43,7 @@ async function reportCount(type:string,id:string){
 }
 async function queue(){
   const [p,c,m,r]=await Promise.all([
-    admin.from("community_posts").select("id,club_id,owner_ref,body,emotion,status,moderation_flags,moderation_score,media_id,created_at").in("status",["PENDING_REVIEW","HIDDEN"]).order("created_at",{ascending:true}).limit(80),
+    admin.from("community_posts").select("id,club_id,owner_ref,body,emotion,status,moderation_flags,moderation_score,media_id,distribution_scope,unit_cost,unit_charge_status,billing_tier,billing_month,billing_reference,external_url,created_at").in("status",["PENDING_REVIEW","HIDDEN"]).order("created_at",{ascending:true}).limit(80),
     admin.from("community_comments").select("id,post_id,owner_ref,body,status,moderation_flags,moderation_score,created_at").in("status",["PENDING_REVIEW","HIDDEN"]).order("created_at",{ascending:true}).limit(80),
     admin.from("community_media").select("id,owner_ref,club_id,storage_path,mime_type,bytes,width,height,purpose,status,moderation_flags,created_at").in("status",["PENDING_REVIEW","HIDDEN"]).order("created_at",{ascending:true}).limit(80),
     admin.from("community_reports").select("id,target_type,target_id,reporter_ref,reason,details,status,created_at").eq("status","OPEN").order("created_at",{ascending:true}).limit(150)
