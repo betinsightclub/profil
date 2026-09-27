@@ -354,6 +354,16 @@
     .tool-btn:hover{background:rgba(255,255,255,.055);color:white}
     .post-submit{border:0;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;font-weight:900;padding:9px 16px}
     .post-submit:disabled{opacity:.45;cursor:not-allowed}
+    .post-scope{margin:12px 0 0 57px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .post-scope-btn{border:1px solid rgba(255,255,255,.09);border-radius:13px;background:rgba(255,255,255,.025);color:#a9c0ca;padding:11px 12px;text-align:left}
+    .post-scope-btn b{display:block;color:#e9f6fb;font-size:12px}.post-scope-btn small{display:block;margin-top:3px;color:#7f9da9;font-size:10px}
+    .post-scope-btn.active{border-color:rgba(22,135,255,.55);background:rgba(22,135,255,.11);box-shadow:0 0 0 2px rgba(22,135,255,.06)}
+    .post-scope-btn.global.active{border-color:rgba(243,201,92,.5);background:rgba(243,201,92,.08)}
+    .post-billing-hint{margin:8px 0 0 57px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.025);color:#88a5b2;font-size:10px}
+    .post-billing-hint strong{color:#dcecf3}
+    .feed-mode-note{display:none;margin-bottom:12px;padding:10px 12px;border:1px solid rgba(22,135,255,.18);border-radius:12px;background:rgba(22,135,255,.05);color:#a8c3cf;font-size:11px}
+    .feed-mode-note.show{display:block}
+    @media(max-width:620px){.post-scope{grid-template-columns:1fr}.post-scope,.post-billing-hint{margin-left:0}}
     .feed{display:grid;gap:16px}
     .post{overflow:hidden}
     .post-head{display:grid;grid-template-columns:48px 1fr auto;gap:10px;align-items:center;padding:16px 16px 8px}
@@ -703,6 +713,15 @@
             <button id="removePostImage" aria-label="Bild entfernen">×</button>
           </div>
 
+          <div class="post-scope" id="postScope">
+            <button class="post-scope-btn active" id="scopeProfileBtn" type="button" data-scope="PROFILE">
+              <b>Nur auf meinem Profil</b><small>Kostenlos · 0 Units</small>
+            </button>
+            <button class="post-scope-btn global" id="scopeGlobalBtn" type="button" data-scope="GLOBAL">
+              <b>Trainer Feed + alle Profile</b><small id="globalPostPrice">Preis wird geladen …</small>
+            </button>
+          </div>
+          <div class="post-billing-hint" id="postBillingHint">Eigene Profilbeiträge bleiben kostenlos. Nur die globale Veröffentlichung kostet Units.</div>
           <div class="composer-actions">
             <div class="composer-tools">
               <button class="tool-btn" id="photoBtn">🖼️ Bild</button>
@@ -715,6 +734,7 @@
           </div>
         </article>
 
+        <div class="feed-mode-note" id="feedModeNote"></div>
         <div class="feed" id="postFeed"></div>
       </section>
 
@@ -868,6 +888,9 @@
       var activeReportTarget = null;
       var selectedEmotion = null;
       var selectedImageData = "";
+      var selectedDistributionScope = "PROFILE";
+      var globalPricingState = null;
+      var feedMode = "profile";
       var storageKey = "betinsight_trainer_posts";
       var safeReturnUrl = memberCredential ? "/time-clash/" : "https://betinsight.club/de/time-clash/community/";
 
@@ -919,9 +942,48 @@
         return data;
       }
 
+      function tierLabel(tier){
+        return tier==="PREMIUM_PLUS"?"Premium Plus":tier==="PREMIUM"?"Premium":"Basis";
+      }
+      function unitLabel(value){
+        return Number(value||0).toLocaleString("de-DE",{minimumFractionDigits:1,maximumFractionDigits:2})+" Units";
+      }
+      function renderPostPricing(){
+        var price=document.getElementById("globalPostPrice"),hint=document.getElementById("postBillingHint"),submit=document.getElementById("publishPostBtn");
+        if(!price||!hint)return;
+        if(!globalPricingState){
+          price.textContent="Preis wird geladen …";
+          hint.innerHTML="Eigene Profilbeiträge bleiben <strong>kostenlos</strong>. Für den globalen Feed wird dein Tarif geprüft.";
+        }else{
+          var p=globalPricingState.pricing||{},m=globalPricingState.membership||{};
+          var limit=p.monthly_limit==null?"ohne festgelegtes Monatslimit":((p.remaining==null?p.monthly_limit:p.remaining)+" von "+p.monthly_limit+" in diesem Monat noch verfügbar");
+          price.textContent=unitLabel(p.unit_cost)+" · "+tierLabel(m.effectiveTier||m.effective_tier)+" · "+limit;
+          hint.innerHTML='Tarif: <strong>'+esc(tierLabel(m.effectiveTier||m.effective_tier))+'</strong> · Status: <strong>'+esc(m.effectiveStatus||m.effective_status||"")+'</strong> · Global: <strong>'+esc(unitLabel(p.unit_cost))+'</strong> pro Beitrag. Beiträge mit Link gehen zur Prüfung.';
+        }
+        if(submit)submit.textContent=selectedDistributionScope==="GLOBAL"&&globalPricingState
+          ? "Global posten · "+unitLabel(globalPricingState.pricing.unit_cost)
+          : "Posten";
+      }
+      async function loadPostPricing(){
+        if(!isOwner||!memberCredential||!serverMode)return;
+        try{
+          globalPricingState=await communityCall("pricing",{credential:memberCredential,club_id:clubId||undefined});
+        }catch(error){
+          globalPricingState=null;
+          var price=document.getElementById("globalPostPrice");
+          if(price)price.textContent="Tarifprüfung momentan nicht verfügbar";
+        }
+        renderPostPricing();
+      }
+      function selectPostScope(scope){
+        selectedDistributionScope=scope==="GLOBAL"?"GLOBAL":"PROFILE";
+        document.querySelectorAll(".post-scope-btn").forEach(function(b){b.classList.toggle("active",b.dataset.scope===selectedDistributionScope);});
+        renderPostPricing();
+      }
+
       function moderationMessage(flags){
         var map = {
-          external_link:"Externe Links sind nur über die spätere Werbefunktion erlaubt.",
+          external_link_review:"Beiträge mit externem Link werden vor der Veröffentlichung geprüft.",
           personal_contact:"Telefonnummern und E-Mail-Adressen sind in normalen Beiträgen nicht erlaubt.",
           threat:"Drohungen sind nicht erlaubt.",
           sexual_minor:"Dieser Inhalt ist nicht erlaubt.",
@@ -1347,6 +1409,7 @@
         renderRecentMatches(profile.recent_matches||[]);
         renderProfileData(profile);
         loadServerFeed();
+        if(ownerView)loadPostPricing();
       }
 
       async function fetchPublicProfile(){
@@ -1552,31 +1615,35 @@
         }
       }
 
-      async function loadServerFeed(){
-        if(!clubId) return;
+      async function loadServerFeed(mode){
+        mode=mode||feedMode||"profile";
+        if(mode==="profile"&&!clubId)return;
         try{
-          var url=COMMUNITY_API+"?action=feed&club_id="+encodeURIComponent(clubId);
+          var url=mode==="global"
+            ? COMMUNITY_API+"?action=feed&scope=global"
+            : COMMUNITY_API+"?action=feed&club_id="+encodeURIComponent(clubId);
           var response=await fetch(url,{method:"GET",cache:"no-store",credentials:"omit"});
           var data=await response.json();
-          if(!response.ok||data.ok!==true||!Array.isArray(data.posts)) return;
-          var codeToEmotion={};
-          emotionCatalog.forEach(function(item){codeToEmotion[item.code]=item;});
+          if(!response.ok||data.ok!==true||!Array.isArray(data.posts))return;
+          var codeToEmotion={};emotionCatalog.forEach(function(item){codeToEmotion[item.code]=item;});
           var posts=data.posts.map(function(p){
             var comments=(p.comments||[]).map(function(x){return {id:x.id,owner_ref:x.owner_ref,name:x.owner_ref,text:x.body};});
             return {
-              id:p.id,server:true,author:(trainerName||teamName||"Trainerprofil"),team:teamName,
+              id:p.id,server:true,author:(p.author||trainerName||teamName||"Trainerprofil"),team:(p.team_name||teamName||"Mannschaft"),
+              publicSlug:p.public_slug||"",distributionScope:p.distribution_scope||"PROFILE",
               time:new Intl.DateTimeFormat("de-DE",{dateStyle:"short",timeStyle:"short"}).format(new Date(p.created_at)),
-              text:p.body||"",
-              emotion:codeToEmotion[p.emotion] || (p.emotion ? {name:p.emotion,icon:"🙂"} : null),
-              image:p.media&&p.media.public_url?p.media.public_url:"",
-              reactions:(p.reactions||[]).length,
-              comments:comments
+              text:p.body||"",emotion:codeToEmotion[p.emotion]||(p.emotion?{name:p.emotion,icon:"🙂"}:null),
+              image:p.media&&p.media.public_url?p.media.public_url:"",reactions:(p.reactions||[]).length,comments:comments
             };
           });
-          var feed=document.getElementById("postFeed");
+          var feed=document.getElementById("postFeed"),note=document.getElementById("feedModeNote");
           feed.innerHTML="";
-          if(posts.length) posts.forEach(function(post){feed.appendChild(renderPost(post));});
-          else feed.innerHTML='<div class="card empty-state">Noch keine Beiträge veröffentlicht.</div>';
+          if(note){
+            note.classList.toggle("show",mode==="global");
+            note.textContent=mode==="global"?"Trainer Feed · Hier erscheinen ausschließlich global veröffentlichte Beiträge aller Trainer.":"";
+          }
+          if(posts.length)posts.forEach(function(post){feed.appendChild(renderPost(post));});
+          else feed.innerHTML='<div class="card empty-state">'+(mode==="global"?"Noch keine globalen Trainer-Feed-Beiträge veröffentlicht.":"Noch keine Beiträge veröffentlicht.")+'</div>';
         }catch(_){}
       }
 
@@ -1606,7 +1673,7 @@
         article.innerHTML =
           '<div class="post-head">' +
             '<div class="mini-avatar">' + esc(initials(post.author || trainerName)) + '</div>' +
-            '<div class="post-author"><strong>' + esc(post.author || trainerName) + '</strong><small>' + esc(post.team || teamName) + ' · ' + esc(post.time || "gerade eben") + ' · 🌐</small></div>' +
+            '<div class="post-author"><strong>' + esc(post.author || trainerName) + '</strong><small>' + esc(post.team || teamName) + ' · ' + esc(post.time || "gerade eben") + ' · ' + (post.distributionScope==="GLOBAL"?"🌍 Trainer Feed":"🌐 Profil") + '</small></div>' +
             '<button class="more-btn" aria-label="Beitragsmenü">•••</button>' +
           '</div>' +
           '<div class="post-body"><p class="post-text">' + esc(post.text) + '</p>' + emotionHtml + imageHtml + '</div>' +
@@ -2067,6 +2134,9 @@
         updatePublishState();
       });
 
+      document.getElementById("scopeProfileBtn").addEventListener("click",function(){selectPostScope("PROFILE");});
+      document.getElementById("scopeGlobalBtn").addEventListener("click",function(){selectPostScope("GLOBAL");});
+
       function updatePublishState(){
         var hasText = document.getElementById("postText").value.trim().length > 0;
         document.getElementById("publishPostBtn").disabled = !(hasText || selectedImageData || selectedEmotion);
@@ -2085,6 +2155,16 @@
 
         if(serverMode){
           try{
+            if(selectedDistributionScope==="GLOBAL"){
+              if(!globalPricingState)await loadPostPricing();
+              if(!globalPricingState)throw new Error("Tarifprüfung nicht verfügbar");
+              var gp=globalPricingState.pricing||{};
+              if(gp.monthly_limit!=null&&Number(gp.remaining||0)<=0){
+                showToast("Dein Monatslimit für globale Beiträge ist erreicht.");return;
+              }
+              var ok=confirm("Diesen Beitrag im Trainer Feed und auf allen Profilen veröffentlichen? Kosten: "+unitLabel(gp.unit_cost)+".");
+              if(!ok)return;
+            }
             var mediaId=null;
             if(selectedImageData){
               var img=document.getElementById("postImagePreview");
@@ -2104,7 +2184,8 @@
               club_id:clubId,
               text:text,
               emotion:selectedEmotion ? selectedEmotion.name : "",
-              media_id:mediaId
+              media_id:mediaId,
+              distribution_scope:selectedDistributionScope
             });
 
             document.getElementById("postText").value = "";
@@ -2118,14 +2199,20 @@
             updatePublishState();
 
             if(saved.moderation && saved.moderation.status === "PENDING_REVIEW"){
-              showToast("Beitrag gespeichert und zur Prüfung geschickt.");
+              showToast("Link erkannt: Beitrag gespeichert und zur Prüfung geschickt.");
+            }else if(saved.billing&&saved.billing.scope==="GLOBAL"){
+              showToast("Global veröffentlicht · "+unitLabel(saved.billing.unit_cost)+" abgebucht.");
             }else{
-              showToast("Beitrag veröffentlicht.");
+              showToast("Beitrag kostenlos auf deinem Profil veröffentlicht.");
             }
+            if(selectedDistributionScope==="GLOBAL")await loadPostPricing();
+            loadServerFeed(feedMode);
             return;
           }catch(error){
-            if(error.data && error.data.flags) showToast(moderationMessage(error.data.flags));
-            else if(error.data && error.data.error === "LINK_ADS_NOT_ACTIVE") showToast("Externe Links werden später nur über die Werbefunktion erlaubt.");
+            if(error.data && error.data.flags)showToast(moderationMessage(error.data.flags));
+            else if(error.data&&error.data.error==="INSUFFICIENT_UNITS")showToast("Nicht genügend Units für die globale Veröffentlichung.");
+            else if(error.data&&error.data.error==="MONTHLY_GLOBAL_LIMIT")showToast("Monatslimit für globale Beiträge erreicht.");
+            else if(error.data&&error.data.error==="BILLING_NOT_CONFIGURED")showToast("Unit-Abrechnung ist noch nicht aktiviert.");
             else showToast("Beitrag konnte nicht gespeichert werden.");
             return;
           }
@@ -2167,7 +2254,8 @@
         showToast("Beitrag im Prototyp veröffentlicht");
       });
 
-      document.getElementById("newPostTopBtn").addEventListener("click",function(){
+      selectPostScope("PROFILE");
+            document.getElementById("newPostTopBtn").addEventListener("click",function(){
         document.getElementById("composerCard").scrollIntoView({behavior:"smooth",block:"center"});
         setTimeout(function(){document.getElementById("postText").focus();},350);
       });
@@ -2190,7 +2278,10 @@
         document.querySelector(".profile-tabs").scrollIntoView({behavior:"smooth",block:"start"});
       });
       document.getElementById("feedBtn").addEventListener("click",function(){
-        showToast("Der zentrale Trainer Feed wird als eigener Bereich angebunden.");
+        feedMode=feedMode==="global"?"profile":"global";
+        this.textContent=feedMode==="global"?"Mein Profil":"Trainer Feed";
+        loadServerFeed(feedMode);
+        document.getElementById("postFeed").scrollIntoView({behavior:"smooth",block:"start"});
       });
       document.getElementById("accountBtn").addEventListener("click",function(){
         if(isMember) location.href="/";
