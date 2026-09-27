@@ -788,7 +788,7 @@ Deno.serve(async(req:Request)=>{
       }
 
       await admin.from("community_user_state").update({last_post_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("owner_ref",who.owner);
-      return json({ok:true,post:finalPost,moderation:{status,flags:baseRow.moderation_flags},billing:{
+      return json({ok:true,post:finalPost,moderation:{status:String(finalPost?.status||initialStatus),flags:baseRow.moderation_flags},billing:{
         scope,tier:m.effectiveTier,status:chargeStatus,unit_cost:Number(price.unit_cost||0),
         monthly_limit:price.monthly_limit,used_after:scope==="GLOBAL"?used+1:used,
         remaining:scope==="GLOBAL"&&price.monthly_limit!=null?Math.max(0,price.monthly_limit-used-1):null,
