@@ -257,7 +257,7 @@
     .squad-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
     .player-card{display:grid;grid-template-columns:72px 1fr;gap:11px;align-items:center;padding:10px;border:1px solid rgba(255,255,255,.07);border-radius:13px;background:rgba(255,255,255,.025)}
     .player-avatar{width:72px;height:72px;border-radius:12px;overflow:hidden;background:#0b2a39;display:grid;place-items:center;border:1px solid rgba(255,255,255,.06)}
-    .player-avatar svg{width:100%;height:100%;display:block}.player-avatar .fallback{font-weight:950;color:#92b1bf}
+    .player-avatar svg,.player-avatar img{width:100%;height:100%;display:block}.player-avatar img{object-fit:cover}.player-avatar .fallback{font-weight:950;color:#92b1bf}
     .player-data strong{display:block;font-size:13px}.player-data small{display:block;color:#89a4b2;font-size:10px;margin-top:3px}.player-goals{display:inline-flex;margin-top:6px;padding:3px 7px;border-radius:999px;background:rgba(22,214,157,.09);color:#78ecc2;font-size:10px;font-weight:900}
     .info-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
     .info-cell{padding:12px;border:1px solid rgba(255,255,255,.07);border-radius:12px;background:rgba(255,255,255,.025)}.info-cell span{display:block;color:#829da9;font-size:10px;text-transform:uppercase;letter-spacing:.08em}.info-cell b{display:block;margin-top:5px;font-size:14px}
@@ -789,8 +789,8 @@
   <script src="/time-clash/assets/beard-real-b64-8p3.js?v=20260926a"></script>
   <script src="/time-clash/assets/beard-real-b64-9.js?v=20260926a"></script>
   <script src="/time-clash/assets/beard-pack-real.js?v=20260926a"></script>
-  <script src="/time-clash/assets/hair-pack-real.js?v=20260927a"></script>
-  <script src="/time-clash/avatar-engine.js?v=20260927c"></script>
+  <script src="/time-clash/assets/hair-pack-real.js?v=20260927b"></script>
+  <script src="/time-clash/avatar-engine.js?v=20260927e"></script>
 
   <script>
     (function(){
@@ -1115,8 +1115,14 @@
       }
 
       function playerAvatarHtml(player){
-        if(player&&player.avatar_configured&&player.avatar&&window.TimeClashAvatar&&window.TimeClashAvatar.headSvg){
-          try{return window.TimeClashAvatar.headSvg(player.avatar,0,0,180,145)}catch(_e){}
+        if(player&&player.portrait_url){
+          return '<img src="'+esc(player.portrait_url)+'" alt="'+esc(player.name||"Spieler")+'">';
+        }
+        if(player&&player.avatar_configured&&player.avatar&&window.TimeClashAvatar){
+          try{
+            if(window.TimeClashAvatar.renderPlayerPortrait)return window.TimeClashAvatar.renderPlayerPortrait(player.avatar,player.name||"");
+            if(window.TimeClashAvatar.headSvg)return window.TimeClashAvatar.headSvg(player.avatar,0,0,180,145);
+          }catch(_e){}
         }
         return '<span class="fallback">'+esc(initials(player&&player.name||"SP"))+'</span>';
       }
