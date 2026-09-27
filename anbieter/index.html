@@ -13,7 +13,7 @@
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="stylesheet" href="../assets/app-navigation.css">
   <script src="../assets/i18n/core-v2.js"></script>
-  <script src="../assets/regional-restrictions.js?v=20260927-1"></script>
+  <script src="../assets/regional-restrictions.js?v=20260927-2"></script>
   <script src="../assets/app-navigation.js?v=20260831-3" defer></script>
   <style>
     :root{
@@ -491,10 +491,11 @@
     });
     countrySelect.addEventListener('change',()=>{ populateRegions(countrySelect.value,''); regionSelect.value=''; updateConfirmState(); });
     regionSelect.addEventListener('change',updateConfirmState);
-    confirmCountry.addEventListener('click',()=>{
+    confirmCountry.addEventListener('click',async()=>{
       selectedCountry=countrySelect.value; selectedRegion=regionSelect.value;
       if (!selectedCountry) return;
       const regional=window.BetInsightRegionalRestrictions;
+      await regional?.ready?.();
       regional?.rememberCountry?.(selectedCountry);
       updateConfirmedLabel();
       countryForm.classList.add('hidden'); confirmedCountry.classList.remove('hidden'); results.classList.add('hidden'); activeMode='';
