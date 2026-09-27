@@ -23,7 +23,7 @@ begin
   end if;
   if not exists (select 1 from pg_constraint where conname='community_posts_charge_status_chk') then
     alter table public.community_posts add constraint community_posts_charge_status_chk
-      check (unit_charge_status in ('NOT_REQUIRED','PENDING','PAID','FAILED','REFUNDED'));
+      check (unit_charge_status in ('NOT_REQUIRED','PENDING','RESERVED','PAID','FAILED','RELEASED','REFUNDED'));
   end if;
 end $$;
 
@@ -71,7 +71,7 @@ begin
   end if;
   if not exists (select 1 from pg_constraint where conname='community_post_charges_status_chk') then
     alter table public.community_post_charges add constraint community_post_charges_status_chk
-      check (charge_status in ('PENDING','PAID','FAILED','REFUNDED'));
+      check (charge_status in ('PENDING','RESERVED','PAID','FAILED','RELEASED','REFUNDED'));
   end if;
 end $$;
 
@@ -88,7 +88,7 @@ create index if not exists community_post_charges_owner_month_idx
 -- GLOBAL  = central Trainer Feed + appears on every trainer profile.
 --
 -- Pricing contract:
--- BASIS        0.50 Units/global post, no invented monthly cap.
+-- BASIS        0.75 Units/global post, no invented monthly cap.
 -- PREMIUM      0.25 Units/global post, max 10/month.
 -- PREMIUM_PLUS 0.10 Units/global post, max 20/month.
 --
