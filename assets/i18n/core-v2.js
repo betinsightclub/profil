@@ -292,12 +292,6 @@
     wrapper.style.borderRadius = "10px";
     wrapper.style.background = "rgba(255,255,255,.035)";
 
-    const icon = document.createElement("span");
-    icon.textContent = "🌐";
-    icon.setAttribute("aria-hidden", "true");
-    icon.style.fontSize = "14px";
-    icon.style.flex = "0 0 auto";
-
     const select = document.createElement("select");
     select.className = "bi-language-select";
     select.setAttribute("aria-label", t("language.label", {}, "Sprache"));
@@ -333,7 +327,7 @@
       placeSwitcherBelowMemberLogo(wrapper);
     });
 
-    wrapper.append(icon, select);
+    wrapper.append(select);
     requestAnimationFrame(() => placeSwitcherBelowMemberLogo(wrapper));
     return wrapper;
   }
