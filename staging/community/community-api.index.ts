@@ -146,7 +146,7 @@ async function verifyMember(credential:string){
   return {owner,profile:d,state,membership};
 }
 
-const URL_RE=/(?:https?:\/\/|www\.|(?:^|\s)[a-z0-9-]+\.(?:com|net|org|club|io|gg|de|fr|it|es|pt|br)(?:\/|\s|$)|t\.me\/|wa\.me\/)/i;
+const URL_RE=/(?:https?:\/\/|www\.|(?:^|[\s(])(?:[a-z0-9-]+\.)+(?:com|net|org|club|io|gg|de|fr|it|es|pt|br|co|uk|us|me|info|biz|app|ai)(?=[\/\s,.;:!?)]|$)|t\.me\/|wa\.me\/)/i;
 const EMAIL_RE=/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i;
 const PHONE_RE=/(?:^|\s)(?:\+?\d[\d\s().-]{7,}\d)(?:\s|$)/;
 const SCRIPT_RE=/<\s*script|javascript:|onerror\s*=|onload\s*=/i;
@@ -726,44 +726,53 @@ Deno.serve(async(req:Request)=>{
         return json({ok:false,error:"INSUFFICIENT_UNITS",required:price.unit_cost,available:m.unitsAvailable},402,origin);
 
       const postId=crypto.randomUUID(),requestId="COMMUNITY_POST:"+postId;
-      let billing:any=null,status="PUBLISHED",chargeStatus="NOT_REQUIRED",publishedAt:any=new Date().toISOString();
+      const initialStatus=scope==="GLOBAL"?(linkEnabled?"PENDING_REVIEW":"PAYMENT_PENDING"):"PUBLISHED";
+      const initialChargeStatus=scope==="GLOBAL"?(linkEnabled?"PENDING":"PENDING"):"NOT_REQUIRED";
+      const baseRow:any={
+        id:postId,club_id:club.id,owner_ref:who.owner,body:textResult.text,emotion:clean(body.emotion,40)||null,
+        media_id:mediaId,external_url:externalUrl||null,distribution_scope:scope,billing_tier:m.effectiveTier,
+        unit_cost:Number(price.unit_cost||0),unit_charge_status:initialChargeStatus,billing_month:scope==="GLOBAL"?month:null,
+        billing_reference:scope==="GLOBAL"?requestId:null,paid_at:null,
+        membership_status_snapshot:m.effectiveStatus,premium_until_snapshot:m.premiumUntil,status:initialStatus,
+        moderation_flags:linkEnabled?["external_link_review"]:[],moderation_score:linkEnabled?55:0,
+        published_at:scope==="PROFILE"?new Date().toISOString():null
+      };
+      const ins=await admin.from("community_posts").insert(baseRow).select().single();
+      if(ins.error)throw ins.error;
 
+      let billing:any=null,finalPost:any=ins.data,chargeStatus=initialChargeStatus;
       if(scope==="GLOBAL"&&linkEnabled){
         try{
           billing=await reserveUnits({
             action:"reserve",credential:clean(body.credential||body.token,300),request_id:requestId,
             units:price.unit_cost,post_id:postId,reason:"community_global_link_post"
           });
+          chargeStatus="RESERVED";
+          const up=await admin.from("community_posts").update({
+            unit_charge_status:"RESERVED",updated_at:new Date().toISOString()
+          }).eq("id",postId).select().single();
+          if(up.error)throw up.error;finalPost=up.data;
         }catch(e:any){
+          await admin.from("community_posts").update({status:"PAYMENT_FAILED",unit_charge_status:"FAILED",updated_at:new Date().toISOString()}).eq("id",postId);
+          try{await reserveUnits({action:"release",credential:who.owner,request_id:requestId,units:price.unit_cost,post_id:postId,reason:"reservation_failed_cleanup"})}catch(_){}
           return json({ok:false,error:e?.message||"UNIT_RESERVE_FAILED",detail:e?.data||null},e?.status||502,origin);
         }
-        status="PENDING_REVIEW";chargeStatus="RESERVED";publishedAt=null;
       }else if(scope==="GLOBAL"){
         try{
           billing=await chargeUnits({
             action:"charge",credential:clean(body.credential||body.token,300),request_id:requestId,
             units:price.unit_cost,post_id:postId,reason:"community_global_post",tier:m.effectiveTier,month_key:month
           });
+          chargeStatus="PAID";
+          const paidAt=new Date().toISOString();
+          const up=await admin.from("community_posts").update({
+            status:"PUBLISHED",unit_charge_status:"PAID",paid_at:paidAt,published_at:paidAt,updated_at:paidAt
+          }).eq("id",postId).select().single();
+          if(up.error)throw up.error;finalPost=up.data;
         }catch(e:any){
+          await admin.from("community_posts").update({status:"PAYMENT_FAILED",unit_charge_status:"FAILED",updated_at:new Date().toISOString()}).eq("id",postId);
           return json({ok:false,error:e?.message||"UNIT_CHARGE_FAILED",detail:e?.data||null},e?.status||502,origin);
         }
-        chargeStatus="PAID";
-      }
-
-      const baseRow:any={
-        id:postId,club_id:club.id,owner_ref:who.owner,body:textResult.text,emotion:clean(body.emotion,40)||null,
-        media_id:mediaId,external_url:externalUrl||null,distribution_scope:scope,billing_tier:m.effectiveTier,
-        unit_cost:Number(price.unit_cost||0),unit_charge_status:chargeStatus,billing_month:scope==="GLOBAL"?month:null,
-        billing_reference:scope==="GLOBAL"?requestId:null,paid_at:chargeStatus==="PAID"?new Date().toISOString():null,
-        membership_status_snapshot:m.effectiveStatus,premium_until_snapshot:m.premiumUntil,status,
-        moderation_flags:linkEnabled?["external_link_review"]:[],moderation_score:linkEnabled?55:0,published_at:publishedAt
-      };
-      const ins=await admin.from("community_posts").insert(baseRow).select().single();
-      if(ins.error){
-        if(scope==="GLOBAL"&&linkEnabled){
-          try{await reserveUnits({action:"release",credential:who.owner,request_id:requestId,units:price.unit_cost,post_id:postId,reason:"post_insert_failed"})}catch(_){}
-        }
-        throw ins.error;
       }
 
       if(scope==="GLOBAL"&&chargeStatus==="PAID"){
@@ -779,7 +788,7 @@ Deno.serve(async(req:Request)=>{
       }
 
       await admin.from("community_user_state").update({last_post_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("owner_ref",who.owner);
-      return json({ok:true,post:ins.data,moderation:{status,flags:baseRow.moderation_flags},billing:{
+      return json({ok:true,post:finalPost,moderation:{status,flags:baseRow.moderation_flags},billing:{
         scope,tier:m.effectiveTier,status:chargeStatus,unit_cost:Number(price.unit_cost||0),
         monthly_limit:price.monthly_limit,used_after:scope==="GLOBAL"?used+1:used,
         remaining:scope==="GLOBAL"&&price.monthly_limit!=null?Math.max(0,price.monthly_limit-used-1):null,
