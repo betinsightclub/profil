@@ -15,6 +15,11 @@ function monthKeyBerlin(d=new Date()){
   const x:any=Object.fromEntries(p.map(z=>[z.type,z.value]));
   return String(x.year)+"-"+String(x.month);
 }
+function globalPricing(tier:string){
+  if(tier==="PREMIUM_PLUS")return {unit_cost:0.10,monthly_limit:20};
+  if(tier==="PREMIUM")return {unit_cost:0.25,monthly_limit:10};
+  return {unit_cost:0.50,monthly_limit:null};
+}
 function effectiveMember(row:any){
   const raw=String(row?.raw_tier||"BASIS").toUpperCase();
   if(raw==="BASIS")return {...row,effective_tier:"BASIS",effective_status:"BASIS",payment_confirmed:true};
@@ -177,18 +182,41 @@ Deno.serve(async(req:Request)=>{
       if(table==="community_posts"&&status==="PUBLISHED")patch.published_at=new Date().toISOString();
       if(table==="community_media"){patch.reviewed_at=new Date().toISOString();patch.reviewed_by=who.adminId}
 
-      let refund:any=null;
-      if(type==="post"&&(decision==="REJECT"||decision==="DELETE")){
-        const pq=await admin.from("community_posts").select("id,owner_ref,distribution_scope,unit_cost,unit_charge_status,billing_reference").eq("id",id).maybeSingle();
+      let billingMeta:any=null;
+      if(type==="post"&&(decision==="PUBLISH"||decision==="RESTORE")){
+        const pq=await admin.from("community_posts").select("id,owner_ref,club_id,distribution_scope,unit_cost,unit_charge_status,billing_reference").eq("id",id).maybeSingle();
         if(pq.error)throw pq.error;
-        if(pq.data&&pq.data.distribution_scope==="GLOBAL"&&pq.data.unit_charge_status==="PAID"&&Number(pq.data.unit_cost||0)>0){
-          refund=await unitCall({action:"refund",owner_ref:pq.data.owner_ref,units:Number(pq.data.unit_cost),request_id:"COMMUNITY_POST:"+id,reference:pq.data.billing_reference||"",reason:"admin_"+decision.toLowerCase()});
-          patch.unit_charge_status="REFUNDED";
+        if(pq.data&&pq.data.distribution_scope==="GLOBAL"&&pq.data.unit_charge_status!=="PAID"){
+          const ms=await admin.from("community_membership_state").select("*").eq("owner_ref",pq.data.owner_ref).maybeSingle();
+          if(ms.error)throw ms.error;
+          const member=effectiveMember(ms.data||{owner_ref:pq.data.owner_ref}),price=globalPricing(member.effective_tier),month=monthKeyBerlin();
+          const usedQ=await admin.from("community_posts").select("id",{count:"exact",head:true})
+            .eq("owner_ref",pq.data.owner_ref).eq("distribution_scope","GLOBAL").eq("billing_month",month)
+            .eq("unit_charge_status","PAID").neq("status","DELETED").neq("status","REJECTED");
+          if(usedQ.error)throw usedQ.error;
+          const used=Number(usedQ.count||0);
+          if(price.monthly_limit!=null&&used>=price.monthly_limit)
+            return j({ok:false,error:"MONTHLY_GLOBAL_LIMIT",limit:price.monthly_limit,used},409,origin);
+          const charge=await unitCall({action:"charge",owner_ref:pq.data.owner_ref,units:price.unit_cost,request_id:"COMMUNITY_POST:"+id,reason:"community_global_post_after_link_approval",tier:member.effective_tier,month_key:month});
+          patch.unit_charge_status="PAID";patch.unit_cost=price.unit_cost;patch.billing_tier=member.effective_tier;
+          patch.billing_month=month;patch.membership_status_snapshot=member.effective_status;patch.premium_until_snapshot=member.premium_until||null;
+          patch.billing_reference=clean(charge?.reference||charge?.transaction_id||"",160)||null;patch.paid_at=new Date().toISOString();
+          billingMeta={member,price,month,charge};
         }
       }
       const up=await admin.from(table).update(patch).eq("id",id);if(up.error)throw up.error;
-      if(refund&&type==="post"){
-        await admin.from("community_post_charges").update({charge_status:"REFUNDED",updated_at:new Date().toISOString(),error_code:null}).eq("post_id",id).eq("charge_status","PAID");
+      if(billingMeta&&type==="post"){
+        const charge=billingMeta.charge,member=billingMeta.member,price=billingMeta.price,month=billingMeta.month;
+        const aq=await admin.from("community_post_charges").upsert({
+          post_id:id,owner_ref:(await admin.from("community_posts").select("owner_ref,club_id").eq("id",id).single()).data?.owner_ref,
+          club_id:(await admin.from("community_posts").select("owner_ref,club_id").eq("id",id).single()).data?.club_id,
+          distribution_scope:"GLOBAL",tier_snapshot:member.effective_tier,membership_status_snapshot:member.effective_status,
+          premium_until_snapshot:member.premium_until||null,month_key:month,unit_cost:price.unit_cost,charge_status:"PAID",
+          external_reference:clean(charge?.reference||charge?.transaction_id||"",160)||null,
+          balance_before:Number(charge?.balance_before||0),balance_after:Number(charge?.balance_after||0),
+          charged_at:new Date().toISOString(),updated_at:new Date().toISOString()
+        },{onConflict:"post_id"});
+        if(aq.error)console.error("admin charge audit",aq.error.message);
       }
       const reports=await reportCount(type,id);
       await admin.from("community_reports").update({status:status==="PUBLISHED"?"DISMISSED":"ACTIONED",reviewed_at:new Date().toISOString(),reviewed_by:who.adminId}).eq("target_type",type).eq("target_id",id).eq("status","OPEN");
