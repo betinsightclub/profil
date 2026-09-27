@@ -201,15 +201,15 @@ Deno.serve(async(req:Request)=>{
           patch.unit_charge_status="PAID";patch.unit_cost=price.unit_cost;patch.billing_tier=member.effective_tier;
           patch.billing_month=month;patch.membership_status_snapshot=member.effective_status;patch.premium_until_snapshot=member.premium_until||null;
           patch.billing_reference=clean(charge?.reference||charge?.transaction_id||"",160)||null;patch.paid_at=new Date().toISOString();
-          billingMeta={member,price,month,charge};
+          billingMeta={member,price,month,charge,post:pq.data};
         }
       }
       const up=await admin.from(table).update(patch).eq("id",id);if(up.error)throw up.error;
       if(billingMeta&&type==="post"){
         const charge=billingMeta.charge,member=billingMeta.member,price=billingMeta.price,month=billingMeta.month;
         const aq=await admin.from("community_post_charges").upsert({
-          post_id:id,owner_ref:(await admin.from("community_posts").select("owner_ref,club_id").eq("id",id).single()).data?.owner_ref,
-          club_id:(await admin.from("community_posts").select("owner_ref,club_id").eq("id",id).single()).data?.club_id,
+          post_id:id,owner_ref:billingMeta.post.owner_ref,
+          club_id:billingMeta.post.club_id,
           distribution_scope:"GLOBAL",tier_snapshot:member.effective_tier,membership_status_snapshot:member.effective_status,
           premium_until_snapshot:member.premium_until||null,month_key:month,unit_cost:price.unit_cost,charge_status:"PAID",
           external_reference:clean(charge?.reference||charge?.transaction_id||"",160)||null,
