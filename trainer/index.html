@@ -1179,11 +1179,52 @@
       var teamName = "";
       var country = "";
       var refCode = cleanRef(params.get("ref") || params.get("ref_code") || "");
+
+      function isDashboardCredential(value){
+        return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value||"").trim());
+      }
+      function persistMemberCredential(value){
+        var v=String(value||"").trim();
+        if(!v)return "";
+        try{
+          if(isDashboardCredential(v))localStorage.setItem("betinsight_dashboard_token",v);
+          else localStorage.setItem("betinsight_profile_token",v);
+        }catch(_e){}
+        return v;
+      }
+      function recoverMemberCredential(){
+        var credential="";
+        try{
+          credential=String(params.get("token")||params.get("credential")||params.get("dashboard_token")||"").trim();
+          if(credential)persistMemberCredential(credential);
+          if(!credential){
+            credential=String(sessionStorage.getItem("betinsight_trainer_handoff")||"").trim();
+            if(credential)persistMemberCredential(credential);
+            sessionStorage.removeItem("betinsight_trainer_handoff");
+          }
+          if(!credential && document.referrer){
+            var ref=new URL(document.referrer);
+            if(ref.origin===location.origin && /^\/time-clash(?:\/|$)/.test(ref.pathname)){
+              var rq=new URLSearchParams(ref.search);
+              credential=String(rq.get("token")||rq.get("credential")||rq.get("dashboard_token")||"").trim();
+              if(credential)persistMemberCredential(credential);
+            }
+          }
+          if(params.has("token")||params.has("credential")||params.has("dashboard_token")){
+            var safeUrl=new URL(location.href);
+            ["token","credential","dashboard_token"].forEach(function(k){safeUrl.searchParams.delete(k);});
+            history.replaceState(null,"",safeUrl.pathname+(safeUrl.searchParams.toString()?"?"+safeUrl.searchParams.toString():"")+safeUrl.hash);
+          }
+        }catch(_e){}
+        return credential;
+      }
+
       var sessionApi = window.BetInsightSession || null;
-      var memberCredential = "";
+      var memberCredential = recoverMemberCredential();
       try{
-        memberCredential = sessionApi ? (sessionApi.getDashboardUuid() || sessionApi.getProfileToken() || "") :
-          (localStorage.getItem("betinsight_dashboard_token") || localStorage.getItem("betinsight_profile_token") || "");
+        var sessionCredential=sessionApi ? ((sessionApi.getDashboardUuid&&sessionApi.getDashboardUuid()) || (sessionApi.getProfileToken&&sessionApi.getProfileToken()) || "") : "";
+        memberCredential = memberCredential || sessionCredential || localStorage.getItem("betinsight_dashboard_token") || localStorage.getItem("betinsight_profile_token") || "";
+        if(memberCredential)persistMemberCredential(memberCredential);
       }catch(_e){}
       var clubId = requestedClubId;
       var isOwner = false;
