@@ -50,8 +50,9 @@ function ownerFromProfile(d:any){
   return ref || clean(d?.user_id || d?.dashboard_token || d?.token,120);
 }
 
-const COMMUNITY_UNIT_WEBHOOK=Deno.env.get("COMMUNITY_UNIT_WEBHOOK")||"";
-const COMMUNITY_UNIT_SECRET=Deno.env.get("COMMUNITY_UNIT_SECRET")||"";
+const COMMUNITY_RESERVE_WEBHOOK=Deno.env.get("COMMUNITY_RESERVE_WEBHOOK")||"https://hook.eu1.make.com/6uq7y66k30i8ckarvq1q6a3drccbf1af";
+const COMMUNITY_CHARGE_WEBHOOK=Deno.env.get("COMMUNITY_CHARGE_WEBHOOK")||"https://hook.eu1.make.com/bn6ympq0fa6g540cpkxsp36pqjur14i8";
+const COMMUNITY_UNIT_SECRET=Deno.env.get("COMMUNITY_UNIT_SECRET")||"hI5Fe7vbwue3TooMNlsEp85UpPJCwT7xaJ3j2ISsogY";
 
 function parseDateValue(v:any){
   const s=clean(v,80);
@@ -67,33 +68,14 @@ function firstProfileValue(p:any,keys:string[],fallback:any=null){
   return fallback;
 }
 function membershipInfo(profile:any){
-  const rawLevel=Number(firstProfileValue(profile,["mitgliedschaft_level","membership_level","premium_level"],0))||0;
-  const rawName=clean(firstProfileValue(profile,["mitgliedschaft","membership"],"Basis"),80).toUpperCase();
-  const tariff=clean(firstProfileValue(profile,["tarif_code","tariff_code"],""),80).toUpperCase();
-  let rawTier=(rawLevel>=2||/PLUS|PREMIUM[_ -]?PLUS|P\+/.test(rawName+" "+tariff))?"PREMIUM_PLUS":
-    (rawLevel>=1||/PREMIUM/.test(rawName+" "+tariff))?"PREMIUM":"BASIS";
-  const statusRaw=clean(firstProfileValue(profile,["premium_status","membership_status"],""),80).toUpperCase();
+  const level=Number(firstProfileValue(profile,["mitgliedschaft_level","membership_level","premium_level"],0))||0;
+  const effectiveTier=level>=2?"PREMIUM_PLUS":level>=1?"PREMIUM":"BASIS";
   const premiumUntil=parseDateValue(firstProfileValue(profile,["premium_bis","premium_until","periode_bis"],null));
   const graceUntil=parseDateValue(firstProfileValue(profile,["kulanz_bis","grace_until"],null));
-  const now=Date.now();
-  const explicitlyInactive=/(ABGELAUFEN|EXPIRED|INAKTIV|INACTIVE|NICHT[_ -]?BEZAHLT|UNBEZAHLT|PAST[_ -]?DUE|ENDED)/.test(statusRaw);
-  const explicitlyActive=/(AKTIV|ACTIVE|PAID|BEZAHLT|LAUFEND|CURRENT)/.test(statusRaw);
-  const inPaidPeriod=!!premiumUntil&&premiumUntil.getTime()>=now;
-  const inGrace=!!graceUntil&&graceUntil.getTime()>=now;
-  let effectiveTier=rawTier,effectiveStatus="BASIS",paymentConfirmed=true;
-  if(rawTier==="BASIS"){
-    effectiveTier="BASIS";effectiveStatus="BASIS";paymentConfirmed=true;
-  }else if(inGrace && !inPaidPeriod){
-    effectiveTier=rawTier;effectiveStatus="KULANZ";paymentConfirmed=false;
-  }else if(inPaidPeriod && !explicitlyInactive){
-    effectiveTier=rawTier;effectiveStatus="AKTIV";paymentConfirmed=true;
-  }else{
-    effectiveTier="BASIS";
-    effectiveStatus=explicitlyInactive||premiumUntil?"ABGELAUFEN":"ZAHLUNG_NICHT_BESTAETIGT";
-    paymentConfirmed=false;
-  }
   return {
-    rawTier,effectiveTier,effectiveStatus,paymentConfirmed,
+    rawTier:effectiveTier,effectiveTier,
+    effectiveStatus:effectiveTier==="BASIS"?"BASIS":"AKTIV",
+    paymentConfirmed:effectiveTier!=="BASIS",
     premiumUntil:premiumUntil?premiumUntil.toISOString():null,
     graceUntil:graceUntil?graceUntil.toISOString():null,
     autoRenew:clean(firstProfileValue(profile,["auto_verlaengerung","auto_renew"],""),40),
@@ -104,7 +86,7 @@ function membershipInfo(profile:any){
 function globalPricing(tier:string){
   if(tier==="PREMIUM_PLUS")return {unit_cost:0.10,monthly_limit:20};
   if(tier==="PREMIUM")return {unit_cost:0.25,monthly_limit:10};
-  return {unit_cost:0.50,monthly_limit:null};
+  return {unit_cost:0.75,monthly_limit:null};
 }
 function monthKeyBerlin(d=new Date()){
   const p=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Berlin",year:"numeric",month:"2-digit"}).formatToParts(d);
@@ -126,20 +108,18 @@ async function snapshotMembership(owner:string,profile:any){
 async function globalUsage(owner:string,monthKey:string){
   const q=await admin.from("community_posts").select("id",{count:"exact",head:true})
     .eq("owner_ref",owner).eq("distribution_scope","GLOBAL").eq("billing_month",monthKey)
-    .in("unit_charge_status",["PAID","PENDING"]).neq("status","DELETED").neq("status","REJECTED");
+    .in("unit_charge_status",["PAID","PENDING","RESERVED"]).neq("status","DELETED").neq("status","REJECTED");
   if(q.error)throw q.error;
   return Number(q.count||0);
 }
-async function unitCall(payload:any){
-  if(!COMMUNITY_UNIT_WEBHOOK||!COMMUNITY_UNIT_SECRET)throw new Error("BILLING_NOT_CONFIGURED");
-  const r=await fetch(COMMUNITY_UNIT_WEBHOOK,{
-    method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({...payload,gateway_secret:COMMUNITY_UNIT_SECRET}),redirect:"follow"
-  });
+async function callMake(url:string,payload:any){
+  const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...payload,gateway_secret:COMMUNITY_UNIT_SECRET}),redirect:"follow"});
   const d:any=await r.json().catch(()=>({}));
-  if(!r.ok||d.ok===false){const e:any=new Error(d.error||"UNIT_CHARGE_FAILED");e.data=d;throw e}
+  if(!r.ok||d.ok===false){const e:any=new Error(d.error||"UNIT_SERVICE_FAILED");e.data=d;e.status=r.status;throw e}
   return d;
 }
+async function reserveUnits(payload:any){return callMake(COMMUNITY_RESERVE_WEBHOOK,payload)}
+async function chargeUnits(payload:any){return callMake(COMMUNITY_CHARGE_WEBHOOK,payload)}
 async function verifyMember(credential:string){
   const token=clean(credential,300);
   if(!token) return null;
@@ -189,11 +169,19 @@ function screenText(raw:string,kind:"post"|"comment"|"profile",allowExternalLink
   if(ABUSE_RE.test(text)){flags.push("abuse");severity=Math.max(severity,65)}
   if(SPAM_RE.test(text)){flags.push("spam");severity=Math.max(severity,55)}
   if(EMAIL_RE.test(text)||PHONE_RE.test(text)){flags.push("personal_contact");severity=Math.max(severity,90)}
-  if(URL_RE.test(text)&&!allowExternalLink){flags.push("external_link_review");severity=Math.max(severity,55)}
-  const needsLinkReview=flags.includes("external_link_review");
-  const hasAutoRejectFlag=flags.some(x=>["abuse","spam","fraud","unsafe_markup","threat","sexual_minor","extremist","personal_contact"].includes(x));
-  const decision=(severity>=90||hasAutoRejectFlag)?"REJECTED":needsLinkReview?"PENDING_REVIEW":"PUBLISHED";
+  if(URL_RE.test(text)&&!allowExternalLink){flags.push("external_link_in_text");severity=Math.max(severity,100)}
+  const hasAutoRejectFlag=flags.some(x=>["external_link_in_text","abuse","spam","fraud","unsafe_markup","threat","sexual_minor","extremist","personal_contact"].includes(x));
+  const decision=(severity>=90||hasAutoRejectFlag)?"REJECTED":"PUBLISHED";
   return {text,flags,score:severity,decision};
+}
+function validatedExternalUrl(raw:any){
+  const value=clean(raw,1000);
+  if(!value)return "";
+  let u:URL;
+  try{u=new URL(value)}catch(_){throw new Error("INVALID_EXTERNAL_URL")}
+  if(!["https:","http:"].includes(u.protocol))throw new Error("INVALID_EXTERNAL_URL");
+  if(!u.hostname||u.username||u.password)throw new Error("INVALID_EXTERNAL_URL");
+  return u.toString().slice(0,1000);
 }
 async function clubFor(owner:string,clubId?:string){
   let q=admin.from("time_clash_user_clubs").select("id,owner_ref,club_name,status,visibility").eq("owner_ref",owner).eq("status","active");
@@ -707,9 +695,14 @@ Deno.serve(async(req:Request)=>{
     if(action==="create_post"){
       const club=await clubFor(who.owner,clean(body.club_id,80)||undefined);
       if(!club) return json({ok:false,error:"TEAM_REQUIRED"},403,origin);
+
       const scope=String(body.distribution_scope||"PROFILE").toUpperCase()==="GLOBAL"?"GLOBAL":"PROFILE";
       const textResult=screenText(body.text||"","post",false);
-      if(textResult.decision==="REJECTED") return json({ok:false,error:"CONTENT_REJECTED",flags:textResult.flags},422,origin);
+      if(textResult.decision==="REJECTED"){
+        const error=textResult.flags.includes("external_link_in_text")?"LINK_IN_TEXT_NOT_ALLOWED":"CONTENT_REJECTED";
+        return json({ok:false,error,flags:textResult.flags},422,origin);
+      }
+
       let mediaId=clean(body.media_id,80)||null;
       if(mediaId){
         const mq=await admin.from("community_media").select("id,status,owner_ref").eq("id",mediaId).eq("owner_ref",who.owner).maybeSingle();
@@ -717,6 +710,14 @@ Deno.serve(async(req:Request)=>{
         if(!mq.data) return json({ok:false,error:"MEDIA_NOT_FOUND"},404,origin);
         if(mq.data.status!=="PUBLISHED")return json({ok:false,error:"MEDIA_NOT_READY"},409,origin);
       }
+
+      const linkEnabled=body.link_enabled===true||String(body.link_enabled||"").toLowerCase()==="true";
+      let externalUrl="";
+      try{externalUrl=validatedExternalUrl(body.external_url||"")}catch(_){return json({ok:false,error:"INVALID_EXTERNAL_URL"},400,origin)}
+      if(linkEnabled&&scope!=="GLOBAL")return json({ok:false,error:"LINK_GLOBAL_ONLY"},400,origin);
+      if(externalUrl&&!linkEnabled)return json({ok:false,error:"LINK_CHECK_REQUIRED"},400,origin);
+      if(linkEnabled&&!externalUrl)return json({ok:false,error:"LINK_REQUIRED"},400,origin);
+
       const m=who.membership||membershipInfo(who.profile),month=monthKeyBerlin();
       const price=scope==="GLOBAL"?globalPricing(m.effectiveTier):{unit_cost:0,monthly_limit:null};
       const used=scope==="GLOBAL"?await globalUsage(who.owner,month):0;
@@ -725,57 +726,66 @@ Deno.serve(async(req:Request)=>{
       if(scope==="GLOBAL"&&Number(m.unitsAvailable||0)+1e-9<Number(price.unit_cost))
         return json({ok:false,error:"INSUFFICIENT_UNITS",required:price.unit_cost,available:m.unitsAvailable},402,origin);
 
-      const postId=crypto.randomUUID();
-      const requiresReview=textResult.decision==="PENDING_REVIEW";
-      const initialStatus=scope==="GLOBAL"&&!requiresReview?"PAYMENT_PENDING":requiresReview?"PENDING_REVIEW":"PUBLISHED";
-      const externalUrl=URL_RE.test(textResult.text)?clean((textResult.text.match(/https?:\/\/[^\s]+/i)||[])[0],1000)||null:null;
+      const postId=crypto.randomUUID(),requestId="COMMUNITY_POST:"+postId;
+      let billing:any=null,status="PUBLISHED",chargeStatus="NOT_REQUIRED",publishedAt:any=new Date().toISOString();
+
+      if(scope==="GLOBAL"&&linkEnabled){
+        try{
+          billing=await reserveUnits({
+            action:"reserve",credential:clean(body.credential||body.token,300),request_id:requestId,
+            units:price.unit_cost,post_id:postId,reason:"community_global_link_post"
+          });
+        }catch(e:any){
+          return json({ok:false,error:e?.message||"UNIT_RESERVE_FAILED",detail:e?.data||null},e?.status||502,origin);
+        }
+        status="PENDING_REVIEW";chargeStatus="RESERVED";publishedAt=null;
+      }else if(scope==="GLOBAL"){
+        try{
+          billing=await chargeUnits({
+            action:"charge",credential:clean(body.credential||body.token,300),request_id:requestId,
+            units:price.unit_cost,post_id:postId,reason:"community_global_post",tier:m.effectiveTier,month_key:month
+          });
+        }catch(e:any){
+          return json({ok:false,error:e?.message||"UNIT_CHARGE_FAILED",detail:e?.data||null},e?.status||502,origin);
+        }
+        chargeStatus="PAID";
+      }
+
       const baseRow:any={
         id:postId,club_id:club.id,owner_ref:who.owner,body:textResult.text,emotion:clean(body.emotion,40)||null,
-        media_id:mediaId,external_url:externalUrl,distribution_scope:scope,billing_tier:m.effectiveTier,
-        unit_cost:Number(price.unit_cost||0),unit_charge_status:scope==="GLOBAL"?"PENDING":"NOT_REQUIRED",
-        billing_month:scope==="GLOBAL"?month:null,membership_status_snapshot:m.effectiveStatus,
-        premium_until_snapshot:m.premiumUntil,status:initialStatus,moderation_flags:textResult.flags,
-        moderation_score:textResult.score,published_at:initialStatus==="PUBLISHED"?new Date().toISOString():null
+        media_id:mediaId,external_url:externalUrl||null,distribution_scope:scope,billing_tier:m.effectiveTier,
+        unit_cost:Number(price.unit_cost||0),unit_charge_status:chargeStatus,billing_month:scope==="GLOBAL"?month:null,
+        billing_reference:scope==="GLOBAL"?requestId:null,paid_at:chargeStatus==="PAID"?new Date().toISOString():null,
+        membership_status_snapshot:m.effectiveStatus,premium_until_snapshot:m.premiumUntil,status,
+        moderation_flags:linkEnabled?["external_link_review"]:[],moderation_score:linkEnabled?55:0,published_at:publishedAt
       };
       const ins=await admin.from("community_posts").insert(baseRow).select().single();
-      if(ins.error)throw ins.error;
-
-      let finalPost:any=ins.data,charge:any=null;
-      if(scope==="GLOBAL"&&!requiresReview){
-        try{
-          charge=await unitCall({
-            action:"charge",owner_ref:who.owner,credential:clean(body.credential||body.token,300),
-            units:price.unit_cost,request_id:"COMMUNITY_POST:"+postId,
-            reason:"community_global_post",tier:m.effectiveTier,month_key:month
-          });
-          const patch:any={
-            status:"PUBLISHED",unit_charge_status:"PAID",
-            billing_reference:clean(charge?.reference||charge?.transaction_id||"",160)||null,
-            paid_at:new Date().toISOString(),published_at:new Date().toISOString(),updated_at:new Date().toISOString()
-          };
-          const up=await admin.from("community_posts").update(patch).eq("id",postId).select().single();
-          if(up.error)throw up.error;finalPost=up.data;
-          const aq=await admin.from("community_post_charges").insert({
-            post_id:postId,owner_ref:who.owner,club_id:club.id,distribution_scope:"GLOBAL",
-            tier_snapshot:m.effectiveTier,membership_status_snapshot:m.effectiveStatus,premium_until_snapshot:m.premiumUntil,
-            month_key:month,unit_cost:price.unit_cost,charge_status:"PAID",
-            external_reference:patch.billing_reference,balance_before:Number(charge?.balance_before??m.unitsAvailable),
-            balance_after:Number(charge?.balance_after??(m.unitsAvailable-price.unit_cost)),charged_at:new Date().toISOString(),updated_at:new Date().toISOString()
-          });
-          if(aq.error)console.error("post charge audit",aq.error.message);
-        }catch(e:any){
-          await admin.from("community_posts").update({status:"PAYMENT_FAILED",unit_charge_status:"FAILED",updated_at:new Date().toISOString()}).eq("id",postId);
-          return json({ok:false,error:e?.message||"UNIT_CHARGE_FAILED",post_id:postId,detail:e?.data||null},502,origin);
+      if(ins.error){
+        if(scope==="GLOBAL"&&linkEnabled){
+          try{await reserveUnits({action:"release",credential:who.owner,request_id:requestId,units:price.unit_cost,post_id:postId,reason:"post_insert_failed"})}catch(_){}
         }
+        throw ins.error;
+      }
+
+      if(scope==="GLOBAL"&&chargeStatus==="PAID"){
+        const aq=await admin.from("community_post_charges").insert({
+          post_id:postId,owner_ref:who.owner,club_id:club.id,distribution_scope:"GLOBAL",
+          tier_snapshot:m.effectiveTier,membership_status_snapshot:m.effectiveStatus,premium_until_snapshot:m.premiumUntil,
+          month_key:month,unit_cost:price.unit_cost,charge_status:"PAID",external_reference:requestId,
+          balance_before:Number(billing?.balance_before??m.unitsAvailable),
+          balance_after:Number(billing?.balance_after??(m.unitsAvailable-price.unit_cost)),
+          charged_at:new Date().toISOString(),updated_at:new Date().toISOString()
+        });
+        if(aq.error)console.error("post charge audit",aq.error.message);
       }
 
       await admin.from("community_user_state").update({last_post_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("owner_ref",who.owner);
-      const chargeStatus=scope==="GLOBAL"?(requiresReview?"PENDING":"PAID"):"NOT_REQUIRED";
-      return json({ok:true,post:finalPost,moderation:{status:requiresReview?"PENDING_REVIEW":"PUBLISHED",flags:textResult.flags},billing:{
+      return json({ok:true,post:ins.data,moderation:{status,flags:baseRow.moderation_flags},billing:{
         scope,tier:m.effectiveTier,status:chargeStatus,unit_cost:Number(price.unit_cost||0),
-        monthly_limit:price.monthly_limit,used_after:scope==="GLOBAL"&&!requiresReview?used+1:used,
-        remaining:scope==="GLOBAL"&&price.monthly_limit!=null?Math.max(0,price.monthly_limit-used-(requiresReview?0:1)):null,
-        balance_after:scope==="GLOBAL"&&!requiresReview?Number(charge?.balance_after??(m.unitsAvailable-price.unit_cost)):m.unitsAvailable
+        monthly_limit:price.monthly_limit,used_after:scope==="GLOBAL"?used+1:used,
+        remaining:scope==="GLOBAL"&&price.monthly_limit!=null?Math.max(0,price.monthly_limit-used-1):null,
+        balance_after:Number(billing?.available??billing?.balance_after??m.unitsAvailable),
+        link_reserved:scope==="GLOBAL"&&linkEnabled
       }},201,origin);
     }
 
