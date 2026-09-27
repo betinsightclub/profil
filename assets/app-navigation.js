@@ -295,7 +295,7 @@
       await loadScript("i18n/core-v2.js?v=20260913-2","BetInsightI18n");
       await window.BetInsightI18n?.init?.();
       if (isRootDashboard()) await loadScript("i18n/dashboard-legacy.js");
-      await loadScript("app-navigation-v2.js?v=20260906-resources-1");
+      await loadScript("app-navigation-v2.js?v=20260927-social-1");
       await loadScript("premium-network-handoff.js?v=20260830-9","BetInsightPremiumNetworkHandoff");
       if (isRootDashboard()) {
         await loadScript("dashboard-layout.js?v=20260911-2");
