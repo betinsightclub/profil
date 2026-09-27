@@ -71,6 +71,22 @@
     .global-search input{width:100%;border:0;outline:0;background:transparent;color:var(--text)}
     .global-search input::placeholder{color:#829ca8}
     .top-actions{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+    .trainer-lang{position:relative}
+    .trainer-lang-btn{
+      min-height:42px;padding:0 11px;border:1px solid var(--line);border-radius:12px;
+      background:rgba(255,255,255,.05);color:var(--text);font-weight:850;white-space:nowrap
+    }
+    .trainer-lang-btn:hover{border-color:var(--line2);background:rgba(255,255,255,.08)}
+    .trainer-lang-menu{
+      position:absolute;right:0;top:48px;z-index:120;min-width:168px;padding:6px;
+      border:1px solid var(--line2);border-radius:13px;background:#08212e;
+      box-shadow:0 18px 46px rgba(0,0,0,.38)
+    }
+    .trainer-lang-menu button{
+      width:100%;display:flex;align-items:center;gap:9px;padding:9px 10px;border:0;border-radius:9px;
+      background:transparent;color:#dff3fb;text-align:left;font-weight:800
+    }
+    .trainer-lang-menu button:hover,.trainer-lang-menu button.active{background:rgba(37,169,255,.12);color:white}
     .icon-btn,.pill-btn{
       border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);
       transition:.18s ease
@@ -554,6 +570,17 @@
       <div class="top-actions">
         <button class="pill-btn" id="openGalleryBtn">⚽ Galerie</button>
         <button class="pill-btn primary" id="feedBtn">Trainer Feed</button>
+        <div class="trainer-lang" id="trainerLang">
+          <button class="trainer-lang-btn" id="trainerLangBtn" type="button" aria-haspopup="true" aria-expanded="false">🇩🇪 DE ▾</button>
+          <div class="trainer-lang-menu hidden" id="trainerLangMenu" role="menu">
+            <button type="button" data-lang="de">🇩🇪 Deutsch</button>
+            <button type="button" data-lang="en">🇬🇧 English</button>
+            <button type="button" data-lang="es">🇪🇸 Español</button>
+            <button type="button" data-lang="fr">🇫🇷 Français</button>
+            <button type="button" data-lang="it">🇮🇹 Italiano</button>
+            <button type="button" data-lang="pt">🇵🇹 Português</button>
+          </div>
+        </div>
         <button class="icon-btn" id="accountBtn" aria-label="Konto">👤</button>
       </div>
     </div>
@@ -881,6 +908,22 @@
       "use strict";
 
       var params = new URLSearchParams(location.search);
+      var TRAINER_LANGUAGES = {
+        de:{flag:"🇩🇪",code:"DE"}, en:{flag:"🇬🇧",code:"EN"}, es:{flag:"🇪🇸",code:"ES"},
+        fr:{flag:"🇫🇷",code:"FR"}, it:{flag:"🇮🇹",code:"IT"}, pt:{flag:"🇵🇹",code:"PT"}
+      };
+      function preferredTrainerLanguage(){
+        var q=String(params.get("lang")||"").toLowerCase();
+        if(TRAINER_LANGUAGES[q]) return q;
+        try{
+          var saved=String(localStorage.getItem("betinsight_language")||"").toLowerCase();
+          if(TRAINER_LANGUAGES[saved]) return saved;
+        }catch(_e){}
+        return "de";
+      }
+      var trainerLanguage=preferredTrainerLanguage();
+      document.documentElement.lang=trainerLanguage;
+      try{localStorage.setItem("betinsight_language",trainerLanguage);}catch(_e){}
       var publicSlug = clean(params.get("p") || params.get("slug") || "");
       var requestedClubId = clean(params.get("club_id") || "");
       var coachSlug = publicSlug;
@@ -933,6 +976,48 @@
 
       function initials(name){
         return String(name).split(/\s+/).filter(Boolean).slice(0,2).map(function(part){return part.charAt(0).toUpperCase();}).join("") || "TR";
+      }
+
+      function setupTrainerLanguage(){
+        var btn=document.getElementById("trainerLangBtn");
+        var menu=document.getElementById("trainerLangMenu");
+        if(!btn||!menu) return;
+        function paint(){
+          var item=TRAINER_LANGUAGES[trainerLanguage]||TRAINER_LANGUAGES.de;
+          btn.textContent=item.flag+" "+item.code+" ▾";
+          menu.querySelectorAll("[data-lang]").forEach(function(option){
+            option.classList.toggle("active",option.dataset.lang===trainerLanguage);
+          });
+        }
+        function close(){
+          menu.classList.add("hidden");
+          btn.setAttribute("aria-expanded","false");
+        }
+        btn.addEventListener("click",function(e){
+          e.stopPropagation();
+          var open=menu.classList.contains("hidden");
+          menu.classList.toggle("hidden",!open);
+          btn.setAttribute("aria-expanded",open?"true":"false");
+        });
+        menu.querySelectorAll("[data-lang]").forEach(function(option){
+          option.addEventListener("click",function(){
+            var lang=String(option.dataset.lang||"").toLowerCase();
+            if(!TRAINER_LANGUAGES[lang]) return;
+            trainerLanguage=lang;
+            document.documentElement.lang=lang;
+            try{localStorage.setItem("betinsight_language",lang);}catch(_e){}
+            var url=new URL(location.href);
+            url.searchParams.set("lang",lang);
+            history.replaceState(null,"",url.pathname+"?"+url.searchParams.toString()+url.hash);
+            paint();
+            close();
+            window.dispatchEvent(new CustomEvent("bi:languagechange",{detail:{language:lang,source:"trainer"}}));
+          });
+        });
+        document.addEventListener("click",function(e){
+          if(!document.getElementById("trainerLang").contains(e.target)) close();
+        });
+        paint();
       }
 
       function showToast(message){
@@ -2085,6 +2170,7 @@
       }
 
       setMode();
+      setupTrainerLanguage();
       renderPosts();
       setupProfileTabs();
       activateProfileTab("posts");
