@@ -2035,7 +2035,6 @@
       document.getElementById("emojiBtn").addEventListener("click",function(){
         document.getElementById("emojiPicker").classList.toggle("open");
         document.getElementById("emotionPicker").classList.remove("open");
-        document.getElementById("emojiPicker").classList.remove("open");
       });
       document.querySelectorAll("#emojiPicker .emoji-option").forEach(function(btn){
         btn.addEventListener("click",function(){
@@ -2113,7 +2112,7 @@
             selectedImageData = "";
             document.querySelectorAll(".emotion-option").forEach(function(b){b.classList.remove("selected");});
             document.getElementById("emotionPicker").classList.remove("open");
-        document.getElementById("emojiPicker").classList.remove("open");
+            document.getElementById("emojiPicker").classList.remove("open");
             document.getElementById("composerPreview").classList.remove("show");
             document.getElementById("postImageInput").value = "";
             updatePublishState();
