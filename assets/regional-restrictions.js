@@ -1,18 +1,22 @@
 /* BetInsight regional compliance switch
-   Version: 2026-09-27-01
+   Version: 2026-09-27-02
 
-   IMPORTANT:
-   - This file centralizes temporary regional product restrictions.
-   - To remove the temporary Brazil betting/provider restriction later,
-     change only BRAZIL_BETTING_BLOCK_ACTIVE to false and publish.
-   - This is a product/compliance guard, not a substitute for server-side geolocation.
+   Central behavior:
+   - The live Brazil switch is stored server-side in Supabase.
+   - Default is fail-closed (Brazil block active) if the live config cannot be loaded.
+   - Master Admin can change the switch from the Backoffice.
 */
 (() => {
   "use strict";
 
-  const BRAZIL_BETTING_BLOCK_ACTIVE = true;
+  const DEFAULT_BRAZIL_BETTING_BLOCK_ACTIVE = true;
+  const CONFIG_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-regional-config";
   const STORAGE_KEY = "betinsight_country_code";
-  const VERSION = "2026-09-27-01";
+  const VERSION = "2026-09-27-02";
+
+  let brazilBettingBlockActive = DEFAULT_BRAZIL_BETTING_BLOCK_ACTIVE;
+  let configLoaded = false;
+  let configUpdatedAt = "";
 
   const aliases = {
     BR: "BR",
@@ -51,7 +55,7 @@
 
   function isBrazilBlocked(value) {
     const code = normalizeCountryCode(value) || currentCountry();
-    return BRAZIL_BETTING_BLOCK_ACTIVE && code === "BR";
+    return brazilBettingBlockActive && code === "BR";
   }
 
   function clearRememberedCountry() {
@@ -105,14 +109,51 @@
     return messages[lang] || messages.en;
   }
 
+  async function refresh() {
+    try {
+      const response = await fetch(CONFIG_URL + "?v=" + Date.now(), {
+        method: "GET",
+        cache: "no-store",
+        credentials: "omit"
+      });
+      if (!response.ok) throw new Error("regional config HTTP " + response.status);
+      const data = await response.json();
+      if (typeof data?.brazil_betting_block_active !== "boolean") {
+        throw new Error("invalid regional config");
+      }
+      brazilBettingBlockActive = data.brazil_betting_block_active;
+      configUpdatedAt = String(data.updated_at || "");
+      configLoaded = true;
+      window.dispatchEvent(new CustomEvent("bi:regional-config", {
+        detail: {
+          brazilBettingBlockActive,
+          updatedAt: configUpdatedAt
+        }
+      }));
+      return brazilBettingBlockActive;
+    } catch (error) {
+      console.warn("BetInsight regional config unavailable; Brazil remains fail-closed.", error);
+      brazilBettingBlockActive = DEFAULT_BRAZIL_BETTING_BLOCK_ACTIVE;
+      configLoaded = false;
+      return brazilBettingBlockActive;
+    }
+  }
+
+  const readyPromise = refresh();
+
   window.BetInsightRegionalRestrictions = {
     version: VERSION,
-    brazilBettingBlockActive: BRAZIL_BETTING_BLOCK_ACTIVE,
+    configUrl: CONFIG_URL,
+    get brazilBettingBlockActive() { return brazilBettingBlockActive; },
+    get configLoaded() { return configLoaded; },
+    get configUpdatedAt() { return configUpdatedAt; },
     normalizeCountryCode,
     rememberCountry,
     currentCountry,
     isBrazilBlocked,
     clearRememberedCountry,
-    getMessages
+    getMessages,
+    refresh,
+    ready: () => readyPromise
   };
 })();
