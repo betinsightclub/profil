@@ -84,6 +84,9 @@
 .tcLegacyHidden{display:none!important}.tcLegacyBack{display:flex;justify-content:flex-start;margin:0 0 14px}.tcLegacyBack button{border:1px solid #24516b;border-radius:10px;background:#082536;color:white;padding:9px 12px;font-weight:900;cursor:pointer}
 .tcTrainerOnly>:not(#coachHeading):not(.coach):not(#coachVisual):not(.coachSaveActions):not(.tcLegacyBack){display:none!important}
 .tcKitOnly>:not(.pcHead):not(.kitGlobal):not(.tcLegacyBack){display:none!important}
+.tcPlayerOnly>.kitGlobal,.tcPlayerOnly>.pcTabs{display:none!important}
+.tcTrainerBasic{display:none;margin:0 0 18px;padding:15px;border:1px solid #24516b;border-radius:14px;background:#061a26}.tcTrainerBasic.show{display:block}
+.tcTrainerBasicGrid{display:grid;grid-template-columns:2fr 1fr;gap:9px}.tcTrainerBasic label{font-size:10px;color:#9eb5c3}.tcTrainerBasic input,.tcTrainerBasic select{width:100%;margin-top:5px;border:1px solid #24516b;border-radius:9px;background:#082536;color:#fff;padding:10px}
 @media(max-width:900px){.tcClubActions,.tcPlayerTiles{grid-template-columns:repeat(2,minmax(0,1fr))}.tcBasicGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.tcClubActions,.tcPlayerTiles,.tcBasicGrid{grid-template-columns:1fr}}
 </style></head><body><header><div class="wrap nav"><div class="brand"><img src="https://raw.githubusercontent.com/betinsightclub/profil/main/logo_betisight.club.png" alt="BetInsight"></div><nav><a href="/">STARTSEITE</a><a href="/tipps/">ECHTE TIPPS</a><a href="/tipps/">ECHTE ANALYSEN</a><a href="/tipps/">ECHTE SPIELE</a><a href="/time-clash/" class="active">TIME CLASH</a><a href="https://betinsight.club/de/statistik-vorschau/">STATISTIK</a><a href="#" id="langToggle" class="langToggle">🇩🇪 DE ▾</a><span id="biSession" class="bi-session">BI: Gast</span></nav></div></header><div class="teamLangMenu hidden" id="teamLangMenu"><a href="?lang=de" data-lang="de">🇩🇪 Deutsch</a><a href="?lang=en" data-lang="en">🇬🇧 English</a><a href="?lang=es" data-lang="es">🇪🇸 Español</a><a href="?lang=fr" data-lang="fr">🇫🇷 Français</a><a href="?lang=it" data-lang="it">🇮🇹 Italiano</a><a href="?lang=pt" data-lang="pt">🇵🇹 Português</a></div><main class="wrap"><div class="topBack"><a id="topBackToClash" href="/time-clash/">← Zurück zu TIME CLASH</a> <a id="topTrainerProfile" href="/trainer/" style="margin-left:12px">👤 Trainerprofil</a></div><section class="hero"><div style="color:var(--gold);font-weight:900;letter-spacing:.15em">TIME CLASH CLUB</div><h1>MEIN TEAM</h1><p>Gründe deinen eigenen Club. Deine Mannschaft startet unten und verdient sich ihre Platzierung durch TIME CLASHES.</p></section><section class="card clubhouse"><div class="clubTop"><div><div class="badge" id="profileBadge" data-shape="shield"><span class="badgeInitials">BI</span></div></div><div class="clubIdentity"><div style="color:var(--cyan);font-size:12px;font-weight:900;letter-spacing:.14em">BETINSIGHT COMMUNITY CLUB</div><h2 id="profileClub">DEIN CLUB</h2><div class="owner" id="profileOwner">Club-Besitzer · wird mit deinem BetInsight-Konto verknüpft</div><div id="profileLeague" class="small">Startliga</div></div></div><div class="kpis"><div class="kpi"><strong id="statMatches">0</strong><span>Begegnungen</span></div><div class="kpi"><strong id="statWins">0</strong><span>Siege</span></div><div class="kpi"><strong id="statGoals">0</strong><span>Tore</span></div><div class="kpi"><strong id="statPoints">0</strong><span>Club-Punkte</span></div></div><div class="sectionTitle"><h2>🏆 Trophäenschrank</h2><span class="small">Deine Erfolge bleiben Teil der Clubhistorie.</span></div><div class="honours" id="honours"><div class="honour"><div class="trophy">🏆</div><strong>Noch kein Pokal</strong><span class="small">Gewinne Wettbewerbe und Club-Meilensteine.</span></div><div class="honour"><div class="trophy">🥇</div><strong>Ligatitel</strong><span class="small">Noch nicht errungen</span></div><div class="honour"><div class="trophy">⭐</div><strong>Club-Meilensteine</strong><span class="small">Deine Geschichte beginnt jetzt.</span></div></div><div class="sectionTitle"><h2>⚽ Torschützenkönige</h2><span class="small">Persönliche Rekorde deiner Spieler</span></div><div class="scorers" id="scorers"><div class="scorer"><div class="rank">#1</div><strong>–</strong><span class="small">Noch kein Tor erfasst</span></div><div class="scorer"><div class="rank">#2</div><strong>–</strong><span class="small">Noch keine Statistik</span></div><div class="scorer"><div class="rank">#3</div><strong>–</strong><span class="small">Noch keine Statistik</span></div></div><div class="sectionTitle"><h2>⚔️ Meine Begegnungen</h2><a href="/time-clash/" class="small" style="color:var(--cyan)">Neuen TIME CLASH starten →</a></div><div class="fixtures" id="fixtures"><div class="fixture"><span class="small">CLUBHISTORIE</span><span class="empty">Noch keine dauerhaft gespeicherte Begegnung vorhanden.</span><span>–</span></div></div></section>
@@ -96,7 +99,12 @@
   <button class="tcClubAction" type="button" data-club-open="kit"><span class="ico">👕</span><b>Trikots</b><span>Feldspieler- und Torwarttrikot getrennt einstellen.</span></button>
   <button class="tcClubAction" type="button" id="tcShowPlayers"><span class="ico">⚽</span><b>Spieler</b><span>17 Kaderplätze einzeln als Kachel auswählen und bearbeiten.</span></button>
  </div>
- <div class="tcRosterHead" id="tcRosterHead"><div><h3>Kader</h3><span>Startelf · 1–11 &nbsp; | &nbsp; Ersatzbank · 12–17</span></div></div>
+ <div class="tcTrainerBasic" id="tcTrainerBasic">
+ <div class="tcBasicTop"><div><small>TRAINER · GRUNDDATEN</small><h3>Trainer bearbeiten</h3></div><button type="button" id="tcTrainerBasicClose">×</button></div>
+ <div class="tcTrainerBasicGrid"><label>Trainername<input id="tcTrainerBasicName" maxlength="40"></label><label>Trainerstil<select id="tcTrainerBasicStyle"></select></label></div>
+ <div class="tcBasicActions"><button type="button" class="primary" id="tcTrainerBasicSave">💾 Trainer speichern</button><button type="button" id="tcTrainerAdvanced">🎨 Aussehen bearbeiten</button></div>
+</div>
+<div class="tcRosterHead" id="tcRosterHead"><div><h3>Kader</h3><span>Startelf · 1–11 &nbsp; | &nbsp; Ersatzbank · 12–17</span></div></div>
  <div class="tcPlayerTiles" id="tcPlayerTiles"></div>
  <div class="tcBasicEditor" id="tcBasicEditor">
   <div class="tcBasicTop"><div><small id="tcBasicMeta"></small><h3 id="tcBasicTitle">Spieler bearbeiten</h3></div><button type="button" id="tcBasicClose">×</button></div>
@@ -678,7 +686,7 @@ if(uiProblems.length){
  function hideLegacy(){
    const s=sections();[s.badge,s.team,s.visual,s.league].forEach(x=>x?.classList.add("tcLegacyHidden"));
    if(s.team){s.team.classList.remove("tcTrainerOnly")}
-   if(s.visual){s.visual.classList.remove("tcKitOnly")}
+   if(s.visual){s.visual.classList.remove("tcKitOnly","tcPlayerOnly")}
  }
  function showHub(){
    hideLegacy();q("#tcClubHub")?.classList.remove("tcLegacyHidden");q("#tcBasicEditor")?.classList.remove("show");
@@ -689,7 +697,7 @@ if(uiProblems.length){
    if(kind==="badge"){target=s.badge}
    if(kind==="coach"){target=s.team;target?.classList.add("tcTrainerOnly")}
    if(kind==="kit"){target=s.visual;target?.classList.add("tcKitOnly")}
-   if(kind==="player"){target=s.visual}
+   if(kind==="player"){target=s.visual;target?.classList.add("tcPlayerOnly")}
    if(target){addBack(target);target.classList.remove("tcLegacyHidden");target.scrollIntoView({behavior:"smooth",block:"start"})}
  }
  function roleOptions(){const src=q(".prole");return src?[...src.options].map(o=>'<option value="'+o.value+'">'+o.textContent+'</option>').join(""):""}
@@ -723,11 +731,48 @@ if(uiProblems.length){
    [names[i],nos[i],roles[i],powers[i],ages[i],heights[i],traits[i]].filter(Boolean).forEach(el=>el.dispatchEvent(new Event("input",{bubbles:true})));
    renderTiles()
  }
+ function openTrainerBasic(){
+   const n=q("#coachName"),s=q("#coachStyle"),box=q("#tcTrainerBasic");
+   q("#tcTrainerBasicName").value=n?.value||"";q("#tcTrainerBasicStyle").innerHTML=s?[...s.options].map(o=>'<option value="'+o.value+'">'+o.textContent+'</option>').join(""):"";
+   q("#tcTrainerBasicStyle").value=s?.value||"Ausgeglichen";box?.classList.add("show");box?.scrollIntoView({behavior:"smooth",block:"center"})
+ }
+ function syncTrainerBasic(){
+   if(q("#coachName"))q("#coachName").value=q("#tcTrainerBasicName").value.trim();
+   if(q("#coachStyle"))q("#coachStyle").value=q("#tcTrainerBasicStyle").value;
+   q("#coachName")?.dispatchEvent(new Event("input",{bubbles:true}));q("#coachStyle")?.dispatchEvent(new Event("input",{bubbles:true}))
+ }
+ function seedNewClubDefaults(){
+   let existing=null;try{existing=JSON.parse(localStorage.getItem("biMyClub")||"null")}catch(_e){}
+   if(existing)return false;
+   const names=qa(".pn");if(!names.length||names.some(x=>x.value.trim()))return false;
+   const ref=(typeof window.ownerRef==="function"?window.ownerRef():"")||localStorage.getItem("bi_ref_code")||"guest";
+   let seed=0;for(const ch of String(ref))seed=(seed*33+ch.charCodeAt(0))>>>0;
+   const first=["Luca","Marco","Nico","Dario","Enzo","Milo","Toni","Rico","Elio","Sandro","Adrian","Leo","Mika","Noel","Rafael","Timo","Jonas","Mateo","Ivo","Carlo","Alex","Mauro","Nino","Bruno"];
+   const last=["Valeri","Cortano","Bellini","Novaro","Silva","Mareni","Fontes","Rossi","Varela","Costa","Dorin","Lorenzi","Vico","Barella","Neri","Ferano","Molina","Sarti","Ramos","Tavano","Moretti","Sereni","Della","Marino"];
+   const clubWords=["Nova Eleven","Clash Union","Aurora Eleven","Vertex Club","Blue Nova","Arena United","Union Eleven","Stellar Club","Clash City","Nova Athletic"];
+   for(let i=0;i<17;i++){
+     const fn=first[(seed+i*7)%first.length],ln=last[(Math.floor(seed/17)+i*11)%last.length];
+     names[i].value=fn+" "+ln;
+     const age=qa(".age")[i],height=qa(".height")[i],trait=qa(".trait")[i];
+     if(age&&!age.value)age.value=19+((seed+i*5)%12);if(height&&!height.value)height.value=174+((seed+i*9)%25);
+     if(trait&&trait.options.length)trait.selectedIndex=(seed+i*3)%trait.options.length
+   }
+   if(q("#clubName")&&!q("#clubName").value)q("#clubName").value=clubWords[seed%clubWords.length]+" "+String((seed%89)+10);
+   if(q("#coachName")&&!q("#coachName").value){const fn=first[(seed+19)%first.length],ln=last[(seed+31)%last.length];q("#coachName").value=fn+" "+ln}
+   q("#clubName")?.dispatchEvent(new Event("input",{bubbles:true}));q("#coachName")?.dispatchEvent(new Event("input",{bubbles:true}));
+   names.forEach(x=>x.dispatchEvent(new Event("input",{bubbles:true})));
+   return true
+ }
  function init(){
+   const seeded=seedNewClubDefaults();
    hideLegacy();renderTiles();
-   qa("[data-club-open]").forEach(b=>b.onclick=()=>openLegacy(b.dataset.clubOpen));
+   if(seeded){setTimeout(()=>{renderTiles();if(typeof window.renderPcTabs==="function")window.renderPcTabs();if(typeof window.paint==="function")window.paint()},150)}
+   qa("[data-club-open]").forEach(b=>b.onclick=()=>{if(b.dataset.clubOpen==="coach")openTrainerBasic();else openLegacy(b.dataset.clubOpen)});
    q("#tcShowPlayers")?.addEventListener("click",()=>q("#tcRosterHead")?.scrollIntoView({behavior:"smooth",block:"start"}));
    q("#tcBasicClose")?.addEventListener("click",()=>q("#tcBasicEditor")?.classList.remove("show"));
+   q("#tcTrainerBasicClose")?.addEventListener("click",()=>q("#tcTrainerBasic")?.classList.remove("show"));
+   q("#tcTrainerBasicSave")?.addEventListener("click",()=>{syncTrainerBasic();q("#save")?.click()});
+   q("#tcTrainerAdvanced")?.addEventListener("click",()=>{syncTrainerBasic();q("#tcTrainerBasic")?.classList.remove("show");openLegacy("coach")});
    q("#tcBasicSave")?.addEventListener("click",()=>{syncBasic();q("#save")?.click()});
    q("#tcBasicAdvanced")?.addEventListener("click",()=>{syncBasic();if(typeof window.openPc==="function")window.openPc(basicIndex);openLegacy("player")});
    setTimeout(renderTiles,500);setTimeout(renderTiles,1600)
