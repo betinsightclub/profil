@@ -323,21 +323,32 @@
     .composer textarea:focus{border-color:rgba(22,135,255,.55);box-shadow:0 0 0 3px rgba(22,135,255,.08)}
     .composer textarea::placeholder{color:#829da9}
     .emotion-picker,.emoji-picker{
-      display:none;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:11px 0 0 57px
+      display:none;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:11px 0 0 57px
     }
     .emotion-picker.open,.emoji-picker.open{display:grid}
+    .emotion-picker{
+      max-height:360px;overflow:auto;padding:8px;border:1px solid rgba(255,255,255,.07);
+      border-radius:14px;background:rgba(4,25,35,.72)
+    }
     .emotion-option{
-      border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.03);color:#d8e7ed;
-      padding:7px 5px;text-align:center;font-size:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:92px
+      border:1px solid rgba(255,255,255,.07);border-radius:13px;background:rgba(255,255,255,.025);color:#cfe0e7;
+      padding:7px 5px 6px;text-align:center;font-size:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:104px
     }
-    .emotion-option:hover,.emotion-option.selected{border-color:rgba(22,214,157,.4);background:rgba(22,214,157,.07)}
-    .emotion-option img{display:block;width:62px;height:62px;object-fit:contain}
+    .emotion-option:hover,.emotion-option.selected{border-color:rgba(22,214,157,.42);background:rgba(22,214,157,.07);color:white}
+    .bi-sticker{
+      display:inline-block;flex:0 0 auto;aspect-ratio:1/1;
+      background-image:url("stickers/betinsight-stickers-sprite.webp?v=20260927");
+      background-repeat:no-repeat;background-size:400% 400%;
+      background-position:var(--sticker-x,0%) var(--sticker-y,0%);
+    }
+    .sticker-picker-art{width:78px;height:78px}
     .emoji-picker{grid-template-columns:repeat(8,minmax(0,1fr))}
-    .emoji-option{
-      border:1px solid rgba(255,255,255,.07);border-radius:10px;background:rgba(255,255,255,.025);color:white;
-      min-height:42px;font-size:22px
-    }
+    .emoji-option{border:1px solid rgba(255,255,255,.07);border-radius:10px;background:rgba(255,255,255,.025);color:white;min-height:42px;font-size:22px}
     .emoji-option:hover{border-color:rgba(22,135,255,.35);background:rgba(22,135,255,.07)}
+    .composer-sticker-selected{display:none;margin:10px 0 0 57px;align-items:center;gap:9px;color:#b9d9cf;font-size:11px}
+    .composer-sticker-selected.show{display:flex}
+    .composer-sticker-selected .bi-sticker{width:58px;height:58px}
+    .composer-sticker-selected button{border:0;background:transparent;color:#8fb2c0;font-size:11px}
     .composer-preview{display:none;margin:11px 0 0 57px;position:relative;max-width:230px}
     .composer-preview.show{display:block}
     .composer-preview img{width:100%;max-height:180px;object-fit:cover;border-radius:13px;border:1px solid var(--line)}
@@ -361,78 +372,53 @@
     .more-btn{border:0;background:transparent;color:#8ea8b4;font-size:22px}
     .post-body{padding:4px 16px 13px}
     .post-text{margin:0;color:#e2edf2;font-size:15px;white-space:pre-wrap}
-    .post-emotion{
-      margin-top:11px;display:inline-grid;justify-items:center;gap:3px;padding:6px 8px;border-radius:14px;
-      border:1px solid rgba(22,214,157,.14);background:rgba(22,214,157,.035);color:#b9d9cf;font-size:10px;font-weight:850
-    }
-    .post-emotion img{display:block;width:112px;height:112px;object-fit:contain}
-    .post-emotion small{font-size:10px;color:#9fc4b7}
+    .post-emotion{margin-top:10px;display:block;width:max-content;max-width:100%}
+    .post-emotion .bi-sticker{width:168px;height:168px}
     .post-image-wrap{margin-top:12px;overflow:hidden;border-radius:14px;border:1px solid rgba(255,255,255,.08)}
     .post-image-wrap img{width:100%;max-height:520px;object-fit:cover}
-    .link-card{
-      margin-top:12px;padding:12px;border:1px solid rgba(22,135,255,.2);border-radius:13px;background:rgba(22,135,255,.055)
-    }
+    .link-card{margin-top:12px;padding:12px;border:1px solid rgba(22,135,255,.2);border-radius:13px;background:rgba(22,135,255,.055)}
     .link-card small{display:block;color:#7ebeff;font-weight:850;text-transform:uppercase;letter-spacing:.08em}
     .link-card a{display:block;margin-top:4px;color:white;font-weight:850;text-decoration:none;word-break:break-all}
     .post-metrics{display:flex;justify-content:space-between;gap:12px;padding:0 16px 10px;color:#8ca6b2;font-size:12px}
     .reaction-summary{display:flex;align-items:center;gap:7px}
-    .reaction-stack{display:flex}
-    .reaction-stack img{
-      width:26px;height:26px;object-fit:contain;margin-left:-5px;border-radius:50%;background:#0b2b3a;border:2px solid #0c2532
-    }
-    .reaction-stack img:first-child{margin-left:0}
-    .post-actions{
-      display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:6px 10px;border-top:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07)
-    }
-    .post-action{
-      border:0;background:transparent;color:#a9c0ca;padding:9px 6px;border-radius:9px;font-weight:800
-    }
+    .reaction-stack{display:flex;align-items:center;min-height:28px}
+    .reaction-stack .bi-sticker{width:28px;height:28px;margin-left:-5px;border-radius:50%;background-color:#0b2b3a;border:2px solid #0c2532}
+    .reaction-stack .bi-sticker:first-child{margin-left:0}
+    .post-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:6px 10px;border-top:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07)}
+    .post-action{border:0;background:transparent;color:#a9c0ca;padding:9px 6px;border-radius:9px;font-weight:800}
     .post-action:hover,.post-action.active{background:rgba(255,255,255,.055);color:#fff}
     .post-action.active{color:#62b8ff}
-    .reaction-action-sticker{width:25px;height:25px;object-fit:contain;vertical-align:middle;margin-right:4px}
-    .reaction-menu{
-      display:none;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.06)
-    }
+    .sticker-action-art{width:28px;height:28px;vertical-align:middle;margin-right:5px}
+    .reaction-menu{display:none;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.06);max-height:368px;overflow:auto;background:rgba(4,25,35,.5)}
     .reaction-menu.open{display:grid}
-    .reaction-pick{
-      border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.025);padding:6px 3px;border-radius:11px;color:#aac2cd;font-size:9px;
-      display:flex;flex-direction:column;align-items:center;gap:3px
-    }
-    .reaction-pick:hover{background:rgba(22,135,255,.07);border-color:rgba(22,135,255,.25);color:white}
-    .reaction-pick img{display:block;width:58px;height:58px;object-fit:contain}
-    .reaction-pick span{display:block;line-height:1.1}
+    .reaction-pick{border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.025);padding:7px 4px 6px;border-radius:12px;color:#aac2cd;font-size:9px;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:92px}
+    .reaction-pick:hover{background:rgba(22,135,255,.07);border-color:rgba(22,135,255,.28);color:white}
+    .reaction-pick .bi-sticker{width:68px;height:68px}
+    .reaction-pick span:last-child{display:block;line-height:1.1}
     .comments{padding:10px 16px 14px}
     .comment{display:grid;grid-template-columns:34px 1fr;gap:8px;margin-top:9px}
     .comment .mini-avatar{width:34px;height:34px;font-size:11px}
     .comment-bubble{padding:9px 11px;border-radius:14px;background:rgba(255,255,255,.055)}
     .comment-bubble strong{display:block;font-size:12px}.comment-bubble p{margin:2px 0 0;color:#d2e1e7;font-size:13px}
-    .comment-sticker{margin-top:5px}.comment-sticker img{display:block;width:92px;height:92px;object-fit:contain}
+    .comment-sticker{margin-top:6px}.comment-sticker .bi-sticker{width:112px;height:112px}
     .comment-meta{margin:3px 0 0 11px;color:#76909d;font-size:10px}.comment-report{border:0;background:transparent;color:#76909d;padding:0;margin-left:6px;font-size:10px}.comment-report:hover{color:#ff9aa1}
     .comment-compose{margin-top:11px}
     .comment-form{display:grid;grid-template-columns:34px 34px 34px minmax(0,1fr) 34px;gap:6px;align-items:center}
     .comment-form .mini-avatar{width:34px;height:34px;font-size:11px}
-    .comment-form input{
-      min-width:0;border:1px solid rgba(255,255,255,.07);outline:0;border-radius:999px;background:rgba(255,255,255,.045);
-      color:white;padding:9px 12px
-    }
+    .comment-form input{min-width:0;border:1px solid rgba(255,255,255,.07);outline:0;border-radius:999px;background:rgba(255,255,255,.045);color:white;padding:9px 12px}
     .comment-form button{border:0;border-radius:999px;background:#123c52;color:#cdefff;width:34px;height:34px;font-weight:950}
     .comment-form .comment-tool-btn{background:rgba(255,255,255,.045);font-size:16px}
     .comment-form .comment-submit{background:#123c52}
-    .comment-emoji-picker,.comment-sticker-picker{
-      display:none;margin:8px 0 0 40px;padding:8px;border:1px solid rgba(255,255,255,.07);border-radius:12px;background:#082431
-    }
+    .comment-emoji-picker,.comment-sticker-picker{display:none;margin:8px 0 0 40px;padding:8px;border:1px solid rgba(255,255,255,.07);border-radius:12px;background:#082431}
     .comment-emoji-picker.open{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:5px}
     .comment-emoji-pick{border:0;border-radius:8px;background:rgba(255,255,255,.035);min-height:34px;font-size:19px}
-    .comment-sticker-picker.open{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
-    .comment-sticker-pick{
-      border:1px solid rgba(255,255,255,.06);border-radius:10px;background:rgba(255,255,255,.025);padding:5px;color:#9fb8c4;font-size:9px;
-      display:flex;flex-direction:column;align-items:center;gap:2px
-    }
+    .comment-sticker-picker.open{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;max-height:330px;overflow:auto}
+    .comment-sticker-pick{border:1px solid rgba(255,255,255,.06);border-radius:10px;background:rgba(255,255,255,.025);padding:6px 4px;color:#9fb8c4;font-size:9px;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:78px}
     .comment-sticker-pick:hover,.comment-sticker-pick.selected{border-color:rgba(22,214,157,.35);background:rgba(22,214,157,.06);color:white}
-    .comment-sticker-pick img{width:52px;height:52px;object-fit:contain}
+    .comment-sticker-pick .bi-sticker{width:58px;height:58px}
     .comment-sticker-selected{display:none;margin:7px 0 0 40px;align-items:center;gap:7px;color:#9fc4b7;font-size:10px}
     .comment-sticker-selected.show{display:flex}
-    .comment-sticker-selected img{width:46px;height:46px;object-fit:contain}
+    .comment-sticker-selected .bi-sticker{width:52px;height:52px}
     .comment-sticker-selected button{border:0;background:transparent;color:#a8c0cb;font-size:11px}
     .public-cta{
       padding:10px 12px;margin-top:10px;border:1px solid rgba(22,135,255,.18);border-radius:12px;
@@ -501,7 +487,7 @@
       .left-col{order:2;width:100%}
       .right-col{order:3;width:100%;display:grid;grid-template-columns:1fr}
       .gallery-grid{grid-template-columns:repeat(3,1fr)}
-      .emotion-picker,.emoji-picker{margin-left:0}
+      .emotion-picker,.emoji-picker,.composer-sticker-selected{margin-left:0}
       .emotion-picker{grid-template-columns:repeat(4,1fr)}
       .emoji-picker{grid-template-columns:repeat(6,1fr)}
       .composer-preview,.composer-actions{margin-left:0}
@@ -687,16 +673,8 @@
             <button class="emoji-option" type="button" data-emoji="💪">💪</button>
           </div>
 
-          <div class="emotion-picker" id="emotionPicker" aria-label="BetInsight Sticker auswählen">
-            <button class="emotion-option" type="button" data-emotion="Like" data-code="LIKE"><img src="stickers/sticker-like.webp" alt="BetInsight Sticker Like">Like</button>
-            <button class="emotion-option" type="button" data-emotion="Live-Alarm" data-code="LIVE_ALARM"><img src="stickers/sticker-live-alarm.webp" alt="BetInsight Sticker Live-Alarm">Live-Alarm</button>
-            <button class="emotion-option" type="button" data-emotion="Herz" data-code="HEART"><img src="stickers/sticker-herz.webp" alt="BetInsight Sticker Herz">Herz</button>
-            <button class="emotion-option" type="button" data-emotion="Jubel" data-code="CHEER"><img src="stickers/sticker-jubel.webp" alt="BetInsight Sticker Jubel">Jubel</button>
-            <button class="emotion-option" type="button" data-emotion="Heißer Tipp" data-code="HOT_TIP"><img src="stickers/sticker-heisser-tipp.webp" alt="BetInsight Sticker Heißer Tipp">Heißer Tipp</button>
-            <button class="emotion-option" type="button" data-emotion="Gewonnen" data-code="WON"><img src="stickers/sticker-gewonnen.webp" alt="BetInsight Sticker Gewonnen">Gewonnen</button>
-            <button class="emotion-option" type="button" data-emotion="Okay" data-code="OK"><img src="stickers/sticker-okay.webp" alt="BetInsight Sticker Okay">Okay</button>
-            <button class="emotion-option" type="button" data-emotion="Danke" data-code="THANKS"><img src="stickers/sticker-danke.webp" alt="BetInsight Sticker Danke">Danke</button>
-          </div>
+          <div class="emotion-picker" id="emotionPicker" aria-label="BetInsight Sticker auswählen"></div>
+          <div class="composer-sticker-selected" id="composerStickerSelected"></div>
 
           <div class="composer-preview" id="composerPreview">
             <img id="postImagePreview" alt="Bildvorschau">
@@ -1482,22 +1460,47 @@
       }
 
       var emotionCatalog = [
-        {name:"Like",code:"LIKE",icon:"👍",sticker:"stickers/sticker-like.webp"},
-        {name:"Live-Alarm",code:"LIVE_ALARM",icon:"🚨",sticker:"stickers/sticker-live-alarm.webp"},
-        {name:"Herz",code:"HEART",icon:"💚",sticker:"stickers/sticker-herz.webp"},
-        {name:"Jubel",code:"CHEER",icon:"🙌",sticker:"stickers/sticker-jubel.webp"},
-        {name:"Heißer Tipp",code:"HOT_TIP",icon:"🔥",sticker:"stickers/sticker-heisser-tipp.webp"},
-        {name:"Gewonnen",code:"WON",icon:"🏆",sticker:"stickers/sticker-gewonnen.webp"},
-        {name:"Okay",code:"OK",icon:"✅",sticker:"stickers/sticker-okay.webp"},
-        {name:"Danke",code:"THANKS",icon:"🙏",sticker:"stickers/sticker-danke.webp"}
+        {name:"Like",code:"LIKE",col:0,row:0},
+        {name:"Okay",code:"OK",col:1,row:0},
+        {name:"Abgelehnt",code:"REJECTED",col:2,row:0},
+        {name:"Durchstarten",code:"BOOST",col:3,row:0},
+        {name:"Heißer Tipp",code:"HOT_TIP",col:0,row:1},
+        {name:"Achtung",code:"WARNING",col:1,row:1},
+        {name:"Tor",code:"GOAL",col:2,row:1},
+        {name:"Schade",code:"SORRY",col:3,row:1},
+        {name:"Haha",code:"HAHA",col:0,row:2},
+        {name:"Wow",code:"WOW",col:1,row:2},
+        {name:"Danke",code:"THANKS",col:2,row:2},
+        {name:"Herz",code:"HEART",col:3,row:2},
+        {name:"Gewonnen",code:"WON",col:0,row:3},
+        {name:"Willkommen",code:"WELCOME",col:1,row:3},
+        {name:"Premium",code:"PREMIUM",col:2,row:3},
+        {name:"Live-Alarm",code:"LIVE_ALARM",col:3,row:3}
       ];
       var emojiCatalog=["😀","😂","😍","😮","😢","👏","👍","❤️","⚽","🔥","🙌","💪"];
 
       function emotionByName(name){
+        if(name==="Jubel") return emotionByCode("BOOST");
         return emotionCatalog.find(function(item){return item.name===name;}) || null;
       }
       function emotionByCode(code){
+        if(code==="CHEER") code="BOOST";
         return emotionCatalog.find(function(item){return item.code===code;}) || null;
+      }
+      function resolveEmotion(value){
+        if(!value) return null;
+        if(typeof value==="string") return emotionByCode(value) || emotionByName(value);
+        return emotionByCode(value.code) || emotionByName(value.name) || null;
+      }
+      function stickerPosition(item){
+        return ((item.col||0)*100/3).toFixed(4)+"% "+((item.row||0)*100/3).toFixed(4)+"%";
+      }
+      function stickerHtml(item,className,extraAttrs){
+        if(!item) return "";
+        return '<span class="bi-sticker '+(className||"")+'" data-sticker-code="'+esc(item.code)+'" style="background-position:'+stickerPosition(item)+'" role="img" aria-label="BetInsight Sticker '+esc(item.name)+'" '+(extraAttrs||"")+'></span>';
+      }
+      function stickerPickerButton(item,className){
+        return '<button type="button" class="'+className+'" data-code="'+esc(item.code)+'" data-emotion="'+esc(item.name)+'">'+stickerHtml(item,"sticker-picker-art")+'<span>'+esc(item.name)+'</span></button>';
       }
       function insertAtCursor(input,value){
         var start=typeof input.selectionStart==="number"?input.selectionStart:input.value.length;
@@ -1510,11 +1513,8 @@
       }
       function parseCommentContent(value){
         var raw=String(value||"");
-        var match=raw.match(/\s*\[BI-STICKER:(LIKE|LIVE_ALARM|HEART|CHEER|HOT_TIP|WON|OK|THANKS)\]\s*$/);
-        return {
-          text:match?raw.slice(0,match.index).trim():raw,
-          sticker:match?emotionByCode(match[1]):null
-        };
+        var match=raw.match(/\s*\[BI-STICKER:(LIKE|OK|REJECTED|BOOST|HOT_TIP|WARNING|GOAL|SORRY|HAHA|WOW|THANKS|HEART|WON|WELCOME|PREMIUM|LIVE_ALARM|CHEER)\]\s*$/);
+        return {text:match?raw.slice(0,match.index).trim():raw,sticker:match?emotionByCode(match[1]):null};
       }
 
       var basePosts = [];
@@ -1559,17 +1559,16 @@
           var response=await fetch(url,{method:"GET",cache:"no-store",credentials:"omit"});
           var data=await response.json();
           if(!response.ok||data.ok!==true||!Array.isArray(data.posts)) return;
-          var codeToEmotion={};
-          emotionCatalog.forEach(function(item){codeToEmotion[item.code]=item;});
           var posts=data.posts.map(function(p){
             var comments=(p.comments||[]).map(function(x){return {id:x.id,owner_ref:x.owner_ref,name:x.owner_ref,text:x.body};});
             return {
               id:p.id,server:true,author:(trainerName||teamName||"Trainerprofil"),team:teamName,
               time:new Intl.DateTimeFormat("de-DE",{dateStyle:"short",timeStyle:"short"}).format(new Date(p.created_at)),
               text:p.body||"",
-              emotion:codeToEmotion[p.emotion] || (p.emotion ? {name:p.emotion,icon:"🙂"} : null),
+              emotion:resolveEmotion(p.emotion),
               image:p.media&&p.media.public_url?p.media.public_url:"",
               reactions:(p.reactions||[]).length,
+              reactionCodes:(p.reactions||[]).map(function(x){return x.reaction;}),
               comments:comments
             };
           });
@@ -1585,22 +1584,25 @@
         article.className = "card post";
         article.id = "card-" + post.id;
         var commentCount = Array.isArray(post.comments) ? post.comments.length : 0;
-        var primaryEmotion = post.emotion ? (emotionByName(post.emotion.name) || post.emotion) : null;
-        var reactionStickers = [primaryEmotion || emotionByName("Like"),emotionByName("Herz"),emotionByName("Gewonnen")].filter(Boolean);
-        var emotionHtml = primaryEmotion && primaryEmotion.sticker
-          ? '<div class="post-emotion"><img src="' + esc(primaryEmotion.sticker) + '" alt="BetInsight Sticker ' + esc(primaryEmotion.name) + '"><small>' + esc(primaryEmotion.name) + '</small></div>'
-          : (primaryEmotion ? '<div class="post-emotion"><small>' + esc(primaryEmotion.name) + '</small></div>' : "");
+        var primaryEmotion = resolveEmotion(post.emotion);
+        var reactionStickers = [];
+        (post.reactionCodes||[]).forEach(function(code){
+          var item=emotionByCode(code);
+          if(item && !reactionStickers.some(function(x){return x.code===item.code;})) reactionStickers.push(item);
+        });
+        reactionStickers=reactionStickers.slice(0,3);
+        var emotionHtml = primaryEmotion ? '<div class="post-emotion">'+stickerHtml(primaryEmotion,"sticker-post-art")+'</div>' : "";
         var imageHtml = post.image ? '<div class="post-image-wrap"><img src="' + esc(post.image) + '" alt="Beitragsbild"></div>' : "";
         var commentsHtml = "";
         (post.comments || []).forEach(function(c){
           var parsedComment=parseCommentContent(c.text || c.body || "");
           var commentText=parsedComment.text ? '<p>' + esc(parsedComment.text) + '</p>' : "";
-          var commentSticker=parsedComment.sticker ? '<div class="comment-sticker"><img src="' + esc(parsedComment.sticker.sticker) + '" alt="BetInsight Sticker ' + esc(parsedComment.sticker.name) + '"></div>' : "";
+          var commentSticker=parsedComment.sticker ? '<div class="comment-sticker">'+stickerHtml(parsedComment.sticker,"sticker-comment-art")+'</div>' : "";
           commentsHtml += '<div class="comment"><div class="mini-avatar">' + esc(initials(c.name || c.owner_ref || "Mitglied")) + '</div><div><div class="comment-bubble"><strong>' + esc(c.name || c.owner_ref || "BetInsight Mitglied") + '</strong>' + commentText + commentSticker + '</div><div class="comment-meta">Gefällt mir · Antworten' + (c.id && isMember ? ' <button class="comment-report" data-comment-id="' + esc(c.id) + '">· Melden</button>' : '') + '</div></div></div>';
         });
 
         var interactionHtml = isMember
-          ? '<div class="comment-compose"><form class="comment-form" data-post="' + esc(post.id) + '"><div class="mini-avatar">' + esc(initials(isOwner ? trainerName : "Mitglied")) + '</div><button type="button" class="comment-tool-btn comment-emoji-toggle" aria-label="Emoji auswählen">😊</button><button type="button" class="comment-tool-btn comment-sticker-toggle" aria-label="BetInsight Sticker auswählen">🏷️</button><input maxlength="500" placeholder="Kommentar schreiben …" aria-label="Kommentar"><button class="comment-submit" aria-label="Kommentar senden">➤</button></form><div class="comment-emoji-picker">' + emojiCatalog.map(function(e){return '<button type="button" class="comment-emoji-pick" data-emoji="' + esc(e) + '">' + esc(e) + '</button>';}).join("") + '</div><div class="comment-sticker-picker">' + emotionCatalog.map(function(r){return '<button type="button" class="comment-sticker-pick" data-code="' + esc(r.code) + '"><img src="' + esc(r.sticker) + '" alt=""><span>' + esc(r.name) + '</span></button>';}).join("") + '</div><div class="comment-sticker-selected"></div></div>'
+          ? '<div class="comment-compose"><form class="comment-form" data-post="' + esc(post.id) + '"><div class="mini-avatar">' + esc(initials(isOwner ? trainerName : "Mitglied")) + '</div><button type="button" class="comment-tool-btn comment-emoji-toggle" aria-label="Emoji auswählen">😊</button><button type="button" class="comment-tool-btn comment-sticker-toggle" aria-label="BetInsight Sticker auswählen">🏷️</button><input maxlength="500" placeholder="Kommentar schreiben …" aria-label="Kommentar"><button class="comment-submit" aria-label="Kommentar senden">➤</button></form><div class="comment-emoji-picker">' + emojiCatalog.map(function(e){return '<button type="button" class="comment-emoji-pick" data-emoji="' + esc(e) + '">' + esc(e) + '</button>';}).join("") + '</div><div class="comment-sticker-picker">' + emotionCatalog.map(function(r){return '<button type="button" class="comment-sticker-pick" data-code="' + esc(r.code) + '">'+stickerHtml(r,"sticker-comment-picker-art")+'<span>' + esc(r.name) + '</span></button>';}).join("") + '</div><div class="comment-sticker-selected"></div></div>'
           : '<div class="public-cta">Du kannst diesen öffentlichen Beitrag lesen und teilen. <a href="' + esc(registrationUrl()) + '">Kostenlos anmelden</a>, um zu reagieren oder zu kommentieren.</div>';
 
         article.innerHTML =
@@ -1610,7 +1612,7 @@
             '<button class="more-btn" aria-label="Beitragsmenü">•••</button>' +
           '</div>' +
           '<div class="post-body"><p class="post-text">' + esc(post.text) + '</p>' + emotionHtml + imageHtml + '</div>' +
-          '<div class="post-metrics"><div class="reaction-summary"><div class="reaction-stack">' + reactionStickers.map(function(r){return '<img src="' + esc(r.sticker) + '" alt="">';}).join("") + '</div><span class="reaction-count">' + esc(post.reactions || 0) + '</span></div><span><span class="comment-count">' + commentCount + '</span> Kommentare · <span class="share-count">0</span> geteilt</span></div>' +
+          '<div class="post-metrics"><div class="reaction-summary"><div class="reaction-stack">' + reactionStickers.map(function(r){return stickerHtml(r,"sticker-stack-art");}).join("") + '</div><span class="reaction-count">' + esc(post.reactions || 0) + '</span></div><span><span class="comment-count">' + commentCount + '</span> Kommentare · <span class="share-count">0</span> geteilt</span></div>' +
           '<div class="post-actions">' +
             '<button class="post-action react-toggle" ' + (isMember ? "" : "disabled") + '>Reagieren</button>' +
             '<button class="post-action comment-focus" ' + (isMember ? "" : "disabled") + '>💬 Kommentieren</button>' +
@@ -1618,7 +1620,7 @@
             '<button class="post-action report-post" data-post="' + esc(post.id) + '" ' + (isMember ? "" : "disabled") + '>⚑ Melden</button>' +
           '</div>' +
           '<div class="reaction-menu">' +
-            emotionCatalog.map(function(r){return '<button class="reaction-pick" data-name="' + esc(r.name) + '" data-code="' + esc(r.code) + '" data-sticker="' + esc(r.sticker) + '"><img src="' + esc(r.sticker) + '" alt="BetInsight Sticker ' + esc(r.name) + '"><span>' + esc(r.name) + '</span></button>';}).join("") +
+            emotionCatalog.map(function(r){return '<button class="reaction-pick" data-name="' + esc(r.name) + '" data-code="' + esc(r.code) + '">'+stickerHtml(r,"sticker-reaction-art")+'<span>' + esc(r.name) + '</span></button>';}).join("") +
           '</div>' +
           '<div class="comments">' + commentsHtml + interactionHtml + '</div>';
 
@@ -1634,7 +1636,13 @@
           btn.addEventListener("click",function(){
             reactionMenu.classList.remove("open");
             reactToggle.classList.add("active");
-            reactToggle.innerHTML = '<img class="reaction-action-sticker" src="' + esc(btn.getAttribute("data-sticker")) + '" alt=""> ' + esc(btn.getAttribute("data-name"));
+            var chosen=emotionByCode(btn.getAttribute("data-code"));
+            reactToggle.innerHTML = stickerHtml(chosen,"sticker-action-art") + " " + esc(btn.getAttribute("data-name"));
+            var stack=article.querySelector(".reaction-stack");
+            if(stack && chosen && !stack.querySelector('[data-sticker-code="'+chosen.code+'"]')){
+              stack.insertAdjacentHTML("afterbegin",stickerHtml(chosen,"sticker-stack-art"));
+              while(stack.children.length>3) stack.removeChild(stack.lastElementChild);
+            }
             var count = article.querySelector(".reaction-count");
             if(!article.dataset.reacted){
               count.textContent = String((parseInt(count.textContent,10) || 0) + 1);
@@ -1682,7 +1690,7 @@
               btn.classList.add("selected");
               var item=emotionByCode(btn.getAttribute("data-code"));
               compose.dataset.stickerCode=item?item.code:"";
-              selectedStickerBox.innerHTML=item?'<img src="' + esc(item.sticker) + '" alt=""><span>' + esc(item.name) + ' gewählt</span><button type="button">Entfernen</button>':"";
+              selectedStickerBox.innerHTML=item?stickerHtml(item,"sticker-comment-selected-art")+'<span>' + esc(item.name) + ' gewählt</span><button type="button">Entfernen</button>':"";
               selectedStickerBox.classList.toggle("show",!!item);
               commentStickerPicker.classList.remove("open");
             });
@@ -1737,7 +1745,7 @@
             var node = document.createElement("div");
             node.className = "comment";
             var localText=value?'<p>' + esc(value) + '</p>':"";
-            var localSticker=sticker?'<div class="comment-sticker"><img src="' + esc(sticker.sticker) + '" alt="BetInsight Sticker ' + esc(sticker.name) + '"></div>':"";
+            var localSticker=sticker?'<div class="comment-sticker">'+stickerHtml(sticker,"sticker-comment-art")+'</div>':"";
             node.innerHTML = '<div class="mini-avatar">' + esc(initials(isOwner ? trainerName : "Mitglied")) + '</div><div><div class="comment-bubble"><strong>' + esc(isOwner ? trainerName : "BetInsight Mitglied") + '</strong>' + localText + localSticker + '</div><div class="comment-meta">gerade eben · Gefällt mir · Antworten</div></div>';
             compose.parentNode.insertBefore(node,compose);
             resetCommentComposer();
@@ -2032,6 +2040,22 @@
         updatePublishState();
       });
 
+      document.getElementById("emotionPicker").innerHTML=emotionCatalog.map(function(item){return stickerPickerButton(item,"emotion-option");}).join("");
+
+      function updateComposerStickerPreview(){
+        var box=document.getElementById("composerStickerSelected");
+        if(!selectedEmotion){box.innerHTML="";box.classList.remove("show");return;}
+        box.innerHTML=stickerHtml(selectedEmotion,"sticker-composer-selected-art")+'<span>'+esc(selectedEmotion.name)+' gewählt</span><button type="button" id="removeComposerSticker">Entfernen</button>';
+        box.classList.add("show");
+        var remove=document.getElementById("removeComposerSticker");
+        if(remove) remove.addEventListener("click",function(){
+          selectedEmotion=null;
+          document.querySelectorAll(".emotion-option").forEach(function(b){b.classList.remove("selected");});
+          updateComposerStickerPreview();
+          updatePublishState();
+        });
+      }
+
       document.getElementById("emojiBtn").addEventListener("click",function(){
         document.getElementById("emojiPicker").classList.toggle("open");
         document.getElementById("emotionPicker").classList.remove("open");
@@ -2056,6 +2080,8 @@
             btn.classList.add("selected");
             selectedEmotion=emotionByCode(btn.getAttribute("data-code")) || emotionByName(btn.getAttribute("data-emotion"));
           }
+          document.getElementById("emotionPicker").classList.remove("open");
+          updateComposerStickerPreview();
           updatePublishState();
         });
       });
@@ -2103,7 +2129,7 @@
               credential:memberCredential,
               club_id:clubId,
               text:text,
-              emotion:selectedEmotion ? selectedEmotion.name : "",
+              emotion:selectedEmotion ? selectedEmotion.code : "",
               media_id:mediaId
             });
 
@@ -2111,6 +2137,7 @@
             selectedEmotion = null;
             selectedImageData = "";
             document.querySelectorAll(".emotion-option").forEach(function(b){b.classList.remove("selected");});
+            updateComposerStickerPreview();
             document.getElementById("emotionPicker").classList.remove("open");
             document.getElementById("emojiPicker").classList.remove("open");
             document.getElementById("composerPreview").classList.remove("show");
@@ -2158,6 +2185,7 @@
         selectedEmotion = null;
         selectedImageData = "";
         document.querySelectorAll(".emotion-option").forEach(function(b){b.classList.remove("selected");});
+        updateComposerStickerPreview();
         document.getElementById("emotionPicker").classList.remove("open");
         document.getElementById("emojiPicker").classList.remove("open");
         document.getElementById("composerPreview").classList.remove("show");
