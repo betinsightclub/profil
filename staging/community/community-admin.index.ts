@@ -22,12 +22,16 @@ function globalPricing(tier:string){
   return {unit_cost:0.75,monthly_limit:null};
 }
 function effectiveMember(row:any){
-  const raw=String(row?.raw_tier||"BASIS").toUpperCase();
-  if(raw==="BASIS")return {...row,effective_tier:"BASIS",effective_status:"BASIS",payment_confirmed:true};
-  const now=Date.now(),until=row?.premium_until?new Date(row.premium_until).getTime():0,grace=row?.grace_until?new Date(row.grace_until).getTime():0;
-  if(until&&until>=now)return {...row,effective_tier:raw,effective_status:"AKTIV",payment_confirmed:true};
-  if(grace&&grace>=now)return {...row,effective_tier:raw,effective_status:"KULANZ",payment_confirmed:false};
-  return {...row,effective_tier:"BASIS",effective_status:until?"ABGELAUFEN":"ZAHLUNG_NICHT_BESTAETIGT",payment_confirmed:false};
+  const raw=String(row?.raw_tier||row?.effective_tier||"BASIS").toUpperCase();
+  const status=String(row?.effective_status||"BASIS").toUpperCase();
+  const paid=row?.payment_confirmed===true;
+  if(raw==="BASIS"||!paid)return {...row,effective_tier:"BASIS",effective_status:raw==="BASIS"?"BASIS":status,payment_confirmed:false};
+  return {...row,effective_tier:raw,effective_status:status||"AKTIV",payment_confirmed:true};
+}
+function globalPricing(tier:string){
+  if(tier==="PREMIUM_PLUS")return {unit_cost:0.10,monthly_limit:20};
+  if(tier==="PREMIUM")return {unit_cost:0.25,monthly_limit:10};
+  return {unit_cost:0.75,monthly_limit:null};
 }
 async function callMake(url:string,payload:any){
   const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...payload,gateway_secret:COMMUNITY_UNIT_SECRET}),redirect:"follow"});
