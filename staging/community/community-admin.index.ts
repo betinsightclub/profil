@@ -26,9 +26,7 @@ function effectiveMember(row:any){
   const now=Date.now(),until=row?.premium_until?new Date(row.premium_until).getTime():0,grace=row?.grace_until?new Date(row.grace_until).getTime():0;
   if(until&&until>=now)return {...row,effective_tier:raw,effective_status:"AKTIV",payment_confirmed:true};
   if(grace&&grace>=now)return {...row,effective_tier:raw,effective_status:"KULANZ",payment_confirmed:false};
-  if(String(row?.effective_status||"").toUpperCase()==="AKTIV_OHNE_ENDDATUM"&&row?.payment_confirmed===true)
-    return {...row,effective_tier:raw,effective_status:"AKTIV_OHNE_ENDDATUM",payment_confirmed:true};
-  return {...row,effective_tier:"BASIS",effective_status:"ABGELAUFEN",payment_confirmed:false};
+  return {...row,effective_tier:"BASIS",effective_status:until?"ABGELAUFEN":"ZAHLUNG_NICHT_BESTAETIGT",payment_confirmed:false};
 }
 async function unitCall(payload:any){
   if(!COMMUNITY_UNIT_WEBHOOK||!COMMUNITY_UNIT_SECRET)throw new Error("BILLING_NOT_CONFIGURED");
