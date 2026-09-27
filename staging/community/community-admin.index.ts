@@ -8,8 +8,9 @@ if(!SERVICE_KEY){try{const keys=JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS")|
 if(!SUPABASE_URL||!SERVICE_KEY)throw new Error("Supabase credentials unavailable");
 const admin=createClient(SUPABASE_URL,SERVICE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
 
-const COMMUNITY_UNIT_WEBHOOK=Deno.env.get("COMMUNITY_UNIT_WEBHOOK")||"";
-const COMMUNITY_UNIT_SECRET=Deno.env.get("COMMUNITY_UNIT_SECRET")||"";
+const COMMUNITY_RESERVE_WEBHOOK=Deno.env.get("COMMUNITY_RESERVE_WEBHOOK")||"https://hook.eu1.make.com/6uq7y66k30i8ckarvq1q6a3drccbf1af";
+const COMMUNITY_CHARGE_WEBHOOK=Deno.env.get("COMMUNITY_CHARGE_WEBHOOK")||"https://hook.eu1.make.com/bn6ympq0fa6g540cpkxsp36pqjur14i8";
+const COMMUNITY_UNIT_SECRET=Deno.env.get("COMMUNITY_UNIT_SECRET")||"hI5Fe7vbwue3TooMNlsEp85UpPJCwT7xaJ3j2ISsogY";
 function monthKeyBerlin(d=new Date()){
   const p=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Berlin",year:"numeric",month:"2-digit"}).formatToParts(d);
   const x:any=Object.fromEntries(p.map(z=>[z.type,z.value]));
@@ -28,36 +29,14 @@ function effectiveMember(row:any){
   if(grace&&grace>=now)return {...row,effective_tier:raw,effective_status:"KULANZ",payment_confirmed:false};
   return {...row,effective_tier:"BASIS",effective_status:until?"ABGELAUFEN":"ZAHLUNG_NICHT_BESTAETIGT",payment_confirmed:false};
 }
-async function unitCall(payload:any){
-  if(!COMMUNITY_UNIT_WEBHOOK||!COMMUNITY_UNIT_SECRET)throw new Error("BILLING_NOT_CONFIGURED");
-  const r=await fetch(COMMUNITY_UNIT_WEBHOOK,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...payload,gateway_secret:COMMUNITY_UNIT_SECRET}),redirect:"follow"});
+async function callMake(url:string,payload:any){
+  const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...payload,gateway_secret:COMMUNITY_UNIT_SECRET}),redirect:"follow"});
   const d:any=await r.json().catch(()=>({}));
-  if(!r.ok||d.ok===false)throw new Error(d.error||"UNIT_REFUND_FAILED");
+  if(!r.ok||d.ok===false){const e:any=new Error(d.error||"UNIT_SERVICE_FAILED");e.data=d;e.status=r.status;throw e}
   return d;
 }
-
-function cors(origin:string|null){const allowed=origin&&ALLOWED_ORIGINS.has(origin)?origin:"";return{"Access-Control-Allow-Origin":allowed,"Vary":"Origin","Access-Control-Allow-Headers":"content-type","Access-Control-Allow-Methods":"POST,OPTIONS","Cache-Control":"no-store"}}
-function j(data:unknown,status=200,origin:string|null=null){return new Response(JSON.stringify(data),{status,headers:{...cors(origin),"Content-Type":"application/json; charset=utf-8"}})}
-function clean(v:unknown,n=1000){return String(v??"").trim().slice(0,n)}
-function ip(req:Request){const f=req.headers.get("x-forwarded-for");return(f?f.split(",")[0].trim():req.headers.get("cf-connecting-ip")||req.headers.get("x-real-ip")||"unknown").slice(0,80)}
-async function rateAllowed(key:string,limit:number,windowSeconds:number){const{data,error}=await admin.rpc("betinsight_gateway_rate_check",{p_key:key,p_limit:limit,p_window_seconds:windowSeconds});if(error)return false;return data===true}
-
-async function verifyAdmin(sessionHash:string){
-  const hash=clean(sessionHash,200);
-  if(!hash)return null;
-  const u=new URL(SUPABASE_URL+"/functions/v1/betinsight-admin-gateway");
-  u.searchParams.set("route","admin-auth");
-  const r=await fetch(u.toString(),{
-    method:"POST",
-    headers:{"Origin":"https://app.betinsight.club","Content-Type":"application/json"},
-    body:JSON.stringify({action:"verify",session_hash:hash})
-  });
-  if(!r.ok)return null;
-  let d:any=null;try{d=await r.json()}catch(_){return null}
-  if(!d||d.ok!==true||!d.admin_id)return null;
-  return {adminId:String(d.admin_id),name:String(d.name||"Admin"),role:String(d.role||"ADMIN"),master:String(d.master||"NEIN"),expiresMs:Number(d.expires_ms||0)};
-}
-
+async function reserveUnits(payload:any){return callMake(COMMUNITY_RESERVE_WEBHOOK,payload)}
+async function chargeUnits(payload:any){return callMake(COMMUNITY_CHARGE_WEBHOOK,payload)}
 async function reportCount(type:string,id:string){
   const q=await admin.from("community_reports").select("id",{count:"exact",head:true}).eq("target_type",type).eq("target_id",id).eq("status","OPEN");
   if(q.error)throw q.error;return q.count||0;
@@ -82,7 +61,7 @@ async function queue(){
     (q.data||[]).forEach((x:any)=>byType[type].set(x.id,x));
   };
   await Promise.all([
-    fetchTargets("post","community_posts",[...new Set(reports.filter((x:any)=>x.target_type==="post").map((x:any)=>x.target_id))],"id,owner_ref,body,status,distribution_scope,unit_cost,unit_charge_status,created_at"),
+    fetchTargets("post","community_posts",[...new Set(reports.filter((x:any)=>x.target_type==="post").map((x:any)=>x.target_id))],"id,owner_ref,body,status,distribution_scope,unit_cost,unit_charge_status,billing_tier,billing_month,billing_reference,external_url,created_at"),
     fetchTargets("comment","community_comments",[...new Set(reports.filter((x:any)=>x.target_type==="comment").map((x:any)=>x.target_id))],"id,owner_ref,body,status,created_at"),
     fetchTargets("media","community_media",[...new Set(reports.filter((x:any)=>x.target_type==="media").map((x:any)=>x.target_id))],"id,owner_ref,storage_path,status,created_at"),
     fetchTargets("profile","community_trainer_profiles",[...new Set(reports.filter((x:any)=>x.target_type==="profile").map((x:any)=>x.target_id))],"id,owner_ref,display_name,bio,visibility,created_at")
@@ -181,36 +160,50 @@ Deno.serve(async(req:Request)=>{
       if(table==="community_media"){patch.reviewed_at=new Date().toISOString();patch.reviewed_by=who.adminId}
 
       let billingMeta:any=null;
-      if(type==="post"&&(decision==="PUBLISH"||decision==="RESTORE")){
-        const pq=await admin.from("community_posts").select("id,owner_ref,club_id,distribution_scope,unit_cost,unit_charge_status,billing_reference").eq("id",id).maybeSingle();
+      let postBefore:any=null;
+      if(type==="post"){
+        const pq=await admin.from("community_posts")
+          .select("id,owner_ref,club_id,distribution_scope,unit_cost,unit_charge_status,billing_tier,billing_month,billing_reference,external_url,status")
+          .eq("id",id).maybeSingle();
         if(pq.error)throw pq.error;
-        if(pq.data&&pq.data.distribution_scope==="GLOBAL"&&pq.data.unit_charge_status!=="PAID"){
-          const ms=await admin.from("community_membership_state").select("*").eq("owner_ref",pq.data.owner_ref).maybeSingle();
-          if(ms.error)throw ms.error;
-          const member=effectiveMember(ms.data||{owner_ref:pq.data.owner_ref}),price=globalPricing(member.effective_tier),month=monthKeyBerlin();
-          const usedQ=await admin.from("community_posts").select("id",{count:"exact",head:true})
-            .eq("owner_ref",pq.data.owner_ref).eq("distribution_scope","GLOBAL").eq("billing_month",month)
-            .eq("unit_charge_status","PAID").neq("status","DELETED").neq("status","REJECTED");
-          if(usedQ.error)throw usedQ.error;
-          const used=Number(usedQ.count||0);
-          if(price.monthly_limit!=null&&used>=price.monthly_limit)
-            return j({ok:false,error:"MONTHLY_GLOBAL_LIMIT",limit:price.monthly_limit,used},409,origin);
-          const charge=await unitCall({action:"charge",owner_ref:pq.data.owner_ref,units:price.unit_cost,request_id:"COMMUNITY_POST:"+id,reason:"community_global_post_after_link_approval",tier:member.effective_tier,month_key:month});
-          patch.unit_charge_status="PAID";patch.unit_cost=price.unit_cost;patch.billing_tier=member.effective_tier;
-          patch.billing_month=month;patch.membership_status_snapshot=member.effective_status;patch.premium_until_snapshot=member.premium_until||null;
-          patch.billing_reference=clean(charge?.reference||charge?.transaction_id||"",160)||null;patch.paid_at=new Date().toISOString();
-          billingMeta={member,price,month,charge,post:pq.data};
+        postBefore=pq.data;
+      }
+
+      // Link posts reserve Units when submitted. Approval commits the exact reserved amount, rejection releases it.
+      if(type==="post"&&postBefore?.distribution_scope==="GLOBAL"&&postBefore?.unit_charge_status==="RESERVED"){
+        const requestId=postBefore.billing_reference||("COMMUNITY_POST:"+id);
+        if(decision==="PUBLISH"||decision==="RESTORE"){
+          const charge=await chargeUnits({
+            action:"commit",credential:postBefore.owner_ref,request_id:requestId,
+            units:Number(postBefore.unit_cost||0),post_id:id,reason:"community_global_link_post_approved",
+            tier:postBefore.billing_tier||"BASIS",month_key:postBefore.billing_month||monthKeyBerlin()
+          });
+          await reserveUnits({
+            action:"release",credential:postBefore.owner_ref,request_id:requestId,
+            units:Number(postBefore.unit_cost||0),post_id:id,reason:"community_link_reservation_committed"
+          });
+          patch.unit_charge_status="PAID";
+          patch.paid_at=new Date().toISOString();
+          patch.billing_reference=requestId;
+          billingMeta={charge,post:postBefore,requestId};
+        }else if(decision==="REJECT"||decision==="DELETE"){
+          await reserveUnits({
+            action:"release",credential:postBefore.owner_ref,request_id:requestId,
+            units:Number(postBefore.unit_cost||0),post_id:id,reason:"community_link_post_rejected"
+          });
+          patch.unit_charge_status="RELEASED";
+          billingMeta={released:true,post:postBefore,requestId};
         }
       }
+
       const up=await admin.from(table).update(patch).eq("id",id);if(up.error)throw up.error;
-      if(billingMeta&&type==="post"){
-        const charge=billingMeta.charge,member=billingMeta.member,price=billingMeta.price,month=billingMeta.month;
+      if(billingMeta?.charge&&type==="post"){
+        const charge=billingMeta.charge,post=billingMeta.post;
         const aq=await admin.from("community_post_charges").upsert({
-          post_id:id,owner_ref:billingMeta.post.owner_ref,
-          club_id:billingMeta.post.club_id,
-          distribution_scope:"GLOBAL",tier_snapshot:member.effective_tier,membership_status_snapshot:member.effective_status,
-          premium_until_snapshot:member.premium_until||null,month_key:month,unit_cost:price.unit_cost,charge_status:"PAID",
-          external_reference:clean(charge?.reference||charge?.transaction_id||"",160)||null,
+          post_id:id,owner_ref:post.owner_ref,club_id:post.club_id,distribution_scope:"GLOBAL",
+          tier_snapshot:post.billing_tier||"BASIS",membership_status_snapshot:"APPROVED_LINK",
+          premium_until_snapshot:null,month_key:post.billing_month||monthKeyBerlin(),
+          unit_cost:Number(post.unit_cost||0),charge_status:"PAID",external_reference:billingMeta.requestId,
           balance_before:Number(charge?.balance_before||0),balance_after:Number(charge?.balance_after||0),
           charged_at:new Date().toISOString(),updated_at:new Date().toISOString()
         },{onConflict:"post_id"});
