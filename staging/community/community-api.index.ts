@@ -577,7 +577,6 @@ Deno.serve(async(req:Request)=>{
           public_url:SUPABASE_URL+"/storage/v1/object/public/community-media/"+mediaMap.get(p.media_id).storage_path
         }:null
       }});
-      });
       return json({ok:true,posts:out},200,origin);
     }
 
