@@ -76,7 +76,7 @@ function membershipInfo(profile:any){
   const premiumUntil=parseDateValue(firstProfileValue(profile,["premium_bis","premium_until","periode_bis"],null));
   const graceUntil=parseDateValue(firstProfileValue(profile,["kulanz_bis","grace_until"],null));
   const now=Date.now();
-  const explicitlyInactive=/(ABGELAUFEN|EXPIRED|INAKTIV|INACTIVE|CANCELLED|CANCELED|NICHT[_ -]?BEZAHLT|UNBEZAHLT|PAST[_ -]?DUE|ENDED)/.test(statusRaw);
+  const explicitlyInactive=/(ABGELAUFEN|EXPIRED|INAKTIV|INACTIVE|NICHT[_ -]?BEZAHLT|UNBEZAHLT|PAST[_ -]?DUE|ENDED)/.test(statusRaw);
   const explicitlyActive=/(AKTIV|ACTIVE|PAID|BEZAHLT|LAUFEND|CURRENT)/.test(statusRaw);
   const inPaidPeriod=!!premiumUntil&&premiumUntil.getTime()>=now;
   const inGrace=!!graceUntil&&graceUntil.getTime()>=now;
@@ -87,11 +87,9 @@ function membershipInfo(profile:any){
     effectiveTier=rawTier;effectiveStatus="KULANZ";paymentConfirmed=false;
   }else if(inPaidPeriod && !explicitlyInactive){
     effectiveTier=rawTier;effectiveStatus="AKTIV";paymentConfirmed=true;
-  }else if(explicitlyActive && !premiumUntil){
-    effectiveTier=rawTier;effectiveStatus="AKTIV_OHNE_ENDDATUM";paymentConfirmed=true;
   }else{
     effectiveTier="BASIS";
-    effectiveStatus=explicitlyInactive?"ABGELAUFEN":"ZAHLUNG_NICHT_BESTAETIGT";
+    effectiveStatus=explicitlyInactive||premiumUntil?"ABGELAUFEN":"ZAHLUNG_NICHT_BESTAETIGT";
     paymentConfirmed=false;
   }
   return {
