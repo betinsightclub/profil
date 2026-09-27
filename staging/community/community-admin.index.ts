@@ -82,7 +82,7 @@ async function queue(){
     fetchTargets("post","community_posts",[...new Set(reports.filter((x:any)=>x.target_type==="post").map((x:any)=>x.target_id))],"id,owner_ref,body,status,distribution_scope,unit_cost,unit_charge_status,created_at"),
     fetchTargets("comment","community_comments",[...new Set(reports.filter((x:any)=>x.target_type==="comment").map((x:any)=>x.target_id))],"id,owner_ref,body,status,created_at"),
     fetchTargets("media","community_media",[...new Set(reports.filter((x:any)=>x.target_type==="media").map((x:any)=>x.target_id))],"id,owner_ref,storage_path,status,created_at"),
-    fetchTargets("profile","community_trainer_profiles",[...new Set(reports.filter((x:any)=>x.target_type==="profile").map((x:any)=>x.target_id))],"id,owner_ref,display_name,bio,status,created_at")
+    fetchTargets("profile","community_trainer_profiles",[...new Set(reports.filter((x:any)=>x.target_type==="profile").map((x:any)=>x.target_id))],"id,owner_ref,display_name,bio,visibility,created_at")
   ]);
   const reportRows=reports.map((x:any)=>{
     const target=byType[x.target_type]?.get(x.target_id)||null;
