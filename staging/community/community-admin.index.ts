@@ -19,7 +19,7 @@ function monthKeyBerlin(d=new Date()){
 function globalPricing(tier:string){
   if(tier==="PREMIUM_PLUS")return {unit_cost:0.10,monthly_limit:20};
   if(tier==="PREMIUM")return {unit_cost:0.25,monthly_limit:10};
-  return {unit_cost:0.50,monthly_limit:null};
+  return {unit_cost:0.75,monthly_limit:null};
 }
 function effectiveMember(row:any){
   const raw=String(row?.raw_tier||"BASIS").toUpperCase();
