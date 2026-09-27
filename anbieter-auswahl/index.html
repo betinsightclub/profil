@@ -24,11 +24,12 @@ Version: 2026.08.25-04
 <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
 <!-- BETINSIGHT APP NOINDEX END -->
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <script src="../assets/regional-restrictions.js?v=20260927-1"></script>
+  <script src="../assets/regional-restrictions.js?v=20260927-2"></script>
   <style>html.bi-regional-block body{visibility:hidden}</style>
   <script>
-  (() => {
+  (async() => {
     const regional=window.BetInsightRegionalRestrictions;
+    await regional?.ready?.();
     if (!regional?.brazilBettingBlockActive) return;
     const code=regional.currentCountry?.() || "";
     if (!code) {
