@@ -20,6 +20,8 @@
   const TELEGRAM_URL = "https://t.me/betinsightclub_official";
   const X_URL = "https://x.com/betinsightclub";
   const FACEBOOK_URL = "https://www.facebook.com/betinsightclub";
+  const BLUESKY_URL = "https://bsky.app/profile/betinsight.bsky.social";
+  const MINDS_URL = "https://www.minds.com/betinsightclub/";
   const ACCOUNT_SETTINGS_URL = "https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726";
   const SCRIPT_URL = document.currentScript?.src || "";
   const ASSET_BASE = SCRIPT_URL ? new URL("./", SCRIPT_URL) : new URL("/assets/", window.location.origin);
@@ -380,7 +382,7 @@
     telegram.href = TELEGRAM_URL;
     telegram.target = "_blank";
     telegram.rel = "noopener noreferrer";
-    const telegramLabel = socialText("BetInsight Club auf Telegram öffnen","Open BetInsight Club on Telegram");
+    const telegramLabel = t("nav.openTelegram",socialText("BetInsight Club auf Telegram öffnen","Open BetInsight Club on Telegram"));
     telegram.setAttribute("aria-label", telegramLabel);
     telegram.title = telegramLabel;
     telegram.innerHTML = '<svg class="bi-social-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#229ED9"/><path d="M17.6 7.3 15 17c-.2.7-.8.9-1.4.5l-4-3-1.9 1.8c-.2.2-.4.4-.8.4l.3-4.1 7.4-6.7c.3-.3-.1-.5-.5-.2l-9.1 5.7-3.9-1.2c-.8-.3-.9-.9.2-1.3l15.2-5.9c.7-.3 1.4.2 1.1 1.4Z" fill="#fff"/></svg>';
@@ -390,7 +392,7 @@
     x.href = X_URL;
     x.target = "_blank";
     x.rel = "noopener noreferrer";
-    const xLabel = socialText("BetInsight Club auf X öffnen","Open BetInsight Club on X");
+    const xLabel = t("nav.openX",socialText("BetInsight Club auf X öffnen","Open BetInsight Club on X"));
     x.setAttribute("aria-label", xLabel);
     x.title = xLabel;
     x.textContent = "X";
@@ -400,12 +402,32 @@
     facebook.href = FACEBOOK_URL;
     facebook.target = "_blank";
     facebook.rel = "noopener noreferrer";
-    const facebookLabel = socialText("BetInsight Club auf Facebook öffnen","Open BetInsight Club on Facebook");
+    const facebookLabel = t("nav.openFacebook",socialText("BetInsight Club auf Facebook öffnen","Open BetInsight Club on Facebook"));
     facebook.setAttribute("aria-label", facebookLabel);
     facebook.title = facebookLabel;
     facebook.innerHTML = '<svg class="bi-social-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#1877F2"/><path d="M13.4 20v-7h2.35l.35-2.73h-2.7V8.53c0-.79.22-1.33 1.35-1.33h1.44V4.76c-.25-.03-1.1-.11-2.1-.11-2.08 0-3.5 1.27-3.5 3.61v2.01H8.24V13h2.35v7h2.81Z" fill="#fff"/></svg>';
 
-    links.append(youtube,telegram,x,facebook);
+    const bluesky = document.createElement("a");
+    bluesky.className = "bi-social-link bi-social-bluesky";
+    bluesky.href = BLUESKY_URL;
+    bluesky.target = "_blank";
+    bluesky.rel = "noopener noreferrer";
+    const blueskyLabel = t("nav.openBluesky",socialText("BetInsight Club auf Bluesky öffnen","Open BetInsight Club on Bluesky"));
+    bluesky.setAttribute("aria-label", blueskyLabel);
+    bluesky.title = blueskyLabel;
+    bluesky.innerHTML = '<svg class="bi-social-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#1686ff"/><path d="M7.1 6.8c1.9 1.4 3.9 4.2 4.9 6.1 1-1.9 3-4.7 4.9-6.1 1.4-1 3.7-1.8 3.7.7 0 .5-.3 4.3-.5 4.9-.7 2.2-3.1 2.7-5.3 2.3 3.8.6 4.8 2.5 2.7 4.4-4 3.7-5.7-.9-6.2-2.1-.1-.2-.1-.3-.2-.4 0 .1-.1.2-.2.4-.5 1.2-2.2 5.8-6.2 2.1-2.1-1.9-1.1-3.8 2.7-4.4-2.2.4-4.6-.1-5.3-2.3-.2-.6-.5-4.4-.5-4.9 0-2.5 2.3-1.7 3.7-.7Z" fill="#fff" transform="scale(.88) translate(1.65 1.65)"/></svg>';
+
+    const minds = document.createElement("a");
+    minds.className = "bi-social-link bi-social-minds";
+    minds.href = MINDS_URL;
+    minds.target = "_blank";
+    minds.rel = "noopener noreferrer";
+    const mindsLabel = t("nav.openMinds",socialText("BetInsight Club auf Minds öffnen","Open BetInsight Club on Minds"));
+    minds.setAttribute("aria-label", mindsLabel);
+    minds.title = mindsLabel;
+    minds.innerHTML = '<svg class="bi-social-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#ffd21f"/><path d="M5.5 17.5v-11h2.7l3.8 4.7 3.8-4.7h2.7v11h-2.8v-6.6L12 15.3l-3.7-4.4v6.6Z" fill="#171717"/></svg>';
+
+    links.append(youtube,telegram,x,facebook,bluesky,minds);
     footer.appendChild(links);
     page.appendChild(footer);
   }
