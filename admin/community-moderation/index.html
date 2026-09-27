@@ -19,21 +19,36 @@
     .body{padding:4px 16px 14px}.content{white-space:pre-wrap;color:#e4eef2}.flags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.flag{padding:4px 7px;border-radius:999px;border:1px solid rgba(255,255,255,.09);color:#a9c0ca;font-size:10px}
     .media{max-width:420px;max-height:300px;border-radius:13px;border:1px solid var(--line);margin-top:10px}.actions{display:flex;gap:7px;flex-wrap:wrap;padding:11px 16px;border-top:1px solid rgba(255,255,255,.07)}.act{border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.04);color:white;padding:8px 10px;font-weight:850;font-size:12px}.act.good{border-color:rgba(0,217,155,.28);color:#83f1ce}.act.warn{border-color:rgba(243,201,92,.3);color:#ffe18e}.act.bad{border-color:rgba(255,103,113,.3);color:#ff9ba3}
     .empty{padding:38px;text-align:center;border:1px dashed var(--line);border-radius:18px;color:var(--muted)}.loading{opacity:.6;pointer-events:none}.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,14px);opacity:0;transition:.2s;background:#062431;border:1px solid var(--line);border-radius:999px;padding:10px 14px;box-shadow:var(--shadow);font-weight:800;font-size:12px}.toast.show{opacity:1;transform:translate(-50%,0)}
+    .billing-card{margin:18px 0;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,var(--panel),var(--panel2));box-shadow:var(--shadow);overflow:hidden}
+    .billing-head{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:15px 16px;border-bottom:1px solid rgba(255,255,255,.07)}.billing-head h2{margin:0;font-size:18px}.billing-head small{color:var(--muted)}
+    .billing-wrap{overflow:auto}.billing-table{width:100%;border-collapse:collapse;min-width:980px}.billing-table th,.billing-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.055);text-align:left;font-size:12px;white-space:nowrap}.billing-table th{color:#8fb0bf;font-size:10px;text-transform:uppercase;letter-spacing:.07em}.billing-table td:first-child{font-weight:900;color:#eaf7fb}
+    .status-ok{color:#62e5b4;font-weight:900}.status-warn{color:#ffe18e;font-weight:900}.status-bad{color:#ff8e97;font-weight:900}.tier{display:inline-flex;padding:4px 7px;border-radius:999px;background:rgba(22,135,255,.1);color:#9bd0ff;font-weight:900}.money-ok{color:#74e4bd;font-weight:900}
+    .report-target{margin-top:10px;padding:10px;border:1px solid rgba(255,255,255,.08);border-radius:11px;background:rgba(255,255,255,.025)}.report-target b{display:block;margin-bottom:4px}.report-target .content{font-size:12px}
     @media(max-width:760px){.counts{grid-template-columns:repeat(2,1fr)}.top{align-items:flex-start;flex-direction:column}.actions{display:grid;grid-template-columns:repeat(2,1fr)}} 
   </style>
 </head>
 <body>
   <main class="wrap">
     <div class="top">
-      <div><h1>Community Moderation</h1><p>Posts, Kommentare, Bilder und Meldungen zentral prüfen.</p></div>
+      <div><h1>Trainer Feed · Moderation & Abrechnung</h1><p>Nur Link-Beiträge kommen regulär zur Prüfung. Meldungen und Feed-Abrechnung bleiben separat kontrollierbar.</p></div>
       <div><button class="btn" onclick="location.href='../'">← Admin Center</button> <button class="btn primary" id="refreshBtn">↻ Aktualisieren</button></div>
     </div>
 
     <section class="counts">
-      <div class="count"><strong id="cPosts">–</strong><span>Posts prüfen</span></div>
-      <div class="count"><strong id="cComments">–</strong><span>Kommentare prüfen</span></div>
-      <div class="count"><strong id="cMedia">–</strong><span>Bilder prüfen</span></div>
+      <div class="count"><strong id="cPosts">–</strong><span>Link-Posts prüfen</span></div>
+      <div class="count"><strong id="cComments">–</strong><span>Link-Kommentare prüfen</span></div>
+      <div class="count"><strong id="cMedia">–</strong><span>Sonderfälle Medien</span></div>
       <div class="count"><strong id="cReports">–</strong><span>Offene Meldungen</span></div>
+    </section>
+
+    <section class="billing-card">
+      <div class="billing-head"><div><h2>Feed-Status & Unit-Abrechnung</h2><small id="billingMonth">Aktueller Monat</small></div><small>Tarifstatus wird beim Laden gegen Laufzeit/Kulanz neu bewertet.</small></div>
+      <div class="billing-wrap">
+        <table class="billing-table">
+          <thead><tr><th>User</th><th>Effektiver Tarif</th><th>Zahl-/Tarifstatus</th><th>Premium bis</th><th>Units verfügbar</th><th>Globale Posts</th><th>Feed-Units bezahlt</th><th>Letzte Synchronisierung</th></tr></thead>
+          <tbody id="memberBillingRows"><tr><td colspan="8">Wird geladen …</td></tr></tbody>
+        </table>
+      </div>
     </section>
 
     <nav class="toolbar">
@@ -70,14 +85,43 @@ async function call(payload){
 }
 function fmtDate(v){try{return new Intl.DateTimeFormat("de-DE",{dateStyle:"short",timeStyle:"short"}).format(new Date(v))}catch(_){return ""}}
 function typeName(t){return t==="post"?"Post":t==="comment"?"Kommentar":t==="media"?"Bild":"Meldung"}
+function fmtDay(v){if(!v)return "—";try{return new Intl.DateTimeFormat("de-DE",{dateStyle:"medium"}).format(new Date(v))}catch(_){return "—"}}
+function statusClass(v){const s=String(v||"").toUpperCase();return /AKTIV|BASIS/.test(s)?"status-ok":/KULANZ|OHNE_ENDDATUM|NICHT_BESTAETIGT/.test(s)?"status-warn":"status-bad"}
+function renderMembers(){
+  const body=document.getElementById("memberBillingRows"),month=document.getElementById("billingMonth");
+  if(month)month.textContent="Monat "+(dashboard?.month_key||"");
+  const rows=dashboard?.members||[];
+  if(!rows.length){body.innerHTML='<tr><td colspan="8">Noch keine synchronisierten Community-Nutzer.</td></tr>';return}
+  body.innerHTML=rows.map(m=>{
+    const limit=m.monthly_limit==null?"":(" / "+Number(m.monthly_limit));
+    return '<tr>'+
+      '<td>'+esc(m.owner_ref||"")+'</td>'+
+      '<td><span class="tier">'+esc(m.effective_tier||"BASIS")+'</span></td>'+
+      '<td class="'+statusClass(m.effective_status)+'">'+esc(m.effective_status||"")+(m.payment_confirmed===true?" · bezahlt":"")+'</td>'+
+      '<td>'+fmtDay(m.premium_until)+'</td>'+
+      '<td>'+Number(m.units_available||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+'</td>'+
+      '<td>'+Number(m.global_posts_month||0)+limit+'</td>'+
+      '<td class="money-ok">'+Number(m.global_units_paid||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+' U</td>'+
+      '<td>'+fmtDate(m.profile_synced_at||m.updated_at)+'</td>'+
+    '</tr>';
+  }).join("");
+}
 function statusBadge(x){const s=String(x.status||"");return '<span class="badge '+(s==="HIDDEN"?"hidden-b":"pending")+'">'+esc(s)+'</span>'}
 function flagsHtml(arr){return (arr||[]).map(x=>'<span class="flag">'+esc(x)+'</span>').join("")}
 function userButtons(owner){return '<button class="act warn" data-user="'+esc(owner)+'" data-user-action="WARN">Verwarnen</button><button class="act warn" data-user="'+esc(owner)+'" data-user-action="SUSPEND">7 Tage sperren</button><button class="act bad" data-user="'+esc(owner)+'" data-user-action="BAN">Sperren</button>'}
 function card(x){
   if(x.kind==="report"){
-    return '<article class="item"><div class="item-head"><div><span class="badge report-b">MELDUNG</span><b>'+esc(x.reason)+'</b><div class="meta">'+esc(x.target_type)+' · '+esc(x.target_id)+' · '+fmtDate(x.created_at)+'</div></div><div class="meta">von '+esc(x.reporter_ref)+'</div></div><div class="body"><div class="content">'+esc(x.details||"Kein Zusatztext")+'</div></div><div class="actions"><button class="act good" data-dismiss="'+esc(x.target_type)+':'+esc(x.target_id)+'">Meldung verwerfen</button></div></article>';
+    const t=x.target||{},preview=t.body||t.bio||t.display_name||"Zielinhalt nicht mehr vorhanden";
+    const link=t.external_url?'<div class="meta" style="margin-top:7px">🔗 '+esc(t.external_url)+'</div>':"";
+    const targetBox='<div class="report-target"><b>Gemeldeter Inhalt · '+esc(t.owner_ref||"")+'</b><div class="content">'+esc(preview)+'</div>'+link+'<div class="meta">Status: '+esc(t.status||t.visibility||"—")+(t.unit_charge_status?' · Feed-Zahlung: '+esc(t.unit_charge_status):'')+'</div></div>';
+    let targetActions='';
+    if(["post","comment","media"].includes(x.target_type)&&t.id){
+      targetActions='<button class="act warn" data-decision="HIDE" data-type="'+esc(x.target_type)+'" data-id="'+esc(x.target_id)+'">Inhalt ausblenden</button><button class="act bad" data-decision="DELETE" data-type="'+esc(x.target_type)+'" data-id="'+esc(x.target_id)+'">Inhalt löschen</button>';
+    }
+    return '<article class="item"><div class="item-head"><div><span class="badge report-b">MELDUNG</span><b>'+esc(x.reason)+'</b><div class="meta">'+esc(x.target_type)+' · '+esc(x.target_id)+' · '+fmtDate(x.created_at)+'</div></div><div class="meta">von '+esc(x.reporter_ref)+'</div></div><div class="body"><div class="content">'+esc(x.details||"Kein Zusatztext")+'</div>'+targetBox+'</div><div class="actions"><button class="act good" data-dismiss="'+esc(x.target_type)+':'+esc(x.target_id)+'">Meldung verwerfen</button>'+targetActions+(t.owner_ref?userButtons(t.owner_ref):"")+'</div></article>';
   }
   const text=x.body?'<div class="content">'+esc(x.body)+'</div>':"";
+  const link=x.external_url?'<div class="report-target"><b>Externer Link</b><div class="content">'+esc(x.external_url)+'</div><div class="meta">'+(x.unit_charge_status==="RESERVED"?"Units reserviert · bei Freigabe endgültig verbuchen":"Abrechnung: "+esc(x.unit_charge_status||"—"))+'</div></div>':"";
   const media=x.target_type==="media"?'<img class="media" src="'+esc(x.public_url)+'" alt="Zu prüfendes Bild">':"";
   return '<article class="item"><div class="item-head"><div>'+statusBadge(x)+'<span class="badge report-b">'+typeName(x.target_type)+'</span><b>'+esc(x.owner_ref||"")+'</b><div class="meta">'+fmtDate(x.created_at)+' · Meldungen: '+Number(x.report_count||0)+'</div></div><div class="meta">Score '+Number(x.moderation_score||0)+'</div></div><div class="body">'+text+media+'<div class="flags">'+flagsHtml(x.moderation_flags)+'</div></div><div class="actions"><button class="act good" data-decision="PUBLISH" data-type="'+esc(x.target_type)+'" data-id="'+esc(x.id)+'">Freigeben</button><button class="act warn" data-decision="HIDE" data-type="'+esc(x.target_type)+'" data-id="'+esc(x.id)+'">Ausblenden</button><button class="act bad" data-decision="REJECT" data-type="'+esc(x.target_type)+'" data-id="'+esc(x.id)+'">Ablehnen</button><button class="act bad" data-decision="DELETE" data-type="'+esc(x.target_type)+'" data-id="'+esc(x.id)+'">Löschen</button>'+userButtons(x.owner_ref)+'</div></article>';
 }
@@ -100,6 +144,7 @@ async function load(){
     document.getElementById("cComments").textContent=dashboard.counts.comments;
     document.getElementById("cMedia").textContent=dashboard.counts.media;
     document.getElementById("cReports").textContent=dashboard.counts.reports;
+    renderMembers();
     render();
   }catch(e){toast(e.message||"Fehler beim Laden")}finally{busy=false;document.body.classList.remove("loading")}
 }
