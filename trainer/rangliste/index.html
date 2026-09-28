@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#06141d">
+<title>Trainer-Rangliste · TIME CLASH</title>
+<link rel="icon" href="/favicon.ico">
+<style>
+:root{--bg:#06141d;--card:#0c2634;--card2:#091d29;--line:rgba(143,203,230,.16);--text:#f4fbff;--muted:#9fb7c3;--blue:#1687ff;--green:#16d69d;--gold:#f3c95c}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 10% 0,rgba(22,135,255,.12),transparent 30rem),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+a{color:inherit}.top{position:sticky;top:0;z-index:10;background:rgba(3,20,29,.9);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.08)}
+.topin{width:min(1180px,calc(100% - 28px));min-height:68px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:14px}.brand img{width:132px;display:block}.nav{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 13px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.05);text-decoration:none;font-weight:850;font-size:13px}.btn.primary{background:linear-gradient(135deg,var(--blue),#0b67cb);border-color:transparent}
+main{width:min(1180px,calc(100% - 28px));margin:28px auto 60px}.hero{padding:28px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(145deg,rgba(13,39,53,.97),rgba(6,26,37,.97));box-shadow:0 22px 70px rgba(0,0,0,.28)}.eyebrow{color:#72c5ff;font-size:12px;font-weight:950;letter-spacing:.14em}.hero h1{margin:8px 0 8px;font-size:clamp(32px,5vw,56px);line-height:1}.hero p{margin:0;color:var(--muted);max-width:780px}
+.podium{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}.pod{padding:18px;border:1px solid var(--line);border-radius:17px;background:var(--card)}.pod .pos{font-size:12px;color:var(--muted);font-weight:900}.pod h3{margin:8px 0 4px}.pod p{margin:0;color:var(--muted);font-size:13px}.pod strong{display:block;margin-top:12px;font-size:25px;color:#75ddff}.pod.p1{border-color:rgba(243,201,92,.42);box-shadow:inset 0 3px 0 var(--gold)}
+.card{border:1px solid var(--line);border-radius:18px;background:var(--card2);overflow:hidden}.cardhead{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.07)}.cardhead h2{margin:0;font-size:18px}.cardhead span{color:var(--muted);font-size:12px}
+.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:760px}th,td{padding:13px 14px;text-align:left;border-bottom:1px solid rgba(255,255,255,.06)}th{font-size:11px;letter-spacing:.08em;color:#8eabb9;text-transform:uppercase;background:rgba(255,255,255,.025)}td{font-size:14px}.rank{font-weight:950;width:68px}.name{font-weight:900}.sub{display:block;color:var(--muted);font-size:11px;margin-top:2px}.wins{font-weight:950;color:#70dfff}.profilelink{color:#74caff;text-decoration:none;font-weight:850}.empty{padding:34px;text-align:center;color:var(--muted)}.note{margin-top:12px;color:#7896a4;font-size:12px}
+@media(max-width:720px){.podium{grid-template-columns:1fr}.hero{padding:21px}.topin{min-height:62px}.brand img{width:112px}.btn{min-height:36px;padding:0 10px}.pod{padding:15px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="topin"><a class="brand" href="/time-clash/"><img src="/logo_betisight.club.png" alt="BetInsight"></a><nav class="nav"><a class="btn" href="/trainer/">← Trainerprofil</a><a class="btn primary" href="/time-clash/">TIME CLASH</a></nav></div></header>
+<main>
+<section class="hero"><div class="eyebrow">TIME CLASH · TRAINER</div><h1>Trainer-Rangliste</h1><p>Jeder registrierte TIME-CLASH-Trainer startet bei null. Gewertet werden die tatsächlich erreichten Karriere-Siege. Wer spielt und gewinnt, steigt auf.</p></section>
+<section class="podium" id="podium"><div class="pod"><div class="pos">PLATZ 1</div><h3>Wird geladen …</h3></div><div class="pod"><div class="pos">PLATZ 2</div><h3>Wird geladen …</h3></div><div class="pod"><div class="pos">PLATZ 3</div><h3>Wird geladen …</h3></div></section>
+<section class="card"><div class="cardhead"><h2>Alle Trainer</h2><span id="meta">Rangliste wird geladen …</span></div><div class="tablewrap"><table><thead><tr><th>Rang</th><th>Trainer</th><th>Team</th><th>Spiele</th><th>Siege</th><th>U</th><th>N</th><th>Profil</th></tr></thead><tbody id="rows"><tr><td colspan="8" class="empty">Rangliste wird geladen …</td></tr></tbody></table></div></section>
+<p class="note">Bei gleicher Siegzahl teilen sich Trainer denselben sportlichen Rang. Neue Trainer ohne gewertete Siege beginnen am Ende der Rangliste.</p>
+</main>
+<script>
+const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash-ranking";
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+function profileLink(r){return r.public_slug?"/trainer/?p="+encodeURIComponent(r.public_slug):""}
+function podiumCard(r,i){
+ if(!r)return '<div class="pod"><div class="pos">PLATZ '+(i+1)+'</div><h3>Noch offen</h3><p>Keine gewerteten Daten</p></div>';
+ return '<div class="pod '+(i===0?"p1":"")+'"><div class="pos">PLATZ '+esc(r.position)+'</div><h3>'+esc(r.trainer_name||r.owner_ref)+'</h3><p>'+esc(r.club_name||"Noch kein eigenes Team")+'</p><strong>'+Number(r.wins||0)+' Siege</strong></div>';
+}
+async function load(){
+ try{
+  const res=await fetch(API+"?type=trainers&limit=500",{cache:"no-store"});
+  const data=await res.json(); if(!res.ok||data.ok!==true)throw new Error();
+  const rows=Array.isArray(data.rows)?data.rows:[];
+  document.getElementById("meta").textContent=Number(data.total||rows.length)+" Trainer";
+  document.getElementById("podium").innerHTML=[0,1,2].map(i=>podiumCard(rows[i],i)).join("");
+  document.getElementById("rows").innerHTML=rows.length?rows.map(r=>{
+    const link=profileLink(r);
+    return '<tr><td class="rank">#'+Number(r.position||0)+'</td><td><span class="name">'+esc(r.trainer_name||r.owner_ref)+'</span><span class="sub">'+esc(r.owner_ref||"")+'</span></td><td>'+esc(r.club_name||"—")+'</td><td>'+Number(r.matches_played||0)+'</td><td class="wins">'+Number(r.wins||0)+'</td><td>'+Number(r.draws||0)+'</td><td>'+Number(r.losses||0)+'</td><td>'+(link?'<a class="profilelink" href="'+link+'">Öffnen →</a>':'—')+'</td></tr>';
+  }).join(""):'<tr><td colspan="8" class="empty">Noch keine Trainer vorhanden.</td></tr>';
+ }catch(e){
+  document.getElementById("rows").innerHTML='<tr><td colspan="8" class="empty">Rangliste konnte gerade nicht geladen werden.</td></tr>';
+  document.getElementById("meta").textContent="Nicht verfügbar";
+ }
+}
+load();
+</script>
+</body></html>
