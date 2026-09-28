@@ -1064,6 +1064,7 @@ function createNewspaperImage(){if(lastNewsBlobUrl){$("#newspaperPreview").class
 async function shareNewsImage(){if(!lastNewsBlob){createNewspaperImage();return}let file=new File([lastNewsBlob],"time-clash-zeitung.png",{type:"image/png"});if(navigator.canShare?.({files:[file]})){try{await navigator.share({title:"BetInsight TIME CLASH",text:TA.name+" vs. "+TB.name,files:[file]});return}catch(e){}}window.open(lastNewsBlobUrl,"_blank")}
 async function shareCurrent(){let url=$("#reportLink")?.href&&$("#reportLink").href!=="#"?$("#reportLink").href:location.href;try{if(navigator.share){await navigator.share({title:"BetInsight TIME CLASH",text:TA.name+" vs. "+TB.name+" · "+serA+":"+serB,url});return}}catch(e){}try{await navigator.clipboard.writeText(url);$("#next").textContent="Link zum TIME CLASH wurde kopiert."}catch(e){window.prompt("Link kopieren:",url)}}
 function openMediaCenter(){let slug=$("#newspaperBtn").dataset.slug;if(!slug){$("#next").textContent="Der Medienbereich wird nach Abschluss und Speicherung der Serie freigeschaltet.";return}location.href="/time-clash/medien/?clash="+encodeURIComponent(slug)}
+function worldRankEsc(v){return String(v??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]))}
 async function loadWorldRankingPreview(){
   const body=document.getElementById("worldRankPreviewRows");if(!body)return;
   try{
@@ -1072,7 +1073,7 @@ async function loadWorldRankingPreview(){
     const rows=Array.isArray(d.rows)?d.rows:[];
     body.innerHTML=rows.length?rows.map(x=>{
       const gd=Number(x.goal_difference||0);
-      return '<tr><td class="worldRankPos">#'+Number(x.position||0)+'</td><td class="worldRankTeam">'+escapeHtml(x.display_name||"Team")+'</td><td>'+Number(x.matches_played||0)+'</td><td>'+Number(x.wins||0)+'</td><td>'+Number(x.draws||0)+'</td><td>'+Number(x.losses||0)+'</td><td>'+(gd>0?"+":"")+gd+'</td><td class="worldRankPts">'+Number(x.points||0)+'</td></tr>';
+      return '<tr><td class="worldRankPos">#'+Number(x.position||0)+'</td><td class="worldRankTeam">'+worldRankEsc(x.display_name||"Team")+'</td><td>'+Number(x.matches_played||0)+'</td><td>'+Number(x.wins||0)+'</td><td>'+Number(x.draws||0)+'</td><td>'+Number(x.losses||0)+'</td><td>'+(gd>0?"+":"")+gd+'</td><td class="worldRankPts">'+Number(x.points||0)+'</td></tr>';
     }).join(""):'<tr><td colspan="8" class="worldRankEmpty">Noch keine gewerteten historischen Spiele.</td></tr>';
   }catch(_e){
     body.innerHTML='<tr><td colspan="8" class="worldRankEmpty">Weltrangliste momentan nicht verfügbar.</td></tr>';
