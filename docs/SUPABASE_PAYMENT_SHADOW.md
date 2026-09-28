@@ -67,3 +67,44 @@ Alle fünf Tabellen haben RLS aktiviert und sind nicht direkt für Browser-Clien
 
 ## Cutover-Prinzip
 Der Umschaltpunkt soll am Ende nur noch eine kleine Routing-Änderung sein. Die Datenstruktur und Logik werden vorher vollständig getestet.
+
+
+## Fortschritt 2026-09-28 – Finanz- und Kaufchargenmodell
+
+Der Shadow-Zahlungsweg bildet inzwischen zusätzlich die fachliche Logik des Live-Szenarios
+`BetInsight - Units gutschreiben nach Zahlung v4.7 DATE-SAFE MULTI-CRYPTO AFFILIATE-FIX` nach.
+
+Neu im Shadow:
+- Netzwerk-Snapshot der USER-Zuordnung (User, Ref-Code, Sponsor, Upline 1–3)
+- Finanzberechnung aus dem verifizierten Plisio-Payload
+- Betriebskosten-Vorauszahlung 2,5 %
+- Affiliate-Budget 10 % mit 6/3/1 und Firmenpool bei fehlenden Ebenen
+- verteilbarer Netto-Betrag
+- Sofortpool 40 % / Nutzungspool 60 %
+- Sofortpool-Aufteilung ADM-001/002/003 = 40/30/30
+- Kaufcharge mit Sponsor-, Referral-, Währungs-, Netzwerk- und Nutzungspool-Feldern
+- Unit-Ledger bleibt idempotent
+- Integritätsprüfung: Finance, Kaufcharge, Unit-Ledger, Admin-Summe, Affiliate-Summe und Netzwerk-Snapshot
+
+Ein vollständiger transaktionaler Selbsttest mit einem Pro-Paket (240 Units / 199 EUR) besteht aktuell alle Prüfungen:
+`all_ok = true`.
+
+## Live-Make Zwischenfix
+
+Beim Abgleich mit einer echten Pro-Zahlung vom 21.09.2026 wurde ein separater Make-Fehler entdeckt:
+In mehreren Modulen wurde `round(wert; stellen)` verwendet. Die Make-Mapping-Funktion `round()`
+rundet jedoch auf ganze Zahlen; dadurch wurden u. a. Krypto- und Pro-Unit-Werte im ursprünglichen Lauf
+zu grob gerundet.
+
+Die aktiven Module 16, 25, 26, 27, 28 und 30 wurden deshalb auf
+`parseNumber(formatNumber(...))` mit der jeweils vorgesehenen Dezimalstellenzahl umgestellt.
+Das Live-Szenario bleibt aktiv; dieser Zwischenfix verhindert falsche Rundung bei neuen Käufen,
+bis Supabase den Prozess vollständig übernimmt.
+
+## Weiterhin bewusst nicht umgeschaltet
+
+- `main` bleibt auf dem bisherigen Live-Zahlungsweg.
+- Der produktive Member-Gateway routet `payment-create` weiterhin zu Make.
+- `PLISIO_SECRET_KEY` ist im Shadow noch nicht aktiviert.
+- Keine Shadow-Tabelle schreibt echte USER-, UNIT_KAEUFE-, Admin- oder Affiliate-Bestände.
+- Vor Cutover folgt ein echter kleiner Plisio-Test und danach der Live-vs-Shadow-Vergleich.
