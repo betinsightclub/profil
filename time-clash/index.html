@@ -182,16 +182,16 @@ const rosterDB={
  "AC Mailand":[{id:"rafael-leao",name:"Rafael Leão",impact:3},{id:"christian-pulisic",name:"Christian Pulisic",impact:3},{id:"theo-hernandez",name:"Theo Hernández",impact:3},{id:"mike-maignan",name:"Mike Maignan",impact:3}],
  "Italien 2006 · Weltmeister":[
 {id:"gianluigi-buffon",name:"Gianluigi Buffon",strength:22,impact:5,prole:"Torwart",starter:true},
-{id:"gianluca-zambrotta",name:"Gianluca Zambrotta",strength:19,impact:4,prole:"Abwehr",starter:true},
-{id:"fabio-cannavaro",name:"Fabio Cannavaro",strength:22,impact:5,prole:"Abwehr",starter:true},
-{id:"alessandro-nesta",name:"Alessandro Nesta",strength:20,impact:5,prole:"Abwehr",starter:true},
-{id:"fabio-grosso",name:"Fabio Grosso",strength:18,impact:4,prole:"Abwehr",starter:true},
-{id:"gennaro-gattuso",name:"Gennaro Gattuso",strength:19,impact:4,prole:"Mittelfeld",starter:true},
-{id:"andrea-pirlo",name:"Andrea Pirlo",strength:21,impact:5,prole:"Mittelfeld",starter:true},
-{id:"mauro-camoranesi",name:"Mauro Camoranesi",strength:18,impact:4,prole:"Mittelfeld",starter:true},
-{id:"simone-perrotta",name:"Simone Perrotta",strength:18,impact:4,prole:"Mittelfeld",starter:true},
-{id:"francesco-totti",name:"Francesco Totti",strength:20,impact:5,prole:"Sturm",starter:true},
-{id:"luca-toni",name:"Luca Toni",strength:20,impact:5,prole:"Sturm",starter:true},
+{id:"gianluca-zambrotta",name:"Gianluca Zambrotta",strength:16.5,impact:4,prole:"Abwehr",starter:true},
+{id:"fabio-cannavaro",name:"Fabio Cannavaro",strength:20,impact:5,prole:"Abwehr",starter:true},
+{id:"alessandro-nesta",name:"Alessandro Nesta",strength:19,impact:5,prole:"Abwehr",starter:true},
+{id:"fabio-grosso",name:"Fabio Grosso",strength:16.5,impact:4,prole:"Abwehr",starter:true},
+{id:"gennaro-gattuso",name:"Gennaro Gattuso",strength:16.5,impact:4,prole:"Mittelfeld",starter:true},
+{id:"andrea-pirlo",name:"Andrea Pirlo",strength:20,impact:5,prole:"Mittelfeld",starter:true},
+{id:"mauro-camoranesi",name:"Mauro Camoranesi",strength:16.5,impact:4,prole:"Mittelfeld",starter:true},
+{id:"simone-perrotta",name:"Simone Perrotta",strength:16.5,impact:4,prole:"Mittelfeld",starter:true},
+{id:"francesco-totti",name:"Francesco Totti",strength:19,impact:5,prole:"Sturm",starter:true},
+{id:"luca-toni",name:"Luca Toni",strength:17.5,impact:4,prole:"Sturm",starter:true},
 {id:"marco-amelia",name:"Marco Amelia",strength:16,impact:4,prole:"Torwart",starter:false},
 {id:"angelo-peruzzi",name:"Angelo Peruzzi",strength:17,impact:4,prole:"Torwart",starter:false},
 {id:"marco-materazzi",name:"Marco Materazzi",strength:18,impact:4,prole:"Abwehr",starter:false},
@@ -900,7 +900,7 @@ function effectiveMetrics(side,plans,dismissals=null){
 }
 function spacedGoalMinutes(total){let out=[],tries=0;while(out.length<total&&tries++<1500){let m=7+rnd(82);if(out.every(x=>Math.abs(x-m)>=6))out.push(m)}return out.sort((a,b)=>a-b)}
 function shuffleCopy(list){let a=[...list];for(let x=a.length-1;x>0;x--){let y=rnd(x+1);[a[x],a[y]]=[a[y],a[x]]}return a}
-function keeperSaveChance(strength){return Math.max(.10,Math.min(.92,.12+(Math.max(1,Math.min(25,strength))-5)*.04))}
+function keeperSaveChance(strength){return Math.max(.22,Math.min(.62,.28+(Math.max(1,Math.min(25,strength))-5)*.015))}
 function buildGame(idx){
  let plans={A:buildSubPlan("A"),B:buildSubPlan("B")},dismissals={A:{},B:{}},yellows={A:{},B:{}},ev=[{m:1,msg:"⚽ Anpfiff! Spiel "+(idx+1)+" der TIME-CLASH-Serie läuft."}],ratingA=TA.rating,ratingB=TB.rating;
  let preA=effectiveMetrics("A",plans,dismissals),preB=effectiveMetrics("B",plans,dismissals);
