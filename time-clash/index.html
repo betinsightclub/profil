@@ -940,21 +940,87 @@ function renderSeriesDecision(dec){
  if(!dec)return;let last=games[games.length-1];last.seriesDecision={method:dec.method,extra_a:dec.extra_a,extra_b:dec.extra_b,penalties_a:dec.penalties_a,penalties_b:dec.penalties_b,winner:dec.winner};last.ev.push(...dec.events);last.ev.sort((a,b)=>Number(a.m||0)-Number(b.m||0));
  for(const e of dec.events){let d=document.createElement("div");d.className="event"+(String(e.type).includes("Goal")?" goal":"");d.innerHTML="<b>"+(e.m<=120?e.m+"'":"ELF")+"</b><span>"+e.msg+"</span>";$("#events").prepend(d)}
 }
+const REPORT_PENDING_KEY="bi_time_clash_pending_report_v2";
+const tcWait=ms=>new Promise(r=>setTimeout(r,ms));
+const newReportRequestId=()=>crypto.randomUUID?crypto.randomUUID():"tc-"+Date.now()+"-"+Math.random().toString(36).slice(2);
+function savePendingReport(record){try{localStorage.setItem(REPORT_PENDING_KEY,JSON.stringify(record))}catch(e){}}
+function loadPendingReport(){try{let r=JSON.parse(localStorage.getItem(REPORT_PENDING_KEY)||"null");if(!r||!r.report_payload)return null;if(Date.now()-Number(r.created_at||0)>12*60*60*1000){localStorage.removeItem(REPORT_PENDING_KEY);return null}return r}catch(e){return null}}
+function clearPendingReport(id){try{let r=loadPendingReport();if(!r||!id||r.report_payload?.client_request_id===id)localStorage.removeItem(REPORT_PENDING_KEY)}catch(e){}}
+async function sendReportArchive(payload,maxAttempts=4){
+ let last=null;
+ for(let attempt=0;attempt<maxAttempts;attempt++){
+  try{
+   let r=await fetch(REPORT_API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...payload,credential:ownerRef()})});
+   let d=null;try{d=await r.json()}catch(_e){}
+   if(r.ok&&d?.report_url)return d;
+   let e=new Error(d?.error||("HTTP "+r.status));e.status=r.status;last=e;
+   if(r.status<500&&r.status!==429)throw e
+  }catch(e){last=e;if(Number(e?.status||0)>0&&Number(e.status)<500&&Number(e.status)!==429)throw e}
+  if(attempt<maxAttempts-1)await tcWait(700*Math.pow(2,attempt))
+ }
+ throw last||new Error("report_failed")
+}
+async function sendClubFinish(payload,maxAttempts=4){
+ let last=null;
+ for(let attempt=0;attempt<maxAttempts;attempt++){
+  try{
+   let r=await fetch(CLUB_API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...payload,owner_ref:ownerRef()})});
+   let d=null;try{d=await r.json()}catch(_e){}
+   if(r.ok)return d;
+   let e=new Error(d?.error||("HTTP "+r.status));e.status=r.status;last=e;
+   if(!(r.status===409&&d?.error==="archive_not_ready")&&r.status<500&&r.status!==429)throw e
+  }catch(e){last=e;if(Number(e?.status||0)>0&&Number(e.status)<500&&Number(e.status)!==409&&Number(e.status)!==429)throw e}
+  if(attempt<maxAttempts-1)await tcWait(700*Math.pow(2,attempt))
+ }
+ throw last||new Error("club_finish_failed")
+}
+function applyReportArchiveUi(d){
+ let cred=ownerRef();if(!d?.report_url)return;
+ $("#report").classList.remove("hidden");let rp=String(d.report_url||"").replace(/^\/de\//,"/"+TC_DISPLAY_LANG+"/"),rl=$("#reportLink");
+ rl.href="https://betinsight.club"+rp+(cred?"&from=app":"");rl.classList.remove("reportPending");rl.removeAttribute("aria-disabled");rl.dataset.retry="";rl.textContent="Vollständigen TIME-CLASH-Bericht ansehen";
+ if(cred&&d.report?.public_slug&&(kindAActive==="myclub"||kindBActive==="myclub")){$("#newspaperBtn").dataset.slug=d.report.public_slug;$("#newspaperBtn").disabled=false;$("#newspaperBtn").setAttribute("aria-disabled","false");$("#newspaperBtn").textContent="📰 ZEITUNGSBILD ERSTELLEN";$("#newspaperBtn").title="Bildmoment wählen und Zeitungsbild im Medienbereich erstellen"}
+ if(d.registered&&d.balance){memberBalance=d.balance;renderBalance();$("#next").textContent+=" · +"+d.earned_points+" Clash Points · "+Number(d.balance.clash_tokens||0)+" Spiele verfügbar"}
+}
+function showReportRetry(){
+ let rl=$("#reportLink");if(!rl)return;$("#report").classList.remove("hidden");rl.href="#";rl.classList.remove("reportPending");rl.removeAttribute("aria-disabled");rl.dataset.retry="1";rl.textContent="Bericht erneut versuchen"
+}
+function applyClubFinishUi(record,d){
+ if(!d?.club)return;
+ try{
+  let m=JSON.parse(localStorage.getItem("biMyClub")||"null");
+  if(m){m.ratingPoints=d.club.rating_points;m.league=d.club.league;m.winsTotal=Number(d.club.wins_total||0);if(d.progress){m.budget=d.progress.budget;localStorage.setItem("biMyClubProgress",JSON.stringify(d.progress))}localStorage.setItem("biMyClub",JSON.stringify(m))}
+  memberClub=d.club;memberProgress=d.progress||memberProgress;renderLevelRoad();
+  if($("#memberLevel"))$("#memberLevel").textContent=String(d.progress?.name||d.club.league||"").replace("-Liga","");
+  if($("#memberWins"))$("#memberWins").textContent=Number(d.club.wins_total||0);
+  if($("#memberBudget"))$("#memberBudget").textContent=d.progress?.budget||m?.budget||100;
+  let p=record.club_payload,rp=record.report_payload,ownA=!!p?.own_a,ownGoals=(rp.games||[]).reduce((z,x)=>z+Number(ownA?x.ga:x.gb||0),0),oppGoals=(rp.games||[]).reduce((z,x)=>z+Number(ownA?x.gb:x.ga||0),0),scorers=[];
+  (rp.games||[]).forEach(x=>(x.ev||[]).forEach(e=>{if((ownA&&e.type==="goalA")||(!ownA&&e.type==="goalB"))if(e.scorer)scorers.push(e.scorer)}));
+  let hist=JSON.parse(localStorage.getItem("biMyClubHistory")||"[]"),slug=d.public_slug||"";
+  if(!slug||!hist.some(x=>x.publicSlug===slug)){hist.push({date:new Date().toLocaleDateString(TC_LOCALES[TC_DISPLAY_LANG]||"de-DE"),opponent:p?.opponent||"",score:ownGoals+":"+oppGoals,seriesPoints:(ownA?rp.series_a:rp.series_b)+":"+(ownA?rp.series_b:rp.series_a),goals:ownGoals,won:(ownA?rp.winner===rp.team_a:rp.winner===rp.team_b),scorers,seriesLength:rp.series_length,decision:rp.series_decision,publicSlug:slug});localStorage.setItem("biMyClubHistory",JSON.stringify(hist))}
+  if(d.promotion_reward?.granted){let bonus=Number(d.promotion_reward.reward_tokens||0);$("#next").textContent+=" · 🎁 AUFSTIEGSBONUS: +"+bonus+" Clash Token";memberBalance=memberBalance||{};memberBalance.permanent_game_credits=Number(d.promotion_reward.permanent_game_credits||memberBalance.permanent_game_credits||0);memberBalance.clash_tokens=Number(d.promotion_reward.clash_tokens||memberBalance.clash_tokens||0);renderBalance()}
+ }catch(e){}
+}
+async function completePendingReport(record,updateUi=true){
+ const d=await sendReportArchive(record.report_payload);if(updateUi)applyReportArchiveUi(d);
+ if(record.club_payload){const c=await sendClubFinish(record.club_payload);if(updateUi)applyClubFinishUi(record,c)}
+ clearPendingReport(record.report_payload.client_request_id);setTimeout(initAppDashboard,250);return d
+}
+async function resumePendingReport(){
+ let record=loadPendingReport();if(!record)return;
+ $("#report").classList.remove("hidden");let rl=$("#reportLink");rl.href="#";rl.classList.add("reportPending");rl.setAttribute("aria-disabled","true");rl.dataset.retry="";rl.textContent="Gespeicherten Serienbericht wiederherstellen …";
+ try{await completePendingReport(record,true)}catch(e){showReportRetry();$("#next").textContent="Der Serienbericht konnte noch nicht gespeichert werden. Deine Serie bleibt lokal gesichert; bitte erneut versuchen."}
+}
 function finishSeries(){
  running=false;$("#status").textContent="SERIE ENDE";seriesDecision=serA===serB?resolveSeriesTie():null;if(seriesDecision)renderSeriesDecision(seriesDecision);
  let win=seriesDecision?.winner||(serA>serB?TA.name:TB.name),hit=(pick==="I"&&win===TA.name)||(pick==="S"&&win===TB.name);played++;matchPoints+=10;if(hit){correct++;streak++;matchPoints+=20}else streak=0;
  localStorage.setItem("biMatchPoints",matchPoints);localStorage.setItem("biMatchPlayed",played);localStorage.setItem("biMatchCorrect",correct);localStorage.setItem("biMatchStreak",streak);showPoints();
  let decisionText=seriesDecision?(seriesDecision.method==="penalties"?" · Entscheidung nach Verlängerung und Elfmeterschießen "+seriesDecision.penalties_a+":"+seriesDecision.penalties_b:" · Entscheidung nach Verlängerung "+seriesDecision.extra_a+":"+seriesDecision.extra_b):"";
  $("#seriesText").textContent="SERIENSIEGER: "+win;$("#next").textContent="TIME CLASH beendet · Serienpunkte "+serA+":"+serB+decisionText+" · "+win+" gewinnt. Dein Tipp: "+(hit?"RICHTIG ✓ · +30 CLASH POINTS":"DANEBEN · +10 CLASH POINTS");$("#start").textContent="NEUEN TIME CLASH STARTEN";
- let cred=ownerRef();fetch(REPORT_API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"archive",credential:cred,guest_ref:guestRef(),language:TC_DISPLAY_LANG,team_a:TA.name,team_b:TB.name,series_length:seriesLen,series_a:serA,series_b:serB,series_decision:seriesDecision,winner:win,prediction:pick==="I"?TA.name:TB.name,prediction_correct:hit,games})}).then(x=>x.json()).then(d=>{if(d.report_url){$("#report").classList.remove("hidden");let rp=String(d.report_url||"").replace(/^\/de\//,"/"+TC_DISPLAY_LANG+"/");$("#reportLink").href="https://betinsight.club"+rp+(cred?"&from=app":"");$("#reportLink").classList.remove("reportPending");$("#reportLink").removeAttribute("aria-disabled");$("#reportLink").textContent="Vollständigen TIME-CLASH-Bericht ansehen";if(cred&&d.report?.public_slug&&(kindAActive==="myclub"||kindBActive==="myclub")){$("#newspaperBtn").dataset.slug=d.report.public_slug;$("#newspaperBtn").disabled=false;$("#newspaperBtn").setAttribute("aria-disabled","false");$("#newspaperBtn").textContent="📰 ZEITUNGSBILD ERSTELLEN";$("#newspaperBtn").title="Bildmoment wählen und Zeitungsbild im Medienbereich erstellen"}}if(d.registered&&d.balance){memberBalance=d.balance;renderBalance();$("#next").textContent+=" · +"+d.earned_points+" Clash Points · "+Number(d.balance.clash_tokens||0)+" Spiele verfügbar"}setTimeout(initAppDashboard,250)}).catch(()=>{let rl=$("#reportLink");if(rl){rl.href="#";rl.classList.add("reportPending");rl.setAttribute("aria-disabled","true");rl.textContent="Bericht konnte nicht erstellt werden"}});
- try{
-  let m=JSON.parse(localStorage.getItem("biMyClub")||"null"),hasOwn=kindAActive==="myclub"||kindBActive==="myclub";
-  if(m&&hasOwn){
-   let ownA=kindAActive==="myclub",won=ownA?win===TA.name:win===TB.name,ownGoals=ownA?games.reduce((s,x)=>s+(+x.ga||0),0):games.reduce((s,x)=>s+(+x.gb||0),0),oppGoals=ownA?games.reduce((s,x)=>s+(+x.gb||0),0):games.reduce((s,x)=>s+(+x.ga||0),0),scorers=[];
-   games.forEach(x=>(x.ev||[]).forEach(e=>{if((ownA&&e.type==="goalA")||(!ownA&&e.type==="goalB"))if(e.scorer)scorers.push(e.scorer)}));let owner=ownerRef();
-   if(owner){fetch(CLUB_API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"finish",owner_ref:owner,language:TC_DISPLAY_LANG,team_a:TA.name,team_b:TB.name,series_length:seriesLen,series_a:serA,series_b:serB,series_decision:seriesDecision,winner:win,prediction:pick==="I"?TA.name:TB.name,prediction_correct:hit,match_points:hit?30:10,own_a:ownA,opponent:ownA?TB.name:TA.name,games})}).then(async x=>({ok:x.ok,data:await x.json()})).then(({ok,data:d})=>{if(!ok){$("#next").textContent+=" · Clubwertung konnte nicht gespeichert werden.";return}if(d.club){m.ratingPoints=d.club.rating_points;m.league=d.club.league;m.winsTotal=Number(d.club.wins_total||0);if(d.progress){memberProgress=d.progress;m.budget=d.progress.budget;localStorage.setItem("biMyClubProgress",JSON.stringify(d.progress))}localStorage.setItem("biMyClub",JSON.stringify(m));let hist=JSON.parse(localStorage.getItem("biMyClubHistory")||"[]");hist.push({date:new Date().toLocaleDateString(TC_LOCALES[TC_DISPLAY_LANG]||"de-DE"),opponent:ownA?TB.name:TA.name,score:ownGoals+":"+oppGoals,seriesPoints:(ownA?serA:serB)+":"+(ownA?serB:serA),goals:ownGoals,won,scorers,seriesLength:seriesLen,decision:seriesDecision});localStorage.setItem("biMyClubHistory",JSON.stringify(hist));memberClub=d.club;renderLevelRoad();$("#memberLevel").textContent=String(d.progress?.name||d.club.league).replace("-Liga","");$("#memberWins").textContent=m.winsTotal;$("#memberBudget").textContent=d.progress?.budget||m.budget||100;$("#next").textContent+=" · Dein Club: "+m.winsTotal+" Siege · "+String(m.league).replace("-Liga","")+(d.progress?.elite?" · 🏆 alle Gegner freigeschaltet":" · noch "+Number(d.progress?.wins_missing||0)+" Siege bis "+String(d.progress?.next_level||"").replace("-Liga",""));if(d.promotion_reward?.granted){let bonus=Number(d.promotion_reward.reward_tokens||0);$("#next").textContent+=" · 🎁 AUFSTIEGSBONUS: +"+bonus+" Clash Token";memberBalance=memberBalance||{};memberBalance.permanent_game_credits=Number(d.promotion_reward.permanent_game_credits||memberBalance.permanent_game_credits||0);memberBalance.clash_tokens=Number(d.promotion_reward.clash_tokens||0);renderBalance()}setTimeout(initAppDashboard,250)}}).catch(()=>{$("#next").textContent+=" · Clubwertung konnte nicht synchronisiert werden."})}
-  }
- }catch(e){}
+ let cred=ownerRef(),hasOwn=kindAActive==="myclub"||kindBActive==="myclub",ownA=kindAActive==="myclub",requestId=newReportRequestId();
+ let reportPayload={action:"archive",guest_ref:guestRef(),language:TC_DISPLAY_LANG,team_a:TA.name,team_b:TB.name,series_length:seriesLen,series_a:serA,series_b:serB,series_decision:seriesDecision,winner:win,prediction:pick==="I"?TA.name:TB.name,prediction_correct:hit,games,client_request_id:requestId};
+ let clubPayload=cred&&hasOwn?{action:"finish",language:TC_DISPLAY_LANG,team_a:TA.name,team_b:TB.name,series_length:seriesLen,series_a:serA,series_b:serB,series_decision:seriesDecision,winner:win,prediction:pick==="I"?TA.name:TB.name,prediction_correct:hit,match_points:hit?30:10,own_a:ownA,opponent:ownA?TB.name:TA.name,games}:null;
+ let record={created_at:Date.now(),report_payload:reportPayload,club_payload:clubPayload};savePendingReport(record);
+ completePendingReport(record,true).catch(()=>{showReportRetry();$("#next").textContent+=" · Bericht/Clubwertung noch nicht gespeichert – lokal gesichert."});
 }
 function selectedLevel(side){let kind=side==="A"?kindAActive:kindBActive,t=side==="A"?TA:TB;if(kind==="myclub")return memberProgress?.index??0;if(kind==="community")return Number(communityClubMeta[t.name]?.level_index??levelIndexFromName(communityClubMeta[t.name]?.league));return null}
 $("#start").onclick=async()=>{if(running)return;if(!chosenA||!chosenB){$("#next").textContent="Bitte Team A und Team B zuerst bewusst auswählen.";return}if(!pick){$("#next").textContent="Bitte zuerst "+TA.name+" oder "+TB.name+" tippen.";return}let kindA=kindAActive,kindB=kindBActive,internalA=["myclub","community"].includes(kindA),internalB=["myclub","community"].includes(kindB);if((internalA||internalB)&&!ownerRef()){$("#next").textContent="Interne BetInsight-Teams sind nur für angemeldete User freigeschaltet.";return}if(internalA!==internalB&&!memberProgress?.elite){$("#next").textContent="Eigene/Community-Teams dürfen erst ab Elite gegen Nationalmannschaften oder historische Clubs antreten.";return}if(internalA&&internalB&&!memberProgress?.elite){let la=selectedLevel("A"),lb=selectedLevel("B");if(la===null||lb===null||Math.abs(la-lb)>1){$("#next").textContent="Dieses Liga-Duell ist gesperrt. Erlaubt sind nur Gegner auf demselben Level sowie maximal eine Stufe höher oder tiefer.";return}}if(!rosterReady("A")||!rosterReady("B")){$("#next").textContent="Serie gesperrt: vollständige Spielerdaten fehlen. "+rosterLabel("A")+" · "+rosterLabel("B")+". Für historische Teams werden mindestens 11 erfasste Spieler benötigt.";return}
@@ -974,9 +1040,9 @@ if(sceneRegistered())$("#sceneStudio").classList.remove("hidden");else $("#scene
 ["sceneKind","sceneHeight","sceneBuild","sceneHairLength","sceneHairTexture","sceneHairColor","sceneBeard","sceneSkin","sceneKitStyle","sceneKit1","sceneKit2"].forEach(id=>{let el=$("#"+id);if(el)el.oninput=renderScenePreview});
 $("#sceneAuto").onclick=()=>{if(!selectedNewsScene)return;setSceneForm(avatarDefaults(selectedNewsScene.side,selectedNewsScene.player,selectedNewsScene.event))};
 $("#sceneRandom").onclick=()=>{if(!selectedNewsScene)return;let v=getSceneForm(),skins=["#f1c7a8","#d7a17e","#b87956","#8b563b","#5f3929"],hairs=["#17130f","#3a2418","#6a4327","#a47745","#d8bd79","#8b8b86","#8b3c24"],lengths=["bald","veryshort","short","medium","long"],textures=["straight","wavy","curly","coily"],beards=["none","stubble","short","full","goatee","mustache","combo"],builds=["slim","athletic","strong","stocky"];v.skin=one(skins);v.hairColor=one(hairs);v.hairLength=one(lengths);v.hairTexture=one(textures);v.beard=one(beards);v.build=one(builds);v.height=170+rnd(34);setSceneForm(v)};
-$("#sceneUse").onclick=saveSceneChoice;$("#dashShare").onclick=shareDashboard;initAppDashboard();
+$("#sceneUse").onclick=saveSceneChoice;$("#dashShare").onclick=shareDashboard;initAppDashboard();$("#reportLink").onclick=e=>{if($("#reportLink").dataset.retry==="1"){e.preventDefault();resumePendingReport()}};
 $("#langToggle").onclick=e=>{e.preventDefault();$("#langMenu").classList.toggle("hidden")};$("#rulesHelp").onclick=()=>$("#rulesModal").classList.remove("hidden");$("#monthlyRankingHelp").onclick=()=>$("#rulesModal").classList.remove("hidden");$("#rulesClose").onclick=()=>$("#rulesModal").classList.add("hidden");$("#rulesModal").onclick=e=>{if(e.target.id==="rulesModal")$("#rulesModal").classList.add("hidden")};
-$("#pause").onclick=()=>{paused=!paused;$("#pause").textContent=paused?"▶ WEITER":"Ⅱ TICKER PAUSE";if(!paused&&running)step()};$("#speed").onclick=()=>{fast=!fast;$("#speed").textContent=fast?"▶ NORMAL":"▶▶ SCHNELLER"};$("#skip").onclick=()=>{if(!running)return;clearTimeout(timer);let game=games[g];A=game.ga;B=game.gb;$("#a").textContent=A;$("#b").textContent=B;i=game.ev.length;finishGame()};makeSeries();
+$("#pause").onclick=()=>{paused=!paused;$("#pause").textContent=paused?"▶ WEITER":"Ⅱ TICKER PAUSE";if(!paused&&running)step()};$("#speed").onclick=()=>{fast=!fast;$("#speed").textContent=fast?"▶ NORMAL":"▶▶ SCHNELLER"};$("#skip").onclick=()=>{if(!running)return;clearTimeout(timer);let game=games[g];A=game.ga;B=game.gb;$("#a").textContent=A;$("#b").textContent=B;i=game.ev.length;finishGame()};makeSeries();resumePendingReport();
 </script><script id="tcUxFlow20260927">
 (function(){
  const $=s=>document.querySelector(s), all=s=>[...document.querySelectorAll(s)];
