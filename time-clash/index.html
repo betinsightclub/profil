@@ -895,6 +895,22 @@ function buildGame(idx){
  let posA=Math.max(31,Math.min(69,Math.round(50+(ma.midfield-mb.midfield)*1.6+(ratingA-ratingB)*.11+(Math.random()-.5)*7)));
  return{ga,gb,ev,venue:seriesVenueOrder[idx]||one(venues),weather:one(weatherList),posA,subs:plans,dismissals,yellows,model:{keeperA,keeperB,lambdaA,lambdaB}}
 }
+const ACTIVE_SERIES_KEY="bi_time_clash_active_series_v1";
+function activeSeriesOwner(){return ownerRef()||guestRef()}
+function clearActiveSeries(){try{localStorage.removeItem(ACTIVE_SERIES_KEY)}catch(e){}}
+function saveActiveSeries(){
+ if(!Array.isArray(games)||!games.length||g>=seriesLen)return;
+ try{localStorage.setItem(ACTIVE_SERIES_KEY,JSON.stringify({saved_at:Date.now(),owner:activeSeriesOwner(),TA,TB,kindAActive,kindBActive,activeMode,seriesLen,pick,g,serA,serB,games,chosenA,chosenB,fast}))}catch(e){}
+}
+function restoreActiveSeries(){
+ try{
+  let st=JSON.parse(localStorage.getItem(ACTIVE_SERIES_KEY)||"null");if(!st)return false;
+  if(Date.now()-Number(st.saved_at||0)>6*60*60*1000||st.owner!==activeSeriesOwner()||![3,5,10].includes(Number(st.seriesLen))||!Array.isArray(st.games)||st.games.length!==Number(st.seriesLen)){clearActiveSeries();return false}
+  TA=st.TA;TB=st.TB;kindAActive=st.kindAActive;kindBActive=st.kindBActive;activeMode=st.activeMode;seriesLen=Number(st.seriesLen);pick=st.pick;g=Number(st.g||0);serA=Number(st.serA||0);serB=Number(st.serB||0);games=st.games;chosenA=st.chosenA!==false;chosenB=st.chosenB!==false;fast=!!st.fast;seriesDecision=null;paused=false;running=false;i=0;A=B=0;
+  document.querySelectorAll("[data-len]").forEach(x=>x.classList.toggle("sel",Number(x.dataset.len)===seriesLen));$("#heroClaim").textContent=seriesLen===3?"DREI SPIELE. EIN SERIENSIEGER.":seriesLen===5?"FÜNF SPIELE. EIN SERIENSIEGER.":"ZEHN SPIELE. EIN SERIENSIEGER.";$("#series").dataset.long=seriesLen>5?"1":"0";
+  renderActiveTeams();if(pick)select(pick);$("#serA").textContent=serA;$("#serB").textContent=serB;$("#seriesText").textContent="Serie nach Aktualisierung wiederhergestellt";renderTabs();renderHistory();$("#next").textContent="Gespeicherte Serie wird ohne weiteren Guthabenabzug fortgesetzt …";setTimeout(beginGame,250);return true
+ }catch(e){clearActiveSeries();return false}
+}
 function makeSeries(){seriesDecision=null;seriesVenueOrder=shuffleCopy(venues);games=Array.from({length:seriesLen},(_,x)=>buildGame(x));$("#series").dataset.long=seriesLen>5?"1":"0";renderTabs();renderHistory()}
 function renderTabs(){$("#series").innerHTML=games.map((x,n)=>'<div class="dot '+(n<g?"done":n===g?"on":"")+'"><b>SPIEL '+(n+1)+'</b>'+(n<g?x.ga+":"+x.gb:n===g&&running?"LÄUFT …":"IN KÜRZE")+'</div>').join("")}
 function renderHistory(){let h=games.map((x,n)=>'<div class="hist"><b>SPIEL '+(n+1)+'</b><span>'+(n<g?(kindAActive==="club"?"⚽":TA.flag)+' '+x.ga+':'+x.gb+' '+(kindBActive==="club"?"⚽":TB.flag):n===g&&running?'● LIVE':'🔒 WARTET')+'</span><small>'+x.venue+'</small></div>').join("");$("#historyGrid").innerHTML=h;$("#historyGridDesk").innerHTML=h}
@@ -902,7 +918,7 @@ function showPoints(){$("#points").textContent=matchPoints+" MP";$("#pointsDesk"
 showPoints();
 function resetStats(){A=B=0;i=0;$("#a").textContent=$("#b").textContent=0;$("#shotsA").textContent=$("#shotsB").textContent=0;$("#targetA").textContent=$("#targetB").textContent=0;$("#foulsA").textContent=$("#foulsB").textContent=0;$("#redA").textContent=$("#redB").textContent=0;$("#cornA").textContent=$("#cornB").textContent=0;$("#cardsA").textContent=$("#cardsB").textContent=0;let pa=Number(games[g]?.posA||50);$("#posA").textContent=pa+"%";$("#posB").textContent=(100-pa)+"%";$("#posBar").style.width=pa+"%";$("#events").innerHTML="";$("#minute").textContent="00:00";$("#gameTitle").textContent="SPIEL "+(g+1)+" VON "+seriesLen+" · "+games[g].venue;$("#infoVenue").textContent=games[g].venue;$("#infoVenueDesk").textContent=games[g].venue;$("#weather").textContent=games[g].weather;$("#weatherDesk").textContent=games[g].weather;renderHistory();$("#report").classList.add("hidden")}
 function setStadium(){if(!games[g])return;$("#stadiumGame").textContent="SPIEL "+(g+1)+" VON "+seriesLen;$("#stadiumName").textContent=games[g].venue;$("#stadiumPlace").textContent=games[g].weather+" · TIME CLASH Arena"}
-function beginGame(){resetStats();setStadium();running=true;$("#status").textContent="LIVE";$("#next").textContent="Nächstes Ereignis in ca. 3–5 Sekunden …";renderTabs();step()}
+function beginGame(){resetStats();setStadium();running=true;saveActiveSeries();$("#status").textContent="LIVE";$("#next").textContent="Nächstes Ereignis in ca. 3–5 Sekunden …";renderTabs();step()}
 function addStat(type){if(type==="goalA"){A++;$("#a").textContent=A}if(type==="goalB"){B++;$("#b").textContent=B}if(type==="shotA")$("#shotsA").textContent=+$("#shotsA").textContent+1;if(type==="shotB")$("#shotsB").textContent=+$("#shotsB").textContent+1;if(type==="targetA"){$("#shotsA").textContent=+$("#shotsA").textContent+1;$("#targetA").textContent=+$("#targetA").textContent+1}if(type==="targetB"){$("#shotsB").textContent=+$("#shotsB").textContent+1;$("#targetB").textContent=+$("#targetB").textContent+1}if(type==="cornerA")$("#cornA").textContent=+$("#cornA").textContent+1;if(type==="cornerB")$("#cornB").textContent=+$("#cornB").textContent+1;if(type==="foulA")$("#foulsA").textContent=+$("#foulsA").textContent+1;if(type==="foulB")$("#foulsB").textContent=+$("#foulsB").textContent+1;if(type==="cardA")$("#cardsA").textContent=+$("#cardsA").textContent+1;if(type==="cardB")$("#cardsB").textContent=+$("#cardsB").textContent+1;if(type==="secondYellowA"){$("#cardsA").textContent=+$("#cardsA").textContent+1;$("#redA").textContent=+$("#redA").textContent+1}if(type==="secondYellowB"){$("#cardsB").textContent=+$("#cardsB").textContent+1;$("#redB").textContent=+$("#redB").textContent+1}if(type==="redA")$("#redA").textContent=+$("#redA").textContent+1;if(type==="redB")$("#redB").textContent=+$("#redB").textContent+1}
 function step(){if(!running||paused)return;let game=games[g];if(i>=game.ev.length){finishGame();return}let e=game.ev[i++];$("#minute").textContent=e.m+"'";let msg=e.msg;if((e.type||"").startsWith("goal")){let nextA=A+(e.type==="goalA"),nextB=B+(e.type==="goalB");msg+=" "+nextA+":"+nextB+"."}let d=document.createElement("div");d.className="event"+((e.type||"").startsWith("goal")?" goal":"");d.innerHTML="<b>"+e.m+"'</"+"b><span>"+msg+"</"+"span>";if(sceneRegistered()&&sceneCapable(e)){addSceneCandidate(g,e);let cam=document.createElement("button");cam.type="button";cam.className="scenePickBtn";cam.textContent=sceneUx().camera;cam.title=sceneUx().moments;cam.setAttribute("aria-label",sceneUx().moments);cam.onclick=()=>chooseNewsScene(e,g,d);d.appendChild(cam)}$("#events").prepend(d);addStat(e.type);timer=setTimeout(step,fast?700:3000+rnd(2001))}
 function finishGame(){
@@ -913,7 +929,7 @@ function finishGame(){
  let summary=A===B?"Unentschieden – beide Teams erhalten 1 Serienpunkt.":(A>B?TA.name:TB.name)+" gewinnt und erhält 3 Serienpunkte.";
  $("#reportText").textContent="Kurzbericht: "+summary+" Serienstand: "+serA+":"+serB+" Punkte. Der vollständige Bericht gehört zur Begegnung "+TA.name+" gegen "+TB.name+".";
  let reportLink=$("#reportLink"),seriesEndsNow=(g+1)>=seriesLen;reportLink.href="#";reportLink.classList.add("reportPending");reportLink.setAttribute("aria-disabled","true");reportLink.textContent=seriesEndsNow?"Serienbericht wird erstellt …":"Bericht nach Serienende verfügbar";g++;renderTabs();renderHistory();
- if(g<seriesLen){$("#next").textContent="Nächstes Spiel startet in 6 Sekunden …";timer=setTimeout(beginGame,fast?1200:6000)}else finishSeries()
+ if(g<seriesLen){saveActiveSeries();$("#next").textContent="Nächstes Spiel startet in 6 Sekunden …";timer=setTimeout(beginGame,fast?1200:6000)}else finishSeries()
 }
 function tieBreakStrength(side){
  let p=effectiveMetrics(side,{A:[],B:[]},null),k=goalkeeperStrength(side,90,{A:[],B:[]},null),r=side==="A"?TA.rating:TB.rating;
@@ -1011,7 +1027,7 @@ async function resumePendingReport(){
  try{await completePendingReport(record,true)}catch(e){showReportRetry();$("#next").textContent="Der Serienbericht konnte noch nicht gespeichert werden. Deine Serie bleibt lokal gesichert; bitte erneut versuchen."}
 }
 function finishSeries(){
- running=false;$("#status").textContent="SERIE ENDE";seriesDecision=serA===serB?resolveSeriesTie():null;if(seriesDecision)renderSeriesDecision(seriesDecision);
+ running=false;clearActiveSeries();$("#status").textContent="SERIE ENDE";seriesDecision=serA===serB?resolveSeriesTie():null;if(seriesDecision)renderSeriesDecision(seriesDecision);
  let win=seriesDecision?.winner||(serA>serB?TA.name:TB.name),hit=(pick==="I"&&win===TA.name)||(pick==="S"&&win===TB.name);played++;matchPoints+=10;if(hit){correct++;streak++;matchPoints+=20}else streak=0;
  localStorage.setItem("biMatchPoints",matchPoints);localStorage.setItem("biMatchPlayed",played);localStorage.setItem("biMatchCorrect",correct);localStorage.setItem("biMatchStreak",streak);showPoints();
  let decisionText=seriesDecision?(seriesDecision.method==="penalties"?" · Entscheidung nach Verlängerung und Elfmeterschießen "+seriesDecision.penalties_a+":"+seriesDecision.penalties_b:" · Entscheidung nach Verlängerung "+seriesDecision.extra_a+":"+seriesDecision.extra_b):"";
@@ -1027,7 +1043,7 @@ $("#start").onclick=async()=>{if(running)return;if(!chosenA||!chosenB){$("#next"
  let hits=conflicts();if(hits.some(p=>!conflictChoices[p.id])){$("#next").textContent="Bitte zuerst alle Spieler-Konflikte entscheiden.";return}
  if(ownerRef()&&!(await consumeSeriesCredit()))return;
  if(lastNewsBlobUrl){URL.revokeObjectURL(lastNewsBlobUrl);lastNewsBlobUrl=""}lastNewsBlob=null;$("#newspaperPreview").classList.add("hidden");$("#newspaperPreview").innerHTML="";newsSceneCandidates=[];selectedNewsScene=null;$("#newspaperBtn").dataset.slug="";$("#newspaperBtn").disabled=true;$("#newspaperBtn").setAttribute("aria-disabled","true");$("#newspaperBtn").textContent="📰 ZEITUNGSBILD · NACH SERIENENDE";$("#sceneStudio")?.classList.remove("ready");$("#sceneChosenTitle").textContent=sceneUx().noneTitle;$("#sceneChosenText").textContent=sceneUx().noneText;refreshSceneCandidates();
- clearTimeout(timer);g=0;serA=serB=0;seriesDecision=null;$("#serA").textContent=$("#serB").textContent=0;$("#seriesText").textContent="Serie startet";makeSeries();beginGame()};
+ clearTimeout(timer);clearActiveSeries();g=0;serA=serB=0;seriesDecision=null;$("#serA").textContent=$("#serB").textContent=0;$("#seriesText").textContent="Serie startet";makeSeries();saveActiveSeries();beginGame()};
 
 function newsHeadline(scorer,winner){return scorer?String(scorer).toUpperCase()+" SCHIESST "+String(winner).toUpperCase()+" ZUM SIEG":String(winner).toUpperCase()+" GEWINNT DEN TIME CLASH"}
 function wrapCanvas(ctx,text,x,y,maxWidth,lineHeight,maxLines=4){let words=String(text).split(/\s+/),line="",n=0;for(let i=0;i<words.length;i++){let test=line?line+" "+words[i]:words[i];if(ctx.measureText(test).width>maxWidth&&line){ctx.fillText(line,x,y+n*lineHeight);n++;line=words[i];if(n>=maxLines-1)break}else line=test}if(n<maxLines)ctx.fillText(line,x,y+n*lineHeight);return n+1}
@@ -1042,7 +1058,7 @@ $("#sceneAuto").onclick=()=>{if(!selectedNewsScene)return;setSceneForm(avatarDef
 $("#sceneRandom").onclick=()=>{if(!selectedNewsScene)return;let v=getSceneForm(),skins=["#f1c7a8","#d7a17e","#b87956","#8b563b","#5f3929"],hairs=["#17130f","#3a2418","#6a4327","#a47745","#d8bd79","#8b8b86","#8b3c24"],lengths=["bald","veryshort","short","medium","long"],textures=["straight","wavy","curly","coily"],beards=["none","stubble","short","full","goatee","mustache","combo"],builds=["slim","athletic","strong","stocky"];v.skin=one(skins);v.hairColor=one(hairs);v.hairLength=one(lengths);v.hairTexture=one(textures);v.beard=one(beards);v.build=one(builds);v.height=170+rnd(34);setSceneForm(v)};
 $("#sceneUse").onclick=saveSceneChoice;$("#dashShare").onclick=shareDashboard;initAppDashboard();$("#reportLink").onclick=e=>{if($("#reportLink").dataset.retry==="1"){e.preventDefault();resumePendingReport()}};
 $("#langToggle").onclick=e=>{e.preventDefault();$("#langMenu").classList.toggle("hidden")};$("#rulesHelp").onclick=()=>$("#rulesModal").classList.remove("hidden");$("#monthlyRankingHelp").onclick=()=>$("#rulesModal").classList.remove("hidden");$("#rulesClose").onclick=()=>$("#rulesModal").classList.add("hidden");$("#rulesModal").onclick=e=>{if(e.target.id==="rulesModal")$("#rulesModal").classList.add("hidden")};
-$("#pause").onclick=()=>{paused=!paused;$("#pause").textContent=paused?"▶ WEITER":"Ⅱ TICKER PAUSE";if(!paused&&running)step()};$("#speed").onclick=()=>{fast=!fast;$("#speed").textContent=fast?"▶ NORMAL":"▶▶ SCHNELLER"};$("#skip").onclick=()=>{if(!running)return;clearTimeout(timer);let game=games[g];A=game.ga;B=game.gb;$("#a").textContent=A;$("#b").textContent=B;i=game.ev.length;finishGame()};makeSeries();resumePendingReport();
+$("#pause").onclick=()=>{paused=!paused;$("#pause").textContent=paused?"▶ WEITER":"Ⅱ TICKER PAUSE";if(!paused&&running)step()};$("#speed").onclick=()=>{fast=!fast;$("#speed").textContent=fast?"▶ NORMAL":"▶▶ SCHNELLER"};$("#skip").onclick=()=>{if(!running)return;clearTimeout(timer);let game=games[g];A=game.ga;B=game.gb;$("#a").textContent=A;$("#b").textContent=B;i=game.ev.length;finishGame()};makeSeries();if(!restoreActiveSeries())resumePendingReport();
 </script><script id="tcUxFlow20260927">
 (function(){
  const $=s=>document.querySelector(s), all=s=>[...document.querySelectorAll(s)];
