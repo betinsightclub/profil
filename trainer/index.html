@@ -341,7 +341,12 @@
       width:46px;height:46px;border-radius:50%;display:grid;place-items:center;overflow:hidden;
       background:#16384a;border:1px solid var(--line2);font-weight:950
     }
+    .mini-avatar{position:relative;isolation:isolate}
     .mini-avatar img{width:100%;height:100%;object-fit:cover}
+    .mini-avatar .mini-coach-avatar{position:absolute;inset:0;display:grid;place-items:center;overflow:hidden;border-radius:50%;z-index:1}
+    .mini-avatar .mini-coach-avatar svg{width:100%;height:100%;display:block}
+    .mini-avatar .mini-avatar-fallback{position:relative;z-index:1}
+    .mini-avatar.rank-elite:after{content:"✦";position:absolute;right:1px;top:1px;z-index:4;width:15px;height:15px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#fff1b8,#b79a45);color:#3f3210;font-size:8px;font-weight:950;box-shadow:0 2px 6px rgba(0,0,0,.38)}
     .composer textarea{
       width:100%;min-height:86px;resize:vertical;border:1px solid rgba(255,255,255,.08);outline:0;
       border-radius:16px;background:rgba(255,255,255,.045);color:white;padding:13px 14px
@@ -1564,24 +1569,66 @@
         return {key:"start",label:"Startliga",icon:"⚽"};
       }
 
+      function progressionWins(profile){
+        if(profile&&profile.wins_total!==undefined&&profile.wins_total!==null)return Number(profile.wins_total||0);
+        return Number(profile&&profile.stats&&profile.stats.wins||0);
+      }
+      function applyRankFrameToElement(el,wins){
+        if(!el)return rankFromWins(wins);
+        var rank=rankFromWins(wins);
+        ["rank-start","rank-bronze","rank-silver","rank-gold","rank-platinum","rank-elite"].forEach(function(cls){el.classList.remove(cls);});
+        el.classList.add("rank-"+rank.key);
+        el.dataset.rank=rank.key;
+        el.title=rank.label+" · durch Spiele erreicht";
+        return rank;
+      }
+      function renderMiniAvatar(el,data){
+        if(!el)return;
+        data=data||{};
+        var wins=Number(data.authorWins||0);
+        applyRankFrameToElement(el,wins);
+        var appearance=data.coachAppearance;
+        if(appearance&&typeof appearance==="object"&&window.TimeClashAvatar&&window.TimeClashAvatar.renderCoachPortrait){
+          try{
+            var svg=window.TimeClashAvatar.renderCoachPortrait(appearance);
+            if(svg){
+              el.innerHTML='<div class="mini-coach-avatar">'+svg+'</div>';
+              return;
+            }
+          }catch(_e){}
+        }
+        if(data.avatarUrl){
+          el.innerHTML='<img src="'+esc(data.avatarUrl)+'" alt="">';
+          return;
+        }
+        el.innerHTML='<span class="mini-avatar-fallback">'+esc(initials(data.name||"BI"))+'</span>';
+      }
+      function currentProfileAvatarData(){
+        return {
+          authorWins:progressionWins(currentProfile),
+          coachAppearance:currentProfile&&currentProfile.coach_appearance||null,
+          avatarUrl:currentProfile&&currentProfile.media&&currentProfile.media.avatar&&currentProfile.media.avatar.public_url||"",
+          name:trainerName||teamName||"BI"
+        };
+      }
       function applyAvatarRankFrame(profile){
-        var wins=Number(profile&&profile.stats&&profile.stats.wins||0);
+        var wins=progressionWins(profile);
         var rank=rankFromWins(wins);
         var avatar=document.getElementById("avatarBox");
-        if(avatar){
-          ["rank-start","rank-bronze","rank-silver","rank-gold","rank-platinum","rank-elite"].forEach(function(cls){avatar.classList.remove(cls);});
-          avatar.classList.add("rank-"+rank.key);
-          avatar.title=rank.label+" · durch Spiele erreicht";
-        }
+        if(avatar)applyRankFrameToElement(avatar,wins);
         document.querySelectorAll(".composer-top .mini-avatar").forEach(function(el){
-          ["rank-start","rank-bronze","rank-silver","rank-gold","rank-platinum","rank-elite"].forEach(function(cls){el.classList.remove(cls);});
-          el.classList.add("rank-"+rank.key);
+          renderMiniAvatar(el,{
+            authorWins:wins,
+            coachAppearance:profile&&profile.coach_appearance||null,
+            avatarUrl:profile&&profile.media&&profile.media.avatar&&profile.media.avatar.public_url||"",
+            name:profile&&profile.display_name||trainerName||teamName||"BI"
+          });
         });
         return rank;
       }
 
       function renderGameRanks(profile){
-        var wins=Number(profile&&profile.stats&&profile.stats.wins||0);
+        var wins=progressionWins(profile);
         var current=applyAvatarRankFrame(profile);
         var chip=document.getElementById("gameRankChip");
         if(chip){
@@ -2155,6 +2202,7 @@
               time:new Intl.DateTimeFormat(trainerLocale(),{dateStyle:"short",timeStyle:"short"}).format(new Date(p.created_at)),
               text:p.body||"",emotion:resolveEmotion(p.emotion),
               image:p.media&&p.media.public_url?p.media.public_url:"",reactions:(p.reactions||[]).length,
+              authorWins:Number(p.author_wins||0),coachAppearance:p.coach_appearance||null,authorAvatarUrl:p.author_avatar_url||"",
               reactionCodes:(p.reactions||[]).map(function(x){return x.reaction;}),comments:comments
             };
           });
@@ -2197,8 +2245,8 @@
 
         article.innerHTML =
           '<div class="post-head">' +
-            '<div class="mini-avatar">' + esc(initials(post.author || trainerName)) + '</div>' +
-            '<div class="post-author"><strong>' + esc(post.author || trainerName) + '</strong><small>' + esc(post.team || teamName) + ' · ' + esc(post.time || "gerade eben") + ' · ' + (post.distributionScope==="GLOBAL"?"🌍 Trainer Feed":"🌐 Profil") + '</small></div>' +
+            '<div class="mini-avatar post-author-avatar" data-post-author-avatar></div>' +
+            '<div class="post-author"><strong>' + esc(post.author || trainerName) + '</strong><small>' + esc(post.team || teamName) + ' · ' + esc(post.time || "gerade eben") + ' · ' + (post.distributionScope==="GLOBAL"?"🌍 Community-Feed":"🌐 Profil") + '</small></div>' +
             '<div class="post-menu-wrap"><button type="button" class="more-btn" aria-label="Beitragsmenü" aria-expanded="false">•••</button><div class="post-options" role="menu"><button type="button" class="post-option" data-action="copy-link">🔗 Link kopieren</button><button type="button" class="post-option" data-action="share">↗ Teilen</button>' + (isMember ? '<button type="button" class="post-option danger" data-action="report">⚑ Melden</button>' : '') + '</div></div>' +
           '</div>' +
           '<div class="post-body"><p class="post-text">' + esc(post.text) + '</p>' + emotionHtml + imageHtml + '</div>' +
@@ -2213,6 +2261,13 @@
             emotionCatalog.map(function(r){return '<button class="reaction-pick" data-name="' + esc(r.name) + '" data-code="' + esc(r.code) + '">'+stickerHtml(r,"sticker-reaction-art")+'<span>' + esc(r.name) + '</span></button>';}).join("") +
           '</div>' +
           '<div class="comments">' + commentsHtml + interactionHtml + '</div>';
+
+        renderMiniAvatar(article.querySelector("[data-post-author-avatar]"),{
+          authorWins:Number(post.authorWins||0),
+          coachAppearance:post.coachAppearance||null,
+          avatarUrl:post.authorAvatarUrl||"",
+          name:post.author||trainerName||teamName||"BI"
+        });
 
         var reactToggle = article.querySelector(".react-toggle");
         var reactionMenu = article.querySelector(".reaction-menu");
@@ -2821,6 +2876,9 @@
           emotion:selectedEmotion,
           image:selectedImageData,
           reactions:0,
+          authorWins:progressionWins(currentProfile),
+          coachAppearance:currentProfile&&currentProfile.coach_appearance||null,
+          authorAvatarUrl:currentProfile&&currentProfile.media&&currentProfile.media.avatar&&currentProfile.media.avatar.public_url||"",
           reactionCodes:[],
           comments:[]
         };
