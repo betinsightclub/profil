@@ -1083,7 +1083,7 @@ async function prepareReportCommentAccess(link,baseUrl){
  try{
   const r=await fetch(COMMENTS_API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"session",credential:cred})});
   const d=await r.json();if(!r.ok||!d.access_key)return;
-  const u=new URL(baseUrl);u.searchParams.set("ck",d.access_key);u.searchParams.set("from","app");link.href=u.toString();
+  const u=new URL(baseUrl);u.searchParams.set("ck",d.access_key);u.searchParams.set("from","app");if(sceneEligibleMatch())u.searchParams.set("media","1");else u.searchParams.delete("media");link.href=u.toString();
  }catch(e){}
 }
 function applyReportArchiveUi(d){
