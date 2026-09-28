@@ -394,6 +394,7 @@ function syncAppLanguageNav(){
   a.href=u.pathname+u.search;
   if(lang===TC_DISPLAY_LANG)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");
  });
+ const rankLink=document.querySelector(".worldRankLink");if(rankLink)rankLink.href="/time-clash/rangliste/?lang="+TC_DISPLAY_LANG;
  const base="https://betinsight.club/"+TC_DISPLAY_LANG;
  const nav=[...document.querySelectorAll("header nav a")];
  if(nav[0])nav[0].href=base+"/";
