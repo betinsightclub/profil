@@ -258,6 +258,9 @@
     .ranking-card{border:1px solid rgba(99,184,255,.2);border-radius:14px;background:linear-gradient(145deg,rgba(9,40,56,.9),rgba(3,20,30,.9));padding:11px}
     .ranking-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:8px}
     .ranking-head b{font-size:13px}.ranking-head span{font-size:11px;color:#8eabb9}
+    .ranking-head-actions{display:flex;align-items:center;justify-content:flex-end;gap:9px;flex-wrap:wrap}
+    .ranking-open{font-size:11px;font-weight:900;color:#75caff;text-decoration:none;padding:5px 8px;border:1px solid rgba(99,184,255,.24);border-radius:9px;background:rgba(99,184,255,.06)}
+    .ranking-open:hover{background:rgba(99,184,255,.12);border-color:rgba(99,184,255,.42)}
     .ranking-board{display:grid;gap:6px}
     .ranking-row{display:grid;grid-template-columns:46px minmax(0,1fr) minmax(0,.8fr) auto auto;gap:8px;align-items:center;padding:8px 9px;border:1px solid rgba(255,255,255,.06);border-radius:10px;background:rgba(255,255,255,.025)}
     .ranking-row.self{border-color:rgba(247,198,78,.4);background:rgba(247,198,78,.07)}
@@ -660,7 +663,7 @@
 
       <div class="profile-rankbar">
         <div class="ranking-card">
-          <div class="ranking-head"><b>🏁 Gesamtrangliste · Clash Points</b><span id="rankingMeta">Rangliste wird geladen …</span></div>
+          <div class="ranking-head"><b>🏆 Trainer-Rangliste · Siege</b><div class="ranking-head-actions"><span id="rankingMeta">Rangliste wird geladen …</span><a class="ranking-open" href="/trainer/rangliste/">Rangliste öffnen →</a></div></div>
           <div class="ranking-board" id="rankingBoard"><div class="empty-state">Rangliste wird geladen …</div></div>
         </div>
       </div>
@@ -1271,6 +1274,7 @@
       var currentProfile = null;
       var COMMUNITY_API = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/community-api";
       var COMMUNITY_REACTION_API = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/community-reaction-api";
+      var RANKING_API = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash-ranking";
       var DEFAULT_COVER = "../betinsightcommunity/assets/hero-fussball-dunkel.png";
       var activeReportTarget = null;
       var selectedEmotion = null;
@@ -1675,40 +1679,42 @@
         }).join("");
       }
 
-      function trendHtml(ranking){
-        var trend=ranking&&ranking.trend||"same";
-        var delta=Number(ranking&&ranking.delta||0);
-        if(trend==="up") return '<span class="rank-trend up">▲ '+delta+'</span>';
-        if(trend==="down") return '<span class="rank-trend down">▼ '+delta+'</span>';
-        return '<span class="rank-trend same">—</span>';
-      }
-
       function rankingRow(entry,self){
         if(!entry) return "";
         var pos=Number(entry.position||0);
         var cls="ranking-row "+(pos<=3?"podium-"+pos:"")+(self?" self":"");
-        var trainer=entry.trainer_name||"Trainer";
-        return '<div class="'+cls+'"><span class="ranking-pos">#'+pos+'</span><span class="ranking-team">'+esc(entry.team_name||teamName||"Mannschaft")+'</span><span class="ranking-trainer">'+esc(trainer)+'</span><span class="ranking-points">'+Number(entry.points||0)+' CP</span>'+(self?trendHtml(currentProfile&&currentProfile.ranking):'<span></span>')+'</div>';
+        var trainer=entry.trainer_name||entry.owner_ref||"Trainer";
+        var club=entry.club_name||"Noch kein Team";
+        return '<div class="'+cls+'"><span class="ranking-pos">#'+pos+'</span><span class="ranking-team">'+esc(trainer)+'</span><span class="ranking-trainer">'+esc(club)+'</span><span class="ranking-points">'+Number(entry.wins||0)+' Siege</span>'+(self?'<span class="rank-trend same">DU</span>':'<span></span>')+'</div>';
       }
 
-      function renderRanking(profile){
-        var ranking=profile&&profile.ranking||{};
+      async function renderRanking(profile){
         var board=document.getElementById("rankingBoard");
         var meta=document.getElementById("rankingMeta");
-        if(meta) meta.textContent=(ranking.position?"Eigener Platz #"+ranking.position:"Noch ohne Platz")+" · "+Number(ranking.total||0)+" Teams";
         if(!board) return;
-        var top=Array.isArray(ranking.top3)?ranking.top3:[];
-        var html=top.map(function(x){return rankingRow(x,x.club_id===profile.club_id);}).join("");
-        var ownAlready=top.some(function(x){return x.club_id===profile.club_id;});
-        if(!ownAlready&&ranking.position){
-          html+='<div class="ranking-divider"></div>'+rankingRow({
-            position:ranking.position,
-            team_name:profile.team_name,
-            trainer_name:profile.display_name||profile.configured_coach_name||"Trainer",
-            points:ranking.points
-          },true);
+        board.innerHTML='<div class="empty-state">Trainer-Rangliste wird geladen …</div>';
+        try{
+          var url=RANKING_API+"?type=trainers&limit=3";
+          if(profile&&profile.club_id) url+="&club_id="+encodeURIComponent(profile.club_id);
+          var response=await fetch(url,{cache:"no-store",credentials:"omit"});
+          var data=await response.json().catch(function(){return {};});
+          if(!response.ok||data.ok!==true) throw new Error("ranking_unavailable");
+          var top=Array.isArray(data.rows)?data.rows:[];
+          var own=data.own||null;
+          var total=Number(data.total||top.length);
+          if(meta) meta.textContent=(own&&own.position?"Eigener Platz #"+own.position:"Noch ohne Platz")+" · "+total+" Trainer";
+          var html=top.map(function(x){return rankingRow(x,Boolean(own&&x.owner_ref===own.owner_ref));}).join("");
+          var ownAlready=Boolean(own&&top.some(function(x){return x.owner_ref===own.owner_ref;}));
+          if(own&&!ownAlready){
+            html+='<div class="ranking-divider"></div>'+rankingRow(own,true);
+          }
+          board.innerHTML=html||'<div class="empty-state">Noch keine gewerteten Trainer vorhanden.</div>';
+          profile.trainer_ranking={position:own&&own.position||null,total:total,wins:own&&own.wins||0};
+          renderInfo(profile);
+        }catch(_e){
+          if(meta) meta.textContent="Rangliste momentan nicht verfügbar";
+          board.innerHTML='<div class="empty-state">Trainer-Rangliste konnte gerade nicht geladen werden.</div>';
         }
-        board.innerHTML=html||'<div class="empty-state">Noch keine Ranglistendaten vorhanden.</div>';
       }
 
       function renderTrophies(profile){
@@ -1789,7 +1795,7 @@
 
       function renderInfo(profile){
         var box=document.getElementById("infoGrid");if(!box)return;
-        var stats=profile.stats||{},ranking=profile.ranking||{},created="";
+        var stats=profile.stats||{},ranking=profile.trainer_ranking||profile.ranking||{},created="";
         try{created=new Intl.DateTimeFormat(trainerLocale(),{dateStyle:"medium"}).format(new Date(profile.club_created_at||profile.created_at))}catch(_e){}
         var cells=[
           ["Trainer",profile.display_name||profile.configured_coach_name||"—"],
