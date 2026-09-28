@@ -55,7 +55,7 @@
 (() => {
   "use strict";
   const PROFILE_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=profile-read";
-  const PAYMENT_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=payment-create";
+  const PAYMENT_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway-shadow?route=payment-create";
   const $=id=>document.getElementById(id);
   const clean=v=>String(v||"").trim();
   const t=(key,vars={},fallback="")=>window.BetInsightI18n?.t(key,vars,fallback)||fallback;
@@ -79,7 +79,52 @@
     emailInput.value="";setEmailStatus(t('buyPage.emailLoadFailed',{},'E-Mail konnte nicht automatisch geladen werden. Bitte trage sie manuell ein.'));setDebug(t(lastError?'buyPage.debugNoMatch':'buyPage.debugNoProfile',{},lastError?'Debug: Kein passender Zugang gefunden.':'Debug: Zugang vorhanden, aber kein Profil gefunden.'))
   }
   function updatePreview(){const code=$('packageSelect').value,data=packageData[code];if(!data){$('preview').textContent=t('buyPage.noPackage',{},'Noch kein Paket gewählt');return}const optionText=$('packageSelect').selectedOptions[0]?.textContent||code;$('preview').textContent=t('buyPage.preview',{name:optionText,units:data.units,price:data.price},`${optionText} – ${data.units} für ${data.price}`)}
-  function goPay(){const email=$('buyerEmail').value.trim().toLowerCase(),code=$('packageSelect').value;if(!email){alert(t('buyPage.missingEmail',{},'Bitte registrierte E-Mail eingeben oder prüfen.'));return}if(!code){alert(t('buyPage.missingPackage',{},'Bitte Paket auswählen.'));return}try{localStorage.setItem('betinsight_email',email)}catch(e){}const paymentUrl=PAYMENT_WEBHOOK_URL+"&paket="+encodeURIComponent(code)+"&email="+encodeURIComponent(email);window.open(paymentUrl,'_blank','noopener')}
+  function currentAccessToken(){return clean(window.BetInsightSession?.getDashboardUuid?.()||window.BetInsightSession?.getProfileToken?.())}
+  function paymentIdempotencyKey(email,code){
+    const storeKey='betinsight_payment_pending_v1',now=Date.now();
+    try{
+      const old=JSON.parse(sessionStorage.getItem(storeKey)||'null');
+      if(old&&old.email===email&&old.code===code&&old.key&&(now-Number(old.created||0))<10*60*1000)return old.key;
+      const key=(crypto.randomUUID?crypto.randomUUID():(now+'-'+Math.random().toString(16).slice(2)));
+      sessionStorage.setItem(storeKey,JSON.stringify({email,code,key,created:now}));
+      return key;
+    }catch(e){return (crypto.randomUUID?crypto.randomUUID():(now+'-'+Math.random().toString(16).slice(2)))}
+  }
+  async function goPay(){
+    const email=$('buyerEmail').value.trim().toLowerCase(),code=$('packageSelect').value,btn=$('payButton');
+    if(!email){alert(t('buyPage.missingEmail',{},'Bitte registrierte E-Mail eingeben oder prüfen.'));return}
+    if(!code){alert(t('buyPage.missingPackage',{},'Bitte Paket auswählen.'));return}
+    try{localStorage.setItem('betinsight_email',email)}catch(e){}
+    const idem=paymentIdempotencyKey(email,code),token=currentAccessToken();
+    btn.disabled=true;btn.textContent='Zahlung wird vorbereitet …';
+    const paymentTab=window.open('about:blank','betinsight-payment');
+    try{if(paymentTab)paymentTab.opener=null}catch(e){}
+    try{
+      const paymentUrl=PAYMENT_WEBHOOK_URL+"&paket="+encodeURIComponent(code)+"&email="+encodeURIComponent(email)+"&idempotency_key="+encodeURIComponent(idem)+(token?"&token="+encodeURIComponent(token):"");
+      const response=await fetch(paymentUrl,{cache:'no-store'});
+      const data=await response.json().catch(()=>({ok:false,error:'INVALID_RESPONSE'}));
+      if(data?.invoice_url){
+        if(paymentTab)paymentTab.location.replace(data.invoice_url);else window.location.assign(data.invoice_url);
+        return;
+      }
+      try{if(paymentTab)paymentTab.close()}catch(e){}
+      if(response.status===202||data?.retryable){
+        setEmailStatus('Zahlungsanbieter antwortet verzögert. Es wird keine zweite Rechnung erstellt. Bitte später erneut versuchen.','#ffcc00');
+        return;
+      }
+      if(data?.shadow&&data?.provider_ready===false){
+        setEmailStatus('Shadow-Zahlungsweg vorbereitet – Plisio-Schlüssel noch nicht aktiviert.','#69f0c2');
+        return;
+      }
+      throw new Error(data?.error||('HTTP '+response.status));
+    }catch(error){
+      try{if(paymentTab)paymentTab.close()}catch(e){}
+      console.error('Payment prepare failed',error);
+      setEmailStatus('Zahlung konnte nicht vorbereitet werden. Es wurde keine zweite Rechnung erzeugt.','#ff7777');
+    }finally{
+      btn.disabled=false;btn.textContent=t('buyPage.continuePayment',{},'Weiter zur Zahlung');
+    }
+  }
   $('packageSelect').addEventListener('change',updatePreview);$('payButton').addEventListener('click',goPay);window.addEventListener('bi:languagechange',updatePreview);window.BetInsightI18n?.init().then(()=>{updatePreview();loadEmail()});
 })();
 </script>
