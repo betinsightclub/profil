@@ -95,6 +95,11 @@
     .icon-btn{width:42px;height:42px;border-radius:50%;display:grid;place-items:center}
     .pill-btn{min-height:42px;padding:0 14px;border-radius:12px;font-weight:800}
     .pill-btn.primary{border-color:transparent;background:linear-gradient(135deg,var(--blue),var(--blue2))}
+    .tc-nav{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+    .tc-nav.tc-back{border-color:rgba(116,217,255,.30);background:rgba(37,169,255,.07);color:#dff7ff}
+    .tc-nav.tc-back:hover{border-color:rgba(116,217,255,.55);background:rgba(37,169,255,.13)}
+    .tc-nav.tc-club{border-color:rgba(243,201,92,.34);background:rgba(243,201,92,.07);color:var(--gold)}
+    .tc-nav.tc-club:hover{border-color:rgba(243,201,92,.58);background:rgba(243,201,92,.13)}
     .shell{width:min(calc(100% - 28px),var(--max));margin:16px auto 50px}
     .profile-head{
       overflow:hidden;border:1px solid var(--line);border-radius:24px;background:var(--card2);box-shadow:var(--shadow)
@@ -528,6 +533,8 @@
       .appbar-inner{grid-template-columns:auto 1fr;gap:10px}
       .global-search{display:none}
       .top-actions .pill-btn:not(.primary){display:none}
+      .top-actions .pill-btn.tc-nav{display:inline-flex}
+      #feedBtn{display:none}
       .shell{width:min(calc(100% - 14px),var(--max));margin-top:7px}
       .profile-head{border-radius:18px}
       .cover{height:250px}
@@ -552,7 +559,9 @@
     @media(max-width:520px){
       .appbar-inner{width:calc(100% - 16px);min-height:60px}
       .brand img{display:none}.brand-badge{display:grid}
+      .top-actions{gap:5px}
       .top-actions .pill-btn.primary{font-size:12px;padding:0 10px}
+      .top-actions .pill-btn.tc-nav{min-height:38px;padding:0 8px;font-size:11px}
       .cover{height:205px}
       .cover-edit{right:10px;bottom:10px;font-size:11px;padding:8px 10px}
       .profile-tabs button{padding:13px 11px;font-size:12px}
@@ -578,6 +587,8 @@
         <input id="profileSearch" type="search" placeholder="Trainer, Mannschaft oder Beitrag suchen">
       </label>
       <div class="top-actions">
+        <button class="pill-btn tc-nav tc-back" id="profileBackBtn" type="button">← TIME CLASH</button>
+        <button class="pill-btn tc-nav tc-club member-only hidden" id="myClubBtn" type="button">🛡️ Mein Club</button>
         <button class="pill-btn" id="openGalleryBtn">⚽ Galerie</button>
         <button class="pill-btn primary" id="feedBtn">Trainer Feed</button>
         <div class="trainer-lang" id="trainerLang">
@@ -915,7 +926,7 @@
       };
       var TRAINER_TEXT = {
         en:{
-          "Galerie":"Gallery","Trainer Feed":"Trainer Feed","Trainer, Mannschaft oder Beitrag suchen":"Search trainer, team or post",
+          "Mein Club":"My Club","Galerie":"Gallery","Trainer Feed":"Trainer Feed","Trainer, Mannschaft oder Beitrag suchen":"Search trainer, team or post",
           "Hintergrund ändern":"Change cover","Trainerprofil":"Trainer profile","Mannschaft":"Team","Trainer":"Coach","Startliga":"Starting league",
           "Profil wird geladen …":"Loading profile …","Noch kein Pokal gewonnen":"No trophy won yet","Beitrag":"Post","Profil teilen":"Share profile","Folgen":"Follow",
           "Gesamtrangliste · Clash Points":"Overall ranking · Clash Points","Rangliste wird geladen …":"Loading ranking …","Beiträge":"Posts","Spielberichte":"Match reports",
@@ -949,7 +960,7 @@
           "Ausführlichen Bericht öffnen →":"Open full report →","Bericht wird noch vorbereitet.":"Report is still being prepared.","Noch keine Beiträge veröffentlicht.":"No posts published yet.","Gefällt mir":"Like","Antworten":"Reply","Kommentare":"Comments","Teilen":"Share","gerade eben":"just now"
         },
         es:{
-          "Galerie":"Galería","Trainer Feed":"Feed de entrenadores","Trainer, Mannschaft oder Beitrag suchen":"Buscar entrenador, equipo o publicación",
+          "Mein Club":"Mi club","Galerie":"Galería","Trainer Feed":"Feed de entrenadores","Trainer, Mannschaft oder Beitrag suchen":"Buscar entrenador, equipo o publicación",
           "Hintergrund ändern":"Cambiar portada","Trainerprofil":"Perfil del entrenador","Mannschaft":"Equipo","Trainer":"Entrenador","Startliga":"Liga inicial",
           "Profil wird geladen …":"Cargando perfil …","Noch kein Pokal gewonnen":"Aún no ha ganado ningún trofeo","Beitrag":"Publicación","Profil teilen":"Compartir perfil","Folgen":"Seguir",
           "Gesamtrangliste · Clash Points":"Clasificación general · Clash Points","Rangliste wird geladen …":"Cargando clasificación …","Beiträge":"Publicaciones","Spielberichte":"Informes de partidos",
@@ -983,7 +994,7 @@
           "Ausführlichen Bericht öffnen →":"Abrir informe completo →","Bericht wird noch vorbereitet.":"El informe aún se está preparando.","Noch keine Beiträge veröffentlicht.":"Aún no hay publicaciones.","Gefällt mir":"Me gusta","Antworten":"Responder","Kommentare":"Comentarios","Teilen":"Compartir","gerade eben":"ahora mismo"
         },
         fr:{
-          "Galerie":"Galerie","Trainer Feed":"Fil des entraîneurs","Trainer, Mannschaft oder Beitrag suchen":"Rechercher un entraîneur, une équipe ou une publication",
+          "Mein Club":"Mon club","Galerie":"Galerie","Trainer Feed":"Fil des entraîneurs","Trainer, Mannschaft oder Beitrag suchen":"Rechercher un entraîneur, une équipe ou une publication",
           "Hintergrund ändern":"Changer la couverture","Trainerprofil":"Profil de l’entraîneur","Mannschaft":"Équipe","Trainer":"Entraîneur","Startliga":"Ligue de départ",
           "Profil wird geladen …":"Chargement du profil …","Noch kein Pokal gewonnen":"Aucun trophée remporté pour le moment","Beitrag":"Publication","Profil teilen":"Partager le profil","Folgen":"Suivre",
           "Gesamtrangliste · Clash Points":"Classement général · Clash Points","Rangliste wird geladen …":"Chargement du classement …","Beiträge":"Publications","Spielberichte":"Rapports de match",
@@ -1017,7 +1028,7 @@
           "Ausführlichen Bericht öffnen →":"Ouvrir le rapport complet →","Bericht wird noch vorbereitet.":"Le rapport est encore en préparation.","Noch keine Beiträge veröffentlicht.":"Aucune publication pour le moment.","Gefällt mir":"J’aime","Antworten":"Répondre","Kommentare":"Commentaires","Teilen":"Partager","gerade eben":"à l’instant"
         },
         it:{
-          "Galerie":"Galleria","Trainer Feed":"Feed allenatori","Trainer, Mannschaft oder Beitrag suchen":"Cerca allenatore, squadra o post",
+          "Mein Club":"Il mio club","Galerie":"Galleria","Trainer Feed":"Feed allenatori","Trainer, Mannschaft oder Beitrag suchen":"Cerca allenatore, squadra o post",
           "Hintergrund ändern":"Cambia copertina","Trainerprofil":"Profilo allenatore","Mannschaft":"Squadra","Trainer":"Allenatore","Startliga":"Lega iniziale",
           "Profil wird geladen …":"Caricamento profilo …","Noch kein Pokal gewonnen":"Nessun trofeo vinto finora","Beitrag":"Post","Profil teilen":"Condividi profilo","Folgen":"Segui",
           "Gesamtrangliste · Clash Points":"Classifica generale · Clash Points","Rangliste wird geladen …":"Caricamento classifica …","Beiträge":"Post","Spielberichte":"Rapporti partita",
@@ -1051,7 +1062,7 @@
           "Ausführlichen Bericht öffnen →":"Apri rapporto completo →","Bericht wird noch vorbereitet.":"Il rapporto è ancora in preparazione.","Noch keine Beiträge veröffentlicht.":"Nessun post pubblicato.","Gefällt mir":"Mi piace","Antworten":"Rispondi","Kommentare":"Commenti","Teilen":"Condividi","gerade eben":"proprio ora"
         },
         pt:{
-          "Galerie":"Galeria","Trainer Feed":"Feed de treinadores","Trainer, Mannschaft oder Beitrag suchen":"Pesquisar treinador, equipa ou publicação",
+          "Mein Club":"O meu clube","Galerie":"Galeria","Trainer Feed":"Feed de treinadores","Trainer, Mannschaft oder Beitrag suchen":"Pesquisar treinador, equipa ou publicação",
           "Hintergrund ändern":"Alterar capa","Trainerprofil":"Perfil do treinador","Mannschaft":"Equipa","Trainer":"Treinador","Startliga":"Liga inicial",
           "Profil wird geladen …":"A carregar perfil …","Noch kein Pokal gewonnen":"Ainda não ganhou nenhum troféu","Beitrag":"Publicação","Profil teilen":"Partilhar perfil","Folgen":"Seguir",
           "Gesamtrangliste · Clash Points":"Classificação geral · Clash Points","Rangliste wird geladen …":"A carregar classificação …","Beiträge":"Publicações","Spielberichte":"Relatórios de jogos",
@@ -1488,6 +1499,7 @@
       function setMode(){
         document.querySelectorAll(".owner-only").forEach(function(el){el.classList.toggle("hidden",!isOwner);});
         document.querySelectorAll(".viewer-only").forEach(function(el){el.classList.toggle("hidden",isOwner);});
+        document.querySelectorAll(".member-only").forEach(function(el){el.classList.toggle("hidden",!isMember);});
       }
 
       function sameAppReturn(){
@@ -1502,11 +1514,21 @@
         }catch(_e){return ""}
       }
 
+      function appRoute(path){
+        try{
+          var u=new URL(path,location.origin);
+          u.searchParams.set("lang",trainerLanguage||"de");
+          return u.pathname+u.search;
+        }catch(_e){return path}
+      }
+
       function setupBackNavigation(){
         var from=sameAppReturn();
-        safeReturnUrl=from || (memberCredential ? "/time-clash/" : "https://betinsight.club/de/time-clash/community/");
+        safeReturnUrl=from || (memberCredential ? appRoute("/time-clash/") : "https://betinsight.club/de/time-clash/community/");
         var back=document.getElementById("profileBackBtn");
         if(back) back.onclick=function(){location.assign(safeReturnUrl);};
+        var myClub=document.getElementById("myClubBtn");
+        if(myClub) myClub.onclick=function(){location.assign(appRoute("/time-clash/mein-team/"));};
       }
 
       function rankFromWins(wins){
