@@ -42,6 +42,7 @@ header{border-bottom:1px solid #18425a;background:#03131e;position:sticky;top:0;
 .lines{margin:12px 0 0;padding-left:20px;color:#c8dce6}
 .lines li{margin:8px 0;line-height:1.45}
 .events{margin-top:14px;border-top:1px solid #16394d;padding-top:10px}
+.gameComments{margin-top:16px;border-top:1px solid #1a455c;padding-top:14px}.gameCommentsHead{display:flex;justify-content:space-between;align-items:center;gap:10px}.gameCommentsHead h4{margin:0;font-size:15px}.commentList{display:grid;gap:8px;margin-top:10px}.commentItem{background:#082131;border:1px solid #173f55;border-radius:10px;padding:9px 11px}.commentItem b{color:var(--cyan);font-size:12px}.commentItem small{color:#6f93a6;margin-left:8px}.commentItem p{margin:5px 0 0;line-height:1.4;color:#d8e8f0}.commentForm{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:10px}.commentForm textarea{resize:vertical;min-height:42px;max-height:120px;border:1px solid #2a607c;border-radius:10px;background:#03131e;color:#fff;padding:10px;font:inherit}.commentForm button{border:0;border-radius:10px;background:#0b79ad;color:#fff;font-weight:900;padding:0 14px;cursor:pointer}.commentHint{margin-top:7px;color:#7899aa;font-size:11px}.commentError{color:#ff8490;font-size:11px;margin-top:6px}
 .event{display:grid;grid-template-columns:48px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid #102f40}
 .event b{color:var(--gold)}
 .status{text-align:center;padding:28px;color:var(--muted)}
@@ -109,8 +110,13 @@ header{border-bottom:1px solid #18425a;background:#03131e;position:sticky;top:0;
 
 <script>
 const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash-report";
+const COMMENTS_API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash-comments";
+const reportParams=new URLSearchParams(location.search);
+let commentKey=reportParams.get("ck")||sessionStorage.getItem("bi_tc_comment_key")||"";
+if(reportParams.get("ck"))try{sessionStorage.setItem("bi_tc_comment_key",reportParams.get("ck"))}catch(e){};
+
 const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
-const slug=new URLSearchParams(location.search).get("clash")||"";
+const slug=reportParams.get("clash")||"";
 const statusEl=document.getElementById("status");
 const reportEl=document.getElementById("report");
 
@@ -151,11 +157,45 @@ function render(r){
     const lines=stored&&Array.isArray(stored.lines)?stored.lines:fallbackLines(r,g,i);
     const ev=Array.isArray(g.ev)?g.ev:[];
     const events=ev.length?'<div class="events">'+ev.map(e=>'<div class="event"><b>'+esc((e.m??"–")+"'")+'</b><span>'+esc(e.msg||"Ereignis")+'</span></div>').join("")+'</div>':"";
-    return '<article class="game"><div class="gameHead"><div><h3>Spiel '+(i+1)+'</h3><div class="gameMeta">'+esc(g.venue||"TIME CLASH Arena")+(g.weather?" · "+esc(g.weather):"")+'</div></div><div class="score">'+esc(r.team_a)+' '+Number(g.ga||0)+':'+Number(g.gb||0)+' '+esc(r.team_b)+'</div></div><ul class="lines">'+lines.map(x=>"<li>"+esc(x)+"</li>").join("")+"</ul>"+events+"</article>";
+    return '<article class="game"><div class="gameHead"><div><h3>Spiel '+(i+1)+'</h3><div class="gameMeta">'+esc(g.venue||"TIME CLASH Arena")+(g.weather?" · "+esc(g.weather):"")+'</div></div><div class="score">'+esc(r.team_a)+' '+Number(g.ga||0)+':'+Number(g.gb||0)+' '+esc(r.team_b)+'</div></div><ul class="lines">'+lines.map(x=>"<li>"+esc(x)+"</li>").join("")+"</ul>"+events+
+    '<div class="gameComments" data-game="'+(i+1)+'"><div class="gameCommentsHead"><h4>💬 Kommentare zu Spiel '+(i+1)+'</h4><span class="pill commentCount">0</span></div><div class="commentList"><div class="commentHint">Kommentare werden geladen …</div></div>'+
+    (commentKey?'<form class="commentForm"><textarea maxlength="500" placeholder="Dein Kommentar zu diesem Spiel …" required></textarea><button type="submit">Senden</button></form><div class="commentHint">Nur registrierte BetInsight-User können schreiben.</div><div class="commentError"></div>':'<div class="commentHint">Lesen ist öffentlich. Zum Kommentieren öffne den Bericht direkt aus deinem angemeldeten TIME-CLASH-Bereich.</div>')+
+    '</div></article>';
   }).join("");
 
   statusEl.hidden=true;
   reportEl.hidden=false;
+  initComments();
+}
+
+function commentDate(v){try{return new Date(v).toLocaleString("de-DE",{dateStyle:"short",timeStyle:"short"})}catch(e){return""}}
+async function loadComments(box){
+ const game=Number(box.dataset.game||0),list=box.querySelector(".commentList"),count=box.querySelector(".commentCount");
+ try{
+  const r=await fetch(COMMENTS_API+"?slug="+encodeURIComponent(slug)+"&game="+game,{cache:"no-store"}),d=await r.json();
+  if(!r.ok)throw new Error(d.error||"comments");
+  const arr=Array.isArray(d.comments)?d.comments:[];
+  count.textContent=String(arr.length);
+  list.innerHTML=arr.length?arr.map(x=>'<div class="commentItem"><b>'+esc(x.author||"BetInsight User")+'</b><small>'+esc(commentDate(x.created_at))+'</small><p>'+esc(x.body||"")+'</p></div>').join(""):'<div class="commentHint">Noch kein Kommentar. Du kannst der Erste sein.</div>';
+ }catch(e){list.innerHTML='<div class="commentError">Kommentare konnten gerade nicht geladen werden.</div>'}
+}
+function initComments(){
+ document.querySelectorAll(".gameComments").forEach(box=>{
+  loadComments(box);
+  const form=box.querySelector(".commentForm");if(!form)return;
+  form.addEventListener("submit",async ev=>{
+   ev.preventDefault();const ta=form.querySelector("textarea"),btn=form.querySelector("button"),err=box.querySelector(".commentError"),body=ta.value.trim();
+   if(!body)return;btn.disabled=true;err.textContent="";
+   try{
+    const r=await fetch(COMMENTS_API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"comment",slug,game:Number(box.dataset.game||0),access_key:commentKey,body})});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error||"comment_failed");
+    ta.value="";await loadComments(box);
+   }catch(e){
+    const m=String(e.message||"");err.textContent=m==="rate_limited"?"Bitte warte ein paar Sekunden bis zum nächsten Kommentar.":m==="registered_only"?"Dein Kommentar-Zugang ist abgelaufen. Öffne den Bericht erneut aus TIME CLASH.":"Kommentar konnte nicht gespeichert werden.";
+   }finally{btn.disabled=false}
+  });
+ });
 }
 
 if(!slug){
