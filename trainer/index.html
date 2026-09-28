@@ -1685,7 +1685,7 @@
         var cls="ranking-row "+(pos<=3?"podium-"+pos:"")+(self?" self":"");
         var trainer=entry.trainer_name||entry.owner_ref||"Trainer";
         var club=entry.club_name||"Noch kein Team";
-        return '<div class="'+cls+'"><span class="ranking-pos">#'+pos+'</span><span class="ranking-team">'+esc(trainer)+'</span><span class="ranking-trainer">'+esc(club)+'</span><span class="ranking-points">'+Number(entry.wins||0)+' Siege</span>'+(self?'<span class="rank-trend same">DU</span>':'<span></span>')+'</div>';
+        return '<div class="'+cls+'"><span class="ranking-pos">#'+pos+'</span><span class="ranking-team">'+esc(trainer)+'</span><span class="ranking-trainer">'+esc(club)+'</span><span class="ranking-points">'+Number(entry.wins||0)+' Siege · '+Number(entry.clash_points||0)+' CP</span>'+(self?'<span class="rank-trend same">DU</span>':'<span></span>')+'</div>';
       }
 
       async function renderRanking(profile){
@@ -1709,7 +1709,7 @@
             html+='<div class="ranking-divider"></div>'+rankingRow(own,true);
           }
           board.innerHTML=html||'<div class="empty-state">Noch keine gewerteten Trainer vorhanden.</div>';
-          profile.trainer_ranking={position:own&&own.position||null,total:total,wins:own&&own.wins||0};
+          profile.trainer_ranking={position:own&&own.position||null,total:total,wins:own&&own.wins||0,clash_points:own&&own.clash_points||0};
           renderInfo(profile);
         }catch(_e){
           if(meta) meta.textContent="Rangliste momentan nicht verfügbar";
@@ -1802,7 +1802,7 @@
           ["Mannschaft",profile.team_name||"—"],
           ["Trainer-Stil",profile.coach_style||"—"],
           ["Liga",profile.league||"Startliga"],
-          ["Clash Points",Number(profile.rating_points||0)],
+          ["Clash Points",Number((profile.trainer_ranking&&profile.trainer_ranking.clash_points)||profile.rating_points||0)],
           ["Gesamtrang",ranking.position?("#"+ranking.position+" von "+Number(ranking.total||0)):"—"],
           ["Siege",Number(stats.wins||0)],
           ["Niederlagen",Number(stats.losses||0)],
