@@ -8,6 +8,55 @@ if(!SERVICE_KEY){try{const keys=JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS")|
 if(!SUPABASE_URL||!SERVICE_KEY)throw new Error("Supabase credentials unavailable");
 const admin=createClient(SUPABASE_URL,SERVICE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
 
+function cors(origin:string|null){
+  const allowed=origin&&ALLOWED_ORIGINS.has(origin)?origin:"";
+  return {
+    "Access-Control-Allow-Origin":allowed,
+    "Vary":"Origin",
+    "Access-Control-Allow-Headers":"content-type",
+    "Access-Control-Allow-Methods":"POST,OPTIONS",
+    "Cache-Control":"no-store"
+  };
+}
+function j(data:unknown,status=200,origin:string|null=null){
+  return new Response(JSON.stringify(data),{status,headers:{...cors(origin),"Content-Type":"application/json; charset=utf-8"}});
+}
+function clean(v:unknown,n=2000){return String(v??"").trim().slice(0,n)}
+function ip(req:Request){
+  const f=req.headers.get("x-forwarded-for");
+  return (f?f.split(",")[0].trim():req.headers.get("cf-connecting-ip")||req.headers.get("x-real-ip")||"unknown").slice(0,80);
+}
+async function rateAllowed(key:string,limit:number,windowSeconds:number){
+  const {data,error}=await admin.rpc("betinsight_gateway_rate_check",{p_key:key,p_limit:limit,p_window_seconds:windowSeconds});
+  if(error){console.error("community-admin rate-limit",error.message);return false}
+  return data===true;
+}
+async function verifyAdmin(sessionHash:string){
+  const hash=clean(sessionHash,200);
+  if(!hash)return null;
+  try{
+    const url=SUPABASE_URL+"/functions/v1/betinsight-admin-gateway?route=admin-auth";
+    const r=await fetch(url,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Origin":"https://app.betinsight.club"},
+      body:JSON.stringify({action:"verify",session_hash:hash}),
+      redirect:"follow"
+    });
+    const d:any=await r.json().catch(()=>null);
+    if(!r.ok||!d||d.ok!==true)return null;
+    return {
+      adminId:clean(d.admin_id||d.adminId,80),
+      name:clean(d.name||"Admin",120),
+      role:clean(d.role||"ADMIN",40),
+      master:clean(d.master||"NEIN",20),
+      expiresMs:Number(d.expires_ms||0)
+    };
+  }catch(e){
+    console.error("community-admin verify",e);
+    return null;
+  }
+}
+
 const COMMUNITY_RESERVE_WEBHOOK=Deno.env.get("COMMUNITY_RESERVE_WEBHOOK")||"https://hook.eu1.make.com/6uq7y66k30i8ckarvq1q6a3drccbf1af";
 const COMMUNITY_CHARGE_WEBHOOK=Deno.env.get("COMMUNITY_CHARGE_WEBHOOK")||"https://hook.eu1.make.com/bn6ympq0fa6g540cpkxsp36pqjur14i8";
 const COMMUNITY_UNIT_SECRET=Deno.env.get("COMMUNITY_UNIT_SECRET")||"hI5Fe7vbwue3TooMNlsEp85UpPJCwT7xaJ3j2ISsogY";
@@ -27,11 +76,6 @@ function effectiveMember(row:any){
   const paid=row?.payment_confirmed===true;
   if(raw==="BASIS"||!paid)return {...row,effective_tier:"BASIS",effective_status:raw==="BASIS"?"BASIS":status,payment_confirmed:false};
   return {...row,effective_tier:raw,effective_status:status||"AKTIV",payment_confirmed:true};
-}
-function globalPricing(tier:string){
-  if(tier==="PREMIUM_PLUS")return {unit_cost:0.10,monthly_limit:20};
-  if(tier==="PREMIUM")return {unit_cost:0.25,monthly_limit:10};
-  return {unit_cost:0.75,monthly_limit:null};
 }
 async function callMake(url:string,payload:any){
   const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...payload,gateway_secret:COMMUNITY_UNIT_SECRET}),redirect:"follow"});
