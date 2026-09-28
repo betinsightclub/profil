@@ -23,8 +23,8 @@ main{width:min(1180px,calc(100% - 28px));margin:28px auto 60px}.hero{padding:28p
 <main>
 <section class="hero"><div class="eyebrow">TIME CLASH · TRAINER</div><h1>Trainer-Rangliste</h1><p>Jeder registrierte TIME-CLASH-Trainer startet bei null. Gewertet werden die tatsächlich erreichten Karriere-Siege. Wer spielt und gewinnt, steigt auf.</p></section>
 <section class="podium" id="podium"><div class="pod"><div class="pos">PLATZ 1</div><h3>Wird geladen …</h3></div><div class="pod"><div class="pos">PLATZ 2</div><h3>Wird geladen …</h3></div><div class="pod"><div class="pos">PLATZ 3</div><h3>Wird geladen …</h3></div></section>
-<section class="card"><div class="cardhead"><h2>Alle Trainer</h2><span id="meta">Rangliste wird geladen …</span></div><div class="tablewrap"><table><thead><tr><th>Rang</th><th>Trainer</th><th>Team</th><th>Spiele</th><th>Siege</th><th>U</th><th>N</th><th>Profil</th></tr></thead><tbody id="rows"><tr><td colspan="8" class="empty">Rangliste wird geladen …</td></tr></tbody></table></div></section>
-<p class="note">Bei gleicher Siegzahl teilen sich Trainer denselben sportlichen Rang. Neue Trainer ohne gewertete Siege beginnen am Ende der Rangliste.</p>
+<section class="card"><div class="cardhead"><h2>Alle Trainer</h2><span id="meta">Rangliste wird geladen …</span></div><div class="tablewrap"><table><thead><tr><th>Rang</th><th>Trainer</th><th>Team</th><th>Spiele</th><th>Siege</th><th>Clash Points</th><th>U</th><th>N</th><th>Profil</th></tr></thead><tbody id="rows"><tr><td colspan="9" class="empty">Rangliste wird geladen …</td></tr></tbody></table></div></section>
+<p class="note">Die Rangposition richtet sich weiterhin nach den Karriere-Siegen. Bei gleicher Siegzahl teilen sich Trainer denselben sportlichen Rang; innerhalb dieses Blocks stehen aktive Trainer mit gespielten Matches zuerst, danach helfen Clash Points nur bei der sichtbaren Sortierung. Neue Trainer ohne Spiele stehen am Ende.</p>
 </main>
 <script>
 const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash-ranking";
@@ -32,7 +32,7 @@ const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 function profileLink(r){return r.public_slug?"/trainer/?p="+encodeURIComponent(r.public_slug):""}
 function podiumCard(r,i){
  if(!r)return '<div class="pod"><div class="pos">PLATZ '+(i+1)+'</div><h3>Noch offen</h3><p>Keine gewerteten Daten</p></div>';
- return '<div class="pod '+(i===0?"p1":"")+'"><div class="pos">PLATZ '+esc(r.position)+'</div><h3>'+esc(r.trainer_name||r.owner_ref)+'</h3><p>'+esc(r.club_name||"Noch kein eigenes Team")+'</p><strong>'+Number(r.wins||0)+' Siege</strong></div>';
+ return '<div class="pod '+(i===0?"p1":"")+'"><div class="pos">PLATZ '+esc(r.position)+'</div><h3>'+esc(r.trainer_name||r.owner_ref)+'</h3><p>'+esc(r.club_name||"Noch kein eigenes Team")+'</p><strong>'+Number(r.wins||0)+' Siege</strong><p style="margin-top:6px">'+Number(r.clash_points||0)+' Clash Points</p></div>';
 }
 async function load(){
  try{
@@ -44,9 +44,9 @@ async function load(){
   document.getElementById("rows").innerHTML=rows.length?rows.map(r=>{
     const link=profileLink(r);
     return '<tr><td class="rank">#'+Number(r.position||0)+'</td><td><span class="name">'+esc(r.trainer_name||r.owner_ref)+'</span><span class="sub">'+esc(r.owner_ref||"")+'</span></td><td>'+esc(r.club_name||"—")+'</td><td>'+Number(r.matches_played||0)+'</td><td class="wins">'+Number(r.wins||0)+'</td><td>'+Number(r.draws||0)+'</td><td>'+Number(r.losses||0)+'</td><td>'+(link?'<a class="profilelink" href="'+link+'">Öffnen →</a>':'—')+'</td></tr>';
-  }).join(""):'<tr><td colspan="8" class="empty">Noch keine Trainer vorhanden.</td></tr>';
+  }).join(""):'<tr><td colspan="9" class="empty">Noch keine Trainer vorhanden.</td></tr>';
  }catch(e){
-  document.getElementById("rows").innerHTML='<tr><td colspan="8" class="empty">Rangliste konnte gerade nicht geladen werden.</td></tr>';
+  document.getElementById("rows").innerHTML='<tr><td colspan="9" class="empty">Rangliste konnte gerade nicht geladen werden.</td></tr>';
   document.getElementById("meta").textContent="Nicht verfügbar";
  }
 }
