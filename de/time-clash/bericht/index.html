@@ -59,17 +59,32 @@ header{border-bottom:1px solid #18425a;background:#03131e;position:sticky;top:0;
   .summary{grid-template-columns:1fr}
   .series{order:3}
 }
+
+/* TIME CLASH compact navigation */
+.tcCompactNav{display:flex!important;align-items:center!important;gap:10px!important;flex-wrap:nowrap!important}
+.tcNavPill,.tcRealMenu>summary{display:inline-flex;align-items:center;min-height:36px;padding:8px 12px;border:1px solid #24516b;border-radius:999px;background:#061b28;color:#d9eef8!important;text-decoration:none!important;font-size:12px!important;font-weight:900!important;line-height:1;white-space:nowrap;cursor:pointer;list-style:none}
+.tcNavPill.active{border-color:#9f7a1d;background:#2a220b;color:#f7c64e!important}
+.tcRealMenu{position:relative}
+.tcRealMenu>summary::-webkit-details-marker{display:none}
+.tcRealMenu[open]>summary{border-color:#3d7898;background:#0a2b3b}
+.tcRealDrop{position:absolute;right:0;top:44px;z-index:80;min-width:210px;padding:8px;border:1px solid #24516b;border-radius:14px;background:#03131e;box-shadow:0 18px 50px #0009}
+.tcRealDrop a{display:block!important;padding:10px 11px!important;border-radius:9px!important;color:#d9eef8!important;text-decoration:none!important;font-size:12px!important;font-weight:800!important}
+.tcRealDrop a:hover{background:#0a2b3b;color:#fff!important}
+.tcBrandHome{display:flex;align-items:center;text-decoration:none}
+@media(max-width:760px){
+  .tcCompactNav{gap:6px!important}
+  .tcRealMenu>summary,.tcNavPill{padding:7px 9px!important;font-size:11px!important}
+  .tcRealDrop{right:0;min-width:190px}
+}
 </style>
 </head>
 <body>
 <header>
   <div class="wrap nav">
-    <a class="brand" href="/"><img src="https://raw.githubusercontent.com/betinsightclub/profil/main/logo_betisight.club.png" alt="BetInsight"></a>
-    <nav>
-      <a href="/">STARTSEITE</a>
-      <a href="/tipps/">TIPPS</a>
-      <a href="/time-clash/" class="active">TIME CLASH</a>
-      <a href="https://betinsight.club/de/statistik-vorschau/">ECHTE STATISTIK</a>
+    <a class="brand tcBrandHome" id="tcHomeLogo" href="https://betinsight.club/de/"><img src="https://raw.githubusercontent.com/betinsightclub/profil/main/logo_betisight.club.png" alt="BetInsight"></a>
+    <nav class="tcCompactNav">
+      <a href="/time-clash/" class="tcNavPill active">TIME CLASH</a>
+      <details class="tcRealMenu"><summary id="tcRealMenuLabel">ECHTE WELT ▾</summary><div class="tcRealDrop"><a id="tcRealHome" href="https://betinsight.club/de/">Startseite</a><a id="tcRealTips" href="https://betinsight.club/de/tipps/">Tipps &amp; Analysen</a><a id="tcRealStats" href="https://betinsight.club/de/statistik-vorschau/">Echte Statistik</a></div></details>
       <span class="reportLanguage"><select id="reportLanguageSelect" aria-label="Sprache wählen"><option value="de">🇩🇪 DE</option><option value="en">🇬🇧 EN</option><option value="es">🇪🇸 ES</option><option value="pt">🇧🇷 PT</option><option value="it">🇮🇹 IT</option><option value="fr">🇫🇷 FR</option></select></span>
     </nav>
   </div>
@@ -251,5 +266,36 @@ if(!slug){
     .catch(()=>{statusEl.innerHTML='<span class="error">Der gespeicherte TIME-CLASH-Bericht konnte nicht geladen werden.</span><br><br><a class="btn" href="/time-clash/">Zurück zu TIME CLASH</a>'});
 }
 </script>
-</body>
-</html>
+<script>
+(function(){
+  const supported=["de","en","es","pt","it","fr"];
+  function currentLang(){
+    let l=(new URLSearchParams(location.search).get("lang")||"").toLowerCase().slice(0,2);
+    try{ if(typeof TC_DISPLAY_LANG!=="undefined"&&TC_DISPLAY_LANG) l=String(TC_DISPLAY_LANG).toLowerCase().slice(0,2); }catch(e){}
+    if(!supported.includes(l)) l=(document.documentElement.lang||"de").toLowerCase().slice(0,2);
+    return supported.includes(l)?l:"de";
+  }
+  const copy={
+    de:{real:"ECHTE WELT ▾",home:"Startseite",tips:"Tipps & Analysen",stats:"Echte Statistik"},
+    en:{real:"REAL WORLD ▾",home:"Home",tips:"Tips & Analysis",stats:"Real Statistics"},
+    es:{real:"MUNDO REAL ▾",home:"Inicio",tips:"Pronósticos y análisis",stats:"Estadísticas reales"},
+    pt:{real:"MUNDO REAL ▾",home:"Início",tips:"Dicas e análises",stats:"Estatísticas reais"},
+    it:{real:"MONDO REALE ▾",home:"Home",tips:"Pronostici e analisi",stats:"Statistiche reali"},
+    fr:{real:"MONDE RÉEL ▾",home:"Accueil",tips:"Pronostics et analyses",stats:"Statistiques réelles"}
+  };
+  function sync(){
+    const l=currentLang(),t=copy[l]||copy.de;
+    const logo=document.getElementById("tcHomeLogo"),home=document.getElementById("tcRealHome"),tips=document.getElementById("tcRealTips"),stats=document.getElementById("tcRealStats"),label=document.getElementById("tcRealMenuLabel");
+    if(logo)logo.href="https://betinsight.club/"+l+"/";
+    if(home){home.href="https://betinsight.club/"+l+"/";home.textContent=t.home}
+    if(tips){tips.href="https://betinsight.club/"+l+"/tipps/";tips.textContent=t.tips}
+    if(stats){stats.href="https://betinsight.club/"+l+"/statistik-vorschau/";stats.textContent=t.stats}
+    if(label)label.textContent=t.real;
+  }
+  sync();
+  document.addEventListener("click",e=>{
+    document.querySelectorAll(".tcRealMenu[open]").forEach(d=>{if(!d.contains(e.target))d.removeAttribute("open")});
+  });
+  window.addEventListener("pageshow",sync);
+})();
+</script></body></html>
