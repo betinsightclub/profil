@@ -833,7 +833,8 @@ function teamCoachLabel(side){
  let team=side==="A"?TA:TB,kind=side==="A"?kindAActive:kindBActive,coach=null;
  if(kind==="myclub")coach=memberClub?.coach;
  else if(kind==="community")coach=communityClubMeta?.[team.name]?.coach;
- let name=String(coach?.name||"").trim();
+ else coach=window.TC_COACH_DB?.[team.name]||null;
+ let name=String(typeof coach==="string"?coach:(coach?.name||"")).trim();
  return name?"Trainer "+name:"Der Trainer von "+team.name
 }
 function buildSubPlan(side){
