@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#06141d">
+<title>TIME CLASH Weltrangliste · BetInsight</title>
+<link rel="icon" href="/favicon.ico">
+<style>
+:root{--bg:#06141d;--card:#0c2634;--card2:#091d29;--line:rgba(143,203,230,.16);--text:#f4fbff;--muted:#9fb7c3;--blue:#1687ff;--gold:#f3c95c;--green:#16d69d}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 90% 0,rgba(22,214,157,.08),transparent 28rem),radial-gradient(circle at 10% 0,rgba(22,135,255,.13),transparent 30rem),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:inherit}
+.top{position:sticky;top:0;z-index:10;background:rgba(3,20,29,.9);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.08)}.topin{width:min(1180px,calc(100% - 28px));min-height:68px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:14px}.brand img{width:132px;display:block}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.05);text-decoration:none;font-weight:850;font-size:13px}
+main{width:min(1180px,calc(100% - 28px));margin:28px auto 60px}.hero{padding:28px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(145deg,rgba(13,39,53,.97),rgba(6,26,37,.97));box-shadow:0 22px 70px rgba(0,0,0,.28)}.eyebrow{color:#72c5ff;font-size:12px;font-weight:950;letter-spacing:.14em}.hero h1{margin:8px 0 8px;font-size:clamp(32px,5vw,56px);line-height:1}.hero p{margin:0;color:var(--muted);max-width:850px}
+.rules{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.pill{padding:8px 11px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.04);font-size:12px;font-weight:850;color:#c9dee8}.pill b{color:white}
+.card{border:1px solid var(--line);border-radius:18px;background:var(--card2);overflow:hidden}.cardhead{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.07)}.cardhead h2{margin:0;font-size:18px}.cardhead span{color:var(--muted);font-size:12px}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:900px}th,td{padding:13px 14px;text-align:left;border-bottom:1px solid rgba(255,255,255,.06)}th{font-size:11px;letter-spacing:.08em;color:#8eabb9;text-transform:uppercase;background:rgba(255,255,255,.025)}td{font-size:14px}.rank{font-weight:950}.team{font-weight:900}.kind{display:inline-block;margin-top:3px;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em}.pts{font-weight:950;color:#70dfff;font-size:16px}.gd.pos{color:#69e8aa}.gd.neg{color:#ff8b96}.empty{padding:34px;text-align:center;color:var(--muted)}.foot{margin-top:13px;color:#7896a4;font-size:12px}
+@media(max-width:720px){.hero{padding:21px}.topin{min-height:62px}.brand img{width:112px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="topin"><a class="brand" href="/time-clash/"><img src="/logo_betisight.club.png" alt="BetInsight"></a><a class="btn" href="/time-clash/#match-lab">← Zu den traditionellen Spielen</a></div></header>
+<main>
+<section class="hero"><div class="eyebrow">TIME CLASH · WORLD RANKING</div><h1>Weltrangliste</h1><p>Historische Nationalmannschaften und Clubs sammeln ab ihrem ersten gewerteten TIME CLASH Punkte. Später steigen auch Elite-Teams echter TIME-CLASH-Trainer bei null Punkten in dieselbe Rangliste ein.</p></section>
+<div class="rules"><span class="pill"><b>3</b> Punkte · Sieg</span><span class="pill"><b>1</b> Punkt · Unentschieden</span><span class="pill"><b>0</b> Punkte · Niederlage</span><span class="pill">Tie-Break: Tordifferenz → Tore → Siege</span></div>
+<section class="card"><div class="cardhead"><h2>Gesamtrangliste</h2><span id="meta">Wird geladen …</span></div><div class="tablewrap"><table><thead><tr><th>Rang</th><th>Team</th><th>Sp.</th><th>S</th><th>U</th><th>N</th><th>Tore</th><th>TD</th><th>Punkte</th></tr></thead><tbody id="rows"><tr><td colspan="9" class="empty">Weltrangliste wird geladen …</td></tr></tbody></table></div></section>
+<p class="foot">Jedes Einzelspiel einer TIME-CLASH-Serie wird separat gewertet. Ein Ergebnis wird technisch nur einmal verbucht.</p>
+</main>
+<script>
+const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash-ranking";
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+async function load(){
+ try{
+  const res=await fetch(API+"?type=world&limit=500",{cache:"no-store"});const data=await res.json();if(!res.ok||data.ok!==true)throw new Error();
+  const rows=Array.isArray(data.rows)?data.rows:[];
+  document.getElementById("meta").textContent=rows.length+" Teams · live aus gewerteten Spielen";
+  document.getElementById("rows").innerHTML=rows.length?rows.map(r=>{
+    const gd=Number(r.goal_difference||0);
+    return '<tr><td class="rank">#'+Number(r.position||0)+'</td><td><span class="team">'+esc(r.display_name)+'</span><span class="kind">'+(r.team_kind==="trainer_team"?"Elite-Trainerteam":"Historisches Team")+'</span></td><td>'+Number(r.matches_played||0)+'</td><td>'+Number(r.wins||0)+'</td><td>'+Number(r.draws||0)+'</td><td>'+Number(r.losses||0)+'</td><td>'+Number(r.goals_for||0)+':'+Number(r.goals_against||0)+'</td><td class="gd '+(gd>0?"pos":gd<0?"neg":"")+'">'+(gd>0?"+":"")+gd+'</td><td class="pts">'+Number(r.points||0)+'</td></tr>';
+  }).join(""):'<tr><td colspan="9" class="empty">Noch keine gewerteten traditionellen Spiele vorhanden.</td></tr>';
+ }catch(e){
+  document.getElementById("rows").innerHTML='<tr><td colspan="9" class="empty">Weltrangliste konnte gerade nicht geladen werden.</td></tr>';
+  document.getElementById("meta").textContent="Nicht verfügbar";
+ }
+}
+load();
+</script>
+</body></html>
