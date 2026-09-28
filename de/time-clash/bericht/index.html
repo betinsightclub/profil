@@ -113,7 +113,28 @@ const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash-repo
 const COMMENTS_API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash-comments";
 const reportParams=new URLSearchParams(location.search);
 let commentKey=reportParams.get("ck")||sessionStorage.getItem("bi_tc_comment_key")||"";
-if(reportParams.get("ck"))try{sessionStorage.setItem("bi_tc_comment_key",reportParams.get("ck"))}catch(e){};
+if(reportParams.get("ck"))try{
+  sessionStorage.setItem("bi_tc_comment_key",reportParams.get("ck"));
+  const cleanUrl=new URL(location.href);
+  cleanUrl.searchParams.delete("ck");
+  history.replaceState(null,"",cleanUrl.pathname+cleanUrl.search+cleanUrl.hash);
+}catch(e){};
+function localMemberCredential(){
+  try{return localStorage.getItem("betinsight_dashboard_token")||localStorage.getItem("betinsight_profile_token")||""}catch(e){return""}
+}
+async function ensureCommentKey(){
+  if(commentKey)return true;
+  const credential=localMemberCredential();
+  if(!credential)return false;
+  try{
+    const r=await fetch(COMMENTS_API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"session",credential})});
+    const d=await r.json();
+    if(!r.ok||!d.access_key)return false;
+    commentKey=d.access_key;
+    try{sessionStorage.setItem("bi_tc_comment_key",commentKey)}catch(e){}
+    return true;
+  }catch(e){return false}
+}
 
 const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
 const slug=reportParams.get("clash")||"";
@@ -159,7 +180,7 @@ function render(r){
     const events=ev.length?'<div class="events">'+ev.map(e=>'<div class="event"><b>'+esc((e.m??"–")+"'")+'</b><span>'+esc(e.msg||"Ereignis")+'</span></div>').join("")+'</div>':"";
     return '<article class="game"><div class="gameHead"><div><h3>Spiel '+(i+1)+'</h3><div class="gameMeta">'+esc(g.venue||"TIME CLASH Arena")+(g.weather?" · "+esc(g.weather):"")+'</div></div><div class="score">'+esc(r.team_a)+' '+Number(g.ga||0)+':'+Number(g.gb||0)+' '+esc(r.team_b)+'</div></div><ul class="lines">'+lines.map(x=>"<li>"+esc(x)+"</li>").join("")+"</ul>"+events+
     '<div class="gameComments" data-game="'+(i+1)+'"><div class="gameCommentsHead"><h4>💬 Kommentare zu Spiel '+(i+1)+'</h4><span class="pill commentCount">0</span></div><div class="commentList"><div class="commentHint">Kommentare werden geladen …</div></div>'+
-    (commentKey?'<form class="commentForm"><textarea maxlength="500" placeholder="Dein Kommentar zu diesem Spiel …" required></textarea><button type="submit">Senden</button></form><div class="commentHint">Nur registrierte BetInsight-User können schreiben.</div><div class="commentError"></div>':'<div class="commentHint">Lesen ist öffentlich. Zum Kommentieren öffne den Bericht direkt aus deinem angemeldeten TIME-CLASH-Bereich.</div>')+
+    (commentKey?'<form class="commentForm"><textarea maxlength="500" placeholder="Dein Kommentar zu diesem Spiel …" required></textarea><button type="submit">Senden</button></form><div class="commentHint">Nur registrierte BetInsight-User können schreiben.</div><div class="commentError"></div>':'<div class="commentHint">Lesen ist öffentlich. Zum Schreiben bitte kostenlos registrieren oder als BetInsight-Mitglied anmelden.</div><div class="footerActions" style="justify-content:flex-start;margin:10px 0 0"><a class="btn primary" href="https://betinsight.systeme.io/registrierung?ref=POOL">KOSTENLOS REGISTRIEREN & KOMMENTIEREN</a><a class="btn" href="https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726">BEREITS MITGLIED? ANMELDEN</a></div>')+
     '</div></article>';
   }).join("");
 
@@ -201,7 +222,9 @@ function initComments(){
 if(!slug){
   statusEl.innerHTML='<span class="error">Kein Bericht ausgewählt.</span>';
 }else{
-  fetch(API+"?slug="+encodeURIComponent(slug),{cache:"no-store"})
+  ensureCommentKey()
+    .catch(()=>false)
+    .then(()=>fetch(API+"?slug="+encodeURIComponent(slug),{cache:"no-store"}))
     .then(async x=>{const d=await x.json();if(!x.ok||!d.report)throw new Error(d.error||"not_found");return d.report})
     .then(render)
     .catch(()=>{statusEl.innerHTML='<span class="error">Der gespeicherte TIME-CLASH-Bericht konnte nicht geladen werden.</span><br><br><a class="btn" href="/time-clash/">Zurück zu TIME CLASH</a>'});
