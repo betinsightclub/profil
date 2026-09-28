@@ -1,6 +1,5 @@
-/* BetInsight Tip Expiry Guard · 2026-09-05 v2
+/* BetInsight Tip Expiry Guard · 2026-09-28 v3
    - runs only on /tipps/
-   - exact kickoff stays hidden in the customer UI
    - uses static tip-status.json for zero-credit kickoff timers
    - removes a tip card automatically at kickoff while the page stays open
    - blocks a last-second unlock locally when kickoff has just been reached
@@ -19,7 +18,7 @@
   let statusPromise = null;
 
   const clean = value => String(value ?? "").trim();
-  const asExpired = value => value === true || String(value).toLowerCase() === "true" || Number(value) === 1;
+  const asExpired = value => value === true || clean(value).toLowerCase() === "true" || Number(value) === 1;
 
   async function loadStatus(force = false) {
     if (!statusPromise || force) {
@@ -59,10 +58,14 @@
   }
 
   function removeExpiredCard(card) {
-    if (!card?.isConnected) return;
+    // Cards are checked during creation, before appendChild connects them.
+    // Hide/disable immediately; remove after the caller has inserted the card.
+    if (!card) return;
     const button = card.querySelector?.(".unlock-button");
     if (button) markExpired(card, button);
     card.hidden = true;
+    // The card's author CSS uses display:flex, which can override [hidden].
+    card.style.display = "none";
     window.setTimeout(() => {
       try { card.remove(); } catch (_) {}
     }, 0);
@@ -71,6 +74,7 @@
   function scheduleRemoval(card, tipId, kickoff) {
     if (!card || !tipId || !Number.isFinite(kickoff)) return;
     card.dataset.tipId = tipId;
+    card.dataset.kickoffAt = String(kickoff);
     const run = () => {
       const remaining = kickoff - Date.now();
       if (remaining <= 0) {
@@ -119,14 +123,18 @@
     if (typeof originalUnlock !== "function" || originalUnlock.__biExpiryWrapped) return false;
 
     async function wrappedUnlock(tippId, card, button) {
-      if (button?.dataset?.expiryState === "expired") {
+      const knownKickoff = Number(card?.dataset?.kickoffAt);
+      if (button?.dataset?.expiryState === "expired" ||
+          (Number.isFinite(knownKickoff) && Date.now() >= knownKickoff)) {
         markExpired(card, button);
         return;
       }
 
       const status = await loadStatus(true);
-      const kickoff = status.get(clean(tippId));
-      if (Number.isFinite(kickoff) && Date.now() >= kickoff) {
+      const kickoff = status.get(clean(tippId)) ?? knownKickoff;
+      // The expiry timer can fire while the status request is in flight.
+      if (button?.dataset?.expiryState === "expired" ||
+          (Number.isFinite(kickoff) && Date.now() >= kickoff)) {
         markExpired(card, button);
         window.setTimeout(() => removeExpiredCard(card), 850);
         return;
