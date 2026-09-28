@@ -43,7 +43,7 @@ async function load(){
   document.getElementById("podium").innerHTML=[0,1,2].map(i=>podiumCard(rows[i],i)).join("");
   document.getElementById("rows").innerHTML=rows.length?rows.map(r=>{
     const link=profileLink(r);
-    return '<tr><td class="rank">#'+Number(r.position||0)+'</td><td><span class="name">'+esc(r.trainer_name||r.owner_ref)+'</span><span class="sub">'+esc(r.owner_ref||"")+'</span></td><td>'+esc(r.club_name||"—")+'</td><td>'+Number(r.matches_played||0)+'</td><td class="wins">'+Number(r.wins||0)+'</td><td>'+Number(r.draws||0)+'</td><td>'+Number(r.losses||0)+'</td><td>'+(link?'<a class="profilelink" href="'+link+'">Öffnen →</a>':'—')+'</td></tr>';
+    return '<tr><td class="rank">#'+Number(r.position||0)+'</td><td><span class="name">'+esc(r.trainer_name||r.owner_ref)+'</span><span class="sub">'+esc(r.owner_ref||"")+'</span></td><td>'+esc(r.club_name||"—")+'</td><td>'+Number(r.matches_played||0)+'</td><td class="wins">'+Number(r.wins||0)+'</td><td>'+Number(r.clash_points||0)+'</td><td>'+Number(r.draws||0)+'</td><td>'+Number(r.losses||0)+'</td><td>'+(link?'<a class="profilelink" href="'+link+'">Öffnen →</a>':'—')+'</td></tr>';
   }).join(""):'<tr><td colspan="9" class="empty">Noch keine Trainer vorhanden.</td></tr>';
  }catch(e){
   document.getElementById("rows").innerHTML='<tr><td colspan="9" class="empty">Rangliste konnte gerade nicht geladen werden.</td></tr>';
