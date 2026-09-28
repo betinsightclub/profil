@@ -793,7 +793,7 @@ function inferredRole(i){
 }
 function normalizePlayer(p,i){
  let raw=Number(p?.strength),impact=Number(p?.impact||0);
- let strength=Number.isFinite(raw)&&raw>0?Math.max(1,Math.min(25,raw)):Math.max(1,Math.min(25,2.5+impact*3.5));
+ let strength=Number.isFinite(raw)&&raw>0?Math.max(1,Math.min(25,raw)):Math.max(1,Math.min(25,5+impact*4));
  const posMap={TW:"Torwart",GK:"Torwart",ABW:"Abwehr",DEF:"Abwehr",MIT:"Mittelfeld",MID:"Mittelfeld",ST:"Sturm",FW:"Sturm"};
  let mapped=posMap[String(p?.pos||"").toUpperCase()]||"";
  return {...p,strength,prole:String(p?.prole||p?.role||mapped||inferredRole(i)),starter:p?.starter!==undefined?!!p.starter:i<11,squadIndex:Number.isFinite(Number(p?.squadIndex))?Number(p.squadIndex):i}
@@ -940,9 +940,13 @@ function buildGame(idx){
  }
  let ma=effectiveMetrics("A",plans,dismissals),mb=effectiveMetrics("B",plans,dismissals);
  let keeperA=(goalkeeperStrength("A",20,plans,dismissals)+goalkeeperStrength("A",72,plans,dismissals))/2,keeperB=(goalkeeperStrength("B",20,plans,dismissals)+goalkeeperStrength("B",72,plans,dismissals))/2;
- let ratingGap=(ratingA-ratingB)*.018,qualityShift=(Math.random()-.5)*.32;
- let saveA=keeperSaveChance(keeperA),saveB=keeperSaveChance(keeperB),baseA=1.24+ratingGap+(ma.attack-mb.defense)*.09+(ma.midfield-mb.midfield)*.035+(ma.count-mb.count)*.16+qualityShift,baseB=1.24-ratingGap+(mb.attack-ma.defense)*.09+(mb.midfield-ma.midfield)*.035+(mb.count-ma.count)*.16-qualityShift,avgSave=.42;
- let lambdaA=Math.max(.08,Math.min(4.8,baseA*((1-saveB)/(1-avgSave)))),lambdaB=Math.max(.08,Math.min(4.8,baseB*((1-saveA)/(1-avgSave))));
+ let ratingGap=(ratingA-ratingB)*.018,qualityShift=(Math.random()-.5)*.20;
+ let saveA=keeperSaveChance(keeperA),saveB=keeperSaveChance(keeperB),baseA=1.18+ratingGap+(ma.attack-mb.defense)*.085+(ma.midfield-mb.midfield)*.032+(ma.count-mb.count)*.16+qualityShift,baseB=1.18-ratingGap+(mb.attack-ma.defense)*.085+(mb.midfield-ma.midfield)*.032+(mb.count-ma.count)*.16-qualityShift,avgSave=.42;
+ // Global realism guard: close teams should overwhelmingly produce normal football scorelines.
+ // Heavy wins remain possible, but 4:0/5:0 must be genuine outliers rather than routine results.
+ let strengthGap=Math.abs(ma.overall-mb.overall)+Math.abs(ratingA-ratingB)*.20;
+ let goalCeiling=strengthGap<1.25?1.55:strengthGap<2.5?1.85:strengthGap<4?2.25:3.20;
+ let lambdaA=Math.max(.08,Math.min(goalCeiling,baseA*((1-saveB)/(1-avgSave)))),lambdaB=Math.max(.08,Math.min(goalCeiling,baseB*((1-saveA)/(1-avgSave))));
  let ga=Math.min(6,poisson(lambdaA)),gb=Math.min(6,poisson(lambdaB));
  let sides=[];for(let x=0;x<ga;x++)sides.push("A");for(let x=0;x<gb;x++)sides.push("B");sides.sort(()=>Math.random()-.5);
  let goals=spacedGoalMinutes(sides.length).map((m,n)=>({m,t:sides[n]}));
