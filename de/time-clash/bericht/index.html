@@ -17,6 +17,9 @@ header{border-bottom:1px solid #18425a;background:#03131e;position:sticky;top:0;
 .nav nav{display:flex;align-items:center;gap:22px;flex-wrap:wrap;justify-content:flex-end}
 .nav a{color:#cfe5f1;text-decoration:none;font-size:14px;font-weight:800;white-space:nowrap}
 .nav a.active{color:var(--gold)}
+.reportLanguage{display:inline-flex;align-items:center;border:1px solid #315f78;border-radius:999px;padding:2px;background:#061b28}
+.reportLanguage select{border:0;border-radius:999px;background:#0a5278;color:#fff;font-weight:900;font-size:12px;padding:7px 26px 7px 9px;cursor:pointer;outline:none}
+.reportLanguage select option{color:#061b28;background:#fff}
 .hero{text-align:center;padding:42px 0 24px}
 .hero .eyebrow{color:var(--gold);font-weight:900;letter-spacing:.16em;font-size:12px}
 .hero h1{font-size:clamp(40px,7vw,68px);margin:6px 0}
@@ -61,12 +64,13 @@ header{border-bottom:1px solid #18425a;background:#03131e;position:sticky;top:0;
 <body>
 <header>
   <div class="wrap nav">
-    <a class="brand" href="/de/"><img src="https://raw.githubusercontent.com/betinsightclub/profil/main/logo_betisight.club.png" alt="BetInsight"></a>
+    <a class="brand" href="/"><img src="https://raw.githubusercontent.com/betinsightclub/profil/main/logo_betisight.club.png" alt="BetInsight"></a>
     <nav>
-      <a href="/de/">STARTSEITE</a>
-      <a href="/de/tipps/">TIPPS</a>
+      <a href="/">STARTSEITE</a>
+      <a href="/tipps/">TIPPS</a>
       <a href="/time-clash/" class="active">TIME CLASH</a>
-      <a href="/de/statistik-vorschau/">STATISTIK</a>
+      <a href="https://betinsight.club/de/statistik-vorschau/">STATISTIK</a>
+      <span class="reportLanguage"><select id="reportLanguageSelect" aria-label="Sprache wählen"><option value="de">🇩🇪 DE</option><option value="en">🇬🇧 EN</option><option value="es">🇪🇸 ES</option><option value="pt">🇧🇷 PT</option><option value="it">🇮🇹 IT</option><option value="fr">🇫🇷 FR</option></select></span>
     </nav>
   </div>
 </header>
@@ -103,7 +107,7 @@ header{border-bottom:1px solid #18425a;background:#03131e;position:sticky;top:0;
 
     <div class="footerActions">
       <a class="btn primary" href="/time-clash/">Neuen TIME CLASH starten</a>
-      <a class="btn" href="/de/time-clash/mein-team/">Mein Team</a>
+      <a class="btn" href="/time-clash/mein-team/">Mein Team</a>
     </div>
   </section>
 </main>
@@ -136,10 +140,27 @@ async function ensureCommentKey(){
   }catch(e){return false}
 }
 
+function initReportLanguageSwitch(){
+  const sel=document.getElementById("reportLanguageSelect");
+  if(!sel)return;
+  sel.value="de";
+  sel.addEventListener("change",async()=>{
+    const targetLang=sel.value;
+    if(targetLang==="de")return;
+    await ensureCommentKey();
+    const u=new URL("https://betinsight.club/"+targetLang+"/time-clash/bericht/");
+    u.searchParams.set("clash",slug);
+    u.searchParams.set("from","app");
+    if(commentKey)u.searchParams.set("ck",commentKey);
+    location.href=u.toString();
+  });
+}
+
 const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
 const slug=reportParams.get("clash")||"";
 const statusEl=document.getElementById("status");
 const reportEl=document.getElementById("report");
+initReportLanguageSwitch();
 
 function fallbackLines(r,g,i){
   const ga=Number(g.ga||0),gb=Number(g.gb||0);
