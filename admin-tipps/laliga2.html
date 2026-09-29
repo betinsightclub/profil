@@ -14,7 +14,7 @@
   }
   try{
     const files=['livev11.part0','livev11.part1','livev11.part2','livev11.part3'];
-    const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260929-national-teams-top-v15',{cache:'no-store'}).then(r=>{
+    const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260929-national-teams-v16',{cache:'no-store'}).then(r=>{
       if(!r.ok)throw new Error('Terminal-Datei '+x+' konnte nicht geladen werden');
       return r.text();
     })));
@@ -42,6 +42,19 @@
         if(laLigaRe.test(opts)) opts=opts.replace(laLigaRe,'$1<option value="LaLiga 2">'+label+'</option>');
         else opts+='<option value="LaLiga 2">'+label+'</option>';
       }
+      // BETINSIGHT-NATIONAL-PLAIN-OPTIONS-v16
+      // Chrome/native selects can render optgroups after top-level options. Use normal options instead,
+      // injected directly after the placeholder, so these choices are guaranteed to stay at the top.
+      const nationalPlain=
+        '<option value="__BI_INTL_FRIENDLY__">🌍 Freundschaftsspiel · Nationalmannschaften</option>'+
+        '<option value="__BI_INTL_QUALIFICATION__">🌍 Qualifikation · Nationalmannschaften</option>'+
+        '<option value="UEFA Nations League">🌍 UEFA Nations League · API</option>'+
+        '<option value="__BI_INTL_OTHER__">🌍 Länderspiel / Sonstiges</option>';
+      opts=opts
+        .replace(/<optgroup\b[^>]*data-bi-international-api=(["'])1\1[^>]*>[\s\S]*?<\/optgroup>/gi,'')
+        .replace(/<option\b[^>]*value=(["'])(?:__BI_INTL_FRIENDLY__|__BI_INTL_QUALIFICATION__|UEFA Nations League|__BI_INTL_OTHER__)\1[^>]*>[\s\S]*?<\/option>/gi,'');
+      const placeholder=/(<option\b[^>]*>\s*Bitte auswählen\s*<\/option>)/i;
+      opts=placeholder.test(opts)?opts.replace(placeholder,'$1'+nationalPlain):nationalPlain+opts;
       return open+opts+close;
     });
 
@@ -223,29 +236,25 @@
       }
     }
 
-    // National teams: API where available, otherwise automatic country picker + manual match data.
-    let intlGroup=liga.querySelector('optgroup[data-bi-international-api="1"]');
-    if(!intlGroup){
-      intlGroup=document.createElement('optgroup');
-      intlGroup.label='Nationalmannschaften / International';
-      intlGroup.setAttribute('data-bi-international-api','1');
-    }
-    // Always keep this group directly below "Bitte auswählen", so it is visible without scrolling.
-    const firstRealChild=[...liga.children].find(el=>el!==intlGroup && ((el.tagName==='OPTION' && clean(el.value)!=='') || el.tagName==='OPTGROUP'));
-    if(firstRealChild)liga.insertBefore(intlGroup,firstRealChild);
-    else liga.appendChild(intlGroup);
-    intlGroup.innerHTML='';
-    const internationalOptions=[
-      ['__BI_INTL_FRIENDLY__','Freundschaftsspiel · Nationalmannschaften'],
-      ['__BI_INTL_QUALIFICATION__','Qualifikation · Nationalmannschaften'],
-      ['UEFA Nations League','UEFA Nations League · API'],
-      ['__BI_INTL_OTHER__','Länderspiel / Sonstiges']
+    // National teams: keep four plain options directly below the placeholder.
+    // Plain options are used intentionally because native Chrome select menus may render optgroups later.
+    const intlValues=new Set(['__BI_INTL_FRIENDLY__','__BI_INTL_QUALIFICATION__','UEFA Nations League','__BI_INTL_OTHER__']);
+    [...liga.querySelectorAll('optgroup[data-bi-international-api="1"]')].forEach(g=>g.remove());
+    [...liga.options].forEach(o=>{if(intlValues.has(clean(o.value)))o.remove();});
+
+    const rows=[
+      ['__BI_INTL_FRIENDLY__','🌍 Freundschaftsspiel · Nationalmannschaften'],
+      ['__BI_INTL_QUALIFICATION__','🌍 Qualifikation · Nationalmannschaften'],
+      ['UEFA Nations League','🌍 UEFA Nations League · API'],
+      ['__BI_INTL_OTHER__','🌍 Länderspiel / Sonstiges']
     ];
-    internationalOptions.forEach(([value,label])=>{
+    let placeholder=[...liga.options].find(o=>clean(o.value)==='' && /Bitte auswählen/i.test(clean(o.textContent)))||liga.options[0]||null;
+    let anchor=placeholder?placeholder.nextSibling:liga.firstChild;
+    rows.forEach(([value,label])=>{
       const opt=document.createElement('option');
       opt.value=value;
       opt.textContent=label;
-      intlGroup.appendChild(opt);
+      liga.insertBefore(opt,anchor);
     });
   }
 
