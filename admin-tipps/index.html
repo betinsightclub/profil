@@ -14,7 +14,7 @@
   }
   try{
     const files=['livev11.part0','livev11.part1','livev11.part2','livev11.part3'];
-    const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260929-national-teams-v14',{cache:'no-store'}).then(r=>{
+    const ps=await Promise.all(files.map(x=>fetch(x+'?v=20260929-national-teams-top-v15',{cache:'no-store'}).then(r=>{
       if(!r.ok)throw new Error('Terminal-Datei '+x+' konnte nicht geladen werden');
       return r.text();
     })));
@@ -252,8 +252,11 @@
       intlGroup=document.createElement('optgroup');
       intlGroup.label='Nationalmannschaften / International';
       intlGroup.setAttribute('data-bi-international-api','1');
-      liga.appendChild(intlGroup);
     }
+    // Always keep this group directly below "Bitte auswählen", so it is visible without scrolling.
+    const firstRealChild=[...liga.children].find(el=>el!==intlGroup && ((el.tagName==='OPTION' && clean(el.value)!=='') || el.tagName==='OPTGROUP'));
+    if(firstRealChild)liga.insertBefore(intlGroup,firstRealChild);
+    else liga.appendChild(intlGroup);
     intlGroup.innerHTML='';
     const internationalOptions=[
       ['__BI_INTL_FRIENDLY__','Freundschaftsspiel · Nationalmannschaften'],
