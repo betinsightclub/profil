@@ -32,3 +32,15 @@ window.addEventListener("DOMContentLoaded",function(){
   if(typeof fill==="function"){fill("A");fill("B");}
  }catch(e){console.warn("TIME CLASH roster bridge",e);}
 });
+
+/* tc-stadium-universe-loader-v1 · isolated from header/logo work */
+(function(){
+ try{
+  if(!/^\/time-clash\/?$/.test(location.pathname))return;
+  if(document.querySelector('script[data-tc-stadium-universe]'))return;
+  const s=document.createElement("script");
+  s.src="/time-clash/stadium-system-v1.js?v=20260929a";
+  s.dataset.tcStadiumUniverse="1";
+  document.head.appendChild(s);
+ }catch(e){console.warn("TIME CLASH stadium loader",e)}
+})();
