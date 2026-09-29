@@ -433,11 +433,24 @@ function syncAppLanguageNav(){
  });
  const rankLink=document.querySelector(".worldRankLink");if(rankLink)rankLink.href="/time-clash/rangliste/?lang="+TC_DISPLAY_LANG;
  const base="https://betinsight.club/"+TC_DISPLAY_LANG;
- const nav=[...document.querySelectorAll("header nav a")];
- if(nav[0])nav[0].href=base+"/";
- [1,2,3].forEach(i=>{if(nav[i])nav[i].href=base+"/tipps/"});
- if(nav[4]){const u=new URL(location.href);u.hash="";nav[4].href=u.pathname+u.search}
- if(nav[5])nav[5].href=base+"/statistik-vorschau/";
+ const realCopy={
+  de:{menu:"ECHTE WELT ▾",home:"Startseite",tips:"Tipps & Analysen",stats:"Echte Statistik"},
+  en:{menu:"REAL WORLD ▾",home:"Home",tips:"Tips & Analysis",stats:"Real Statistics"},
+  es:{menu:"MUNDO REAL ▾",home:"Inicio",tips:"Pronósticos y análisis",stats:"Estadísticas reales"},
+  fr:{menu:"MONDE RÉEL ▾",home:"Accueil",tips:"Pronostics et analyses",stats:"Statistiques réelles"},
+  it:{menu:"MONDO REALE ▾",home:"Home",tips:"Pronostici e analisi",stats:"Statistiche reali"},
+  pt:{menu:"MUNDO REAL ▾",home:"Início",tips:"Dicas e análises",stats:"Estatísticas reais"}
+ }[TC_DISPLAY_LANG]||null;
+ const homeLink=document.getElementById("tcRealHome");
+ const tipsLink=document.getElementById("tcRealTips");
+ const statsLink=document.getElementById("tcRealStats");
+ const menuLabel=document.getElementById("tcRealMenuLabel");
+ const logoLink=document.getElementById("tcHomeLogo");
+ if(logoLink)logoLink.href=base+"/";
+ if(homeLink){homeLink.href=base+"/";if(realCopy)homeLink.textContent=realCopy.home}
+ if(tipsLink){tipsLink.href=base+"/tipps/";if(realCopy)tipsLink.textContent=realCopy.tips}
+ if(statsLink){statsLink.href=base+"/statistik-vorschau/";if(realCopy)statsLink.textContent=realCopy.stats}
+ if(menuLabel&&realCopy)menuLabel.textContent=realCopy.menu;
  document.querySelectorAll('a[href*="/time-clash/community/"]').forEach(a=>a.href=base+"/time-clash/community/");
  const galleryLink=document.getElementById("galleryLink");if(galleryLink)galleryLink.href=base+"/time-clash/galerie/";
  document.querySelectorAll('a[href="/time-clash/mein-team/"]').forEach(a=>{
