@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-26",
+  "updated_at": "2026-09-29",
   "policy": "parallel-safe",
   "merge_gate": {
     "fresh_branch_from_main": true,
@@ -38,6 +38,16 @@
     "app_i18n": {
       "open_pr": 6,
       "rule": "Separate from TIME CLASH avatar work."
+    },
+    "stadium_universe": {
+      "reserved_paths": [
+        "time-clash/stadium-system-v1.js",
+        "time-clash/stadiums/**"
+      ],
+      "shared_patch_paths": [
+        "time-clash/catalog-all.js"
+      ],
+      "rule": "Stadium workstream only. Do not edit header, logo, hero wordmark, navigation or avatar files. User selects the starting stadium; later stadiums are randomized without immediate repeats."
     }
   },
   "shared_files": {
