@@ -78,7 +78,7 @@
     } catch (_) {}
   }
 
-  function connectHref() { return "/konto/?next=dashboard"; }
+  function connectHref() { return "/konto/?next=time-clash"; }
 
   function addConnect() {
     ensureStyle();
