@@ -12,13 +12,14 @@
   const APP_ROOT = new URL("../", ASSET_BASE);
 
   const NAV_TEXT = Object.freeze({
-    "Academy & Ressourcen": {en:"Academy & Resources",es:"Academy y recursos",pt:"Academy e recursos",it:"Academy e risorse",fr:"Academy et ressources"},
-    "Werbematerial & Downloads": {en:"Marketing Material & Downloads",es:"Material promocional y descargas",pt:"Material de divulgação e downloads",it:"Materiale promozionale e download",fr:"Supports marketing et téléchargements"},
-    "Sprache / Land": {en:"Language / Country",es:"Idioma / País",pt:"Idioma / País",it:"Lingua / Paese",fr:"Langue / Pays"}
+    "Academy & Ressourcen": {en:"Academy & Resources",es:"Academy y recursos",pt:"Academy e recursos",it:"Academy e risorse",fr:"Academy et ressources",nl:"Academy & bronnen","zh-tw":"Academy 與資源"},
+    "Werbematerial & Downloads": {en:"Marketing Material & Downloads",es:"Material promocional y descargas",pt:"Material de divulgação e downloads",it:"Materiale promozionale e download",fr:"Supports marketing et téléchargements",nl:"Promotiemateriaal & downloads","zh-tw":"宣傳素材與下載"},
+    "Sprache / Land": {en:"Language / Country",es:"Idioma / País",pt:"Idioma / País",it:"Lingua / Paese",fr:"Langue / Pays",nl:"Taal / Land","zh-tw":"語言 / 國家"}
   });
   const text = (de, en) => {
     try {
-      const lang = String(window.BetInsightI18n?.getLanguage?.() || "de").toLowerCase().split("-")[0];
+      const raw = String(window.BetInsightI18n?.getLanguage?.() || "de").toLowerCase().replace("_","-");
+      const lang = (raw === "zh" || raw.startsWith("zh-hant") || raw.startsWith("zh-tw")) ? "zh-tw" : raw.split("-")[0];
       if (lang === "de") return de;
       if (lang === "en") return en;
       return NAV_TEXT[de]?.[lang] || de;
