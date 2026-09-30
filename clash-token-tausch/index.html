@@ -54,13 +54,13 @@ button{width:100%;margin-top:16px;padding:15px 18px;border:0;border-radius:13px;
 </main>
 <script>
 (()=>{"use strict";const RATE=50,amount=document.getElementById("amount"),result=document.getElementById("result"),max=document.getElementById("maxBtn");
-let available=0;
+let available=0,permanentBalance=0;
 const profileApi="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=profile-read";
 const clashApi="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash-club";
 function num(v){const n=Number(String(v==null?0:v).replace(",","."));return Number.isFinite(n)?n:0}
 function fmt(v){return new Intl.NumberFormat("de-DE",{maximumFractionDigits:2}).format(num(v))}
 function accessVariants(){const a=[];const d=String(window.BetInsightSession?.getDashboardUuid?.()||"").trim();const p=String(window.BetInsightSession?.getProfileToken?.()||"").trim();if(p)a.push(p);if(d&&d!==p)a.push(d);return a}
-function calc(){const n=Math.max(0,num(amount.value));const ct=Math.floor((n*RATE)+1e-9);result.textContent=ct.toLocaleString("de-DE")+" CT";return ct}
+function calc(){const n=Math.max(0,num(amount.value));const ct=Math.floor((n*RATE)+1e-9);result.textContent=ct.toLocaleString("de-DE")+" CT";document.getElementById("newBalance").textContent=(permanentBalance+ct).toLocaleString("de-DE")+" CT";return ct}
 async function loadBalances(){
  const variants=accessVariants();
  if(!variants.length){document.getElementById("status").textContent="Bitte öffne diese Seite über dein BetInsight-Profil bzw. die Unit-Wechselstube.";amount.disabled=true;max.disabled=true;return}
@@ -85,7 +85,7 @@ async function loadBalances(){
    const cr=await fetch(url.toString(),{cache:"no-store",credentials:"omit"});
    if(cr.ok){const cd=await cr.json();permanent=num(cd.permanent_game_credits??cd.balance?.permanent_game_credits??cd.clash_tokens??permanent)}
   }catch(e){}
-  document.getElementById("credits").textContent=fmt(permanent)+" CT";
+  permanentBalance=Math.max(0,Math.floor(permanent));document.getElementById("credits").textContent=permanentBalance.toLocaleString("de-DE")+" CT";calc();
   document.getElementById("status").textContent="Vorschau aktiv: Dein echter verfügbarer Unitbestand ist geladen. Du kannst jetzt berechnen, wie viele permanente ClashToken du erhalten würdest. Der endgültige Tausch ist weiterhin gesperrt.";
  }catch(e){
   document.getElementById("units").textContent="Nicht geladen";
