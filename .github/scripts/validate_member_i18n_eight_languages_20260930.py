@@ -60,15 +60,14 @@ def compare(source: dict, target: dict, label: str):
         key for key in source
         if key in target and placeholders(source[key]) != placeholders(target[key])
     )
-    if missing or empty or bad_placeholders:
-        chunks = [f"Locale validation failed: {label}"]
-        if missing:
-            chunks.append("Missing keys:\n  " + "\n  ".join(missing))
-        if empty:
-            chunks.append("Empty values:\n  " + "\n  ".join(empty))
-        if bad_placeholders:
-            chunks.append("Placeholder mismatches:\n  " + "\n  ".join(bad_placeholders))
-        raise RuntimeError("\n".join(chunks))
+    issues = []
+    if missing:
+        issues.append("Missing keys:\n  " + "\n  ".join(missing))
+    if empty:
+        issues.append("Empty values:\n  " + "\n  ".join(empty))
+    if bad_placeholders:
+        issues.append("Placeholder mismatches:\n  " + "\n  ".join(bad_placeholders))
+    return issues
 
 
 def main():
@@ -76,12 +75,16 @@ def main():
     if tuple(manifest.get("languages", ())) != LANGS:
         raise RuntimeError(f"Manifest languages mismatch: {manifest.get('languages')}")
 
+    failures = []
     shared_de = flatten(load(LOCALES / "de.json"))
     for lang in LANGS:
         path = LOCALES / f"{lang}.json"
         if not path.exists():
-            raise RuntimeError(f"Missing shared locale: {path.relative_to(ROOT)}")
-        compare(shared_de, flatten(load(path)), f"shared/{lang}")
+            failures.append(f"Missing shared locale: {path.relative_to(ROOT)}")
+            continue
+        issues = compare(shared_de, flatten(load(path)), f"shared/{lang}")
+        if issues:
+            failures.append("Locale validation failed: shared/" + lang + "\n" + "\n".join(issues))
 
     for scope in ACTIVE_SCOPES:
         source_path = PAGES / scope / "de.json"
@@ -89,8 +92,14 @@ def main():
         for lang in LANGS:
             path = PAGES / scope / f"{lang}.json"
             if not path.exists():
-                raise RuntimeError(f"Missing page locale: {path.relative_to(ROOT)}")
-            compare(source, flatten(load(path)), f"{scope}/{lang}")
+                failures.append(f"Missing page locale: {path.relative_to(ROOT)}")
+                continue
+            issues = compare(source, flatten(load(path)), f"{scope}/{lang}")
+            if issues:
+                failures.append("Locale validation failed: " + scope + "/" + lang + "\n" + "\n".join(issues))
+
+    if failures:
+        raise RuntimeError("\n\n".join(failures))
 
     core = (I18N / "core-v2.js").read_text(encoding="utf-8")
     switch = (ROOT / "assets" / "member-language-switch.js").read_text(encoding="utf-8")
