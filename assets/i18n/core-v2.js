@@ -12,7 +12,9 @@
     es:{flag:"🇪🇸",label:"Español"},
     pt:{flag:"🇵🇹",label:"Português"},
     it:{flag:"🇮🇹",label:"Italiano"},
-    fr:{flag:"🇫🇷",label:"Français"}
+    fr:{flag:"🇫🇷",label:"Français"},
+    nl:{flag:"🇳🇱",label:"Nederlands"},
+    "zh-tw":{flag:"🇹🇼",label:"繁體中文"}
   });
   const languageOptionLabel = language => {
     const item = LANGUAGE_OPTIONS[language];
