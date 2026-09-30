@@ -514,6 +514,8 @@
         if (cr.ok) {
           const cd = await cr.json();
           ct = num(cd.permanent_game_credits ?? cd.balance?.permanent_game_credits ?? cd.clash_tokens ?? ct);
+          const livePoints = num(cd.clash_points ?? cd.balance?.clash_points ?? cd.time_clash_points ?? data.clash_points ?? data.time_clash_points ?? 0);
+          strip.querySelector('[data-bi-balance="points"]').textContent = Math.max(0, Math.trunc(livePoints)).toLocaleString();
         }
       } catch (error) {
         console.warn("TIME CLASH balance could not be refreshed:", error);
