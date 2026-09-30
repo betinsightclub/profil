@@ -10,7 +10,7 @@
 .stadiumGallery{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(210px,24%);gap:10px;overflow-x:auto;padding:3px 2px 10px;scroll-snap-type:x proximity}
 .stadiumCard{scroll-snap-align:start;appearance:none;border:1px solid #214b61;border-radius:14px;background:#061a26;color:#fff;padding:0;overflow:hidden;text-align:left;cursor:pointer;min-height:172px;transition:.18s transform,.18s border-color,.18s box-shadow}
 .stadiumCard:hover{transform:translateY(-2px);border-color:#3b89ad}.stadiumCard.sel{border-color:var(--gold);box-shadow:0 0 0 1px #f7c64e,0 8px 28px #0008}
-.stadiumThumb{height:112px;background:radial-gradient(circle at 50% 40%,#174b68,#06131c 70%);position:relative;overflow:hidden}.stadiumThumb img{width:100%;height:100%;object-fit:cover;display:block}.stadiumThumb:after{content:"";position:absolute;inset:auto 0 0;height:46px;background:linear-gradient(transparent,#061a26)}
+.stadiumThumb{height:112px;background-color:#06131c;background-image:url("/time-clash/assets/stadiums/stadium-thumbs-sprite.webp?v=20260930a");background-size:400% 500%;background-repeat:no-repeat;position:relative;overflow:hidden}.stadiumThumb:after{content:"";position:absolute;inset:auto 0 0;height:46px;background:linear-gradient(transparent,#061a26)}
 .stadiumCardCopy{padding:10px 11px 12px}.stadiumCardCopy b{display:block;font-size:13px;line-height:1.2}.stadiumCardCopy span{display:block;color:#8eb0c2;font-size:11px;margin-top:4px}
 .stadiumCard.sel .stadiumCardCopy:after{content:"✓ STARTSTADION";display:inline-block;margin-top:8px;color:var(--gold);font-size:10px;font-weight:1000;letter-spacing:.06em}
 @media(max-width:760px){.stadiumChooserHead{display:block}.stadiumSelected{display:inline-block;margin-top:10px}.stadiumGallery{grid-auto-columns:minmax(190px,75%)}}
@@ -260,6 +260,7 @@ const weatherList=["Leicht bewölkt · 18°C","Klar · 21°C","Flutlicht · 16°
 const phrases={neutral:["Das Mittelfeld ist hart umkämpft.","Beide Teams ordnen sich neu.","Das Tempo bleibt hoch.","Beide Mannschaften verschieben kompakt.","Das Spiel bleibt taktisch ausgeglichen."],a:["{A} schaltet schnell um.","{A} sucht den Weg über die Außen.","Ein Angriff von {A} nimmt Fahrt auf."],b:["{B} kombiniert sich ins letzte Drittel.","{B} erhöht den Druck.","{B} sucht die Lücke zwischen den Linien."],saveA:["🧤 Starke Parade von {A}!","🎯 {B} kommt zum Abschluss – gehalten!"],saveB:["🧤 {B} entschärft den Abschluss von {A}.","🎯 {A} zieht ab – der Torhüter ist zur Stelle!"],corner:["🚩 Ecke nach abgefälschtem Abschluss.","🚩 Der Ball wird zur Ecke geklärt."],foul:["💥 Foul im Mittelfeld. Der Schiedsrichter belässt es bei einer Ermahnung.","⚠️ Zweikampf zu spät – Freistoß."],chance:["🔥 Gefährlicher Angriff bis an den Strafraum.","⚡ Schneller Gegenstoß mit viel Raum.","🎯 Abschluss aus aussichtsreicher Position – knapp vorbei!"]};
 let pick=null,running=false,paused=false,fast=false,g=0,i=0,A=0,B=0,serA=0,serB=0,games=[],seriesDecision=null,seriesVenueOrder=[],timer=null,seriesLen=5,chosenA=false,chosenB=false,kindAActive="nation",kindBActive="nation",activeMode="public",matchPoints=+(localStorage.getItem("biMatchPoints")||0),played=+(localStorage.getItem("biMatchPlayed")||0),correct=+(localStorage.getItem("biMatchCorrect")||0),streak=+(localStorage.getItem("biMatchStreak")||0),TA={name:"Italien 2006",flag:"🇮🇹",rating:82},TB={name:"Spanien 2026",flag:"🇪🇸",rating:83};
 const STADIUM_ASSET_ROOT="/time-clash/assets/stadiums/";
+const STADIUM_SPRITE="/time-clash/assets/stadiums/stadium-thumbs-sprite.webp?v=20260930a";
 const TC_STADIUMS=[
  ["package-01","koenigsbogen-arena","Königsbogen Arena","Munich","Germany"],
  ["package-01","atlantic-riviera-stadium","Atlantic Riviera Stadium","Lisbon","Portugal"],
@@ -995,6 +996,14 @@ function spacedGoalMinutes(total){let out=[],tries=0;while(out.length<total&&tri
 function shuffleCopy(list){let a=[...list];for(let x=a.length-1;x>0;x--){let y=rnd(x+1);[a[x],a[y]]=[a[y],a[x]]}return a}
 function stadiumBySlug(slug){return TC_STADIUMS.find(x=>x.slug===slug)||null}
 function stadiumAsset(st,view="THUMB"){return st?STADIUM_ASSET_ROOT+st.pkg+"/"+st.slug+"/"+view+".webp":""}
+function stadiumSpritePos(st){
+ const idx=TC_STADIUMS.findIndex(x=>x.slug===st?.slug);if(idx<0)return "50% 50%";
+ const col=idx%4,row=Math.floor(idx/4);
+ const x=col===0?0:(col===3?100:(col*100/3));
+ const y=row===0?0:(row===4?100:(row*25));
+ return x+"% "+y+"%";
+}
+function stadiumThumbStyle(st){return "background-position:"+stadiumSpritePos(st)+";"}
 function stadiumUiCopy(){
  const l=(typeof TC_DISPLAY_LANG!=="undefined"?TC_DISPLAY_LANG:"de").toLowerCase();
  const m={
@@ -1010,14 +1019,20 @@ function stadiumUiCopy(){
 function renderStadiumChooser(){
  const gallery=$("#stadiumGallery");if(!gallery)return;const cp=stadiumUiCopy();
  $("#stadiumChooserTitle").textContent=cp[0];$("#stadiumChooserHint").textContent=cp[1];
- gallery.innerHTML=TC_STADIUMS.map(st=>'<button type="button" class="stadiumCard'+(st.slug===selectedStartStadium?' sel':'')+'" data-stadium="'+st.slug+'"><div class="stadiumThumb"><img loading="lazy" src="'+stadiumAsset(st,"THUMB")+'" alt="'+st.name+'" onerror="this.style.display=\'none\'"></div><div class="stadiumCardCopy"><b>'+st.name+'</b><span>'+st.city+' · '+st.country+'</span></div></button>').join("");
+ gallery.innerHTML=TC_STADIUMS.map(st=>'<button type="button" class="stadiumCard'+(st.slug===selectedStartStadium?' sel':'')+'" data-stadium="'+st.slug+'"><div class="stadiumThumb" role="img" aria-label="'+st.name+'" style="'+stadiumThumbStyle(st)+'"></div><div class="stadiumCardCopy"><b>'+st.name+'</b><span>'+st.city+' · '+st.country+'</span></div></button>').join("");
  gallery.querySelectorAll("[data-stadium]").forEach(btn=>btn.onclick=()=>selectStartStadium(btn.dataset.stadium));
  const st=stadiumBySlug(selectedStartStadium);$("#stadiumSelected").innerHTML=st?cp[3]+": <b>"+st.name+"</b>":cp[2];
  if($("#start"))$("#start").disabled=!selectedStartStadium;
 }
 function previewStadium(st,view="THUMB"){
- if(!st)return;$("#stadiumName").textContent=st.name;$("#stadiumPlace").textContent=st.city+" · "+st.country;
- const img=new Image(),url=stadiumAsset(st,view);img.onload=()=>{$("#stadiumStage").style.backgroundImage='linear-gradient(#00121b33,#00111bd9),url("'+url+'")'};img.src=url;
+ if(!st)return;
+ $("#stadiumName").textContent=st.name;
+ $("#stadiumPlace").textContent=st.city+" · "+st.country;
+ const stage=$("#stadiumStage"),pos=stadiumSpritePos(st);
+ stage.style.backgroundImage='linear-gradient(#00121b33,#00111bd9),url("'+STADIUM_SPRITE+'")';
+ stage.style.backgroundSize="cover,400% 500%";
+ stage.style.backgroundPosition="center,"+pos;
+ stage.style.backgroundRepeat="no-repeat";
 }
 function selectStartStadium(slug){
  if(running)return;const st=stadiumBySlug(slug);if(!st)return;selectedStartStadium=slug;renderStadiumChooser();previewStadium(st,"THUMB");makeSeries();updateConflictGate();
