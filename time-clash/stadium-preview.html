@@ -1064,7 +1064,8 @@ function previewStadium(st,view="THUMB"){
    paintStadiumSprite($("#stadiumStage"),sprite,st,'linear-gradient(180deg,#00121b08,#00111b48)');
  }).catch(err=>console.error(err));
 }
-window.addEventListener("resize",()=>{clearTimeout(window.__tcStadiumResize);window.__tcStadiumResize=setTimeout(repaintSelectedStadium,90)});\nfunction selectStartStadium(slug){
+window.addEventListener("resize",()=>{clearTimeout(window.__tcStadiumResize);window.__tcStadiumResize=setTimeout(repaintSelectedStadium,90)});
+function selectStartStadium(slug){
  if(running)return;const st=stadiumBySlug(slug);if(!st)return;selectedStartStadium=slug;renderStadiumChooser();previewStadium(st,"THUMB");makeSeries();updateConflictGate();
 }
 
