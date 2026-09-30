@@ -1071,7 +1071,7 @@ function paintStadiumSprite(el,sprite,st,overlay="",focusY=.66){
  const scale=Math.min(1,Math.max(cw/tileW,ch/tileH));
  const sw=tileW*scale,sh=tileH*scale;
  const cropX=(cw-sw)*.5;
- const cropY=(ch-sh)*(ch>=sh?.5:Math.max(0,Math.min(1,focusY)));
+ const cropY=(ch-sh)*(ch>=sh ? .5 : Math.max(0,Math.min(1,focusY)));
  const posX=cropX-cell.col*sw,posY=cropY-cell.row*sh;
  el.style.backgroundColor="#06131c";
  if(overlay){
@@ -1405,7 +1405,7 @@ $("#sceneAuto").onclick=()=>{if(!selectedNewsScene)return;setSceneForm(avatarDef
 $("#sceneRandom").onclick=()=>{if(!selectedNewsScene)return;let v=getSceneForm(),skins=["#f1c7a8","#d7a17e","#b87956","#8b563b","#5f3929"],hairs=["#17130f","#3a2418","#6a4327","#a47745","#d8bd79","#8b8b86","#8b3c24"],lengths=["bald","veryshort","short","medium","long"],textures=["straight","wavy","curly","coily"],beards=["none","stubble","short","full","goatee","mustache","combo"],builds=["slim","athletic","strong","stocky"];v.skin=one(skins);v.hairColor=one(hairs);v.hairLength=one(lengths);v.hairTexture=one(textures);v.beard=one(beards);v.build=one(builds);v.height=170+rnd(34);setSceneForm(v)};
 $("#sceneUse").onclick=saveSceneChoice;$("#dashShare").onclick=shareDashboard;initAppDashboard();$("#reportLink").onclick=e=>{if($("#reportLink").dataset.retry==="1"){e.preventDefault();resumePendingReport()}};
 $("#langToggle").onclick=e=>{e.preventDefault();$("#langMenu").classList.toggle("hidden")};$("#rulesHelp").onclick=()=>$("#rulesModal").classList.remove("hidden");$("#monthlyRankingHelp").onclick=()=>$("#rulesModal").classList.remove("hidden");$("#rulesClose").onclick=()=>$("#rulesModal").classList.add("hidden");$("#rulesModal").onclick=e=>{if(e.target.id==="rulesModal")$("#rulesModal").classList.add("hidden")};
-$("#pause").onclick=()=>{paused=!paused;$("#pause").textContent=paused?"▶ WEITER":"Ⅱ TICKER PAUSE";if(!paused&&running)step()};$("#speed").onclick=()=>{fast=!fast;$("#speed").textContent=fast?"▶ NORMAL":"▶▶ SCHNELLER"};$("#skip").onclick=()=>{if(!running)return;clearTimeout(timer);let game=games[g];A=game.ga;B=game.gb;$("#a").textContent=A;$("#b").textContent=B;i=game.ev.length;finishGame()};makeSeries();if(!restoreActiveSeries())resumePendingReport();
+renderStadiumChooser();$("#pause").onclick=()=>{paused=!paused;$("#pause").textContent=paused?"▶ WEITER":"Ⅱ TICKER PAUSE";if(!paused&&running)step()};$("#speed").onclick=()=>{fast=!fast;$("#speed").textContent=fast?"▶ NORMAL":"▶▶ SCHNELLER"};$("#skip").onclick=()=>{if(!running)return;clearTimeout(timer);let game=games[g];A=game.ga;B=game.gb;$("#a").textContent=A;$("#b").textContent=B;i=game.ev.length;finishGame()};makeSeries();if(!restoreActiveSeries())resumePendingReport();
 </script><script id="tcUxFlow20260927">
 (function(){
  const $=s=>document.querySelector(s), all=s=>[...document.querySelectorAll(s)];
@@ -1462,8 +1462,8 @@ $("#pause").onclick=()=>{paused=!paused;$("#pause").textContent=paused?"▶ WEIT
    const bar=$("#tcUxToolbar"),title=$("#tcUxModeTitle"),hub=$("#tcUxHub");
    if(!mode){bar?.classList.remove("show");hub?.classList.remove("tcUxHidden");history.replaceState(null,"",location.pathname+location.search);if(scroll)hub?.scrollIntoView({behavior:"smooth",block:"start"});return}
    hub?.classList.remove("tcUxHidden");bar?.classList.add("show");if(title)title.textContent=titles[mode]||"TIME CLASH";
-   if(mode==="own"){groups.steps()?.classList.remove("tcUxHidden");setGuideMode("own");groups.member()?.classList.remove("tcUxHidden");groups.dev()?.classList.remove("tcUxHidden");groups.arena()?.classList.remove("tcUxHidden")}
-   if(mode==="lab"){groups.steps()?.classList.remove("tcUxHidden");setGuideMode("lab");groups.chooser()?.classList.remove("tcUxHidden");groups.world()?.classList.remove("tcUxHidden");groups.dev()?.classList.remove("tcUxHidden");groups.arena()?.classList.remove("tcUxHidden")}
+   if(mode==="own"){groups.steps()?.classList.remove("tcUxHidden");setGuideMode("own");groups.member()?.classList.remove("tcUxHidden");groups.dev()?.classList.remove("tcUxHidden");groups.arena()?.classList.remove("tcUxHidden");if(typeof renderStadiumChooser==="function")renderStadiumChooser()}
+   if(mode==="lab"){groups.steps()?.classList.remove("tcUxHidden");setGuideMode("lab");groups.chooser()?.classList.remove("tcUxHidden");groups.world()?.classList.remove("tcUxHidden");groups.dev()?.classList.remove("tcUxHidden");groups.arena()?.classList.remove("tcUxHidden");if(typeof renderStadiumChooser==="function")renderStadiumChooser()}
    if(mode==="progress"){groups.credit()?.classList.remove("tcUxHidden");groups.level()?.classList.remove("tcUxHidden");groups.rank()?.classList.remove("tcUxHidden");groups.dash()?.classList.remove("tcUxHidden")}
    const hash=mode==="own"?"#mein-team-spielen":mode==="lab"?"#match-lab":"#fortschritt";history.replaceState(null,"",location.pathname+location.search+hash);
    if(scroll)bar?.scrollIntoView({behavior:"smooth",block:"start"});
