@@ -260,7 +260,7 @@ const weatherList=["Leicht bewölkt · 18°C","Klar · 21°C","Flutlicht · 16°
 const phrases={neutral:["Das Mittelfeld ist hart umkämpft.","Beide Teams ordnen sich neu.","Das Tempo bleibt hoch.","Beide Mannschaften verschieben kompakt.","Das Spiel bleibt taktisch ausgeglichen."],a:["{A} schaltet schnell um.","{A} sucht den Weg über die Außen.","Ein Angriff von {A} nimmt Fahrt auf."],b:["{B} kombiniert sich ins letzte Drittel.","{B} erhöht den Druck.","{B} sucht die Lücke zwischen den Linien."],saveA:["🧤 Starke Parade von {A}!","🎯 {B} kommt zum Abschluss – gehalten!"],saveB:["🧤 {B} entschärft den Abschluss von {A}.","🎯 {A} zieht ab – der Torhüter ist zur Stelle!"],corner:["🚩 Ecke nach abgefälschtem Abschluss.","🚩 Der Ball wird zur Ecke geklärt."],foul:["💥 Foul im Mittelfeld. Der Schiedsrichter belässt es bei einer Ermahnung.","⚠️ Zweikampf zu spät – Freistoß."],chance:["🔥 Gefährlicher Angriff bis an den Strafraum.","⚡ Schneller Gegenstoß mit viel Raum.","🎯 Abschluss aus aussichtsreicher Position – knapp vorbei!"]};
 let pick=null,running=false,paused=false,fast=false,g=0,i=0,A=0,B=0,serA=0,serB=0,games=[],seriesDecision=null,seriesVenueOrder=[],timer=null,seriesLen=5,chosenA=false,chosenB=false,kindAActive="nation",kindBActive="nation",activeMode="public",matchPoints=+(localStorage.getItem("biMatchPoints")||0),played=+(localStorage.getItem("biMatchPlayed")||0),correct=+(localStorage.getItem("biMatchCorrect")||0),streak=+(localStorage.getItem("biMatchStreak")||0),TA={name:"Italien 2006",flag:"🇮🇹",rating:82},TB={name:"Spanien 2026",flag:"🇪🇸",rating:83};
 const STADIUM_ASSET_ROOT="/time-clash/assets/stadiums/";
-const STADIUM_SPRITE_URL="/time-clash/assets/stadiums/timeclash_stadiums_hq_v2.webp?v=20260930hq2";
+const STADIUM_SPRITE_URL="/time-clash/assets/stadiums/timeclash_stadiums_hq_v2.webp?v=20260930hq3";
 let STADIUM_SPRITE=STADIUM_SPRITE_URL;
 let stadiumSpriteReady=null;
 const TC_STADIUMS=[
@@ -1017,25 +1017,37 @@ function stadiumSpritePos(st){
 }
 function stadiumThumbStyle(st){return "";}
 function stadiumSpriteCell(st){const idx=TC_STADIUMS.findIndex(x=>x.slug===st?.slug);return idx<0?{col:0,row:0}:{col:idx%4,row:Math.floor(idx/4)}}
-function paintStadiumSprite(el,sprite,st,overlay="",focusY=.63){
+function paintStadiumSprite(el,sprite,st,overlay="",focusY=.66){
  if(!el||!sprite||!st)return;
  const cell=stadiumSpriteCell(st);
- const rect=el.getBoundingClientRect(),cw=Math.max(1,rect.width||el.clientWidth||1),ch=Math.max(1,rect.height||el.clientHeight||1);
+ const rect=el.getBoundingClientRect();
+ const cw=Math.max(1,rect.width||el.clientWidth||1),ch=Math.max(1,rect.height||el.clientHeight||1);
  const tileW=800,tileH=450,spriteCols=4,spriteRows=5;
- const scale=Math.max(cw/tileW,ch/tileH);
+ // Important: never enlarge a stadium tile beyond its native 800x450 source.
+ // On wide desktop panels the image is centered with dark side space instead of being blurred by upscaling.
+ const scale=Math.min(1,Math.max(cw/tileW,ch/tileH));
  const sw=tileW*scale,sh=tileH*scale;
  const cropX=(cw-sw)*.5;
- const cropY=(ch-sh)*Math.max(0,Math.min(1,focusY));
- el.style.backgroundImage=(overlay?overlay+",":"")+'url("'+sprite+'")';
- el.style.backgroundSize=(spriteCols*sw)+"px "+(spriteRows*sh)+"px";
- el.style.backgroundPosition=(cropX-cell.col*sw)+"px "+(cropY-cell.row*sh)+"px";
- el.style.backgroundRepeat="no-repeat";
+ const cropY=(ch-sh)*(ch>=sh?.5:Math.max(0,Math.min(1,focusY)));
+ const posX=cropX-cell.col*sw,posY=cropY-cell.row*sh;
+ el.style.backgroundColor="#06131c";
+ if(overlay){
+   el.style.backgroundImage=overlay+',url("'+sprite+'")';
+   el.style.backgroundSize='100% 100%,'+(spriteCols*sw)+'px '+(spriteRows*sh)+'px';
+   el.style.backgroundPosition='center,'+posX+'px '+posY+'px';
+   el.style.backgroundRepeat='no-repeat,no-repeat';
+ }else{
+   el.style.backgroundImage='url("'+sprite+'")';
+   el.style.backgroundSize=(spriteCols*sw)+'px '+(spriteRows*sh)+'px';
+   el.style.backgroundPosition=posX+'px '+posY+'px';
+   el.style.backgroundRepeat='no-repeat';
+ }
 }
 function repaintSelectedStadium(){
  const st=stadiumBySlug(selectedStartStadium);if(!st||!STADIUM_SPRITE)return;
  document.querySelectorAll("[data-stadium-thumb]").forEach(el=>{const x=stadiumBySlug(el.dataset.stadiumThumb);if(x)paintStadiumSprite(el,STADIUM_SPRITE,x)});
- paintStadiumSprite($("#teamsPanel"),STADIUM_SPRITE,st,'linear-gradient(180deg,#00141d36,#00101878)',.69);
- paintStadiumSprite($("#stadiumStage"),STADIUM_SPRITE,st,'linear-gradient(180deg,#00121b05,#00111b3d)',.64);
+ paintStadiumSprite($("#teamsPanel"),STADIUM_SPRITE,st,'linear-gradient(180deg,rgba(0,12,18,.06),rgba(0,12,18,.34))',.76);
+ paintStadiumSprite($("#stadiumStage"),STADIUM_SPRITE,st,'linear-gradient(180deg,rgba(0,12,18,.03),rgba(0,12,18,.28))',.72);
 }
 function stadiumUiCopy(){
  const l=(typeof TC_DISPLAY_LANG!=="undefined"?TC_DISPLAY_LANG:"de").toLowerCase();
@@ -1066,8 +1078,8 @@ function previewStadium(st,view="THUMB"){
  $("#stadiumName").textContent=st.name;
  $("#stadiumPlace").textContent=st.city+" · "+st.country;
  loadStadiumSprite().then(sprite=>{
-   paintStadiumSprite($("#teamsPanel"),sprite,st,'linear-gradient(180deg,#00141d36,#00101878)',.69);
-   paintStadiumSprite($("#stadiumStage"),sprite,st,'linear-gradient(180deg,#00121b05,#00111b3d)',.64);
+   paintStadiumSprite($("#teamsPanel"),sprite,st,'linear-gradient(180deg,rgba(0,12,18,.06),rgba(0,12,18,.34))',.76);
+   paintStadiumSprite($("#stadiumStage"),sprite,st,'linear-gradient(180deg,rgba(0,12,18,.03),rgba(0,12,18,.28))',.72);
  }).catch(err=>console.error(err));
 }
 window.addEventListener("resize",()=>{clearTimeout(window.__tcStadiumResize);window.__tcStadiumResize=setTimeout(repaintSelectedStadium,90)});
@@ -1425,4 +1437,40 @@ renderStadiumChooser();$("#pause").onclick=()=>{paused=!paused;$("#pause").textC
  else if(h==="#fortschritt")setMode("progress",false);
 })();
 </script></body></html>
-<style>@media(max-width:700px){.brand{width:220px;height:56px}.brand img{width:210px;height:52px;max-width:none;transform:scale(2.7);transform-origin:left center}}</style>
+<style>@media(max-width:700px){.brand{width:220px;height:56px}.brand img{width:210px;height:52px;max-width:none;transform:scale(2.7);transform-origin:left center}}
+/* TIME CLASH STADIUM HQ FINAL */
+#teamsPanel.teams{
+  min-height:300px;
+  background-color:#06131c;
+  background-repeat:no-repeat;
+  overflow:hidden;
+  position:relative;
+}
+.stadiumStage{
+  height:360px!important;
+  background:#06131c center/auto no-repeat!important;
+  overflow:hidden;
+  image-rendering:auto;
+}
+.stadiumStage:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg,rgba(0,12,18,.04),rgba(0,12,18,.34) 78%,rgba(0,12,18,.50));
+  pointer-events:none;
+}
+.stadiumThumb{
+  height:132px!important;
+  filter:none!important;
+  background-color:#06131c!important;
+  image-rendering:auto;
+}
+.stadiumThumb:after{
+  height:22px!important;
+  background:linear-gradient(transparent,rgba(6,26,38,.48))!important;
+}
+@media(max-width:760px){
+  #teamsPanel.teams{min-height:245px}
+  .stadiumStage{height:260px!important}
+}
+</style>
