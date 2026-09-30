@@ -78,7 +78,7 @@
     } catch (_) {}
   }
 
-  function connectHref() { return "/konto/?connect=1"; }
+  function connectHref() { return "/konto/?next=dashboard"; }
 
   function addConnect() {
     ensureStyle();
