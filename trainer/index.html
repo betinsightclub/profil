@@ -2610,6 +2610,7 @@
         var maxHeight = options.maxHeight || 1280;
         var targetBytes = options.targetBytes || (320 * 1024);
         var maxInputBytes = options.maxInputBytes || (25 * 1024 * 1024);
+        var preferredType = options.preferredType || "image/webp";
 
         if(!file || !/^image\//i.test(file.type || "")){
           throw new Error("Bitte eine gültige Bilddatei auswählen.");
@@ -2638,8 +2639,9 @@
           ctx.drawImage(image,0,0,width,height);
 
           for(var quality = 0.88; quality >= 0.44; quality -= 0.08){
-            var blob = await canvasBlob(canvas,"image/webp",quality);
-            if(!blob) blob = await canvasBlob(canvas,"image/jpeg",quality);
+            var blob = await canvasBlob(canvas,preferredType,quality);
+            if(!blob && preferredType!=="image/jpeg") blob = await canvasBlob(canvas,"image/jpeg",quality);
+            if(!blob && preferredType!=="image/png") blob = await canvasBlob(canvas,"image/png",quality);
             if(blob && (!bestBlob || blob.size < bestBlob.size)) bestBlob = blob;
             if(blob && blob.size <= targetBytes){
               return {
@@ -2750,7 +2752,8 @@
             maxWidth:1280,
             maxHeight:1280,
             targetBytes:320*1024,
-            maxInputBytes:25*1024*1024
+            maxInputBytes:25*1024*1024,
+            preferredType:"image/jpeg"
           });
 
           selectedImageData = result.dataUrl;
