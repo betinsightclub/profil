@@ -11,10 +11,11 @@
   if (/^\/admin(?:\/|$)/i.test(window.location.pathname)) return;
 
   const STORAGE_KEY = "betinsight_language";
-  const SUPPORTED = ["de", "en", "es", "pt", "it", "fr"];
+  const SUPPORTED = ["de", "en", "es", "pt", "it", "fr", "nl", "zh-tw"];
   const OPTIONS = {
     de:"🇩🇪 DE", en:"🇬🇧 EN", es:"🇪🇸 ES",
-    pt:"🇧🇷 PT", it:"🇮🇹 IT", fr:"🇫🇷 FR"
+    pt:"🇵🇹 PT", it:"🇮🇹 IT", fr:"🇫🇷 FR",
+    nl:"🇳🇱 NL", "zh-tw":"🇹🇼 繁中"
   };
 
   const LABELS = {
@@ -23,7 +24,9 @@
     es: {dashboard:"Panel",daily:"Bono diario",tipps:"Pronósticos","tipps-group":"Pronósticos",freigeschaltet:"Pronósticos desbloqueados",kaufen:"Comprar paquetes de Units","wechselboerse-group":"Intercambio de Units",wechselboerse:"Resumen",angebote:"Comprar ofertas",verkaufen:"Vender Units","meine-verkaufsangebote":"Mis ofertas de venta",wallet:"Wallet",anbieter:"Casas de apuestas","netzwerk-group":"Red y comisiones",netzwerk:"Comisiones de Units","premium-provisionen":"Comisiones Premium","marketing-center":"Academy y recursos",premium:"Membresía",support:"Soporte",logout:"Cerrar sesión",settings:"Configuración de la cuenta"},
     pt: {dashboard:"Painel",daily:"Bônus diário",tipps:"Dicas","tipps-group":"Dicas",freigeschaltet:"Dicas desbloqueadas",kaufen:"Comprar pacotes de Units","wechselboerse-group":"Casa de câmbio de Units",wechselboerse:"Visão geral",angebote:"Comprar ofertas",verkaufen:"Vender Units","meine-verkaufsangebote":"Minhas ofertas de venda",wallet:"Wallet",anbieter:"Casas de apostas","netzwerk-group":"Rede e comissões",netzwerk:"Comissões de Units","premium-provisionen":"Comissões Premium","marketing-center":"Academy e recursos",premium:"Assinatura",support:"Suporte",logout:"Sair",settings:"Configurações da conta"},
     it: {dashboard:"Dashboard",daily:"Bonus giornaliero",tipps:"Pronostici","tipps-group":"Pronostici",freigeschaltet:"Pronostici sbloccati",kaufen:"Acquista pacchetti Unit","wechselboerse-group":"Scambio Unit",wechselboerse:"Panoramica",angebote:"Acquista offerte",verkaufen:"Vendi Unit","meine-verkaufsangebote":"Le mie offerte di vendita",wallet:"Wallet",anbieter:"Bookmaker","netzwerk-group":"Rete e commissioni",netzwerk:"Commissioni Unit","premium-provisionen":"Commissioni Premium","marketing-center":"Academy e risorse",premium:"Abbonamento",support:"Supporto",logout:"Esci",settings:"Impostazioni account"},
-    fr: {dashboard:"Tableau de bord",daily:"Bonus quotidien",tipps:"Pronostics","tipps-group":"Pronostics",freigeschaltet:"Pronostics débloqués",kaufen:"Acheter des packs d'Units","wechselboerse-group":"Échange d'Units",wechselboerse:"Vue d'ensemble",angebote:"Acheter des offres",verkaufen:"Vendre des Units","meine-verkaufsangebote":"Mes offres de vente",wallet:"Wallet",anbieter:"Opérateurs de paris","netzwerk-group":"Réseau et commissions",netzwerk:"Commissions d'Units","premium-provisionen":"Commissions Premium","marketing-center":"Academy et ressources",premium:"Adhésion",support:"Support",logout:"Se déconnecter",settings:"Paramètres du compte"}
+    fr: {dashboard:"Tableau de bord",daily:"Bonus quotidien",tipps:"Pronostics","tipps-group":"Pronostics",freigeschaltet:"Pronostics débloqués",kaufen:"Acheter des packs d'Units","wechselboerse-group":"Échange d'Units",wechselboerse:"Vue d'ensemble",angebote:"Acheter des offres",verkaufen:"Vendre des Units","meine-verkaufsangebote":"Mes offres de vente",wallet:"Wallet",anbieter:"Opérateurs de paris","netzwerk-group":"Réseau et commissions",netzwerk:"Commissions d'Units","premium-provisionen":"Commissions Premium","marketing-center":"Academy et ressources",premium:"Adhésion",support:"Support",logout:"Se déconnecter",settings:"Paramètres du compte"},
+    nl: {dashboard:"Dashboard",daily:"Dagbonus",tipps:"Tips","tipps-group":"Tips",freigeschaltet:"Vrijgegeven tips",kaufen:"Unit-pakketten kopen","wechselboerse-group":"Unit-wisselbeurs",wechselboerse:"Overzicht",angebote:"Aanbiedingen kopen",verkaufen:"Units verkopen","meine-verkaufsangebote":"Mijn verkoopaanbiedingen",wallet:"Wallet",anbieter:"Wedaanbieders","netzwerk-group":"Netwerk & commissies",netzwerk:"Unit-commissies","premium-provisionen":"Premium-commissies","marketing-center":"Academy & bronnen",premium:"Lidmaatschap",support:"Support",logout:"Uitloggen",settings:"Accountinstellingen"},
+    "zh-tw": {dashboard:"控制台",daily:"每日獎勵",tipps:"建議","tipps-group":"建議",freigeschaltet:"已解鎖建議",kaufen:"購買 Unit 套餐","wechselboerse-group":"Unit 交易所",wechselboerse:"總覽",angebote:"購買刊登",verkaufen:"出售 Units","meine-verkaufsangebote":"我的出售刊登",wallet:"錢包",anbieter:"投注平台","netzwerk-group":"網路與佣金",netzwerk:"Unit 佣金","premium-provisionen":"Premium 佣金","marketing-center":"Academy 與資源",premium:"會員方案",support:"支援",logout:"登出",settings:"帳戶設定"}
   };
 
   let active = "de";
@@ -33,7 +36,9 @@
   function normalize(value) {
     const raw = String(value || "").trim().toLowerCase();
     if (SUPPORTED.includes(raw)) return raw;
+    if (raw === "zh-tw" || raw === "zh_hant" || raw === "zh-hant") return SUPPORTED.includes("zh-tw") ? "zh-tw" : "";
     const short = raw.split("-")[0];
+    if (short === "zh" && SUPPORTED.includes("zh-tw")) return "zh-tw";
     return SUPPORTED.includes(short) ? short : "";
   }
 
