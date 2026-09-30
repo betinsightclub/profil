@@ -1,28 +1,32 @@
-name: Finalize Six-Language Member UI 2026-09-16
+name: Validate Eight-Language Member UI
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
     paths:
-      - .github/workflows/finalize-six-language-ui-20260916.yml
+      - "assets/i18n/**"
+      - "assets/member-language-switch.js"
+      - "freigeschaltet/index.html"
+      - ".github/scripts/validate_member_i18n_eight_languages_20260930.py"
+      - ".github/scripts/finalize_six_language_ui_20260916.py"
+      - ".github/workflows/finalize-six-language-ui-20260916.yml"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  finalize-six-language-ui:
+  validate-eight-language-ui:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout current main
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Normalize and validate six-language member UI
-        run: python3 .github/scripts/finalize_six_language_ui_20260916.py
+      - name: Validate eight-language member UI
+        run: python3 .github/scripts/validate_member_i18n_eight_languages_20260930.py
 
-      - name: Validate JSON and changed files
+      - name: Validate locale JSON syntax
         shell: bash
         run: |
           python3 - <<'PY'
@@ -35,17 +39,3 @@ jobs:
               json.loads(p.read_text(encoding='utf-8'))
           print('All locale JSON parses correctly')
           PY
-          git diff --check
-
-      - name: Commit six-language normalization
-        shell: bash
-        run: |
-          git config user.name "BetInsight i18n Automation"
-          git config user.email "actions@users.noreply.github.com"
-          git add assets/i18n/locales/de.json assets/i18n/locales/en.json assets/i18n/locales/es.json assets/i18n/locales/pt.json assets/i18n/locales/it.json assets/i18n/locales/fr.json freigeschaltet/index.html
-          if git diff --cached --quiet; then
-            echo "No six-language normalization changes required."
-            exit 0
-          fi
-          git commit -m "fix: finalize six-language member UI"
-          git push
