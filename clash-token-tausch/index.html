@@ -44,7 +44,7 @@ button{width:100%;margin-top:16px;padding:15px 18px;border:0;border-radius:13px;
 </div>
 <div class="form">
 <label for="amount">Wie viele Units möchtest du tauschen?</label>
-<div class="row"><input id="amount" type="number" min="1" step="1" inputmode="numeric" placeholder="z. B. 2"><button type="button" id="maxBtn" style="width:auto;margin:0;background:#123b50">MAX</button></div>
+<div class="row"><input id="amount" type="number" min="0.02" step="0.02" inputmode="numeric" placeholder="z. B. 2"><button type="button" id="maxBtn" style="width:auto;margin:0;background:#123b50">MAX</button></div>
 <div class="preview">Du erhältst <strong id="result">0 CT</strong><span class="pill">PERMANENT</span></div>
 <button id="swap" type="button" disabled>Tausch bestätigen</button>
 <p class="note">Der Tausch ist endgültig: Die eingesetzten Units werden verbraucht und können nicht zurückgetauscht werden. Kostenlose wöchentliche ClashToken bleiben davon getrennt.</p>
@@ -60,7 +60,7 @@ const clashApi="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash
 function num(v){const n=Number(String(v==null?0:v).replace(",","."));return Number.isFinite(n)?n:0}
 function fmt(v){return new Intl.NumberFormat("de-DE",{maximumFractionDigits:2}).format(num(v))}
 function accessVariants(){const a=[];const d=String(window.BetInsightSession?.getDashboardUuid?.()||"").trim();const p=String(window.BetInsightSession?.getProfileToken?.()||"").trim();if(p)a.push(p);if(d&&d!==p)a.push(d);return a}
-function calc(){const n=Math.max(0,Number(amount.value)||0);result.textContent=(n*RATE).toLocaleString("de-DE",{maximumFractionDigits:2})+" CT"}
+function calc(){const n=Math.max(0,num(amount.value));const ct=Math.floor((n*RATE)+1e-9);result.textContent=ct.toLocaleString("de-DE")+" CT";return ct}
 async function loadBalances(){
  const variants=accessVariants();
  if(!variants.length){document.getElementById("status").textContent="Bitte öffne diese Seite über dein BetInsight-Profil bzw. die Unit-Wechselstube.";amount.disabled=true;max.disabled=true;return}
@@ -93,8 +93,8 @@ async function loadBalances(){
   document.getElementById("status").textContent="Dein Guthaben konnte nicht geladen werden. Bitte öffne die Seite erneut über dein BetInsight-Profil.";
  }
 }
-amount.addEventListener("input",()=>{if(available>=0&&num(amount.value)>available)amount.value=String(available);calc()});
-max.addEventListener("click",()=>{amount.value=String(available);calc()});
+amount.addEventListener("input",()=>{if(available>=0&&num(amount.value)>available)amount.value=String(available);calc()});amount.addEventListener("change",()=>{let n=num(amount.value);if(n>0&&n<0.02)n=0.02;n=Math.floor((n+1e-9)*50)/50;if(n>available)n=Math.floor((available+1e-9)*50)/50;amount.value=n?String(n):"";calc()});
+max.addEventListener("click",()=>{const usable=Math.floor((available+1e-9)*50)/50;amount.value=String(usable);calc()});
 document.addEventListener("DOMContentLoaded",loadBalances,{once:true});
 })();
 </script>
