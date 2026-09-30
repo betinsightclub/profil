@@ -109,13 +109,23 @@ swap.addEventListener("click",async()=>{
   const resp=await fetch(clashApi,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"exchange_units",credential,units:n,request_id:requestId})});
   const d=await resp.json();
   if(!resp.ok||!d.ok)throw new Error(d.error||"exchange_failed");
+  const confirmedUnits=(d.unit_balance!=null)?num(d.unit_balance):Math.max(0,available-n);
+  const confirmedCt=(d.permanent_game_credits!=null)?num(d.permanent_game_credits):(permanentBalance+num(d.ct||Math.round(n*50)));
+  available=Math.max(0,confirmedUnits);
+  permanentBalance=Math.max(0,Math.floor(confirmedCt));
+  document.getElementById("units").textContent=fmt(available)+" U";
+  document.getElementById("credits").textContent=permanentBalance.toLocaleString("de-DE")+" CT";
+  document.getElementById("newBalance").textContent=permanentBalance.toLocaleString("de-DE")+" CT";
+  amount.max=String(available);
   status.textContent="Tausch erfolgreich: "+fmt(n)+" U wurden in "+Number(d.ct||Math.round(n*50)).toLocaleString("de-DE")+" permanente CT getauscht.";
   amount.value="";
-  await loadBalances();
+  window.dispatchEvent(new CustomEvent("bi:balances-changed",{detail:{units:available,ct:permanentBalance}}));
+  calc();
  }catch(e){status.textContent="Tausch nicht durchgeführt: "+String(e.message||e)+". Deine Anzeige wurde nicht als erfolgreicher Tausch bestätigt."}
  finally{swap.disabled=false}
 });
 document.addEventListener("DOMContentLoaded",loadBalances,{once:true});
+window.addEventListener("pageshow",event=>{if(event.persisted)loadBalances();});
 })();
 </script>
 </body></html>
