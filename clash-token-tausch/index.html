@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#061923">
+<title>Units in ClashToken tauschen · BetInsight</title>
+<link rel="icon" href="../favicon.ico">
+<link rel="stylesheet" href="../assets/app-navigation.css">
+<script src="../assets/app-navigation-v2.js?v=20260830-9" defer></script>
+<style>
+*{box-sizing:border-box} :root{--bg:#04131c;--panel:#092231;--line:rgba(80,168,214,.24);--text:#fff;--soft:#c9e6f4;--muted:#84a9bc;--cyan:#18c4e4;--green:#1fe0ac;--gold:#ffc857}
+body{margin:0;min-height:100vh;font-family:Inter,Arial,sans-serif;color:var(--text);background:radial-gradient(circle at 50% 0,rgba(24,196,228,.15),transparent 34%),linear-gradient(180deg,#061923,#04131c)}
+.page{width:min(100% - 28px,960px);margin:auto;padding:24px 0 80px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px 20px;border:1px solid var(--line);border-radius:18px;background:rgba(8,31,45,.92)}
+.logo{width:118px}.back{color:#bdeeff;text-decoration:none;font-weight:800;font-size:14px}
+.card{margin-top:20px;padding:clamp(24px,5vw,46px);border:1px solid var(--line);border-radius:24px;background:linear-gradient(145deg,rgba(14,45,63,.97),rgba(7,28,40,.98));box-shadow:0 22px 54px rgba(0,0,0,.3)}
+.badge{display:inline-flex;padding:7px 11px;border:1px solid rgba(31,224,172,.3);border-radius:999px;background:rgba(31,224,172,.08);color:#9ff4db;font-size:12px;font-weight:900;letter-spacing:.08em}
+h1{margin:14px 0 8px;font-size:clamp(30px,6vw,46px)}.lead{margin:0;color:var(--soft);line-height:1.6}
+.rate{display:flex;align-items:center;justify-content:center;gap:18px;margin:28px 0;padding:22px;border:1px solid rgba(24,196,228,.25);border-radius:18px;background:rgba(24,196,228,.07)}
+.coin{display:grid;place-items:center;width:62px;height:62px;border-radius:50%;font-size:22px;font-weight:950;background:linear-gradient(145deg,#ffc857,#d98b18);color:#14212a;box-shadow:0 8px 22px rgba(0,0,0,.25)}.eq{font-size:25px;color:var(--muted)}.ct{background:linear-gradient(145deg,#1fe0ac,#159ad8);color:white}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.box{padding:18px;border:1px solid var(--line);border-radius:16px;background:rgba(2,16,24,.38)}.label{color:var(--muted);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em}.value{margin-top:6px;font-size:26px;font-weight:900}
+.form{margin-top:22px}.form label{display:block;margin-bottom:8px;font-weight:800}.row{display:grid;grid-template-columns:1fr auto;gap:10px}
+input{width:100%;padding:15px 16px;border:1px solid rgba(80,168,214,.34);border-radius:13px;background:#041a26;color:#fff;font:inherit;font-size:18px;outline:none}input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(24,196,228,.12)}
+.preview{margin-top:14px;padding:17px;border-radius:14px;background:rgba(31,224,172,.07);border:1px solid rgba(31,224,172,.22);text-align:center}.preview strong{color:var(--green);font-size:26px}
+button{width:100%;margin-top:16px;padding:15px 18px;border:0;border-radius:13px;background:linear-gradient(135deg,#159ad8,#1fe0ac);color:#fff;font:inherit;font-weight:900;font-size:16px;cursor:pointer}button[disabled]{opacity:.45;cursor:not-allowed}
+.note{margin:16px 0 0;color:var(--muted);font-size:13px;line-height:1.55}.warn{margin-top:16px;padding:14px 16px;border:1px solid rgba(255,200,87,.28);border-radius:13px;background:rgba(255,200,87,.07);color:#ffe5a7;font-size:13px;line-height:1.5}
+.pill{display:inline-block;margin-left:7px;padding:3px 7px;border-radius:7px;background:rgba(31,224,172,.1);color:#aaf6e1;font-size:11px;font-weight:900}
+@media(max-width:620px){.top{align-items:flex-start;flex-direction:column}.grid{grid-template-columns:1fr}.rate{gap:11px}.coin{width:54px;height:54px}.card{padding:23px 16px}}
+</style>
+</head>
+<body>
+<main class="page">
+<header class="top"><img class="logo" src="../logo_betisight.club.png" alt="BetInsight Club"><a class="back" href="../wechselboerse/">← Zur Wechselstube</a></header>
+<section class="card">
+<span class="badge">TIME CLASH · UNIT-TAUSCH</span>
+<h1>Units in ClashToken tauschen</h1>
+<p class="lead">Wandle verfügbare BetInsight Units dauerhaft in Spielguthaben für TIME CLASH um. Die erhaltenen ClashToken sind permanent und verfallen nicht.</p>
+<div class="rate"><div class="coin">1 U</div><div class="eq">=</div><div class="coin ct">50 CT</div></div>
+<div class="grid">
+ <div class="box"><div class="label">Verfügbare Units</div><div class="value" id="units">—</div></div>
+ <div class="box"><div class="label">Permanente ClashToken</div><div class="value" id="credits">—</div></div>
+</div>
+<div class="form">
+<label for="amount">Wie viele Units möchtest du tauschen?</label>
+<div class="row"><input id="amount" type="number" min="1" step="1" inputmode="numeric" placeholder="z. B. 2"><button type="button" id="maxBtn" style="width:auto;margin:0;background:#123b50">MAX</button></div>
+<div class="preview">Du erhältst <strong id="result">0 CT</strong><span class="pill">PERMANENT</span></div>
+<button id="swap" type="button" disabled>Tausch bestätigen</button>
+<p class="note">Der Tausch ist endgültig: Die eingesetzten Units werden verbraucht und können nicht zurückgetauscht werden. Kostenlose wöchentliche ClashToken bleiben davon getrennt.</p>
+<div class="warn" id="status">Vorschau aktiv: Die Oberfläche ist bereits vorbereitet. Der produktive Tausch bleibt gesperrt, bis die serverseitige FIFO- und Provisionsbuchung vollständig getestet ist. Dadurch werden beim Ansehen dieser Seite keine Units verändert.</div>
+</div>
+</section>
+</main>
+<script>
+(()=>{"use strict";const RATE=50,amount=document.getElementById("amount"),result=document.getElementById("result"),max=document.getElementById("maxBtn");
+let available=0;
+function calc(){const n=Math.max(0,Math.floor(Number(amount.value)||0));result.textContent=(n*RATE).toLocaleString("de-DE")+" CT"}
+amount.addEventListener("input",calc);max.addEventListener("click",()=>{if(available>0){amount.value=Math.floor(available);calc()}});
+document.addEventListener("DOMContentLoaded",()=>{setTimeout(()=>{if(!window.BetInsightSession?.hasDashboardAccess?.()){document.getElementById("status").textContent="Bitte öffne diese Seite über dein BetInsight-Profil bzw. die Unit-Wechselstube.";amount.disabled=true;max.disabled=true}},80)},{once:true});
+})();
+</script>
+</body></html>
