@@ -410,6 +410,15 @@
     .post-link-field input:focus{border-color:rgba(22,135,255,.55);box-shadow:0 0 0 2px rgba(22,135,255,.08)}
     .post-link-note{display:block;margin-top:6px;color:#809da9;font-size:10px;line-height:1.4}
     .post-link-warning{color:#ffd778}.post-link-error{color:#ff8f97}
+    .link-preview-card{margin-top:12px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden;background:#081d28;text-decoration:none;color:inherit;display:block;transition:.18s ease}
+    .link-preview-card:hover{border-color:rgba(99,184,255,.34);background:#0a2431}
+    .link-preview-image{width:100%;aspect-ratio:1.91/1;object-fit:cover;background:#061720;display:block}
+    .link-preview-copy{padding:11px 13px 13px}
+    .link-preview-domain{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#7f9eab;font-weight:850}
+    .link-preview-title{display:block;margin-top:4px;color:#f2f9fc;font-size:14px;line-height:1.3;font-weight:900}
+    .link-preview-description{display:block;margin-top:5px;color:#9db5c0;font-size:11px;line-height:1.45}
+    .link-preview-loading{padding:13px;color:#8da8b4;font-size:11px}
+    .composer-link-preview{display:none;margin-top:10px}.composer-link-preview.show{display:block}
     .feed-switch{display:flex;gap:7px;margin:0 0 12px;padding:5px;border:1px solid rgba(143,203,230,.14);border-radius:13px;background:rgba(255,255,255,.025);width:max-content;max-width:100%}
     .feed-switch button{border:0;border-radius:9px;background:transparent;color:#91aab6;padding:8px 11px;font-size:11px;font-weight:900;cursor:pointer}
     .feed-switch button.active{background:rgba(22,135,255,.16);color:#fff;box-shadow:inset 0 0 0 1px rgba(77,178,255,.18)}
@@ -790,6 +799,7 @@
             <div class="post-link-field" id="postLinkField">
               <input id="postExternalUrl" type="url" maxlength="1000" inputmode="url" placeholder="https://…">
               <small class="post-link-note" id="postLinkNote">Links sind nur über dieses Feld erlaubt. Die Units werden bis zur Freigabe reserviert.</small>
+              <div class="composer-link-preview" id="composerLinkPreview"></div>
             </div>
           </div>
           <div class="composer-actions">
@@ -2207,7 +2217,7 @@
               publicSlug:p.public_slug||"",distributionScope:p.distribution_scope||"PROFILE",
               time:new Intl.DateTimeFormat(trainerLocale(),{dateStyle:"short",timeStyle:"short"}).format(new Date(p.created_at)),
               text:p.body||"",emotion:resolveEmotion(p.emotion),
-              image:p.media&&p.media.public_url?p.media.public_url:"",reactions:(p.reactions||[]).length,
+              image:p.media&&p.media.public_url?p.media.public_url:"",externalUrl:p.external_url||"",reactions:(p.reactions||[]).length,
               authorWins:Number(p.author_wins||0),coachAppearance:p.coach_appearance||null,authorAvatarUrl:p.author_avatar_url||"",
               reactionCodes:(p.reactions||[]).map(function(x){return x.reaction;}),comments:comments
             };
@@ -2221,6 +2231,54 @@
           if(posts.length)posts.forEach(function(post){feed.appendChild(renderPost(post));});
           else feed.innerHTML='<div class="card empty-state">'+(mode==="global"?"Noch keine globalen Trainer-Feed-Beiträge veröffentlicht.":"Noch keine Beiträge veröffentlicht.")+'</div>';
         }catch(_){}
+      }
+
+      var linkPreviewCache = new Map();
+      function previewDomain(url){
+        try{return new URL(url).hostname.replace(/^www\./i,"");}catch(_){return "";}
+      }
+      function previewCardHtml(url,data){
+        var d=data||{},title=d.title||"",description=d.description||"",image=d.image&&d.image.url?d.image.url:(d.image||"");
+        var domain=previewDomain(d.url||url);
+        return '<a class="link-preview-card" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer nofollow">'+
+          (image?'<img class="link-preview-image" src="'+esc(image)+'" alt="" loading="lazy" referrerpolicy="no-referrer">':'')+
+          '<div class="link-preview-copy"><span class="link-preview-domain">'+esc(domain||"Externer Link")+'</span>'+
+          (title?'<strong class="link-preview-title">'+esc(title)+'</strong>':'<strong class="link-preview-title">'+esc(url)+'</strong>')+
+          (description?'<span class="link-preview-description">'+esc(description)+'</span>':'')+
+          '</div></a>';
+      }
+      async function fetchExternalLinkPreview(url){
+        if(!url)return null;
+        if(linkPreviewCache.has(url))return linkPreviewCache.get(url);
+        try{
+          var api=new URL("https://api.microlink.io/");
+          api.searchParams.set("url",url);
+          api.searchParams.set("meta.title","true");
+          api.searchParams.set("meta.description","true");
+          api.searchParams.set("meta.image","true");
+          api.searchParams.set("filter","title,description,image.url,url");
+          var r=await fetch(api.toString(),{method:"GET",mode:"cors",credentials:"omit",cache:"force-cache"});
+          if(!r.ok)throw new Error("preview");
+          var j=await r.json();
+          var data=j&&j.data?j.data:null;
+          if(data)linkPreviewCache.set(url,data);
+          return data;
+        }catch(_){
+          var fallback={url:url,title:"",description:"",image:null};
+          linkPreviewCache.set(url,fallback);
+          return fallback;
+        }
+      }
+      async function hydrateLinkPreview(el,url){
+        if(!el||!url)return;
+        var data=await fetchExternalLinkPreview(url);
+        if(!el.isConnected)return;
+        el.innerHTML=previewCardHtml(url,data);
+      }
+      function scheduleLinkPreview(root,url){
+        if(!root||!url)return;
+        root.innerHTML='<div class="link-preview-loading">Linkvorschau wird geladen …</div>';
+        hydrateLinkPreview(root,url);
       }
 
       function renderPost(post){
@@ -2237,6 +2295,7 @@
         reactionStickers=reactionStickers.slice(0,3);
         var emotionHtml = primaryEmotion ? '<div class="post-emotion">'+stickerHtml(primaryEmotion,"sticker-post-art")+'</div>' : "";
         var imageHtml = post.image ? '<div class="post-image-wrap"><img src="' + esc(post.image) + '" alt="Beitragsbild"></div>' : "";
+        var linkHtml = post.externalUrl ? '<div class="post-link-preview" data-link-preview="'+esc(post.externalUrl)+'"></div>' : "";
         var commentsHtml = "";
         (post.comments || []).forEach(function(c){
           var parsedComment=parseCommentContent(c.text || c.body || "");
@@ -2255,7 +2314,7 @@
             '<div class="post-author"><strong>' + esc(post.author || trainerName) + '</strong><small>' + esc(post.team || teamName) + ' · ' + esc(post.time || "gerade eben") + ' · ' + (post.distributionScope==="GLOBAL"?"🌍 Community-Feed":"🌐 Profil") + '</small></div>' +
             '<div class="post-menu-wrap"><button type="button" class="more-btn" aria-label="Beitragsmenü" aria-expanded="false">•••</button><div class="post-options" role="menu"><button type="button" class="post-option" data-action="copy-link">🔗 Link kopieren</button><button type="button" class="post-option" data-action="share">↗ Teilen</button>' + (isMember ? '<button type="button" class="post-option danger" data-action="report">⚑ Melden</button>' : '') + '</div></div>' +
           '</div>' +
-          '<div class="post-body"><p class="post-text">' + esc(post.text) + '</p>' + emotionHtml + imageHtml + '</div>' +
+          '<div class="post-body"><p class="post-text">' + esc(post.text) + '</p>' + emotionHtml + imageHtml + linkHtml + '</div>' +
           '<div class="post-metrics"><div class="reaction-summary"><div class="reaction-stack">' + reactionStickers.map(function(r){return stickerHtml(r,"sticker-stack-art");}).join("") + '</div><span class="reaction-count">' + esc(post.reactions || 0) + '</span></div><span><span class="comment-count">' + commentCount + '</span> Kommentare · <span class="share-count">0</span> geteilt</span></div>' +
           '<div class="post-actions">' +
             '<button class="post-action react-toggle" ' + (isMember ? "" : "disabled") + '>Reagieren</button>' +
@@ -2274,6 +2333,9 @@
           avatarUrl:post.authorAvatarUrl||"",
           name:post.author||trainerName||teamName||"BI"
         });
+
+        var linkPreviewEl=article.querySelector(".post-link-preview");
+        if(linkPreviewEl&&post.externalUrl)scheduleLinkPreview(linkPreviewEl,post.externalUrl);
 
         var reactToggle = article.querySelector(".react-toggle");
         var reactionMenu = article.querySelector(".reaction-menu");
@@ -2755,11 +2817,31 @@
 
       document.getElementById("scopeProfileBtn").addEventListener("click",function(){selectPostScope("PROFILE");});
       document.getElementById("scopeGlobalBtn").addEventListener("click",function(){selectPostScope("GLOBAL");});
+      var linkPreviewTimer=null;
+      function refreshComposerLinkPreview(){
+        var box=document.getElementById("composerLinkPreview");
+        var input=document.getElementById("postExternalUrl");
+        if(!box||!input)return;
+        var url=input.value.trim();
+        box.classList.remove("show");
+        box.innerHTML="";
+        if(!postLinkEnabled||!url)return;
+        try{var u=new URL(url);if(!/^https?:$/.test(u.protocol))return;}catch(_){return;}
+        box.classList.add("show");
+        scheduleLinkPreview(box,url);
+      }
+      document.getElementById("postExternalUrl").addEventListener("input",function(){
+        clearTimeout(linkPreviewTimer);
+        linkPreviewTimer=setTimeout(refreshComposerLinkPreview,500);
+      });
+      document.getElementById("postExternalUrl").addEventListener("blur",refreshComposerLinkPreview);
+
       document.getElementById("postLinkEnabled").addEventListener("change",function(){
         if(this.checked&&!hasEnoughForGlobal()){this.checked=false;showToast("Für einen Link-Post fehlt das erforderliche Unit-Guthaben.");return}
         postLinkEnabled=this.checked;
         document.getElementById("postLinkField").classList.toggle("show",postLinkEnabled);
         if(postLinkEnabled)setTimeout(function(){document.getElementById("postExternalUrl").focus();},60);
+        else{var cp=document.getElementById("composerLinkPreview");if(cp){cp.classList.remove("show");cp.innerHTML="";}}
       });
 
       function updatePublishState(){
@@ -2841,6 +2923,8 @@
             document.getElementById("postLinkEnabled").checked=false;
             document.getElementById("postExternalUrl").value="";
             document.getElementById("postLinkField").classList.remove("show");
+            document.getElementById("composerLinkPreview").classList.remove("show");
+            document.getElementById("composerLinkPreview").innerHTML="";
             updatePublishState();
 
             if(saved.billing&&saved.billing.status==="RESERVED"){
