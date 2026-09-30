@@ -156,7 +156,7 @@ Ziele dieses Piloten:
 
       const ALLOWED_NEXT = new Set([
         "dashboard","premium-provisionen","premium","netzwerk","wallet","tipps","kaufen",
-        "freigeschaltet","wechselboerse","angebote","verkaufen","support","daily"
+        "freigeschaltet","wechselboerse","angebote","verkaufen","support","daily","time-clash"
       ]);
 
       const NEXT_I18N_KEYS = {
@@ -172,7 +172,8 @@ Ziele dieses Piloten:
         "angebote":"account.next.buyOffers",
         "verkaufen":"account.next.sellUnits",
         "support":"account.next.support",
-        "daily":"account.next.daily"
+        "daily":"account.next.daily",
+        "time-clash":"account.next.timeClash"
       };
 
       const status = document.getElementById("accessStatus");
@@ -274,6 +275,11 @@ Ziele dieses Piloten:
         else removeSaved(NEXT_KEY);
 
         /* Same-origin access is already stored in the browser. Deliberately no UUID/profile value is appended to the URL. */
+        if(next==="time-clash"){
+          removeSaved(NEXT_KEY);
+          window.location.assign(new URL(session ? session.appPath("time-clash") : "/time-clash/", window.location.origin).toString());
+          return true;
+        }
         window.location.assign(APP_URL);
         return true;
       }
