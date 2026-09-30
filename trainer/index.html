@@ -852,7 +852,7 @@
     <div class="modal">
       <h2>Beitrag teilen</h2>
       <p>Link zum Beitrag teilen oder kopieren.</p>
-      <input id="shareUrlField" readonly>
+      <input id="shareUrlField" readonly><button type="button" class="pill-btn" id="copyShareUrlBtn" style="margin-left:8px">🔗 Link kopieren</button>
       <div class="modal-actions">
         <button class="pill-btn" id="closeShareModal">Schließen</button>
         <button class="pill-btn primary" id="copyShareModal">Link kopieren</button>
@@ -2349,7 +2349,7 @@
           '<div class="post-head">' +
             '<div class="mini-avatar post-author-avatar" data-post-author-avatar></div>' +
             '<div class="post-author"><strong>' + esc(post.author || trainerName) + '</strong><small>' + esc(post.team || teamName) + ' · ' + esc(post.time || "gerade eben") + ' · ' + (post.distributionScope==="GLOBAL"?"🌍 Community-Feed":"🌐 Profil") + '</small></div>' +
-            '<div class="post-menu-wrap"><button type="button" class="more-btn" aria-label="Beitragsmenü" aria-expanded="false">•••</button><div class="post-options" role="menu"><button type="button" class="post-option" data-action="copy-link">🔗 Link kopieren</button><button type="button" class="post-option" data-action="share">↗ Teilen</button>' +
+            '<div class="post-menu-wrap"><button type="button" class="more-btn" aria-label="Beitragsmenü" aria-expanded="false">•••</button><div class="post-options" role="menu"><button type="button" class="post-option" data-action="share">↗ Teilen</button>' +
             (ownServerPost ? '<button type="button" class="post-option" data-action="edit">✏️ Bearbeiten</button><button type="button" class="post-option danger" data-action="delete">🗑️ Löschen</button>' : (isMember ? '<button type="button" class="post-option danger" data-action="report">⚑ Melden</button>' : '')) +
             '</div></div>' +
           '</div>' +
@@ -2397,7 +2397,6 @@
             postOptions.classList.remove("open");
             moreBtn.setAttribute("aria-expanded","false");
             var kind=action.getAttribute("data-action");
-            if(kind==="copy-link") copyText(publicTrainerUrl(post.id,post.publicSlug),"Beitragslink kopiert");
             if(kind==="share") openShare(post.id,post.publicSlug);
             if(kind==="edit") editOwnPost(post,article);
             if(kind==="delete") deleteOwnPost(post,article);
