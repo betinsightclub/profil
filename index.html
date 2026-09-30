@@ -139,7 +139,7 @@ Version: 2026.09.28-02
 <title>BetInsight Profil & Empfehlungscenter</title>
 <link rel="stylesheet" href="assets/app-navigation.css">
 <script src="assets/regional-restrictions.js?v=20260927-2"></script>
-<script src="assets/app-navigation.js?v=20260913-i18n-freeze-1" defer></script>
+<script src="assets/app-navigation.js?v=20260930-timeclash-1" defer></script>
   <script src="assets/tip-notifications.js?v=20260905-4" defer></script>
 
 <style>
@@ -265,7 +265,7 @@ button{border:0}
   font-weight:700;
 }
 
-.clash-mini-row{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:7px;align-items:stretch}.clash-mini{display:grid;grid-template-rows:22px 20px;align-items:center;min-height:52px;padding:4px 7px;border:1px solid rgba(80,190,230,.16);border-radius:11px;background:rgba(1,15,23,.42)}.clash-mini-label{display:flex;align-items:center;justify-content:center;height:22px;line-height:11px;white-space:nowrap;color:var(--muted);font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}.clash-mini-value{display:flex;align-items:center;justify-content:center;height:20px;margin:0;font-size:14px;font-weight:900;line-height:20px}.clash-token-value{color:var(--cyan)}.clash-points-value{color:var(--orange)}
+.clash-mini-row{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:7px;align-items:stretch}.clash-mini{display:grid;grid-template-rows:22px 20px;align-items:center;min-height:52px;padding:4px 7px;border:1px solid rgba(80,190,230,.16);border-radius:11px;background:rgba(1,15,23,.42)}.clash-mini.has-topup{grid-template-rows:18px 18px 22px;min-height:64px}.clash-mini-label{display:flex;align-items:center;justify-content:center;height:22px;line-height:11px;white-space:nowrap;color:var(--muted);font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}.clash-mini-value{display:flex;align-items:center;justify-content:center;height:20px;margin:0;font-size:14px;font-weight:900;line-height:20px}.clash-token-value{color:var(--cyan)}.clash-points-value{color:var(--orange)}.clash-topup{display:flex;align-items:center;justify-content:center;height:20px;margin-top:2px;border:1px solid rgba(24,201,243,.28);border-radius:7px;background:linear-gradient(135deg,rgba(22,156,255,.18),rgba(14,220,166,.14));color:#dffaff;font-size:8px;font-weight:900;text-decoration:none;white-space:nowrap}.clash-topup:hover,.clash-topup:focus-visible{outline:none;border-color:rgba(24,201,243,.55);background:linear-gradient(135deg,rgba(22,156,255,.27),rgba(14,220,166,.21))}
 #units{
   display:block;
   margin-top:6px;
@@ -1102,7 +1102,7 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
   </div>
   <div id="headerUnitsBox" class="header-balance">
     <span class="header-balance-label">Gesamte verfügbare Units</span>
-    <span id="units">0,00</span><div class="clash-mini-row"><div class="clash-mini"><span class="clash-mini-label">⚡ Clash Token</span><strong id="headerClashTokens" class="clash-mini-value clash-token-value">0</strong></div><div class="clash-mini"><span class="clash-mini-label">🏆 Clash Points</span><strong id="headerClashPoints" class="clash-mini-value clash-points-value">0</strong></div></div>
+    <span id="units">0,00</span><div class="clash-mini-row"><div class="clash-mini has-topup"><span class="clash-mini-label">⚡ Clash Token</span><strong id="headerClashTokens" class="clash-mini-value clash-token-value">0</strong><a class="clash-topup" href="clash-token-tausch/" aria-label="ClashToken mit Units aufladen">＋ Aufladen</a></div><div class="clash-mini"><span class="clash-mini-label">🏆 Clash Points</span><strong id="headerClashPoints" class="clash-mini-value clash-points-value">0</strong></div></div>
   </div>
 </header>
 
