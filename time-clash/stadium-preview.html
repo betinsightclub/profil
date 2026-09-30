@@ -1152,7 +1152,26 @@ function restoreActiveSeries(){
   renderActiveTeams();renderStadiumChooser();if(selectedStartStadium)previewStadium(stadiumBySlug(selectedStartStadium),"P1_CENTRAL");if(pick)select(pick);$("#serA").textContent=serA;$("#serB").textContent=serB;$("#seriesText").textContent="Serie nach Aktualisierung wiederhergestellt";renderTabs();renderHistory();$("#next").textContent="Gespeicherte Serie wird ohne weiteren Guthabenabzug fortgesetzt …";setTimeout(beginGame,250);return true
  }catch(e){clearActiveSeries();return false}
 }
-function makeSeries(){seriesDecision=null;seriesVenueOrder=shuffleCopy(venues);games=Array.from({length:seriesLen},(_,x)=>buildGame(x));let st=stadiumBySlug(selectedStartStadium);if(st&&games[0]){games[0].venue=st.name;games[0].stadiumSlug=st.slug;games[0].stadiumCity=st.city;games[0].stadiumCountry=st.country;games[0].stadiumView="P1_CENTRAL"}$("#series").dataset.long=seriesLen>5?"1":"0";$("#series").dataset.count=String(seriesLen);renderTabs();renderHistory()}
+function makeSeries(){
+ seriesDecision=null;
+ let start=stadiumBySlug(selectedStartStadium),stadiumOrder=[];
+ if(start){
+   const rest=shuffleCopy(TC_STADIUMS.filter(x=>x.slug!==start.slug));
+   stadiumOrder=[start,...rest].slice(0,seriesLen);
+   seriesVenueOrder=stadiumOrder.map(x=>x.name);
+ }else{
+   seriesVenueOrder=shuffleCopy(venues);
+ }
+ games=Array.from({length:seriesLen},(_,x)=>buildGame(x));
+ if(stadiumOrder.length){
+   const views=["MASTER","P2_LEFT","P3_RIGHT"];
+   games.forEach((gm,idx)=>{
+     const st=stadiumOrder[idx];if(!st)return;
+     gm.venue=st.name;gm.stadiumSlug=st.slug;gm.stadiumCity=st.city;gm.stadiumCountry=st.country;gm.stadiumView=idx===0?"MASTER":views[idx%views.length];
+   });
+ }
+ $("#series").dataset.long=seriesLen>5?"1":"0";$("#series").dataset.count=String(seriesLen);renderTabs();renderHistory()
+}
 function renderTabs(){$("#series").innerHTML=games.map((x,n)=>'<div class="dot '+(n<g?"done":n===g?"on":"")+'"><b>SPIEL '+(n+1)+'</b>'+(n<g?x.ga+":"+x.gb:n===g&&running?"LÄUFT …":"IN KÜRZE")+'</div>').join("")}
 function renderHistory(){let h=games.map((x,n)=>'<div class="hist"><b>SPIEL '+(n+1)+'</b><span>'+(n<g?(kindAActive==="club"?"⚽":TA.flag)+' '+x.ga+':'+x.gb+' '+(kindBActive==="club"?"⚽":TB.flag):n===g&&running?'● LIVE':'🔒 WARTET')+'</span><small>'+x.venue+'</small></div>').join("");$("#historyGrid").innerHTML=h;$("#historyGridDesk").innerHTML=h}
 function showPoints(){$("#points").textContent=matchPoints+" MP";$("#pointsDesk").textContent=matchPoints+" MP";$("#pointInfo").textContent=correct+" richtige Tipps · "+played+" Serien";$("#pointInfoDesk").textContent=correct+" richtige Tipps · "+played+" Serien";$("#streakBadge").textContent="🔥 Serie "+streak;$("#streakDesk").textContent="🔥 Serie "+streak}
