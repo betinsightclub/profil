@@ -260,8 +260,8 @@ const weatherList=["Leicht bewölkt · 18°C","Klar · 21°C","Flutlicht · 16°
 const phrases={neutral:["Das Mittelfeld ist hart umkämpft.","Beide Teams ordnen sich neu.","Das Tempo bleibt hoch.","Beide Mannschaften verschieben kompakt.","Das Spiel bleibt taktisch ausgeglichen."],a:["{A} schaltet schnell um.","{A} sucht den Weg über die Außen.","Ein Angriff von {A} nimmt Fahrt auf."],b:["{B} kombiniert sich ins letzte Drittel.","{B} erhöht den Druck.","{B} sucht die Lücke zwischen den Linien."],saveA:["🧤 Starke Parade von {A}!","🎯 {B} kommt zum Abschluss – gehalten!"],saveB:["🧤 {B} entschärft den Abschluss von {A}.","🎯 {A} zieht ab – der Torhüter ist zur Stelle!"],corner:["🚩 Ecke nach abgefälschtem Abschluss.","🚩 Der Ball wird zur Ecke geklärt."],foul:["💥 Foul im Mittelfeld. Der Schiedsrichter belässt es bei einer Ermahnung.","⚠️ Zweikampf zu spät – Freistoß."],chance:["🔥 Gefährlicher Angriff bis an den Strafraum.","⚡ Schneller Gegenstoß mit viel Raum.","🎯 Abschluss aus aussichtsreicher Position – knapp vorbei!"]};
 let pick=null,running=false,paused=false,fast=false,g=0,i=0,A=0,B=0,serA=0,serB=0,games=[],seriesDecision=null,seriesVenueOrder=[],timer=null,seriesLen=5,chosenA=false,chosenB=false,kindAActive="nation",kindBActive="nation",activeMode="public",matchPoints=+(localStorage.getItem("biMatchPoints")||0),played=+(localStorage.getItem("biMatchPlayed")||0),correct=+(localStorage.getItem("biMatchCorrect")||0),streak=+(localStorage.getItem("biMatchStreak")||0),TA={name:"Italien 2006",flag:"🇮🇹",rating:82},TB={name:"Spanien 2026",flag:"🇪🇸",rating:83};
 const STADIUM_ASSET_ROOT="/time-clash/assets/stadiums/";
-const STADIUM_SPRITE_PARTS=Array.from({length:10},(_,i)=>"/time-clash/assets/stadiums/sprite-chunks/part"+String(i).padStart(2,"0")+".txt?v=20260930c");
-let STADIUM_SPRITE="";
+const STADIUM_SPRITE_URL="/time-clash/assets/stadiums/timeclash_stadiums_hq_v2.webp?v=20260930hq2";
+let STADIUM_SPRITE=STADIUM_SPRITE_URL;
 let stadiumSpriteReady=null;
 const TC_STADIUMS=[
  ["package-01","koenigsbogen-arena","Königsbogen Arena","Munich","Germany"],
@@ -999,11 +999,12 @@ function shuffleCopy(list){let a=[...list];for(let x=a.length-1;x>0;x--){let y=r
 function stadiumBySlug(slug){return TC_STADIUMS.find(x=>x.slug===slug)||null}
 function stadiumAsset(st,view="THUMB"){return st?STADIUM_ASSET_ROOT+st.pkg+"/"+st.slug+"/"+view+".webp":""}
 function loadStadiumSprite(){
- if(STADIUM_SPRITE)return Promise.resolve(STADIUM_SPRITE);
  if(stadiumSpriteReady)return stadiumSpriteReady;
- stadiumSpriteReady=Promise.all(STADIUM_SPRITE_PARTS.map(url=>fetch(url,{cache:"no-cache"}).then(r=>{if(!r.ok)throw new Error("Stadionvorschau konnte nicht geladen werden: "+url);return r.text()}))).then(parts=>{
-   STADIUM_SPRITE="data:image/webp;base64,"+parts.join("").replace(/\s+/g,"");
-   return STADIUM_SPRITE;
+ stadiumSpriteReady=new Promise((resolve,reject)=>{
+   const img=new Image();
+   img.onload=()=>resolve(STADIUM_SPRITE);
+   img.onerror=()=>reject(new Error("HQ-Stadionvorschau konnte nicht geladen werden."));
+   img.src=STADIUM_SPRITE;
  });
  return stadiumSpriteReady;
 }
