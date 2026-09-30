@@ -47,7 +47,7 @@ button{width:100%;margin-top:16px;padding:15px 18px;border:0;border-radius:13px;
 <label for="amount">Wie viele Units möchtest du tauschen?</label>
 <div class="row"><input id="amount" type="number" min="0.02" step="0.02" inputmode="decimal" placeholder="z. B. 2"><button type="button" id="maxBtn" style="width:auto;margin:0;background:#123b50">MAX</button></div>
 <div class="preview">Du erhältst <strong id="result">0 CT</strong><span class="pill">PERMANENT</span></div>
-<button id="swap" type="button" disabled>Tausch bestätigen</button>
+<button id="swap" type="button">Tausch bestätigen</button>
 <p class="note">Mindesttausch: 0,02 Unit = 1 CT. ClashToken werden nur als ganze CT gutgeschrieben. Der Tausch ist endgültig: Die eingesetzten Units werden verbraucht und können nicht zurückgetauscht werden. Kostenlose wöchentliche ClashToken bleiben davon getrennt.</p>
 <div class="warn" id="status">Vorschau aktiv: Die Oberfläche ist bereits vorbereitet. Der produktive Tausch bleibt gesperrt, bis die serverseitige FIFO- und Provisionsbuchung vollständig getestet ist. Dadurch werden beim Ansehen dieser Seite keine Units verändert.</div>
 </div>
@@ -87,7 +87,7 @@ async function loadBalances(){
    if(cr.ok){const cd=await cr.json();permanent=num(cd.permanent_game_credits??cd.balance?.permanent_game_credits??cd.clash_tokens??permanent)}
   }catch(e){}
   permanentBalance=Math.max(0,Math.floor(permanent));document.getElementById("credits").textContent=permanentBalance.toLocaleString("de-DE")+" CT";calc();
-  document.getElementById("status").textContent="Vorschau aktiv: Dein echter verfügbarer Unitbestand ist geladen. Du kannst jetzt berechnen, wie viele permanente ClashToken du erhalten würdest. Der endgültige Tausch ist weiterhin gesperrt.";
+  document.getElementById("status").textContent="Tausch aktiv: Dein echter verfügbarer Unitbestand ist geladen. Prüfe den Betrag und bestätige den endgültigen Tausch.";
  }catch(e){
   document.getElementById("units").textContent="Nicht geladen";
   document.getElementById("credits").textContent="Nicht geladen";
@@ -96,6 +96,25 @@ async function loadBalances(){
 }
 amount.addEventListener("input",()=>{if(available>=0&&num(amount.value)>available)amount.value=String(available);calc()});amount.addEventListener("change",()=>{let n=num(amount.value);if(n>0&&n<0.02)n=0.02;n=Math.floor((n+1e-9)*50)/50;if(n>available)n=Math.floor((available+1e-9)*50)/50;amount.value=n?String(n):"";calc()});
 max.addEventListener("click",()=>{const usable=Math.floor((available+1e-9)*50)/50;amount.value=String(usable);calc()});
+swap.addEventListener("click",async()=>{
+ let n=num(amount.value);
+ if(n<0.02||Math.abs(n*50-Math.round(n*50))>1e-7){status.textContent="Bitte einen Betrag in 0,02-Unit-Schritten eingeben.";return}
+ if(n>available){status.textContent="Nicht genügend Units verfügbar.";return}
+ const credential=String(window.BetInsightSession?.getDashboardUuid?.()||window.BetInsightSession?.getProfileToken?.()||"").trim();
+ if(!credential){status.textContent="Sitzung nicht gefunden. Bitte über dein Profil erneut öffnen.";return}
+ if(!confirm(fmt(n)+" Units endgültig in "+Math.round(n*50)+" permanente CT tauschen?"))return;
+ swap.disabled=true;status.textContent="Tausch wird sicher verbucht …";
+ const requestId="CTX-"+Date.now()+"-"+crypto.randomUUID();
+ try{
+  const resp=await fetch(clashApi,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"exchange_units",credential,units:n,request_id:requestId})});
+  const d=await resp.json();
+  if(!resp.ok||!d.ok)throw new Error(d.error||"exchange_failed");
+  status.textContent="Tausch erfolgreich: "+fmt(n)+" U wurden in "+Number(d.ct||Math.round(n*50)).toLocaleString("de-DE")+" permanente CT getauscht.";
+  amount.value="";
+  await loadBalances();
+ }catch(e){status.textContent="Tausch nicht durchgeführt: "+String(e.message||e)+". Deine Anzeige wurde nicht als erfolgreicher Tausch bestätigt."}
+ finally{swap.disabled=false}
+});
 document.addEventListener("DOMContentLoaded",loadBalances,{once:true});
 })();
 </script>
