@@ -13,7 +13,66 @@
 .stadiumCardCopy{padding:10px 11px 12px}.stadiumCardCopy b{display:block;font-size:13px;line-height:1.2}.stadiumCardCopy span{display:block;color:#8eb0c2;font-size:11px;margin-top:4px}
 .stadiumCard.sel .stadiumCardCopy:after{content:"✓ STARTSTADION";display:inline-block;margin-top:8px;color:var(--gold);font-size:10px;font-weight:1000;letter-spacing:.06em}
 @media(max-width:760px){.stadiumChooserHead{display:block}.stadiumSelected{display:inline-block;margin-top:10px}.stadiumGallery{grid-auto-columns:minmax(190px,75%)}}
-.stadiumStage:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#00121b12,#00111b66 88%),radial-gradient(circle at 50% 56%,transparent 0 58%,#00111a45 100%)}.stadiumStage>div{position:relative;z-index:1}.stadiumStage small{color:#7edcff;font-weight:800}.stadiumStage h3{font-size:25px;margin:5px 0;text-shadow:0 3px 12px #000}.stadiumStage p{margin:0;color:#c7dce7}.teams.placeholder .team h2{color:#7e9aa8}.teams.placeholder .teamMark{filter:grayscale(1);opacity:.5}@media(max-width:760px){.langToggle{display:inline-block!important}.stadiumStage{height:220px}}.conflictBox{margin:14px 16px;border:1px solid #a97b22;border-radius:16px;padding:16px;background:#33270b66}.conflictBox h3{margin:0 0 6px;color:#ffd66b}.conflictPlayer{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:10px 0;border-top:1px solid #654f1f}.conflictPlayer button{border:1px solid #2d7194;background:#082638;color:#fff;border-radius:9px;padding:8px 10px;cursor:pointer}.conflictPlayer button.sel{background:#b98519;color:#fff}.conflictNote{color:#cbbd96;font-size:12px}.devStatus{margin:12px 0 18px;padding:12px 15px;border:1px solid #24516b;border-radius:12px;background:#061b28;color:#a9c8d8;font-size:13px}.devStatus b{color:#6ee7b7}@media(max-width:760px){.conflictPlayer{grid-template-columns:1fr}.conflictPlayer button{width:100%}}.rulesHelp{position:fixed;right:22px;bottom:22px;z-index:40;width:48px;height:48px;border-radius:50%;border:2px solid var(--gold);background:#082638;color:var(--gold);font-size:25px;font-weight:1000;cursor:pointer;box-shadow:0 8px 30px #000a}.rulesModal{position:fixed;inset:0;z-index:50;background:#000b;display:flex;align-items:center;justify-content:center;padding:18px}.rulesModal.hidden{display:none}.rulesCard{width:min(680px,100%);max-height:85vh;overflow:auto;background:#061b28;border:1px solid #2c617d;border-radius:20px;padding:24px;box-shadow:0 25px 80px #000}.rulesCard h2{margin-top:0;color:var(--gold)}.rulesCard li{margin:9px 0;color:#c9dce6}.rulesClose{float:right;border:1px solid #38677f;background:#092b3c;color:#fff;border-radius:9px;padding:7px 11px;cursor:pointer}.rulesLinks a{color:var(--cyan);margin-right:14px} @media(max-width:760px){.realLinks{gap:6px}.realLinks a{padding:7px 10px;font-size:11px}}
+.stadiumStage:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#00121b12,#00111b66 88%),radial-gradient(circle at 50% 56%,transparent 0 58%,#00111a45 100%)}.stadiumStage>div{position:relative;z-index:1}.stadiumStage small{color:#7edcff;font-weight:800}.stadiumStage h3{font-size:25px;margin:5px 0;text-shadow:0 3px 12px #000}.stadiumStage p{margin:0;color:#c7dce7}.teams.placeholder .team h2{color:#7e9aa8}.teams.placeholder .teamMark{filter:grayscale(1);opacity:.5}@media(max-width:760px){.langToggle{display:inline-block!important}.stadiumStage{height:220px}}
+
+/* TIME CLASH stadium stage v2:
+   one compact visual stage only. The duplicate lower stadium panel stays in the DOM
+   for compatibility but is visually removed. This applies to guest/member, club/team/
+   championship modes and every language because all use this shared page. */
+.arena{
+  width:min(1040px,100%);
+  margin-left:auto;
+  margin-right:auto;
+}
+#stadiumChooser{
+  border-radius:18px 18px 0 0;
+}
+#teamsPanel{
+  position:relative;
+  isolation:isolate;
+  min-height:258px;
+  margin:0;
+  overflow:hidden;
+  background-color:#06131c;
+  border-top:1px solid rgba(70,150,190,.16);
+  border-bottom:1px solid rgba(70,150,190,.22);
+}
+#teamsPanel::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background:
+    linear-gradient(90deg,#06131c 0%,rgba(6,19,28,.86) 3.5%,rgba(6,19,28,0) 14%,rgba(6,19,28,0) 86%,rgba(6,19,28,.86) 96.5%,#06131c 100%),
+    linear-gradient(180deg,rgba(1,12,18,.04) 0%,rgba(1,12,18,.08) 55%,rgba(1,12,18,.40) 100%);
+}
+#teamsPanel::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  box-shadow:inset 0 0 70px rgba(0,8,13,.28);
+}
+#teamsPanel>.team,
+#teamsPanel>.seriesScore{
+  position:relative;
+  z-index:1;
+}
+#stadiumStage{
+  display:none!important;
+}
+.series{
+  border-bottom:1px solid rgba(70,150,190,.18);
+}
+@media(max-width:900px){
+  .arena{width:100%}
+  #teamsPanel{min-height:230px}
+}
+@media(max-width:600px){
+  #teamsPanel{min-height:0}
+}.conflictBox{margin:14px 16px;border:1px solid #a97b22;border-radius:16px;padding:16px;background:#33270b66}.conflictBox h3{margin:0 0 6px;color:#ffd66b}.conflictPlayer{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:10px 0;border-top:1px solid #654f1f}.conflictPlayer button{border:1px solid #2d7194;background:#082638;color:#fff;border-radius:9px;padding:8px 10px;cursor:pointer}.conflictPlayer button.sel{background:#b98519;color:#fff}.conflictNote{color:#cbbd96;font-size:12px}.devStatus{margin:12px 0 18px;padding:12px 15px;border:1px solid #24516b;border-radius:12px;background:#061b28;color:#a9c8d8;font-size:13px}.devStatus b{color:#6ee7b7}@media(max-width:760px){.conflictPlayer{grid-template-columns:1fr}.conflictPlayer button{width:100%}}.rulesHelp{position:fixed;right:22px;bottom:22px;z-index:40;width:48px;height:48px;border-radius:50%;border:2px solid var(--gold);background:#082638;color:var(--gold);font-size:25px;font-weight:1000;cursor:pointer;box-shadow:0 8px 30px #000a}.rulesModal{position:fixed;inset:0;z-index:50;background:#000b;display:flex;align-items:center;justify-content:center;padding:18px}.rulesModal.hidden{display:none}.rulesCard{width:min(680px,100%);max-height:85vh;overflow:auto;background:#061b28;border:1px solid #2c617d;border-radius:20px;padding:24px;box-shadow:0 25px 80px #000}.rulesCard h2{margin-top:0;color:var(--gold)}.rulesCard li{margin:9px 0;color:#c9dce6}.rulesClose{float:right;border:1px solid #38677f;background:#092b3c;color:#fff;border-radius:9px;padding:7px 11px;cursor:pointer}.rulesLinks a{color:var(--cyan);margin-right:14px} @media(max-width:760px){.realLinks{gap:6px}.realLinks a{padding:7px 10px;font-size:11px}}
 .memberZone,.levelRoad,.creditBox{margin:18px 0;border:1px solid #24516b;border-radius:22px;padding:18px;background:linear-gradient(145deg,#061d2a,#04131d)}
 .memberZone h2,.levelRoad h2,.creditBox h2{margin:0 0 7px}
 .memberLead{color:#a9c1ce;margin:0 0 14px}.memberLock{border:1px dashed #476b7e;border-radius:15px;padding:16px;color:#bcd0da;background:#03131d}
@@ -92,6 +151,7 @@
 @media(max-width:850px){.tcQuickStepsGrid{grid-template-columns:1fr}.tcStep{min-height:0}.preMatchAI{max-width:none;margin:12px 0}}
 </style><link rel="stylesheet" href="../assets/app-navigation.css?v=20260930-headerfix-1">
 <script src="../assets/app-navigation-v2.js?v=20260930-headerfix-1" defer></script>
+<!-- tc-stadium-stage-v2 20261001 -->
 </head><body><header><div class="wrap nav"><a class="brand tcBrandHome" id="tcHomeLogo" href="/time-clash/"><img src="/time-clash/assets/branding/time-clash-wordmark-clean-1024.png" alt="TIME CLASH by BetInsight.club"></a><nav class="tcCompactNav"><a href="/time-clash/" class="tcNavPill active">TIME CLASH</a><a href="/trainer/" id="tcTrainerProfileLink" class="tcNavPill">👤 Trainerprofil</a><details class="tcRealMenu"><summary id="tcRealMenuLabel">ECHTE WELT ▾</summary><div class="tcRealDrop"><a id="tcRealHome" href="https://betinsight.club/de/">Startseite</a><a id="tcRealTips" href="https://betinsight.club/de/tipps/">Tipps &amp; Analysen</a><a id="tcRealStats" href="https://betinsight.club/de/statistik-vorschau/">Echte Statistik</a></div></details><a href="#" id="langToggle" class="langToggle">🇩🇪 DE ▾</a><span id="biSession" class="bi-session">BI: Gast</span></nav></div></header><div class="langMenu hidden" id="langMenu"><a href="?lang=de" data-lang="de">🇩🇪 Deutsch</a><a href="?lang=en" data-lang="en">🇬🇧 English</a><a href="?lang=es" data-lang="es">🇪🇸 Español</a><a href="?lang=fr" data-lang="fr">🇫🇷 Français</a><a href="?lang=it" data-lang="it">🇮🇹 Italiano</a><a href="?lang=pt" data-lang="pt">🇵🇹 Português</a><a href="?lang=nl" data-lang="nl">🇳🇱 Nederlands</a><a href="?lang=zh-tw" data-lang="zh-tw">🇹🇼 繁體中文</a></div><script id="tcEarlySessionHint">(function(){try{var q=new URLSearchParams(location.search),cred=q.get("token")||localStorage.getItem("betinsight_dashboard_token")||localStorage.getItem("betinsight_profile_token")||"",lang=(q.get("lang")||"de").toLowerCase(),el=document.getElementById("biSession");if(!el)return;var guest={de:"BI: Gast",en:"BI: Guest",es:"BI: Invitado",fr:"BI : Invité",it:"BI: Ospite",pt:"BI: Convidado",nl:"BI: Gast","zh-tw":"BI：訪客"},signed={de:"BI: angemeldet",en:"BI: signed in",es:"BI: conectado",fr:"BI : connecté",it:"BI: connesso",pt:"BI: autenticado",nl:"BI: ingelogd","zh-tw":"BI：已登入"};el.textContent=cred?(signed[lang]||signed.de):(guest[lang]||guest.de);if(cred)el.dataset.sessionState="known"}catch(e){}})();</script><main class="wrap"><section class="hero" aria-label="TIME CLASH by BetInsight.club – BetInsight Match Lab"><div class="heroBrandLine" aria-label="BetInsight Match Lab"><span class="bi">BETINSIGHT</span><span class="dot">·</span><span class="lab">MATCH LAB</span></div><img class="tcHeroWordmark" src="/time-clash/assets/branding/time-clash-wordmark-clean-1024.png" alt="TIME CLASH by BetInsight.club"><p id="heroClaim">EGAL WIE VIELE SPIELE. EIN SERIENSIEGER.</p></section>
 <section class="tcUxHub" id="tcUxHub">
  <div class="tcUxHubHead"><div><div class="eyebrow">TIME CLASH · AUSWAHL</div><h2>Was möchtest du machen?</h2><p>Wähle einen Bereich. Nur die dafür nötigen Funktionen werden geöffnet.</p></div></div>
@@ -1086,11 +1146,14 @@ function paintStadiumSprite(el,sprite,st,overlay="",focusY=.66){
    el.style.backgroundRepeat='no-repeat';
  }
 }
+function currentVisualStadium(){
+ const live=games&&games[g]&&stadiumBySlug(games[g].stadiumSlug);
+ return live||stadiumBySlug(selectedStartStadium);
+}
 function repaintSelectedStadium(){
- const st=stadiumBySlug(selectedStartStadium);if(!st||!STADIUM_SPRITE)return;
+ const st=currentVisualStadium();if(!st||!STADIUM_SPRITE)return;
  document.querySelectorAll("[data-stadium-thumb]").forEach(el=>{const x=stadiumBySlug(el.dataset.stadiumThumb);if(x)paintStadiumSprite(el,STADIUM_SPRITE,x)});
- paintStadiumSprite($("#teamsPanel"),STADIUM_SPRITE,st,'linear-gradient(180deg,rgba(0,12,18,.06),rgba(0,12,18,.34))',.76);
- paintStadiumSprite($("#stadiumStage"),STADIUM_SPRITE,st,'linear-gradient(180deg,rgba(0,12,18,.03),rgba(0,12,18,.28))',.72);
+ paintStadiumSprite($("#teamsPanel"),STADIUM_SPRITE,st,'linear-gradient(180deg,rgba(0,12,18,.03),rgba(0,12,18,.30))',.76);
 }
 function stadiumUiCopy(){
  const l=(typeof TC_DISPLAY_LANG!=="undefined"?TC_DISPLAY_LANG:"de").toLowerCase();
@@ -1121,8 +1184,7 @@ function previewStadium(st,view="THUMB"){
  $("#stadiumName").textContent=st.name;
  $("#stadiumPlace").textContent=st.city+" · "+st.country;
  loadStadiumSprite().then(sprite=>{
-   paintStadiumSprite($("#teamsPanel"),sprite,st,'linear-gradient(180deg,rgba(0,12,18,.06),rgba(0,12,18,.34))',.76);
-   paintStadiumSprite($("#stadiumStage"),sprite,st,'linear-gradient(180deg,rgba(0,12,18,.03),rgba(0,12,18,.28))',.72);
+   paintStadiumSprite($("#teamsPanel"),sprite,st,'linear-gradient(180deg,rgba(0,12,18,.03),rgba(0,12,18,.30))',.76);
  }).catch(err=>console.error(err));
 }
 window.addEventListener("resize",()=>{clearTimeout(window.__tcStadiumResize);window.__tcStadiumResize=setTimeout(repaintSelectedStadium,90)});
