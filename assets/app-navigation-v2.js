@@ -376,6 +376,12 @@
       .bi-social-link:hover,.bi-social-link:focus-visible{transform:translateY(-1px);border-color:rgba(89,168,255,.48);background:rgba(12,49,68,.52);outline:none}
       .bi-social-icon{display:block;width:20px;height:20px}
       .bi-social-x{color:#fff;font:900 17px/1 Arial,Helvetica,sans-serif}
+      .bi-account-strip{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin:0 0 16px;padding:9px 11px;border:1px solid rgba(104,191,230,.16);border-radius:14px;background:rgba(3,24,35,.72);box-shadow:0 10px 28px rgba(0,0,0,.16);font-family:Inter,Arial,sans-serif}
+      .bi-account-pill{display:inline-flex;align-items:center;gap:6px;min-height:31px;padding:5px 9px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(255,255,255,.035);color:#d8edf6;font-size:10px;font-weight:800;white-space:nowrap}
+      .bi-account-pill b{color:#fff;font-size:12px}.bi-account-pill.units b{color:#3ce5a5}.bi-account-pill.ct b{color:#74d9ff}.bi-account-pill.points b{color:#f7c64e}
+      .bi-account-topup{display:inline-flex;align-items:center;justify-content:center;min-height:31px;padding:5px 10px;border:1px solid rgba(116,217,255,.28);border-radius:10px;background:linear-gradient(135deg,rgba(21,154,216,.24),rgba(31,224,172,.18));color:#dffaff;text-decoration:none;font-size:10px;font-weight:950;cursor:pointer}
+      .bi-account-topup:hover,.bi-account-topup:focus-visible{outline:none;border-color:rgba(116,217,255,.58);transform:translateY(-1px)}
+      @media(max-width:700px){.bi-account-strip{justify-content:flex-start}.bi-account-pill{flex:1 1 auto}.bi-account-topup{flex:1 1 100%}}
     `;
     document.head.appendChild(style);
   }
@@ -451,6 +457,71 @@
     links.append(youtube,telegram,x,facebook,bluesky,minds);
     footer.appendChild(links);
     page.appendChild(footer);
+  }
+
+  async function buildAccountStrip() {
+    const page = document.querySelector("main");
+    if (!page || document.getElementById("bi-account-strip") || document.getElementById("headerClashTokens")) return;
+
+    const dashboardAccess = String(session()?.getDashboardUuid?.() || "").trim();
+    const profileAccess = String(session()?.getProfileToken?.() || "").trim();
+    const access = dashboardAccess || profileAccess;
+    if (!access) return;
+
+    const strip = document.createElement("div");
+    strip.id = "bi-account-strip";
+    strip.className = "bi-account-strip";
+    strip.setAttribute("aria-label", socialText("Kontostände","Balances"));
+    strip.innerHTML = `
+      <span class="bi-account-pill units">💠 <span>${socialText("Units","Units")}</span> <b data-bi-balance="units">–</b></span>
+      <span class="bi-account-pill ct">⚡ <span>CT</span> <b data-bi-balance="ct">–</b></span>
+      <a class="bi-account-topup" href="#" data-bi-topup>＋ ${socialText("CT aufladen","Top up CT")}</a>
+      <span class="bi-account-pill points">🏆 <span>${socialText("Clash Points","Clash Points")}</span> <b data-bi-balance="points">–</b></span>
+      <span class="bi-account-pill membership">★ <b data-bi-balance="membership">–</b></span>`;
+    page.insertAdjacentElement("afterbegin", strip);
+
+    strip.querySelector("[data-bi-topup]")?.addEventListener("click", event => {
+      event.preventDefault();
+      navigateProtected("clash-token-tausch");
+    });
+
+    const profileApi = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=profile-read";
+    const clashApi = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash-club";
+    const num = value => {
+      const parsed = Number(String(value == null ? 0 : value).replace(",", "."));
+      return Number.isFinite(parsed) ? parsed : 0;
+    };
+    const fmtUnits = value => new Intl.NumberFormat(i18n()?.getLanguage?.() || "de-DE", {maximumFractionDigits:2}).format(num(value));
+
+    try {
+      const response = await fetch(profileApi + "&token=" + encodeURIComponent(access), {cache:"no-store", credentials:"omit"});
+      if (!response.ok) throw new Error("profile_read_failed");
+      const data = await response.json();
+      if (!data || data.found === false) throw new Error("profile_not_found");
+
+      strip.querySelector('[data-bi-balance="units"]').textContent = fmtUnits(data.einsetzbare_units ?? data.units ?? 0);
+      strip.querySelector('[data-bi-balance="points"]').textContent = Math.trunc(num(data.clash_points ?? data.time_clash_points ?? 0)).toLocaleString();
+      strip.querySelector('[data-bi-balance="membership"]').textContent = String(data.mitgliedschaft || data.membership || "Basis");
+
+      let ct = num(data.permanent_game_credits ?? data.clash_tokens ?? data.time_clash_tokens ?? 0);
+      try {
+        const credential = String(data.dashboard_token || dashboardAccess || profileAccess || access).trim();
+        const url = new URL(clashApi);
+        url.searchParams.set("action","balance");
+        url.searchParams.set("credential",credential);
+        if (data.ref_code) url.searchParams.set("ref_code",data.ref_code);
+        const cr = await fetch(url.toString(), {cache:"no-store", credentials:"omit"});
+        if (cr.ok) {
+          const cd = await cr.json();
+          ct = num(cd.permanent_game_credits ?? cd.balance?.permanent_game_credits ?? cd.clash_tokens ?? ct);
+        }
+      } catch (error) {
+        console.warn("TIME CLASH balance could not be refreshed:", error);
+      }
+      strip.querySelector('[data-bi-balance="ct"]').textContent = Math.max(0, Math.floor(ct)).toLocaleString();
+    } catch (error) {
+      console.warn("BetInsight account strip could not be loaded:", error);
+    }
   }
 
   function destroyNavigation() {
@@ -560,6 +631,7 @@
       await ensureDependencies();
       i18n().apply(document);
       buildNavigation();
+      buildAccountStrip();
       bindGlobalEvents();
       window.BetInsightNavigationV2 = Object.freeze({route, rebuild:buildNavigation});
     } catch (error) {
