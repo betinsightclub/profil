@@ -256,8 +256,13 @@
     }
   });
 
+  function normalizeLang(value) {
+    const raw=String(value||"de").trim().toLowerCase().replace("_","-");
+    if(raw==="zh-tw"||raw==="zh-hant"||raw==="zh")return "zh-tw";
+    return raw.split("-")[0]||"de";
+  }
   function lang() {
-    return String(window.BetInsightI18n?.getLanguage?.() || document.documentElement.lang || localStorage.getItem("betinsight_language") || "de").toLowerCase().split("-")[0];
+    return normalizeLang(window.BetInsightI18n?.getLanguage?.() || document.documentElement.lang || localStorage.getItem("betinsight_language") || "de");
   }
 
   function pageId() {
@@ -312,7 +317,7 @@
 
   async function buildDictionary(language = lang()) {
     const map = new Map();
-    const targetLanguage = String(language || "de").toLowerCase().split("-")[0];
+    const targetLanguage = normalizeLang(language || "de");
     if (targetLanguage === "de") { exact = map; templates = []; return; }
 
     const sharedDe = await loadJson(new URL("./locales/de.json", I18N_ROOT));
@@ -328,7 +333,7 @@
     }
 
     // Existing legacy extras were authored as DE -> EN. Keep them English-only;
-    // ES/PT/IT/FR use the proper keyed locale dictionaries instead of showing English.
+    // ES/PT/IT/FR/NL/ZH-TW use the proper keyed locale dictionaries instead of showing English.
     if (targetLanguage === "en") {
       Object.entries(EXTRAS[id] || {}).forEach(([source,target]) => map.set(source,target));
     }
