@@ -798,7 +798,7 @@
             </label>
             <div class="post-link-field" id="postLinkField">
               <input id="postExternalUrl" type="url" maxlength="1000" inputmode="url" placeholder="https://…">
-              <small class="post-link-note" id="postLinkNote">Links sind nur über dieses Feld erlaubt. Die Units werden bis zur Freigabe reserviert.</small>
+              <small class="post-link-note" id="postLinkNote">Links sind nur über dieses Feld erlaubt. Globale Link-Posts werden nach erfolgreicher Unit-Abbuchung sofort veröffentlicht.</small>
               <div class="composer-link-preview" id="composerLinkPreview"></div>
             </div>
           </div>
@@ -2877,7 +2877,7 @@
               if(!globalPricingState)throw new Error("Tarifprüfung nicht verfügbar");
               var gp=globalPricingState.pricing||{};
               var confirmText=postLinkEnabled
-                ? "Diesen Link-Beitrag zur Prüfung senden? "+unitLabel(gp.unit_cost)+" werden bis zur Freigabe reserviert."
+                ? "Diesen Link-Beitrag global veröffentlichen? Kosten: "+unitLabel(gp.unit_cost)+"."
                 : "Diesen Beitrag im Trainer Feed und auf allen Profilen veröffentlichen? Kosten: "+unitLabel(gp.unit_cost)+".";
               var ok=confirm(confirmText);
               if(!ok)return;
@@ -2923,9 +2923,7 @@
             document.getElementById("composerLinkPreview").innerHTML="";
             updatePublishState();
 
-            if(saved.billing&&saved.billing.status==="RESERVED"){
-              showToast("Link-Post gespeichert · Units reserviert · wartet auf Freigabe.");
-            }else if(saved.moderation && saved.moderation.status === "PENDING_REVIEW"){
+            if(saved.moderation && saved.moderation.status === "PENDING_REVIEW"){
               showToast("Beitrag gespeichert und zur Prüfung geschickt.");
             }else if(saved.billing&&saved.billing.scope==="GLOBAL"){
               showToast("Global veröffentlicht · "+unitLabel(saved.billing.unit_cost)+" abgebucht.");
