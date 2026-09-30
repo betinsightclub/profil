@@ -336,6 +336,13 @@
   padding-left: calc(26px + 222px) !important;
 }
 
+/* Top-level page headers (e.g. TIME CLASH) must sit beside the desktop sidebar,
+   not underneath it. Headers nested inside <main> are intentionally untouched. */
+.bi-nav-header-offset {
+  margin-left: 222px !important;
+  width: calc(100% - 222px) !important;
+}
+
 .bi-nav-floating-adjust {
   left: 244px !important;
 }
@@ -410,6 +417,11 @@
 
   .bi-nav-content-offset {
     padding-left: 14px !important;
+  }
+
+  .bi-nav-header-offset {
+    margin-left: 0 !important;
+    width: 100% !important;
   }
 
   .bi-nav-mobile-safe {
