@@ -2853,6 +2853,13 @@
       document.getElementById("postText").addEventListener("input",updatePublishState);
 
       document.getElementById("publishPostBtn").addEventListener("click",async function(){
+        if(isMember&&!serverMode){
+          try{await loadProfileContext();}catch(_e){}
+          if(!serverMode){
+            showToast("Dein Trainerprofil ist noch nicht vollständig mit dem Server verbunden. Bitte kurz neu laden und erneut posten.");
+            return;
+          }
+        }
         var text = document.getElementById("postText").value.trim();
         if(!text && !selectedImageData && !selectedEmotion) return;
         var inlineLink=/(?:https?:\/\/|www\.|(?:^|[\s(])(?:[a-z0-9-]+\.)+(?:com|net|org|club|io|gg|de|fr|it|es|pt|br|co|uk|us|me|info|biz|app|ai)(?=[\/\s,.;:!?)]|$)|t\.me\/|wa\.me\/)/i;
