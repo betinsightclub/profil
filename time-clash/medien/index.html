@@ -257,7 +257,7 @@ $("#configBtn").onclick=()=>selected&&openTeamConfigurator(selected.player);$("#
   function currentLang(){
     let l=(new URLSearchParams(location.search).get("lang")||"").toLowerCase(); if(l==="zh"||l==="zh-tw"||l==="zh-hant")l="zh-tw"; else l=l.slice(0,2);
     try{ if(typeof TC_DISPLAY_LANG!=="undefined"&&TC_DISPLAY_LANG) l=String(TC_DISPLAY_LANG).toLowerCase(); if(l==="zh"||l==="zh-tw"||l==="zh-hant")l="zh-tw"; else l=l.slice(0,2); }catch(e){}
-    if(!supported.includes(l)) l=(document.documentElement.lang||"de").toLowerCase().slice(0,2);
+    if(!supported.includes(l)){l=(document.documentElement.lang||"de").toLowerCase();if(l==="zh"||l==="zh-tw"||l==="zh-hant")l="zh-tw";else l=l.slice(0,2)}
     return supported.includes(l)?l:"de";
   }
   const copy={

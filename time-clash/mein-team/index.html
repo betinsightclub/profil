@@ -810,11 +810,11 @@ if(uiProblems.length){
 })();
 </script><script>
 (function(){
-  const supported=["de","en","es","pt","it","fr"];
+  const supported=["de","en","es","pt","it","fr","nl","zh-tw"];
   function currentLang(){
-    let l=(new URLSearchParams(location.search).get("lang")||"").toLowerCase().slice(0,2);
-    try{ if(typeof TC_DISPLAY_LANG!=="undefined"&&TC_DISPLAY_LANG) l=String(TC_DISPLAY_LANG).toLowerCase().slice(0,2); }catch(e){}
-    if(!supported.includes(l)) l=(document.documentElement.lang||"de").toLowerCase().slice(0,2);
+    let l=(new URLSearchParams(location.search).get("lang")||"").toLowerCase(); if(l==="zh"||l==="zh-tw"||l==="zh-hant")l="zh-tw"; else l=l.slice(0,2);
+    try{ if(typeof TC_DISPLAY_LANG!=="undefined"&&TC_DISPLAY_LANG) l=String(TC_DISPLAY_LANG).toLowerCase(); if(l==="zh"||l==="zh-tw"||l==="zh-hant")l="zh-tw"; else l=l.slice(0,2); }catch(e){}
+    if(!supported.includes(l)){l=(document.documentElement.lang||"de").toLowerCase();if(l==="zh"||l==="zh-tw"||l==="zh-hant")l="zh-tw";else l=l.slice(0,2)}
     return supported.includes(l)?l:"de";
   }
   const copy={
@@ -823,7 +823,9 @@ if(uiProblems.length){
     es:{real:"MUNDO REAL ▾",home:"Inicio",tips:"Pronósticos y análisis",stats:"Estadísticas reales"},
     pt:{real:"MUNDO REAL ▾",home:"Início",tips:"Dicas e análises",stats:"Estatísticas reais"},
     it:{real:"MONDO REALE ▾",home:"Home",tips:"Pronostici e analisi",stats:"Statistiche reali"},
-    fr:{real:"MONDE RÉEL ▾",home:"Accueil",tips:"Pronostics et analyses",stats:"Statistiques réelles"}
+    fr:{real:"MONDE RÉEL ▾",home:"Accueil",tips:"Pronostics et analyses",stats:"Statistiques réelles"},
+    nl:{real:"ECHTE WERELD ▾",home:"Startpagina",tips:"Tips & analyses",stats:"Echte statistieken"},
+    "zh-tw":{real:"真實世界 ▾",home:"首頁",tips:"提示與分析",stats:"真實統計"}
   };
   function sync(){
     const l=currentLang(),t=copy[l]||copy.de;
