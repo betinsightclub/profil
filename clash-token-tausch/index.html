@@ -54,9 +54,39 @@ button{width:100%;margin-top:16px;padding:15px 18px;border:0;border-radius:13px;
 <script>
 (()=>{"use strict";const RATE=50,amount=document.getElementById("amount"),result=document.getElementById("result"),max=document.getElementById("maxBtn");
 let available=0;
-function calc(){const n=Math.max(0,Math.floor(Number(amount.value)||0));result.textContent=(n*RATE).toLocaleString("de-DE")+" CT"}
-amount.addEventListener("input",calc);max.addEventListener("click",()=>{if(available>0){amount.value=Math.floor(available);calc()}});
-document.addEventListener("DOMContentLoaded",()=>{setTimeout(()=>{if(!window.BetInsightSession?.hasDashboardAccess?.()){document.getElementById("status").textContent="Bitte öffne diese Seite über dein BetInsight-Profil bzw. die Unit-Wechselstube.";amount.disabled=true;max.disabled=true}},80)},{once:true});
+const profileApi="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=profile-read";
+const clashApi="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash-club";
+function num(v){const n=Number(String(v==null?0:v).replace(",","."));return Number.isFinite(n)?n:0}
+function fmt(v){return new Intl.NumberFormat("de-DE",{maximumFractionDigits:2}).format(num(v))}
+function accessToken(){return String(window.BetInsightSession?.getDashboardUuid?.()||window.BetInsightSession?.getProfileToken?.()||"").trim()}
+function calc(){const n=Math.max(0,Number(amount.value)||0);result.textContent=(n*RATE).toLocaleString("de-DE",{maximumFractionDigits:2})+" CT"}
+async function loadBalances(){
+ const token=accessToken();
+ if(!token){document.getElementById("status").textContent="Bitte öffne diese Seite über dein BetInsight-Profil bzw. die Unit-Wechselstube.";amount.disabled=true;max.disabled=true;return}
+ try{
+  const response=await fetch(profileApi+"&token="+encodeURIComponent(token),{cache:"no-store"});
+  if(!response.ok)throw new Error("profile");
+  const data=await response.json();
+  if(!data||data.found===false)throw new Error("not_found");
+  available=Math.max(0,num(data.einsetzbare_units));
+  document.getElementById("units").textContent=fmt(available)+" U";
+  amount.max=String(available);
+  let permanent=num(data.permanent_game_credits??data.clash_tokens??data.time_clash_tokens);
+  try{
+   const url=new URL(clashApi);url.searchParams.set("action","balance");url.searchParams.set("credential",token);if(data.ref_code)url.searchParams.set("ref_code",data.ref_code);
+   const cr=await fetch(url.toString(),{cache:"no-store"});if(cr.ok){const cd=await cr.json();permanent=num(cd.permanent_game_credits??cd.balance?.permanent_game_credits??cd.clash_tokens??permanent)}
+  }catch(e){}
+  document.getElementById("credits").textContent=fmt(permanent)+" CT";
+  document.getElementById("status").textContent="Vorschau aktiv: Dein echter verfügbarer Unitbestand ist geladen. Du kannst jetzt berechnen, wie viele permanente ClashToken du erhalten würdest. Der endgültige Tausch ist weiterhin gesperrt.";
+ }catch(e){
+  document.getElementById("units").textContent="Nicht geladen";
+  document.getElementById("credits").textContent="Nicht geladen";
+  document.getElementById("status").textContent="Dein Guthaben konnte nicht geladen werden. Bitte öffne die Seite erneut über dein BetInsight-Profil.";
+ }
+}
+amount.addEventListener("input",()=>{if(available>=0&&num(amount.value)>available)amount.value=String(available);calc()});
+max.addEventListener("click",()=>{amount.value=String(available);calc()});
+document.addEventListener("DOMContentLoaded",()=>setTimeout(loadBalances,150),{once:true});
 })();
 </script>
 </body></html>
