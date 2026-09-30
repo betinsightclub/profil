@@ -337,6 +337,8 @@ button{border:0}
 .dashboard-feed-link-title{display:block;margin-top:3px;color:#f0f8fb;font-size:13px;line-height:1.3;font-weight:900}
 .dashboard-feed-link-desc{display:block;margin-top:4px;color:#93acb7;font-size:10px;line-height:1.4}
 .dashboard-feed-meta{display:flex;justify-content:space-between;gap:12px;margin-top:9px;color:#6f8f9d;font-size:10px}
+.dashboard-feed-profile-link{color:#69c4ff;text-decoration:none;font-weight:800}
+.dashboard-feed-profile-link:hover{text-decoration:underline}
 .dashboard-feed-empty{padding:26px 20px;color:#87a8b6;text-align:center;font-size:12px}
 @media(max-width:620px){
   .dashboard-feed-head{align-items:flex-start;padding:14px 15px}
@@ -1110,7 +1112,10 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
       <h2 class="dashboard-feed-title">🌍 Community Feed</h2>
       <p class="dashboard-feed-subtitle">Aktuelle Beiträge aus der BetInsight Community.</p>
     </div>
-    <a id="dashboardFeedOpen" class="dashboard-feed-open" href="trainer/?feed=global">Feed öffnen →</a>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+      <a id="dashboardAllFeeds" class="dashboard-feed-open" href="https://betinsight.club/trainer-feed/?lang=de" target="_blank" rel="noopener">Alle Beiträge →</a>
+      <a id="dashboardMyTrainerProfile" class="dashboard-feed-open" href="trainer/">Mein Trainerprofil →</a>
+    </div>
   </div>
   <div id="dashboardFeedList" class="dashboard-feed-list">
     <div class="dashboard-feed-empty">Feed wird geladen …</div>
@@ -1641,13 +1646,16 @@ function dashboardFeedPostHtml(post){
     (post.body?'<p class="dashboard-feed-text">'+dashboardFeedEsc(post.body)+'</p>':'')+
     (image?'<img class="dashboard-feed-image" src="'+dashboardFeedEsc(image)+'" alt="Beitragsbild" loading="lazy">':'')+
     (external?'<div class="dashboard-feed-link-slot" data-url="'+dashboardFeedEsc(external)+'"><div class="dashboard-feed-empty">Linkvorschau wird geladen …</div></div>':'')+
-    '<div class="dashboard-feed-meta"><span>👍 '+dashboardFeedEsc(reactions)+' · 💬 '+dashboardFeedEsc(comments)+'</span><span>🌍 Community</span></div>'+
+    '<div class="dashboard-feed-meta"><span>👍 '+dashboardFeedEsc(reactions)+' · 💬 '+dashboardFeedEsc(comments)+'</span>'+
+      (post.public_slug?'<a class="dashboard-feed-profile-link" href="trainer/?p='+encodeURIComponent(post.public_slug)+'">Trainerprofil ansehen →</a>':'<span>🌍 Community</span>')+
+    '</div>'+
   '</article>';
 }
 async function loadDashboardCommunityFeed(){
   const box=document.getElementById("dashboardCommunityFeed");
   const list=document.getElementById("dashboardFeedList");
-  const open=document.getElementById("dashboardFeedOpen");
+  const allFeeds=document.getElementById("dashboardAllFeeds");
+  const myProfile=document.getElementById("dashboardMyTrainerProfile");
   if(!box||!list)return;
   box.classList.add("show");
   try{
@@ -1663,10 +1671,9 @@ async function loadDashboardCommunityFeed(){
     list.querySelectorAll(".dashboard-feed-link-slot").forEach(function(el){
       hydrateDashboardFeedLink(el,el.getAttribute("data-url")||"");
     });
-    if(open){
-      const token=getConfirmedDashboardToken()||getActiveToken()||"";
-      open.href="trainer/?feed=global"+(token?"&token="+encodeURIComponent(token):"");
-    }
+    const token=getConfirmedDashboardToken()||getActiveToken()||"";
+    if(myProfile)myProfile.href="trainer/"+(token?"?token="+encodeURIComponent(token):"");
+    if(allFeeds)allFeeds.href="https://betinsight.club/trainer-feed/?lang=de";
   }catch(error){
     console.error("Community-Feed konnte nicht geladen werden:",error);
     list.innerHTML='<div class="dashboard-feed-empty">Der Community Feed konnte gerade nicht geladen werden. <a href="trainer/?feed=global" style="color:#65bfff">Feed direkt öffnen</a></div>';
