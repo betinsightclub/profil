@@ -124,9 +124,10 @@
   }
 
   function normalize(value) {
-    const raw = clean(value);
+    const raw = clean(value).replace("_","-");
     if (!raw) return "";
     if (supported.includes(raw)) return raw;
+    if ((raw === "zh" || raw.startsWith("zh-hant") || raw.startsWith("zh-tw")) && supported.includes("zh-tw")) return "zh-tw";
     const short = raw.split("-")[0];
     return supported.includes(short) ? short : "";
   }
