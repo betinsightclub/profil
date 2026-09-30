@@ -621,6 +621,17 @@
     window.addEventListener("resize", () => { if (!isMobile()) closeNavigation(); updateActiveState(); });
     window.addEventListener("hashchange", updateActiveState);
     window.addEventListener("popstate", updateActiveState);
+    window.addEventListener("bi:balances-changed", event => {
+      const strip=document.getElementById("bi-account-strip");
+      if(!strip)return;
+      const detail=event?.detail||{};
+      const unitsEl=strip.querySelector('[data-bi-balance="units"]');
+      const ctEl=strip.querySelector('[data-bi-balance="ct"]');
+      const pointsEl=strip.querySelector('[data-bi-balance="points"]');
+      if(unitsEl && detail.units!=null)unitsEl.textContent=new Intl.NumberFormat(i18n()?.getLanguage?.()||"de-DE",{maximumFractionDigits:2}).format(Number(detail.units)||0);
+      if(ctEl && detail.ct!=null)ctEl.textContent=Math.max(0,Math.floor(Number(detail.ct)||0)).toLocaleString();
+      if(pointsEl && detail.points!=null)pointsEl.textContent=Math.max(0,Math.trunc(Number(detail.points)||0)).toLocaleString();
+    });
     window.addEventListener("bi:languagechange", () => {
       i18n()?.apply?.(document);
       buildNavigation();
