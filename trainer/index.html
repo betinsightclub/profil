@@ -1417,7 +1417,6 @@
       function hasEnoughForGlobal(){
         if(!globalPricingState)return false;
         var p=globalPricingState.pricing||{};
-        if(p.monthly_limit!=null&&Number(p.remaining||0)<=0)return false;
         return currentUnitBalance()+1e-9>=Number(p.unit_cost||0);
       }
       function renderLinkOption(){
@@ -1446,8 +1445,8 @@
           hint.innerHTML="Eigene Profilbeiträge bleiben <strong>kostenlos</strong>. Für den globalen Feed wird dein Tarif geprüft.";
         }else{
           var p=globalPricingState.pricing||{},m=globalPricingState.membership||{};
-          var limit=p.monthly_limit==null?"ohne festgelegtes Monatslimit":((p.remaining==null?p.monthly_limit:p.remaining)+" von "+p.monthly_limit+" in diesem Monat noch verfügbar");
-          price.textContent=unitLabel(p.unit_cost)+" · "+tierLabel(m.effectiveTier||m.effective_tier)+" · "+limit;
+          var discounted=p.monthly_limit==null?"Basispreis":(Number(p.remaining||0)>0?(Number(p.remaining||0)+" vergünstigte Posts in diesem Monat verbleibend"):"Vergünstigtes Monatskontingent aufgebraucht · danach 0,5 Units");
+          price.textContent=unitLabel(p.unit_cost)+" · "+tierLabel(m.effectiveTier||m.effective_tier)+" · "+discounted;
           hint.innerHTML='Tarif: <strong>'+esc(tierLabel(m.effectiveTier||m.effective_tier))+'</strong> · Status: <strong>'+esc(m.effectiveStatus||m.effective_status||"")+'</strong> · Global: <strong>'+esc(unitLabel(p.unit_cost))+'</strong> pro Beitrag. Links nur über das separate Link-Feld.';
         }
         if(submit)submit.textContent=selectedDistributionScope==="GLOBAL"&&globalPricingState
@@ -2877,9 +2876,6 @@
               if(!globalPricingState)await loadPostPricing();
               if(!globalPricingState)throw new Error("Tarifprüfung nicht verfügbar");
               var gp=globalPricingState.pricing||{};
-              if(gp.monthly_limit!=null&&Number(gp.remaining||0)<=0){
-                showToast("Dein Monatslimit für globale Beiträge ist erreicht.");return;
-              }
               var confirmText=postLinkEnabled
                 ? "Diesen Link-Beitrag zur Prüfung senden? "+unitLabel(gp.unit_cost)+" werden bis zur Freigabe reserviert."
                 : "Diesen Beitrag im Trainer Feed und auf allen Profilen veröffentlichen? Kosten: "+unitLabel(gp.unit_cost)+".";
