@@ -602,6 +602,8 @@
     sidebar.append(brand, list, footer);
     document.body.append(overlay, sidebar, toggle);
 
+    document.querySelectorAll("body > header").forEach(header => header.classList.add("bi-nav-header-offset"));
+
     const page = document.querySelector("main");
     if (page) {
       page.classList.add("bi-nav-content-offset","bi-nav-mobile-safe");
