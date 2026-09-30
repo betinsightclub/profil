@@ -1028,7 +1028,7 @@ function paintStadiumSprite(el,sprite,st,overlay="",focusY=.66){
  const scale=Math.min(1,Math.max(cw/tileW,ch/tileH));
  const sw=tileW*scale,sh=tileH*scale;
  const cropX=(cw-sw)*.5;
- const cropY=(ch-sh)*(ch>=sh?.5:Math.max(0,Math.min(1,focusY)));
+ const cropY=(ch-sh)*(ch>=sh ? .5 : Math.max(0,Math.min(1,focusY)));
  const posX=cropX-cell.col*sw,posY=cropY-cell.row*sh;
  el.style.backgroundColor="#06131c";
  if(overlay){
@@ -1419,8 +1419,8 @@ renderStadiumChooser();$("#pause").onclick=()=>{paused=!paused;$("#pause").textC
    const bar=$("#tcUxToolbar"),title=$("#tcUxModeTitle"),hub=$("#tcUxHub");
    if(!mode){bar?.classList.remove("show");hub?.classList.remove("tcUxHidden");history.replaceState(null,"",location.pathname+location.search);if(scroll)hub?.scrollIntoView({behavior:"smooth",block:"start"});return}
    hub?.classList.remove("tcUxHidden");bar?.classList.add("show");if(title)title.textContent=titles[mode]||"TIME CLASH";
-   if(mode==="own"){groups.steps()?.classList.remove("tcUxHidden");setGuideMode("own");groups.member()?.classList.remove("tcUxHidden");groups.dev()?.classList.remove("tcUxHidden");groups.arena()?.classList.remove("tcUxHidden")}
-   if(mode==="lab"){groups.steps()?.classList.remove("tcUxHidden");setGuideMode("lab");groups.chooser()?.classList.remove("tcUxHidden");groups.world()?.classList.remove("tcUxHidden");groups.dev()?.classList.remove("tcUxHidden");groups.arena()?.classList.remove("tcUxHidden")}
+   if(mode==="own"){groups.steps()?.classList.remove("tcUxHidden");setGuideMode("own");groups.member()?.classList.remove("tcUxHidden");groups.dev()?.classList.remove("tcUxHidden");groups.arena()?.classList.remove("tcUxHidden");if(typeof renderStadiumChooser==="function")renderStadiumChooser()}
+   if(mode==="lab"){groups.steps()?.classList.remove("tcUxHidden");setGuideMode("lab");groups.chooser()?.classList.remove("tcUxHidden");groups.world()?.classList.remove("tcUxHidden");groups.dev()?.classList.remove("tcUxHidden");groups.arena()?.classList.remove("tcUxHidden");if(typeof renderStadiumChooser==="function")renderStadiumChooser()}
    if(mode==="progress"){groups.credit()?.classList.remove("tcUxHidden");groups.level()?.classList.remove("tcUxHidden");groups.rank()?.classList.remove("tcUxHidden");groups.dash()?.classList.remove("tcUxHidden")}
    const hash=mode==="own"?"#mein-team-spielen":mode==="lab"?"#match-lab":"#fortschritt";history.replaceState(null,"",location.pathname+location.search+hash);
    if(scroll)bar?.scrollIntoView({behavior:"smooth",block:"start"});
