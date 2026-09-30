@@ -2212,7 +2212,7 @@
           var posts=data.posts.map(function(p){
             var comments=(p.comments||[]).map(function(x){return {id:x.id,owner_ref:x.owner_ref,name:x.owner_ref,text:x.body};});
             return {
-              id:p.id,server:true,author:(p.author||trainerName||teamName||"Trainerprofil"),team:(p.team_name||teamName||"Mannschaft"),
+              id:p.id,server:true,ownerRef:p.owner_ref||"",clubId:p.club_id||"",author:(p.author||trainerName||teamName||"Trainerprofil"),team:(p.team_name||teamName||"Mannschaft"),
               publicSlug:p.public_slug||"",distributionScope:p.distribution_scope||"PROFILE",
               time:new Intl.DateTimeFormat(trainerLocale(),{dateStyle:"short",timeStyle:"short"}).format(new Date(p.created_at)),
               text:p.body||"",emotion:resolveEmotion(p.emotion),
@@ -2280,6 +2280,42 @@
         hydrateLinkPreview(root,url);
       }
 
+      async function editOwnPost(post,article){
+        if(!post||!post.server)return;
+        var current=String(post.text||"");
+        var changed=prompt("Beitrag bearbeiten – es werden keine weiteren Units berechnet.",current);
+        if(changed===null)return;
+        changed=changed.trim();
+        if(!changed){showToast("Der Beitrag darf nicht leer sein.");return;}
+        try{
+          var result=await communityCall("update_post",{credential:memberCredential,post_id:post.id,text:changed,emotion:post.emotion&&post.emotion.name?post.emotion.name:""});
+          post.text=changed;
+          var textNode=article&&article.querySelector(".post-text");
+          if(textNode)textNode.textContent=changed;
+          showToast("Beitrag geändert · keine zusätzlichen Units berechnet.");
+        }catch(error){
+          if(error.data&&error.data.error==="LINK_IN_TEXT_NOT_ALLOWED")showToast("Links sind im Text nicht erlaubt. Nutze das separate Link-Feld.");
+          else showToast("Änderung konnte nicht gespeichert werden.");
+        }
+      }
+
+      async function deleteOwnPost(post,article){
+        if(!post||!post.server)return;
+        var paid=post.distributionScope==="GLOBAL";
+        var msg=paid
+          ? "Diesen Beitrag löschen? Bereits bezahlte Units werden nicht zurückgebucht."
+          : "Diesen Beitrag löschen?";
+        if(!confirm(msg))return;
+        try{
+          await communityCall("delete_post",{credential:memberCredential,post_id:post.id});
+          if(article)article.remove();
+          showToast(paid?"Beitrag gelöscht · keine Unit-Gutschrift.":"Beitrag gelöscht.");
+          if(feedMode==="global")await loadPostPricing();
+        }catch(error){
+          showToast("Beitrag konnte nicht gelöscht werden.");
+        }
+      }
+
       function renderPost(post){
         var article = document.createElement("article");
         article.className = "card post";
@@ -2303,6 +2339,8 @@
           commentsHtml += '<div class="comment"><div class="mini-avatar">' + esc(initials(c.name || c.owner_ref || "Mitglied")) + '</div><div><div class="comment-bubble"><strong>' + esc(c.name || c.owner_ref || "BetInsight Mitglied") + '</strong>' + commentText + commentSticker + '</div><div class="comment-meta">Gefällt mir · Antworten' + (c.id && isMember ? ' <button class="comment-report" data-comment-id="' + esc(c.id) + '">· Melden</button>' : '') + '</div></div></div>';
         });
 
+        var ownServerPost=Boolean(isOwner&&post.server===true&&post.clubId&&clubId&&String(post.clubId)===String(clubId));
+
         var interactionHtml = isMember
           ? '<div class="comment-compose"><form class="comment-form" data-post="' + esc(post.id) + '"><div class="mini-avatar">' + esc(initials(isOwner ? trainerName : "Mitglied")) + '</div><button type="button" class="comment-tool-btn comment-emoji-toggle" aria-label="Emoji auswählen">😊</button><button type="button" class="comment-tool-btn comment-sticker-toggle" aria-label="BetInsight Sticker auswählen">🏷️</button><input maxlength="500" placeholder="Kommentar schreiben …" aria-label="Kommentar"><button class="comment-submit" aria-label="Kommentar senden">➤</button></form><div class="comment-emoji-picker">' + emojiCatalog.map(function(e){return '<button type="button" class="comment-emoji-pick" data-emoji="' + esc(e) + '">' + esc(e) + '</button>';}).join("") + '</div><div class="comment-sticker-picker">' + emotionCatalog.map(function(r){return '<button type="button" class="comment-sticker-pick" data-code="' + esc(r.code) + '">'+stickerHtml(r,"sticker-comment-picker-art")+'<span>' + esc(r.name) + '</span></button>';}).join("") + '</div><div class="comment-sticker-selected"></div></div>'
           : '<div class="public-cta">Du kannst diesen öffentlichen Beitrag lesen und teilen. <a href="' + esc(registrationUrl()) + '">Kostenlos anmelden</a>, um zu reagieren oder zu kommentieren.</div>';
@@ -2311,7 +2349,9 @@
           '<div class="post-head">' +
             '<div class="mini-avatar post-author-avatar" data-post-author-avatar></div>' +
             '<div class="post-author"><strong>' + esc(post.author || trainerName) + '</strong><small>' + esc(post.team || teamName) + ' · ' + esc(post.time || "gerade eben") + ' · ' + (post.distributionScope==="GLOBAL"?"🌍 Community-Feed":"🌐 Profil") + '</small></div>' +
-            '<div class="post-menu-wrap"><button type="button" class="more-btn" aria-label="Beitragsmenü" aria-expanded="false">•••</button><div class="post-options" role="menu"><button type="button" class="post-option" data-action="copy-link">🔗 Link kopieren</button><button type="button" class="post-option" data-action="share">↗ Teilen</button>' + (isMember ? '<button type="button" class="post-option danger" data-action="report">⚑ Melden</button>' : '') + '</div></div>' +
+            '<div class="post-menu-wrap"><button type="button" class="more-btn" aria-label="Beitragsmenü" aria-expanded="false">•••</button><div class="post-options" role="menu"><button type="button" class="post-option" data-action="copy-link">🔗 Link kopieren</button><button type="button" class="post-option" data-action="share">↗ Teilen</button>' +
+            (ownServerPost ? '<button type="button" class="post-option" data-action="edit">✏️ Bearbeiten</button><button type="button" class="post-option danger" data-action="delete">🗑️ Löschen</button>' : (isMember ? '<button type="button" class="post-option danger" data-action="report">⚑ Melden</button>' : '')) +
+            '</div></div>' +
           '</div>' +
           '<div class="post-body"><p class="post-text">' + esc(post.text) + '</p>' + emotionHtml + imageHtml + linkHtml + '</div>' +
           '<div class="post-metrics"><div class="reaction-summary"><div class="reaction-stack">' + reactionStickers.map(function(r){return stickerHtml(r,"sticker-stack-art");}).join("") + '</div><span class="reaction-count">' + esc(post.reactions || 0) + '</span></div><span><span class="comment-count">' + commentCount + '</span> Kommentare · <span class="share-count">0</span> geteilt</span></div>' +
@@ -2319,7 +2359,9 @@
             '<button class="post-action react-toggle" ' + (isMember ? "" : "disabled") + '>Reagieren</button>' +
             '<button class="post-action comment-focus" ' + (isMember ? "" : "disabled") + '>💬 Kommentieren</button>' +
             '<button class="post-action share-post" data-post="' + esc(post.id) + '">↗ Teilen</button>' +
-            '<button class="post-action report-post" data-post="' + esc(post.id) + '" ' + (isMember ? "" : "disabled") + '>⚑ Melden</button>' +
+            (ownServerPost
+              ? '<button class="post-action owner-edit-post" data-post="' + esc(post.id) + '">✏️ Bearbeiten</button>'
+              : '<button class="post-action report-post" data-post="' + esc(post.id) + '" ' + (isMember ? "" : "disabled") + '>⚑ Melden</button>') +
           '</div>' +
           '<div class="reaction-menu">' +
             emotionCatalog.map(function(r){return '<button class="reaction-pick" data-name="' + esc(r.name) + '" data-code="' + esc(r.code) + '">'+stickerHtml(r,"sticker-reaction-art")+'<span>' + esc(r.name) + '</span></button>';}).join("") +
@@ -2357,6 +2399,8 @@
             var kind=action.getAttribute("data-action");
             if(kind==="copy-link") copyText(publicTrainerUrl(post.id,post.publicSlug),"Beitragslink kopiert");
             if(kind==="share") openShare(post.id,post.publicSlug);
+            if(kind==="edit") editOwnPost(post,article);
+            if(kind==="delete") deleteOwnPost(post,article);
             if(kind==="report") openReport("post",post.id);
           });
         }
@@ -2494,6 +2538,11 @@
           var sc = article.querySelector(".share-count");
           sc.textContent = String((parseInt(sc.textContent,10) || 0) + 1);
         });
+
+        var ownerEditPost=article.querySelector(".owner-edit-post");
+        if(ownerEditPost){
+          ownerEditPost.addEventListener("click",function(){editOwnPost(post,article);});
+        }
 
         var reportPost = article.querySelector(".report-post");
         if(reportPost && isMember){
