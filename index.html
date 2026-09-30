@@ -327,15 +327,35 @@ button{border:0}
 .dashboard-feed-text{margin:0;color:#dcecf3;font-size:13px;line-height:1.5;white-space:pre-wrap}
 .dashboard-feed-image{display:block;width:100%;max-height:340px;object-fit:cover;margin-top:10px;border-radius:12px;border:1px solid rgba(255,255,255,.07)}
 .dashboard-feed-link{
-  display:block;margin-top:10px;overflow:hidden;
-  border:1px solid rgba(255,255,255,.09);border-radius:12px;
-  background:rgba(0,10,17,.26);color:inherit;text-decoration:none;
+  display:grid;
+  grid-template-columns:180px minmax(0,1fr);
+  min-height:105px;
+  margin-top:10px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:12px;
+  background:rgba(0,10,17,.26);
+  color:inherit;
+  text-decoration:none;
 }
-.dashboard-feed-link img{display:block;width:100%;aspect-ratio:1.91/1;object-fit:cover;background:#04131b}
-.dashboard-feed-link-copy{padding:10px 12px}
+.dashboard-feed-link:hover{border-color:rgba(99,184,255,.34);background:rgba(10,36,49,.72)}
+.dashboard-feed-link img{
+  display:block;
+  width:180px;
+  height:105px;
+  object-fit:cover;
+  background:#04131b;
+}
+.dashboard-feed-link-copy{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:10px 12px;
+}
 .dashboard-feed-link-domain{display:block;color:#7f9eac;font-size:9px;text-transform:uppercase;letter-spacing:.08em;font-weight:900}
-.dashboard-feed-link-title{display:block;margin-top:3px;color:#f0f8fb;font-size:13px;line-height:1.3;font-weight:900}
-.dashboard-feed-link-desc{display:block;margin-top:4px;color:#93acb7;font-size:10px;line-height:1.4}
+.dashboard-feed-link-title{display:block;margin-top:3px;color:#f0f8fb;font-size:13px;line-height:1.3;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dashboard-feed-link-desc{display:-webkit-box;margin-top:4px;color:#93acb7;font-size:10px;line-height:1.4;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .dashboard-feed-meta{display:flex;justify-content:space-between;gap:12px;margin-top:9px;color:#6f8f9d;font-size:10px}
 .dashboard-feed-profile-link{color:#69c4ff;text-decoration:none;font-weight:800}
 .dashboard-feed-profile-link:hover{text-decoration:underline}
@@ -345,6 +365,8 @@ button{border:0}
   .dashboard-feed-open{padding:8px 10px}
   .dashboard-feed-post{padding:14px 15px}
   .dashboard-feed-list{max-height:560px}
+  .dashboard-feed-link{grid-template-columns:110px minmax(0,1fr);min-height:92px}
+  .dashboard-feed-link img{width:110px;height:92px}
 }
 
 .profile-grid{
