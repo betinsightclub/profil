@@ -7,6 +7,7 @@
 <title>Units in ClashToken tauschen · BetInsight</title>
 <link rel="icon" href="../favicon.ico">
 <link rel="stylesheet" href="../assets/app-navigation.css">
+<script src="../assets/app-session.js?v=20260930-1"></script>
 <script src="../assets/app-navigation-v2.js?v=20260830-9" defer></script>
 <style>
 *{box-sizing:border-box} :root{--bg:#04131c;--panel:#092231;--line:rgba(80,168,214,.24);--text:#fff;--soft:#c9e6f4;--muted:#84a9bc;--cyan:#18c4e4;--green:#1fe0ac;--gold:#ffc857}
@@ -94,7 +95,7 @@ async function loadBalances(){
 }
 amount.addEventListener("input",()=>{if(available>=0&&num(amount.value)>available)amount.value=String(available);calc()});
 max.addEventListener("click",()=>{amount.value=String(available);calc()});
-document.addEventListener("DOMContentLoaded",()=>setTimeout(loadBalances,150),{once:true});
+document.addEventListener("DOMContentLoaded",loadBalances,{once:true});
 })();
 </script>
 </body></html>
