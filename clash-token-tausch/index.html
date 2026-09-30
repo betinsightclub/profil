@@ -60,7 +60,7 @@ const clashApi="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash
 function num(v){const n=Number(String(v==null?0:v).replace(",","."));return Number.isFinite(n)?n:0}
 function fmt(v){return new Intl.NumberFormat("de-DE",{maximumFractionDigits:2}).format(num(v))}
 function accessVariants(){const a=[];const d=String(window.BetInsightSession?.getDashboardUuid?.()||"").trim();const p=String(window.BetInsightSession?.getProfileToken?.()||"").trim();if(p)a.push(p);if(d&&d!==p)a.push(d);return a}
-function calc(){const n=Math.max(0,num(amount.value));const ct=Math.floor((n*RATE)+1e-9);result.textContent=ct.toLocaleString("de-DE")+" CT";document.getElementById("newBalance").textContent=(permanentBalance+ct).toLocaleString("de-DE")+" CT";return ct}
+function calc(){const n=Math.max(0,num(amount.value));const ct=Math.floor((n*RATE)+1e-9);result.textContent=ct.toLocaleString("de-DE")+" CT";const nb=document.getElementById("newBalance");if(nb)nb.textContent=(permanentBalance+ct).toLocaleString("de-DE")+" CT";return ct}
 async function loadBalances(){
  const variants=accessVariants();
  if(!variants.length){document.getElementById("status").textContent="Bitte öffne diese Seite über dein BetInsight-Profil bzw. die Unit-Wechselstube.";amount.disabled=true;max.disabled=true;return}
