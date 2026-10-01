@@ -381,12 +381,10 @@
       min-height:42px;font-size:22px
     }
     .emoji-option:hover{border-color:rgba(22,135,255,.35);background:rgba(22,135,255,.07)}
-    .composer-preview{display:none;margin:11px 0 0 57px;position:relative;max-width:230px}
+    .composer-preview{display:none;margin:11px 0 0 57px;position:relative;width:min(100%,620px);padding:10px;border:1px solid rgba(143,203,230,.18);border-radius:14px;background:#061a24}
     .composer-preview.show{display:block}
-    .composer-preview img{width:100%;max-height:180px;object-fit:cover;border-radius:13px;border:1px solid var(--line)}
-    .composer-preview button{
-      position:absolute;right:6px;top:6px;width:28px;height:28px;border:0;border-radius:50%;background:rgba(2,15,22,.8);color:white
-    }
+    .composer-preview img{width:100%;max-height:420px;object-fit:contain;border-radius:11px;border:1px solid var(--line);background:#031720}
+    .composer-preview button{display:inline-flex;margin-top:8px;min-height:34px;padding:0 12px;border:1px solid rgba(255,101,113,.28);border-radius:9px;background:rgba(255,101,113,.08);color:#ffb0b6;font-weight:850}
     .composer-actions{
       display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 0 57px;padding-top:11px;border-top:1px solid rgba(255,255,255,.07)
     }
@@ -781,7 +779,7 @@
 
           <div class="composer-preview" id="composerPreview">
             <img id="postImagePreview" alt="Bildvorschau">
-            <button id="removePostImage" aria-label="Bild entfernen">×</button>
+            <button id="removePostImage" type="button" aria-label="Bild entfernen">✕ Bild entfernen</button>
           </div>
 
           <div class="post-scope" id="postScope">
@@ -2802,44 +2800,36 @@
       });
       document.getElementById("emotionPicker").innerHTML=emotionCatalog.map(function(item){return stickerPickerButton(item,"emotion-option");}).join("");
       document.getElementById("postImageInput").addEventListener("change",async function(){
-        var file = this.files && this.files[0];
-        if(!file) return;
-
+        var input=this;
+        var file=input.files&&input.files[0];
+        if(!file)return;
+        var preview=document.getElementById("postImagePreview");
+        var box=document.getElementById("composerPreview");
+        var localUrl=URL.createObjectURL(file);
+        preview.src=localUrl;
+        box.classList.add("show");
         showToast("Beitragsbild wird automatisch verkleinert …");
-
         try{
-          var result = await compressImageFile(file,{
-            maxWidth:1280,
-            maxHeight:1280,
-            targetBytes:320*1024,
-            maxInputBytes:25*1024*1024,
-            preferredType:"image/jpeg"
-          });
-
-          selectedImageData = result.dataUrl;
-          document.getElementById("postImagePreview").src = selectedImageData;
-          document.getElementById("composerPreview").classList.add("show");
+          var result=await compressImageFile(file,{maxWidth:1280,maxHeight:1280,targetBytes:320*1024,maxInputBytes:25*1024*1024,preferredType:"image/jpeg"});
+          selectedImageData=result.dataUrl;
           updatePublishState();
-
-          showToast(
-            "Beitragsbild optimiert: " +
-            formatFileSize(result.originalBytes) +
-            " → " +
-            formatFileSize(result.blob.size)
-          );
+          showToast("Beitragsbild bereit.");
         }catch(error){
-          this.value = "";
-          selectedImageData = "";
-          document.getElementById("composerPreview").classList.remove("show");
+          input.value="";
+          selectedImageData="";
+          box.classList.remove("show");
           updatePublishState();
-          showToast(error && error.message ? error.message : "Beitragsbild konnte nicht verarbeitet werden.");
+          showToast(error&&error.message?error.message:"Beitragsbild konnte nicht verarbeitet werden.");
         }
       });
-      document.getElementById("removePostImage").addEventListener("click",function(){
-        selectedImageData = "";
-        document.getElementById("postImageInput").value = "";
+      document.getElementById("removePostImage").addEventListener("click",function(e){
+        e.preventDefault();
+        selectedImageData="";
+        document.getElementById("postImageInput").value="";
+        document.getElementById("postImagePreview").src="";
         document.getElementById("composerPreview").classList.remove("show");
         updatePublishState();
+        showToast("Bild entfernt.");
       });
 
       document.getElementById("emojiBtn").addEventListener("click",function(){
