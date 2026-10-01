@@ -87,7 +87,28 @@
 <script src="/time-clash/avatar-face-assets-v6-3.js?v=20260926d"></script>
 <script src="/time-clash/avatar-face-assets-v6-4.js?v=20260926d"></script>
 <script src="/time-clash/avatar-face-assets-v6.js?v=20260926d"></script>
-<script src="/time-clash/avatar-engine.js?v=20260926m"></script>
+<script src="/time-clash/assets/avatar-bodypack-v1/body-pack-1.js?v=20260926a"></script>
+<script src="/time-clash/assets/avatar-bodypack-v1/body-pack-2.js?v=20260926a"></script>
+<script src="/time-clash/assets/avatar-bodypack-v1/tattoo-pack-1.js?v=20260926a"></script>
+<script src="/time-clash/assets/avatar-bodypack-v1/tattoo-pack-2.js?v=20260926a"></script>
+<script src="/time-clash/assets/avatar-bodypack-v1/tattoo-pack-3.js?v=20260926a"></script>
+<script src="/time-clash/assets/avatar-bodypack-v1/tattoo-minimal-star-leaves.js?v=20260926a"></script>
+<script src="/time-clash/assets/beard-real-b64-1.js?v=20260926a"></script>
+<script src="/time-clash/assets/beard-real-b64-2.js?v=20260926a"></script>
+<script src="/time-clash/assets/beard-real-b64-3.js?v=20260926a"></script>
+<script src="/time-clash/assets/beard-real-b64-4.js?v=20260926a"></script>
+<script src="/time-clash/assets/beard-real-b64-5.js?v=20260926a"></script>
+<script src="/time-clash/assets/beard-real-b64-6.js?v=20260926a"></script>
+<script src="/time-clash/assets/beard-real-b64-7p1.js?v=20260926a"></script>
+<script src="/time-clash/assets/beard-real-b64-7p2.js?v=20260926a"></script>
+<script src="/time-clash/assets/beard-real-b64-7p3.js?v=20260926a"></script>
+<script src="/time-clash/assets/beard-real-b64-8p1.js?v=20260926a"></script>
+<script src="/time-clash/assets/beard-real-b64-8p2.js?v=20260926a"></script>
+<script src="/time-clash/assets/beard-real-b64-8p3.js?v=20260926a"></script>
+<script src="/time-clash/assets/beard-real-b64-9.js?v=20260926a"></script>
+<script src="/time-clash/assets/beard-pack-real.js?v=20260926a"></script>
+<script src="/time-clash/assets/hair-pack-real.js?v=20260927b"></script>
+<script src="/time-clash/avatar-engine.js?v=20260927d"></script>
 <script>
 const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash-media";
 const $=s=>document.querySelector(s),slug=new URLSearchParams(location.search).get("clash")||"";
@@ -194,28 +215,14 @@ function chosenAvatar(){return avFor(selected?.player,selected?.player_id)?.avat
 function renderPreview(){if(!selected){$("#preview").innerHTML='<div class="notice" style="margin:20px">Noch kein Bild vorbereitet.</div>';return}let a=chosenAvatar();if(!a){$("#preview").innerHTML='<div class="notice" style="margin:20px">'+esc(t().missing)+'</div>';return}$("#preview").innerHTML=newspaperSvg(selected,a,$("#variant").value,$("#focus").value,$("#intensity").value)}
 function sceneFigure(a,name,pose){
  a=window.TimeClashAvatar?.normalize?window.TimeClashAvatar.normalize(a):a;
- let body=a.build==="slim"?.84:a.build==="stocky"?1.18:a.build==="strong"?1.1:1,skin=a.skin||"#d7a17e",kit1=a.kit1||"#25a9ff",h=Math.max(165,Math.min(210,Number(a.height||182))),leg=118+(h-165)*.62;
- let mode=String(pose||"auto"),rot=0,tx=842,ty=145,sc=1.72,la=[48,220],ra=[132,220],ll=[72,190+leg],rl=[108,190+leg];
- if(mode.includes("celebration")||mode.includes("winner")){la=[34,86];ra=[146,86]}
- if(mode.includes("header")){la=[30,135];ra=[150,135];ll=[68,190+leg];rl=[114,186+leg]}
- if(mode.includes("save_dive_left")){rot=-25;tx=760;ty=245;la=[20,115];ra=[30,145];ll=[65,190+leg];rl=[125,180+leg]}
- if(mode.includes("save_dive_right")){rot=25;tx=900;ty=205;la=[150,115];ra=[162,145];ll=[55,180+leg];rl=[115,190+leg]}
- if(mode.includes("save_high")||mode.includes("fist")){la=[45,75];ra=[135,65]}
- if(mode.includes("save_low")){la=[35,195];ra=[145,205];rot=8}
- if(mode.includes("defense_slide")){rot=-16;tx=820;ty=235;la=[38,175];ra=[140,150];ll=[42,205+leg*.55];rl=[145,185+leg*.42]}
- if(mode.includes("defense_header")){la=[40,125];ra=[140,125]}
- if(mode.includes("defense_line")||mode.includes("last_second")){la=[30,150];ra=[150,150];rl=[145,188+leg*.6]}
- if(mode.includes("shoulder")){rot=-6;la=[30,160];ra=[138,150]}
- if(mode.includes("shot")||mode.includes("strike")||mode.includes("volley")||mode.includes("finish")){rot=-5;la=[42,155];ra=[138,135];ll=[72,190+leg];rl=[155,235]}
- if(mode.includes("long_range")||mode.includes("power")){rot=-8;rl=[165,225]}
- if(mode.includes("attack")||mode.includes("dribble")||mode.includes("sprint")||mode.includes("breakthrough")||mode.includes("counter")){rot=-7;tx=820;la=[38,185];ra=[140,118];ll=[60,190+leg];rl=[135,175+leg*.82]}
- let torsoW=76*body,shoulderY=105;
- let kitId="sceneKit"+Math.random().toString(36).slice(2,7),defs=window.TimeClashAvatar?.kitPattern?window.TimeClashAvatar.kitPattern(a,kitId):'<linearGradient id="'+kitId+'"><stop stop-color="'+kit1+'"/></linearGradient>';
- let shirt='<defs>'+defs+'</defs><path d="M'+(90-torsoW/2)+' 100 Q90 89 '+(90+torsoW/2)+' 100 L'+(90+torsoW/2-7)+' 185 L'+(90-torsoW/2+7)+' 185Z" fill="url(#'+kitId+')"/>';
- let limb=(x1,y1,x2,y2,w=15)=>'<path d="M'+x1+' '+y1+' L'+x2+' '+y2+'" stroke="'+skin+'" stroke-width="'+w+'" stroke-linecap="round"/>';
- let legs='<path d="M78 180 L'+ll[0]+' '+ll[1]+'" stroke="#102b3a" stroke-width="'+(22*body)+'" stroke-linecap="round"/><path d="M102 180 L'+rl[0]+' '+rl[1]+'" stroke="#102b3a" stroke-width="'+(22*body)+'" stroke-linecap="round"/>';
- let head=window.TimeClashAvatar?.headSvg?window.TimeClashAvatar.headSvg(a,0,-7,180,145):'<circle cx="90" cy="58" r="31" fill="'+skin+'"/>';
- return '<g transform="translate('+tx+' '+ty+') scale('+sc+') rotate('+rot+' 90 170)"><ellipse cx="90" cy="'+(205+leg)+'" rx="'+(48*body)+'" ry="8" fill="#000" opacity=".28"/>'+legs+limb(65,shoulderY,la[0],la[1],16*body)+limb(115,shoulderY,ra[0],ra[1],16*body)+shirt+'<text x="90" y="148" text-anchor="middle" fill="#fff" stroke="#000" stroke-width=".6" paint-order="stroke" font-size="24" font-family="Arial" font-weight="1000">'+esc(a.shirtNo||"")+'</text>'+head+'</g>'
+ try{
+   if(window.TimeClashAvatar?.render){
+     let svg=window.TimeClashAvatar.render(a,name,false,"front");
+     if(svg&&svg.includes("<svg"))return svg.replace("<svg ", '<svg x="755" y="112" width="405" height="505" preserveAspectRatio="xMidYMid meet" ');
+   }
+ }catch(err){console.error("TIME CLASH newspaper player render failed",err)}
+ let skin=a?.skin||"#d7a17e",kit=a?.kit1||"#25a9ff";
+ return '<g transform="translate(840 180)"><circle cx="90" cy="58" r="31" fill="'+skin+'"/><rect x="52" y="100" width="76" height="150" rx="22" fill="'+kit+'"/><text x="90" y="185" text-anchor="middle" fill="#fff" font-size="22" font-family="Arial" font-weight="900">'+esc(a?.shirtNo||"")+'</text></g>'
 }
 function sceneBall(pose){
  let p=String(pose||"");
