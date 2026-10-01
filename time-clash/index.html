@@ -407,19 +407,25 @@ function ownTeamSceneConfigured(){
  const ps=Array.isArray(memberClub?.players)?memberClub.players:[];
  return !!memberClub&&ps.length>0&&ps.some(p=>!!(p?.appearanceConfigured??p?.appearance_configured));
 }
-function sceneEligibleMatch(){return !!ownerRef()&&(kindAActive==="myclub"||kindBActive==="myclub")&&ownTeamSceneConfigured()}
+function sceneOwnMatch(){return !!ownerRef()&&(kindAActive==="myclub"||kindBActive==="myclub")}
+function sceneEligibleMatch(){return sceneOwnMatch()&&ownTeamSceneConfigured()}
 function sceneRegistered(){return sceneEligibleMatch()}
 function syncSceneAvailability(){
-  const allowed=sceneEligibleMatch();
+  const ownMatch=sceneOwnMatch(),allowed=sceneEligibleMatch();
   const studio=$("#sceneStudio"),btn=$("#newspaperBtn");
-  if(studio)studio.classList.toggle("hidden",!allowed);
-  if(btn){
-    btn.classList.toggle("hidden",!allowed);
-    if(!allowed){
-      btn.disabled=true;
-      btn.setAttribute("aria-disabled","true");
-      btn.removeAttribute("data-slug");
+  if(studio){
+    studio.classList.toggle("hidden",!ownMatch);
+    if(ownMatch&&!allowed){
+      studio.classList.remove("ready");
+      const s=$("#sceneStatus");if(s)s.textContent="Zeitungsbild deaktiviert: Konfiguriere zuerst dein eigenes Team unter „Mein Team“.";
     }
+  }
+  if(btn){
+    btn.classList.toggle("hidden",!ownMatch);
+    btn.disabled=!allowed;
+    btn.setAttribute("aria-disabled",allowed?"false":"true");
+    if(!allowed)btn.removeAttribute("data-slug");
+    btn.title=allowed?"Nach Serienende im Medienbereich erstellen":"Zeitungsbild erst nach eigener Team-Konfiguration verfügbar";
   }
   if(!allowed){
     selectedNewsScene=null;
