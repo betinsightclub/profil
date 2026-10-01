@@ -2789,7 +2789,17 @@
       bindFilePreview("coverInput","coverImage",null,{maxWidth:1600,maxHeight:900,targetBytes:520*1024,maxInputBytes:25*1024*1024},"cover");
       bindFilePreview("avatarInput","avatarImage","avatarFallback",{maxWidth:512,maxHeight:512,targetBytes:180*1024,maxInputBytes:25*1024*1024},"avatar");
 
-      document.getElementById("photoBtn").addEventListener("click",function(){document.getElementById("postImageInput").click();});
+      document.getElementById("photoBtn").addEventListener("click",function(e){
+        e.preventDefault();
+        var input=document.getElementById("postImageInput");
+        if(!input)return;
+        try{
+          if(typeof input.showPicker==="function") input.showPicker();
+          else input.click();
+        }catch(_e){
+          input.click();
+        }
+      });
       document.getElementById("emotionPicker").innerHTML=emotionCatalog.map(function(item){return stickerPickerButton(item,"emotion-option");}).join("");
       document.getElementById("postImageInput").addEventListener("change",async function(){
         var file = this.files && this.files[0];
