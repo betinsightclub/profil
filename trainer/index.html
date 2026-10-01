@@ -1495,7 +1495,7 @@
 
       async function screenCommunityText(text,kind){
         try{
-          return await communityCall("screen",{text:text,kind:kind||"post"});
+          return await communityCall("screen",{credential:memberCredential,text:text,kind:kind||"post"});
         }catch(error){
           return {ok:true,decision:"PENDING_REVIEW",flags:["filter_unavailable"],score:50,text:text};
         }
@@ -2922,11 +2922,7 @@
         }
         var text = document.getElementById("postText").value.trim();
         if(!text && !selectedImageData && !selectedEmotion) return;
-        var inlineLink=/(?:https?:\/\/|www\.|(?:^|[\s(])(?:[a-z0-9-]+\.)+(?:com|net|org|club|io|gg|de|fr|it|es|pt|br|co|uk|us|me|info|biz|app|ai)(?=[\/\s,.;:!?)]|$)|t\.me\/|wa\.me\/)/i;
-        if(inlineLink.test(text)){
-          showToast("Links sind im Beitragstext nicht erlaubt. Nutze das separate Link-Feld.");
-          return;
-        }
+        // Inhaltsregeln werden serverseitig anhand des angemeldeten Trainerkontos geprüft.
         var externalUrl=postLinkEnabled?document.getElementById("postExternalUrl").value.trim():"";
         if(postLinkEnabled){
           if(selectedDistributionScope!=="GLOBAL"){showToast("Links sind nur bei globalen Beiträgen möglich.");return}
