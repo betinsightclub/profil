@@ -55,7 +55,7 @@
 (() => {
   "use strict";
   const PROFILE_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=profile-read";
-  const PAYMENT_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-payment-entry";
+  const PAYMENT_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-payment-entry?source=buy";
   const $=id=>document.getElementById(id);
   const clean=v=>String(v||"").trim();
   const t=(key,vars={},fallback="")=>window.BetInsightI18n?.t(key,vars,fallback)||fallback;
