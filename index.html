@@ -1289,7 +1289,10 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
 <script>
 "use strict";
 
-const PROFILE_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=profile-read";
+const PROFILE_WEBHOOK_MAKE_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=profile-read";
+const PROFILE_WEBHOOK_SUPABASE_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-profile-read-shadow";
+/* CUTOVER: nur diese Zeile auf PROFILE_WEBHOOK_SUPABASE_URL ändern, sobald der Supabase-Abgleich 0 Abweichungen zeigt. */
+const PROFILE_WEBHOOK_URL=PROFILE_WEBHOOK_MAKE_URL;
 const REQUEST_LINK_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=profile-link";
 const EMPFEHLUNGEN_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=referral-overview";
 const REFERRAL_ACCOUNT_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=referral-transfer";
