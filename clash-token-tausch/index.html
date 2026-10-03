@@ -40,7 +40,7 @@ button{width:100%;margin-top:16px;padding:15px 18px;border:0;border-radius:13px;
 <div class="rate"><div class="coin">1 U</div><div class="eq">=</div><div class="coin ct">50 CT</div></div>
 <div class="grid">
  <div class="box"><div class="label">Verfügbare Units</div><div class="value" id="units">—</div></div>
- <div class="box"><div class="label">Aktueller Kontostand (permanente CT)</div><div class="value" id="credits">—</div></div>
+ <div class="box"><div class="label">Aktueller ClashToken-Kontostand</div><div class="value" id="credits">—</div></div>
  <div class="box"><div class="label">Kontostand nach Wechsel</div><div class="value" id="newBalance">—</div></div>
 </div>
 <div class="form">
@@ -55,13 +55,13 @@ button{width:100%;margin-top:16px;padding:15px 18px;border:0;border-radius:13px;
 </main>
 <script>
 (()=>{"use strict";const RATE=50,amount=document.getElementById("amount"),result=document.getElementById("result"),max=document.getElementById("maxBtn"),swap=document.getElementById("swap"),status=document.getElementById("status");
-let available=0,permanentBalance=0,activeCredential="";
+let available=0,permanentBalance=0,weeklyBalance=0,totalCtBalance=0,activeCredential="";
 const profileApi="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=profile-read";
 const clashApi="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash-club";
 function num(v){const n=Number(String(v==null?0:v).replace(",","."));return Number.isFinite(n)?n:0}
 function fmt(v){return new Intl.NumberFormat("de-DE",{maximumFractionDigits:2}).format(num(v))}
 function accessVariants(){const a=[];const d=String(window.BetInsightSession?.getDashboardUuid?.()||"").trim();const p=String(window.BetInsightSession?.getProfileToken?.()||"").trim();if(p)a.push(p);if(d&&d!==p)a.push(d);return a}
-function setSwapState(){const n=num(amount.value);const valid=available>=0&&n>=0.02&&n<=available&&Math.abs(n*50-Math.round(n*50))<1e-7;swap.disabled=!valid;}function calc(){const n=Math.max(0,num(amount.value));const ct=Math.floor((n*RATE)+1e-9);result.textContent=ct.toLocaleString("de-DE")+" CT";const nb=document.getElementById("newBalance");if(nb)nb.textContent=(permanentBalance+ct).toLocaleString("de-DE")+" CT";setSwapState();return ct}
+function setSwapState(){const n=num(amount.value);const valid=available>=0&&n>=0.02&&n<=available&&Math.abs(n*50-Math.round(n*50))<1e-7;swap.disabled=!valid;}function calc(){const n=Math.max(0,num(amount.value));const ct=Math.floor((n*RATE)+1e-9);result.textContent=ct.toLocaleString("de-DE")+" CT";const nb=document.getElementById("newBalance");if(nb)nb.textContent=(totalCtBalance+ct).toLocaleString("de-DE")+" CT";setSwapState();return ct}
 async function loadBalances(){
  const variants=accessVariants();
  if(!variants.length){document.getElementById("status").textContent="Bitte öffne diese Seite über dein BetInsight-Profil bzw. die Unit-Wechselstube.";amount.disabled=true;max.disabled=true;return}
@@ -85,10 +85,10 @@ async function loadBalances(){
    activeCredential=credential;
    const url=new URL(clashApi);url.searchParams.set("action","balance");url.searchParams.set("credential",credential);if(data.ref_code)url.searchParams.set("ref_code",data.ref_code);
    const cr=await fetch(url.toString(),{cache:"no-store",credentials:"omit"});
-   if(cr.ok){const cd=await cr.json();permanent=num(cd.permanent_game_credits??cd.balance?.permanent_game_credits??cd.clash_tokens??permanent)}
+   if(cr.ok){const cd=await cr.json();permanent=num(cd.permanent_game_credits??cd.balance?.permanent_game_credits??permanent);weeklyBalance=Math.max(0,Math.floor(num(cd.weekly_free_remaining??cd.balance?.weekly_free_remaining??0)));totalCtBalance=Math.max(0,Math.floor(num(cd.clash_tokens??cd.balance?.clash_tokens??(permanent+weeklyBalance))))}
    else throw new Error("clash_balance_http_"+cr.status);
   }catch(e){console.error("ClashToken-Kontostand konnte nicht geladen werden:",e)}
-  permanentBalance=Math.max(0,Math.floor(permanent));document.getElementById("credits").textContent=permanentBalance.toLocaleString("de-DE")+" CT";calc();
+  permanentBalance=Math.max(0,Math.floor(permanent));if(totalCtBalance<=0)totalCtBalance=permanentBalance+weeklyBalance;document.getElementById("credits").textContent=totalCtBalance.toLocaleString("de-DE")+" CT";calc();
   document.getElementById("status").textContent="Tausch aktiv: Dein echter verfügbarer Unitbestand ist geladen. Prüfe den Betrag und bestätige den endgültigen Tausch.";
  }catch(e){
   document.getElementById("units").textContent="Nicht geladen";
@@ -115,13 +115,15 @@ swap.addEventListener("click",async()=>{
   const confirmedCt=(d.permanent_game_credits!=null)?num(d.permanent_game_credits):(permanentBalance+num(d.ct||Math.round(n*50)));
   available=Math.max(0,confirmedUnits);
   permanentBalance=Math.max(0,Math.floor(confirmedCt));
+  weeklyBalance=Math.max(0,Math.floor(num(d.weekly_free_remaining??weeklyBalance)));
+  totalCtBalance=Math.max(0,Math.floor(num(d.clash_tokens??(permanentBalance+weeklyBalance))));
   document.getElementById("units").textContent=fmt(available)+" U";
-  document.getElementById("credits").textContent=permanentBalance.toLocaleString("de-DE")+" CT";
-  document.getElementById("newBalance").textContent=permanentBalance.toLocaleString("de-DE")+" CT";
+  document.getElementById("credits").textContent=totalCtBalance.toLocaleString("de-DE")+" CT";
+  document.getElementById("newBalance").textContent=totalCtBalance.toLocaleString("de-DE")+" CT";
   amount.max=String(available);
   status.textContent="Tausch erfolgreich: "+fmt(n)+" U wurden in "+Number(d.ct||Math.round(n*50)).toLocaleString("de-DE")+" permanente CT getauscht.";
   amount.value="";
-  window.dispatchEvent(new CustomEvent("bi:balances-changed",{detail:{units:available,ct:permanentBalance}}));
+  window.dispatchEvent(new CustomEvent("bi:balances-changed",{detail:{units:available,ct:totalCtBalance}}));
   calc();
   const successText=status.textContent;
   setTimeout(async()=>{try{await loadBalances();status.textContent=successText}catch(e){}},250);
