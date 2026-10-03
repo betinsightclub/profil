@@ -1050,7 +1050,7 @@ function renderPreMatchAI(){
  if(Math.abs(a.gk-b.gk)>=2){const better=a.gk>b.gk?a:b,team=a.gk>b.gk?TA.name:TB.name;gkNote=" Torwartfaktor: "+better.keeper+" stärkt "+team+" spürbar."}
  el.innerHTML="<strong>"+verdict+"</strong> Bewertet werden Teamrating, Startelf und Torwartstärke."+gkNote+" Überraschungen bleiben möglich."
 }
-function updateTeams(){kindAActive=$("#typeA").value;kindBActive=$("#typeB").value;activeMode="public";TA=parseTeam($("#teamA").value||"Italien 2006|🇮🇹|82");TB=parseTeam($("#teamB").value||"Spanien 2026|🇪🇸|83");renderActiveTeams();renderPreMatchAI();if(typeof tcSyncTacticUi==="function")tcSyncTacticUi();syncSceneAvailability()}
+function updateTeams(){kindAActive=$("#typeA").value;kindBActive=$("#typeB").value;activeMode="public";TA=parseTeam($("#teamA").value||"Italien 2006|🇮🇹|82");TB=parseTeam($("#teamB").value||"Spanien 2026|🇪🇸|83");renderActiveTeams();renderPreMatchAI();if(window.__TC_TACTICS_READY&&typeof tcSyncTacticUi==="function")tcSyncTacticUi();syncSceneAvailability()}
 ["A","B"].forEach(s=>{$("#type"+s).onchange=()=>{if(s==="A")chosenA=true;else chosenB=true;fill(s)};$("#group"+s).onchange=()=>{if(s==="A")chosenA=true;else chosenB=true;fill(s);relabelSelector(s)};$("#team"+s).onchange=()=>{if(s==="A")chosenA=true;else chosenB=true;relabelSelector(s);updateTeams()}});$("#typeA").value="nation";$("#typeB").value="nation";fill("A");fill("B");renderPreMatchAI();/* Keep both selectors in a valid initial state; arena remains neutral until the user interacts. */
 $("#loadLeagueMatch").onclick=()=>{if(!memberClub){$("#next").textContent="Bitte zuerst dein eigenes TIME-CLASH-Team erstellen.";return}let opponent=$("#memberOpponent").value,meta=allCommunityClubs.find(x=>x.club_name===opponent);if(!meta){$("#next").textContent="Kein erlaubter Community-Gegner ausgewählt.";return}let ownPlayers=Array.isArray(memberClub.players)?memberClub.players:[],oppPlayers=Array.isArray(meta.players)?meta.players:[],ownSum=ownPlayers.slice(0,11).reduce((s,p)=>s+Number(p.strength||0),0),oppSum=oppPlayers.slice(0,11).reduce((s,p)=>s+Number(p.strength||0),0);TA=parseTeam(memberClub.club_name+"|🛡️|"+ratingFromStrength(ownSum));TB=parseTeam(meta.club_name+"|🛡️|"+ratingFromStrength(oppSum));kindAActive="myclub";kindBActive="community";activeMode="member";chosenA=chosenB=true;renderActiveTeams();$("#next").textContent="Liga-Duell geladen: "+memberClub.club_name+" gegen "+opponent+". Die obere Auswahl bleibt unverändert."};
 $("#eliteVsSelected").onclick=()=>{if(!memberProgress?.elite){$("#next").textContent="Dieses Crossover wird erst mit Elite freigeschaltet.";return}let realType=$("#typeB").value,realValue=$("#teamB").value;if(!["nation","club"].includes(realType)||!realValue){realType="nation";let first=(catalog.nation[Object.keys(catalog.nation)[0]]||[])[0];realValue=first||"Italien 2006 · Weltmeister|🇮🇹|84"}let ownPlayers=Array.isArray(memberClub?.players)?memberClub.players:[],ownSum=ownPlayers.slice(0,11).reduce((s,p)=>s+Number(p.strength||0),0);TA=parseTeam(memberClub.club_name+"|🛡️|"+ratingFromStrength(ownSum));TB=parseTeam(realValue);kindAActive="myclub";kindBActive=realType;activeMode="elite";chosenA=chosenB=true;renderActiveTeams();$("#next").textContent="Elite-Crossover geladen. Dein Club spielt gegen das oben bei Team B ausgewählte echte/historische Team. Die obere Auswahl bleibt unverändert."};
@@ -1286,7 +1286,7 @@ function selectStartStadium(slug){
    Coach mode is optional and changes the simulation model + ticker. */
 const TC_TACTICS_V1=true;
 const TC_TACTIC_OPTIONS={
- formation:["2-3-5","2-3-2-3","3-5-2","3-4-3","4-2-4","4-3-3","4-4-2","4-4-1-1","4-3-2-1","4-2-3-1","4-1-4-1","5-3-2","5-4-1"],
+ formation:["2-3-5","2-3-2-3","3-2-2-3","3-5-2","3-4-3","4-2-4","4-3-3","4-4-2","4-4-1-1","4-3-2-1","4-2-3-1","4-1-4-1","5-3-2","5-4-1"],
  style:["historisch","ausgeglichen","offensiv","defensiv","ballbesitz","konter","direkt"],
  pressing:["tief","mittel","hoch"],
  tempo:["kontrolliert","normal","hoch"]
@@ -1420,7 +1420,7 @@ function tcApplyTacticCopy(){
 }
 function tcInitTactics(){
  const toggle=document.getElementById("tcTacticsToggle"),editor=document.getElementById("tcTacticsEditor"),reset=document.getElementById("tcTacticsReset");
- if(!toggle||!editor)return;tcApplyTacticCopy();tcSyncTacticUi();
+ if(!toggle||!editor)return;window.__TC_TACTICS_READY=true;tcApplyTacticCopy();tcSyncTacticUi();
  toggle.onclick=()=>{tcManualTactics=true;editor.classList.remove("hidden");tcTacticState={A:{...tcHistoricalTactic(TA)},B:{...tcHistoricalTactic(TB)}};tcSyncTacticUi();makeSeries()};
  for(const side of ["A","B"]){for(const k of [["Formation","formation"],["Style","style"],["Press","pressing"],["Tempo","tempo"]]){const el=document.getElementById("tc"+k[0]+side);if(el)el.onchange=()=>{if(running)return;tcManualTactics=true;tcTacticState[side]=tcTacticState[side]||{...tcHistoricalTactic(side==="A"?TA:TB)};tcTacticState[side][k[1]]=el.value;tcTacticState[side].historical=false;tcSyncTacticUi();makeSeries()}}}
  if(reset)reset.onclick=()=>{if(running)return;tcManualTactics=false;tcTacticState={A:null,B:null};editor.classList.add("hidden");tcSyncTacticUi();makeSeries()};
