@@ -1,12 +1,12 @@
 /* BetInsight Kontobewegungen · 2026-09-12-01 STUFE-1 SPARMODUS
    Reine READONLY-Anzeige im Dashboard.
-   Stufe 1: keine automatische Make-Abfrage beim Profilaufruf, kein zweiter Abruf nach Profil-Refresh.
+   Stufe 1: keine automatische Historienabfrage beim Profilaufruf, kein zweiter Abruf nach Profil-Refresh.
    Historie wird nur auf ausdruecklichen Nutzerwunsch geladen und 5 Minuten lokal gecacht.
    Keine Unit-, Zahlungs-, Referral-, Tipp- oder Wechselstuben-Schreiblogik wird veraendert. */
 (() => {
   "use strict";
 
-  const MOVEMENTS_URL = "https://hook.eu1.make.com/hkbe8ldgbg64t423rbfdcaayuw42wx01";
+  const MOVEMENTS_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-account-history-api";
   const TIPS_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-tips-api?action=movements";
   const DAILY_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-daily-api?action=movements";
   const DASHBOARD_STORAGE_KEY = "betinsight_dashboard_token";
