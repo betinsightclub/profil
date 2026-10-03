@@ -81,12 +81,13 @@ button,input,select{font:inherit}.page{width:min(100% - 32px,920px);margin:0 aut
   </div>
 
   <div class="notice"><strong>Wichtig:</strong> BetInsight nimmt die Zahlung nicht für den Verkäufer entgegen. Bei Banküberweisung bestätigt der Verkäufer später den tatsächlichen Geldeingang. Erst danach dürfen die reservierten Units an den Käufer übertragen werden.</div>
-  <p class="footer-note">BetInsight Auszahlungsmethoden · Version 1.7.0</p>
+  <p class="footer-note">BetInsight Auszahlungsmethoden · Version 2.0.0</p>
 </main>
 <script>
 "use strict";
-const LEGACY_WALLET_READ_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=wallet-read";
-const BANK_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=bank-save";
+const EXCHANGE_API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-exchange-api";
+const BANK_READ_URL=EXCHANGE_API+"?action=bank-read";
+const BANK_WEBHOOK_URL=EXCHANGE_API+"?action=bank-save";
 const EXCHANGE_CONFIG_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-exchange-config?preview=1";
 const EXCHANGE_WALLETS_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-exchange-wallets";
 const dashboardToken=window.BetInsightSession?.getDashboardUuid?.()||"";
@@ -104,8 +105,8 @@ const fallback={
     ["TRX_TRON","tron","TRX","TRX – TRON","native","NATIVE","verified","none",""],
     ["USDT_TRC20","tron","USDT","USDT – TRON (TRC20)","token","TRC20","verified","none",""],
     ["BNB_BSC","bsc","BNB","BNB – BNB Smart Chain","native","NATIVE","verified","none",""],
-    ["USDT_BSC","bsc","USDT","USDT – BNB Smart Chain (BEP20)","token","BEP20","prepared","none",""],
-    ["USDC_BSC","bsc","USDC","USDC – BNB Smart Chain (BEP20)","token","BEP20","contract_pending","none",""],
+    ["USDT_BSC","bsc","USDT","USDT – BNB Smart Chain (BEP20)","token","BEP20","verified","none",""],
+    ["USDC_BSC","bsc","USDC","USDC – BNB Smart Chain (BEP20)","token","BEP20","verified","none",""],
     ["ETH_ETHEREUM","ethereum","ETH","ETH – Ethereum","native","NATIVE","verified","none",""],
     ["USDT_ERC20","ethereum","USDT","USDT – Ethereum (ERC20)","token","ERC20","verified","none",""],
     ["USDC_ERC20","ethereum","USDC","USDC – Ethereum (ERC20)","token","ERC20","verified","none",""],
@@ -173,10 +174,27 @@ async function loadCryptoWallets(){
 async function loadLegacyBank(){
   if(!dashboardToken){$("bankStatus").textContent="Zugang fehlt";return}
   try{
-    const r=await fetch(LEGACY_WALLET_READ_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({dashboard_token:dashboardToken})});
-    const t=String(await r.text()||"").replace(/^\uFEFF/,"").trim();if(!r.ok||!t)return;const d=JSON.parse(t);
-    if(d.bank_iban){$("savedBank").classList.add("show");$("savedHolder").textContent=d.bank_kontoinhaber||"–";$("savedIban").textContent=maskIban(d.bank_iban);$("savedBic").textContent=d.bank_bic||"–";$("savedCountry").textContent=d.bank_land||"–";$("bankStatus").textContent="Bereit";$("bankStatus").classList.add("ok");$("bankHolder").value=d.bank_kontoinhaber||"";$("bankIban").value=d.bank_iban||"";$("bankBic").value=d.bank_bic||"";$("bankCountry").value=d.bank_land||""}else $("bankStatus").textContent="Noch nicht gespeichert";
-  }catch(e){console.warn("Bank read failed",e)}
+    const r=await fetch(BANK_READ_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({dashboard_token:dashboardToken}),cache:"no-store"});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(d?.message||d?.error||"Bankdaten konnten nicht geladen werden");
+    if(d.bank_ready&&d.bank_iban){
+      $("savedBank").classList.add("show");
+      $("savedHolder").textContent=d.bank_kontoinhaber||"–";
+      $("savedIban").textContent=maskIban(d.bank_iban);
+      $("savedBic").textContent=d.bank_bic||"–";
+      $("savedCountry").textContent=d.bank_land||"–";
+      $("bankStatus").textContent="Supabase bereit";
+      $("bankStatus").classList.add("ok");
+      $("bankHolder").value=d.bank_kontoinhaber||"";
+      $("bankIban").value=d.bank_iban||"";
+      $("bankBic").value=d.bank_bic||"";
+      $("bankCountry").value=d.bank_land||"";
+    }else{
+      $("savedBank").classList.remove("show");
+      $("bankStatus").textContent="Einmal in Supabase speichern";
+      $("bankStatus").classList.remove("ok");
+    }
+  }catch(e){console.warn("Supabase bank read failed",e);$("bankStatus").textContent="Prüfung fehlgeschlagen"}
 }
 $("walletType").addEventListener("change",updateWalletHelp);
 $("walletForm").addEventListener("submit",async e=>{
@@ -210,7 +228,7 @@ $("bankForm").addEventListener("submit",async e=>{
   try{
     const r=await fetch(BANK_WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({dashboard_token:dashboardToken,bank_kontoinhaber:holder,bank_iban:iban,bank_bic:bic,bank_land:country,eigene_bank_bestaetigt:"JA"})});
     const text=await r.text();if(!r.ok)throw new Error(text||("HTTP "+r.status));
-    feedback("bankFeedback","Bankverbindung wurde gespeichert.","success");$("confirmOwnBank").checked=false;await loadLegacyBank();
+    feedback("bankFeedback","Bankverbindung wurde direkt in Supabase gespeichert.","success");$("confirmOwnBank").checked=false;await loadLegacyBank();
   }catch(err){feedback("bankFeedback","Bankverbindung konnte nicht gespeichert werden.","error")}finally{btn.disabled=false}
 });
 (async()=>{await loadConfig();updateWalletHelp();await Promise.all([loadCryptoWallets(),loadLegacyBank()])})();
