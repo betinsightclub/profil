@@ -110,7 +110,7 @@
 
   async function ensureDependencies() {
     await loadScript("app-session.js", "BetInsightSession");
-    await loadScript("i18n/core-v2.js", "BetInsightI18n");
+    await loadScript("i18n/core-v2.js?v=20261004-langfix-1", "BetInsightI18n");
     await window.BetInsightI18n.init();
   }
 
