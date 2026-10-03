@@ -8,7 +8,7 @@
 
   const MOVEMENTS_URL = "https://hook.eu1.make.com/hkbe8ldgbg64t423rbfdcaayuw42wx01";
   const TIPS_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-tips-api?action=movements";
-  const DAILY_URL = "https://hook.eu1.make.com/y1f4oiya4mnnr7x27uwgezdq5dkbnslt";
+  const DAILY_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-daily-api?action=movements";
   const DASHBOARD_STORAGE_KEY = "betinsight_dashboard_token";
   const CACHE_PREFIX = "betinsight_account_history_v2:";
   const CACHE_TTL_MS = 5 * 60 * 1000;
@@ -300,7 +300,7 @@
     loading = true;
     lastToken = token;
     render();
-    setStatus("Kontobewegungen werden aus den drei READONLY-Quellen geladen …");
+    setStatus("Kontobewegungen werden aus den drei Nur-Lese-Quellen geladen …");
 
     try {
       const results = await Promise.allSettled([
@@ -314,7 +314,7 @@
         if (result.status === "fulfilled") merged.push(...result.value);
         else {
           failed += 1;
-          console.warn("BetInsight Kontobewegungen: READONLY-Quelle nicht verfügbar", result.reason);
+          console.warn("BetInsight Kontobewegungen: Nur-Lese-Quelle nicht verfügbar", result.reason);
         }
       }
       const seen = new Set();
@@ -331,7 +331,7 @@
       lastRemoteLoadAt = Date.now();
       expanded = false;
       writeCache(token);
-      setStatus(failed ? `Geladen; ${failed} READONLY-Quelle(n) war(en) vorübergehend nicht erreichbar.` : "Aktuell geladen · 5 Minuten lokal zwischengespeichert.");
+      setStatus(failed ? `Geladen; ${failed} Nur-Lese-Quelle(n) war(en) vorübergehend nicht erreichbar.` : "Aktuell geladen · 5 Minuten lokal zwischengespeichert.");
     } catch (error) {
       console.error("BetInsight Kontobewegungen konnten nicht geladen werden:", error);
       setStatus("Kontobewegungen konnten nicht geladen werden. Bitte erneut versuchen.");
