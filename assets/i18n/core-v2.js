@@ -137,6 +137,11 @@
   }
 
   function preferredLanguage() {
+    // An explicit ?lang= selection belongs to the current page and must win over
+    // an older language stored by a previous visit. This keeps the shared app
+    // navigation in the same language as TIME CLASH and other localized routes.
+    const queryLanguage = normalize(new URLSearchParams(window.location.search).get("lang"));
+    if (queryLanguage) return queryLanguage;
     const saved = storedLanguage();
     if (saved) return saved;
     const html = normalize(document.documentElement.lang);
