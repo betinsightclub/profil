@@ -119,6 +119,10 @@
   .tcRealDrop{right:0;min-width:190px}
 }
 
+
+/* TIME CLASH SERIES STRATEGY V1 */
+.tcSeriesStrategy{margin-top:14px;padding-top:14px;border-top:1px solid #17445e}.tcSeriesStrategyToggle{border:1px solid #397ca0;background:#0a3042;color:#eaf8ff;border-radius:10px;padding:10px 14px;font-weight:900;cursor:pointer}.tcSeriesStrategyPanel{margin-top:12px;border:1px solid #214b61;border-radius:14px;background:#04131d;padding:13px}.tcSeriesStrategyPanel.hidden{display:none!important}.tcSeriesStrategyHead{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.tcSeriesStrategyHead b{display:block;color:#74d9ff;font-size:13px;letter-spacing:.08em}.tcSeriesStrategyHead span{display:block;color:#9eb5c3;font-size:12px;margin-top:4px;max-width:650px}.tcSeriesStrategyHint{white-space:nowrap!important;color:#f7c64e!important;border:1px solid #7e6627;border-radius:999px;padding:6px 9px;margin:0!important}.tcSeriesGameTabs{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(104px,1fr);gap:8px;overflow-x:auto;padding:12px 0 9px}.tcSeriesGameTab{border:1px solid #27536c;background:#082638;color:#fff;border-radius:10px;padding:9px 10px;text-align:left;cursor:pointer;min-width:104px}.tcSeriesGameTab b{display:block;font-size:12px}.tcSeriesGameTab span{display:block;color:#8eacbb;font-size:10px;margin-top:3px}.tcSeriesGameTab.active{border-color:#f7c64e;box-shadow:0 0 0 1px #f7c64e55}.tcSeriesGameTab.changed span{color:#ffd66b}.tcSeriesGameEditor{border-top:1px solid #173f55;padding-top:12px}.tcSeriesGameEditorHead{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}.tcSeriesGameEditorHead b{color:#fff}.tcSeriesGameEditorHead small{color:#8eacbb}.tcSeriesMatchGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tcSeriesMatchSide{border:1px solid #173f55;border-radius:12px;padding:11px;background:#061a26}.tcSeriesMatchSide h5{margin:0 0 8px;color:#74d9ff}.tcSeriesMatchSide label{display:grid;grid-template-columns:100px 1fr;gap:8px;align-items:center;margin:7px 0;color:#bcd2de;font-size:11px}.tcSeriesMatchSide select{width:100%;background:#082638;color:#fff;border:1px solid #27536c;border-radius:8px;padding:8px}.tcSeriesMatchActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.tcSeriesMatchActions button{border:1px solid #2d7194;background:#082638;color:#fff;border-radius:9px;padding:8px 10px;font-weight:800;cursor:pointer}.tcSeriesMatchActions button.primary{border-color:#a9832d;color:#ffd66b}.tcSeriesStrategy.disabledForSingle{display:none!important}@media(max-width:760px){.tcSeriesStrategyHead{display:block}.tcSeriesStrategyHint{display:inline-block!important;margin-top:8px!important}.tcSeriesMatchGrid{grid-template-columns:1fr}.tcSeriesMatchSide label{grid-template-columns:1fr}}
+
 /* TIME CLASH TACTICS V1 */
 .tcTacticsEditor.hidden{display:none!important}
 .tcTacticsBox{margin:14px 0 16px;border:1px solid #2a5870;border-radius:16px;background:linear-gradient(135deg,#061b28,#082331);padding:16px}.tcTacticsHead{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}.tcTacticsHead h3{margin:4px 0 5px;font-size:18px}.tcTacticsHead p{margin:0;color:#a9bfca;font-size:13px;max-width:720px}.tcTacticsBadge{white-space:nowrap;border:1px solid #56713a;border-radius:999px;padding:7px 10px;background:#17301c;color:#bff5a8;font-size:10px;font-weight:1000;letter-spacing:.06em}.tcTacticsToggle,.tcTacticActions button{margin-top:13px;border:1px solid #2778a5;background:#082638;color:#fff;border-radius:10px;padding:10px 14px;font-weight:900;cursor:pointer}.tcTacticsEditor{margin-top:14px;padding-top:14px;border-top:1px solid #17445e}.tcTacticsGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tcTacticSide{border:1px solid #173f55;border-radius:14px;padding:13px;background:#04131d}.tcTacticSide h4{margin:0 0 10px;color:#74d9ff}.tcTacticSide label{display:grid;grid-template-columns:110px 1fr;gap:8px;align-items:center;margin:8px 0;color:#bcd2de;font-size:12px}.tcTacticSide select{width:100%;background:#082638;color:#fff;border:1px solid #27536c;border-radius:9px;padding:9px}.tcHistoricHint{display:block;color:#8eacbb;margin-top:10px;line-height:1.35}.tcTacticActions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.tcTacticActions span{color:#9eb5c3;font-size:12px}.tcTacticsBox.manual .tcTacticsBadge{border-color:#9b7427;background:#33270b;color:#ffd66b}@media(max-width:760px){.tcTacticsHead{display:block}.tcTacticsBadge{display:inline-block;margin-top:10px}.tcTacticsGrid{grid-template-columns:1fr}.tcTacticSide label{grid-template-columns:1fr}.tcTacticActions{align-items:flex-start;flex-direction:column}}
@@ -203,6 +207,17 @@
       </div>
     </div>
     <div class="tcTacticActions"><button type="button" id="tcTacticsReset">↺ Historische Aufstellung wiederherstellen</button><span id="tcTacticsNote">Änderungen beeinflussen Spielverlauf, Chancenverteilung und Ticker.</span></div>
+    <div class="tcSeriesStrategy">
+      <button type="button" class="tcSeriesStrategyToggle" id="tcSeriesStrategyToggle">🗂 Serienstrategie anpassen</button>
+      <div class="tcSeriesStrategyPanel hidden" id="tcSeriesStrategyPanel">
+        <div class="tcSeriesStrategyHead">
+          <div><b>TACTIK PRO SPIEL</b><span>Standardmäßig gilt deine Taktik für die ganze Serie. Nur wenn du möchtest, kannst du einzelne Spiele abweichend einstellen.</span></div>
+          <span class="tcSeriesStrategyHint" id="tcSeriesStrategyHint">Alle Spiele: Serienstandard</span>
+        </div>
+        <div class="tcSeriesGameTabs" id="tcSeriesGameTabs"></div>
+        <div class="tcSeriesGameEditor" id="tcSeriesGameEditor"></div>
+      </div>
+    </div>
   </div>
 </section>
 <div class="lengthpick"><b>Serienlänge:</b><button data-len="1">1 Spiel</button><button data-len="3">3 Spiele</button><button class="sel" data-len="5">5 Spiele</button><button data-len="10">10 Spiele</button></div><div class="seoLink"><a href="https://betinsight.club/de/time-clash/community/">🌍 Bereits gespielte TIME CLASHES der Community ansehen →</a></div></section>
@@ -1057,10 +1072,10 @@ function renderPreMatchAI(){
  el.innerHTML="<strong>"+verdict+"</strong> Bewertet werden Teamrating, Startelf und Torwartstärke."+gkNote+" Überraschungen bleiben möglich."
 }
 function updateTeams(){kindAActive=$("#typeA").value;kindBActive=$("#typeB").value;activeMode="public";TA=parseTeam($("#teamA").value||"Italien 2006|🇮🇹|82");TB=parseTeam($("#teamB").value||"Spanien 2026|🇪🇸|83");renderActiveTeams();renderPreMatchAI();if(window.__TC_TACTICS_READY&&typeof tcSyncTacticUi==="function")tcSyncTacticUi();syncSceneAvailability()}
-["A","B"].forEach(s=>{$("#type"+s).onchange=()=>{if(s==="A")chosenA=true;else chosenB=true;fill(s)};$("#group"+s).onchange=()=>{if(s==="A")chosenA=true;else chosenB=true;fill(s);relabelSelector(s)};$("#team"+s).onchange=()=>{if(s==="A")chosenA=true;else chosenB=true;relabelSelector(s);updateTeams()}});$("#typeA").value="nation";$("#typeB").value="nation";fill("A");fill("B");chosenA=!!$("#teamA").value;chosenB=!!$("#teamB").value;updateTeams();renderPreMatchAI();/* Valid visible defaults count as selected: normal users do not have to re-select a team just to unlock Start. */
+["A","B"].forEach(s=>{$("#type"+s).onchange=()=>{if(s==="A")chosenA=true;else chosenB=true;if(typeof tcClearSeriesStrategy==="function")tcClearSeriesStrategy();fill(s)};$("#group"+s).onchange=()=>{if(s==="A")chosenA=true;else chosenB=true;if(typeof tcClearSeriesStrategy==="function")tcClearSeriesStrategy();fill(s);relabelSelector(s)};$("#team"+s).onchange=()=>{if(s==="A")chosenA=true;else chosenB=true;if(typeof tcClearSeriesStrategy==="function")tcClearSeriesStrategy();relabelSelector(s);updateTeams()}});$("#typeA").value="nation";$("#typeB").value="nation";fill("A");fill("B");chosenA=!!$("#teamA").value;chosenB=!!$("#teamB").value;updateTeams();renderPreMatchAI();/* Valid visible defaults count as selected: normal users do not have to re-select a team just to unlock Start. */
 $("#loadLeagueMatch").onclick=()=>{if(!memberClub){$("#next").textContent="Bitte zuerst dein eigenes TIME-CLASH-Team erstellen.";return}let opponent=$("#memberOpponent").value,meta=allCommunityClubs.find(x=>x.club_name===opponent);if(!meta){$("#next").textContent="Kein erlaubter Community-Gegner ausgewählt.";return}let ownPlayers=Array.isArray(memberClub.players)?memberClub.players:[],oppPlayers=Array.isArray(meta.players)?meta.players:[],ownSum=ownPlayers.slice(0,11).reduce((s,p)=>s+Number(p.strength||0),0),oppSum=oppPlayers.slice(0,11).reduce((s,p)=>s+Number(p.strength||0),0);TA=parseTeam(memberClub.club_name+"|🛡️|"+ratingFromStrength(ownSum));TB=parseTeam(meta.club_name+"|🛡️|"+ratingFromStrength(oppSum));kindAActive="myclub";kindBActive="community";activeMode="member";chosenA=chosenB=true;renderActiveTeams();$("#next").textContent="Liga-Duell geladen: "+memberClub.club_name+" gegen "+opponent+". Die obere Auswahl bleibt unverändert."};
 $("#eliteVsSelected").onclick=()=>{if(!memberProgress?.elite){$("#next").textContent="Dieses Crossover wird erst mit Elite freigeschaltet.";return}let realType=$("#typeB").value,realValue=$("#teamB").value;if(!["nation","club"].includes(realType)||!realValue){realType="nation";let first=(catalog.nation[Object.keys(catalog.nation)[0]]||[])[0];realValue=first||"Italien 2006 · Weltmeister|🇮🇹|84"}let ownPlayers=Array.isArray(memberClub?.players)?memberClub.players:[],ownSum=ownPlayers.slice(0,11).reduce((s,p)=>s+Number(p.strength||0),0);TA=parseTeam(memberClub.club_name+"|🛡️|"+ratingFromStrength(ownSum));TB=parseTeam(realValue);kindAActive="myclub";kindBActive=realType;activeMode="elite";chosenA=chosenB=true;renderActiveTeams();$("#next").textContent="Elite-Crossover geladen. Dein Club spielt gegen das oben bei Team B ausgewählte echte/historische Team. Die obere Auswahl bleibt unverändert."};
-document.querySelectorAll("[data-len]").forEach(b=>b.onclick=()=>{if(running)return;seriesLen=+b.dataset.len;$("#heroClaim").textContent="EGAL WIE VIELE SPIELE. EIN SERIENSIEGER.";document.querySelectorAll("[data-len]").forEach(x=>x.classList.toggle("sel",Number(x.dataset.len)===seriesLen));makeSeries()});
+document.querySelectorAll("[data-len]").forEach(b=>b.onclick=()=>{if(running)return;seriesLen=+b.dataset.len;$("#heroClaim").textContent="EGAL WIE VIELE SPIELE. EIN SERIENSIEGER.";document.querySelectorAll("[data-len]").forEach(x=>x.classList.toggle("sel",Number(x.dataset.len)===seriesLen));if(typeof tcRenderSeriesStrategy==="function")tcRenderSeriesStrategy();makeSeries()});
 function conflicts(){
  const a=rosterDB[TA.name]||[],b=rosterDB[TB.name]||[],bm=new Map(b.map(p=>[p.id,p])),hits=a.filter(p=>bm.has(p.id));
  $("#conflictBox").classList.toggle("hidden",!hits.length);
@@ -1307,7 +1322,7 @@ const TC_TACTIC_LABELS={
  nl:{title:"Historische standaardopstelling actief",lead:"Je hoeft niets in te stellen. Zonder wijzigingen gebruikt elk historisch team automatisch zijn referentiesysteem.",badgeAuto:"HISTORISCH · AUTOMATISCH",badgeManual:"TRAINERMODUS · HANDMATIG",toggle:"⚙ Als trainer aanpassen",reset:"↺ Historische opstelling herstellen",note:"Wijzigingen beïnvloeden wedstrijdverloop, kansen en ticker.",formation:"Formatie",style:"Speelstijl",pressing:"Pressing",tempo:"Tempo",historical:"Historisch"},
  "zh-tw":{title:"已啟用歷史預設陣型",lead:"你不需要進行任何設定。若不修改，每支歷史球隊會自動使用其代表性的戰術系統。",badgeAuto:"歷史 · 自動",badgeManual:"教練模式 · 手動",toggle:"⚙ 以教練身份調整",reset:"↺ 恢復歷史陣型",note:"調整會影響比賽走勢、機會分配與即時文字播報。",formation:"陣型",style:"球風",pressing:"逼搶",tempo:"節奏",historical:"歷史"}
 };
-let tcManualTactics=false,tcTacticState={A:null,B:null};
+let tcManualTactics=false,tcTacticState={A:null,B:null},tcSeriesTacticsEnabled=false,tcSeriesTacticState={},tcSeriesEditorGame=0;
 
 function tcYearFromName(name){let m=String(name||"").match(/(?:18|19|20)\d{2}/);return m?Number(m[0]):2000}
 function tcHistoricalTactic(team){
@@ -1344,10 +1359,11 @@ function tcHistoricalTactic(team){
  if(/Barcelona|Spanien/i.test(base))return{formation:"4-3-3",style:"ballbesitz",pressing:"hoch",tempo:"kontrolliert",label:"historisches Referenzsystem",historical:true};
  return{formation:"4-2-3-1",style:"ausgeglichen",pressing:"mittel",tempo:"normal",label:"historisches Referenzsystem",historical:true};
 }
-function tcGetTactic(side){
+function tcGetTactic(side,gameIndex=null){
  const historical=tcHistoricalTactic(side==="A"?TA:TB);
- if(!tcManualTactics||!tcTacticState[side])return historical;
- return {...historical,...tcTacticState[side],historical:false};
+ let base=(!tcManualTactics||!tcTacticState[side])?historical:{...historical,...tcTacticState[side],historical:false};
+ const override=(tcSeriesTacticsEnabled&&gameIndex!==null&&tcSeriesTacticState[gameIndex]?.[side])||null;
+ return override?{...base,...override,historical:false,seriesOverride:true}:base;
 }
 function tcStyleMods(t){
  let m={attack:0,defense:0,mid:0,possession:0,pace:0,fatigue:0,counter:0};
@@ -1416,7 +1432,7 @@ function tcSyncTacticUi(){
    const hint=document.getElementById("tcHistoricHint"+side);if(hint)hint.textContent=(side==="A"?localTeamName(TA.name):localTeamName(TB.name))+" · Historisch: "+h.formation+" · "+tcTacticDisplay(h.style)+" · "+tcTacticDisplay(h.pressing)+" · "+tcTacticDisplay(h.tempo);
  }
  const box=document.getElementById("tcTacticsBox"),badge=document.getElementById("tcTacticsBadge");if(box)box.classList.toggle("manual",tcManualTactics);
- const L=TC_TACTIC_LABELS[TC_DISPLAY_LANG]||TC_TACTIC_LABELS.de;if(badge)badge.textContent=tcManualTactics?L.badgeManual:L.badgeAuto;
+ const L=TC_TACTIC_LABELS[TC_DISPLAY_LANG]||TC_TACTIC_LABELS.de;if(badge)badge.textContent=tcManualTactics?L.badgeManual:L.badgeAuto;if(typeof tcRenderSeriesStrategy==="function")tcRenderSeriesStrategy();
 }
 function tcApplyTacticCopy(){
  const L=TC_TACTIC_LABELS[TC_DISPLAY_LANG]||TC_TACTIC_LABELS.de;
@@ -1424,19 +1440,83 @@ function tcApplyTacticCopy(){
  set("tcTacticsTitle",L.title);set("tcTacticsLead",L.lead);set("tcTacticsBadge",tcManualTactics?L.badgeManual:L.badgeAuto);set("tcTacticsToggle",L.toggle);set("tcTacticsReset",L.reset);set("tcTacticsNote",L.note);
  for(const s of ["A","B"]){set("tcFormationLabel"+s,L.formation);set("tcStyleLabel"+s,L.style);set("tcPressLabel"+s,L.pressing);set("tcTempoLabel"+s,L.tempo)}
 }
+
+function tcClearSeriesStrategy(){
+ tcSeriesTacticState={};tcSeriesEditorGame=0;tcSeriesTacticsEnabled=false;
+ const p=document.getElementById("tcSeriesStrategyPanel");if(p)p.classList.add("hidden");
+ tcRenderSeriesStrategy();
+}
+function tcSeriesBase(side){return tcGetTactic(side,null)}
+function tcSeriesGameTactic(side,idx){
+ const base=tcSeriesBase(side),o=tcSeriesTacticState[idx]?.[side];
+ return o?{...base,...o,historical:false,seriesOverride:true}:base;
+}
+function tcSeriesSet(side,idx,key,value){
+ if(running)return;
+ tcSeriesTacticsEnabled=true;
+ tcSeriesTacticState[idx]=tcSeriesTacticState[idx]||{};
+ tcSeriesTacticState[idx][side]=tcSeriesTacticState[idx][side]||{};
+ tcSeriesTacticState[idx][side][key]=value;
+ tcRenderSeriesStrategy();makeSeries();
+}
+function tcSeriesSelectHtml(kind,side,idx,value){
+ const values=kind==="formation"?TC_TACTIC_OPTIONS.formation:kind==="style"?TC_TACTIC_OPTIONS.style.filter(x=>x!=="historisch"):kind==="pressing"?TC_TACTIC_OPTIONS.pressing:TC_TACTIC_OPTIONS.tempo;
+ return '<select data-series-side="'+side+'" data-series-game="'+idx+'" data-series-key="'+kind+'">'+values.map(v=>'<option value="'+v+'"'+(v===value?' selected':'')+'>'+tcTacticDisplay(v)+'</option>').join("")+'</select>';
+}
+function tcRenderSeriesStrategy(){
+ const wrap=document.querySelector(".tcSeriesStrategy"),panel=document.getElementById("tcSeriesStrategyPanel"),tabs=document.getElementById("tcSeriesGameTabs"),editor=document.getElementById("tcSeriesGameEditor"),hint=document.getElementById("tcSeriesStrategyHint");
+ if(!wrap||!panel||!tabs||!editor)return;
+ wrap.classList.toggle("disabledForSingle",Number(seriesLen)<=1);
+ if(Number(seriesLen)<=1){panel.classList.add("hidden");return}
+ tcSeriesEditorGame=Math.max(0,Math.min(Number(seriesLen)-1,Number(tcSeriesEditorGame||0)));
+ const changed=Object.keys(tcSeriesTacticState).filter(k=>Number(k)<seriesLen&&tcSeriesTacticState[k]&&(tcSeriesTacticState[k].A||tcSeriesTacticState[k].B)).length;
+ if(hint)hint.textContent=changed?changed+" Spiel"+(changed===1?"":"e")+" individuell":"Alle Spiele: Serienstandard";
+ tabs.innerHTML=Array.from({length:seriesLen},(_,idx)=>{
+   const ch=!!(tcSeriesTacticState[idx]?.A||tcSeriesTacticState[idx]?.B);
+   return '<button type="button" class="tcSeriesGameTab '+(idx===tcSeriesEditorGame?'active ':'')+(ch?'changed':'')+'" data-series-tab="'+idx+'"><b>SPIEL '+(idx+1)+'</b><span>'+(ch?'INDIVIDUELL':'STANDARD')+'</span></button>';
+ }).join("");
+ const idx=tcSeriesEditorGame,a=tcSeriesGameTactic("A",idx),b=tcSeriesGameTactic("B",idx);
+ editor.innerHTML='<div class="tcSeriesGameEditorHead"><b>Spiel '+(idx+1)+' individuell planen</b><small>Nicht ändern = Serienstandard</small></div>'+
+ '<div class="tcSeriesMatchGrid"><div class="tcSeriesMatchSide"><h5>'+localTeamName(TA.name)+'</h5>'+
+ '<label>Formation '+tcSeriesSelectHtml("formation","A",idx,a.formation)+'</label>'+
+ '<label>Spielstil '+tcSeriesSelectHtml("style","A",idx,a.style)+'</label>'+
+ '<label>Pressing '+tcSeriesSelectHtml("pressing","A",idx,a.pressing)+'</label>'+
+ '<label>Tempo '+tcSeriesSelectHtml("tempo","A",idx,a.tempo)+'</label></div>'+
+ '<div class="tcSeriesMatchSide"><h5>'+localTeamName(TB.name)+'</h5>'+
+ '<label>Formation '+tcSeriesSelectHtml("formation","B",idx,b.formation)+'</label>'+
+ '<label>Spielstil '+tcSeriesSelectHtml("style","B",idx,b.style)+'</label>'+
+ '<label>Pressing '+tcSeriesSelectHtml("pressing","B",idx,b.pressing)+'</label>'+
+ '<label>Tempo '+tcSeriesSelectHtml("tempo","B",idx,b.tempo)+'</label></div></div>'+
+ '<div class="tcSeriesMatchActions"><button type="button" id="tcSeriesResetGame">Spiel '+(idx+1)+' auf Serienstandard</button><button type="button" class="primary" id="tcSeriesApplyFollowing">Diese Taktik auf alle folgenden Spiele übernehmen</button></div>';
+ tabs.querySelectorAll("[data-series-tab]").forEach(btn=>btn.onclick=()=>{tcSeriesEditorGame=Number(btn.dataset.seriesTab);tcRenderSeriesStrategy()});
+ editor.querySelectorAll("select[data-series-key]").forEach(sel=>sel.onchange=()=>tcSeriesSet(sel.dataset.seriesSide,Number(sel.dataset.seriesGame),sel.dataset.seriesKey,sel.value));
+ document.getElementById("tcSeriesResetGame").onclick=()=>{delete tcSeriesTacticState[idx];tcSeriesTacticsEnabled=Object.keys(tcSeriesTacticState).length>0;tcRenderSeriesStrategy();makeSeries()};
+ document.getElementById("tcSeriesApplyFollowing").onclick=()=>{
+   const curA=tcSeriesGameTactic("A",idx),curB=tcSeriesGameTactic("B",idx);
+   for(let n=idx+1;n<seriesLen;n++){tcSeriesTacticState[n]={A:{formation:curA.formation,style:curA.style,pressing:curA.pressing,tempo:curA.tempo},B:{formation:curB.formation,style:curB.style,pressing:curB.pressing,tempo:curB.tempo}}}
+   tcSeriesTacticsEnabled=Object.keys(tcSeriesTacticState).length>0;tcRenderSeriesStrategy();makeSeries();
+ };
+}
+function tcInitSeriesStrategy(){
+ const btn=document.getElementById("tcSeriesStrategyToggle"),panel=document.getElementById("tcSeriesStrategyPanel");
+ if(!btn||!panel)return;
+ btn.onclick=()=>{if(running)return;panel.classList.toggle("hidden");tcSeriesTacticsEnabled=true;tcRenderSeriesStrategy()};
+ tcRenderSeriesStrategy();
+}
+
 function tcInitTactics(){
  const toggle=document.getElementById("tcTacticsToggle"),editor=document.getElementById("tcTacticsEditor"),reset=document.getElementById("tcTacticsReset");
  if(!toggle||!editor)return;window.__TC_TACTICS_READY=true;tcApplyTacticCopy();tcSyncTacticUi();
  toggle.onclick=()=>{tcManualTactics=true;editor.classList.remove("hidden");tcTacticState={A:{...tcHistoricalTactic(TA)},B:{...tcHistoricalTactic(TB)}};tcSyncTacticUi();makeSeries()};
  for(const side of ["A","B"]){for(const k of [["Formation","formation"],["Style","style"],["Press","pressing"],["Tempo","tempo"]]){const el=document.getElementById("tc"+k[0]+side);if(el)el.onchange=()=>{if(running)return;tcManualTactics=true;tcTacticState[side]=tcTacticState[side]||{...tcHistoricalTactic(side==="A"?TA:TB)};tcTacticState[side][k[1]]=el.value;tcTacticState[side].historical=false;tcSyncTacticUi();makeSeries()}}}
- if(reset)reset.onclick=()=>{if(running)return;tcManualTactics=false;tcTacticState={A:null,B:null};editor.classList.add("hidden");tcSyncTacticUi();makeSeries()};
+ if(reset)reset.onclick=()=>{if(running)return;tcManualTactics=false;tcTacticState={A:null,B:null};tcClearSeriesStrategy();editor.classList.add("hidden");tcSyncTacticUi();makeSeries()};
 }
-setTimeout(tcInitTactics,0);
+setTimeout(()=>{tcInitTactics();tcInitSeriesStrategy()},0);
 
 function keeperSaveChance(strength){return Math.max(.22,Math.min(.62,.28+(Math.max(1,Math.min(25,strength))-5)*.015))}
 function buildGame(idx){
  let plans={A:buildSubPlan("A"),B:buildSubPlan("B")},dismissals={A:{},B:{}},yellows={A:{},B:{}},ev=[{m:1,msg:"⚽ Anpfiff! Spiel "+(idx+1)+" der TIME-CLASH-Serie läuft."}],ratingA=TA.rating,ratingB=TB.rating;
- let tacA=tcGetTactic("A"),tacB=tcGetTactic("B"),tacticMatch=tcTacticMatchup(tacA,tacB);ev.push(...tcTacticTickerEvents(tacA,tacB,tacticMatch));
+ let tacA=tcGetTactic("A",idx),tacB=tcGetTactic("B",idx),tacticMatch=tcTacticMatchup(tacA,tacB);ev.push(...tcTacticTickerEvents(tacA,tacB,tacticMatch));
  let preA=effectiveMetrics("A",plans,dismissals),preB=effectiveMetrics("B",plans,dismissals);
  let sideProb=Math.max(.25,Math.min(.75,.5+(preA.attack+preA.midfield-preB.attack-preB.midfield)*.018+(ratingA-ratingB)*.004+tacticMatch.possessionEdge));
  let target=30+rnd(9),minutes=new Set([1,45,90]);while(minutes.size<target)minutes.add(3+rnd(86));
