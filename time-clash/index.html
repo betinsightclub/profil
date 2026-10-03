@@ -1513,6 +1513,15 @@ function tcInitTactics(){
 }
 setTimeout(()=>{tcInitTactics();tcInitSeriesStrategy()},0);
 
+function tcAppearanceSnapshot(side,plans){
+ const base=startingLineup(side),incoming=((plans&&plans[side])||[]).map(x=>x.in).filter(Boolean),seen=new Set(),out=[];
+ for(const p of [...base,...incoming]){const id=String(p?.id||p?.name||"");if(!id||seen.has(id))continue;seen.add(id);out.push({id:String(p.id||""),name:String(p.name||""),role:String(p.prole||p.role||"Feldspieler")})}
+ return out;
+}
+function tcGoalkeeperSnapshot(side){
+ const p=startingLineup(side).find(x=>String(x.prole||x.role)==="Torwart")||goalkeeperObj(side,1,{A:[],B:[]});
+ return p?{id:String(p.id||""),name:String(p.name||""),role:"Torwart"}:null;
+}
 function keeperSaveChance(strength){return Math.max(.22,Math.min(.62,.28+(Math.max(1,Math.min(25,strength))-5)*.015))}
 function buildGame(idx){
  let plans={A:buildSubPlan("A"),B:buildSubPlan("B")},dismissals={A:{},B:{}},yellows={A:{},B:{}},ev=[{m:1,msg:"⚽ Anpfiff! Spiel "+(idx+1)+" der TIME-CLASH-Serie läuft."}],ratingA=TA.rating,ratingB=TB.rating;
@@ -1573,7 +1582,7 @@ function buildGame(idx){
  ev.push({m:45,msg:"⏱ Halbzeit."},{m:90,msg:"⏱ Abpfiff."});ev.sort((x,y)=>x.m-y.m||((x.type||"").startsWith("sub")?-2:((x.type||"").startsWith("goal")?1:-1)));
  ga=ev.filter(e=>e.type==="goalA").length;gb=ev.filter(e=>e.type==="goalB").length;
  let posA=Math.max(31,Math.min(69,Math.round(50+(ma.midfield-mb.midfield)*1.6+(ratingA-ratingB)*.11+tacticMatch.possessionEdge*48+(Math.random()-.5)*7)));
- return{ga,gb,ev,venue:seriesVenueOrder[idx]||one(venues),weather:one(weatherList),posA,subs:plans,dismissals,yellows,model:{keeperA,keeperB,lambdaA,lambdaB}}
+ return{ga,gb,ev,venue:seriesVenueOrder[idx]||one(venues),weather:one(weatherList),posA,subs:plans,dismissals,yellows,appearanceA:tcAppearanceSnapshot("A",plans),appearanceB:tcAppearanceSnapshot("B",plans),goalkeeperA:tcGoalkeeperSnapshot("A"),goalkeeperB:tcGoalkeeperSnapshot("B"),model:{keeperA,keeperB,lambdaA,lambdaB}}
 }
 const ACTIVE_SERIES_KEY="bi_time_clash_active_series_v1";
 function activeSeriesOwner(){return ownerRef()||guestRef()}
