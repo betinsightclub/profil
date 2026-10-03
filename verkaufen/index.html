@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- BetInsight · Units verkaufen · Krypto-Wallets aufklappbar mit Einzelstatus · 2026.10.03 -->
+<!-- BetInsight · Units verkaufen · robuste Wallet-Ampel mit Fallback-Konfiguration · 2026.10.03 -->
 <html lang="de">
 <head>
 <!-- BETINSIGHT APP NOINDEX START -->
@@ -9,7 +9,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <meta name="theme-color" content="#071019">
-  <meta name="application-version" content="2.0.2">
+  <meta name="application-version" content="2.0.3">
   <title>Units verkaufen | BetInsight Club</title>
   <link rel="stylesheet" href="../assets/app-navigation.css">
   <script src="../assets/app-session.js"></script>
@@ -60,7 +60,7 @@
   <ul class="rules"><li><strong>Neu:</strong> 5 Units können jetzt regulär verkauft werden; die Gebühr von 0,5 Unit wird unten automatisch berechnet.</li><li>Mindestens eine Zahlungsart muss ausgewählt sein.</li><li>Bei Banküberweisung werden 1 € Käufer-Service und 1 zusätzliche Unit-Reserve verwendet.</li><li>Die normale Verkaufsgebühr bleibt wie bisher bestehen.</li><li>Geschenk-Units sind nicht verkaufbar.</li></ul>
 </section>
 <section class="card"><div class="card-head"><div><h2>Meine Verkaufsangebote</h2><p>Aktive Angebote kannst du stornieren oder ausschließlich im Verkaufspreis bearbeiten. Bei Bankverkäufen bestätigst du den tatsächlichen Geldeingang hier.</p></div></div><div class="my-offers-list" id="myOffers"><div class="my-offers-empty">Angebote werden geladen …</div></div></section>
-<p class="footer-note">BetInsight Units verkaufen · Version 2.0.2</p>
+<p class="footer-note">BetInsight Units verkaufen · Version 2.0.3</p>
 </main>
 <script>
 "use strict";
@@ -73,7 +73,17 @@ const EXCHANGE_CONFIG_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1
 const EXCHANGE_WALLETS_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-exchange-wallets";
 const EXCHANGE_WALLET_VALIDATE_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-exchange-wallet-validate";
 const dashboardToken=window.BetInsightSession?.getDashboardUuid?.()||"";
-const ALLOWED_PRICES=[.80,.85,.90,.95,1.00];
+const ALLOWED_PRICES=[.80,.85,.90,.95,1.00];\nconst CRYPTO_METHOD_FALLBACK=[
+  ["TRX_TRON","TRX – TRON"],["USDT_TRC20","USDT – TRON (TRC20)"],
+  ["BNB_BSC","BNB – BNB Smart Chain"],["USDT_BSC","USDT – BNB Smart Chain (BEP20)"],["USDC_BSC","USDC – BNB Smart Chain (BEP20)"],
+  ["ETH_ETHEREUM","ETH – Ethereum"],["USDT_ERC20","USDT – Ethereum (ERC20)"],["USDC_ERC20","USDC – Ethereum (ERC20)"],
+  ["POL_POLYGON","POL – Polygon PoS"],["USDT_POLYGON","USDT – Polygon PoS"],["USDC_POLYGON","USDC – Polygon PoS"],
+  ["SOL_SOLANA","SOL – Solana"],["USDT_SOLANA","USDT – Solana"],["USDC_SOLANA","USDC – Solana"],
+  ["BTC_BITCOIN","BTC – Bitcoin"],["LTC_LITECOIN","LTC – Litecoin"],["DOGE_DOGECOIN","DOGE – Dogecoin"],
+  ["XRP_XRPL","XRP – XRP Ledger"],["USDC_XRPL","USDC – XRP Ledger"],
+  ["XLM_STELLAR","XLM – Stellar"],["USDC_STELLAR","USDC – Stellar"],
+  ["TON_TON","TON – TON"],["USDT_TON","USDT – TON"]
+].map(([method_key,display_name])=>({method_key,display_name}));
 let balance={sellable:0,earned:0,purchased:0},methodState={crypto:false,bank:false},busy=false,ownOffers=[],bankStatusBusy=false,cryptoMethods=[],savedCryptoWallets=[],selectedCryptoMethodKey="",selectedCryptoWallet=null,cryptoPanelOpen=false;
 const $=id=>document.getElementById(id),eur=n=>Number(n||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €",num=n=>Number(n||0).toLocaleString("de-DE",{maximumFractionDigits:2});
 function esc(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
@@ -110,18 +120,27 @@ async function chooseCryptoMethod(key){
 }
 async function loadCryptoMethods(){
   if(!dashboardToken)return;
+  cryptoMethods=CRYPTO_METHOD_FALLBACK.slice();
+  renderCryptoMethods();
   try{
-    const [cr,wr]=await Promise.all([
-      fetch(EXCHANGE_CONFIG_URL,{cache:"no-store"}),
-      fetch(EXCHANGE_WALLETS_URL+"?token="+encodeURIComponent(dashboardToken),{cache:"no-store"})
-    ]);
-    const cd=await cr.json(),wd=await wr.json();
-    cryptoMethods=Array.isArray(cd?.methods)?cd.methods:[];
+    const cr=await fetch(EXCHANGE_CONFIG_URL,{cache:"no-store"});
+    if(cr.ok){
+      const cd=await cr.json().catch(()=>({}));
+      if(Array.isArray(cd?.methods)&&cd.methods.length)cryptoMethods=cd.methods;
+    }
+  }catch(e){console.warn("Krypto-Konfiguration nicht erreichbar – Fallback aktiv",e)}
+  try{
+    const wr=await fetch(EXCHANGE_WALLETS_URL+"?token="+encodeURIComponent(dashboardToken),{cache:"no-store"});
+    const wd=await wr.json().catch(()=>({}));
+    if(!wr.ok||wd?.ok===false)throw new Error(wd?.error||"Wallet-Abruf fehlgeschlagen");
     savedCryptoWallets=Array.isArray(wd?.wallets)?wd.wallets.filter(w=>w.is_enabled!==false):[];
-    methodState.crypto=savedCryptoWallets.length>0;
-    if(selectedCryptoMethodKey&&!savedCryptoWallets.some(w=>w.method_key===selectedCryptoMethodKey)){selectedCryptoMethodKey="";selectedCryptoWallet=null}
-    renderCryptoMethods();renderMethodState();renderSummary();
-  }catch(e){console.warn("Krypto-Wallets konnten nicht geladen werden",e);savedCryptoWallets=[];methodState.crypto=false;renderCryptoMethods();renderMethodState();renderSummary()}
+  }catch(e){
+    console.warn("Krypto-Wallets konnten nicht geladen werden",e);
+    savedCryptoWallets=[];
+  }
+  methodState.crypto=savedCryptoWallets.some(w=>String(w.address||"").trim().length>0);
+  if(selectedCryptoMethodKey&&!savedCryptoWallets.some(w=>w.method_key===selectedCryptoMethodKey&&String(w.address||"").trim())){selectedCryptoMethodKey="";selectedCryptoWallet=null}
+  renderCryptoMethods();renderMethodState();renderSummary();
 }
 async function loadBalance(){if(!dashboardToken){setStatus("Zugang fehlt",false);return}try{const r=await fetch(CREATE_WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({dashboard_token:dashboardToken,menge_referral_units:0,preis_pro_unit_eur:0,request_id:""}),cache:"no-store"});const t=String(await r.text()||"").replace(/^\uFEFF/,"").trim();if(!r.ok||!t)throw new Error("Statuscheck fehlgeschlagen");const d=JSON.parse(t);balance={sellable:Number(d.sellable_units||0),earned:Number(d.earned_units||0),purchased:Number(d.purchased_units||0)};methodState={crypto:methodState.crypto,bank:Number(d.bank_ready||0)===1||d.bank_ready===true};$("sellableBalance").textContent=num(balance.sellable);$("earnedBalance").textContent=num(balance.earned);$("purchasedBalance").textContent=num(balance.purchased);renderMethodState();setStatus(methodState.crypto||methodState.bank?"Bereit":"Zahlungsart fehlt",methodState.crypto||methodState.bank);renderSummary()}catch(e){console.error(e);setStatus("Prüfung fehlgeschlagen",false);showFeedback("Unit-Bestand oder Auszahlungsmethoden konnten nicht geladen werden.","error")}}
 function requestId(){return(globalThis.crypto?.randomUUID?.()||("req-"+Date.now()+"-"+Math.random().toString(16).slice(2))).replace(/[^a-zA-Z0-9-]/g,"")}
