@@ -123,7 +123,8 @@ swap.addEventListener("click",async()=>{
   amount.value="";
   window.dispatchEvent(new CustomEvent("bi:balances-changed",{detail:{units:available,ct:permanentBalance}}));
   calc();
-  setTimeout(()=>{loadBalances().catch?.(()=>{})},250);
+  const successText=status.textContent;
+  setTimeout(async()=>{try{await loadBalances();status.textContent=successText}catch(e){}},250);
  }catch(e){status.textContent="Tausch nicht durchgeführt: "+String(e.message||e)+". Deine Anzeige wurde nicht als erfolgreicher Tausch bestätigt."}
  finally{swap.disabled=false}
 });
