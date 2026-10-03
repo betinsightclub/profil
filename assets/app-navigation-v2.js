@@ -503,7 +503,7 @@
       strip.querySelector('[data-bi-balance="points"]').textContent = Math.trunc(num(data.clash_points ?? data.time_clash_points ?? 0)).toLocaleString();
       strip.querySelector('[data-bi-balance="membership"]').textContent = String(data.mitgliedschaft || data.membership || "Basis");
 
-      let ct = num(data.permanent_game_credits ?? data.clash_tokens ?? data.time_clash_tokens ?? 0);
+      let ct = num(data.clash_tokens ?? data.time_clash_tokens ?? ((num(data.weekly_free_remaining)||0)+(num(data.permanent_game_credits)||0)));
       try {
         const credential = String(data.dashboard_token || dashboardAccess || profileAccess || access).trim();
         const url = new URL(clashApi);
@@ -513,7 +513,7 @@
         const cr = await fetch(url.toString(), {cache:"no-store", credentials:"omit"});
         if (cr.ok) {
           const cd = await cr.json();
-          ct = num(cd.permanent_game_credits ?? cd.balance?.permanent_game_credits ?? cd.clash_tokens ?? ct);
+          ct = num(cd.clash_tokens ?? cd.balance?.clash_tokens ?? ((num(cd.weekly_free_remaining ?? cd.balance?.weekly_free_remaining)||0)+(num(cd.permanent_game_credits ?? cd.balance?.permanent_game_credits)||0)) ?? ct);
           const livePoints = num(cd.clash_points ?? cd.balance?.clash_points ?? cd.time_clash_points ?? data.clash_points ?? data.time_clash_points ?? 0);
           strip.querySelector('[data-bi-balance="points"]').textContent = Math.max(0, Math.trunc(livePoints)).toLocaleString();
         }
