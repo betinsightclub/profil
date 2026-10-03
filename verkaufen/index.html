@@ -9,7 +9,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <meta name="theme-color" content="#071019">
-  <meta name="application-version" content="2.0.3">
+  <meta name="application-version" content="2.0.4">
   <title>Units verkaufen | BetInsight Club</title>
   <link rel="stylesheet" href="../assets/app-navigation.css">
   <script src="../assets/app-session.js"></script>
@@ -60,7 +60,7 @@
   <ul class="rules"><li><strong>Neu:</strong> 5 Units können jetzt regulär verkauft werden; die Gebühr von 0,5 Unit wird unten automatisch berechnet.</li><li>Mindestens eine Zahlungsart muss ausgewählt sein.</li><li>Bei Banküberweisung werden 1 € Käufer-Service und 1 zusätzliche Unit-Reserve verwendet.</li><li>Die normale Verkaufsgebühr bleibt wie bisher bestehen.</li><li>Geschenk-Units sind nicht verkaufbar.</li></ul>
 </section>
 <section class="card"><div class="card-head"><div><h2>Meine Verkaufsangebote</h2><p>Aktive Angebote kannst du stornieren oder ausschließlich im Verkaufspreis bearbeiten. Bei Bankverkäufen bestätigst du den tatsächlichen Geldeingang hier.</p></div></div><div class="my-offers-list" id="myOffers"><div class="my-offers-empty">Angebote werden geladen …</div></div></section>
-<p class="footer-note">BetInsight Units verkaufen · Version 2.0.3</p>
+<p class="footer-note">BetInsight Units verkaufen · Version 2.0.4</p>
 </main>
 <script>
 "use strict";
@@ -73,7 +73,8 @@ const EXCHANGE_CONFIG_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1
 const EXCHANGE_WALLETS_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-exchange-wallets";
 const EXCHANGE_WALLET_VALIDATE_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-exchange-wallet-validate";
 const dashboardToken=window.BetInsightSession?.getDashboardUuid?.()||"";
-const ALLOWED_PRICES=[.80,.85,.90,.95,1.00];\nconst CRYPTO_METHOD_FALLBACK=[
+const ALLOWED_PRICES=[.80,.85,.90,.95,1.00];
+const CRYPTO_METHOD_FALLBACK=[
   ["TRX_TRON","TRX – TRON"],["USDT_TRC20","USDT – TRON (TRC20)"],
   ["BNB_BSC","BNB – BNB Smart Chain"],["USDT_BSC","USDT – BNB Smart Chain (BEP20)"],["USDC_BSC","USDC – BNB Smart Chain (BEP20)"],
   ["ETH_ETHEREUM","ETH – Ethereum"],["USDT_ERC20","USDT – Ethereum (ERC20)"],["USDC_ERC20","USDC – Ethereum (ERC20)"],
