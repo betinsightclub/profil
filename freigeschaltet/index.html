@@ -58,7 +58,7 @@ Version: 2026.08.28-01
 
 <script>
 "use strict";
-const FREIGESCHALTETE_TIPPS_WEBHOOK="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=tips-unlocked";
+const FREIGESCHALTETE_TIPPS_WEBHOOK="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-tips-api?action=unlocked";
 const tr=(key,fallback)=>window.BetInsightI18n?.t(key,{},fallback)||fallback;
 const getToken=()=>window.BetInsightSession?.getDashboardUuid?.()||"";
 const isBrazilRestricted=()=>window.BetInsightRegionalRestrictions?.isBrazilBlocked?.(window.BetInsightRegionalRestrictions?.currentCountry?.())===true;
