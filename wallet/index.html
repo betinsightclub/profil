@@ -106,6 +106,46 @@ function clearFeedback(id){const el=$(id);el.textContent="";el.className="feedba
 function maskIban(value){const v=String(value||"").replace(/\s+/g,"");if(v.length<8)return v||"–";return v.slice(0,4)+" •••• •••• "+v.slice(-4)}
 function walletKey(data){const c=String(data.wallet_coin||"").toUpperCase(),n=String(data.wallet_netzwerk||"").toUpperCase(),s=String(data.wallet_standard||"").toUpperCase();if(c==="USDT"&&n==="TRON"&&s==="TRC20")return"USDT_TRC20";if(c==="TRX"&&n==="TRON")return"TRX_TRON";return""}
 function refreshExamples(){const o=walletOptions[$("walletType").value];$("walletExamples").textContent=o?`${o.coin} über ${o.network}. Kontrolliere das Netzwerk vor dem Speichern.`:"Wähle zuerst Kryptowährung und Netzwerk aus."}
+const exchangePreviewFallback={
+  networks:[
+    {network_key:"tron",display_name:"TRON"},
+    {network_key:"bsc",display_name:"BNB Smart Chain (BEP20)"},
+    {network_key:"ethereum",display_name:"Ethereum (ERC20)"},
+    {network_key:"polygon",display_name:"Polygon PoS"},
+    {network_key:"solana",display_name:"Solana"},
+    {network_key:"bitcoin",display_name:"Bitcoin"},
+    {network_key:"litecoin",display_name:"Litecoin"},
+    {network_key:"dogecoin",display_name:"Dogecoin"},
+    {network_key:"xrpl",display_name:"XRP Ledger"},
+    {network_key:"stellar",display_name:"Stellar"},
+    {network_key:"ton",display_name:"TON"}
+  ],
+  methods:[
+    {method_key:"TRX_TRON",network_key:"tron",symbol:"TRX",display_name:"TRX – TRON",asset_type:"native",token_standard:"NATIVE",verification_status:"verified",memo_mode:"none"},
+    {method_key:"USDT_TRC20",network_key:"tron",symbol:"USDT",display_name:"USDT – TRON (TRC20)",asset_type:"token",token_standard:"TRC20",verification_status:"verified",memo_mode:"none"},
+    {method_key:"BNB_BSC",network_key:"bsc",symbol:"BNB",display_name:"BNB – BNB Smart Chain",asset_type:"native",token_standard:"NATIVE",verification_status:"verified",memo_mode:"none"},
+    {method_key:"USDT_BSC",network_key:"bsc",symbol:"USDT",display_name:"USDT – BNB Smart Chain (BEP20)",asset_type:"token",token_standard:"BEP20",verification_status:"prepared",memo_mode:"none"},
+    {method_key:"USDC_BSC",network_key:"bsc",symbol:"USDC",display_name:"USDC – BNB Smart Chain (BEP20)",asset_type:"token",token_standard:"BEP20",verification_status:"contract_pending",memo_mode:"none"},
+    {method_key:"ETH_ETHEREUM",network_key:"ethereum",symbol:"ETH",display_name:"ETH – Ethereum",asset_type:"native",token_standard:"NATIVE",verification_status:"verified",memo_mode:"none"},
+    {method_key:"USDT_ERC20",network_key:"ethereum",symbol:"USDT",display_name:"USDT – Ethereum (ERC20)",asset_type:"token",token_standard:"ERC20",verification_status:"verified",memo_mode:"none"},
+    {method_key:"USDC_ERC20",network_key:"ethereum",symbol:"USDC",display_name:"USDC – Ethereum (ERC20)",asset_type:"token",token_standard:"ERC20",verification_status:"verified",memo_mode:"none"},
+    {method_key:"POL_POLYGON",network_key:"polygon",symbol:"POL",display_name:"POL – Polygon PoS",asset_type:"native",token_standard:"NATIVE",verification_status:"verified",memo_mode:"none"},
+    {method_key:"USDT_POLYGON",network_key:"polygon",symbol:"USDT",display_name:"USDT – Polygon PoS",asset_type:"token",token_standard:"ERC20",verification_status:"contract_pending",memo_mode:"none"},
+    {method_key:"USDC_POLYGON",network_key:"polygon",symbol:"USDC",display_name:"USDC – Polygon PoS",asset_type:"token",token_standard:"ERC20",verification_status:"verified",memo_mode:"none"},
+    {method_key:"SOL_SOLANA",network_key:"solana",symbol:"SOL",display_name:"SOL – Solana",asset_type:"native",token_standard:"NATIVE",verification_status:"verified",memo_mode:"none"},
+    {method_key:"USDT_SOLANA",network_key:"solana",symbol:"USDT",display_name:"USDT – Solana",asset_type:"token",token_standard:"SPL",verification_status:"contract_pending",memo_mode:"none"},
+    {method_key:"USDC_SOLANA",network_key:"solana",symbol:"USDC",display_name:"USDC – Solana",asset_type:"token",token_standard:"SPL",verification_status:"verified",memo_mode:"none"},
+    {method_key:"BTC_BITCOIN",network_key:"bitcoin",symbol:"BTC",display_name:"BTC – Bitcoin",asset_type:"native",token_standard:"NATIVE",verification_status:"verified",memo_mode:"none"},
+    {method_key:"LTC_LITECOIN",network_key:"litecoin",symbol:"LTC",display_name:"LTC – Litecoin",asset_type:"native",token_standard:"NATIVE",verification_status:"verified",memo_mode:"none"},
+    {method_key:"DOGE_DOGECOIN",network_key:"dogecoin",symbol:"DOGE",display_name:"DOGE – Dogecoin",asset_type:"native",token_standard:"NATIVE",verification_status:"verified",memo_mode:"none"},
+    {method_key:"XRP_XRPL",network_key:"xrpl",symbol:"XRP",display_name:"XRP – XRP Ledger",asset_type:"native",token_standard:"NATIVE",verification_status:"verified",memo_mode:"optional",memo_label:"Destination Tag"},
+    {method_key:"USDC_XRPL",network_key:"xrpl",symbol:"USDC",display_name:"USDC – XRP Ledger",asset_type:"token",token_standard:"XRPL_TOKEN",verification_status:"prepared",memo_mode:"optional",memo_label:"Destination Tag"},
+    {method_key:"XLM_STELLAR",network_key:"stellar",symbol:"XLM",display_name:"XLM – Stellar",asset_type:"native",token_standard:"NATIVE",verification_status:"verified",memo_mode:"optional",memo_label:"Memo"},
+    {method_key:"USDC_STELLAR",network_key:"stellar",symbol:"USDC",display_name:"USDC – Stellar",asset_type:"token",token_standard:"STELLAR_ASSET",verification_status:"prepared",memo_mode:"optional",memo_label:"Memo"},
+    {method_key:"TON_TON",network_key:"ton",symbol:"TON",display_name:"TON – TON",asset_type:"native",token_standard:"NATIVE",verification_status:"verified",memo_mode:"optional",memo_label:"Kommentar / Memo"},
+    {method_key:"USDT_TON",network_key:"ton",symbol:"USDT",display_name:"USDT – TON",asset_type:"token",token_standard:"JETTON",verification_status:"contract_pending",memo_mode:"optional",memo_label:"Kommentar / Memo"}
+  ]
+};
 let exchangePreviewMethods=[];
 function renderExchangePreview(data){
   const methods=Array.isArray(data?.methods)?data.methods:[];
@@ -125,8 +165,15 @@ function updatePreviewMemo(){
   wrap.style.display="block";$("previewMemoLabel").textContent=m.memo_label||"Memo / Tag";$("previewMemo").placeholder=m.memo_mode==="required"?"Erforderlich":"Optional";
 }
 async function loadExchangePreview(){
-  try{const r=await fetch(EXCHANGE_CONFIG_URL,{cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);renderExchangePreview(await r.json())}
-  catch(e){console.warn("Exchange preview load failed",e);$("networkList").innerHTML='<div class="network-group">Vorschau konnte nicht geladen werden.</div>'}
+  renderExchangePreview(exchangePreviewFallback);
+  try{
+    const r=await fetch(EXCHANGE_CONFIG_URL,{cache:"no-store"});
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const live=await r.json();
+    if(live?.ok)renderExchangePreview(live);
+  }catch(e){
+    console.warn("Exchange preview load failed; static prepared list remains visible",e);
+  }
 }
 function renderSaved(data){
   if(data.wallet_adresse){$("savedCrypto").classList.add("show");$("savedCoin").textContent=data.wallet_coin||"–";$("savedNetwork").textContent=[data.wallet_netzwerk,data.wallet_standard].filter(Boolean).join(" · ")||"–";$("savedAddress").textContent=data.wallet_adresse;$("cryptoStatus").textContent="Gespeichert";$("cryptoStatus").classList.add("ok");const key=walletKey(data);if(key){$("walletType").value=key;$("walletAddress").value=data.wallet_adresse;refreshExamples()}}
