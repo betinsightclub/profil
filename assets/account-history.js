@@ -164,8 +164,10 @@
   }
 
   async function fetchList(url, token) {
-    const target = `${url}?dashboard_token=${encodeURIComponent(token)}&_=${Date.now()}`;
-    const response = await fetch(target, { method: "GET", cache: "no-store", credentials: "omit", redirect: "follow" });
+    const target = new URL(url);
+    target.searchParams.set("dashboard_token", token);
+    target.searchParams.set("_", String(Date.now()));
+    const response = await fetch(target.toString(), { method: "GET", cache: "no-store", credentials: "omit", redirect: "follow" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const raw = String(await response.text() || "").replace(/^\uFEFF/, "").trim();
     if (!raw) return [];
