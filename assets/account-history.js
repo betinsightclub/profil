@@ -7,7 +7,7 @@
   "use strict";
 
   const MOVEMENTS_URL = "https://hook.eu1.make.com/hkbe8ldgbg64t423rbfdcaayuw42wx01";
-  const TIPS_URL = "https://hook.eu1.make.com/xkhzh67vdq0bn6hfu7pn97sx1i5r3jvy";
+  const TIPS_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-tips-api?action=movements";
   const DAILY_URL = "https://hook.eu1.make.com/y1f4oiya4mnnr7x27uwgezdq5dkbnslt";
   const DASHBOARD_STORAGE_KEY = "betinsight_dashboard_token";
   const CACHE_PREFIX = "betinsight_account_history_v2:";
@@ -219,7 +219,7 @@
     panel.className = "bi-account-history";
     panel.innerHTML = `
       <div class="bi-account-history-head">
-        <div><span class="bi-account-history-title">📜 Kontobewegungen</span><span class="bi-account-history-subtitle">Nur bei Bedarf laden – spart Make-Credits.</span></div>
+        <div><span class="bi-account-history-title">📜 Kontobewegungen</span><span class="bi-account-history-subtitle">Nur bei Bedarf laden – spart unnötige externe Abfragen.</span></div>
         <span class="bi-account-history-readonly">Nur Anzeige</span>
       </div>
       <div id="biAccountHistoryList" class="bi-account-history-list"><div class="bi-account-history-empty">Kontobewegungen sind noch nicht geladen.</div></div>
@@ -227,7 +227,7 @@
         <button id="biAccountHistoryLoad" class="bi-account-history-button" type="button">Kontobewegungen laden</button>
         <button id="biAccountHistoryMore" class="bi-account-history-button" type="button" hidden>Weitere anzeigen</button>
       </div>
-      <div id="biAccountHistoryStatus" class="bi-account-history-status">Keine automatische Make-Abfrage beim Profilaufruf.</div>`;
+      <div id="biAccountHistoryStatus" class="bi-account-history-status">Keine automatische Historienabfrage beim Profilaufruf.</div>`;
     grid.insertAdjacentElement("afterend", panel);
     panel.querySelector("#biAccountHistoryLoad")?.addEventListener("click", () => loadHistory(items.length > 0));
     panel.querySelector("#biAccountHistoryMore")?.addEventListener("click", () => {
@@ -293,7 +293,7 @@
     }
     if (!force && restoreCache(token)) return;
     if (force && lastToken === token && Date.now() - lastRemoteLoadAt < REFRESH_COOLDOWN_MS) {
-      setStatus("Gerade aktualisiert – erneuter Make-Abruf ist kurz gesperrt.");
+      setStatus("Gerade aktualisiert – erneuter Abruf ist kurz gesperrt.");
       return;
     }
 
