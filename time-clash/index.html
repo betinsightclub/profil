@@ -1523,7 +1523,20 @@ function makeSeries(){
      gm.venue=st.name;gm.stadiumSlug=st.slug;gm.stadiumCity=st.city;gm.stadiumCountry=st.country;gm.stadiumView=idx===0?"MASTER":views[idx%views.length];
    });
  }
- $("#series").dataset.long=seriesLen>5?"1":"0";$("#series").dataset.count=String(seriesLen);renderTabs();renderHistory()
+ $("#series").dataset.long=seriesLen>5?"1":"0";$("#series").dataset.count=String(seriesLen);renderTabs();renderHistory();renderPreStartGamePreview()
+}
+function renderPreStartGamePreview(){
+ if(running||!Array.isArray(games)||!games.length)return;
+ const gm=games[0];
+ if($("#gameTitle"))$("#gameTitle").textContent="SPIEL 1 VON "+seriesLen+" · "+(gm.venue||"Stadion offen");
+ if($("#infoVenue"))$("#infoVenue").textContent=gm.venue||"—";
+ if($("#infoVenueDesk"))$("#infoVenueDesk").textContent=gm.venue||"—";
+ if($("#infoCity"))$("#infoCity").textContent=gm.stadiumCity?(gm.stadiumCity+(gm.stadiumCountry?" · "+gm.stadiumCountry:"")):"Virtuell";
+ if($("#weather"))$("#weather").textContent=gm.weather||"—";
+ if($("#weatherDesk"))$("#weatherDesk").textContent=gm.weather||"—";
+ if($("#stadiumGame"))$("#stadiumGame").textContent="SPIEL 1 VON "+seriesLen;
+ if($("#stadiumName"))$("#stadiumName").textContent=gm.venue||"Stadion wird beim Start festgelegt";
+ if($("#stadiumPlace"))$("#stadiumPlace").textContent=(gm.stadiumCity?(gm.stadiumCity+(gm.stadiumCountry?" · "+gm.stadiumCountry:"")+" · "):"")+(gm.weather||"");
 }
 function renderTabs(){$("#series").innerHTML=games.map((x,n)=>'<div class="dot '+(n<g?"done":n===g?"on":"")+'"><b>SPIEL '+(n+1)+'</b>'+(n<g?x.ga+":"+x.gb:n===g&&running?"LÄUFT …":"IN KÜRZE")+'</div>').join("")}
 function renderHistory(){let h=games.map((x,n)=>'<div class="hist"><b>SPIEL '+(n+1)+'</b><span>'+(n<g?(kindAActive==="club"?"⚽":TA.flag)+' '+x.ga+':'+x.gb+' '+(kindBActive==="club"?"⚽":TB.flag):n===g&&running?'● LIVE':'🔒 WARTET')+'</span><small>'+x.venue+'</small></div>').join("");$("#historyGrid").innerHTML=h;$("#historyGridDesk").innerHTML=h}
