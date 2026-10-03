@@ -8,7 +8,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#071019">
-  <meta name="application-version" content="1.5.0">
+  <meta name="application-version" content="1.7.0">
   <title>Auszahlungsmethoden | BetInsight Club</title>
   <link rel="stylesheet" href="../assets/app-navigation.css">
   <script src="../assets/app-session.js"></script>
@@ -35,23 +35,26 @@ button,input,select{font:inherit}.page{width:min(100% - 32px,920px);margin:0 aut
 
   <div class="method-grid">
     <section class="card">
-      <div class="head"><div><h2>🪙 Krypto</h2><p>Direkte Zahlung an deine persönliche Wallet.</p></div><span class="badge" id="cryptoStatus">Wird geprüft</span></div>
-      <section class="saved" id="savedCrypto">
-        <div class="saved-title"><strong>Gespeicherte Krypto-Wallet</strong><span class="badge ok">Gespeichert</span></div>
-        <div class="saved-grid">
-          <div class="saved-item"><span class="label">Coin</span><span class="value" id="savedCoin">–</span></div>
-          <div class="saved-item"><span class="label">Netzwerk</span><span class="value" id="savedNetwork">–</span></div>
-          <div class="saved-item wide"><span class="label">Empfangsadresse</span><span class="value mono" id="savedAddress">–</span></div>
-        </div>
+      <div class="head"><div><h2>🪙 Krypto-Wallets</h2><p>Hinterlege für jede gewünschte Kryptowährung und jedes Netzwerk eine eigene Empfangsadresse.</p></div><span class="badge" id="cryptoStatus">Wird geladen</span></div>
+      <section class="saved show" id="savedCrypto">
+        <div class="saved-title"><strong>Gespeicherte Wallets</strong><span class="badge ok" id="savedWalletCount">0 gespeichert</span></div>
+        <div class="saved-grid" id="savedWalletList"><div class="saved-item wide"><span class="label">Status</span><span class="value">Noch keine Wallet hinterlegt.</span></div></div>
       </section>
       <form id="walletForm" novalidate>
-        <div class="field"><label for="walletType">Kryptowährung und Netzwerk</label><select id="walletType" required><option value="">Bitte auswählen</option><option value="USDT_TRC20">USDT – TRON (TRC20)</option><option value="TRX_TRON">TRX – TRON (native)</option></select><p class="help" id="walletExamples">Wähle zuerst Kryptowährung und Netzwerk aus.</p></div>
+        <div class="field">
+          <label for="walletType">Kryptowährung und Netzwerk</label>
+          <select id="walletType" required><option value="">Bitte auswählen</option></select>
+          <p class="help" id="walletExamples">TRX und USDT/TRC20 bleiben bestehen. Weitere Netzwerke sind zusätzlich verfügbar.</p>
+        </div>
         <div class="field"><label for="walletAddress">Öffentliche Empfangsadresse</label><input id="walletAddress" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Wallet-Adresse vollständig eintragen"></div>
+        <div class="field" id="walletMemoWrap" style="display:none"><label for="walletMemo" id="walletMemoLabel">Memo / Tag</label><input id="walletMemo" type="text" autocomplete="off" placeholder="Optional"></div>
         <label class="check"><input id="confirmOwnWallet" type="checkbox"><span>Ich bestätige, dass dies meine eigene öffentliche Empfangsadresse ist.</span></label>
         <label class="check"><input id="confirmNetwork" type="checkbox"><span>Ich habe Coin, Netzwerk und vollständige Adresse kontrolliert.</span></label>
-        <button class="save" id="saveWallet" type="submit">Krypto-Wallet speichern</button>
+        <button class="save" id="saveWallet" type="submit">Wallet speichern / aktualisieren</button>
         <div class="feedback" id="cryptoFeedback" role="status"></div>
       </form>
+      <div class="network-list" id="networkList" style="margin-top:22px"><div class="network-group">Netzwerke werden geladen …</div></div>
+      <p class="preview-note">Bei jedem Verkauf wählt der Verkäufer später aus, welche seiner hinterlegten Wallets für dieses Angebot akzeptiert werden. Eine Wallet-Adresse wird immer zusammen mit Coin/Token und Netzwerk gespeichert.</p>
     </section>
 
     <section class="card bank">
@@ -77,118 +80,140 @@ button,input,select{font:inherit}.page{width:min(100% - 32px,920px);margin:0 aut
     </section>
   </div>
 
-  <section class="preview-card" id="multiWalletPreview">
-    <div class="preview-head"><div><h2>🧩 Neue Krypto-Wallets</h2><p>Vorschau der neuen Mehrfach-Wallet-Auswahl. TRON bleibt bestehen; weitere Netzwerke kommen zusätzlich dazu.</p></div><span class="preview-badge">Supabase · Vorschau</span></div>
-    <div class="preview-form">
-      <div class="field"><label for="previewWalletType">Coin / Token und Netzwerk</label><select id="previewWalletType"><option value="">Auswahl wird geladen …</option></select></div>
-      <div class="field"><label for="previewWalletAddress">Wallet-Adresse</label><input id="previewWalletAddress" type="text" placeholder="Adresse des gewählten Netzwerks"></div>
-      <button class="preview-save" type="button" disabled>Noch nicht live speichern</button>
-    </div>
-    <div class="field" id="previewMemoWrap" style="display:none;margin-top:12px"><label for="previewMemo" id="previewMemoLabel">Memo / Tag</label><input id="previewMemo" type="text" placeholder="Optional"></div>
-    <div class="network-list" id="networkList"><div class="network-group">Netzwerke werden geladen …</div></div>
-    <p class="preview-note">Gelb markierte Token sind vorbereitet, aber noch nicht für echte Zahlungen freigeschaltet. Die bestehende TRON-Wallet bleibt bis zum finalen Cutover unverändert aktiv.</p>
-  </section>
-
   <div class="notice"><strong>Wichtig:</strong> BetInsight nimmt die Zahlung nicht für den Verkäufer entgegen. Bei Banküberweisung bestätigt der Verkäufer später den tatsächlichen Geldeingang. Erst danach dürfen die reservierten Units an den Käufer übertragen werden.</div>
-  <p class="footer-note">BetInsight Auszahlungsmethoden · Version 1.6.0</p>
+  <p class="footer-note">BetInsight Auszahlungsmethoden · Version 1.7.0</p>
 </main>
 <script>
 "use strict";
-const WALLET_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=wallet-save";
-const WALLET_READ_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=wallet-read";
+const LEGACY_WALLET_READ_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=wallet-read";
 const BANK_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=bank-save";
 const EXCHANGE_CONFIG_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-exchange-config?preview=1";
+const EXCHANGE_WALLETS_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-exchange-wallets";
 const dashboardToken=window.BetInsightSession?.getDashboardUuid?.()||"";
-const walletOptions={USDT_TRC20:{coin:"USDT",network:"TRON",standard:"TRC20",pattern:/^T[1-9A-HJ-NP-Za-km-z]{33}$/},TRX_TRON:{coin:"TRX",network:"TRON",standard:"NATIVE",pattern:/^T[1-9A-HJ-NP-Za-km-z]{33}$/}};
 const $=id=>document.getElementById(id);
 function feedback(id,msg,type){const el=$(id);el.textContent=msg;el.className="feedback show "+type}
 function clearFeedback(id){const el=$(id);el.textContent="";el.className="feedback"}
 function maskIban(value){const v=String(value||"").replace(/\s+/g,"");if(v.length<8)return v||"–";return v.slice(0,4)+" •••• •••• "+v.slice(-4)}
-function walletKey(data){const c=String(data.wallet_coin||"").toUpperCase(),n=String(data.wallet_netzwerk||"").toUpperCase(),s=String(data.wallet_standard||"").toUpperCase();if(c==="USDT"&&n==="TRON"&&s==="TRC20")return"USDT_TRC20";if(c==="TRX"&&n==="TRON")return"TRX_TRON";return""}
-function refreshExamples(){const o=walletOptions[$("walletType").value];$("walletExamples").textContent=o?`${o.coin} über ${o.network}. Kontrolliere das Netzwerk vor dem Speichern.`:"Wähle zuerst Kryptowährung und Netzwerk aus."}
-const exchangePreviewFallback={
+function esc(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
+
+const fallback={
   networks:[
-    {network_key:"tron",display_name:"TRON"},
-    {network_key:"bsc",display_name:"BNB Smart Chain (BEP20)"},
-    {network_key:"ethereum",display_name:"Ethereum (ERC20)"},
-    {network_key:"polygon",display_name:"Polygon PoS"},
-    {network_key:"solana",display_name:"Solana"},
-    {network_key:"bitcoin",display_name:"Bitcoin"},
-    {network_key:"litecoin",display_name:"Litecoin"},
-    {network_key:"dogecoin",display_name:"Dogecoin"},
-    {network_key:"xrpl",display_name:"XRP Ledger"},
-    {network_key:"stellar",display_name:"Stellar"},
-    {network_key:"ton",display_name:"TON"}
-  ],
+    ["tron","TRON"],["bsc","BNB Smart Chain (BEP20)"],["ethereum","Ethereum (ERC20)"],["polygon","Polygon PoS"],["solana","Solana"],["bitcoin","Bitcoin"],["litecoin","Litecoin"],["dogecoin","Dogecoin"],["xrpl","XRP Ledger"],["stellar","Stellar"],["ton","TON"]
+  ].map(([network_key,display_name])=>({network_key,display_name})),
   methods:[
-    {method_key:"TRX_TRON",network_key:"tron",symbol:"TRX",display_name:"TRX – TRON",asset_type:"native",token_standard:"NATIVE",verification_status:"verified",memo_mode:"none"},
-    {method_key:"USDT_TRC20",network_key:"tron",symbol:"USDT",display_name:"USDT – TRON (TRC20)",asset_type:"token",token_standard:"TRC20",verification_status:"verified",memo_mode:"none"},
-    {method_key:"BNB_BSC",network_key:"bsc",symbol:"BNB",display_name:"BNB – BNB Smart Chain",asset_type:"native",token_standard:"NATIVE",verification_status:"verified",memo_mode:"none"},
-    {method_key:"USDT_BSC",network_key:"bsc",symbol:"USDT",display_name:"USDT – BNB Smart Chain (BEP20)",asset_type:"token",token_standard:"BEP20",verification_status:"prepared",memo_mode:"none"},
-    {method_key:"USDC_BSC",network_key:"bsc",symbol:"USDC",display_name:"USDC – BNB Smart Chain (BEP20)",asset_type:"token",token_standard:"BEP20",verification_status:"contract_pending",memo_mode:"none"},
-    {method_key:"ETH_ETHEREUM",network_key:"ethereum",symbol:"ETH",display_name:"ETH – Ethereum",asset_type:"native",token_standard:"NATIVE",verification_status:"verified",memo_mode:"none"},
-    {method_key:"USDT_ERC20",network_key:"ethereum",symbol:"USDT",display_name:"USDT – Ethereum (ERC20)",asset_type:"token",token_standard:"ERC20",verification_status:"verified",memo_mode:"none"},
-    {method_key:"USDC_ERC20",network_key:"ethereum",symbol:"USDC",display_name:"USDC – Ethereum (ERC20)",asset_type:"token",token_standard:"ERC20",verification_status:"verified",memo_mode:"none"},
-    {method_key:"POL_POLYGON",network_key:"polygon",symbol:"POL",display_name:"POL – Polygon PoS",asset_type:"native",token_standard:"NATIVE",verification_status:"verified",memo_mode:"none"},
-    {method_key:"USDT_POLYGON",network_key:"polygon",symbol:"USDT",display_name:"USDT – Polygon PoS",asset_type:"token",token_standard:"ERC20",verification_status:"contract_pending",memo_mode:"none"},
-    {method_key:"USDC_POLYGON",network_key:"polygon",symbol:"USDC",display_name:"USDC – Polygon PoS",asset_type:"token",token_standard:"ERC20",verification_status:"verified",memo_mode:"none"},
-    {method_key:"SOL_SOLANA",network_key:"solana",symbol:"SOL",display_name:"SOL – Solana",asset_type:"native",token_standard:"NATIVE",verification_status:"verified",memo_mode:"none"},
-    {method_key:"USDT_SOLANA",network_key:"solana",symbol:"USDT",display_name:"USDT – Solana",asset_type:"token",token_standard:"SPL",verification_status:"contract_pending",memo_mode:"none"},
-    {method_key:"USDC_SOLANA",network_key:"solana",symbol:"USDC",display_name:"USDC – Solana",asset_type:"token",token_standard:"SPL",verification_status:"verified",memo_mode:"none"},
-    {method_key:"BTC_BITCOIN",network_key:"bitcoin",symbol:"BTC",display_name:"BTC – Bitcoin",asset_type:"native",token_standard:"NATIVE",verification_status:"verified",memo_mode:"none"},
-    {method_key:"LTC_LITECOIN",network_key:"litecoin",symbol:"LTC",display_name:"LTC – Litecoin",asset_type:"native",token_standard:"NATIVE",verification_status:"verified",memo_mode:"none"},
-    {method_key:"DOGE_DOGECOIN",network_key:"dogecoin",symbol:"DOGE",display_name:"DOGE – Dogecoin",asset_type:"native",token_standard:"NATIVE",verification_status:"verified",memo_mode:"none"},
-    {method_key:"XRP_XRPL",network_key:"xrpl",symbol:"XRP",display_name:"XRP – XRP Ledger",asset_type:"native",token_standard:"NATIVE",verification_status:"verified",memo_mode:"optional",memo_label:"Destination Tag"},
-    {method_key:"USDC_XRPL",network_key:"xrpl",symbol:"USDC",display_name:"USDC – XRP Ledger",asset_type:"token",token_standard:"XRPL_TOKEN",verification_status:"prepared",memo_mode:"optional",memo_label:"Destination Tag"},
-    {method_key:"XLM_STELLAR",network_key:"stellar",symbol:"XLM",display_name:"XLM – Stellar",asset_type:"native",token_standard:"NATIVE",verification_status:"verified",memo_mode:"optional",memo_label:"Memo"},
-    {method_key:"USDC_STELLAR",network_key:"stellar",symbol:"USDC",display_name:"USDC – Stellar",asset_type:"token",token_standard:"STELLAR_ASSET",verification_status:"prepared",memo_mode:"optional",memo_label:"Memo"},
-    {method_key:"TON_TON",network_key:"ton",symbol:"TON",display_name:"TON – TON",asset_type:"native",token_standard:"NATIVE",verification_status:"verified",memo_mode:"optional",memo_label:"Kommentar / Memo"},
-    {method_key:"USDT_TON",network_key:"ton",symbol:"USDT",display_name:"USDT – TON",asset_type:"token",token_standard:"JETTON",verification_status:"contract_pending",memo_mode:"optional",memo_label:"Kommentar / Memo"}
-  ]
+    ["TRX_TRON","tron","TRX","TRX – TRON","native","NATIVE","verified","none",""],
+    ["USDT_TRC20","tron","USDT","USDT – TRON (TRC20)","token","TRC20","verified","none",""],
+    ["BNB_BSC","bsc","BNB","BNB – BNB Smart Chain","native","NATIVE","verified","none",""],
+    ["USDT_BSC","bsc","USDT","USDT – BNB Smart Chain (BEP20)","token","BEP20","prepared","none",""],
+    ["USDC_BSC","bsc","USDC","USDC – BNB Smart Chain (BEP20)","token","BEP20","contract_pending","none",""],
+    ["ETH_ETHEREUM","ethereum","ETH","ETH – Ethereum","native","NATIVE","verified","none",""],
+    ["USDT_ERC20","ethereum","USDT","USDT – Ethereum (ERC20)","token","ERC20","verified","none",""],
+    ["USDC_ERC20","ethereum","USDC","USDC – Ethereum (ERC20)","token","ERC20","verified","none",""],
+    ["POL_POLYGON","polygon","POL","POL – Polygon PoS","native","NATIVE","verified","none",""],
+    ["USDT_POLYGON","polygon","USDT","USDT – Polygon PoS","token","ERC20","contract_pending","none",""],
+    ["USDC_POLYGON","polygon","USDC","USDC – Polygon PoS","token","ERC20","verified","none",""],
+    ["SOL_SOLANA","solana","SOL","SOL – Solana","native","NATIVE","verified","none",""],
+    ["USDT_SOLANA","solana","USDT","USDT – Solana","token","SPL","contract_pending","none",""],
+    ["USDC_SOLANA","solana","USDC","USDC – Solana","token","SPL","verified","none",""],
+    ["BTC_BITCOIN","bitcoin","BTC","BTC – Bitcoin","native","NATIVE","verified","none",""],
+    ["LTC_LITECOIN","litecoin","LTC","LTC – Litecoin","native","NATIVE","verified","none",""],
+    ["DOGE_DOGECOIN","dogecoin","DOGE","DOGE – Dogecoin","native","NATIVE","verified","none",""],
+    ["XRP_XRPL","xrpl","XRP","XRP – XRP Ledger","native","NATIVE","verified","optional","Destination Tag"],
+    ["USDC_XRPL","xrpl","USDC","USDC – XRP Ledger","token","XRPL_TOKEN","prepared","optional","Destination Tag"],
+    ["XLM_STELLAR","stellar","XLM","XLM – Stellar","native","NATIVE","verified","optional","Memo"],
+    ["USDC_STELLAR","stellar","USDC","USDC – Stellar","token","STELLAR_ASSET","prepared","optional","Memo"],
+    ["TON_TON","ton","TON","TON – TON","native","NATIVE","verified","optional","Kommentar / Memo"],
+    ["USDT_TON","ton","USDT","USDT – TON","token","JETTON","contract_pending","optional","Kommentar / Memo"]
+  ].map(([method_key,network_key,symbol,display_name,asset_type,token_standard,verification_status,memo_mode,memo_label])=>({method_key,network_key,symbol,display_name,asset_type,token_standard,verification_status,memo_mode,memo_label}))
 };
-let exchangePreviewMethods=[];
-function renderExchangePreview(data){
-  const methods=Array.isArray(data?.methods)?data.methods:[];
-  const networks=Array.isArray(data?.networks)?data.networks:[];
-  exchangePreviewMethods=methods;
-  const sel=$("previewWalletType");
-  sel.innerHTML='<option value="">Bitte auswählen</option>'+methods.map(m=>`<option value="${m.method_key}">${m.display_name}</option>`).join("");
-  $("networkList").innerHTML=networks.map(n=>{
-    const ms=methods.filter(m=>m.network_key===n.network_key);
-    return `<div class="network-group"><strong>${n.display_name}</strong><div class="token-chips">${ms.map(m=>`<span class="token-chip ${m.verification_status==="verified"?"":"pending"}">${m.symbol}${m.asset_type==="token"?" · "+m.token_standard:""}</span>`).join("")}</div></div>`
-  }).join("")||'<div class="network-group">Keine Netzwerke gefunden.</div>';
+let config=fallback, savedWallets=[];
+
+function renderConfig(data){
+  config=data?.methods?.length?data:fallback;
+  const sel=$("walletType");
+  sel.innerHTML='<option value="">Bitte auswählen</option>'+config.networks.map(n=>{
+    const ms=config.methods.filter(m=>m.network_key===n.network_key);
+    return '<optgroup label="'+esc(n.display_name)+'">'+ms.map(m=>'<option value="'+esc(m.method_key)+'">'+esc(m.display_name)+'</option>').join("")+'</optgroup>';
+  }).join("");
+  $("networkList").innerHTML=config.networks.map(n=>{
+    const ms=config.methods.filter(m=>m.network_key===n.network_key);
+    return '<div class="network-group"><strong>'+esc(n.display_name)+'</strong><div class="token-chips">'+ms.map(m=>'<span class="token-chip'+(m.verification_status==="verified"?"":" pending")+'">'+esc(m.symbol)+(m.asset_type==="token"?" · "+esc(m.token_standard):"")+'</span>').join("")+'</div></div>';
+  }).join("");
 }
-function updatePreviewMemo(){
-  const m=exchangePreviewMethods.find(x=>x.method_key===$("previewWalletType").value);
-  const wrap=$("previewMemoWrap");
-  if(!m||m.memo_mode==="none"){wrap.style.display="none";return}
-  wrap.style.display="block";$("previewMemoLabel").textContent=m.memo_label||"Memo / Tag";$("previewMemo").placeholder=m.memo_mode==="required"?"Erforderlich":"Optional";
+function selectedMethod(){return config.methods.find(m=>m.method_key===$("walletType").value)}
+function updateWalletHelp(){
+  const m=selectedMethod(),wrap=$("walletMemoWrap");
+  if(!m){$("walletExamples").textContent="Bitte Coin/Token und Netzwerk auswählen.";wrap.style.display="none";return}
+  $("walletExamples").textContent=m.display_name+" · die Adresse wird nur für genau diese Kombination gespeichert.";
+  if(m.memo_mode&&m.memo_mode!=="none"){wrap.style.display="block";$("walletMemoLabel").textContent=m.memo_label||"Memo / Tag";$("walletMemo").placeholder=m.memo_mode==="required"?"Erforderlich":"Optional"}else{wrap.style.display="none";$("walletMemo").value=""}
 }
-async function loadExchangePreview(){
-  renderExchangePreview(exchangePreviewFallback);
+function renderSavedWallets(){
+  $("savedWalletCount").textContent=savedWallets.length+" gespeichert";
+  $("cryptoStatus").textContent=savedWallets.length?"Bereit":"Noch nicht gespeichert";
+  $("cryptoStatus").classList.toggle("ok",savedWallets.length>0);
+  const root=$("savedWalletList");
+  if(!savedWallets.length){root.innerHTML='<div class="saved-item wide"><span class="label">Status</span><span class="value">Noch keine Wallet hinterlegt.</span></div>';return}
+  root.innerHTML=savedWallets.map(w=>{
+    const m=config.methods.find(x=>x.method_key===w.method_key);
+    return '<div class="saved-item wide"><span class="label">'+esc(m?.display_name||w.method_key)+'</span><span class="value mono">'+esc(w.address)+(w.memo_tag?' · '+esc(m?.memo_label||"Memo")+': '+esc(w.memo_tag):'')+'</span></div>';
+  }).join("");
+}
+async function loadConfig(){
+  renderConfig(fallback);
+  try{const r=await fetch(EXCHANGE_CONFIG_URL,{cache:"no-store"});if(r.ok){const d=await r.json();if(d?.ok)renderConfig(d)}}catch(e){console.warn("Config fallback active",e)}
+}
+async function loadCryptoWallets(){
+  if(!dashboardToken)return;
   try{
-    const r=await fetch(EXCHANGE_CONFIG_URL,{cache:"no-store"});
-    if(!r.ok)throw new Error("HTTP "+r.status);
-    const live=await r.json();
-    if(live?.ok)renderExchangePreview(live);
-  }catch(e){
-    console.warn("Exchange preview load failed; static prepared list remains visible",e);
-  }
+    const u=EXCHANGE_WALLETS_URL+"?token="+encodeURIComponent(dashboardToken);
+    const r=await fetch(u,{cache:"no-store"});const d=await r.json();
+    if(r.ok&&d?.ok){savedWallets=(d.wallets||[]).filter(x=>x.is_enabled!==false);renderSavedWallets()}
+  }catch(e){console.warn("Wallets read failed",e)}
 }
-function renderSaved(data){
-  if(data.wallet_adresse){$("savedCrypto").classList.add("show");$("savedCoin").textContent=data.wallet_coin||"–";$("savedNetwork").textContent=[data.wallet_netzwerk,data.wallet_standard].filter(Boolean).join(" · ")||"–";$("savedAddress").textContent=data.wallet_adresse;$("cryptoStatus").textContent="Gespeichert";$("cryptoStatus").classList.add("ok");const key=walletKey(data);if(key){$("walletType").value=key;$("walletAddress").value=data.wallet_adresse;refreshExamples()}}
-  else $("cryptoStatus").textContent="Noch nicht gespeichert";
-  if(data.bank_iban){$("savedBank").classList.add("show");$("savedHolder").textContent=data.bank_kontoinhaber||"–";$("savedIban").textContent=maskIban(data.bank_iban);$("savedBic").textContent=data.bank_bic||"–";$("savedCountry").textContent=data.bank_land||"–";$("bankStatus").textContent="Bereit";$("bankStatus").classList.add("ok");$("bankHolder").value=data.bank_kontoinhaber||"";$("bankIban").value=data.bank_iban||"";$("bankBic").value=data.bank_bic||"";$("bankCountry").value=data.bank_land||""}
-  else $("bankStatus").textContent="Noch nicht gespeichert";
+async function loadLegacyBank(){
+  if(!dashboardToken){$("bankStatus").textContent="Zugang fehlt";return}
+  try{
+    const r=await fetch(LEGACY_WALLET_READ_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({dashboard_token:dashboardToken})});
+    const t=String(await r.text()||"").replace(/^\uFEFF/,"").trim();if(!r.ok||!t)return;const d=JSON.parse(t);
+    if(d.bank_iban){$("savedBank").classList.add("show");$("savedHolder").textContent=d.bank_kontoinhaber||"–";$("savedIban").textContent=maskIban(d.bank_iban);$("savedBic").textContent=d.bank_bic||"–";$("savedCountry").textContent=d.bank_land||"–";$("bankStatus").textContent="Bereit";$("bankStatus").classList.add("ok");$("bankHolder").value=d.bank_kontoinhaber||"";$("bankIban").value=d.bank_iban||"";$("bankBic").value=d.bank_bic||"";$("bankCountry").value=d.bank_land||""}else $("bankStatus").textContent="Noch nicht gespeichert";
+  }catch(e){console.warn("Bank read failed",e)}
 }
-async function loadMethods(){if(!dashboardToken){$("cryptoStatus").textContent="Zugang fehlt";$("bankStatus").textContent="Zugang fehlt";return}try{const r=await fetch(WALLET_READ_WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({dashboard_token:dashboardToken})});const t=String(await r.text()||"").replace(/^\uFEFF/,"").trim();if(r.ok&&t)renderSaved(JSON.parse(t))}catch(e){console.warn("Payment methods read failed",e)}}
-$("walletType").addEventListener("change",refreshExamples);
-$("previewWalletType").addEventListener("change",updatePreviewMemo);
-$("walletForm").addEventListener("submit",async e=>{e.preventDefault();clearFeedback("cryptoFeedback");const o=walletOptions[$("walletType").value],address=$("walletAddress").value.trim();if(!dashboardToken)return feedback("cryptoFeedback","Dein persönlicher Dashboard-Zugang fehlt.","error");if(!o)return feedback("cryptoFeedback","Bitte Kryptowährung und Netzwerk auswählen.","error");if(!o.pattern.test(address))return feedback("cryptoFeedback","Bitte eine gültige TRON-Adresse eintragen.","error");if(!$("confirmOwnWallet").checked||!$("confirmNetwork").checked)return feedback("cryptoFeedback","Bitte beide Bestätigungen setzen.","error");const btn=$("saveWallet");btn.disabled=true;try{const r=await fetch(WALLET_WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({dashboard_token:dashboardToken,wallet_adresse:address,wallet_coin:o.coin,wallet_netzwerk:o.network,wallet_standard:o.standard,wallet_status:"AUSSTEHEND",eigene_wallet_bestaetigt:"JA",netzwerk_bestaetigt:"JA"})});if(!r.ok)throw new Error("HTTP "+r.status);feedback("cryptoFeedback","Krypto-Wallet wurde gespeichert.","success");await loadMethods()}catch(err){feedback("cryptoFeedback","Speichern fehlgeschlagen. Bitte erneut versuchen.","error")}finally{btn.disabled=false}});
+$("walletType").addEventListener("change",updateWalletHelp);
+$("walletForm").addEventListener("submit",async e=>{
+  e.preventDefault();clearFeedback("cryptoFeedback");
+  const m=selectedMethod(),address=$("walletAddress").value.trim(),memo=$("walletMemo").value.trim();
+  if(!dashboardToken)return feedback("cryptoFeedback","Dein persönlicher Dashboard-Zugang fehlt.","error");
+  if(!m)return feedback("cryptoFeedback","Bitte Kryptowährung und Netzwerk auswählen.","error");
+  if(address.length<8)return feedback("cryptoFeedback","Bitte die vollständige Wallet-Adresse eintragen.","error");
+  if(m.memo_mode==="required"&&!memo)return feedback("cryptoFeedback",(m.memo_label||"Memo / Tag")+" ist erforderlich.","error");
+  if(!$("confirmOwnWallet").checked||!$("confirmNetwork").checked)return feedback("cryptoFeedback","Bitte beide Bestätigungen setzen.","error");
+  const btn=$("saveWallet");btn.disabled=true;
+  try{
+    const r=await fetch(EXCHANGE_WALLETS_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:dashboardToken,method_key:m.method_key,address,memo_tag:memo})});
+    const d=await r.json().catch(()=>({}));if(!r.ok||!d?.ok)throw new Error(d?.error||"Speichern fehlgeschlagen");
+    feedback("cryptoFeedback",m.display_name+" wurde gespeichert.","success");
+    $("confirmOwnWallet").checked=false;$("confirmNetwork").checked=false;
+    await loadCryptoWallets();
+  }catch(err){feedback("cryptoFeedback","Wallet konnte nicht gespeichert werden: "+(err.message||"Fehler"),"error")}finally{btn.disabled=false}
+});
 $("bankIban").addEventListener("input",e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9 ]/g,"")});
 $("bankBic").addEventListener("input",e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"")});
-$("bankForm").addEventListener("submit",async e=>{e.preventDefault();clearFeedback("bankFeedback");const holder=$("bankHolder").value.trim(),iban=$("bankIban").value.replace(/\s+/g,"").toUpperCase(),bic=$("bankBic").value.trim().toUpperCase(),country=$("bankCountry").value.trim();if(!dashboardToken)return feedback("bankFeedback","Dein persönlicher Dashboard-Zugang fehlt.","error");if(holder.length<2)return feedback("bankFeedback","Bitte den Kontoinhaber eintragen.","error");if(!/^[A-Z]{2}[A-Z0-9]{13,32}$/.test(iban))return feedback("bankFeedback","Bitte eine gültige IBAN mit 15 bis 34 Zeichen eintragen.","error");if(bic&&!/^[A-Z0-9]{8}([A-Z0-9]{3})?$/.test(bic))return feedback("bankFeedback","Bitte die BIC prüfen oder das Feld leer lassen.","error");if(!$("confirmOwnBank").checked)return feedback("bankFeedback","Bitte die Bestätigung zur Bankverbindung setzen.","error");const btn=$("saveBank");btn.disabled=true;try{const r=await fetch(BANK_WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({dashboard_token:dashboardToken,bank_kontoinhaber:holder,bank_iban:iban,bank_bic:bic,bank_land:country,eigene_bank_bestaetigt:"JA"})});const text=await r.text();if(!r.ok)throw new Error(text||("HTTP "+r.status));feedback("bankFeedback","Bankverbindung wurde gespeichert. Du kannst sie jetzt bei Verkaufsangeboten anbieten.","success");$("confirmOwnBank").checked=false;await loadMethods()}catch(err){feedback("bankFeedback","Bankverbindung konnte nicht gespeichert werden. Bitte erneut versuchen.","error")}finally{btn.disabled=false}});
-refreshExamples();loadMethods();loadExchangePreview();
+$("bankForm").addEventListener("submit",async e=>{
+  e.preventDefault();clearFeedback("bankFeedback");
+  const holder=$("bankHolder").value.trim(),iban=$("bankIban").value.replace(/\s+/g,"").toUpperCase(),bic=$("bankBic").value.trim().toUpperCase(),country=$("bankCountry").value.trim();
+  if(!dashboardToken)return feedback("bankFeedback","Dein persönlicher Dashboard-Zugang fehlt.","error");
+  if(holder.length<2)return feedback("bankFeedback","Bitte den Kontoinhaber eintragen.","error");
+  if(!/^[A-Z]{2}[A-Z0-9]{13,32}$/.test(iban))return feedback("bankFeedback","Bitte eine gültige IBAN mit 15 bis 34 Zeichen eintragen.","error");
+  if(bic&&!/^[A-Z0-9]{8}([A-Z0-9]{3})?$/.test(bic))return feedback("bankFeedback","Bitte die BIC prüfen oder das Feld leer lassen.","error");
+  if(!$("confirmOwnBank").checked)return feedback("bankFeedback","Bitte die Bestätigung zur Bankverbindung setzen.","error");
+  const btn=$("saveBank");btn.disabled=true;
+  try{
+    const r=await fetch(BANK_WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({dashboard_token:dashboardToken,bank_kontoinhaber:holder,bank_iban:iban,bank_bic:bic,bank_land:country,eigene_bank_bestaetigt:"JA"})});
+    const text=await r.text();if(!r.ok)throw new Error(text||("HTTP "+r.status));
+    feedback("bankFeedback","Bankverbindung wurde gespeichert.","success");$("confirmOwnBank").checked=false;await loadLegacyBank();
+  }catch(err){feedback("bankFeedback","Bankverbindung konnte nicht gespeichert werden.","error")}finally{btn.disabled=false}
+});
+(async()=>{await loadConfig();updateWalletHelp();await Promise.all([loadCryptoWallets(),loadLegacyBank()])})();
 </script>
 </body>
 </html>
