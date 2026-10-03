@@ -55,7 +55,7 @@ button{width:100%;margin-top:16px;padding:15px 18px;border:0;border-radius:13px;
 </main>
 <script>
 (()=>{"use strict";const RATE=50,amount=document.getElementById("amount"),result=document.getElementById("result"),max=document.getElementById("maxBtn"),swap=document.getElementById("swap"),status=document.getElementById("status");
-let available=0,permanentBalance=0;
+let available=0,permanentBalance=0,activeCredential="";
 const profileApi="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=profile-read";
 const clashApi="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/time-clash-club";
 function num(v){const n=Number(String(v==null?0:v).replace(",","."));return Number.isFinite(n)?n:0}
@@ -81,11 +81,13 @@ async function loadBalances(){
   amount.max=String(available);
   let permanent=num(data.permanent_game_credits??data.clash_tokens??data.time_clash_tokens);
   try{
-   const credential=String(data.dashboard_token||window.BetInsightSession?.getDashboardUuid?.()||usedToken).trim();
+   const credential=String(data.dashboard_token||usedToken||window.BetInsightSession?.getDashboardUuid?.()||window.BetInsightSession?.getProfileToken?.()||"").trim();
+   activeCredential=credential;
    const url=new URL(clashApi);url.searchParams.set("action","balance");url.searchParams.set("credential",credential);if(data.ref_code)url.searchParams.set("ref_code",data.ref_code);
    const cr=await fetch(url.toString(),{cache:"no-store",credentials:"omit"});
    if(cr.ok){const cd=await cr.json();permanent=num(cd.permanent_game_credits??cd.balance?.permanent_game_credits??cd.clash_tokens??permanent)}
-  }catch(e){}
+   else throw new Error("clash_balance_http_"+cr.status);
+  }catch(e){console.error("ClashToken-Kontostand konnte nicht geladen werden:",e)}
   permanentBalance=Math.max(0,Math.floor(permanent));document.getElementById("credits").textContent=permanentBalance.toLocaleString("de-DE")+" CT";calc();
   document.getElementById("status").textContent="Tausch aktiv: Dein echter verfügbarer Unitbestand ist geladen. Prüfe den Betrag und bestätige den endgültigen Tausch.";
  }catch(e){
@@ -100,7 +102,7 @@ swap.addEventListener("click",async()=>{
  let n=num(amount.value);
  if(n<0.02||Math.abs(n*50-Math.round(n*50))>1e-7){status.textContent="Bitte einen Betrag in 0,02-Unit-Schritten eingeben.";return}
  if(n>available){status.textContent="Nicht genügend Units verfügbar.";return}
- const credential=String(window.BetInsightSession?.getDashboardUuid?.()||window.BetInsightSession?.getProfileToken?.()||"").trim();
+ const credential=String(activeCredential||window.BetInsightSession?.getDashboardUuid?.()||window.BetInsightSession?.getProfileToken?.()||"").trim();
  if(!credential){status.textContent="Sitzung nicht gefunden. Bitte über dein Profil erneut öffnen.";return}
  if(!confirm(fmt(n)+" Units endgültig in "+Math.round(n*50)+" permanente CT tauschen?"))return;
  swap.disabled=true;status.textContent="Tausch wird sicher verbucht …";
