@@ -118,6 +118,9 @@
   .tcRealMenu>summary,.tcNavPill{padding:7px 9px!important;font-size:11px!important}
   .tcRealDrop{right:0;min-width:190px}
 }
+
+/* TIME CLASH TACTICS V1 */
+.tcTacticsBox{margin:14px 0 16px;border:1px solid #2a5870;border-radius:16px;background:linear-gradient(135deg,#061b28,#082331);padding:16px}.tcTacticsHead{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}.tcTacticsHead h3{margin:4px 0 5px;font-size:18px}.tcTacticsHead p{margin:0;color:#a9bfca;font-size:13px;max-width:720px}.tcTacticsBadge{white-space:nowrap;border:1px solid #56713a;border-radius:999px;padding:7px 10px;background:#17301c;color:#bff5a8;font-size:10px;font-weight:1000;letter-spacing:.06em}.tcTacticsToggle,.tcTacticActions button{margin-top:13px;border:1px solid #2778a5;background:#082638;color:#fff;border-radius:10px;padding:10px 14px;font-weight:900;cursor:pointer}.tcTacticsEditor{margin-top:14px;padding-top:14px;border-top:1px solid #17445e}.tcTacticsGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tcTacticSide{border:1px solid #173f55;border-radius:14px;padding:13px;background:#04131d}.tcTacticSide h4{margin:0 0 10px;color:#74d9ff}.tcTacticSide label{display:grid;grid-template-columns:110px 1fr;gap:8px;align-items:center;margin:8px 0;color:#bcd2de;font-size:12px}.tcTacticSide select{width:100%;background:#082638;color:#fff;border:1px solid #27536c;border-radius:9px;padding:9px}.tcHistoricHint{display:block;color:#8eacbb;margin-top:10px;line-height:1.35}.tcTacticActions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.tcTacticActions span{color:#9eb5c3;font-size:12px}.tcTacticsBox.manual .tcTacticsBadge{border-color:#9b7427;background:#33270b;color:#ffd66b}@media(max-width:760px){.tcTacticsHead{display:block}.tcTacticsBadge{display:inline-block;margin-top:10px}.tcTacticsGrid{grid-template-columns:1fr}.tcTacticSide label{grid-template-columns:1fr}.tcTacticActions{align-items:flex-start;flex-direction:column}}
 </style><!-- tc-selector-i18n-v2-20260924 --><style id="tcUx20260927">
 .tcUxHub{margin:18px 0 22px;padding:18px;border:1px solid #24516b;border-radius:20px;background:linear-gradient(180deg,#082536,#061b28);box-shadow:0 18px 50px #0005}
 .tcUxHubHead{display:flex;align-items:end;justify-content:space-between;gap:14px;margin-bottom:14px}
@@ -172,7 +175,33 @@
   <div class="tcStep"><span class="tcStepNo">3</span><div><span class="stepLabel" id="tcStep3Label">SCHRITT 3</span><b id="tcStep3Title">Sieger tippen & starten</b><p id="tcStep3Text">Tippe im Spielfeld auf deinen Favoriten und starte anschließend den TIME CLASH.</p><button class="tcStepToArena" id="tcStepToArena" type="button">Zu Tipp & Start ↓</button></div></div>
  </div>
 </section>
-<section class="chooser"><h2>Historische & echte Mannschaften</h2><p>Dieser Bereich bleibt auch ohne Registrierung verfügbar: Nationalmannschaften und bekannte Clubs können ausschließlich gegeneinander simuliert werden.</p><div class="choosegrid"><div class="sidepick"><h3>TEAM A</h3><div class="fields"><select id="typeA"><option value="nation">Nationalmannschaft</option><option value="club">Club</option></select><select id="groupA"></select><select id="teamA"></select></div></div><div class="sidepick"><h3>TEAM B</h3><div class="fields"><select id="typeB"><option value="nation">Nationalmannschaft</option><option value="club">Club</option></select><select id="groupB"></select><select id="teamB"></select></div></div></div><div class="lengthpick"><b>Serienlänge:</b><button data-len="1">1 Spiel</button><button data-len="3">3 Spiele</button><button class="sel" data-len="5">5 Spiele</button><button data-len="10">10 Spiele</button></div><div class="seoLink"><a href="https://betinsight.club/de/time-clash/community/">🌍 Bereits gespielte TIME CLASHES der Community ansehen →</a></div></section>
+<section class="chooser"><h2>Historische & echte Mannschaften</h2><p>Dieser Bereich bleibt auch ohne Registrierung verfügbar: Nationalmannschaften und bekannte Clubs können ausschließlich gegeneinander simuliert werden.</p><div class="choosegrid"><div class="sidepick"><h3>TEAM A</h3><div class="fields"><select id="typeA"><option value="nation">Nationalmannschaft</option><option value="club">Club</option></select><select id="groupA"></select><select id="teamA"></select></div></div><div class="sidepick"><h3>TEAM B</h3><div class="fields"><select id="typeB"><option value="nation">Nationalmannschaft</option><option value="club">Club</option></select><select id="groupB"></select><select id="teamB"></select></div></div></div><section class="tcTacticsBox" id="tcTacticsBox">
+  <div class="tcTacticsHead">
+    <div><div class="eyebrow" id="tcTacticsKicker">TIME CLASH · TAKTIK</div><h3 id="tcTacticsTitle">Historische Standardaufstellung aktiv</h3><p id="tcTacticsLead">Du musst nichts einstellen. Ohne Änderung spielt jedes historische Team automatisch mit seinem passenden Referenzsystem.</p></div>
+    <span class="tcTacticsBadge" id="tcTacticsBadge">HISTORISCH · AUTOMATISCH</span>
+  </div>
+  <button type="button" class="tcTacticsToggle" id="tcTacticsToggle">⚙ Als Trainer anpassen</button>
+  <div class="tcTacticsEditor hidden" id="tcTacticsEditor">
+    <div class="tcTacticsGrid">
+      <div class="tcTacticSide"><h4 id="tcTacticHeadA">TEAM A · TAKTIK</h4>
+        <label><span id="tcFormationLabelA">Formation</span><select id="tcFormationA"></select></label>
+        <label><span id="tcStyleLabelA">Spielstil</span><select id="tcStyleA"></select></label>
+        <label><span id="tcPressLabelA">Pressing</span><select id="tcPressA"></select></label>
+        <label><span id="tcTempoLabelA">Tempo</span><select id="tcTempoA"></select></label>
+        <small class="tcHistoricHint" id="tcHistoricHintA"></small>
+      </div>
+      <div class="tcTacticSide"><h4 id="tcTacticHeadB">TEAM B · TAKTIK</h4>
+        <label><span id="tcFormationLabelB">Formation</span><select id="tcFormationB"></select></label>
+        <label><span id="tcStyleLabelB">Spielstil</span><select id="tcStyleB"></select></label>
+        <label><span id="tcPressLabelB">Pressing</span><select id="tcPressB"></select></label>
+        <label><span id="tcTempoLabelB">Tempo</span><select id="tcTempoB"></select></label>
+        <small class="tcHistoricHint" id="tcHistoricHintB"></small>
+      </div>
+    </div>
+    <div class="tcTacticActions"><button type="button" id="tcTacticsReset">↺ Historische Aufstellung wiederherstellen</button><span id="tcTacticsNote">Änderungen beeinflussen Spielverlauf, Chancenverteilung und Ticker.</span></div>
+  </div>
+</section>
+<div class="lengthpick"><b>Serienlänge:</b><button data-len="1">1 Spiel</button><button data-len="3">3 Spiele</button><button class="sel" data-len="5">5 Spiele</button><button data-len="10">10 Spiele</button></div><div class="seoLink"><a href="https://betinsight.club/de/time-clash/community/">🌍 Bereits gespielte TIME CLASHES der Community ansehen →</a></div></section>
 <section class="worldRankingPreview tcUxHidden" id="worldRankingPreview">
   <div class="worldRankHead">
     <div><div class="eyebrow">TIME CLASH · WORLD RANKING</div><h2>Weltrangliste</h2><p>Jedes einzelne historische Spiel zählt: Sieg 3 · Unentschieden 1 · Niederlage 0.</p></div>
@@ -1020,7 +1049,7 @@ function renderPreMatchAI(){
  if(Math.abs(a.gk-b.gk)>=2){const better=a.gk>b.gk?a:b,team=a.gk>b.gk?TA.name:TB.name;gkNote=" Torwartfaktor: "+better.keeper+" stärkt "+team+" spürbar."}
  el.innerHTML="<strong>"+verdict+"</strong> Bewertet werden Teamrating, Startelf und Torwartstärke."+gkNote+" Überraschungen bleiben möglich."
 }
-function updateTeams(){kindAActive=$("#typeA").value;kindBActive=$("#typeB").value;activeMode="public";TA=parseTeam($("#teamA").value||"Italien 2006|🇮🇹|82");TB=parseTeam($("#teamB").value||"Spanien 2026|🇪🇸|83");renderActiveTeams();renderPreMatchAI();syncSceneAvailability()}
+function updateTeams(){kindAActive=$("#typeA").value;kindBActive=$("#typeB").value;activeMode="public";TA=parseTeam($("#teamA").value||"Italien 2006|🇮🇹|82");TB=parseTeam($("#teamB").value||"Spanien 2026|🇪🇸|83");renderActiveTeams();renderPreMatchAI();if(typeof tcSyncTacticUi==="function")tcSyncTacticUi();syncSceneAvailability()}
 ["A","B"].forEach(s=>{$("#type"+s).onchange=()=>{if(s==="A")chosenA=true;else chosenB=true;fill(s)};$("#group"+s).onchange=()=>{if(s==="A")chosenA=true;else chosenB=true;fill(s);relabelSelector(s)};$("#team"+s).onchange=()=>{if(s==="A")chosenA=true;else chosenB=true;relabelSelector(s);updateTeams()}});$("#typeA").value="nation";$("#typeB").value="nation";fill("A");fill("B");renderPreMatchAI();/* Keep both selectors in a valid initial state; arena remains neutral until the user interacts. */
 $("#loadLeagueMatch").onclick=()=>{if(!memberClub){$("#next").textContent="Bitte zuerst dein eigenes TIME-CLASH-Team erstellen.";return}let opponent=$("#memberOpponent").value,meta=allCommunityClubs.find(x=>x.club_name===opponent);if(!meta){$("#next").textContent="Kein erlaubter Community-Gegner ausgewählt.";return}let ownPlayers=Array.isArray(memberClub.players)?memberClub.players:[],oppPlayers=Array.isArray(meta.players)?meta.players:[],ownSum=ownPlayers.slice(0,11).reduce((s,p)=>s+Number(p.strength||0),0),oppSum=oppPlayers.slice(0,11).reduce((s,p)=>s+Number(p.strength||0),0);TA=parseTeam(memberClub.club_name+"|🛡️|"+ratingFromStrength(ownSum));TB=parseTeam(meta.club_name+"|🛡️|"+ratingFromStrength(oppSum));kindAActive="myclub";kindBActive="community";activeMode="member";chosenA=chosenB=true;renderActiveTeams();$("#next").textContent="Liga-Duell geladen: "+memberClub.club_name+" gegen "+opponent+". Die obere Auswahl bleibt unverändert."};
 $("#eliteVsSelected").onclick=()=>{if(!memberProgress?.elite){$("#next").textContent="Dieses Crossover wird erst mit Elite freigeschaltet.";return}let realType=$("#typeB").value,realValue=$("#teamB").value;if(!["nation","club"].includes(realType)||!realValue){realType="nation";let first=(catalog.nation[Object.keys(catalog.nation)[0]]||[])[0];realValue=first||"Italien 2006 · Weltmeister|🇮🇹|84"}let ownPlayers=Array.isArray(memberClub?.players)?memberClub.players:[],ownSum=ownPlayers.slice(0,11).reduce((s,p)=>s+Number(p.strength||0),0);TA=parseTeam(memberClub.club_name+"|🛡️|"+ratingFromStrength(ownSum));TB=parseTeam(realValue);kindAActive="myclub";kindBActive=realType;activeMode="elite";chosenA=chosenB=true;renderActiveTeams();$("#next").textContent="Elite-Crossover geladen. Dein Club spielt gegen das oben bei Team B ausgewählte echte/historische Team. Die obere Auswahl bleibt unverändert."};
@@ -1250,11 +1279,159 @@ function selectStartStadium(slug){
  if(running)return;const st=stadiumBySlug(slug);if(!st)return;selectedStartStadium=slug;renderStadiumChooser();previewStadium(st,"THUMB");makeSeries();updateConflictGate();
 }
 
+
+/* TIME CLASH TACTICS V1
+   Simple users do nothing: the engine uses a historically appropriate reference setup.
+   Coach mode is optional and changes the simulation model + ticker. */
+const TC_TACTICS_V1=true;
+const TC_TACTIC_OPTIONS={
+ formation:["2-3-5","2-3-2-3","3-5-2","3-4-3","4-2-4","4-3-3","4-4-2","4-4-1-1","4-3-2-1","4-2-3-1","4-1-4-1","5-3-2","5-4-1"],
+ style:["historisch","ausgeglichen","offensiv","defensiv","ballbesitz","konter","direkt"],
+ pressing:["tief","mittel","hoch"],
+ tempo:["kontrolliert","normal","hoch"]
+};
+const TC_TACTIC_LABELS={
+ de:{title:"Historische Standardaufstellung aktiv",lead:"Du musst nichts einstellen. Ohne Änderung spielt jedes historische Team automatisch mit seinem passenden Referenzsystem.",badgeAuto:"HISTORISCH · AUTOMATISCH",badgeManual:"TRAINER-MODUS · MANUELL",toggle:"⚙ Als Trainer anpassen",reset:"↺ Historische Aufstellung wiederherstellen",note:"Änderungen beeinflussen Spielverlauf, Chancenverteilung und Ticker.",formation:"Formation",style:"Spielstil",pressing:"Pressing",tempo:"Tempo",historical:"Historisch"},
+ en:{title:"Historical default setup active",lead:"You do not have to configure anything. If you make no changes, each historical team automatically uses its reference system.",badgeAuto:"HISTORICAL · AUTOMATIC",badgeManual:"COACH MODE · MANUAL",toggle:"⚙ Adjust as coach",reset:"↺ Restore historical setup",note:"Changes affect match flow, chance creation and the live ticker.",formation:"Formation",style:"Style",pressing:"Pressing",tempo:"Tempo",historical:"Historical"},
+ es:{title:"Alineación histórica predeterminada activa",lead:"No tienes que configurar nada. Sin cambios, cada equipo histórico usa automáticamente su sistema de referencia.",badgeAuto:"HISTÓRICO · AUTOMÁTICO",badgeManual:"MODO ENTRENADOR · MANUAL",toggle:"⚙ Ajustar como entrenador",reset:"↺ Restaurar sistema histórico",note:"Los cambios influyen en el desarrollo, las ocasiones y el ticker.",formation:"Formación",style:"Estilo",pressing:"Presión",tempo:"Ritmo",historical:"Histórico"},
+ fr:{title:"Système historique par défaut actif",lead:"Tu n'as rien à régler. Sans modification, chaque équipe historique utilise automatiquement son système de référence.",badgeAuto:"HISTORIQUE · AUTOMATIQUE",badgeManual:"MODE ENTRAÎNEUR · MANUEL",toggle:"⚙ Ajuster comme entraîneur",reset:"↺ Restaurer le système historique",note:"Les changements influencent le déroulement, les occasions et le ticker.",formation:"Formation",style:"Style",pressing:"Pressing",tempo:"Rythme",historical:"Historique"},
+ it:{title:"Assetto storico predefinito attivo",lead:"Non devi impostare nulla. Senza modifiche ogni squadra storica usa automaticamente il proprio sistema di riferimento.",badgeAuto:"STORICO · AUTOMATICO",badgeManual:"MODALITÀ ALLENATORE · MANUALE",toggle:"⚙ Modifica da allenatore",reset:"↺ Ripristina assetto storico",note:"Le modifiche influenzano andamento, occasioni e ticker.",formation:"Formazione",style:"Stile",pressing:"Pressing",tempo:"Ritmo",historical:"Storico"},
+ pt:{title:"Esquema histórico padrão ativo",lead:"Não precisas de configurar nada. Sem alterações, cada equipa histórica usa automaticamente o seu sistema de referência.",badgeAuto:"HISTÓRICO · AUTOMÁTICO",badgeManual:"MODO TREINADOR · MANUAL",toggle:"⚙ Ajustar como treinador",reset:"↺ Restaurar esquema histórico",note:"As alterações influenciam o jogo, as oportunidades e o ticker.",formation:"Formação",style:"Estilo",pressing:"Pressão",tempo:"Ritmo",historical:"Histórico"},
+ nl:{title:"Historische standaardopstelling actief",lead:"Je hoeft niets in te stellen. Zonder wijzigingen gebruikt elk historisch team automatisch zijn referentiesysteem.",badgeAuto:"HISTORISCH · AUTOMATISCH",badgeManual:"TRAINERMODUS · HANDMATIG",toggle:"⚙ Als trainer aanpassen",reset:"↺ Historische opstelling herstellen",note:"Wijzigingen beïnvloeden wedstrijdverloop, kansen en ticker.",formation:"Formatie",style:"Speelstijl",pressing:"Pressing",tempo:"Tempo",historical:"Historisch"},
+ "zh-tw":{title:"已啟用歷史預設陣型",lead:"你不需要進行任何設定。若不修改，每支歷史球隊會自動使用其代表性的戰術系統。",badgeAuto:"歷史 · 自動",badgeManual:"教練模式 · 手動",toggle:"⚙ 以教練身份調整",reset:"↺ 恢復歷史陣型",note:"調整會影響比賽走勢、機會分配與即時文字播報。",formation:"陣型",style:"球風",pressing:"逼搶",tempo:"節奏",historical:"歷史"}
+};
+let tcManualTactics=false,tcTacticState={A:null,B:null};
+
+function tcYearFromName(name){let m=String(name||"").match(/(?:18|19|20)\d{2}/);return m?Number(m[0]):2000}
+function tcHistoricalTactic(team){
+ const name=String(team?.name||""),year=tcYearFromName(name),base=String(team?.base||name);
+ const exact=[
+  [/Uruguay 1930/i,{formation:"2-3-5",style:"direkt",pressing:"mittel",tempo:"hoch",label:"WM 1930"}],
+  [/Italien 1934|Italien 1938/i,{formation:"2-3-2-3",style:"direkt",pressing:"mittel",tempo:"normal",label:"Metodo"}],
+  [/Deutschland 1954/i,{formation:"3-2-2-3",style:"direkt",pressing:"mittel",tempo:"hoch",label:"WM 1954"}],
+  [/Brasilien 1958|Brasilien 1962|Brasilien 1970/i,{formation:"4-2-4",style:"offensiv",pressing:"mittel",tempo:"hoch",label:"historisches 4-2-4"}],
+  [/England 1966/i,{formation:"4-4-2",style:"ausgeglichen",pressing:"mittel",tempo:"normal",label:"WM 1966"}],
+  [/Niederlande 1974|Ajax 1971|Ajax 1972|Ajax 1973/i,{formation:"4-3-3",style:"offensiv",pressing:"hoch",tempo:"hoch",label:"Total Football"}],
+  [/Argentinien 1986/i,{formation:"3-5-2",style:"konter",pressing:"mittel",tempo:"hoch",label:"WM 1986"}],
+  [/Niederlande 1988/i,{formation:"4-3-3",style:"offensiv",pressing:"hoch",tempo:"hoch",label:"EM 1988"}],
+  [/Deutschland 1990/i,{formation:"3-5-2",style:"ausgeglichen",pressing:"mittel",tempo:"normal",label:"WM 1990"}],
+  [/Brasilien 1994/i,{formation:"4-4-2",style:"ausgeglichen",pressing:"mittel",tempo:"kontrolliert",label:"WM 1994"}],
+  [/Frankreich 1998/i,{formation:"4-3-2-1",style:"ausgeglichen",pressing:"mittel",tempo:"kontrolliert",label:"WM 1998"}],
+  [/Brasilien 2002/i,{formation:"3-5-2",style:"offensiv",pressing:"mittel",tempo:"hoch",label:"WM 2002"}],
+  [/Italien 2006/i,{formation:"4-4-1-1",style:"ausgeglichen",pressing:"mittel",tempo:"kontrolliert",label:"WM 2006"}],
+  [/Spanien 2008|Spanien 2010|Spanien 2012/i,{formation:"4-3-3",style:"ballbesitz",pressing:"hoch",tempo:"kontrolliert",label:"Ballbesitz-Ära"}],
+  [/FC Barcelona 2009|FC Barcelona 2010|FC Barcelona 2011/i,{formation:"4-3-3",style:"ballbesitz",pressing:"hoch",tempo:"kontrolliert",label:"Positionsspiel"}],
+  [/Deutschland 2014/i,{formation:"4-3-3",style:"ballbesitz",pressing:"hoch",tempo:"normal",label:"WM 2014"}],
+  [/Frankreich 2018/i,{formation:"4-2-3-1",style:"konter",pressing:"mittel",tempo:"hoch",label:"WM 2018"}],
+  [/Italien 2020/i,{formation:"4-3-3",style:"ballbesitz",pressing:"hoch",tempo:"normal",label:"EM 2020"}],
+  [/Argentinien 2022/i,{formation:"4-3-3",style:"ausgeglichen",pressing:"hoch",tempo:"normal",label:"WM 2022"}],
+  [/Spanien 2024/i,{formation:"4-3-3",style:"offensiv",pressing:"hoch",tempo:"hoch",label:"EM 2024"}],
+  [/Bayer Leverkusen 2023\/24/i,{formation:"3-4-3",style:"ballbesitz",pressing:"hoch",tempo:"hoch",label:"Meistersaison 2023/24"}],
+  [/Inter Mailand 196|Grande Inter/i,{formation:"5-3-2",style:"konter",pressing:"tief",tempo:"hoch",label:"Catenaccio"}]
+ ];
+ for(const [rx,p] of exact)if(rx.test(name))return {...p,historical:true};
+ if(year<=1949)return{formation:"2-3-5",style:"direkt",pressing:"mittel",tempo:"hoch",label:"historisches Referenzsystem",historical:true};
+ if(year<=1965)return{formation:"4-2-4",style:"direkt",pressing:"mittel",tempo:"hoch",label:"historisches Referenzsystem",historical:true};
+ if(year<=1989)return{formation:"4-4-2",style:"ausgeglichen",pressing:"mittel",tempo:"normal",label:"historisches Referenzsystem",historical:true};
+ if(year<=2005)return{formation:"4-4-2",style:"ausgeglichen",pressing:"mittel",tempo:"normal",label:"historisches Referenzsystem",historical:true};
+ if(/Barcelona|Spanien/i.test(base))return{formation:"4-3-3",style:"ballbesitz",pressing:"hoch",tempo:"kontrolliert",label:"historisches Referenzsystem",historical:true};
+ return{formation:"4-2-3-1",style:"ausgeglichen",pressing:"mittel",tempo:"normal",label:"historisches Referenzsystem",historical:true};
+}
+function tcGetTactic(side){
+ const historical=tcHistoricalTactic(side==="A"?TA:TB);
+ if(!tcManualTactics||!tcTacticState[side])return historical;
+ return {...historical,...tcTacticState[side],historical:false};
+}
+function tcStyleMods(t){
+ let m={attack:0,defense:0,mid:0,possession:0,pace:0,fatigue:0,counter:0};
+ const form={
+  "2-3-5":{attack:.16,defense:-.14,mid:-.02},"2-3-2-3":{attack:.10,defense:-.06,mid:.03},
+  "3-4-3":{attack:.12,defense:-.07,mid:.06},"3-5-2":{attack:.04,defense:.02,mid:.13},
+  "4-2-4":{attack:.17,defense:-.10,mid:-.08},"4-3-3":{attack:.09,defense:0,mid:.09},
+  "4-4-2":{attack:.03,defense:.04,mid:.03},"4-4-1-1":{attack:0,defense:.07,mid:.06},
+  "4-3-2-1":{attack:.01,defense:.06,mid:.09},"4-2-3-1":{attack:.05,defense:.04,mid:.08},
+  "4-1-4-1":{attack:-.02,defense:.09,mid:.10},"5-3-2":{attack:-.04,defense:.15,mid:.03},"5-4-1":{attack:-.10,defense:.20,mid:.02}
+ }[t.formation]||{};
+ Object.assign(m,{...m,...form});
+ if(t.style==="offensiv"){m.attack+=.12;m.defense-=.07;m.pace+=.05}
+ if(t.style==="defensiv"){m.attack-=.08;m.defense+=.14;m.possession-=.02}
+ if(t.style==="ballbesitz"){m.mid+=.12;m.possession+=.10;m.attack+=.02;m.pace-=.02}
+ if(t.style==="konter"){m.counter+=.15;m.attack+=.05;m.possession-=.08;m.defense+=.04}
+ if(t.style==="direkt"){m.attack+=.07;m.mid-=.03;m.pace+=.09}
+ if(t.pressing==="hoch"){m.mid+=.07;m.attack+=.04;m.defense-=.02;m.fatigue+=.08;m.possession+=.04}
+ if(t.pressing==="tief"){m.defense+=.09;m.attack-=.03;m.counter+=.06;m.possession-=.04}
+ if(t.tempo==="hoch"){m.attack+=.06;m.pace+=.08;m.fatigue+=.07;m.defense-=.02}
+ if(t.tempo==="kontrolliert"){m.mid+=.05;m.possession+=.04;m.attack-=.01;m.fatigue-=.03}
+ return m;
+}
+function tcTacticMatchup(a,b){
+ const A=tcStyleMods(a),B=tcStyleMods(b);
+ let centerA=(a.formation==="3-5-2"||a.formation==="4-1-4-1"||a.formation==="4-2-3-1")?.05:0;
+ let centerB=(b.formation==="3-5-2"||b.formation==="4-1-4-1"||b.formation==="4-2-3-1")?.05:0;
+ let counterA=A.counter+(b.pressing==="hoch"?.04:0),counterB=B.counter+(a.pressing==="hoch"?.04:0);
+ return{
+  possessionEdge:Math.max(-.12,Math.min(.12,(A.mid+A.possession+centerA-B.mid-B.possession-centerB)*.22)),
+  attackA:A.attack+counterA*.35,attackB:B.attack+counterB*.35,
+  defenseA:A.defense-A.fatigue*.35,defenseB:B.defense-B.fatigue*.35,
+  fatigueA:A.fatigue,fatigueB:B.fatigue,midA:A.mid+centerA,midB:B.mid+centerB
+ };
+}
+function tcTacticTickerEvents(a,b,match){
+ const e=[],an=TA.name,bn=TB.name;
+ e.push({m:2,msg:"🧠 "+an+" startet im "+a.formation+" · "+tcTacticDisplay(a.style)+" · Pressing "+tcTacticDisplay(a.pressing)+" · Tempo "+tcTacticDisplay(a.tempo)+".",type:"tactic"});
+ e.push({m:3,msg:"🧠 "+bn+" startet im "+b.formation+" · "+tcTacticDisplay(b.style)+" · Pressing "+tcTacticDisplay(b.pressing)+" · Tempo "+tcTacticDisplay(b.tempo)+".",type:"tactic"});
+ if(a.historical)e.push({m:6,msg:"📜 "+an+" bleibt bei seiner historischen Referenzordnung"+(a.label?" ("+a.label+")":"")+".",type:"tactic"});
+ else e.push({m:6,msg:"🎛️ "+an+" weicht heute bewusst von der historischen Standardordnung ab.",type:"tactic"});
+ if(b.historical)e.push({m:8,msg:"📜 "+bn+" setzt auf seine historische Referenzordnung"+(b.label?" ("+b.label+")":"")+".",type:"tactic"});
+ else e.push({m:8,msg:"🎛️ "+bn+" wurde im Trainer-Modus taktisch verändert.",type:"tactic"});
+ if(match.possessionEdge>.025)e.push({m:24,msg:"🧩 "+an+" gewinnt mit seiner Struktur zunehmend Kontrolle im Mittelfeld.",type:"tactic"});
+ else if(match.possessionEdge<-.025)e.push({m:24,msg:"🧩 "+bn+" erzeugt im Zentrum mehr Kontrolle und drängt "+an+" tiefer.",type:"tactic"});
+ if(a.style==="konter"&&b.pressing==="hoch")e.push({m:37,msg:"⚡ "+an+" versucht gezielt, das hohe Pressing von "+bn+" mit schnellen Umschaltmomenten zu bestrafen.",type:"tactic"});
+ if(b.style==="konter"&&a.pressing==="hoch")e.push({m:37,msg:"⚡ "+bn+" lauert hinter dem hohen Pressing von "+an+" auf Umschaltmomente.",type:"tactic"});
+ if(a.formation==="4-2-4"&&(b.formation==="4-3-3"||b.formation==="3-5-2"))e.push({m:54,msg:"♟️ Das 4-2-4 von "+an+" sorgt für viel Angriffsdruck, lässt im Zentrum aber Räume gegen "+bn+".",type:"tactic"});
+ if(b.formation==="4-2-4"&&(a.formation==="4-3-3"||a.formation==="3-5-2"))e.push({m:54,msg:"♟️ Das 4-2-4 von "+bn+" bringt viele Spieler nach vorn, während "+an+" im Zentrum Überzahl sucht.",type:"tactic"});
+ if(match.fatigueA>.10)e.push({m:72,msg:"🔋 Das hohe Tempo und Pressing von "+an+" kostet sichtbar Kraft; die Abstände werden größer.",type:"tactic"});
+ if(match.fatigueB>.10)e.push({m:74,msg:"🔋 "+bn+" zahlt nun für das intensive Tempo und Pressing – die Räume zwischen den Linien wachsen.",type:"tactic"});
+ return e;
+}
+function tcTacticDisplay(v){return String(v||"").replace(/^./,x=>x.toUpperCase())}
+function tcFillTacticSelect(id,values,selected){
+ const el=document.getElementById(id);if(!el)return;el.innerHTML=values.map(v=>'<option value="'+v+'">'+tcTacticDisplay(v)+'</option>').join("");el.value=selected;
+}
+function tcSyncTacticUi(){
+ if(!window.TA||!window.TB)return;
+ for(const side of ["A","B"]){
+   const h=tcHistoricalTactic(side==="A"?TA:TB),cur=tcGetTactic(side);
+   tcFillTacticSelect("tcFormation"+side,TC_TACTIC_OPTIONS.formation,cur.formation);
+   tcFillTacticSelect("tcStyle"+side,TC_TACTIC_OPTIONS.style.filter(x=>x!=="historisch"),cur.style);
+   tcFillTacticSelect("tcPress"+side,TC_TACTIC_OPTIONS.pressing,cur.pressing);
+   tcFillTacticSelect("tcTempo"+side,TC_TACTIC_OPTIONS.tempo,cur.tempo);
+   const hint=document.getElementById("tcHistoricHint"+side);if(hint)hint.textContent=(side==="A"?localTeamName(TA.name):localTeamName(TB.name))+" · Historisch: "+h.formation+" · "+tcTacticDisplay(h.style)+" · "+tcTacticDisplay(h.pressing)+" · "+tcTacticDisplay(h.tempo);
+ }
+ const box=document.getElementById("tcTacticsBox"),badge=document.getElementById("tcTacticsBadge");if(box)box.classList.toggle("manual",tcManualTactics);
+ const L=TC_TACTIC_LABELS[TC_DISPLAY_LANG]||TC_TACTIC_LABELS.de;if(badge)badge.textContent=tcManualTactics?L.badgeManual:L.badgeAuto;
+}
+function tcApplyTacticCopy(){
+ const L=TC_TACTIC_LABELS[TC_DISPLAY_LANG]||TC_TACTIC_LABELS.de;
+ const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+ set("tcTacticsTitle",L.title);set("tcTacticsLead",L.lead);set("tcTacticsBadge",tcManualTactics?L.badgeManual:L.badgeAuto);set("tcTacticsToggle",L.toggle);set("tcTacticsReset",L.reset);set("tcTacticsNote",L.note);
+ for(const s of ["A","B"]){set("tcFormationLabel"+s,L.formation);set("tcStyleLabel"+s,L.style);set("tcPressLabel"+s,L.pressing);set("tcTempoLabel"+s,L.tempo)}
+}
+function tcInitTactics(){
+ const toggle=document.getElementById("tcTacticsToggle"),editor=document.getElementById("tcTacticsEditor"),reset=document.getElementById("tcTacticsReset");
+ if(!toggle||!editor)return;tcApplyTacticCopy();tcSyncTacticUi();
+ toggle.onclick=()=>{tcManualTactics=true;editor.classList.remove("hidden");tcTacticState={A:{...tcHistoricalTactic(TA)},B:{...tcHistoricalTactic(TB)}};tcSyncTacticUi();makeSeries()};
+ for(const side of ["A","B"]){for(const k of [["Formation","formation"],["Style","style"],["Press","pressing"],["Tempo","tempo"]]){const el=document.getElementById("tc"+k[0]+side);if(el)el.onchange=()=>{if(running)return;tcManualTactics=true;tcTacticState[side]=tcTacticState[side]||{...tcHistoricalTactic(side==="A"?TA:TB)};tcTacticState[side][k[1]]=el.value;tcTacticState[side].historical=false;tcSyncTacticUi();makeSeries()}}}
+ if(reset)reset.onclick=()=>{if(running)return;tcManualTactics=false;tcTacticState={A:null,B:null};editor.classList.add("hidden");tcSyncTacticUi();makeSeries()};
+}
+setTimeout(tcInitTactics,0);
+
 function keeperSaveChance(strength){return Math.max(.22,Math.min(.62,.28+(Math.max(1,Math.min(25,strength))-5)*.015))}
 function buildGame(idx){
  let plans={A:buildSubPlan("A"),B:buildSubPlan("B")},dismissals={A:{},B:{}},yellows={A:{},B:{}},ev=[{m:1,msg:"⚽ Anpfiff! Spiel "+(idx+1)+" der TIME-CLASH-Serie läuft."}],ratingA=TA.rating,ratingB=TB.rating;
+ let tacA=tcGetTactic("A"),tacB=tcGetTactic("B"),tacticMatch=tcTacticMatchup(tacA,tacB);ev.push(...tcTacticTickerEvents(tacA,tacB,tacticMatch));
  let preA=effectiveMetrics("A",plans,dismissals),preB=effectiveMetrics("B",plans,dismissals);
- let sideProb=Math.max(.25,Math.min(.75,.5+(preA.attack+preA.midfield-preB.attack-preB.midfield)*.018+(ratingA-ratingB)*.004));
+ let sideProb=Math.max(.25,Math.min(.75,.5+(preA.attack+preA.midfield-preB.attack-preB.midfield)*.018+(ratingA-ratingB)*.004+tacticMatch.possessionEdge));
  let target=30+rnd(9),minutes=new Set([1,45,90]);while(minutes.size<target)minutes.add(3+rnd(86));
  [...minutes].sort((a,b)=>a-b).forEach(m=>{
    if(m===1||m===45||m===90)return;
@@ -1291,7 +1468,7 @@ function buildGame(idx){
  let ma=effectiveMetrics("A",plans,dismissals),mb=effectiveMetrics("B",plans,dismissals);
  let keeperA=(goalkeeperStrength("A",20,plans,dismissals)+goalkeeperStrength("A",72,plans,dismissals))/2,keeperB=(goalkeeperStrength("B",20,plans,dismissals)+goalkeeperStrength("B",72,plans,dismissals))/2;
  let ratingGap=(ratingA-ratingB)*.018,qualityShift=(Math.random()-.5)*.20;
- let saveA=keeperSaveChance(keeperA),saveB=keeperSaveChance(keeperB),baseA=1.18+ratingGap+(ma.attack-mb.defense)*.085+(ma.midfield-mb.midfield)*.032+(ma.count-mb.count)*.16+qualityShift,baseB=1.18-ratingGap+(mb.attack-ma.defense)*.085+(mb.midfield-ma.midfield)*.032+(mb.count-ma.count)*.16-qualityShift,avgSave=.42;
+ let saveA=keeperSaveChance(keeperA),saveB=keeperSaveChance(keeperB),baseA=1.18+ratingGap+(ma.attack-mb.defense)*.085+(ma.midfield-mb.midfield)*.032+(ma.count-mb.count)*.16+qualityShift+tacticMatch.attackA-tacticMatch.defenseB+(tacticMatch.midA-tacticMatch.midB)*.22,baseB=1.18-ratingGap+(mb.attack-ma.defense)*.085+(mb.midfield-ma.midfield)*.032+(mb.count-ma.count)*.16-qualityShift+tacticMatch.attackB-tacticMatch.defenseA+(tacticMatch.midB-tacticMatch.midA)*.22,avgSave=.42;
  // Global realism guard: close teams should overwhelmingly produce normal football scorelines.
  // Heavy wins remain possible, but 4:0/5:0 must be genuine outliers rather than routine results.
  let strengthGap=Math.abs(ma.overall-mb.overall)+Math.abs(ratingA-ratingB)*.20;
@@ -1308,7 +1485,7 @@ function buildGame(idx){
  let used=goals.map(x=>x.m);if(Math.random()<.3){let m=10+rnd(75),guard=0;while(used.some(x=>Math.abs(x-m)<4)&&guard++<30)m=10+rnd(75);let side=Math.random()<sideProb?"A":"B",sc=actor(side,m,plans,"goal",dismissals),nm=side==="A"?TA.name:TB.name;if(sc)ev.push({m,msg:"🚫 ABSEITS-TOR! "+sc+" trifft für "+nm+", doch die Fahne geht hoch – der Treffer zählt nicht.",type:"offsideGoal"})}
  ev.push({m:45,msg:"⏱ Halbzeit."},{m:90,msg:"⏱ Abpfiff."});ev.sort((x,y)=>x.m-y.m||((x.type||"").startsWith("sub")?-2:((x.type||"").startsWith("goal")?1:-1)));
  ga=ev.filter(e=>e.type==="goalA").length;gb=ev.filter(e=>e.type==="goalB").length;
- let posA=Math.max(31,Math.min(69,Math.round(50+(ma.midfield-mb.midfield)*1.6+(ratingA-ratingB)*.11+(Math.random()-.5)*7)));
+ let posA=Math.max(31,Math.min(69,Math.round(50+(ma.midfield-mb.midfield)*1.6+(ratingA-ratingB)*.11+tacticMatch.possessionEdge*48+(Math.random()-.5)*7)));
  return{ga,gb,ev,venue:seriesVenueOrder[idx]||one(venues),weather:one(weatherList),posA,subs:plans,dismissals,yellows,model:{keeperA,keeperB,lambdaA,lambdaB}}
 }
 const ACTIVE_SERIES_KEY="bi_time_clash_active_series_v1";
