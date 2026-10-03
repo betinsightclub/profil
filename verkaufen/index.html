@@ -9,7 +9,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <meta name="theme-color" content="#071019">
-  <meta name="application-version" content="2.0.4">
+  <meta name="application-version" content="2.1.0">
   <title>Units verkaufen | BetInsight Club</title>
   <link rel="stylesheet" href="../assets/app-navigation.css">
   <script src="../assets/app-session.js"></script>
@@ -41,7 +41,7 @@
       <label class="payment-option" id="bankOption"><div class="payment-line"><input id="payBank" type="checkbox"><div><strong>🏦 Banküberweisung</strong><small>Für den Käufer kommen pauschal 1,00 € Bank-Service hinzu. Dafür wird beim Einstellen 1 zusätzliche Unit reserviert.</small><div class="ready" id="bankReady">Wird geprüft …</div></div></div></label>
     </div>
     <div class="crypto-method-panel" id="cryptoMethodPanel" hidden>
-      <p class="crypto-method-title">Welche Krypto-Zahlung soll für dieses Angebot gelten? <span style="color:var(--muted);font-weight:650">Genau eine auswählen.</span></p>
+      <p class="crypto-method-title">Welche Krypto-Zahlungen sollen für dieses Angebot gelten? <span style="color:var(--muted);font-weight:650">Mehrere grüne Wallets können gleichzeitig ausgewählt werden.</span></p>
       <div class="crypto-method-grid" id="cryptoMethodGrid"></div>
       <p class="crypto-method-selection" id="cryptoMethodSelection">Grün = Adresse hinterlegt und auswählbar · Rot = für diese Wallet fehlt noch eine Adresse.</p>
     </div>
@@ -60,7 +60,7 @@
   <ul class="rules"><li><strong>Neu:</strong> 5 Units können jetzt regulär verkauft werden; die Gebühr von 0,5 Unit wird unten automatisch berechnet.</li><li>Mindestens eine Zahlungsart muss ausgewählt sein.</li><li>Bei Banküberweisung werden 1 € Käufer-Service und 1 zusätzliche Unit-Reserve verwendet.</li><li>Die normale Verkaufsgebühr bleibt wie bisher bestehen.</li><li>Geschenk-Units sind nicht verkaufbar.</li></ul>
 </section>
 <section class="card"><div class="card-head"><div><h2>Meine Verkaufsangebote</h2><p>Aktive Angebote kannst du stornieren oder ausschließlich im Verkaufspreis bearbeiten. Bei Bankverkäufen bestätigst du den tatsächlichen Geldeingang hier.</p></div></div><div class="my-offers-list" id="myOffers"><div class="my-offers-empty">Angebote werden geladen …</div></div></section>
-<p class="footer-note">BetInsight Units verkaufen · Version 2.0.4</p>
+<p class="footer-note">BetInsight Units verkaufen · Version 2.1.0</p>
 </main>
 <script>
 "use strict";
@@ -85,39 +85,49 @@ const CRYPTO_METHOD_FALLBACK=[
   ["XLM_STELLAR","XLM – Stellar"],["USDC_STELLAR","USDC – Stellar"],
   ["TON_TON","TON – TON"],["USDT_TON","USDT – TON"]
 ].map(([method_key,display_name])=>({method_key,display_name}));
-let balance={sellable:0,earned:0,purchased:0},methodState={crypto:false,bank:false},busy=false,ownOffers=[],bankStatusBusy=false,cryptoMethods=[],savedCryptoWallets=[],selectedCryptoMethodKey="",selectedCryptoWallet=null,cryptoPanelOpen=false;
+let balance={sellable:0,earned:0,purchased:0},methodState={crypto:false,bank:false},busy=false,ownOffers=[],bankStatusBusy=false,cryptoMethods=[],savedCryptoWallets=[],selectedCryptoMethodKeys=[],selectedCryptoWallets={},cryptoPanelOpen=false;
 const $=id=>document.getElementById(id),eur=n=>Number(n||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €",num=n=>Number(n||0).toLocaleString("de-DE",{maximumFractionDigits:2});
 function esc(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
 function normalFee(amount){const a=Number(amount||0);if(a===5)return .5;return Math.ceil(a*.05)}
-function selected(){const amount=Number($("amount").value),price=Number($("price").value),bank=$("payBank").checked,crypto=$("payCrypto").checked,fee=normalFee(amount);return{amount,price,bank,crypto,cryptoMethodKey:selectedCryptoMethodKey,fee,required:amount+fee+(bank?1:0),sale:amount*price}}
+function selected(){const amount=Number($("amount").value),price=Number($("price").value),bank=$("payBank").checked,crypto=$("payCrypto").checked,fee=normalFee(amount),cryptoMethodKeys=[...selectedCryptoMethodKeys];return{amount,price,bank,crypto,cryptoMethodKeys,fee,required:amount+fee+(bank?1:0),sale:amount*price}}
 function showFeedback(message,type){const el=$("feedback");el.textContent=message;el.className="feedback show "+type}function clearFeedback(){const el=$("feedback");el.textContent="";el.className="feedback"}
 function setStatus(text,ok){$("systemStatus").textContent=text;$("systemStatus").style.color=ok?"var(--accent)":"var(--warning)"}
-function renderMethodState(){const c=$("cryptoReady"),b=$("bankReady"),co=$("cryptoOption"),bo=$("bankOption");c.textContent=methodState.crypto?("✓ "+savedCryptoWallets.length+" Wallet"+(savedCryptoWallets.length===1?"":"s")+" mit Adresse"):"Wallets öffnen und Status prüfen";c.className="ready "+(methodState.crypto?"ok":"no");b.textContent=methodState.bank?"✓ Bereit":"✕ Nicht eingerichtet";b.className="ready "+(methodState.bank?"ok":"no");$("payCrypto").disabled=!methodState.crypto;$("payBank").disabled=!methodState.bank;co.classList.remove("disabled");bo.classList.toggle("disabled",!methodState.bank);co.classList.toggle("ready-ok",methodState.crypto);co.classList.toggle("ready-no",!methodState.crypto);bo.classList.toggle("ready-ok",methodState.bank);bo.classList.toggle("ready-no",!methodState.bank);if(!methodState.crypto){$("payCrypto").checked=false;selectedCryptoMethodKey="";selectedCryptoWallet=null}if(!methodState.bank)$("payBank").checked=false;$("cryptoMethodPanel").hidden=!cryptoPanelOpen;co.setAttribute("aria-expanded",cryptoPanelOpen?"true":"false");$("cryptoExpand").textContent=cryptoPanelOpen?"Wallets schließen ▴":"Wallets anzeigen ▾"}
+function renderMethodState(){const c=$("cryptoReady"),b=$("bankReady"),co=$("cryptoOption"),bo=$("bankOption");c.textContent=methodState.crypto?("✓ "+savedCryptoWallets.length+" Wallet"+(savedCryptoWallets.length===1?"":"s")+" mit Adresse"):"Wallets öffnen und Status prüfen";c.className="ready "+(methodState.crypto?"ok":"no");b.textContent=methodState.bank?"✓ Bereit":"✕ Nicht eingerichtet";b.className="ready "+(methodState.bank?"ok":"no");$("payCrypto").disabled=!methodState.crypto;$("payBank").disabled=!methodState.bank;co.classList.remove("disabled");bo.classList.toggle("disabled",!methodState.bank);co.classList.toggle("ready-ok",methodState.crypto);co.classList.toggle("ready-no",!methodState.crypto);bo.classList.toggle("ready-ok",methodState.bank);bo.classList.toggle("ready-no",!methodState.bank);if(!methodState.crypto){$("payCrypto").checked=false;selectedCryptoMethodKeys=[];selectedCryptoWallets={}}if(!methodState.bank)$("payBank").checked=false;$("cryptoMethodPanel").hidden=!cryptoPanelOpen;co.setAttribute("aria-expanded",cryptoPanelOpen?"true":"false");$("cryptoExpand").textContent=cryptoPanelOpen?"Wallets schließen ▴":"Wallets anzeigen ▾"}
 function renderSummary(){const s=selected();$("saleTotal").textContent=eur(s.sale);$("normalFee").textContent=s.fee+" Units";$("requiredUnits").textContent=s.required+" Units";$("bankReserveRow").hidden=!s.bank;$("cryptoBuyerRow").hidden=!s.crypto;$("bankBuyerRow").hidden=!s.bank;$("cryptoBuyerTotal").textContent=eur(s.sale);$("bankBuyerTotal").textContent=eur(s.sale+1);refreshCreateButton()}
-function refreshCreateButton(){const s=selected(),hasMethod=s.crypto||s.bank,enough=balance.sellable>=s.required,cryptoChoiceOk=!s.crypto||(methodState.crypto&&!!s.cryptoMethodKey&&!!selectedCryptoWallet),methodOk=cryptoChoiceOk&&(!s.bank||methodState.bank),legacyChainOk=!s.crypto||["USDT_TRC20","TRX_TRON"].includes(s.cryptoMethodKey),can=!busy&&dashboardToken&&hasMethod&&enough&&methodOk&&legacyChainOk;$("createButton").disabled=!can;const alert=$("availabilityAlert");if(!hasMethod){alert.textContent="Bitte wähle mindestens eine eingerichtete Zahlungsart aus.";alert.classList.add("show")}else if(s.crypto&&!s.cryptoMethodKey){alert.textContent="Bitte wähle genau eine grün markierte Krypto-Wallet für dieses Angebot aus.";alert.classList.add("show")}else if(s.crypto&&!legacyChainOk){alert.textContent="Diese Wallet ist bereits auswählbar. Die Blockchain-Abwicklung dieses Netzwerks wird noch auf Supabase umgestellt; echte Angebote sind dort noch gesperrt.";alert.classList.add("show")}else if(!enough){alert.textContent=`Für dieses Angebot werden ${s.required} Units benötigt. Verfügbar sind ${num(balance.sellable)} Units.`;alert.classList.add("show")}else if(!methodOk){alert.textContent="Eine gewählte Zahlungsart ist noch nicht vollständig eingerichtet.";alert.classList.add("show")}else alert.classList.remove("show")}
+function refreshCreateButton(){const s=selected(),hasMethod=s.crypto||s.bank,enough=balance.sellable>=s.required,cryptoChoiceOk=!s.crypto||(methodState.crypto&&s.cryptoMethodKeys.length>0&&s.cryptoMethodKeys.every(k=>!!selectedCryptoWallets[k])),methodOk=cryptoChoiceOk&&(!s.bank||methodState.bank),liveKeys=new Set(["USDT_TRC20","TRX_TRON"]),nonLive=s.crypto?s.cryptoMethodKeys.filter(k=>!liveKeys.has(k)):[],legacyChainOk=nonLive.length===0,can=!busy&&dashboardToken&&hasMethod&&enough&&methodOk&&legacyChainOk;$("createButton").disabled=!can;const alert=$("availabilityAlert");if(!hasMethod){alert.textContent="Bitte wähle mindestens eine eingerichtete Zahlungsart aus.";alert.classList.add("show")}else if(s.crypto&&!s.cryptoMethodKeys.length){alert.textContent="Bitte wähle mindestens eine grün markierte Krypto-Wallet für dieses Angebot aus.";alert.classList.add("show")}else if(s.crypto&&nonLive.length){alert.textContent="Ausgewählt, aber noch nicht für echte Blockchain-Abwicklung freigeschaltet: "+nonLive.join(", ")+". TRX und USDT/TRC20 können bereits gemeinsam verwendet werden.";alert.classList.add("show")}else if(!enough){alert.textContent=`Für dieses Angebot werden ${s.required} Units benötigt. Verfügbar sind ${num(balance.sellable)} Units.`;alert.classList.add("show")}else if(!methodOk){alert.textContent="Mindestens eine gewählte Krypto-Wallet konnte noch nicht bestätigt werden.";alert.classList.add("show")}else alert.classList.remove("show")}
 function renderCryptoMethods(){
   const saved=new Map(savedCryptoWallets.filter(w=>w.is_enabled!==false).map(w=>[w.method_key,w]));
   $("cryptoMethodGrid").innerHTML=cryptoMethods.map(m=>{
-    const wallet=saved.get(m.method_key),available=!!wallet&&!!String(wallet.address||"").trim(),address=available?String(wallet.address):"";
-    return `<label class="crypto-method ${available?"available":"missing"}"><input type="radio" name="cryptoMethod" value="${esc(m.method_key)}" ${available?"":"disabled"} ${selectedCryptoMethodKey===m.method_key?"checked":""}><span><strong>${esc(m.display_name)}</strong><span class="crypto-method-state">${available?"✓ Adresse hinterlegt":"✕ Adresse fehlt"}</span><span class="crypto-method-address">${available?esc(address):"Keine Empfangsadresse gespeichert"}</span></span></label>`
+    const wallet=saved.get(m.method_key),available=!!wallet&&!!String(wallet.address||"").trim(),address=available?String(wallet.address):"",checked=selectedCryptoMethodKeys.includes(m.method_key);
+    return `<label class="crypto-method ${available?"available":"missing"}"><input type="checkbox" name="cryptoMethod" value="${esc(m.method_key)}" ${available?"":"disabled"} ${checked?"checked":""}><span><strong>${esc(m.display_name)}</strong><span class="crypto-method-state">${available?"✓ Adresse hinterlegt":"✕ Adresse fehlt"}</span><span class="crypto-method-address">${available?esc(address):"Keine Empfangsadresse gespeichert"}</span></span></label>`
   }).join("");
-  document.querySelectorAll('input[name="cryptoMethod"]:not(:disabled)').forEach(r=>r.addEventListener("change",()=>{if(!$("payCrypto").checked)$("payCrypto").checked=true;chooseCryptoMethod(r.value)}));
+  document.querySelectorAll('input[name="cryptoMethod"]:not(:disabled)').forEach(box=>box.addEventListener("change",()=>toggleCryptoMethod(box.value,box.checked)));
+  updateCryptoSelectionText();
 }
-async function chooseCryptoMethod(key){
-  selectedCryptoMethodKey=key;selectedCryptoWallet=null;
-  const method=cryptoMethods.find(m=>m.method_key===key);
-  $("cryptoMethodSelection").textContent=(method?.display_name||key)+" wird geprüft …";
-  renderCryptoMethods();refreshCreateButton();
-  try{
-    const r=await fetch(EXCHANGE_WALLET_VALIDATE_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({dashboard_token:dashboardToken,method_key:key}),cache:"no-store"});
-    const d=await r.json();
-    if(!r.ok||!d?.ready)throw new Error("Wallet nicht bereit");
-    selectedCryptoWallet=d;
-    $("cryptoMethodSelection").textContent="Ausgewählt: "+(method?.display_name||key)+" · Supabase hat die hinterlegte Wallet bestätigt.";
-  }catch(e){
-    selectedCryptoWallet=null;$("cryptoMethodSelection").textContent="Diese Wallet konnte nicht bestätigt werden. Bitte unter Auszahlungsmethoden prüfen.";
+function updateCryptoSelectionText(){
+  const labels=selectedCryptoMethodKeys.map(k=>cryptoMethods.find(m=>m.method_key===k)?.display_name||k);
+  $("cryptoMethodSelection").textContent=labels.length?"Ausgewählt ("+labels.length+"): "+labels.join(" · "):"Grün = Adresse hinterlegt und auswählbar · Rot = für diese Wallet fehlt noch eine Adresse.";
+}
+async function toggleCryptoMethod(key,checked){
+  if(checked){
+    if(!selectedCryptoMethodKeys.includes(key))selectedCryptoMethodKeys.push(key);
+    if(!$("payCrypto").checked)$("payCrypto").checked=true;
+    const method=cryptoMethods.find(m=>m.method_key===key);
+    $("cryptoMethodSelection").textContent=(method?.display_name||key)+" wird geprüft …";
+    try{
+      const r=await fetch(EXCHANGE_WALLET_VALIDATE_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({dashboard_token:dashboardToken,method_key:key}),cache:"no-store"});
+      const d=await r.json();
+      if(!r.ok||!d?.ready)throw new Error("Wallet nicht bereit");
+      selectedCryptoWallets[key]=d;
+    }catch(e){
+      delete selectedCryptoWallets[key];
+    }
+  }else{
+    selectedCryptoMethodKeys=selectedCryptoMethodKeys.filter(k=>k!==key);
+    delete selectedCryptoWallets[key];
+    if(!selectedCryptoMethodKeys.length)$("payCrypto").checked=false;
   }
-  refreshCreateButton();
+  renderCryptoMethods();renderMethodState();renderSummary();
 }
 async function loadCryptoMethods(){
   if(!dashboardToken)return;
@@ -140,13 +150,13 @@ async function loadCryptoMethods(){
     savedCryptoWallets=[];
   }
   methodState.crypto=savedCryptoWallets.some(w=>String(w.address||"").trim().length>0);
-  if(selectedCryptoMethodKey&&!savedCryptoWallets.some(w=>w.method_key===selectedCryptoMethodKey&&String(w.address||"").trim())){selectedCryptoMethodKey="";selectedCryptoWallet=null}
+  selectedCryptoMethodKeys=selectedCryptoMethodKeys.filter(k=>savedCryptoWallets.some(w=>w.method_key===k&&String(w.address||"").trim()));Object.keys(selectedCryptoWallets).forEach(k=>{if(!selectedCryptoMethodKeys.includes(k))delete selectedCryptoWallets[k]})
   renderCryptoMethods();renderMethodState();renderSummary();
 }
 async function loadBalance(){if(!dashboardToken){setStatus("Zugang fehlt",false);return}try{const r=await fetch(CREATE_WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({dashboard_token:dashboardToken,menge_referral_units:0,preis_pro_unit_eur:0,request_id:""}),cache:"no-store"});const t=String(await r.text()||"").replace(/^\uFEFF/,"").trim();if(!r.ok||!t)throw new Error("Statuscheck fehlgeschlagen");const d=JSON.parse(t);balance={sellable:Number(d.sellable_units||0),earned:Number(d.earned_units||0),purchased:Number(d.purchased_units||0)};methodState={crypto:methodState.crypto,bank:Number(d.bank_ready||0)===1||d.bank_ready===true};$("sellableBalance").textContent=num(balance.sellable);$("earnedBalance").textContent=num(balance.earned);$("purchasedBalance").textContent=num(balance.purchased);renderMethodState();setStatus(methodState.crypto||methodState.bank?"Bereit":"Zahlungsart fehlt",methodState.crypto||methodState.bank);renderSummary()}catch(e){console.error(e);setStatus("Prüfung fehlgeschlagen",false);showFeedback("Unit-Bestand oder Auszahlungsmethoden konnten nicht geladen werden.","error")}}
 function requestId(){return(globalThis.crypto?.randomUUID?.()||("req-"+Date.now()+"-"+Math.random().toString(16).slice(2))).replace(/[^a-zA-Z0-9-]/g,"")}
 $("amount").addEventListener("change",renderSummary);$("price").addEventListener("change",renderSummary);$("cryptoExpand").addEventListener("click",()=>{cryptoPanelOpen=!cryptoPanelOpen;renderMethodState()});$("cryptoOption").addEventListener("click",e=>{if(e.target.closest("#cryptoExpand")||e.target.closest("#payCrypto"))return;cryptoPanelOpen=!cryptoPanelOpen;renderMethodState()});$("payCrypto").addEventListener("change",()=>{cryptoPanelOpen=true;renderMethodState();renderSummary()});$("payBank").addEventListener("change",renderSummary);
-$("offerForm").addEventListener("submit",async e=>{e.preventDefault();clearFeedback();const s=selected();if(!s.crypto&&!s.bank)return showFeedback("Bitte mindestens eine Zahlungsart auswählen.","error");if(balance.sellable<s.required)return refreshCreateButton();busy=true;refreshCreateButton();$("createButton").textContent="Angebot wird erstellt …";try{const r=await fetch(CREATE_WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({dashboard_token:dashboardToken,menge_referral_units:s.amount,preis_pro_unit_eur:s.price,zahlung_krypto:s.crypto?"JA":"NEIN",zahlung_bank:s.bank?"JA":"NEIN",crypto_method_key:s.cryptoMethodKey,crypto_wallet_validated:s.crypto&&selectedCryptoWallet?"JA":"NEIN",crypto_wallet_address:selectedCryptoWallet?.address||"",crypto_wallet_memo:selectedCryptoWallet?.memo_tag||"",crypto_coin:selectedCryptoWallet?.coin||"",crypto_netzwerk:selectedCryptoWallet?.network||"",crypto_standard:selectedCryptoWallet?.standard||"",request_id:requestId()}),cache:"no-store"});const text=String(await r.text()||"").replace(/^\uFEFF/,"").trim();let d={};try{d=JSON.parse(text)}catch(_){d={message:text}}if(!r.ok)throw new Error(d.message||"Angebot konnte nicht erstellt werden.");showFeedback(s.bank?"Angebot erstellt. Die zusätzliche Bank-Service-Unit ist reserviert.":"Angebot wurde erstellt.","success");await Promise.all([loadBalance(),loadOwnOffers()])}catch(err){showFeedback(err.message||"Angebot konnte nicht erstellt werden.","error")}finally{busy=false;$("createButton").textContent="Verkaufsangebot erstellen";refreshCreateButton()}});
+$("offerForm").addEventListener("submit",async e=>{e.preventDefault();clearFeedback();const s=selected();if(!s.crypto&&!s.bank)return showFeedback("Bitte mindestens eine Zahlungsart auswählen.","error");if(balance.sellable<s.required)return refreshCreateButton();busy=true;refreshCreateButton();$("createButton").textContent="Angebot wird erstellt …";try{const r=await fetch(CREATE_WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify((()=>{const primaryKey=s.cryptoMethodKeys[0]||"",primary=selectedCryptoWallets[primaryKey]||{};return{dashboard_token:dashboardToken,menge_referral_units:s.amount,preis_pro_unit_eur:s.price,zahlung_krypto:s.crypto?"JA":"NEIN",zahlung_bank:s.bank?"JA":"NEIN",crypto_method_key:primaryKey,crypto_method_keys:s.cryptoMethodKeys.join(";"),payment_method_keys:s.cryptoMethodKeys,crypto_wallet_validated:s.crypto&&s.cryptoMethodKeys.length&&s.cryptoMethodKeys.every(k=>!!selectedCryptoWallets[k])?"JA":"NEIN",crypto_wallet_address:primary.address||"",crypto_wallet_memo:primary.memo_tag||"",crypto_coin:primary.coin||"",crypto_netzwerk:primary.network||"",crypto_standard:primary.standard||"",request_id:requestId()}})()),cache:"no-store"});const text=String(await r.text()||"").replace(/^\uFEFF/,"").trim();let d={};try{d=JSON.parse(text)}catch(_){d={message:text}}if(!r.ok)throw new Error(d.message||"Angebot konnte nicht erstellt werden.");showFeedback(s.bank?"Angebot erstellt. Die zusätzliche Bank-Service-Unit ist reserviert.":"Angebot wurde erstellt.","success");await Promise.all([loadBalance(),loadOwnOffers()])}catch(err){showFeedback(err.message||"Angebot konnte nicht erstellt werden.","error")}finally{busy=false;$("createButton").textContent="Verkaufsangebot erstellen";refreshCreateButton()}});
 function activeStatus(v){return String(v||"").toUpperCase()==="AKTIV"}function reservedStatus(v){const s=String(v||"").toUpperCase();return s==="KAUF_RESERVIERT"||s==="RESERVIERT"}function bankEnabled(o){return String(o?.zahlungBank||"NEIN").toUpperCase()==="JA"}
 function paymentBadges(o){const crypto=String(o.zahlungKrypto||"JA").toUpperCase()==="JA",bank=bankEnabled(o);return `<div class="pay-badges">${crypto?'<span class="pay-badge crypto">🪙 Krypto</span>':''}${bank?'<span class="pay-badge bank">🏦 Bank +1 €</span>':''}</div>`}
 function bankStatusPlaceholder(o){if(!reservedStatus(o.status)||!bankEnabled(o))return reservedStatus(o.status)?'<p class="offer-lock-note">Für einen Käufer reserviert – aktuell nicht bearbeitbar oder stornierbar.</p>':'';return `<p class="offer-lock-note">Für einen Käufer reserviert – aktuell nicht bearbeitbar oder stornierbar.</p><div class="bank-sale-status waiting" data-bank-status-for="${esc(o.id)}"><div class="bank-sale-head"><div><strong>🏦 Bankkauf reserviert</strong><span>Der Käuferstatus wird nur auf Wunsch geprüft. Dadurch entstehen keine automatischen Make-Abfragen.</span></div></div><div class="bank-sale-buttons"><button class="bank-refresh-button" type="button" data-bank-refresh="${esc(o.id)}">Status aktualisieren</button></div></div>`}
