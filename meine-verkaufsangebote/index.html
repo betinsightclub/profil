@@ -39,10 +39,10 @@
 <script>
 (()=>{
   'use strict';
-  const READ_ENDPOINT='https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=sale-own-read';
-  const MUTATION_ENDPOINT='https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=sale-mutate';
-  const BANK_STATUS_ENDPOINT='https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=sale-bank-status';
-  const BANK_CONFIRM_ENDPOINT='https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=sale-bank-confirm';
+  const READ_ENDPOINT='https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-exchange-api?action=own-offers';
+  const MUTATION_ENDPOINT='https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-exchange-api?action=mutate-offer';
+  const BANK_STATUS_ENDPOINT='https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-exchange-api?action=seller-bank-status';
+  const BANK_CONFIRM_ENDPOINT='https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-exchange-api?action=seller-bank-confirm';
   const ALLOWED_PRICES=[.80,.85,.90,.95,1.00];
   const state=document.getElementById('state'),list=document.getElementById('list'),count=document.getElementById('count'),feedback=document.getElementById('feedback');
   let lastItems=[],busy=false;
