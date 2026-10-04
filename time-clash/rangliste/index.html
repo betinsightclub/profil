@@ -25,6 +25,7 @@ function worldCategory(r){
 function worldFilterRows(){
  if(WORLD_FILTER==="all")return WORLD_ROWS;
  if(WORLD_FILTER==="football")return WORLD_ROWS.filter(r=>worldCategory(r)!=="internal");
+ if(WORLD_FILTER==="trainer")return WORLD_ROWS.filter(r=>worldCategory(r)==="internal");
  return WORLD_ROWS.filter(r=>worldCategory(r)===WORLD_FILTER);
 }
 function renderWorldRanking(){
@@ -32,7 +33,7 @@ function renderWorldRanking(){
  const F=RX?.filters||{};
  all.textContent=F.titles?.[WORLD_FILTER]||T.all;
  meta.textContent=arr.length+" "+T.live;
- rows.innerHTML=arr.length?arr.map((r,i)=>{const gd=Number(r.goal_difference||0),cat=worldCategory(r);return '<tr><td class="rank">#'+(i+1)+'</td><td><span class="team">'+esc(teamName(r.display_name))+'</span><span class="kind">'+(cat==="internal"?T.elite:(cat==="nation"?(F.nationKind||T.historic):(F.clubKind||T.historic)))+'</span></td><td>'+Number(r.matches_played||0)+'</td><td>'+Number(r.wins||0)+'</td><td>'+Number(r.draws||0)+'</td><td>'+Number(r.losses||0)+'</td><td>'+Number(r.goals_for||0)+':'+Number(r.goals_against||0)+'</td><td class="gd '+(gd>0?"pos":gd<0?"neg":"")+'">'+(gd>0?"+":"")+gd+'</td><td class="pts">'+Number(r.points||0)+'</td></tr>'}).join(""):'<tr><td colspan="9" class="empty">'+T.none+'</td></tr>';
+ rows.innerHTML=arr.length?arr.map((r,i)=>{const gd=Number(r.goal_difference||0),cat=worldCategory(r);return '<tr><td class="rank">#'+(i+1)+'</td><td><span class="team">'+esc(teamName(r.display_name))+'</span><span class="kind">'+(cat==="internal"?(F.trainerKind||T.elite):(cat==="nation"?(F.nationKind||T.historic):(F.clubKind||T.historic)))+'</span></td><td>'+Number(r.matches_played||0)+'</td><td>'+Number(r.wins||0)+'</td><td>'+Number(r.draws||0)+'</td><td>'+Number(r.losses||0)+'</td><td>'+Number(r.goals_for||0)+':'+Number(r.goals_against||0)+'</td><td class="gd '+(gd>0?"pos":gd<0?"neg":"")+'">'+(gd>0?"+":"")+gd+'</td><td class="pts">'+Number(r.points||0)+'</td></tr>'}).join(""):'<tr><td colspan="9" class="empty">'+T.none+'</td></tr>';
  document.querySelectorAll("#teamFilterTabs .teamFilterTab").forEach(b=>b.classList.toggle("active",b.dataset.filter===WORLD_FILTER));
 }
 async function load(){try{const res=await fetch(API+"?type=world&limit=500",{cache:"no-store"}),data=await res.json();if(!res.ok||data.ok!==true)throw new Error();WORLD_ROWS=Array.isArray(data.rows)?data.rows:[];renderWorldRanking()}catch(e){rows.innerHTML='<tr><td colspan="9" class="empty">'+T.err+'</td></tr>';meta.textContent=T.na}}load();
@@ -49,14 +50,14 @@ const RANKEXTRA={
 };
 const RX=RANKEXTRA[LANG]||RANKEXTRA.de;
 const RANKFILTERS={
- de:{all:"Alle",nation:"Nationalmannschaften",club:"Clubs",football:"🌐 Weltfußball",titles:{all:"Gesamtrangliste",nation:"Nationalmannschaften",club:"Club-Rangliste",football:"Weltfußball · Clubs & Nationalteams"},nationKind:"Nationalmannschaft",clubKind:"Club"},
- en:{all:"All",nation:"National teams",club:"Clubs",football:"🌐 World football",titles:{all:"Overall ranking",nation:"National teams",club:"Club ranking",football:"World football · Clubs & national teams"},nationKind:"National team",clubKind:"Club"},
- es:{all:"Todos",nation:"Selecciones",club:"Clubes",football:"🌐 Fútbol mundial",titles:{all:"Clasificación general",nation:"Selecciones nacionales",club:"Clasificación de clubes",football:"Fútbol mundial · Clubes y selecciones"},nationKind:"Selección nacional",clubKind:"Club"},
- fr:{all:"Tous",nation:"Sélections",club:"Clubs",football:"🌐 Football mondial",titles:{all:"Classement général",nation:"Sélections nationales",club:"Classement des clubs",football:"Football mondial · Clubs & sélections"},nationKind:"Sélection nationale",clubKind:"Club"},
- it:{all:"Tutti",nation:"Nazionali",club:"Club",football:"🌐 Calcio mondiale",titles:{all:"Classifica generale",nation:"Nazionali",club:"Classifica club",football:"Calcio mondiale · Club e nazionali"},nationKind:"Nazionale",clubKind:"Club"},
- pt:{all:"Todos",nation:"Seleções",club:"Clubes",football:"🌐 Futebol mundial",titles:{all:"Ranking geral",nation:"Seleções nacionais",club:"Ranking de clubes",football:"Futebol mundial · Clubes e seleções"},nationKind:"Seleção nacional",clubKind:"Clube"},
- nl:{all:"Alles",nation:"Nationale teams",club:"Clubs",football:"🌐 Wereldvoetbal",titles:{all:"Algemene ranglijst",nation:"Nationale teams",club:"Clubranglijst",football:"Wereldvoetbal · Clubs & nationale teams"},nationKind:"Nationaal team",clubKind:"Club"},
- "zh-tw":{all:"全部",nation:"國家隊",club:"俱樂部",football:"🌐 世界足球",titles:{all:"總排名",nation:"國家隊排名",club:"俱樂部排名",football:"世界足球 · 俱樂部與國家隊"},nationKind:"國家隊",clubKind:"俱樂部"}
+ de:{all:"Alle",nation:"Nationalmannschaften",club:"Clubs",trainer:"👤 Trainerteams",football:"🌐 Weltfußball",titles:{all:"Gesamtrangliste",nation:"Nationalmannschaften",club:"Club-Rangliste",trainer:"TIME-CLASH-Trainerteams",football:"Weltfußball · Clubs & Nationalteams"},nationKind:"Nationalmannschaft",clubKind:"Club",trainerKind:"Trainerteam"},
+ en:{all:"All",nation:"National teams",club:"Clubs",trainer:"👤 Coach teams",football:"🌐 World football",titles:{all:"Overall ranking",nation:"National teams",club:"Club ranking",trainer:"TIME CLASH coach teams",football:"World football · Clubs & national teams"},nationKind:"National team",clubKind:"Club",trainerKind:"Coach team"},
+ es:{all:"Todos",nation:"Selecciones",club:"Clubes",trainer:"👤 Equipos de entrenador",football:"🌐 Fútbol mundial",titles:{all:"Clasificación general",nation:"Selecciones nacionales",club:"Clasificación de clubes",trainer:"Equipos de entrenador TIME CLASH",football:"Fútbol mundial · Clubes y selecciones"},nationKind:"Selección nacional",clubKind:"Club",trainerKind:"Equipo de entrenador"},
+ fr:{all:"Tous",nation:"Sélections",club:"Clubs",trainer:"👤 Équipes d’entraîneur",football:"🌐 Football mondial",titles:{all:"Classement général",nation:"Sélections nationales",club:"Classement des clubs",trainer:"Équipes d’entraîneur TIME CLASH",football:"Football mondial · Clubs & sélections"},nationKind:"Sélection nationale",clubKind:"Club",trainerKind:"Équipe d’entraîneur"},
+ it:{all:"Tutti",nation:"Nazionali",club:"Club",trainer:"👤 Squadre allenatore",football:"🌐 Calcio mondiale",titles:{all:"Classifica generale",nation:"Nazionali",club:"Classifica club",trainer:"Squadre allenatore TIME CLASH",football:"Calcio mondiale · Club e nazionali"},nationKind:"Nazionale",clubKind:"Club",trainerKind:"Squadra allenatore"},
+ pt:{all:"Todos",nation:"Seleções",club:"Clubes",trainer:"👤 Equipas de treinador",football:"🌐 Futebol mundial",titles:{all:"Ranking geral",nation:"Seleções nacionais",club:"Ranking de clubes",trainer:"Equipas de treinador TIME CLASH",football:"Futebol mundial · Clubes e seleções"},nationKind:"Seleção nacional",clubKind:"Clube",trainerKind:"Equipa de treinador"},
+ nl:{all:"Alles",nation:"Nationale teams",club:"Clubs",trainer:"👤 Trainerteams",football:"🌐 Wereldvoetbal",titles:{all:"Algemene ranglijst",nation:"Nationale teams",club:"Clubranglijst",trainer:"TIME CLASH-trainerteams",football:"Wereldvoetbal · Clubs & nationale teams"},nationKind:"Nationaal team",clubKind:"Club",trainerKind:"Trainerteam"},
+ "zh-tw":{all:"全部",nation:"國家隊",club:"俱樂部",trainer:"👤 教練球隊",football:"🌐 世界足球",titles:{all:"總排名",nation:"國家隊排名",club:"俱樂部排名",trainer:"TIME CLASH 教練球隊",football:"世界足球 · 俱樂部與國家隊"},nationKind:"國家隊",clubKind:"俱樂部",trainerKind:"教練球隊"}
 };
 RANKEXTRA[LANG].filters=RANKFILTERS[LANG]||RANKFILTERS.de;
 
@@ -66,7 +67,7 @@ const teamFilterTabs=document.getElementById("teamFilterTabs");
 function renderTeamFilters(){
  const F=RX.filters||RANKFILTERS.de;
  teamFilterTabs.innerHTML=[
-  ["all",F.all],["nation",F.nation],["club",F.club],["football",F.football]
+  ["all",F.all],["nation",F.nation],["club",F.club],["trainer",F.trainer],["football",F.football]
  ].map(([k,v])=>'<button type="button" class="teamFilterTab '+(k==="football"?"world ":"")+(WORLD_FILTER===k?"active":"")+'" data-filter="'+k+'">'+v+'</button>').join("");
  teamFilterTabs.querySelectorAll(".teamFilterTab").forEach(b=>b.onclick=()=>{WORLD_FILTER=b.dataset.filter;renderWorldRanking()});
 }
