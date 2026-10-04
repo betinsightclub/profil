@@ -1234,8 +1234,7 @@ function publicRatingStrength(side){
  return Math.max(9,Math.min(20,8+(r-65)*.5));
 }
 function publicRosterFallback(side){
- const kind=side==="A"?kindAActive:kindBActive;
- return (kind==="nation"||kind==="club")&&startingLineup(side).length<8;
+ return false;
 }
 function effectiveMetrics(side,plans,dismissals=null){
  if(publicRosterFallback(side)){
