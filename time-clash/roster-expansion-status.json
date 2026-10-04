@@ -1,6 +1,6 @@
 {
   "generated_at": "2026-10-04",
-  "policy": "Never invent players. Teams with source roster below 11 remain in audit and use rating fallback until a reliable full squad source is added.",
+  "policy": "Never invent players. Historical teams with fewer than 11 verified players are locked and cannot start a TIME CLASH series until a reliable roster source is added.",
   "baseline_master": {
     "team_keys": 997,
     "roster_entries": 24148
@@ -486,5 +486,11 @@
       "team": "MAS Fès 2025/26",
       "roster_size": 5
     }
-  ]
+  ],
+  "playability_policy": {
+    "minimum_verified_players": 11,
+    "incomplete_historical_teams": "locked",
+    "rating_fallback_for_incomplete_historical_teams": false,
+    "note": "User-facing simulation may not fabricate a playable XI from ratings when player data are incomplete."
+  }
 }
