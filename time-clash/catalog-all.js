@@ -15,8 +15,6 @@ window.addEventListener("DOMContentLoaded",function(){
   }
   if(typeof rosterReady==="function"){
    rosterReady=function(side){
-    const kind=side==="A"?kindAActive:kindBActive;
-    if(kind==="club"||kind==="nation")return true;
     return activeRoster(side).length>=11;
    };
   }
