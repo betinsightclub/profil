@@ -36,10 +36,10 @@
       "source_entries": 121,
       "status": "verified historical title-season squad expansions loaded"
     },
-    "france_1971_1975": {
-      "teams": 4,
-      "source_entries": 82,
-      "status": "verified historical title-season / season-used-player expansions loaded; Marseille 1970/71 intentionally still pending"
+    "france_1970_1975": {
+      "teams": 5,
+      "source_entries": 114,
+      "status": "verified historical title-season squads loaded; Marseille 1970/71 now verified and included"
     }
   },
   "phases": [
@@ -62,8 +62,8 @@
       "id": 4,
       "name": "Major Europe club expansion",
       "status": "active",
-      "completed": "Bundesliga 1963/64-1969/70; England 1970/71-1984/85 and 2007/08-2023/24; Spain 1970/71-1974/75; Italy 1970/71-1974/75; France 1971/72-1974/75.",
-      "remaining": "Continue verified historical gaps. Olympique Marseille 1970/71 remains pending because a complete reliable season squad has not yet been accepted; then continue later 1970s/1980s gaps for England, Spain, Italy and France."
+      "completed": "Bundesliga 1963/64-1969/70; England 1970/71-1984/85 and 2007/08-2023/24; Spain 1970/71-1974/75; Italy 1970/71-1974/75; France 1970/71-1974/75.",
+      "remaining": "Continue verified historical gaps: England 1985/86-2006/07, Spain 1975/76-1994/95, Italy 1975/76-1994/95 and France 1975/76-1997/98."
     },
     {
       "id": 5,
@@ -100,21 +100,21 @@
       "teams": 54,
       "min_roster": 13,
       "under_11": 0,
-      "under_15": 10
+      "under_15": 2
     },
     {
       "group": "Spanien · La Liga",
       "teams": 56,
       "min_roster": 12,
       "under_11": 0,
-      "under_15": 25
+      "under_15": 20
     },
     {
       "group": "Italien · Serie A",
       "teams": 55,
       "min_roster": 12,
       "under_11": 0,
-      "under_15": 25
+      "under_15": 20
     },
     {
       "group": "Portugal · Primeira Liga",
@@ -128,7 +128,7 @@
       "teams": 55,
       "min_roster": 12,
       "under_11": 0,
-      "under_15": 27
+      "under_15": 22
     },
     {
       "group": "Niederlande · Eredivisie",
@@ -512,5 +512,12 @@
     "incomplete_historical_teams": "locked",
     "rating_fallback_for_incomplete_historical_teams": false,
     "note": "User-facing simulation may not fabricate a playable XI from ratings when player data are incomplete."
+  },
+  "current_runtime": {
+    "team_keys": 1043,
+    "roster_entries": 25812,
+    "teams_below_11": 58,
+    "teams_below_15": 221,
+    "verified_at": "2026-10-04"
   }
 }
