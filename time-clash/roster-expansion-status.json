@@ -40,6 +40,11 @@
       "teams": 5,
       "source_entries": 114,
       "status": "verified historical title-season squads loaded; Marseille 1970/71 now verified and included"
+    },
+    "england_1985_1988": {
+      "teams": 2,
+      "source_entries": 48,
+      "status": "Liverpool title-season squads 1985/86 and 1987/88 completed from LFChistory season squad pages"
     }
   },
   "phases": [
@@ -62,8 +67,8 @@
       "id": 4,
       "name": "Major Europe club expansion",
       "status": "active",
-      "completed": "Bundesliga 1963/64-1969/70; England 1970/71-1984/85 and 2007/08-2023/24; Spain 1970/71-1974/75; Italy 1970/71-1974/75; France 1970/71-1974/75.",
-      "remaining": "Continue verified historical gaps: England 1985/86-2006/07, Spain 1975/76-1994/95, Italy 1975/76-1994/95 and France 1975/76-1997/98."
+      "completed": "Bundesliga 1963/64-1969/70; England 1970/71-1987/88 and 2007/08-2023/24; Spain 1970/71-1974/75; Italy 1970/71-1974/75; France 1970/71-1974/75.",
+      "remaining": "Continue verified historical gaps: England 1988/89-2006/07, Spain 1975/76-1994/95, Italy 1975/76-1994/95 and France 1975/76-1997/98."
     },
     {
       "id": 5,
@@ -98,9 +103,9 @@
     {
       "group": "England · Premier League",
       "teams": 54,
-      "min_roster": 13,
+      "min_roster": 15,
       "under_11": 0,
-      "under_15": 2
+      "under_15": 0
     },
     {
       "group": "Spanien · La Liga",
@@ -515,9 +520,9 @@
   },
   "current_runtime": {
     "team_keys": 1043,
-    "roster_entries": 25812,
+    "roster_entries": 25833,
     "teams_below_11": 58,
-    "teams_below_15": 221,
+    "teams_below_15": 219,
     "verified_at": "2026-10-04"
   }
 }
