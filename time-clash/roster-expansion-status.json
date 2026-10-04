@@ -20,6 +20,26 @@
       "teams": 17,
       "source_entries": 742,
       "status": "complete active season squads from footballcsv/cache.footballsquads"
+    },
+    "england_1970_1985": {
+      "teams": 15,
+      "source_entries": 344,
+      "status": "verified historical season-squad / season-used-player expansions loaded in three batches"
+    },
+    "spain_1970_1975": {
+      "teams": 5,
+      "source_entries": 130,
+      "status": "verified title-season squad expansions loaded"
+    },
+    "italy_1970_1975": {
+      "teams": 5,
+      "source_entries": 121,
+      "status": "verified historical title-season squad expansions loaded"
+    },
+    "france_1971_1975": {
+      "teams": 4,
+      "source_entries": 82,
+      "status": "verified historical title-season / season-used-player expansions loaded; Marseille 1970/71 intentionally still pending"
     }
   },
   "phases": [
@@ -42,8 +62,8 @@
       "id": 4,
       "name": "Major Europe club expansion",
       "status": "active",
-      "completed": "Bundesliga 1963/64-1969/70 + Premier League 2007/08-2023/24; existing source covers later DE/ES/IT/FR title teams",
-      "remaining": "pre-1970 non-German title squads need verified season-squad sources"
+      "completed": "Bundesliga 1963/64-1969/70; England 1970/71-1984/85 and 2007/08-2023/24; Spain 1970/71-1974/75; Italy 1970/71-1974/75; France 1971/72-1974/75.",
+      "remaining": "Continue verified historical gaps. Olympique Marseille 1970/71 remains pending because a complete reliable season squad has not yet been accepted; then continue later 1970s/1980s gaps for England, Spain, Italy and France."
     },
     {
       "id": 5,
