@@ -1,0 +1,98 @@
+{
+  "project": "BetInsight TIME CLASH roster expansion",
+  "prepared_at": "2026-10-04",
+  "baseline": {
+    "club_team_seasons_with_rosters": 995,
+    "additional_national_title_rosters_in_master_file": 2,
+    "total_team_keys_in_rosters_all": 997,
+    "roster_entries": 24148,
+    "unique_player_names": 12727,
+    "club_competition_groups": 18,
+    "notes": "Existing master roster stays untouched. Expansions are added in separate files and merged into window.TC_ROSTER_DB."
+  },
+  "required_team_schema": {
+    "full_squad": true,
+    "reference_starting_xi": true,
+    "reference_match": "For tournament champions use the final/decisive title match where available; for league champions use a representative title-clinching or strongest season XI.",
+    "coach": true,
+    "formation": true,
+    "style": true,
+    "pressing": true,
+    "tempo": true,
+    "player_fields": ["id","name","pos","prole","strength","impact","starter","squadIndex"],
+    "rules": [
+      "Do not invent missing players.",
+      "Keep the full official title squad, not only the final XI.",
+      "Reference XI and tactical defaults are stored separately from squad membership.",
+      "Use the same 1-25 strength scale already used by TIME CLASH.",
+      "One player may occur in several title-season squads; this is intentional."
+    ]
+  },
+  "world_cup_champions": [
+    {"team":"Uruguay 1930 · Weltmeister","status":"missing"},
+    {"team":"Italien 1934 · Weltmeister","status":"missing"},
+    {"team":"Italien 1938 · Weltmeister","status":"missing"},
+    {"team":"Uruguay 1950 · Weltmeister","status":"missing"},
+    {"team":"Deutschland 1954 · Weltmeister","status":"missing"},
+    {"team":"Brasilien 1958 · Weltmeister","status":"missing"},
+    {"team":"Brasilien 1962 · Weltmeister","status":"missing"},
+    {"team":"England 1966 · Weltmeister","status":"missing"},
+    {"team":"Brasilien 1970 · Weltmeister","status":"missing"},
+    {"team":"Deutschland 1974 · Weltmeister","status":"missing"},
+    {"team":"Argentinien 1978 · Weltmeister","status":"missing"},
+    {"team":"Italien 1982 · Weltmeister","status":"missing"},
+    {"team":"Argentinien 1986 · Weltmeister","status":"missing"},
+    {"team":"Deutschland 1990 · Weltmeister","status":"missing"},
+    {"team":"Brasilien 1994 · Weltmeister","status":"missing"},
+    {"team":"Frankreich 1998 · Weltmeister","status":"missing"},
+    {"team":"Brasilien 2002 · Weltmeister","status":"missing"},
+    {"team":"Italien 2006 · Weltmeister","status":"complete","players":23},
+    {"team":"Spanien 2010 · Weltmeister","status":"partial","players":2},
+    {"team":"Deutschland 2014 · Weltmeister","status":"complete_via_national_core","players":23},
+    {"team":"Frankreich 2018 · Weltmeister","status":"missing"},
+    {"team":"Argentinien 2022 · Weltmeister","status":"missing"},
+    {"team":"Spanien 2026 · Weltmeister","status":"complete","players":26}
+  ],
+  "phases": [
+    {
+      "id": 1,
+      "name": "WM champions 1930-1978",
+      "scope": ["Uruguay 1930","Italien 1934","Italien 1938","Uruguay 1950","Deutschland 1954","Brasilien 1958","Brasilien 1962","England 1966","Brasilien 1970","Deutschland 1974","Argentinien 1978"]
+    },
+    {
+      "id": 2,
+      "name": "WM champions 1982-2006",
+      "scope": ["Italien 1982","Argentinien 1986","Deutschland 1990","Brasilien 1994","Frankreich 1998","Brasilien 2002","Italien 2006"]
+    },
+    {
+      "id": 3,
+      "name": "WM champions 2010-2026",
+      "scope": ["Spanien 2010","Deutschland 2014","Frankreich 2018","Argentinien 2022","Spanien 2026"]
+    },
+    {
+      "id": 4,
+      "name": "Club champions · major Europe historic gaps",
+      "scope": ["Deutschland before 1970","England before 1970","Spain before 1995","Italy before 1995","France before 1998"]
+    },
+    {
+      "id": 5,
+      "name": "Club champions · extended Europe historic gaps",
+      "scope": ["Portugal before 2001","Netherlands before 2001","Belgium before 2001","Austria before 2001","Switzerland before 2001","Turkey before 2001","Scotland before 2001"]
+    },
+    {
+      "id": 6,
+      "name": "Club champions · Americas historic gaps",
+      "scope": ["Argentina","Brazil","Mexico"]
+    },
+    {
+      "id": 7,
+      "name": "Club champions · Africa historic gaps",
+      "scope": ["Egypt","South Africa","Morocco"]
+    }
+  ],
+  "optional_next_phase": {
+    "id": 8,
+    "name": "European Cup / Champions League winners",
+    "note": "Add as a separate legendary-club title collection without duplicating player data unnecessarily."
+  }
+}
