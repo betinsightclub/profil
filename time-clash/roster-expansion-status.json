@@ -1,0 +1,490 @@
+{
+  "generated_at": "2026-10-04",
+  "policy": "Never invent players. Teams with source roster below 11 remain in audit and use rating fallback until a reliable full squad source is added.",
+  "baseline_master": {
+    "team_keys": 997,
+    "roster_entries": 24148
+  },
+  "additions": {
+    "world_champions": {
+      "teams": 22,
+      "source_entries": 493,
+      "status": "complete 1930-2022; existing complete tuned squads retain priority"
+    },
+    "germany_1963_1970": {
+      "teams": 7,
+      "source_entries": 139,
+      "status": "complete from official DFB season squads"
+    },
+    "england_2007_2024": {
+      "teams": 17,
+      "source_entries": 742,
+      "status": "complete active season squads from footballcsv/cache.footballsquads"
+    }
+  },
+  "phases": [
+    {
+      "id": 1,
+      "name": "WM 1930-1978",
+      "status": "complete"
+    },
+    {
+      "id": 2,
+      "name": "WM 1982-2006",
+      "status": "complete"
+    },
+    {
+      "id": 3,
+      "name": "WM 2010-2026",
+      "status": "complete through 2022 plus existing Spain 2026 roster"
+    },
+    {
+      "id": 4,
+      "name": "Major Europe club expansion",
+      "status": "active",
+      "completed": "Bundesliga 1963/64-1969/70 + Premier League 2007/08-2023/24; existing source covers later DE/ES/IT/FR title teams",
+      "remaining": "pre-1970 non-German title squads need verified season-squad sources"
+    },
+    {
+      "id": 5,
+      "name": "Extended Europe club expansion",
+      "status": "source audit",
+      "completed": "existing 1970+ title catalog retained",
+      "remaining": "pre-1970 title squads require verified sources"
+    },
+    {
+      "id": 6,
+      "name": "Americas club expansion",
+      "status": "source audit",
+      "completed": "existing Argentina/Brazil/Mexico title squads retained",
+      "remaining": "Argentina pre-2001 and older gaps require verified season-squad sources"
+    },
+    {
+      "id": 7,
+      "name": "Africa club expansion",
+      "status": "source audit",
+      "completed": "existing Egypt/South Africa/Morocco title squads retained where sourced",
+      "remaining": "incomplete historical rosters listed below; do not invent"
+    }
+  ],
+  "catalog_groups": [
+    {
+      "group": "Deutschland · Bundesliga-Meister",
+      "teams": 63,
+      "min_roster": 17,
+      "under_11": 0,
+      "under_15": 0
+    },
+    {
+      "group": "England · Premier League",
+      "teams": 54,
+      "min_roster": 13,
+      "under_11": 0,
+      "under_15": 10
+    },
+    {
+      "group": "Spanien · La Liga",
+      "teams": 56,
+      "min_roster": 12,
+      "under_11": 0,
+      "under_15": 25
+    },
+    {
+      "group": "Italien · Serie A",
+      "teams": 55,
+      "min_roster": 12,
+      "under_11": 0,
+      "under_15": 25
+    },
+    {
+      "group": "Portugal · Primeira Liga",
+      "teams": 55,
+      "min_roster": 12,
+      "under_11": 0,
+      "under_15": 31
+    },
+    {
+      "group": "Frankreich · Ligue 1",
+      "teams": 55,
+      "min_roster": 12,
+      "under_11": 0,
+      "under_15": 27
+    },
+    {
+      "group": "Niederlande · Eredivisie",
+      "teams": 55,
+      "min_roster": 17,
+      "under_11": 0,
+      "under_15": 0
+    },
+    {
+      "group": "Belgien · Pro League",
+      "teams": 56,
+      "min_roster": 10,
+      "under_11": 1,
+      "under_15": 16
+    },
+    {
+      "group": "Österreich · Bundesliga",
+      "teams": 56,
+      "min_roster": 18,
+      "under_11": 0,
+      "under_15": 0
+    },
+    {
+      "group": "Schweiz · Super League",
+      "teams": 56,
+      "min_roster": 15,
+      "under_11": 0,
+      "under_15": 0
+    },
+    {
+      "group": "Türkei · Süper Lig",
+      "teams": 56,
+      "min_roster": 19,
+      "under_11": 0,
+      "under_15": 0
+    },
+    {
+      "group": "Schottland · Scottish Premiership",
+      "teams": 56,
+      "min_roster": 19,
+      "under_11": 0,
+      "under_15": 0
+    },
+    {
+      "group": "Argentinien · Primera División",
+      "teams": 42,
+      "min_roster": 20,
+      "under_11": 0,
+      "under_15": 0
+    },
+    {
+      "group": "Brasilien · Série A",
+      "teams": 56,
+      "min_roster": 11,
+      "under_11": 0,
+      "under_15": 8
+    },
+    {
+      "group": "Mexiko · Liga MX",
+      "teams": 86,
+      "min_roster": 11,
+      "under_11": 0,
+      "under_15": 20
+    },
+    {
+      "group": "Ägypten · Egyptian Premier League",
+      "teams": 50,
+      "min_roster": 8,
+      "under_11": 2,
+      "under_15": 7
+    },
+    {
+      "group": "Südafrika · Meister",
+      "teams": 56,
+      "min_roster": 2,
+      "under_11": 18,
+      "under_15": 28
+    },
+    {
+      "group": "Marokko · Meister",
+      "teams": 56,
+      "min_roster": 0,
+      "under_11": 37,
+      "under_15": 47
+    }
+  ],
+  "teams_below_11": [
+    {
+      "group": "Belgien · Pro League",
+      "team": "RWD Molenbeek 1974/75",
+      "roster_size": 10
+    },
+    {
+      "group": "Ägypten · Egyptian Premier League",
+      "team": "Ghazl El Mahalla 1972/73",
+      "roster_size": 8
+    },
+    {
+      "group": "Ägypten · Egyptian Premier League",
+      "team": "Al Mokawloon 1982/83",
+      "roster_size": 9
+    },
+    {
+      "group": "Südafrika · Meister",
+      "team": "Orlando Pirates 1971",
+      "roster_size": 8
+    },
+    {
+      "group": "Südafrika · Meister",
+      "team": "AmaZulu 1972",
+      "roster_size": 5
+    },
+    {
+      "group": "Südafrika · Meister",
+      "team": "Orlando Pirates 1973",
+      "roster_size": 6
+    },
+    {
+      "group": "Südafrika · Meister",
+      "team": "Orlando Pirates 1975",
+      "roster_size": 5
+    },
+    {
+      "group": "Südafrika · Meister",
+      "team": "Orlando Pirates 1976",
+      "roster_size": 5
+    },
+    {
+      "group": "Südafrika · Meister",
+      "team": "Kaizer Chiefs 1977",
+      "roster_size": 8
+    },
+    {
+      "group": "Südafrika · Meister",
+      "team": "Lusitano 1978",
+      "roster_size": 2
+    },
+    {
+      "group": "Südafrika · Meister",
+      "team": "Kaizer Chiefs 1979",
+      "roster_size": 7
+    },
+    {
+      "group": "Südafrika · Meister",
+      "team": "Highlands Park 1980",
+      "roster_size": 5
+    },
+    {
+      "group": "Südafrika · Meister",
+      "team": "Kaizer Chiefs 1981",
+      "roster_size": 7
+    },
+    {
+      "group": "Südafrika · Meister",
+      "team": "Bush Bucks 1985",
+      "roster_size": 8
+    },
+    {
+      "group": "Südafrika · Meister",
+      "team": "Rangers Johannesburg 1986",
+      "roster_size": 3
+    },
+    {
+      "group": "Südafrika · Meister",
+      "team": "Jomo Cosmos 1987",
+      "roster_size": 5
+    },
+    {
+      "group": "Südafrika · Meister",
+      "team": "Mamelodi Sundowns 1988",
+      "roster_size": 5
+    },
+    {
+      "group": "Südafrika · Meister",
+      "team": "Mamelodi Sundowns 1990",
+      "roster_size": 8
+    },
+    {
+      "group": "Südafrika · Meister",
+      "team": "Cape Town Spurs 1995",
+      "roster_size": 7
+    },
+    {
+      "group": "Südafrika · Meister",
+      "team": "Kaizer Chiefs 1996",
+      "roster_size": 7
+    },
+    {
+      "group": "Südafrika · Meister",
+      "team": "Manning Rangers 1996/97",
+      "roster_size": 5
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Renaissance Settat 1970/71",
+      "roster_size": 3
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Racing Casablanca 1971/72",
+      "roster_size": 0
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Kénitra AC 1972/73",
+      "roster_size": 4
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Raja Beni Mellal 1973/74",
+      "roster_size": 10
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "MC Oujda 1974/75",
+      "roster_size": 7
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Wydad AC Casablanca 1975/76",
+      "roster_size": 5
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Wydad AC Casablanca 1976/77",
+      "roster_size": 9
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Wydad AC Casablanca 1977/78",
+      "roster_size": 10
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "MAS Fès 1978/79",
+      "roster_size": 9
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "SC Chabab Mohammédia 1979/80",
+      "roster_size": 1
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Kénitra AC 1980/81",
+      "roster_size": 9
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Kénitra AC 1981/82",
+      "roster_size": 2
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "MAS Fès 1982/83",
+      "roster_size": 5
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "FAR Rabat 1983/84",
+      "roster_size": 1
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "MAS Fès 1984/85",
+      "roster_size": 3
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Raja Casablanca 1987/88",
+      "roster_size": 10
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "FAR Rabat 1988/89",
+      "roster_size": 4
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Wydad AC Casablanca 1989/90",
+      "roster_size": 4
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Kawkab AC Marrakech 1991/92",
+      "roster_size": 6
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Olympique Casablanca 1993/94",
+      "roster_size": 8
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "COD Meknès 1994/95",
+      "roster_size": 2
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Hassania US Agadir 2001/02",
+      "roster_size": 3
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Hassania US Agadir 2002/03",
+      "roster_size": 3
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "FAR Rabat 2004/05",
+      "roster_size": 1
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Wydad AC Casablanca 2005/06",
+      "roster_size": 10
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Olympique Khouribga 2006/07",
+      "roster_size": 6
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Raja Casablanca 2010/11",
+      "roster_size": 6
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Moghreb Tétouan 2011/12",
+      "roster_size": 9
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "FUS Rabat 2015/16",
+      "roster_size": 4
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Wydad AC Casablanca 2016/17",
+      "roster_size": 7
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Raja Casablanca 2019/20",
+      "roster_size": 6
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Wydad AC Casablanca 2020/21",
+      "roster_size": 3
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Wydad AC Casablanca 2021/22",
+      "roster_size": 7
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "FAR Rabat 2022/23",
+      "roster_size": 7
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Raja Casablanca 2023/24",
+      "roster_size": 9
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "Renaissance Berkane 2024/25",
+      "roster_size": 5
+    },
+    {
+      "group": "Marokko · Meister",
+      "team": "MAS Fès 2025/26",
+      "roster_size": 5
+    }
+  ]
+}
