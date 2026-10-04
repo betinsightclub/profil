@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-04",
+  "generated_at": "2026-10-05",
   "policy": "Never invent players. Historical teams with fewer than 11 verified players are locked and cannot start a TIME CLASH series until a reliable roster source is added.",
   "baseline_master": {
     "team_keys": 997,
@@ -55,6 +55,11 @@
       "teams": 14,
       "source_entries": 483,
       "status": "footballcsv/cache.footballsquads active title-season squads audited; richer existing source rosters retained where already larger"
+    },
+    "spain_1975_1980": {
+      "teams": 5,
+      "source_entries": 125,
+      "status": "verified historical title-season roster/called-player expansions loaded; no historical XI invented"
     }
   },
   "phases": [
@@ -77,8 +82,8 @@
       "id": 4,
       "name": "Major Europe club expansion",
       "status": "active",
-      "completed": "Bundesliga 1963/64-1969/70; England title catalog 1970/71-2023/24 audited and expanded; Spain 1970/71-1974/75; Italy 1970/71-1974/75; France 1970/71-1974/75.",
-      "remaining": "Continue verified historical gaps: Spain 1975/76-1994/95, Italy 1975/76-1994/95 and France 1975/76-1997/98."
+      "completed": "Bundesliga 1963/64-1969/70; England title catalog 1970/71-2023/24 audited and expanded; Spain 1970/71-1979/80; Italy 1970/71-1974/75; France 1970/71-1974/75.",
+      "remaining": "Continue verified historical gaps: Spain 1980/81-1994/95, Italy 1975/76-1994/95 and France 1975/76-1997/98."
     },
     {
       "id": 5,
@@ -122,7 +127,7 @@
       "teams": 56,
       "min_roster": 12,
       "under_11": 0,
-      "under_15": 20
+      "under_15": 15
     },
     {
       "group": "Italien · Serie A",
@@ -530,9 +535,9 @@
   },
   "current_runtime": {
     "team_keys": 1043,
-    "roster_entries": 25883,
+    "roster_entries": 25942,
     "teams_below_11": 58,
-    "teams_below_15": 219,
-    "verified_at": "2026-10-04"
+    "teams_below_15": 214,
+    "verified_at": "2026-10-05"
   }
 }
