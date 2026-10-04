@@ -62,14 +62,30 @@ const RANKFILTERS={
 RANKEXTRA[LANG].filters=RANKFILTERS[LANG]||RANKFILTERS.de;
 
 const rankTypes=["world","players","scorers","assists","keepers"];
+let ACTIVE_RANK_TYPE="world",PERSON_ROWS=[];
 rankTabs.innerHTML=rankTypes.map(x=>'<button type="button" class="rankTab" data-rank="'+x+'">'+RX.tabs[x]+'</button>').join("");
 const teamFilterTabs=document.getElementById("teamFilterTabs");
+function filterLabel(k){
+ const F=RX.filters||RANKFILTERS.de;
+ return k==="all"?F.all:k==="nation"?F.nation:k==="club"?F.club:k==="trainer"?F.trainer:F.football;
+}
+function filterRowsByTeamKind(arr){
+ if(WORLD_FILTER==="all") return arr;
+ if(WORLD_FILTER==="football") return arr.filter(r=>String(r.team_kind||"")!=="trainer_team");
+ if(WORLD_FILTER==="trainer") return arr.filter(r=>String(r.team_kind||"")==="trainer_team");
+ return arr.filter(r=>String(r.team_kind||"")===WORLD_FILTER);
+}
 function renderTeamFilters(){
  const F=RX.filters||RANKFILTERS.de;
  teamFilterTabs.innerHTML=[
   ["all",F.all],["nation",F.nation],["club",F.club],["trainer",F.trainer],["football",F.football]
  ].map(([k,v])=>'<button type="button" class="teamFilterTab '+(k==="football"?"world ":"")+(WORLD_FILTER===k?"active":"")+'" data-filter="'+k+'">'+v+'</button>').join("");
- teamFilterTabs.querySelectorAll(".teamFilterTab").forEach(b=>b.onclick=()=>{WORLD_FILTER=b.dataset.filter;renderWorldRanking()});
+ teamFilterTabs.querySelectorAll(".teamFilterTab").forEach(b=>b.onclick=()=>{
+   WORLD_FILTER=b.dataset.filter;
+   renderTeamFilters();
+   if(ACTIVE_RANK_TYPE==="world") renderWorldRanking();
+   else renderPersonRanking(ACTIVE_RANK_TYPE);
+ });
 }
 renderTeamFilters();
 function rankHead(type){
@@ -79,24 +95,52 @@ function rankHead(type){
  if(type==="assists")return '<tr><th>'+T.rank+'</th><th>'+RX.player+'</th><th>'+RX.team+'</th><th>'+RX.apps+'</th><th>'+RX.assists+'</th><th>'+RX.goals+'</th></tr>';
  return '<tr><th>'+T.rank+'</th><th>'+RX.player+'</th><th>'+RX.team+'</th><th>'+RX.apps+'</th><th>'+RX.clean+'</th><th>'+RX.rate+'</th><th>'+RX.ga+'</th><th>'+RX.gpg+'</th><th>'+RX.saves+'</th><th>'+RX.points+'</th></tr>';
 }
+function baseRankTitle(type){
+ return type==="players"?RX.playersTitle:type==="scorers"?RX.scorersTitle:type==="assists"?RX.assistsTitle:RX.keepersTitle;
+}
+function renderPersonRanking(type){
+ const arr=filterRowsByTeamKind(PERSON_ROWS);
+ const title=baseRankTitle(type);
+ all.textContent=WORLD_FILTER==="all"?title:(title+" · "+filterLabel(WORLD_FILTER));
+ rankInfo.textContent=type==="keepers"?RX.keeperInfo:RX.playerInfo;
+ meta.textContent=arr.length+" "+RX.player;
+ if(!arr.length){rows.innerHTML='<tr><td colspan="10" class="empty">'+RX.empty+'</td></tr>';return}
+ if(type==="players"){
+   rows.innerHTML=arr.map((r,i)=>'<tr><td class="rank">#'+(i+1)+'</td><td class="team">'+esc(r.player_name)+'</td><td>'+esc(teamName(r.team_name))+'</td><td>'+Number(r.appearances||0)+'</td><td>'+Number(r.goals||0)+'</td><td>'+Number(r.assists||0)+'</td><td>'+Number(r.defensive_actions||0)+'</td><td class="playerPts">'+Number(r.player_points||0).toFixed(1)+'</td></tr>').join("");
+ }else if(type==="scorers"){
+   rows.innerHTML=arr.map((r,i)=>'<tr><td class="rank">#'+(i+1)+'</td><td class="team">'+esc(r.player_name)+'</td><td>'+esc(teamName(r.team_name))+'</td><td>'+Number(r.appearances||0)+'</td><td class="pts">'+Number(r.goals||0)+'</td><td>'+Number(r.assists||0)+'</td></tr>').join("");
+ }else if(type==="assists"){
+   rows.innerHTML=arr.map((r,i)=>'<tr><td class="rank">#'+(i+1)+'</td><td class="team">'+esc(r.player_name)+'</td><td>'+esc(teamName(r.team_name))+'</td><td>'+Number(r.appearances||0)+'</td><td class="pts">'+Number(r.assists||0)+'</td><td>'+Number(r.goals||0)+'</td></tr>').join("");
+ }else{
+   let kp=0;
+   rows.innerHTML=arr.map(r=>{const eligible=Number(r.appearances||0)>=5,pos=eligible?(++kp):null;return '<tr><td class="rank">'+(pos?'#'+pos:'—<span class="qual">'+RX.unranked+'</span>')+'</td><td class="team">'+esc(r.player_name)+'</td><td>'+esc(teamName(r.team_name))+'</td><td>'+Number(r.appearances||0)+'</td><td>'+Number(r.clean_sheets||0)+'</td><td>'+Number(r.clean_sheet_rate||0).toFixed(1)+'%</td><td>'+Number(r.goals_conceded||0)+'</td><td>'+Number(r.goals_conceded_per_game||0).toFixed(2)+'</td><td>'+Number(r.saves||0)+'</td><td class="keeperPts">'+Number(r.keeper_points||0).toFixed(1)+'</td></tr>'}).join("");
+ }
+}
 async function loadRankType(type){
+ ACTIVE_RANK_TYPE=type;
  rankTabs.querySelectorAll(".rankTab").forEach(b=>b.classList.toggle("active",b.dataset.rank===type));
- teamFilterTabs.classList.toggle("hidden",type!=="world");
- rankThead.innerHTML=rankHead(type);rows.innerHTML='<tr><td colspan="10" class="empty">'+RX.load+'</td></tr>';
- if(type==="world"){all.textContent=T.all;rankInfo.textContent=T.foot;await load();return}
- all.textContent=type==="players"?RX.playersTitle:type==="scorers"?RX.scorersTitle:type==="assists"?RX.assistsTitle:RX.keepersTitle;
- rankInfo.textContent=type==="keepers"?RX.keeperInfo:RX.playerInfo;meta.textContent=RX.load;
+ rankThead.innerHTML=rankHead(type);
+ rows.innerHTML='<tr><td colspan="10" class="empty">'+RX.load+'</td></tr>';
+ renderTeamFilters();
+ if(type==="world"){
+   rankInfo.textContent=T.foot;
+   await load();
+   renderWorldRanking();
+   return;
+ }
+ all.textContent=baseRankTitle(type);
+ rankInfo.textContent=type==="keepers"?RX.keeperInfo:RX.playerInfo;
+ meta.textContent=RX.load;
  try{
-   const res=await fetch(API+"?type="+encodeURIComponent(type)+"&limit=500",{cache:"no-store"}),data=await res.json();
+   const res=await fetch(API+"?type="+encodeURIComponent(type)+"&scope=app&limit=500",{cache:"no-store"}),data=await res.json();
    if(!res.ok||data.ok!==true)throw new Error("ranking");
-   const arr=Array.isArray(data.rows)?data.rows:[];
-   meta.textContent=arr.length+" "+(type==="keepers"?RX.player:RX.player);
-   if(!arr.length){rows.innerHTML='<tr><td colspan="10" class="empty">'+RX.empty+'</td></tr>';return}
-   if(type==="players")rows.innerHTML=arr.map(r=>'<tr><td class="rank">#'+Number(r.position||0)+'</td><td class="team">'+esc(r.player_name)+'</td><td>'+esc(teamName(r.team_name))+'</td><td>'+Number(r.appearances||0)+'</td><td>'+Number(r.goals||0)+'</td><td>'+Number(r.assists||0)+'</td><td>'+Number(r.defensive_actions||0)+'</td><td class="playerPts">'+Number(r.player_points||0).toFixed(1)+'</td></tr>').join("");
-   else if(type==="scorers")rows.innerHTML=arr.map(r=>'<tr><td class="rank">#'+Number(r.position||0)+'</td><td class="team">'+esc(r.player_name)+'</td><td>'+esc(teamName(r.team_name))+'</td><td>'+Number(r.appearances||0)+'</td><td class="pts">'+Number(r.goals||0)+'</td><td>'+Number(r.assists||0)+'</td></tr>').join("");
-   else if(type==="assists")rows.innerHTML=arr.map(r=>'<tr><td class="rank">#'+Number(r.position||0)+'</td><td class="team">'+esc(r.player_name)+'</td><td>'+esc(teamName(r.team_name))+'</td><td>'+Number(r.appearances||0)+'</td><td class="pts">'+Number(r.assists||0)+'</td><td>'+Number(r.goals||0)+'</td></tr>').join("");
-   else rows.innerHTML=arr.map(r=>'<tr><td class="rank">'+(r.position?'#'+Number(r.position):'—<span class="qual">'+RX.unranked+'</span>')+'</td><td class="team">'+esc(r.player_name)+'</td><td>'+esc(teamName(r.team_name))+'</td><td>'+Number(r.appearances||0)+'</td><td>'+Number(r.clean_sheets||0)+'</td><td>'+Number(r.clean_sheet_rate||0).toFixed(1)+'%</td><td>'+Number(r.goals_conceded||0)+'</td><td>'+Number(r.goals_conceded_per_game||0).toFixed(2)+'</td><td>'+Number(r.saves||0)+'</td><td class="keeperPts">'+Number(r.keeper_points||0).toFixed(1)+'</td></tr>').join("");
- }catch(e){rows.innerHTML='<tr><td colspan="10" class="empty">'+RX.err+'</td></tr>';meta.textContent=T.na}
+   PERSON_ROWS=Array.isArray(data.rows)?data.rows:[];
+   renderPersonRanking(type);
+ }catch(e){
+   PERSON_ROWS=[];
+   rows.innerHTML='<tr><td colspan="10" class="empty">'+RX.err+'</td></tr>';
+   meta.textContent=T.na;
+ }
 }
 rankTabs.querySelectorAll(".rankTab").forEach(b=>b.onclick=()=>loadRankType(b.dataset.rank));
 loadRankType("world");
