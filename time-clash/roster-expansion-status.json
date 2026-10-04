@@ -45,6 +45,16 @@
       "teams": 2,
       "source_entries": 48,
       "status": "Liverpool title-season squads 1985/86 and 1987/88 completed from LFChistory season squad pages"
+    },
+    "england_1988_1993": {
+      "teams": 5,
+      "source_entries": 146,
+      "status": "verified title-season player/squad expansions from 11v11 and LFChistory"
+    },
+    "england_1993_2007": {
+      "teams": 14,
+      "source_entries": 483,
+      "status": "footballcsv/cache.footballsquads active title-season squads audited; richer existing source rosters retained where already larger"
     }
   },
   "phases": [
@@ -67,8 +77,8 @@
       "id": 4,
       "name": "Major Europe club expansion",
       "status": "active",
-      "completed": "Bundesliga 1963/64-1969/70; England 1970/71-1987/88 and 2007/08-2023/24; Spain 1970/71-1974/75; Italy 1970/71-1974/75; France 1970/71-1974/75.",
-      "remaining": "Continue verified historical gaps: England 1988/89-2006/07, Spain 1975/76-1994/95, Italy 1975/76-1994/95 and France 1975/76-1997/98."
+      "completed": "Bundesliga 1963/64-1969/70; England title catalog 1970/71-2023/24 audited and expanded; Spain 1970/71-1974/75; Italy 1970/71-1974/75; France 1970/71-1974/75.",
+      "remaining": "Continue verified historical gaps: Spain 1975/76-1994/95, Italy 1975/76-1994/95 and France 1975/76-1997/98."
     },
     {
       "id": 5,
@@ -520,7 +530,7 @@
   },
   "current_runtime": {
     "team_keys": 1043,
-    "roster_entries": 25833,
+    "roster_entries": 25883,
     "teams_below_11": 58,
     "teams_below_15": 219,
     "verified_at": "2026-10-04"
