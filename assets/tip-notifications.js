@@ -11,8 +11,8 @@
   if (window.__betInsightTipNotificationsInstalled) return;
   window.__betInsightTipNotificationsInstalled = true;
 
-  const PROFILE_URL = "https://hook.eu1.make.com/h51f7yyocer340kadcpp078uwcy2svbq";
-  const SEEN_WRITE_URL = "https://hook.eu1.make.com/rba6hw9weyssdg1timisut854q823g4p";
+  const PROFILE_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-profile-read-shadow";
+  const SEEN_WRITE_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-tip-seen";
   const OPEN_TIPS_URL = "https://hook.eu1.make.com/36gm8kvlfcb7jwae8ypxe8oripquonq5";
   const UNLOCKED_TIPS_URL = "https://hook.eu1.make.com/7q3edcra1gwxd7vvklv4l7gdxn7zbihr";
   const UNLOCK_URL = "https://hook.eu1.make.com/k1qn9hlfqd7yhz55vwiotkojgpuqzxug";
