@@ -17,7 +17,7 @@
     });
   }
 
-  load("bank-flow-ui-v1-core.js?v=20260917-1")
-    .then(() => load("bank-proof-upload-v1.js?v=20260917-3"))
+  load("bank-flow-ui-v1-core.js?v=20261005-1")
+    .then(() => load("bank-proof-upload-v1.js?v=20261005-1"))
     .catch(error => console.error(error));
 })();
