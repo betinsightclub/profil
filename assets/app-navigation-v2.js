@@ -22,7 +22,7 @@
   const FACEBOOK_URL = "https://www.facebook.com/betinsightclub";
   const BLUESKY_URL = "https://bsky.app/profile/betinsight.bsky.social";
   const MINDS_URL = "https://www.minds.com/betinsightclub/";
-  const ACCOUNT_SETTINGS_URL = "https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726";
+  const ACCOUNT_SETTINGS_URL = "https://app.betinsight.club/konto-einstellungen/";
   const SCRIPT_URL = document.currentScript?.src || "";
   const ASSET_BASE = SCRIPT_URL ? new URL("./", SCRIPT_URL) : new URL("/assets/", window.location.origin);
 
@@ -590,8 +590,6 @@
     const settings = document.createElement("a");
     settings.className = "bi-nav-settings-link";
     settings.href = ACCOUNT_SETTINGS_URL;
-    settings.target = "_blank";
-    settings.rel = "noopener noreferrer";
     settings.innerHTML = `<span class="bi-nav-settings-icon" aria-hidden="true">⚙</span><span>${t("nav.accountSettings",socialText("Kontoeinstellungen","Account Settings"))}</span>`;
 
     const caption = document.createElement("span");
