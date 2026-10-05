@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+  <meta name="theme-color" content="#061923">
+  <title>Kontoeinstellungen | BetInsight</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../assets/app-navigation.css">
+  <script src="../assets/app-navigation.js?v=20261006-account-settings-1" defer></script>
+  <style>
+    *{box-sizing:border-box}
+    :root{
+      --bg:#04131d;--panel:#082635;--panel2:#0b3041;--line:rgba(99,190,225,.19);
+      --text:#f2fbff;--muted:#86aebe;--green:#12d7a3;--blue:#24a6ff;--orange:#ffad28;
+      --violet:#a77cff;--red:#ef6674;--shadow:0 24px 70px rgba(0,0,0,.30)
+    }
+    html{min-height:100%;background:var(--bg)}
+    body{margin:0;min-height:100vh;color:var(--text);font-family:Inter,Arial,sans-serif;
+      background:
+      radial-gradient(circle at 12% 0%,rgba(18,215,163,.10),transparent 30rem),
+      radial-gradient(circle at 90% 8%,rgba(36,166,255,.11),transparent 32rem),
+      linear-gradient(180deg,#04131d,#062433 52%,#020d14)}
+    .page{width:min(100% - 34px,1160px);margin:0 auto;padding:34px 0 76px}
+    .hero{margin-bottom:22px;padding:24px;border:1px solid var(--line);border-radius:22px;
+      background:linear-gradient(140deg,rgba(11,48,65,.97),rgba(5,25,36,.97));box-shadow:var(--shadow)}
+    .eyebrow{margin:0 0 9px;color:var(--green);font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+    h1{margin:0;font-size:clamp(27px,4vw,39px);letter-spacing:-.025em}
+    .lead{max-width:820px;margin:11px 0 0;color:var(--muted);font-size:14px;line-height:1.6}
+    .note{margin:0 0 20px;padding:13px 15px;border:1px solid rgba(36,166,255,.22);border-radius:14px;
+      background:rgba(36,166,255,.07);color:#cfeeff;font-size:12px;line-height:1.5}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .card{position:relative;overflow:hidden;display:flex;flex-direction:column;min-height:210px;padding:20px;
+      border:1px solid var(--line);border-radius:19px;background:linear-gradient(150deg,rgba(10,43,59,.96),rgba(5,26,37,.98));
+      box-shadow:0 16px 45px rgba(0,0,0,.18)}
+    .card::after{content:"";position:absolute;width:150px;height:150px;right:-65px;top:-72px;border-radius:50%;background:rgba(36,166,255,.08);pointer-events:none}
+    .card:nth-child(2)::after{background:rgba(18,215,163,.08)}
+    .card:nth-child(3)::after{background:rgba(255,173,40,.08)}
+    .card:nth-child(4)::after{background:rgba(167,124,255,.09)}
+    .card:nth-child(5)::after{background:rgba(239,102,116,.08)}
+    .icon{width:46px;height:46px;display:grid;place-items:center;margin-bottom:14px;border:1px solid rgba(255,255,255,.10);
+      border-radius:13px;background:rgba(0,0,0,.16);font-size:22px}
+    .card h2{margin:0;font-size:18px}.card p{margin:8px 0 18px;color:var(--muted);font-size:12px;line-height:1.55}
+    .open{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:43px;padding:10px 12px;
+      border:1px solid rgba(36,166,255,.28);border-radius:11px;background:rgba(36,166,255,.09);color:#eaf8ff;
+      font-size:11px;font-weight:900;text-decoration:none;transition:.15s ease}
+    .open:hover,.open:focus-visible{background:rgba(36,166,255,.16);border-color:rgba(36,166,255,.48);outline:none;transform:translateY(-1px)}
+    .open span:last-child{font-size:14px}
+    .systeme{margin-top:18px;color:#6f97aa;font-size:10px;text-align:center}
+    @media(max-width:760px){.page{width:min(100% - 20px,1160px);padding-top:18px}.hero{padding:18px}.grid{grid-template-columns:1fr}.card{min-height:190px}}
+  </style>
+</head>
+<body>
+<main class="page">
+  <section class="hero">
+    <p class="eyebrow" data-t="eyebrow">BetInsight · Konto</p>
+    <h1 data-t="title">Kontoeinstellungen</h1>
+    <p class="lead" data-t="lead">Wähle den Bereich, den du bearbeiten möchtest. Die jeweilige Systeme.io-Einstellungsseite wird in einem neuen Tab geöffnet, damit dein BetInsight-Backoffice geöffnet bleibt.</p>
+  </section>
+
+  <div class="note" data-t="note">Du bist bereits bei Systeme.io angemeldet? Dann öffnet sich die gewählte Einstellung normalerweise direkt. Falls deine Sitzung abgelaufen ist, meldest du dich dort einmal an und kannst anschließend fortfahren.</div>
+
+  <section class="grid">
+    <article class="card">
+      <div class="icon">👤</div>
+      <h2 data-t="profileTitle">Profileinstellungen</h2>
+      <p data-t="profileText">Profilbild, Anzeigename, Bio und persönliche Profildaten verwalten.</p>
+      <a class="open" href="https://betinsight.systeme.io/profile/user-settings" target="_blank" rel="noopener noreferrer"><span data-t="open">In Systeme.io öffnen</span><span>↗</span></a>
+    </article>
+
+    <article class="card">
+      <div class="icon">⚙️</div>
+      <h2 data-t="accountTitle">Konto-Einstellungen</h2>
+      <p data-t="accountText">Zeitzone, Datumsformat, Zeitformat und weitere Kontovorgaben anpassen.</p>
+      <a class="open" href="https://betinsight.systeme.io/profile/account-settings" target="_blank" rel="noopener noreferrer"><span data-t="open">In Systeme.io öffnen</span><span>↗</span></a>
+    </article>
+
+    <article class="card">
+      <div class="icon">💳</div>
+      <h2 data-t="subscriptionsTitle">Abonnements verwalten</h2>
+      <p data-t="subscriptionsText">Deine in Systeme.io geführten Abonnements und zugehörigen Einstellungen ansehen.</p>
+      <a class="open" href="https://betinsight.systeme.io/profile/manage-subscriptions" target="_blank" rel="noopener noreferrer"><span data-t="open">In Systeme.io öffnen</span><span>↗</span></a>
+    </article>
+
+    <article class="card">
+      <div class="icon">🔔</div>
+      <h2 data-t="notificationsTitle">Benachrichtigungen</h2>
+      <p data-t="notificationsText">E-Mail- und In-App-Benachrichtigungen für Kommentare, Erwähnungen und Antworten festlegen.</p>
+      <a class="open" href="https://betinsight.systeme.io/profile/notification-settings" target="_blank" rel="noopener noreferrer"><span data-t="open">In Systeme.io öffnen</span><span>↗</span></a>
+    </article>
+
+    <article class="card">
+      <div class="icon">🔐</div>
+      <h2 data-t="passwordTitle">Passwort ändern</h2>
+      <p data-t="passwordText">Dein Systeme.io-Passwort sicher ändern und bestätigen.</p>
+      <a class="open" href="https://betinsight.systeme.io/profile/change-password" target="_blank" rel="noopener noreferrer"><span data-t="open">In Systeme.io öffnen</span><span>↗</span></a>
+    </article>
+  </section>
+
+  <p class="systeme" data-t="footer">Die eigentliche Kontoverwaltung erfolgt sicher über Systeme.io.</p>
+</main>
+
+<script>
+(()=>{
+  "use strict";
+  const dict={
+    de:{eyebrow:"BetInsight · Konto",title:"Kontoeinstellungen",lead:"Wähle den Bereich, den du bearbeiten möchtest. Die jeweilige Systeme.io-Einstellungsseite wird in einem neuen Tab geöffnet, damit dein BetInsight-Backoffice geöffnet bleibt.",note:"Du bist bereits bei Systeme.io angemeldet? Dann öffnet sich die gewählte Einstellung normalerweise direkt. Falls deine Sitzung abgelaufen ist, meldest du dich dort einmal an und kannst anschließend fortfahren.",profileTitle:"Profileinstellungen",profileText:"Profilbild, Anzeigename, Bio und persönliche Profildaten verwalten.",accountTitle:"Konto-Einstellungen",accountText:"Zeitzone, Datumsformat, Zeitformat und weitere Kontovorgaben anpassen.",subscriptionsTitle:"Abonnements verwalten",subscriptionsText:"Deine in Systeme.io geführten Abonnements und zugehörigen Einstellungen ansehen.",notificationsTitle:"Benachrichtigungen",notificationsText:"E-Mail- und In-App-Benachrichtigungen für Kommentare, Erwähnungen und Antworten festlegen.",passwordTitle:"Passwort ändern",passwordText:"Dein Systeme.io-Passwort sicher ändern und bestätigen.",open:"In Systeme.io öffnen",footer:"Die eigentliche Kontoverwaltung erfolgt sicher über Systeme.io."},
+    en:{eyebrow:"BetInsight · Account",title:"Account settings",lead:"Choose the area you want to edit. The relevant Systeme.io settings page opens in a new tab so your BetInsight back office stays open.",note:"Already signed in to Systeme.io? The selected setting should normally open directly. If your session has expired, sign in there once and then continue.",profileTitle:"Profile settings",profileText:"Manage your profile picture, display name, bio and personal profile details.",accountTitle:"Account settings",accountText:"Adjust your time zone, date format, time format and other account preferences.",subscriptionsTitle:"Manage subscriptions",subscriptionsText:"View subscriptions and related settings managed in Systeme.io.",notificationsTitle:"Notifications",notificationsText:"Set email and in-app notifications for comments, mentions and replies.",passwordTitle:"Change password",passwordText:"Securely change and confirm your Systeme.io password.",open:"Open in Systeme.io",footer:"Account management itself is handled securely by Systeme.io."},
+    es:{eyebrow:"BetInsight · Cuenta",title:"Configuración de la cuenta",lead:"Elige el área que quieres editar. La página correspondiente de Systeme.io se abrirá en una nueva pestaña para que tu backoffice de BetInsight permanezca abierto.",note:"¿Ya has iniciado sesión en Systeme.io? Entonces la opción elegida normalmente se abrirá directamente. Si tu sesión ha caducado, inicia sesión allí una vez y continúa.",profileTitle:"Ajustes del perfil",profileText:"Gestiona la foto de perfil, el nombre visible, la biografía y los datos personales del perfil.",accountTitle:"Ajustes de la cuenta",accountText:"Configura la zona horaria, el formato de fecha, el formato de hora y otras preferencias.",subscriptionsTitle:"Gestionar suscripciones",subscriptionsText:"Consulta las suscripciones y los ajustes relacionados gestionados en Systeme.io.",notificationsTitle:"Notificaciones",notificationsText:"Configura notificaciones por correo electrónico y dentro de la aplicación para comentarios, menciones y respuestas.",passwordTitle:"Cambiar contraseña",passwordText:"Cambia y confirma de forma segura tu contraseña de Systeme.io.",open:"Abrir en Systeme.io",footer:"La gestión de la cuenta se realiza de forma segura a través de Systeme.io."},
+    pt:{eyebrow:"BetInsight · Conta",title:"Configurações da conta",lead:"Escolha a área que deseja editar. A página correspondente do Systeme.io será aberta em uma nova aba para que o backoffice da BetInsight permaneça aberto.",note:"Já está conectado ao Systeme.io? A configuração escolhida normalmente abrirá diretamente. Se a sessão tiver expirado, faça login uma vez e continue.",profileTitle:"Configurações do perfil",profileText:"Gerencie foto de perfil, nome de exibição, bio e dados pessoais do perfil.",accountTitle:"Configurações da conta",accountText:"Ajuste fuso horário, formato de data, formato de hora e outras preferências da conta.",subscriptionsTitle:"Gerenciar assinaturas",subscriptionsText:"Veja assinaturas e configurações relacionadas gerenciadas no Systeme.io.",notificationsTitle:"Notificações",notificationsText:"Defina notificações por e-mail e no aplicativo para comentários, menções e respostas.",passwordTitle:"Alterar senha",passwordText:"Altere e confirme com segurança sua senha do Systeme.io.",open:"Abrir no Systeme.io",footer:"O gerenciamento da conta é realizado com segurança pelo Systeme.io."},
+    it:{eyebrow:"BetInsight · Account",title:"Impostazioni account",lead:"Scegli l'area che vuoi modificare. La relativa pagina di Systeme.io si apre in una nuova scheda, così il backoffice BetInsight resta aperto.",note:"Hai già effettuato l'accesso a Systeme.io? L'impostazione selezionata dovrebbe aprirsi direttamente. Se la sessione è scaduta, accedi una volta e poi continua.",profileTitle:"Impostazioni profilo",profileText:"Gestisci immagine profilo, nome visualizzato, bio e dati personali del profilo.",accountTitle:"Impostazioni account",accountText:"Modifica fuso orario, formato data, formato ora e altre preferenze dell'account.",subscriptionsTitle:"Gestisci abbonamenti",subscriptionsText:"Visualizza gli abbonamenti e le relative impostazioni gestite in Systeme.io.",notificationsTitle:"Notifiche",notificationsText:"Imposta notifiche e-mail e in-app per commenti, menzioni e risposte.",passwordTitle:"Cambia password",passwordText:"Modifica e conferma in sicurezza la password di Systeme.io.",open:"Apri in Systeme.io",footer:"La gestione effettiva dell'account avviene in modo sicuro tramite Systeme.io."},
+    fr:{eyebrow:"BetInsight · Compte",title:"Paramètres du compte",lead:"Choisissez la rubrique que vous souhaitez modifier. La page Systeme.io correspondante s'ouvre dans un nouvel onglet afin que votre back-office BetInsight reste ouvert.",note:"Vous êtes déjà connecté à Systeme.io ? Le réglage choisi devrait normalement s'ouvrir directement. Si votre session a expiré, connectez-vous une fois puis continuez.",profileTitle:"Paramètres du profil",profileText:"Gérez la photo de profil, le nom affiché, la bio et les informations personnelles du profil.",accountTitle:"Paramètres du compte",accountText:"Réglez le fuseau horaire, le format de date, le format d'heure et les autres préférences du compte.",subscriptionsTitle:"Gérer les abonnements",subscriptionsText:"Consultez les abonnements et les paramètres associés gérés dans Systeme.io.",notificationsTitle:"Notifications",notificationsText:"Définissez les notifications par e-mail et dans l'application pour les commentaires, mentions et réponses.",passwordTitle:"Modifier le mot de passe",passwordText:"Modifiez et confirmez votre mot de passe Systeme.io en toute sécurité.",open:"Ouvrir dans Systeme.io",footer:"La gestion du compte elle-même est assurée de manière sécurisée par Systeme.io."},
+    nl:{eyebrow:"BetInsight · Account",title:"Accountinstellingen",lead:"Kies het onderdeel dat je wilt aanpassen. De bijbehorende Systeme.io-instellingen openen in een nieuw tabblad, zodat je BetInsight-backoffice open blijft.",note:"Ben je al ingelogd bij Systeme.io? Dan opent de gekozen instelling normaal direct. Is je sessie verlopen, log daar één keer in en ga daarna verder.",profileTitle:"Profielinstellingen",profileText:"Beheer je profielfoto, weergavenaam, bio en persoonlijke profielgegevens.",accountTitle:"Accountinstellingen",accountText:"Pas tijdzone, datumnotatie, tijdnotatie en andere accountvoorkeuren aan.",subscriptionsTitle:"Abonnementen beheren",subscriptionsText:"Bekijk abonnementen en bijbehorende instellingen die in Systeme.io worden beheerd.",notificationsTitle:"Meldingen",notificationsText:"Stel e-mail- en in-appmeldingen in voor reacties, vermeldingen en antwoorden.",passwordTitle:"Wachtwoord wijzigen",passwordText:"Wijzig en bevestig veilig je Systeme.io-wachtwoord.",open:"Openen in Systeme.io",footer:"Het daadwerkelijke accountbeheer verloopt veilig via Systeme.io."},
+    "zh-tw":{eyebrow:"BetInsight · 帳戶",title:"帳戶設定",lead:"選擇您要修改的項目。對應的 Systeme.io 設定頁會在新分頁開啟，因此 BetInsight 後台會保持開啟。",note:"已登入 Systeme.io？所選設定通常會直接開啟。如果工作階段已過期，只需在那裡重新登入一次即可繼續。",profileTitle:"個人檔案設定",profileText:"管理個人照片、顯示名稱、自我介紹與個人資料。",accountTitle:"帳戶設定",accountText:"調整時區、日期格式、時間格式與其他帳戶偏好。",subscriptionsTitle:"管理訂閱",subscriptionsText:"查看在 Systeme.io 管理的訂閱與相關設定。",notificationsTitle:"通知",notificationsText:"設定留言、提及與回覆的電子郵件及應用程式內通知。",passwordTitle:"變更密碼",passwordText:"安全地變更並確認您的 Systeme.io 密碼。",open:"在 Systeme.io 開啟",footer:"實際帳戶管理會透過 Systeme.io 安全處理。"}
+  };
+
+  function activeLanguage(){
+    try{return String(window.BetInsightI18n?.getLanguage?.()||localStorage.getItem("betinsight_language")||"de").toLowerCase()}
+    catch(_){return "de"}
+  }
+  function apply(){
+    const lang=activeLanguage(),d=dict[lang]||dict.de;
+    document.documentElement.lang=lang;
+    document.querySelectorAll("[data-t]").forEach(el=>{const k=el.getAttribute("data-t");if(d[k])el.textContent=d[k]});
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>setTimeout(apply,80),{once:true}); else setTimeout(apply,80);
+  window.addEventListener("bi:languagechange",apply);
+})();
+</script>
+</body>
+</html>
