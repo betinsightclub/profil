@@ -17,7 +17,7 @@
 
   const EXACT = new Map([
     ["Mein BetInsight Profil","profileHeading"],["Kontostand, Tipps, Empfehlungen und persönlicher Profilzugang","profileLead"],["Gesamte verfügbare Units","totalAvailable"],
-    ["Persönlicher Profilzugang","personalAccess"],["Deine persönlichen Daten und dein sicher gespeicherter Zugang.","personalAccessCopy"],["◉ Schützen","protect"],["◉ Geschützt","protected"],
+    ["Mein Konto","personalAccess"],["Deine Kontodaten auf einen Blick.","personalAccessCopy"],["◉ Schützen","protect"],["◉ Geschützt","protected"],
     ["BetInsight-ID","id"],["📋 ID kopieren","copyId"],["E-Mail","email"],["Status","status"],["Profilzugang aktiv","accessActive"],["Persönlicher Zugang","personalCode"],["✅ Auf diesem Gerät gespeichert","savedDevice"],["Wird geladen...","loading"],["Lade...","loading"],
     ["Der vollständige Zugangscode wird nicht angezeigt und kann hier nicht kopiert werden.","codeHidden"],["📩 Profil-Link erneut per E-Mail senden","resend"],["Die Privatsphäre blendet nur E-Mail-Adresse und persönlichen Zugang aus. BetInsight-ID, Units und Netzwerkzahlen bleiben sichtbar.","privacyNote"],["Kontostand wird geladen...","balanceLoading"],
     ["Kontostand & Aktivitäten","balanceActivities"],["Deine wichtigsten Kontowerte auf einen Blick.","balanceCopy"],["Verfügbare Units","availableUnits"],["Referral verfügbar","referralAvailable"],["Freigeschaltete Tipps","unlockedTips"],["Verbrauchte Units","usedUnits"],
