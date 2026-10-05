@@ -6,8 +6,8 @@
 (() => {
   "use strict";
 
-  const ENDPOINT = "https://hook.eu1.make.com/b8msm9217bae16nfb19np26ezenonuzu";
-  const MAX_BYTES = 8 * 1024 * 1024;
+  const ENDPOINT = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-exchange-api?action=bank-proof";
+  const MAX_BYTES = 10 * 1024 * 1024;
   const ALLOWED = new Set(["image/png", "image/jpeg", "image/webp", "application/pdf"]);
   const SUCCESS = new Set(["bank_proof_uploaded", "bank_proof_already_uploaded"]);
   const path = location.pathname.replace(/\/+$/, "") || "/";
@@ -86,7 +86,7 @@
       <div class="bi-proof-actions">
         <input class="bi-proof-file" type="file" accept="image/png,image/jpeg,image/webp,application/pdf">
         <button class="bi-proof-btn" type="button">Screenshot / Beleg hochladen</button>
-        <span class="bi-proof-state">PNG, JPG, WEBP oder PDF · max. 8 MB</span>
+        <span class="bi-proof-state">PNG, JPG, WEBP oder PDF · max. 10 MB</span>
       </div>`;
     row.appendChild(box);
     const input = box.querySelector(".bi-proof-file");
