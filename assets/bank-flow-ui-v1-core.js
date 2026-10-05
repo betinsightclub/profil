@@ -2,15 +2,16 @@
    UI-only enhancement for bank transfer confirmation and buyer purchase visibility.
    No Unit/account/Sheet mutations are implemented here except the explicit existing bank-report
    and seller-finalizer webhooks already protected server-side.
-   Bank-status refreshes are deliberately user-triggered to avoid repeated Make operations.
+   Bank-status refreshes are deliberately user-triggered to avoid repeated backend calls.
 */
 (() => {
   "use strict";
 
-  const BUYER_HISTORY_ENDPOINT = "https://hook.eu1.make.com/wqielna22hhc1e4j7jcy4m3mi4g1g89x";
-  const BUYER_REPORT_ENDPOINT = "https://hook.eu1.make.com/r74qeeasiztm4w6e1d21ib59xhzq8yrr";
-  const BUYER_STATUS_ENDPOINT = "https://hook.eu1.make.com/icmvtr3aakrc1aw46dwtmh844qprp4jn";
-  const SELLER_CONFIRM_ENDPOINT = "https://hook.eu1.make.com/80tpoc4jceq3gj6fng5rm9i5w9ga3ygl";
+  const EXCHANGE_API = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-exchange-api";
+  const BUYER_HISTORY_ENDPOINT = EXCHANGE_API + "?action=buyer-history";
+  const BUYER_REPORT_ENDPOINT = EXCHANGE_API + "?action=bank-report";
+  const BUYER_STATUS_ENDPOINT = EXCHANGE_API + "?action=bank-status";
+  const SELLER_CONFIRM_ENDPOINT = EXCHANGE_API + "?action=seller-bank-confirm";
   const STORAGE_KEY = "betinsight_active_purchase_reservation";
 
   const path = location.pathname.replace(/\/+$/, "") || "/";
@@ -293,9 +294,10 @@
   installStyles();
   modal();
   if (isBuyerPage) {
-    enhanceBuyerConfirmation();
+    // Buyer payment/report flow is handled by the current page implementation.
+    // This legacy enhancer now provides purchase history only, preventing duplicate submission paths.
     ensurePurchasesSection();
     loadPurchases(true);
   }
-  if (isSellerPage) enhanceSellerConfirmation();
+  // Seller confirmation is handled by the current Supabase-backed page implementation.
 })();
