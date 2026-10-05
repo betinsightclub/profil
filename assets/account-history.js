@@ -22,6 +22,19 @@
   let lastToken = "";
   let lastRemoteLoadAt = 0;
 
+  function tr(key, fallback, vars = {}) {
+    try {
+      return window.BetInsightI18n?.t?.(`dashboardPage.accountHistory.${key}`, vars, fallback) || fallback;
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  function locale() {
+    const lang = String(window.BetInsightI18n?.getLanguage?.() || document.documentElement.lang || "de").toLowerCase();
+    return lang === "zh-tw" ? "zh-TW" : lang;
+  }
+
   function isDashboardPage() {
     return ROOT_PATHS.has(window.location.pathname);
   }
@@ -57,7 +70,7 @@
   function formatUnits(value) {
     const number = numberValue(value);
     if (number === null) return "–";
-    return new Intl.NumberFormat("de-DE", { maximumFractionDigits: 2 }).format(number);
+    return new Intl.NumberFormat(locale(), { maximumFractionDigits: 2 }).format(number);
   }
 
   function parseDate(value) {
@@ -74,7 +87,7 @@
   function formatDate(value) {
     const date = parseDate(value);
     if (!date) return String(value || "–").replace(/^"|"$/g, "");
-    return new Intl.DateTimeFormat("de-DE", {
+    return new Intl.DateTimeFormat(locale(), {
       day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit"
     }).format(date);
   }
@@ -90,19 +103,19 @@
 
   function movementLabel(item) {
     const type = String(item.type || "").trim().toLowerCase();
-    if (type === "wechselstube_kauf") return "Wechselstube · Units gekauft";
-    if (type === "wechselstube_verkauf") return "Wechselstube · Units verkauft";
-    if (type === "wechselstube_kauf_bank") return "Wechselstube · Bankkauf";
-    if (type === "wechselstube_verkauf_bank") return "Wechselstube · Bankverkauf";
-    if (type === "referral_aufs_konto") return "Referral-Units aufs Konto";
-    if (type === "kauf") return "Unit-Paket gekauft";
-    if (type === "tipp_freischaltung") return "Tipp freigeschaltet";
+    if (type === "wechselstube_kauf") return tr("exchangeBuy", "Wechselstube · Units gekauft");
+    if (type === "wechselstube_verkauf") return tr("exchangeSell", "Wechselstube · Units verkauft");
+    if (type === "wechselstube_kauf_bank") return tr("exchangeBankBuy", "Wechselstube · Bankkauf");
+    if (type === "wechselstube_verkauf_bank") return tr("exchangeBankSell", "Wechselstube · Bankverkauf");
+    if (type === "referral_aufs_konto") return tr("referralToAccount", "Referral-Units aufs Konto");
+    if (type === "kauf") return tr("packageBought", "Unit-Paket gekauft");
+    if (type === "tipp_freischaltung") return tr("tipUnlocked", "Tipp freigeschaltet");
     if (String(item.source || "") === "daily_bonus") {
-      return type === "box_geoeffnet" ? "Daily Bonus · Treuebox" : "Daily Bonus";
+      return type === "box_geoeffnet" ? tr("dailyLoyaltyBox", "Daily Bonus · Treuebox") : tr("dailyBonus", "Daily Bonus");
     }
-    if (type.includes("test")) return "Testbuchung";
+    if (type.includes("test")) return tr("testEntry", "Testbuchung");
     if (type) return type.replaceAll("_", " ");
-    return "Kontobewegung";
+    return tr("movement", "Kontobewegung");
   }
 
   function normalizeItem(item) {
@@ -158,7 +171,7 @@
     lastRemoteLoadAt = cached.savedAt;
     expanded = false;
     render();
-    setStatus("Aus dem 5-Minuten-Zwischenspeicher geladen.");
+    setStatus(tr("loaded", "Kontobewegungen geladen."));
     updateLoadButton();
     return true;
   }
@@ -221,15 +234,14 @@
     panel.className = "bi-account-history";
     panel.innerHTML = `
       <div class="bi-account-history-head">
-        <div><span class="bi-account-history-title">📜 Kontobewegungen</span><span class="bi-account-history-subtitle">Nur bei Bedarf laden – spart unnötige externe Abfragen.</span></div>
-        <span class="bi-account-history-readonly">Nur Anzeige</span>
+        <div><span class="bi-account-history-title">📜 ${escapeHtml(tr("title", "Kontobewegungen"))}</span></div>
       </div>
-      <div id="biAccountHistoryList" class="bi-account-history-list"><div class="bi-account-history-empty">Kontobewegungen sind noch nicht geladen.</div></div>
+      <div id="biAccountHistoryList" class="bi-account-history-list"><div class="bi-account-history-empty">${escapeHtml(tr("empty", "Kontobewegungen sind noch nicht geladen."))}</div></div>
       <div class="bi-account-history-actions">
-        <button id="biAccountHistoryLoad" class="bi-account-history-button" type="button">Kontobewegungen laden</button>
-        <button id="biAccountHistoryMore" class="bi-account-history-button" type="button" hidden>Weitere anzeigen</button>
+        <button id="biAccountHistoryLoad" class="bi-account-history-button" type="button">${escapeHtml(tr("load", "Kontobewegungen laden"))}</button>
+        <button id="biAccountHistoryMore" class="bi-account-history-button" type="button" hidden>${escapeHtml(tr("more", "Weitere anzeigen"))}</button>
       </div>
-      <div id="biAccountHistoryStatus" class="bi-account-history-status">Keine automatische Historienabfrage beim Profilaufruf.</div>`;
+      <div id="biAccountHistoryStatus" class="bi-account-history-status"></div>`;
     grid.insertAdjacentElement("afterend", panel);
     panel.querySelector("#biAccountHistoryLoad")?.addEventListener("click", () => loadHistory(items.length > 0));
     panel.querySelector("#biAccountHistoryMore")?.addEventListener("click", () => {
@@ -248,7 +260,7 @@
     const button = ensurePanel()?.querySelector("#biAccountHistoryLoad");
     if (!button) return;
     button.disabled = loading;
-    button.textContent = loading ? "⏳ Wird geladen …" : items.length ? "↻ Aktualisieren" : "Kontobewegungen laden";
+    button.textContent = loading ? "⏳ " + tr("loading", "Wird geladen …") : items.length ? "↻ " + tr("refresh", "Aktualisieren") : tr("load", "Kontobewegungen laden");
   }
 
   function render() {
@@ -258,7 +270,7 @@
     const more = panel.querySelector("#biAccountHistoryMore");
     if (!list || !more) return;
     if (!items.length) {
-      list.innerHTML = `<div class="bi-account-history-empty">${loading ? "Kontobewegungen werden geladen …" : "Kontobewegungen sind noch nicht geladen."}</div>`;
+      list.innerHTML = `<div class="bi-account-history-empty">${escapeHtml(loading ? tr("loadingMovements", "Kontobewegungen werden geladen …") : tr("empty", "Kontobewegungen sind noch nicht geladen."))}</div>`;
       more.hidden = true;
       updateLoadButton();
       return;
@@ -275,13 +287,13 @@
       const privateClass = protectedNow ? " account-private-value private-value-hidden" : " account-private-value";
       let after = "";
       if (item.balanceAfter !== null) {
-        const title = item.bucket === "geschenk_units" ? "Geschenk danach" : "Stand danach";
+        const title = item.bucket === "geschenk_units" ? tr("giftAfter", "Geschenk danach") : tr("balanceAfter", "Stand danach");
         after = `<span class="bi-account-history-after${privateClass}">${title}: ${formatUnits(item.balanceAfter)}</span>`;
       }
       return `<div class="bi-account-history-row"><div class="bi-account-history-main"><span class="bi-account-history-label">${escapeHtml(movementLabel(item))}</span><span class="bi-account-history-meta">${escapeHtml(detail)}</span></div><div class="bi-account-history-values"><strong class="bi-account-history-amount ${amountClass}${privateClass}">${escapeHtml(amount)}</strong>${after}</div></div>`;
     }).join("");
     more.hidden = items.length <= INITIAL_COUNT;
-    more.textContent = expanded ? "Weniger anzeigen" : `Weitere anzeigen (${items.length - INITIAL_COUNT})`;
+    more.textContent = expanded ? tr("less", "Weniger anzeigen") : `${tr("more", "Weitere anzeigen")} (${items.length - INITIAL_COUNT})`;
     updateLoadButton();
   }
 
@@ -290,19 +302,19 @@
     if (loading) return;
     const token = dashboardToken();
     if (!token) {
-      setStatus("Dashboard-Zugang ist noch nicht bereit. Bitte in einem Moment erneut klicken.");
+      setStatus(tr("accessNotReady", "Der Profilzugang ist noch nicht bereit. Bitte in einem Moment erneut klicken."));
       return;
     }
     if (!force && restoreCache(token)) return;
     if (force && lastToken === token && Date.now() - lastRemoteLoadAt < REFRESH_COOLDOWN_MS) {
-      setStatus("Gerade aktualisiert – erneuter Abruf ist kurz gesperrt.");
+      setStatus(tr("justUpdated", "Gerade aktualisiert. Bitte einen Moment warten."));
       return;
     }
 
     loading = true;
     lastToken = token;
     render();
-    setStatus("Kontobewegungen werden aus den drei Nur-Lese-Quellen geladen …");
+    setStatus(tr("loadingMovements", "Kontobewegungen werden geladen …"));
 
     try {
       const results = await Promise.allSettled([
@@ -333,10 +345,10 @@
       lastRemoteLoadAt = Date.now();
       expanded = false;
       writeCache(token);
-      setStatus(failed ? `Geladen; ${failed} Nur-Lese-Quelle(n) war(en) vorübergehend nicht erreichbar.` : "Aktuell geladen · 5 Minuten lokal zwischengespeichert.");
+      setStatus(tr("loaded", "Kontobewegungen geladen."));
     } catch (error) {
       console.error("BetInsight Kontobewegungen konnten nicht geladen werden:", error);
-      setStatus("Kontobewegungen konnten nicht geladen werden. Bitte erneut versuchen.");
+      setStatus(tr("loadError", "Kontobewegungen konnten nicht geladen werden. Bitte erneut versuchen."));
     } finally {
       loading = false;
       render();
@@ -349,7 +361,7 @@
     const token = dashboardToken();
     if (token) restoreCache(token);
     else {
-      setStatus("Keine automatische Make-Abfrage. Bei Bedarf auf „Kontobewegungen laden“ klicken.");
+      setStatus("");
       updateLoadButton();
     }
   }
@@ -358,6 +370,14 @@
     load: () => loadHistory(false),
     refresh: () => loadHistory(true)
   };
+
+  window.addEventListener("bi:languagechange", () => {
+    const panel = document.getElementById("biAccountHistory");
+    if (panel) panel.remove();
+    ensurePanel();
+    render();
+    updateLoadButton();
+  });
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true });
   else start();
