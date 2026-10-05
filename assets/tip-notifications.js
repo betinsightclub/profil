@@ -13,9 +13,9 @@
 
   const PROFILE_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-profile-read-shadow";
   const SEEN_WRITE_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-tip-seen";
-  const OPEN_TIPS_URL = "https://hook.eu1.make.com/36gm8kvlfcb7jwae8ypxe8oripquonq5";
-  const UNLOCKED_TIPS_URL = "https://hook.eu1.make.com/7q3edcra1gwxd7vvklv4l7gdxn7zbihr";
-  const UNLOCK_URL = "https://hook.eu1.make.com/k1qn9hlfqd7yhz55vwiotkojgpuqzxug";
+  const OPEN_TIPS_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-tips-api?action=list";
+  const UNLOCKED_TIPS_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-tips-api?action=unlocked";
+  const UNLOCK_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=tip-unlock";
   const POLL_MS = 180000;
   const baseTitle = String(document.title || "BetInsight").replace(/^\(\d+\)\s*/, "");
 
@@ -299,7 +299,7 @@
   async function loadUnlockedIds(fetchFn) {
     const token = getDashboardToken();
     if (!token) return new Set();
-    const response = await fetchFn(`${UNLOCKED_TIPS_URL}?token=${encodeURIComponent(token)}&cachebuster=${Date.now()}`, {
+    const response = await fetchFn(`${UNLOCKED_TIPS_URL}&token=${encodeURIComponent(token)}&cachebuster=${Date.now()}`, {
       method: "GET", cache: "no-store", credentials: "omit"
     });
     if (!response.ok) throw new Error(`Freigeschaltete Tipps HTTP ${response.status}`);
