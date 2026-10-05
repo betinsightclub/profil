@@ -1,14 +1,14 @@
 /* BetInsight Netzwerk Cache-Sparmodus · 2026-09-12-01 STUFE-1 LAZY
    Stufe 1: Netzwerkdaten werden nicht mehr automatisch bei jedem Profilaufruf geladen.
-   Make wird erst aufgerufen, wenn der Nutzer den Netzwerkbereich wirklich erreicht,
+   Supabase wird erst aufgerufen, wenn der Nutzer den Netzwerkbereich wirklich erreicht,
    eine Ebene oeffnet oder einen ausdruecklichen Netzwerk-Refresh ausloest.
    Ebenen 1–3 werden dann einmal gemeinsam geladen und 5 Minuten lokal gecacht.
    Keine Unit-, Referral-, Zahlungs-, FIFO- oder Premium-Bestaende werden geschrieben. */
 (() => {
   "use strict";
 
-  const NETWORK_WEBHOOK_URL = "https://hook.eu1.make.com/yli7txai951a1huc8707xovumwomi2wz";
-  const CACHE_PREFIX = "betinsight_network_cache_v6:";
+  const NETWORK_API_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=referral-overview";
+  const CACHE_PREFIX = "betinsight_network_cache_v7:";
   const CACHE_TTL_MS = 5 * 60 * 1000;
   const TOKEN_RETRY_MS = 250;
   const TOKEN_RETRY_MAX = 40;
@@ -258,15 +258,23 @@
 
   async function requestAllLevels(token){
     if(!token) throw new Error("dashboard_token fehlt");
-    const url=new URL(NETWORK_WEBHOOK_URL);
-    url.searchParams.set("id",token);
-    url.searchParams.set("level","1");
+    const url=new URL(NETWORK_API_URL);
+    url.searchParams.set("token",token);
     const response=await fetch(url.toString(),{cache:"no-store",credentials:"omit"});
     if(!response.ok) throw new Error("HTTP "+response.status);
-    const raw=String(await response.text()||"").replace(/^\uFEFF/,"").trim();
-    if(!raw || raw.toLowerCase()==="accepted") throw new Error("Leere Netzwerk-Antwort");
-    const data=JSON.parse(raw);
-    if(Array.isArray(data?.level1) && Array.isArray(data?.level2) && Array.isArray(data?.level3)) return {1:data.level1,2:data.level2,3:data.level3};
+    const data=await response.json();
+    if(
+      data?.ok===true &&
+      Array.isArray(data?.partners_level1) &&
+      Array.isArray(data?.partners_level2) &&
+      Array.isArray(data?.partners_level3)
+    ){
+      return {
+        1:data.partners_level1,
+        2:data.partners_level2,
+        3:data.partners_level3
+      };
+    }
     throw new Error("Netzwerk-Antwort ist unvollständig");
   }
 
