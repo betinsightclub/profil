@@ -139,7 +139,7 @@ Version: 2026.09.28-02
 <title>BetInsight Profil & Empfehlungscenter</title>
 <link rel="stylesheet" href="assets/app-navigation.css">
 <script src="assets/regional-restrictions.js?v=20260927-2"></script>
-<script src="assets/app-navigation.js?v=20260930-timeclash-1" defer></script>
+<script src="assets/app-navigation.js?v=20261005-profile-cleanup-1" defer></script>
   <script src="assets/tip-notifications.js?v=20261005-1" defer></script>
 
 <style>
@@ -1149,8 +1149,8 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
     <section class="panel">
       <div class="panel-head">
         <div>
-          <h2 class="panel-title">🔒 <span class="panel-title-accent">Persönlicher Profilzugang</span></h2>
-          <p class="panel-subtitle">Deine persönlichen Daten und dein sicher gespeicherter Zugang.</p>
+          <h2 class="panel-title">👤 <span class="panel-title-accent">Mein Konto</span></h2>
+          <p class="panel-subtitle">Deine Kontodaten auf einen Blick.</p>
         </div>
         <button id="profilePrivacyButton" class="privacy-toggle" type="button" onclick="toggleProfilePrivacy()">◉ Schützen</button>
       </div>
@@ -1160,13 +1160,6 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
           <div id="emailDataRow" class="data-row"><span class="data-label">E-Mail</span><span id="email" class="data-value">Lade...</span></div>
           <div class="data-row"><span class="data-label">Status</span><span class="data-value">Profilzugang aktiv</span></div>
         </div>
-        <div class="secure-access">
-          <div class="secure-access-head"><span class="secure-access-title">Persönlicher Zugang</span><span class="secure-access-status">✅ Auf diesem Gerät gespeichert</span></div>
-          <div id="maskedToken" class="masked-token">Wird geladen...</div>
-          <p class="secure-access-note">Der vollständige Zugangscode wird nicht angezeigt und kann hier nicht kopiert werden.</p>
-          <button id="resendProfileButton" class="btn-gray" type="button" onclick="requestCurrentProfileLink()">📩 Profil-Link erneut per E-Mail senden</button>
-        </div>
-        <p class="privacy-note">Die Privatsphäre blendet nur E-Mail-Adresse und persönlichen Zugang aus. BetInsight-ID, Units und Netzwerkzahlen bleiben sichtbar.</p>
         <div id="message" class="message">Kontostand wird geladen...</div>
       </div>
     </section>
