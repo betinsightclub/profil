@@ -1872,6 +1872,9 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       gap: 12px;
       margin-top: 14px;
     }
+    .master-reserve-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
     .cost-transparency-stat {
       position: relative;
       overflow: hidden;
@@ -1955,6 +1958,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
     .cost-rate-message { grid-column: 1 / -1; margin-top: 0; }
     @media (max-width: 760px) {
       .cost-transparency-grid,
+      .master-reserve-grid,
       .cost-master-control { grid-template-columns: 1fr; }
       .cost-master-control input { max-width: none; }
     }
@@ -2225,6 +2229,43 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
           </div>
           <button class="button button-green" type="button" id="saveNextCostPctButton">Ab nächstem Monat übernehmen</button>
           <div id="costRateMessage" class="master-action-message cost-rate-message"></div>
+        </div>
+      </article>
+
+      <article class="content-card full cost-transparency-card hidden" id="masterReserveOverviewCard">
+        <div class="panel-heading">
+          <div>
+            <h3>🏦 BetInsight Reservekonten · Master</h3>
+            <p class="muted">Interne Kontostandsanzeige nur für den Master. Zunächst reine Anzeige auf Basis der bereits gelieferten Backoffice-Daten; keine Auszahlung und keine neue Buchungslogik.</p>
+          </div>
+          <div class="route-hint">MASTER ONLY</div>
+        </div>
+
+        <div class="cost-transparency-grid master-reserve-grid">
+          <div class="cost-transparency-stat">
+            <span class="cost-transparency-label">Betriebskostenreserve · 2,5 %</span>
+            <span class="cost-transparency-value privacy-sensitive" id="masterReserveCosts">0,00 €</span>
+            <span class="cost-transparency-note">Kumulierte Betriebskostenbeiträge aus den geladenen Umsätzen.</span>
+          </div>
+          <div class="cost-transparency-stat">
+            <span class="cost-transparency-label">Referral-/Affiliate-Reserve · 10 %</span>
+            <span class="cost-transparency-value privacy-sensitive" id="masterReserveAffiliate">0,00 €</span>
+            <span class="cost-transparency-note">Kumulierte Referral-/Affiliate-Reserve aus den geladenen Umsätzen.</span>
+          </div>
+          <div class="cost-transparency-stat">
+            <span class="cost-transparency-label">Nicht zugeteilte Partneranteile</span>
+            <span class="cost-transparency-value privacy-sensitive" id="masterReserveUnallocated">0,00 €</span>
+            <span class="cost-transparency-note">Zurückbehaltene bzw. nicht zugeteilte Gründer-/Partneranteile laut Masterdaten.</span>
+          </div>
+          <div class="cost-transparency-stat">
+            <span class="cost-transparency-label">Gesamtreserve BetInsight</span>
+            <span class="cost-transparency-value privacy-sensitive" id="masterReserveTotal">0,00 €</span>
+            <span class="cost-transparency-note">Summe der oben ausgewiesenen Reservekonten, soweit vom Backend getrennt geliefert.</span>
+          </div>
+        </div>
+
+        <div class="cost-rate-plan" id="masterReserveStatus">
+          Anzeige wird aus den aktuell gelieferten Backoffice-Daten berechnet. Die automatische Ledger-Buchung folgt separat.
         </div>
       </article>
 
@@ -5360,6 +5401,71 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       }
     }
 
+    function renderMasterReserveOverview(provisions, master, isMaster) {
+      const card = document.getElementById("masterReserveOverviewCard");
+      if (!card) return;
+      card.classList.toggle("hidden", !isMaster);
+      if (!isMaster) return;
+
+      const items = Array.isArray(provisions) ? provisions : [];
+      const incomingValue = function (item) {
+        return num(item?.incoming_after_plisio_eur ?? item?.net_basis_eur ?? item?.netto_nach_plisio_eur ?? 0);
+      };
+      const sumField = function (keys, fallbackPct) {
+        return items.reduce(function (sum, item) {
+          let value;
+          for (const key of keys) {
+            if (item && item[key] !== undefined && item[key] !== null && String(item[key]).trim() !== "") {
+              value = num(item[key]);
+              break;
+            }
+          }
+          if (value === undefined) value = incomingValue(item) * fallbackPct;
+          return sum + Math.max(0, num(value));
+        }, 0);
+      };
+
+      const costs = sumField(["cost_prepayment_eur", "betriebskosten_vorauszahlung_eur"], 0.025);
+      const affiliate = sumField(["affiliate_budget_eur", "affiliate_reserve_eur"], 0.10);
+      const unallocated = Math.max(0, num(
+        master?.unallocated_partner_share_eur ??
+        master?.partner_reserve_eur ??
+        master?.unassigned_founder_share_eur ??
+        master?.company_reserve_eur ??
+        0
+      ));
+      const explicitTotal = master?.total_reserve_eur ?? master?.reserve_total_eur;
+      const total = explicitTotal !== undefined && explicitTotal !== null && String(explicitTotal).trim() !== ""
+        ? Math.max(0, num(explicitTotal))
+        : costs + affiliate + unallocated;
+
+      const setEuro = function (id, value) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = formatEuro(value);
+      };
+      setEuro("masterReserveCosts", costs);
+      setEuro("masterReserveAffiliate", affiliate);
+      setEuro("masterReserveUnallocated", unallocated);
+      setEuro("masterReserveTotal", total);
+
+      const status = document.getElementById("masterReserveStatus");
+      if (status) {
+        const hasExplicitUnallocated = [
+          master?.unallocated_partner_share_eur,
+          master?.partner_reserve_eur,
+          master?.unassigned_founder_share_eur,
+          master?.company_reserve_eur
+        ].some(function (value) {
+          return value !== undefined && value !== null && String(value).trim() !== "";
+        });
+        status.innerHTML =
+          "<strong>Master-Anzeige aktiv.</strong> 2,5-%- und 10-%-Reserve werden aus den geladenen Umsatzzeilen kumuliert. " +
+          (hasExplicitUnallocated
+            ? "Nicht zugeteilte Partneranteile werden aus dem vorhandenen Master-Reservefeld angezeigt."
+            : "Für nicht zugeteilte Partneranteile liefert das Backend derzeit noch keinen eigenen Wert; deshalb bleibt dieses Teilkonto bis zur Ledger-Anbindung bei 0,00 €.");
+      }
+    }
+
     function applyData(data) {
       if (!data || data.ok === false) throw new Error(data?.message || "Ungültige Antwort");
 
@@ -5390,6 +5496,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       const provisions = parseJsonValue(data.provisions, []);
       const payouts = parseJsonValue(data.payout_history, []);
       const master = parseJsonValue(data.master, {});
+      renderMasterReserveOverview(provisions, master, isMaster);
       const tipsters = parseJsonValue(data.tipsters ?? master.tipsters, []);
       const tipsterSelf = parseJsonValue(data.tipster_self ?? data.tipster, {});
       const tipResults = parseJsonValue(data.tip_results ?? master.tip_results ?? master.results, []);
