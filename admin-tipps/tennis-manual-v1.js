@@ -9,12 +9,24 @@
 
   const TENNIS_MARKETS=[
     'Matchsieger',
-    'Satzsieger',
+    'Satz 1 Sieger',
+    'Satz 2 Sieger',
+    'Satz 3 Sieger',
+    'Satz 4 Sieger',
+    'Satz 5 Sieger',
+    'Exaktes Satzergebnis',
     'Satz Handicap',
     'Game Handicap',
-    'Games Over/Under',
+    'Games Over/Under Match',
+    'Games Over/Under Satz 1',
+    'Games Over/Under Satz 2',
+    'Games Over/Under Satz 3',
     'Sätze Over/Under',
-    'Tie-Break Ja/Nein',
+    'Tie-Break im Match Ja/Nein',
+    'Tie-Break Satz 1 Ja/Nein',
+    'Beide gewinnen einen Satz Ja/Nein',
+    'Spieler gewinnt mindestens einen Satz',
+    'Erster Break',
     'Eigener Markt'
   ];
 
@@ -184,6 +196,131 @@
     tip.placeholder='z. B. Spieler gewinnt / Über 22,5 Games / 2:0 Sätze';
   }
 
+  function tennisPlayers(){
+    const meta=window.__biTennisMeta||{};
+    return [clean(meta.player_one),clean(meta.player_two)].filter(Boolean);
+  }
+
+  function setTipSelectOptions(options,placeholder='Bitte auswählen'){
+    const tip=tipField();
+    if(!tip) return;
+    tip.style.display='';
+    tip.removeAttribute('readonly');
+    if(tip.tagName!=='SELECT'){
+      tip.value='';
+      tip.placeholder=placeholder;
+      return;
+    }
+    const previous=clean(tip.value);
+    tip.innerHTML='';
+    const first=document.createElement('option');
+    first.value='';
+    first.textContent=placeholder;
+    tip.appendChild(first);
+    for(const item of options){
+      const value=typeof item==='string'?item:clean(item?.value);
+      const label=typeof item==='string'?item:clean(item?.label||item?.value);
+      if(!value) continue;
+      const opt=document.createElement('option');
+      opt.value=value;
+      opt.textContent=label;
+      tip.appendChild(opt);
+    }
+    if(previous && [...tip.options].some(o=>o.value===previous)) tip.value=previous;
+    tip.disabled=false;
+  }
+
+  function tennisLineOptions(kind){
+    const [p1,p2]=tennisPlayers();
+    const out=[];
+    if(kind==='games_total'){
+      for(let x=17.5;x<=31.5;x+=1){
+        const line=String(x).replace('.',',');
+        out.push('Über '+line+' Games','Unter '+line+' Games');
+      }
+    }else if(kind==='set_games_total'){
+      for(let x=6.5;x<=13.5;x+=1){
+        const line=String(x).replace('.',',');
+        out.push('Über '+line+' Games','Unter '+line+' Games');
+      }
+    }else if(kind==='game_handicap'){
+      for(const p of [p1,p2].filter(Boolean)){
+        for(let x=-6.5;x<=6.5;x+=1){
+          if(Math.abs(x)<0.01) continue;
+          const sign=x>0?'+':'';
+          out.push(p+' '+sign+String(x).replace('.',',')+' Games');
+        }
+      }
+    }else if(kind==='set_handicap'){
+      for(const p of [p1,p2].filter(Boolean)){
+        [-2.5,-1.5,1.5,2.5].forEach(x=>{
+          const sign=x>0?'+':'';
+          out.push(p+' '+sign+String(x).replace('.',',')+' Sätze');
+        });
+      }
+    }
+    return out;
+  }
+
+  function populateTennisSelection(){
+    if(sportMode!=='Tennis') return;
+    const market=clean(marketField()?.value);
+    const [p1,p2]=tennisPlayers();
+    let options=[];
+    let placeholder='Bitte Auswahl treffen';
+
+    if(!market){
+      setTipSelectOptions([],'Zuerst Markt auswählen');
+      return;
+    }
+
+    if(market==='Matchsieger'){
+      options=[p1,p2];
+    }else if(/^Satz [1-5] Sieger$/.test(market)){
+      options=[p1,p2];
+    }else if(market==='Exaktes Satzergebnis'){
+      options=[
+        p1+' 2:0',p1+' 2:1',p2+' 2:0',p2+' 2:1',
+        p1+' 3:0',p1+' 3:1',p1+' 3:2',p2+' 3:0',p2+' 3:1',p2+' 3:2'
+      ].filter(x=>!/^\s/.test(x));
+    }else if(market==='Satz Handicap'){
+      options=tennisLineOptions('set_handicap');
+    }else if(market==='Game Handicap'){
+      options=tennisLineOptions('game_handicap');
+    }else if(market==='Games Over/Under Match'){
+      options=tennisLineOptions('games_total');
+    }else if(/^Games Over\/Under Satz [1-3]$/.test(market)){
+      options=tennisLineOptions('set_games_total');
+    }else if(market==='Sätze Over/Under'){
+      options=['Über 2,5 Sätze','Unter 2,5 Sätze','Über 3,5 Sätze','Unter 3,5 Sätze','Über 4,5 Sätze','Unter 4,5 Sätze'];
+    }else if(market==='Tie-Break im Match Ja/Nein' || market==='Tie-Break Satz 1 Ja/Nein' || market==='Beide gewinnen einen Satz Ja/Nein'){
+      options=['Ja','Nein'];
+    }else if(market==='Spieler gewinnt mindestens einen Satz'){
+      options=[p1+' – Ja',p1+' – Nein',p2+' – Ja',p2+' – Nein'].filter(x=>!/^\s/.test(x));
+    }else if(market==='Erster Break'){
+      options=[p1,p2,'Kein Break im 1. Satz'].filter(Boolean);
+    }else if(market==='Eigener Markt'){
+      const tip=tipField();
+      if(tip && tip.tagName==='SELECT'){
+        const helper=document.createElement('input');
+        helper.type='text';
+        helper.dataset.biSelectionHelper='1';
+        helper.id='biTennisCustomSelection';
+        helper.placeholder='Eigene Auswahl eingeben, z. B. Spieler A gewinnt Satz 1';
+        helper.style.cssText='width:100%;margin-top:8px;padding:12px;border-radius:10px;background:#061d2a;color:#fff;border:1px solid rgba(0,218,255,.35)';
+        tip.insertAdjacentElement('afterend',helper);
+        tip.innerHTML='<option value="__CUSTOM__">Eigene Auswahl eingeben</option>';
+        tip.value='__CUSTOM__';
+        tip.disabled=false;
+        helper.addEventListener('input',()=>{tip.options[0].value=clean(helper.value)||'__CUSTOM__'; tip.value=tip.options[0].value;});
+        return;
+      }
+      placeholder='Eigene Auswahl eingeben';
+    }
+
+    setTipSelectOptions(options,placeholder);
+  }
+
   function setStatus(text,type=''){
     const el=$('biTennisStatus');
     if(!el) return;
@@ -227,6 +364,7 @@
     window.__biUseManualEvent(meta);
     addTennisMarkets();
     forceTennisTipEntry();
+    populateTennisSelection();
 
     const alarm=$('biLiveAlarmOne');
     if(alarm){
@@ -542,6 +680,9 @@
 
     wrap.querySelectorAll('[data-bi-sport-btn]').forEach(btn=>btn.addEventListener('click',()=>setMode(btn.dataset.biSportBtn)));
     $('biTennisTournamentSelect')?.addEventListener('change',loadEvents);
+    marketField()?.addEventListener('change',()=>{
+      if(sportMode==='Tennis') populateTennisSelection();
+    });
     $('biTennisEventSelect')?.addEventListener('change',chooseEvent);
     $('biTennisApplyApi')?.addEventListener('click',applyApiTennis);
     $('biTennisRefresh')?.addEventListener('click',()=>{
