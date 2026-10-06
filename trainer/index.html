@@ -665,6 +665,7 @@
 
         <div class="profile-actions">
           <button class="pill-btn primary owner-only" id="newPostTopBtn">＋ Beitrag</button>
+          <button class="pill-btn owner-only" id="editProfileTopBtn">✏️ Trainerprofil bearbeiten</button>
           <button class="pill-btn" id="shareProfileBtn">↗ Profil teilen</button>
           <button class="pill-btn viewer-only" id="followBtn">＋ Folgen</button>
         </div>
@@ -3050,6 +3051,13 @@
         document.getElementById("composerCard").scrollIntoView({behavior:"smooth",block:"center"});
         setTimeout(function(){document.getElementById("postText").focus();},350);
       });
+      var editProfileTopBtn=document.getElementById("editProfileTopBtn");
+      if(editProfileTopBtn){
+        editProfileTopBtn.addEventListener("click",function(){
+          var edit=document.getElementById("editProfileBtn");
+          if(edit){ edit.scrollIntoView({behavior:"smooth",block:"center"}); setTimeout(function(){edit.click();},300); }
+        });
+      }
 
       document.getElementById("followBtn").addEventListener("click",async function(){
         if(!isMember){
