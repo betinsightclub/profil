@@ -4,7 +4,7 @@
 const clean=v=>String(v??'').trim();
 const API_URL='https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-tennis-admin';
 const SESSION_KEY='betinsight_admin_session_v1';
-const VERSION='Tennis API v14';
+const VERSION='Tennis API v15';
 const $=id=>document.getElementById(id);
 let sportMode='Fussball';
 let tournamentsLoaded=false;
@@ -232,6 +232,17 @@ function oddsPanelNote(text,type=''){
   el.textContent=text||'';
   el.style.color=type==='error'?'#ff9d9d':type==='ok'?'#9ff3cf':'#cfe7f2';
 }
+function setBookmakerSelectState(message,disabled=true){
+  const select=$('biTennisBookmakerSelect');
+  if(!select)return;
+  select.innerHTML='';
+  const o=document.createElement('option');
+  o.value='';
+  o.textContent=message;
+  select.appendChild(o);
+  select.value='';
+  select.disabled=disabled;
+}
 function renderBookmakerChoices(){
   mountTennisOddsPanel();
   clearCoreSelectedReference();
@@ -260,15 +271,17 @@ async function loadOddsForCurrentMarket(force=false){
   const key=apiMarketKey(market);
   currentOddsRows=[];
   const select=$('biTennisBookmakerSelect');
-  if(select){select.innerHTML='<option value="">Buchmacher werden geladen …</option>';select.disabled=true;}
+  setBookmakerSelectState('Buchmacher werden geladen …',true);
   if(!meta.api_event_id||!meta.api_sport_key){
     clearCoreSelectedReference();
+    setBookmakerSelectState('Manuelles Match · Buchmacher/Quote unten manuell eintragen',true);
     oddsPanelNote('Manuelles Tennis-Match: Buchmacher und Quote bitte im gelben Feld manuell eintragen.');
     prepareCoreReference(false);
     return;
   }
   if(!key){
     clearCoreSelectedReference();
+    setBookmakerSelectState('Keine API-Quote für diesen Markt · manuelle Eingabe verwenden',true);
     oddsPanelNote('Dieser Tennis-Markt wird von unserer Buchmacher-API derzeit nicht automatisch geliefert. Buchmacher und Quote bitte im gelben Feld manuell eintragen.');
     prepareCoreReference(false);
     return;
@@ -300,11 +313,15 @@ async function loadOddsForCurrentMarket(force=false){
     setSelectionOptions(options,'Bitte Auswahl treffen');
     if(current&&options.includes(current))selectionField().value=current;
     renderBookmakerChoices();
+    if(!rows.length){
+      setBookmakerSelectState('Aktuell keine Buchmacherquote verfügbar · manuelle Eingabe verwenden',true);
+    }
     oddsPanelNote(rows.length
       ? rows.length+' verfügbare Buchmacherquoten geladen. Auswahl festlegen und danach Buchmacher auswählen.'
-      :'Für diesen Markt sind aktuell keine Buchmacherquoten vorhanden.',
+      :'Für diesen Markt sind aktuell keine Buchmacherquoten vorhanden. Buchmacher und Quote bitte manuell eintragen.',
       rows.length?'ok':'error');
   }catch(e){
+    setBookmakerSelectState('API-Abfrage fehlgeschlagen · manuelle Eingabe verwenden',true);
     oddsPanelNote(e.message||'Buchmacherquoten konnten nicht geladen werden.','error');
   }
 }
@@ -348,10 +365,16 @@ function populateTennisSelection(){
   else if(market==='Eigener Markt'){
     const el=selectionField();
     if(el&&el.tagName==='SELECT'){el.innerHTML='<option value="Eigene Auswahl">Eigene Auswahl</option>';el.value='Eigene Auswahl';el.disabled=false}
+    setBookmakerSelectState('Eigener Markt · Buchmacher/Quote manuell eintragen',true);
+    oddsPanelNote('Eigener Markt: Auswahl und Buchmacherquote bitte manuell erfassen.');
+    prepareCoreReference(false);
     setStatus('Eigener Markt: Auswahl bitte in der internen Notiz präzisieren.','');
     return;
   }
   setSelectionOptions(options,'Bitte Auswahl treffen');
+  setBookmakerSelectState('Keine automatische API-Quote für diesen Markt · manuelle Eingabe verwenden',true);
+  oddsPanelNote('Für diesen Tennis-Markt ist keine automatische Buchmacherquote hinterlegt. Buchmacher und Quote bitte im gelben Feld manuell eintragen.');
+  prepareCoreReference(false);
 }
 function bindMarketHandler(){
   const m=marketField(); if(!m||m.dataset.biTennisBound==='1') return;
