@@ -124,6 +124,32 @@
     });
   }
 
+  function findFootballSelectionSection(){
+    const headings=[...document.querySelectorAll('h1,h2,h3,h4,strong')];
+    const heading=headings.find(el=>/1\.\s*Liga\s+und\s+Mannschaften\s+auswählen/i.test(clean(el.textContent)));
+    if(!heading) return null;
+    return heading.closest('section,article,fieldset,.card,.panel,.box') || heading.parentElement;
+  }
+
+  function setFootballSectionVisible(visible){
+    const section=findFootballSelectionSection();
+    if(!section) return;
+    if(!visible){
+      if(!section.dataset.biOriginalDisplay){
+        section.dataset.biOriginalDisplay=section.style.display||'__EMPTY__';
+      }
+      section.dataset.biTennisHidden='1';
+      section.style.display='none';
+      section.setAttribute('aria-hidden','true');
+    }else if(section.dataset.biTennisHidden==='1'){
+      const original=section.dataset.biOriginalDisplay;
+      section.style.display=original&&original!=='__EMPTY__'?original:'';
+      section.removeAttribute('aria-hidden');
+      delete section.dataset.biTennisHidden;
+      delete section.dataset.biOriginalDisplay;
+    }
+  }
+
   function addTennisMarkets(){
     const el=marketField();
     if(!el || el.tagName!=='SELECT') return;
@@ -452,14 +478,16 @@
 
     if(sportMode==='Tennis'){
       setFootballControlsDisabled(true);
+      setFootballSectionVisible(false);
       addTennisMarkets();
       forceTennisTipEntry();
-      if(note) note.textContent='🎾 Tennis: Turnier und Match aus der API auswählen. Spieler, Datum und Uhrzeit werden automatisch übernommen.';
+      if(note) note.textContent='🎾 Tennis: Turnier und Match oben auswählen. Spieler, Datum und Uhrzeit werden automatisch übernommen; der Fußball-Bereich wird in diesem Modus ausgeblendet.';
       if(!tournamentsLoaded) loadTournaments(false);
     }else{
       clearTennis();
       removeTennisMarkets();
       setFootballControlsDisabled(false);
+      setFootballSectionVisible(true);
       if(note) note.textContent='⚽ Fußball: bisheriger API-Ablauf bleibt unverändert.';
     }
   }
@@ -607,10 +635,14 @@
     const mo=new MutationObserver(()=>{
       mount();
       if(sportMode==='Tennis'){
+        setFootballControlsDisabled(true);
+        setFootballSectionVisible(false);
         addTennisMarkets();
         forceTennisTipEntry();
         const alarm=$('biLiveAlarmOne');
         if(alarm){alarm.checked=true;alarm.disabled=true;}
+      }else{
+        setFootballSectionVisible(true);
       }
     });
     mo.observe(document.body,{childList:true,subtree:true});
