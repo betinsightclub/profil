@@ -805,6 +805,10 @@ if(uiProblems.length){
    q("#tcTrainerAdvanced")?.addEventListener("click",()=>{syncTrainerBasic();q("#tcTrainerBasic")?.classList.remove("show");openLegacy("coach")});
    q("#tcBasicSave")?.addEventListener("click",()=>{syncBasic();q("#save")?.click()});
    q("#tcBasicAdvanced")?.addEventListener("click",()=>{syncBasic();if(typeof window.openPc==="function")window.openPc(basicIndex);openLegacy("player")});
+   const directEdit=(new URLSearchParams(location.search).get("edit")||"").toLowerCase();
+   if(directEdit==="coach"){
+     setTimeout(()=>{openLegacy("coach")},650);
+   }
    setTimeout(renderTiles,500);setTimeout(renderTiles,1600)
  }
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
