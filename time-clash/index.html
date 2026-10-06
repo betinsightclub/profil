@@ -224,7 +224,7 @@
 <section class="worldRankingPreview tcUxHidden" id="worldRankingPreview">
   <div class="worldRankHead">
     <div><div class="eyebrow">TIME CLASH · WORLD RANKING</div><h2>Weltrangliste</h2><p>Jedes einzelne historische Spiel zählt: Sieg 3 · Unentschieden 1 · Niederlage 0.</p></div>
-    <a class="worldRankLink" href="/time-clash/rangliste/">Komplette Weltrangliste öffnen →</a>
+    <a id="tcWikiLink" href="/wiki/time-clash/" style="color:#74d9ff;font-weight:900;text-decoration:none">📚 FOOTBALL WIKI</a><a class="worldRankLink" href="/time-clash/rangliste/">Komplette Weltrangliste öffnen →</a>
   </div>
   <div class="worldRankTableWrap"><table class="worldRankTable"><thead><tr><th>#</th><th>Team</th><th>Sp.</th><th>S</th><th>U</th><th>N</th><th>TD</th><th>Pkt.</th></tr></thead><tbody id="worldRankPreviewRows"><tr><td colspan="8" class="worldRankEmpty">Weltrangliste wird geladen …</td></tr></tbody></table></div>
 </section>
@@ -679,7 +679,7 @@ function syncAppLanguageNav(){
  if(trainerCard)trainerCard.href=trainerHref;
  if(trainerTitle)trainerTitle.textContent=trainerCopy.title;
  if(trainerText)trainerText.textContent=trainerCopy.text;
- const rankLink=document.querySelector(".worldRankLink");if(rankLink)rankLink.href="/time-clash/rangliste/?lang="+TC_DISPLAY_LANG;
+ const rankLink=document.querySelector(".worldRankLink");if(rankLink)rankLink.href="/time-clash/rangliste/?lang="+TC_DISPLAY_LANG;const wikiLink=document.getElementById("tcWikiLink");if(wikiLink)wikiLink.href="/wiki/time-clash/?lang="+encodeURIComponent(TC_DISPLAY_LANG);
  const base="https://betinsight.club/"+TC_DISPLAY_LANG;
  const realCopy={
   de:{menu:"ECHTE WELT ▾",home:"Startseite",tips:"Tipps & Analysen",stats:"Echte Statistik"},
@@ -1095,7 +1095,26 @@ function renderPreMatchAI(){
  el.innerHTML="<strong>"+verdict+"</strong> Bewertet werden Teamrating, Startelf und Torwartstärke."+gkNote+" Überraschungen bleiben möglich."
 }
 function updateTeams(){kindAActive=$("#typeA").value;kindBActive=$("#typeB").value;activeMode="public";TA=parseTeam($("#teamA").value||"Italien 2006|🇮🇹|82");TB=parseTeam($("#teamB").value||"Spanien 2026|🇪🇸|83");renderActiveTeams();renderPreMatchAI();if(window.__TC_TACTICS_READY&&typeof tcSyncTacticUi==="function")tcSyncTacticUi();syncSceneAvailability()}
-["A","B"].forEach(s=>{$("#type"+s).onchange=()=>{if(s==="A")chosenA=true;else chosenB=true;if(typeof tcResetTacticsForNewTeams==="function")tcResetTacticsForNewTeams();fill(s)};$("#group"+s).onchange=()=>{if(s==="A")chosenA=true;else chosenB=true;if(typeof tcResetTacticsForNewTeams==="function")tcResetTacticsForNewTeams();fill(s);relabelSelector(s)};$("#team"+s).onchange=()=>{if(s==="A")chosenA=true;else chosenB=true;if(typeof tcResetTacticsForNewTeams==="function")tcResetTacticsForNewTeams();relabelSelector(s);updateTeams()}});$("#typeA").value="nation";$("#typeB").value="nation";fill("A");fill("B");chosenA=!!$("#teamA").value;chosenB=!!$("#teamB").value;updateTeams();renderPreMatchAI();/* Valid visible defaults count as selected: normal users do not have to re-select a team just to unlock Start. */
+["A","B"].forEach(s=>{$("#type"+s).onchange=()=>{if(s==="A")chosenA=true;else chosenB=true;if(typeof tcResetTacticsForNewTeams==="function")tcResetTacticsForNewTeams();fill(s)};$("#group"+s).onchange=()=>{if(s==="A")chosenA=true;else chosenB=true;if(typeof tcResetTacticsForNewTeams==="function")tcResetTacticsForNewTeams();fill(s);relabelSelector(s)};$("#team"+s).onchange=()=>{if(s==="A")chosenA=true;else chosenB=true;if(typeof tcResetTacticsForNewTeams==="function")tcResetTacticsForNewTeams();relabelSelector(s);updateTeams()}});$("#typeA").value="nation";$("#typeB").value="nation";fill("A");fill("B");chosenA=!!$("#teamA").value;chosenB=!!$("#teamB").value;updateTeams();renderPreMatchAI();
+function applyWikiScenarioPrefill(){
+ try{
+  const qp=new URLSearchParams(location.search),qa=qp.get("discoverA")||"",qb=qp.get("discoverB")||"",ql=Number(qp.get("discoverLen")||0);
+  function setSide(side,name){
+   if(!name)return false;
+   for(const type of ["nation","club"]){
+    const groups=catalog[type]||{};
+    for(const group of Object.keys(groups)){
+     const raw=(groups[group]||[]).find(v=>parseTeam(v).name===name);
+     if(raw){$("#type"+side).value=type;fill(side);$("#group"+side).value=group;fill(side);$("#team"+side).value=raw;if(side==="A")chosenA=true;else chosenB=true;relabelSelector(side);return true}
+    }
+   } return false;
+  }
+  const okA=setSide("A",qa),okB=setSide("B",qb);if(okA||okB)updateTeams();
+  if([1,3,5,10].includes(ql)){seriesLen=ql;document.querySelectorAll("[data-len]").forEach(x=>x.classList.toggle("sel",Number(x.dataset.len)===ql));makeSeries()}
+  if(okA&&okB){$("#next").textContent="Football Wiki: Dieses noch ungespielte Szenario ist vorausgewählt. Wähle deinen Sieger und starte den TIME CLASH.";document.querySelector(".chooser")?.scrollIntoView({behavior:"smooth",block:"start"})}
+ }catch(e){}
+}
+setTimeout(applyWikiScenarioPrefill,0);/* Valid visible defaults count as selected: normal users do not have to re-select a team just to unlock Start. */
 $("#loadLeagueMatch").onclick=()=>{if(!memberClub){$("#next").textContent="Bitte zuerst dein eigenes TIME-CLASH-Team erstellen.";return}let opponent=$("#memberOpponent").value,meta=allCommunityClubs.find(x=>x.club_name===opponent);if(!meta){$("#next").textContent="Kein erlaubter Community-Gegner ausgewählt.";return}let ownPlayers=Array.isArray(memberClub.players)?memberClub.players:[],oppPlayers=Array.isArray(meta.players)?meta.players:[],ownSum=ownPlayers.slice(0,11).reduce((s,p)=>s+Number(p.strength||0),0),oppSum=oppPlayers.slice(0,11).reduce((s,p)=>s+Number(p.strength||0),0);TA=parseTeam(memberClub.club_name+"|🛡️|"+ratingFromStrength(ownSum));TB=parseTeam(meta.club_name+"|🛡️|"+ratingFromStrength(oppSum));kindAActive="myclub";kindBActive="community";activeMode="member";chosenA=chosenB=true;renderActiveTeams();$("#next").textContent="Liga-Duell geladen: "+memberClub.club_name+" gegen "+opponent+". Die obere Auswahl bleibt unverändert."};
 $("#eliteVsSelected").onclick=()=>{if(!memberProgress?.elite){$("#next").textContent="Dieses Crossover wird erst mit Elite freigeschaltet.";return}let realType=$("#typeB").value,realValue=$("#teamB").value;if(!["nation","club"].includes(realType)||!realValue){realType="nation";let first=(catalog.nation[Object.keys(catalog.nation)[0]]||[])[0];realValue=first||"Italien 2006 · Weltmeister|🇮🇹|84"}let ownPlayers=Array.isArray(memberClub?.players)?memberClub.players:[],ownSum=ownPlayers.slice(0,11).reduce((s,p)=>s+Number(p.strength||0),0);TA=parseTeam(memberClub.club_name+"|🛡️|"+ratingFromStrength(ownSum));TB=parseTeam(realValue);kindAActive="myclub";kindBActive=realType;activeMode="elite";chosenA=chosenB=true;renderActiveTeams();$("#next").textContent="Elite-Crossover geladen. Dein Club spielt gegen das oben bei Team B ausgewählte echte/historische Team. Die obere Auswahl bleibt unverändert."};
 document.querySelectorAll("[data-len]").forEach(b=>b.onclick=()=>{if(running)return;seriesLen=+b.dataset.len;$("#heroClaim").textContent="EGAL WIE VIELE SPIELE. EIN SERIENSIEGER.";document.querySelectorAll("[data-len]").forEach(x=>x.classList.toggle("sel",Number(x.dataset.len)===seriesLen));if(typeof tcRenderSeriesStrategy==="function")tcRenderSeriesStrategy();makeSeries()});
