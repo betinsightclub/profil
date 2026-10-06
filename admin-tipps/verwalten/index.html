@@ -7,7 +7,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <meta name="theme-color" content="#061d2a">
-  <meta name="application-version" content="1.0.2">
+  <meta name="application-version" content="1.0.3">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <title>BetInsight – Tipps verwalten</title>
   <style>
@@ -57,7 +57,7 @@
     </section>
   </div>
 
-  <div class="version">BetInsight · Tipps verwalten · v1.0.2</div>
+  <div class="version">BetInsight · Tipps verwalten · v1.0.3</div>
 </main>
 
 <div id="editModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="editTitle">
@@ -87,6 +87,7 @@
 const SESSION_KEY="betinsight_admin_session_v1";
 const AUTH_API_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=admin-auth";
 const MANAGE_API_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=tip-manage";
+const MAINTENANCE_API_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-tip-maintenance";
 const ADMIN_CENTER_URL="https://betinsightclub.github.io/profil/admin/";
 let verifiedSession=null,sessionHash="",allTips=[],activeFilter="all",flashTimer=null;
 const $=id=>document.getElementById(id);
@@ -116,7 +117,7 @@ async function archiveTip(id){const t=allTips.find(x=>x.tipp_id===id);if(!t)retu
 ${t.spiel}\
 ${t.tipp} · Quote ${t.quote}\
 \
-Der Datensatz wird nicht gelöscht, sondern sicher aus dem aktiven Kundenfeed entfernt.`);if(!ok)return;try{await postJson(MANAGE_API_URL,{action:"archive_tip",admin_session_hash:sessionHash,request_id:requestId("ARCH"),tipp_id:id});await loadTips()}catch(e){alert("Archivieren nicht möglich: "+e.message)}}
+Der Tipp wird sofort aus dem aktiven Kundenfeed entfernt. Eine vorhandene Telegram-Tippmeldung wird automatisch zurückgezogen.`);if(!ok)return;try{const result=await postJson(MAINTENANCE_API_URL,{action:"archive_tip",session_hash:sessionHash,request_id:requestId("ARCH"),tipp_id:id});await loadTips();showFlash("✅ "+(result?.message||"Tipp wurde archiviert."))}catch(e){alert("Archivieren nicht möglich: "+e.message)}}
 async function logout(){const s=readSession();clearSession();try{if(s?.token){const h=await sha256Hex(s.token);await postJson(AUTH_API_URL,{action:"logout",session_hash:h})}}catch(e){}location.replace(ADMIN_CENTER_URL)}
 $("reloadBtn").addEventListener("click",loadTips);$("logoutBtn").addEventListener("click",logout);$("closeModal").addEventListener("click",closeEdit);$("cancelEdit").addEventListener("click",closeEdit);$("editForm").addEventListener("submit",saveEdit);$("editModal").addEventListener("click",e=>{if(e.target===$("editModal"))closeEdit()});document.querySelectorAll(".filter-btn").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".filter-btn").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeFilter=b.dataset.filter;renderTips()}));
 verify();
