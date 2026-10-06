@@ -35,8 +35,43 @@
   let eventsById=new Map();
 
   const $=id=>document.getElementById(id);
-  const marketField=()=> $('markt') || document.querySelector('[data-field="markt"],[name="markt"]');
-  const tipField=()=> $('tipp') || document.querySelector('[data-field="tipp"],[name="tipp"]');
+
+  function fieldByLabel(labelPattern,preferredIds=[]){
+    for(const id of preferredIds){
+      const el=$(id);
+      if(el) return el;
+    }
+    const direct=[...document.querySelectorAll('select,input,textarea')].find(el=>{
+      const aria=clean(el.getAttribute('aria-label'));
+      const name=clean(el.getAttribute('name'));
+      const data=clean(el.getAttribute('data-field'));
+      return labelPattern.test(aria)||labelPattern.test(name)||labelPattern.test(data);
+    });
+    if(direct) return direct;
+
+    for(const label of document.querySelectorAll('label')){
+      const txt=clean(label.textContent).replace(/\s*\*\s*$/,'');
+      if(!labelPattern.test(txt)) continue;
+      const forId=clean(label.getAttribute('for'));
+      if(forId && $(forId)) return $(forId);
+      const inside=label.querySelector('select,input,textarea');
+      if(inside) return inside;
+      const parent=label.closest('div,section,fieldset,.field,.form-group,.row,.col');
+      const nearby=parent?.querySelector('select,input,textarea');
+      if(nearby) return nearby;
+      let next=label.nextElementSibling;
+      while(next){
+        if(next.matches?.('select,input,textarea')) return next;
+        const nested=next.querySelector?.('select,input,textarea');
+        if(nested) return nested;
+        next=next.nextElementSibling;
+      }
+    }
+    return null;
+  }
+
+  const marketField=()=> fieldByLabel(/^(markt|market)$/i,['markt','market']);
+  const tipField=()=> fieldByLabel(/^(auswahl|tipp|selection)$/i,['auswahl','selection','tipp','pick']);
 
   function bytesToHex(bytes){
     return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
@@ -209,7 +244,12 @@
 
   function setTipSelectOptions(options,placeholder='Bitte auswählen'){
     const tip=tipField();
-    if(!tip) return;
+    if(!tip){
+      console.error('BetInsight Tennis: Auswahl-Feld nicht gefunden');
+      setStatus('Technischer Fehler: Das Auswahl-Feld wurde nicht gefunden.','error');
+      return;
+    }
+    tip.dataset.biTennisSelection='1';
     tip.style.display='';
     tip.removeAttribute('readonly');
     if(tip.tagName!=='SELECT'){
@@ -234,6 +274,7 @@
     }
     if(previous && [...tip.options].some(o=>o.value===previous)) tip.value=previous;
     tip.disabled=false;
+    tip.dataset.biTennisOptionCount=String(options.length);
   }
 
   function tennisLineOptions(kind){
@@ -810,7 +851,10 @@
         const market=clean(marketField()?.value);
         const tip=tipField();
         const placeholder=clean(tip?.selectedOptions?.[0]?.textContent||tip?.value);
-        const baseReset=/^Zuerst Markt auswählen$/i.test(placeholder) || (market && tip && tip.options && tip.options.length<=1);
+        const expectedControlled=tip?.dataset?.biTennisSelection==='1';
+        const baseReset=/^Zuerst Markt auswählen$/i.test(placeholder) ||
+          (market && tip && tip.options && tip.options.length<=1) ||
+          (market && tip && !expectedControlled);
         if(baseReset) scheduleTennisSelection();
 
         const alarm=$('biLiveAlarmOne');
