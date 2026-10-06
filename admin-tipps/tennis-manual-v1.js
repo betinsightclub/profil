@@ -4,7 +4,7 @@
 const clean=v=>String(v??'').trim();
 const API_URL='https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-tennis-admin';
 const SESSION_KEY='betinsight_admin_session_v1';
-const VERSION='Tennis API v16';
+const VERSION='Tennis API v17';
 const $=id=>document.getElementById(id);
 let sportMode='Fussball';
 let tournamentsLoaded=false;
@@ -211,6 +211,13 @@ function prepareCoreReference(apiMode){
   mode.value='own';
   mode.dispatchEvent(new Event('change',{bubbles:true}));
 }
+function pushCoreReference(ref){
+  window.__biTennisSelectedReference=ref||null;
+  if(typeof window.__biSetExternalReference==='function'){
+    try{window.__biSetExternalReference(ref||null)}catch(e){console.warn('Tennis reference bridge failed',e)}
+  }
+  return ref||null;
+}
 function setCoreSelectedReference(row){
   const meta=window.__biTennisMeta||{};
   const market=clean(marketField()?.value);
@@ -219,27 +226,88 @@ function setCoreSelectedReference(row){
     event_id:clean(meta.api_event_id),
     sport_key:clean(meta.api_sport_key||meta.sport_key),
     market_key:marketKey,
+    market_label:apiMarketLabel(marketKey),
     selection_key:clean(row?.label||selectionField()?.value),
     line:Number.isFinite(Number(row?.point))?Number(row.point):null,
     bookmaker_key:clean(row?.bookmaker_key),
     bookmaker_title:clean(row?.bookmaker),
     bookmaker:clean(row?.bookmaker),
-    price:Number(row?.price),
-    quote:Number(row?.price),
+    price:Number.isFinite(Number(row?.price))?Number(row.price):null,
+    quote:Number.isFinite(Number(row?.price))?Number(row.price):null,
     link:clean(row?.link),
     source:'TENNIS_API'
   };
-  try{
-    if(typeof selectedReference!=='undefined') selectedReference=ref;
-  }catch(e){}
-  window.__biTennisSelectedReference=ref;
-  return ref;
+  return pushCoreReference(ref);
 }
 function clearCoreSelectedReference(){
-  try{
-    if(typeof selectedReference!=='undefined') selectedReference=null;
-  }catch(e){}
-  window.__biTennisSelectedReference=null;
+  pushCoreReference(null);
+}
+function manualMarketKey(label){
+  return 'tennis_manual_'+clean(label).normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,64);
+}
+function syncManualReference(){
+  if(sportMode!=='Tennis')return;
+  const market=clean(marketField()?.value);
+  if(!market||apiMarketKey(market))return;
+  const selection=clean(selectionField()?.value);
+  if(!selection){clearCoreSelectedReference();return}
+  const meta=window.__biTennisMeta||{};
+  const bookmaker=fieldByLabel(/^Buchmacher\s*\/\s*Quelle\b/i);
+  const quote=fieldByLabel(/^Quote\b/i);
+  const link=fieldByLabel(/^Quelle\s*\/\s*Link\b/i);
+  const q=Number(clean(quote?.value).replace(',','.'));
+  pushCoreReference({
+    event_id:clean(meta.api_event_id||meta.manual_event_id),
+    sport_key:clean(meta.api_sport_key||meta.sport_key||'tennis_manual'),
+    market_key:manualMarketKey(market),
+    market_label:market,
+    selection_key:selection,
+    line:null,
+    bookmaker_key:'manual',
+    bookmaker_title:clean(bookmaker?.value),
+    bookmaker:clean(bookmaker?.value),
+    price:Number.isFinite(q)?q:null,
+    quote:Number.isFinite(q)?q:null,
+    link:clean(link?.value),
+    source:'TENNIS_MANUAL_REFERENCE'
+  });
+}
+function setPendingApiReference(){
+  const meta=window.__biTennisMeta||{};
+  const market=clean(marketField()?.value);
+  const key=apiMarketKey(market);
+  const selection=clean(selectionField()?.value);
+  if(!key||!selection){clearCoreSelectedReference();return}
+  const row=currentOddsRows.find(r=>r.label===selection)||{};
+  pushCoreReference({
+    event_id:clean(meta.api_event_id),
+    sport_key:clean(meta.api_sport_key||meta.sport_key),
+    market_key:key,
+    market_label:apiMarketLabel(key),
+    selection_key:selection,
+    line:Number.isFinite(Number(row?.point))?Number(row.point):null,
+    bookmaker_key:'',
+    bookmaker_title:'',
+    bookmaker:'',
+    price:null,
+    quote:null,
+    link:'',
+    source:'TENNIS_API_PENDING'
+  });
+}
+function bindManualReferenceFields(){
+  const fields=[
+    fieldByLabel(/^Buchmacher\s*\/\s*Quelle\b/i),
+    fieldByLabel(/^Quote\b/i),
+    fieldByLabel(/^Quelle\s*\/\s*Link\b/i)
+  ].filter(Boolean);
+  for(const el of fields){
+    if(el.dataset.biTennisRefBound==='1')continue;
+    el.dataset.biTennisRefBound='1';
+    el.addEventListener('input',()=>{if(sportMode==='Tennis'&&!apiMarketKey(clean(marketField()?.value)))syncManualReference()});
+    el.addEventListener('change',()=>{if(sportMode==='Tennis'&&!apiMarketKey(clean(marketField()?.value)))syncManualReference()});
+  }
 }
 function fillCoreReference(row){
   prepareCoreReference(true);
@@ -296,11 +364,11 @@ function setBookmakerSelectState(message,disabled=true){
 }
 function renderBookmakerChoices(){
   mountTennisOddsPanel();
-  clearCoreSelectedReference();
   const select=$('biTennisBookmakerSelect');if(!select)return;
   const chosen=clean(selectionField()?.value);
   select.innerHTML='<option value="">Buchmacher auswählen</option>';
-  if(!chosen){select.disabled=true;oddsPanelNote('Bitte zuerst eine Auswahl treffen.');return;}
+  if(!chosen){clearCoreSelectedReference();select.disabled=true;oddsPanelNote('Bitte zuerst eine Auswahl treffen.');return;}
+  setPendingApiReference();
   const matches=[];
   currentOddsRows.forEach((row,idx)=>{if(row.label===chosen)matches.push({row,idx})});
   for(const {row,idx} of matches){
@@ -420,6 +488,7 @@ function populateTennisSelection(){
     setBookmakerSelectState('Eigener Markt · Buchmacher/Quote manuell eintragen',true);
     oddsPanelNote('Eigener Markt: Auswahl und Buchmacherquote bitte manuell erfassen.');
     prepareCoreReference(false);
+    syncManualReference();
     setStatus('Eigener Markt: Auswahl bitte in der internen Notiz präzisieren.','');
     return;
   }
@@ -427,6 +496,7 @@ function populateTennisSelection(){
   setBookmakerSelectState('Keine automatische API-Quote für diesen Markt · manuelle Eingabe verwenden',true);
   oddsPanelNote('Für diesen Tennis-Markt ist keine automatische Buchmacherquote hinterlegt. Buchmacher und Quote bitte im gelben Feld manuell eintragen.');
   prepareCoreReference(false);
+  syncManualReference();
 }
 function bindMarketHandler(){
   const m=marketField(); if(!m||m.dataset.biTennisBound==='1') return;
@@ -438,14 +508,17 @@ function bindMarketHandler(){
   });
   document.addEventListener('change',event=>{
     if(sportMode!=='Tennis')return;
-    if(event.target===selectionField())renderBookmakerChoices();
+    if(event.target===selectionField()){
+      if(apiMarketKey(clean(marketField()?.value)))renderBookmakerChoices();
+      else syncManualReference();
+    }
   },true);
 }
 function useMeta(meta,statusText){
   window.__biTennisMeta=meta;
   if(typeof window.__biUseManualEvent!=='function') throw new Error('Terminal-Brücke ist nicht verfügbar.');
   window.__biUseManualEvent(meta);
-  addTennisMarkets();bindMarketHandler();mountTennisOddsPanel();
+  addTennisMarkets();bindMarketHandler();mountTennisOddsPanel();bindManualReferenceFields();
   const oddsWrap=$('biTennisOddsWrap');if(oddsWrap)oddsWrap.hidden=false;
   const alarm=$('biLiveAlarmOne');
   if(alarm){alarm.checked=true;alarm.disabled=true;alarm.title='Tennis-Tipps gehen automatisch an Live-Alarm 1.'}
@@ -575,7 +648,7 @@ function setMode(mode){
     btn.style.background=active?'rgba(0,168,245,.22)':'rgba(255,255,255,.05)';
   });
   if(sportMode==='Tennis'){
-    setFootballControlsDisabled(true);showFootballSection(false);addTennisMarkets();bindMarketHandler();mountTennisOddsPanel();
+    setFootballControlsDisabled(true);showFootballSection(false);addTennisMarkets();bindMarketHandler();mountTennisOddsPanel();bindManualReferenceFields();
     const oddsWrap=$('biTennisOddsWrap');if(oddsWrap)oddsWrap.hidden=false;
     $('biSportNote').textContent='🎾 '+VERSION+' · Turnier, Match, verfügbare Märkte und Buchmacher werden dynamisch aus der API geladen. Manuelle Eingabe ist nur Fallback.';
     if(!tournamentsLoaded)loadTournaments();
