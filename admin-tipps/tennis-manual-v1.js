@@ -4,7 +4,7 @@
 const clean=v=>String(v??'').trim();
 const API_URL='https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-tennis-admin';
 const SESSION_KEY='betinsight_admin_session_v1';
-const VERSION='Tennis API v18';
+const VERSION='Tennis API v19';
 const $=id=>document.getElementById(id);
 let sportMode='Fussball';
 let tournamentsLoaded=false;
@@ -111,10 +111,14 @@ function addTennisMarkets(){
     if([...el.options].some(o=>o.value===label&&o.dataset.biTennisOption==='1')) return;
     const o=document.createElement('option');
     const manualKey=manualMarketKey(label);
-    o.value=manualKey;
+    if(typeof window.__biRegisterExternalMarket==='function'){
+      window.__biRegisterExternalMarket(label,{key:manualKey});
+    }
+    o.value=label;
     o.textContent='🎾 '+label+' · manuell';
     o.dataset.biTennisOption='1';
     o.dataset.biManualTennisMarket='1';
+    o.dataset.biManualMarketKey=manualKey;
     o.dataset.biMarketLabel=label;
     el.appendChild(o);
   });
@@ -131,11 +135,15 @@ function addDynamicApiMarkets(keys){
     const info=TENNIS_API_MARKETS[k];
     const count=availableApiBookmakersByMarket.get(k)?.size||0;
     const o=document.createElement('option');
-    o.value=k;
-    o.textContent='🎾 '+info.label+(count?' · '+count+' Buchmacher':'');
+    const label=info.label;
+    if(typeof window.__biRegisterExternalMarket==='function'){
+      window.__biRegisterExternalMarket(label,{key:k});
+    }
+    o.value=label;
+    o.textContent='🎾 '+label+(count?' · '+count+' Buchmacher':'');
     o.dataset.biTennisOption='1';
     o.dataset.biApiMarketKey=k;
-    o.dataset.biMarketLabel=info.label;
+    o.dataset.biMarketLabel=label;
     el.appendChild(o);
   });
   addTennisMarkets();
@@ -156,9 +164,12 @@ function apiMarketKey(market){
   const selected=el?.selectedOptions?.[0];
   const key=clean(selected?.dataset?.biApiMarketKey);
   if(key)return key;
-  const value=clean(market);
-  if(TENNIS_API_MARKETS[value])return value;
   return '';
+}
+function manualTechnicalMarketKey(){
+  const el=marketField();
+  const selected=el?.selectedOptions?.[0];
+  return clean(selected?.dataset?.biManualMarketKey)||manualMarketKey(currentTennisMarketLabel());
 }
 function currentTennisMarketLabel(){
   const el=marketField();
@@ -236,7 +247,7 @@ function setCoreSelectedReference(row){
   const ref={
     event_id:clean(meta.api_event_id),
     sport_key:clean(meta.api_sport_key||meta.sport_key),
-    market_key:market,
+    market_key:marketKey,
     market_label:currentTennisMarketLabel(),
     selection_key:clean(row?.label||selectionField()?.value),
     line:Number.isFinite(Number(row?.point))?Number(row.point):null,
@@ -271,7 +282,7 @@ function syncManualReference(){
   pushCoreReference({
     event_id:clean(meta.api_event_id||meta.manual_event_id),
     sport_key:clean(meta.api_sport_key||meta.sport_key||'tennis_manual'),
-    market_key:market,
+    market_key:manualTechnicalMarketKey(),
     market_label:currentTennisMarketLabel(),
     selection_key:selection,
     line:null,
@@ -294,7 +305,7 @@ function setPendingApiReference(){
   pushCoreReference({
     event_id:clean(meta.api_event_id),
     sport_key:clean(meta.api_sport_key||meta.sport_key),
-    market_key:market,
+    market_key:key,
     market_label:currentTennisMarketLabel(),
     selection_key:selection,
     line:Number.isFinite(Number(row?.point))?Number(row.point):null,
@@ -731,7 +742,11 @@ window.fetch=async function(input,init){
       const m=marketField(),s=selectionField();
       if(m?.value){
         obj.markt=currentTennisMarketLabel();
-        obj.market_key=clean(window.__biTennisSelectedReference?.market_key||m.value);
+        obj.market_key=clean(
+          window.__biTennisSelectedReference?.market_key ||
+          apiMarketKey(m.value) ||
+          manualTechnicalMarketKey()
+        );
       }
       if(s?.value){
         obj.tipp=s.value;
