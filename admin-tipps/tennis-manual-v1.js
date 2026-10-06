@@ -1,289 +1,322 @@
 (()=>{
-  'use strict';
+'use strict';
 
-  const clean=v=>String(v??'').trim();
-  const TENNIS_MARKETS=[
-    'Matchsieger',
-    'Satzsieger',
-    'Satz Handicap',
-    'Game Handicap',
-    'Games Over/Under',
-    'Sätze Over/Under',
-    'Tie-Break Ja/Nein',
-    'Eigener Markt'
-  ];
-  let sportMode='Fussball';
+const clean=v=>String(v??'').trim();
+const API_URL='https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-tennis-admin';
+const SESSION_KEY='betinsight_admin_session_v1';
+const VERSION='Tennis API v12';
+const $=id=>document.getElementById(id);
+let sportMode='Fussball';
+let tournamentsLoaded=false;
+const eventsById=new Map();
 
-  const $=id=>document.getElementById(id);
-  const marketField=()=> $('markt') || document.querySelector('[data-field="markt"],[name="markt"]');
-  const tipField=()=> $('tipp') || document.querySelector('[data-field="tipp"],[name="tipp"]');
+const TENNIS_MARKETS=[
+  'Matchsieger','Satz 1 Sieger','Satz 2 Sieger','Satz 3 Sieger',
+  'Exaktes Satzergebnis','Satz Handicap','Game Handicap',
+  'Games Over/Under Match','Games Over/Under Satz 1','Games Over/Under Satz 2',
+  'Sätze Over/Under','Tie-Break im Match Ja/Nein',
+  'Beide gewinnen einen Satz Ja/Nein','Spieler gewinnt mindestens einen Satz',
+  'Erster Break','Eigener Markt'
+];
 
-  function berlinNowKey(){
-    const parts=new Intl.DateTimeFormat('en-CA',{
-      timeZone:'Europe/Berlin',
-      year:'numeric',month:'2-digit',day:'2-digit',
-      hour:'2-digit',minute:'2-digit',hourCycle:'h23'
-    }).formatToParts(new Date());
-    const o=Object.fromEntries(parts.map(p=>[p.type,p.value]));
-    return o.year+'-'+o.month+'-'+o.day+'T'+o.hour+':'+o.minute;
+const marketField=()=> $('markt') || $('market') ||
+  document.querySelector('[name="markt"],[data-field="markt"],[name="market"],[data-field="market"]');
+
+const selectionField=()=> $('selection') || $('auswahl') || $('tipp') || $('pick') ||
+  document.querySelector('[name="selection"],[data-field="selection"],[name="auswahl"],[data-field="auswahl"],[name="tipp"],[data-field="tipp"],[name="pick"]');
+
+function bytesToHex(bytes){return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('')}
+async function sha256Hex(text){
+  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(String(text||'')));
+  return bytesToHex(new Uint8Array(digest));
+}
+async function getSessionHash(){
+  let token='';
+  try{token=clean(JSON.parse(sessionStorage.getItem(SESSION_KEY)||'null')?.token)}catch(e){}
+  if(!token) throw new Error('Keine gültige Admin-Sitzung. Bitte über das Admin Center neu anmelden.');
+  return sha256Hex(token);
+}
+async function apiRequest(action,sportKey=''){
+  const session_hash=await getSessionHash();
+  const res=await fetch(API_URL,{
+    method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',credentials:'omit',
+    body:JSON.stringify({action,session_hash,sport_key:sportKey||undefined})
+  });
+  const raw=await res.text();
+  let data={}; try{data=raw?JSON.parse(raw):{}}catch(e){}
+  if(!res.ok||data?.ok!==true) throw new Error(clean(data?.message||data?.error)||'Tennis-API nicht erreichbar.');
+  return data;
+}
+function berlinParts(iso){
+  const d=new Date(iso); if(Number.isNaN(d.getTime())) return null;
+  const parts=new Intl.DateTimeFormat('en-CA',{
+    timeZone:'Europe/Berlin',year:'numeric',month:'2-digit',day:'2-digit',
+    hour:'2-digit',minute:'2-digit',hourCycle:'h23'
+  }).formatToParts(d);
+  const o=Object.fromEntries(parts.map(p=>[p.type,p.value]));
+  return {date:o.year+'-'+o.month+'-'+o.day,time:o.hour+':'+o.minute,label:o.day+'.'+o.month+'.'+o.year+' · '+o.hour+':'+o.minute+' Uhr'};
+}
+function berlinNowKey(){
+  const parts=new Intl.DateTimeFormat('en-CA',{
+    timeZone:'Europe/Berlin',year:'numeric',month:'2-digit',day:'2-digit',
+    hour:'2-digit',minute:'2-digit',hourCycle:'h23'
+  }).formatToParts(new Date());
+  const o=Object.fromEntries(parts.map(p=>[p.type,p.value]));
+  return o.year+'-'+o.month+'-'+o.day+'T'+o.hour+':'+o.minute;
+}
+function makeManualId(meta){
+  const slug=s=>clean(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,18).toUpperCase();
+  return 'BI-TENNIS-'+meta.spiel_datum.replace(/-/g,'')+'-'+meta.anpfiff.replace(':','')+'-'+slug(meta.player_one)+'-'+slug(meta.player_two)+'-'+Date.now().toString().slice(-6);
+}
+function setStatus(text,type=''){
+  const el=$('biTennisStatus'); if(!el) return;
+  el.textContent=text||'';
+  el.style.color=type==='error'?'#ff9d9d':type==='ok'?'#9ff3cf':'#b9d8e8';
+}
+function findFootballSection(){
+  const h=[...document.querySelectorAll('h1,h2,h3,h4')].find(x=>/1\.\s*Liga\s+und\s+Mannschaften\s+auswählen/i.test(clean(x.textContent)));
+  return h?.closest('section,article,fieldset,.card,.panel,.box')||h?.parentElement||null;
+}
+function showFootballSection(show){
+  const s=findFootballSection(); if(!s) return;
+  s.style.display=show?'':'none';
+}
+function setFootballControlsDisabled(disabled){
+  ['liga','homeTeam','awayTeam','lookupBtn'].forEach(id=>{const el=$(id);if(el)el.disabled=disabled});
+}
+function addTennisMarkets(){
+  const el=marketField(); if(!el||el.tagName!=='SELECT') return;
+  TENNIS_MARKETS.forEach(label=>{
+    if([...el.options].some(o=>o.value===label)) return;
+    const o=document.createElement('option');o.value=label;o.textContent='🎾 '+label;o.dataset.biTennisOption='1';el.appendChild(o);
+  });
+}
+function removeTennisMarkets(){
+  const el=marketField(); if(!el||el.tagName!=='SELECT') return;
+  el.querySelectorAll('option[data-bi-tennis-option="1"]').forEach(o=>o.remove());
+}
+function tennisPlayers(){
+  const m=window.__biTennisMeta||{};
+  return [clean(m.player_one),clean(m.player_two)].filter(Boolean);
+}
+function setSelectionOptions(options,placeholder='Bitte auswählen'){
+  const el=selectionField();
+  if(!el){setStatus('Das Auswahl-Feld des Terminals wurde nicht gefunden.','error');return}
+  if(el.tagName!=='SELECT'){el.value='';el.placeholder=placeholder;return}
+  el.innerHTML='';
+  const first=document.createElement('option');first.value='';first.textContent=placeholder;el.appendChild(first);
+  options.filter(Boolean).forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;el.appendChild(o)});
+  el.disabled=false;
+}
+function lineOptions(kind){
+  const [p1,p2]=tennisPlayers(); const out=[];
+  if(kind==='match_total') for(let x=17.5;x<=31.5;x+=1){const l=String(x).replace('.',',');out.push('Über '+l+' Games','Unter '+l+' Games')}
+  if(kind==='set_total') for(let x=6.5;x<=13.5;x+=1){const l=String(x).replace('.',',');out.push('Über '+l+' Games','Unter '+l+' Games')}
+  if(kind==='game_hcap') for(const p of [p1,p2].filter(Boolean)) for(let x=-6.5;x<=6.5;x+=1){if(Math.abs(x)<.01)continue;out.push(p+' '+(x>0?'+':'')+String(x).replace('.',',')+' Games')}
+  if(kind==='set_hcap') for(const p of [p1,p2].filter(Boolean)) [-2.5,-1.5,1.5,2.5].forEach(x=>out.push(p+' '+(x>0?'+':'')+String(x).replace('.',',')+' Sätze'));
+  return out;
+}
+function populateTennisSelection(){
+  if(sportMode!=='Tennis') return;
+  const market=clean(marketField()?.value); const [p1,p2]=tennisPlayers();
+  if(!market){setSelectionOptions([],'Zuerst Markt auswählen');return}
+  let options=[];
+  if(market==='Matchsieger'||/^Satz [1-3] Sieger$/.test(market)) options=[p1,p2];
+  else if(market==='Exaktes Satzergebnis') options=[p1+' 2:0',p1+' 2:1',p2+' 2:0',p2+' 2:1',p1+' 3:0',p1+' 3:1',p1+' 3:2',p2+' 3:0',p2+' 3:1',p2+' 3:2'];
+  else if(market==='Satz Handicap') options=lineOptions('set_hcap');
+  else if(market==='Game Handicap') options=lineOptions('game_hcap');
+  else if(market==='Games Over/Under Match') options=lineOptions('match_total');
+  else if(/^Games Over\/Under Satz [1-2]$/.test(market)) options=lineOptions('set_total');
+  else if(market==='Sätze Over/Under') options=['Über 2,5 Sätze','Unter 2,5 Sätze','Über 3,5 Sätze','Unter 3,5 Sätze','Über 4,5 Sätze','Unter 4,5 Sätze'];
+  else if(market==='Tie-Break im Match Ja/Nein'||market==='Beide gewinnen einen Satz Ja/Nein') options=['Ja','Nein'];
+  else if(market==='Spieler gewinnt mindestens einen Satz') options=[p1+' – Ja',p1+' – Nein',p2+' – Ja',p2+' – Nein'];
+  else if(market==='Erster Break') options=[p1,p2,'Kein Break im 1. Satz'];
+  else if(market==='Eigener Markt'){
+    const el=selectionField();
+    if(el&&el.tagName==='SELECT'){el.innerHTML='<option value="Eigene Auswahl">Eigene Auswahl</option>';el.value='Eigene Auswahl';el.disabled=false}
+    setStatus('Eigener Markt: Auswahl bitte in der internen Notiz präzisieren.','');
+    return;
   }
-
-  function makeManualId(meta){
-    const slug=s=>clean(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-      .replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,18).toUpperCase();
-    return 'BI-TENNIS-'+clean(meta.spiel_datum).replace(/-/g,'')+'-'+
-      clean(meta.anpfiff).replace(':','')+'-'+slug(meta.player_one)+'-'+slug(meta.player_two)+'-'+
-      Date.now().toString().slice(-6);
-  }
-
-  function setFootballControlsDisabled(disabled){
-    ['liga','homeTeam','awayTeam','lookupBtn'].forEach(id=>{
-      const el=$(id);
-      if(el) el.disabled=disabled;
+  setSelectionOptions(options,'Bitte Auswahl treffen');
+}
+function bindMarketHandler(){
+  const m=marketField(); if(!m||m.dataset.biTennisBound==='1') return;
+  m.dataset.biTennisBound='1';
+  m.addEventListener('change',()=>{
+    if(sportMode!=='Tennis') return;
+    setTimeout(populateTennisSelection,0);
+    setTimeout(populateTennisSelection,50);
+  });
+}
+function useMeta(meta,statusText){
+  window.__biTennisMeta=meta;
+  if(typeof window.__biUseManualEvent!=='function') throw new Error('Terminal-Brücke ist nicht verfügbar.');
+  window.__biUseManualEvent(meta);
+  addTennisMarkets();bindMarketHandler();
+  const alarm=$('biLiveAlarmOne');
+  if(alarm){alarm.checked=true;alarm.disabled=true;alarm.title='Tennis-Tipps gehen automatisch an Live-Alarm 1.'}
+  setTimeout(populateTennisSelection,0);
+  setStatus(statusText,'ok');
+}
+function fillTournaments(items){
+  const s=$('biTennisTournamentSelect'); if(!s)return;
+  s.innerHTML='<option value="">Turnier auswählen</option>';
+  items.forEach(t=>{const o=document.createElement('option');o.value=clean(t.sport_key);o.textContent='🎾 '+clean(t.title||t.sport_key);o.dataset.title=clean(t.title||t.sport_key);s.appendChild(o)});
+  s.disabled=false;
+}
+async function loadTournaments(){
+  setStatus('Aktive Tennis-Turniere werden über die API geladen …');
+  try{
+    const d=await apiRequest('tournaments');
+    const items=Array.isArray(d?.tournaments)?d.tournaments:[];
+    fillTournaments(items);tournamentsLoaded=true;
+    setStatus(items.length+' aktive Tennis-Turniere geladen.');
+  }catch(e){fillTournaments([]);setStatus(e.message||'Turniere konnten nicht geladen werden.','error')}
+}
+async function loadEvents(){
+  const s=$('biTennisTournamentSelect'),e=$('biTennisEventSelect'),b=$('biTennisApplyApi');
+  const key=clean(s?.value);eventsById.clear();
+  e.innerHTML='<option value="">Match auswählen</option>';e.disabled=true;b.disabled=true;
+  if(!key)return;
+  setStatus('Matches werden über die BetInsight-Tennis-API geladen …');
+  try{
+    const d=await apiRequest('events',key);
+    const now=Date.now()-300000;
+    const items=(Array.isArray(d?.events)?d.events:[]).filter(x=>Date.parse(x.commence_time)>=now);
+    items.forEach(x=>{
+      const p=berlinParts(x.commence_time); if(!p)return;
+      eventsById.set(clean(x.event_id),{...x,_p:p});
+      const o=document.createElement('option');o.value=clean(x.event_id);o.textContent=p.label+' · '+clean(x.player_one)+' – '+clean(x.player_two);e.appendChild(o);
     });
+    e.disabled=items.length===0;
+    setStatus(items.length+' kommende Matches geladen.');
+  }catch(err){setStatus(err.message||'Matches konnten nicht geladen werden.','error')}
+}
+function chooseEvent(){const id=clean($('biTennisEventSelect')?.value);$('biTennisApplyApi').disabled=!id}
+function applyApi(){
+  const ev=eventsById.get(clean($('biTennisEventSelect')?.value));
+  if(!ev){setStatus('Bitte zuerst ein Match auswählen.','error');return}
+  const p=ev._p||berlinParts(ev.commence_time);
+  const title=clean($('biTennisTournamentSelect')?.selectedOptions?.[0]?.dataset?.title||ev.tournament);
+  const meta={
+    player_one:clean(ev.player_one),player_two:clean(ev.player_two),tournament:title,round:'',
+    spiel_datum:p.date,anpfiff:p.time,api_event_id:clean(ev.event_id),
+    api_sport_key:clean(ev.sport_key||$('biTennisTournamentSelect')?.value),
+    api_commence_time:clean(ev.commence_time),api_match_status:'SCHEDULED',
+    odds_api_status:'EXTERNAL_API',event_source:'ODDS_API_TENNIS',
+    spielart:'Tennis',sportart:'Tennis',wettbewerb:title,home_team:clean(ev.player_one),away_team:clean(ev.player_two)
+  };
+  try{useMeta(meta,'✓ API-Match übernommen: '+meta.player_one+' – '+meta.player_two+' · '+p.label)}catch(e){setStatus(e.message,'error')}
+}
+function toggleManual(){
+  const p=$('biTennisManualPanel');p.hidden=!p.hidden;
+  $('biTennisManualToggle').textContent=p.hidden?'＋ Match nicht gefunden? Manuell erfassen':'− Manuelle Erfassung schließen';
+}
+function applyManual(){
+  const meta={
+    player_one:clean($('biTennisPlayer1')?.value),player_two:clean($('biTennisPlayer2')?.value),
+    tournament:clean($('biTennisTournamentManual')?.value),round:clean($('biTennisRound')?.value),
+    spiel_datum:clean($('biTennisDate')?.value),anpfiff:clean($('biTennisTime')?.value)
+  };
+  if(!meta.player_one||!meta.player_two||!meta.tournament||!meta.spiel_datum||!meta.anpfiff){setStatus('Bitte alle Pflichtfelder ausfüllen.','error');return}
+  if(meta.spiel_datum+'T'+meta.anpfiff<=berlinNowKey()){setStatus('Der Matchbeginn muss in der Zukunft liegen.','error');return}
+  Object.assign(meta,{manual_event_id:makeManualId(meta),api_event_id:'',api_sport_key:'tennis_manual',api_commence_time:'',api_match_status:'MANUAL_TENNIS',odds_api_status:'MANUAL',event_source:'MANUAL_TENNIS',spielart:'Tennis',sportart:'Tennis',wettbewerb:meta.tournament+(meta.round?' · '+meta.round:''),home_team:meta.player_one,away_team:meta.player_two});
+  try{useMeta(meta,'✓ Manuelles Tennis-Match übernommen.')}catch(e){setStatus(e.message,'error')}
+}
+function clearTennis(){
+  window.__biTennisMeta=null;eventsById.clear();removeTennisMarkets();
+  const alarm=$('biLiveAlarmOne');if(alarm){alarm.disabled=false;alarm.title=''}
+  try{if(typeof window.__biClearManualEvent==='function')window.__biClearManualEvent()}catch(e){}
+}
+function setMode(mode){
+  sportMode=mode==='Tennis'?'Tennis':'Fussball';
+  $('biTennisPanel').hidden=sportMode!=='Tennis';
+  document.querySelectorAll('[data-bi-sport-btn]').forEach(btn=>{
+    const active=btn.dataset.biSportBtn===sportMode;
+    btn.setAttribute('aria-pressed',active?'true':'false');
+    btn.style.borderColor=active?'rgba(0,218,255,.95)':'rgba(255,255,255,.18)';
+    btn.style.background=active?'rgba(0,168,245,.22)':'rgba(255,255,255,.05)';
+  });
+  if(sportMode==='Tennis'){
+    setFootballControlsDisabled(true);showFootballSection(false);addTennisMarkets();bindMarketHandler();
+    $('biSportNote').textContent='🎾 '+VERSION+' · Turnier und Match werden automatisch geladen. Manuelle Eingabe ist nur Fallback.';
+    if(!tournamentsLoaded)loadTournaments();
+  }else{
+    clearTennis();setFootballControlsDisabled(false);showFootballSection(true);
+    $('biSportNote').textContent='⚽ Fußball: bisheriger Ablauf bleibt unverändert.';
   }
+}
+function mount(){
+  if($('biSportModeWrap'))return;
+  const liga=$('liga');
+  const anchor=(liga&&liga.closest('section,article,fieldset,.card,.panel,.box'))||document.querySelector('form')||document.body;
+  const wrap=document.createElement('section');wrap.id='biSportModeWrap';
+  wrap.style.cssText='margin:0 0 18px;padding:16px;border:1px solid rgba(0,218,255,.40);border-radius:16px;background:linear-gradient(180deg,rgba(10,55,78,.96),rgba(6,29,42,.96));box-shadow:0 12px 28px rgba(0,0,0,.18)';
+  wrap.innerHTML=
+    '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px"><strong style="font-size:18px">Sportart</strong><span style="font-size:12px;color:#9ff3cf">'+VERSION+'</span></div>'+
+    '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">'+
+      '<button type="button" data-bi-sport-btn="Fussball" aria-pressed="true" style="padding:13px;border-radius:12px;border:1px solid rgba(0,218,255,.95);background:rgba(0,168,245,.22);color:#fff;font-weight:900;cursor:pointer">⚽ Fußball</button>'+
+      '<button type="button" data-bi-sport-btn="Tennis" aria-pressed="false" style="padding:13px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:#fff;font-weight:900;cursor:pointer">🎾 Tennis</button>'+
+    '</div>'+
+    '<div id="biSportNote" style="margin-top:9px;color:#b9d8e8;font-size:13px">⚽ Fußball: bisheriger Ablauf bleibt unverändert.</div>'+
+    '<div id="biTennisPanel" hidden style="margin-top:15px;padding-top:15px;border-top:1px solid rgba(255,255,255,.12)">'+
+      '<div style="font-weight:900;margin-bottom:10px">Tennis-Match automatisch auswählen</div>'+
+      '<select id="biTennisTournamentSelect" disabled style="width:100%;padding:12px;border-radius:10px;background:#061d2a;color:#fff;border:1px solid rgba(0,218,255,.35)"><option>Turniere werden geladen …</option></select>'+
+      '<select id="biTennisEventSelect" disabled style="width:100%;margin-top:10px;padding:12px;border-radius:10px;background:#061d2a;color:#fff;border:1px solid rgba(0,218,255,.35)"><option>Zuerst Turnier auswählen</option></select>'+
+      '<button id="biTennisApplyApi" type="button" disabled style="width:100%;margin-top:10px;padding:12px 16px;border:0;border-radius:999px;background:#16a8f5;color:#fff;font-weight:900;cursor:pointer">✓ API-Match übernehmen</button>'+
+      '<div id="biTennisStatus" style="min-height:20px;margin-top:9px;color:#b9d8e8;font-size:13px"></div>'+
+      '<button id="biTennisManualToggle" type="button" style="width:100%;margin-top:8px;padding:11px;border-radius:12px;border:1px solid rgba(255,186,73,.42);background:rgba(255,186,73,.10);color:#ffe1a6;font-weight:900;cursor:pointer">＋ Match nicht gefunden? Manuell erfassen</button>'+
+      '<div id="biTennisManualPanel" hidden style="margin-top:10px"><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">'+
+        '<input id="biTennisPlayer1" placeholder="Spieler 1 *" style="padding:12px;border-radius:10px;background:#061d2a;color:#fff;border:1px solid rgba(255,186,73,.35)">'+
+        '<input id="biTennisPlayer2" placeholder="Spieler 2 *" style="padding:12px;border-radius:10px;background:#061d2a;color:#fff;border:1px solid rgba(255,186,73,.35)">'+
+        '<input id="biTennisTournamentManual" placeholder="Turnier *" style="padding:12px;border-radius:10px;background:#061d2a;color:#fff;border:1px solid rgba(255,186,73,.35)">'+
+        '<input id="biTennisRound" placeholder="Runde · optional" style="padding:12px;border-radius:10px;background:#061d2a;color:#fff;border:1px solid rgba(255,186,73,.35)">'+
+        '<input id="biTennisDate" type="date" style="padding:12px;border-radius:10px;background:#061d2a;color:#fff;border:1px solid rgba(255,186,73,.35)">'+
+        '<input id="biTennisTime" type="time" style="padding:12px;border-radius:10px;background:#061d2a;color:#fff;border:1px solid rgba(255,186,73,.35)">'+
+      '</div><button id="biTennisApplyManual" type="button" style="width:100%;margin-top:10px;padding:12px;border:0;border-radius:999px;background:#a66b13;color:#fff;font-weight:900;cursor:pointer">✓ Manuelles Match übernehmen</button></div>'+
+    '</div>';
+  anchor.insertAdjacentElement('beforebegin',wrap);
+  wrap.querySelectorAll('[data-bi-sport-btn]').forEach(btn=>btn.addEventListener('click',()=>setMode(btn.dataset.biSportBtn)));
+  $('biTennisTournamentSelect').addEventListener('change',loadEvents);
+  $('biTennisEventSelect').addEventListener('change',chooseEvent);
+  $('biTennisApplyApi').addEventListener('click',applyApi);
+  $('biTennisManualToggle').addEventListener('click',toggleManual);
+  $('biTennisApplyManual').addEventListener('click',applyManual);
+  bindMarketHandler();
+}
 
-  function addTennisMarkets(){
-    const el=marketField();
-    if(!el || el.tagName!=='SELECT') return;
-    TENNIS_MARKETS.forEach(label=>{
-      if([...el.options].some(o=>o.value===label)) return;
-      const opt=document.createElement('option');
-      opt.value=label;
-      opt.textContent='🎾 '+label;
-      opt.dataset.biTennisOption='1';
-      el.appendChild(opt);
-    });
-  }
-
-  function removeTennisMarkets(){
-    const el=marketField();
-    if(!el || el.tagName!=='SELECT') return;
-    const current=el.selectedOptions?.[0];
-    const wasTennis=current?.dataset?.biTennisOption==='1';
-    el.querySelectorAll('option[data-bi-tennis-option="1"]').forEach(o=>o.remove());
-    if(wasTennis){
-      el.value='';
-      el.dispatchEvent(new Event('change',{bubbles:true}));
-    }
-  }
-
-  function forceManualTipEntry(){
-    document.querySelectorAll('[data-bi-selection-helper="1"]').forEach(el=>el.remove());
-    const tip=tipField();
-    if(!tip) return;
-    tip.style.display='';
-    tip.removeAttribute('readonly');
-    tip.placeholder='z. B. Spieler 1 gewinnt / Über 22,5 Games / 2:0 Sätze';
-  }
-
-  function clearTennis(){
-    window.__biTennisMeta=null;
-    if(typeof window.__biClearManualEvent==='function'){
-      try{window.__biClearManualEvent()}catch(e){}
-    }
-    const alarm=$('biLiveAlarmOne');
-    if(alarm){alarm.disabled=false; alarm.title='';}
-  }
-
-  function applyTennis(){
-    const err=$('biTennisError');
-    if(err) err.textContent='';
-    const meta={
-      player_one:clean($('biTennisPlayer1')?.value),
-      player_two:clean($('biTennisPlayer2')?.value),
-      tournament:clean($('biTennisTournament')?.value),
-      round:clean($('biTennisRound')?.value),
-      spiel_datum:clean($('biTennisDate')?.value),
-      anpfiff:clean($('biTennisTime')?.value)
+// Bestehende Publish-Strecke bleibt bestehen; Tennis-Metadaten werden nur ergänzt.
+const inheritedFetch=window.fetch.bind(window);
+window.fetch=async function(input,init){
+  const meta=window.__biTennisMeta;
+  const url=typeof input==='string'?input:(input&&input.url?String(input.url):'');
+  const isPublish=url.includes('route=tip-historical-publish')||url.includes('jnj854h9aeg5iqny6prd3owgt4mpcd51');
+  if(sportMode!=='Tennis'||!meta||!isPublish)return inheritedFetch(input,init);
+  let opts=init?{...init}:{};
+  try{
+    const enrich=obj=>{
+      obj.sportart='Tennis';obj.spiel=meta.player_one+' – '+meta.player_two;
+      obj.liga=meta.wettbewerb;obj.home_team=meta.player_one;obj.away_team=meta.player_two;
+      obj.spiel_datum=meta.spiel_datum.split('-').reverse().join('.');obj.anpfiff=meta.anpfiff;
+      obj.api_sport_key=meta.api_sport_key||'tennis_manual';obj.api_event_id=meta.api_event_id||'';
+      obj.api_event_home=meta.player_one;obj.api_event_away=meta.player_two;obj.api_commence_time=meta.api_commence_time||'';
+      obj.api_match_status=meta.api_match_status||'MANUAL_TENNIS';obj.odds_api_status=meta.odds_api_status||'MANUAL';
+      obj.event_source=meta.event_source||'MANUAL_TENNIS';obj.manual_event_id=meta.manual_event_id||'';obj.spielart='Tennis';obj.live_alarm_1='JA';
+      const m=marketField(),s=selectionField();
+      if(m?.value)obj.markt=m.value;
+      if(s?.value)obj.tipp=s.value;
+      return obj;
     };
-
-    if(!meta.player_one||!meta.player_two||!meta.tournament||!meta.spiel_datum||!meta.anpfiff){
-      if(err) err.textContent='Bitte Spieler 1, Spieler 2, Turnier, Datum und Uhrzeit ausfüllen.';
-      return;
+    if(typeof opts.body==='string'){
+      try{const o=JSON.parse(opts.body);opts.body=JSON.stringify(enrich(o))}catch(e){}
+    }else if(typeof URLSearchParams!=='undefined'&&opts.body instanceof URLSearchParams){
+      const o=enrich(Object.fromEntries(opts.body.entries()));const p=new URLSearchParams();Object.entries(o).forEach(([k,v])=>p.set(k,String(v??'')));opts.body=p;
+    }else if(typeof FormData!=='undefined'&&opts.body instanceof FormData){
+      const fd=new FormData();for(const [k,v] of opts.body.entries())fd.append(k,v);const o=enrich({});Object.entries(o).forEach(([k,v])=>fd.set(k,String(v??'')));opts.body=fd;
     }
-    if(meta.player_one.toLocaleLowerCase('de')===meta.player_two.toLocaleLowerCase('de')){
-      if(err) err.textContent='Spieler 1 und Spieler 2 dürfen nicht identisch sein.';
-      return;
-    }
-    if(meta.spiel_datum+'T'+meta.anpfiff<=berlinNowKey()){
-      if(err) err.textContent='Der Matchbeginn muss in der Zukunft liegen (deutsche Zeit).';
-      return;
-    }
+  }catch(e){console.warn('BetInsight Tennis payload enrichment failed',e)}
+  return inheritedFetch(input,opts);
+};
 
-    meta.manual_event_id=makeManualId(meta);
-    meta.spielart='Tennis';
-    meta.wettbewerb=meta.tournament+(meta.round?' · '+meta.round:'');
-    meta.home_team=meta.player_one;
-    meta.away_team=meta.player_two;
-    meta.sportart='Tennis';
-    meta.event_source='MANUAL_TENNIS';
-    window.__biTennisMeta=meta;
-
-    if(typeof window.__biUseManualEvent==='function'){
-      window.__biUseManualEvent(meta);
-    }
-
-    addTennisMarkets();
-    forceManualTipEntry();
-
-    const alarm=$('biLiveAlarmOne');
-    if(alarm){
-      alarm.checked=true;
-      alarm.disabled=true;
-      alarm.title='Tennis-Tipps werden automatisch an Live-Alarm 1 übergeben.';
-    }
-
-    const status=$('biTennisStatus');
-    if(status){
-      status.textContent='✓ Tennis-Match übernommen · Live-Alarm 1 ist automatisch aktiv.';
-      status.style.color='#9ff3cf';
-    }
-  }
-
-  function setMode(mode){
-    sportMode=mode==='Tennis'?'Tennis':'Fussball';
-    const panel=$('biTennisPanel');
-    const note=$('biSportNote');
-    if(panel) panel.hidden=sportMode!=='Tennis';
-    document.querySelectorAll('[data-bi-sport-btn]').forEach(btn=>{
-      const active=btn.dataset.biSportBtn===sportMode;
-      btn.setAttribute('aria-pressed',active?'true':'false');
-      btn.style.borderColor=active?'rgba(0,218,255,.95)':'rgba(255,255,255,.18)';
-      btn.style.background=active?'rgba(0,168,245,.22)':'rgba(255,255,255,.05)';
-    });
-    if(sportMode==='Tennis'){
-      setFootballControlsDisabled(true);
-      addTennisMarkets();
-      forceManualTipEntry();
-      if(note) note.textContent='🎾 Tennis: Matchdaten werden manuell eingetragen. Live-Alarm 1 wird automatisch aktiviert.';
-    }else{
-      clearTennis();
-      removeTennisMarkets();
-      setFootballControlsDisabled(false);
-      if(note) note.textContent='⚽ Fußball: bisheriger Ablauf bleibt unverändert.';
-    }
-  }
-
-  function mount(){
-    if($('biSportModeWrap')) return;
-    const liga=$('liga');
-    const anchor=(liga&&liga.closest('section,article,fieldset,.card,.panel,.box')) || document.querySelector('form') || document.body;
-
-    const wrap=document.createElement('section');
-    wrap.id='biSportModeWrap';
-    wrap.style.cssText='margin:0 0 18px;padding:16px;border:1px solid rgba(0,218,255,.40);border-radius:16px;background:linear-gradient(180deg,rgba(10,55,78,.96),rgba(6,29,42,.96));box-shadow:0 12px 28px rgba(0,0,0,.18);';
-    wrap.innerHTML=
-      '<div style="font-size:18px;font-weight:900;margin-bottom:10px">Sportart</div>'+
-      '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">'+
-        '<button type="button" data-bi-sport-btn="Fussball" aria-pressed="true" style="padding:13px;border-radius:12px;border:1px solid rgba(0,218,255,.95);background:rgba(0,168,245,.22);color:#fff;font-weight:900;cursor:pointer">⚽ Fußball</button>'+
-        '<button type="button" data-bi-sport-btn="Tennis" aria-pressed="false" style="padding:13px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:#fff;font-weight:900;cursor:pointer">🎾 Tennis</button>'+
-      '</div>'+
-      '<div id="biSportNote" style="margin-top:9px;color:#b9d8e8;font-size:13px">⚽ Fußball: bisheriger Ablauf bleibt unverändert.</div>'+
-      '<div id="biTennisPanel" hidden style="margin-top:15px;padding-top:15px;border-top:1px solid rgba(255,255,255,.12)">'+
-        '<div style="font-weight:900;margin-bottom:10px">Tennis-Match manuell erfassen</div>'+
-        '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">'+
-          '<input id="biTennisPlayer1" placeholder="Spieler 1 *" style="padding:12px;border-radius:10px;background:#061d2a;color:#fff;border:1px solid rgba(0,218,255,.35)">'+
-          '<input id="biTennisPlayer2" placeholder="Spieler 2 *" style="padding:12px;border-radius:10px;background:#061d2a;color:#fff;border:1px solid rgba(0,218,255,.35)">'+
-          '<input id="biTennisTournament" placeholder="Turnier * · z. B. ATP Shanghai" style="padding:12px;border-radius:10px;background:#061d2a;color:#fff;border:1px solid rgba(0,218,255,.35)">'+
-          '<input id="biTennisRound" placeholder="Runde · optional" style="padding:12px;border-radius:10px;background:#061d2a;color:#fff;border:1px solid rgba(0,218,255,.35)">'+
-          '<input id="biTennisDate" type="date" style="padding:12px;border-radius:10px;background:#061d2a;color:#fff;border:1px solid rgba(0,218,255,.35)">'+
-          '<input id="biTennisTime" type="time" style="padding:12px;border-radius:10px;background:#061d2a;color:#fff;border:1px solid rgba(0,218,255,.35)">'+
-        '</div>'+
-        '<div id="biTennisError" style="min-height:18px;margin-top:9px;color:#ff9d9d;font-size:13px"></div>'+
-        '<button id="biTennisApply" type="button" style="width:100%;margin-top:5px;padding:12px 16px;border:0;border-radius:999px;background:#16a8f5;color:#fff;font-weight:900;cursor:pointer">✓ Tennis-Match übernehmen</button>'+
-        '<div id="biTennisStatus" style="min-height:18px;margin-top:9px;font-size:13px"></div>'+
-      '</div>';
-
-    anchor.insertAdjacentElement('beforebegin',wrap);
-    wrap.querySelectorAll('[data-bi-sport-btn]').forEach(btn=>btn.addEventListener('click',()=>setMode(btn.dataset.biSportBtn)));
-    $('biTennisApply')?.addEventListener('click',applyTennis);
-  }
-
-  // The existing publish pipeline stays unchanged; for Tennis we only enrich its payload.
-  // This applies equally to master and normal tipster sessions because both use this terminal.
-  const inheritedFetch=window.fetch.bind(window);
-  window.fetch=async function(input,init){
-    const meta=window.__biTennisMeta;
-    const url=typeof input==='string'?input:(input&&input.url?String(input.url):'');
-    const isPublish=url.includes('route=tip-historical-publish') ||
-      url.includes('jnj854h9aeg5iqny6prd3owgt4mpcd51');
-
-    if(sportMode!=='Tennis' || !meta || !isPublish){
-      return inheritedFetch(input,init);
-    }
-
-    let opts=init?{...init}:{};
-    try{
-      const enrich=obj=>{
-        obj.sportart='Tennis';
-        obj.spiel=meta.player_one+' – '+meta.player_two;
-        obj.liga=meta.tournament+(meta.round?' · '+meta.round:'');
-        obj.home_team=meta.player_one;
-        obj.away_team=meta.player_two;
-        obj.spiel_datum=meta.spiel_datum.split('-').reverse().join('.');
-        obj.anpfiff=meta.anpfiff;
-        obj.api_sport_key='tennis_manual';
-        obj.api_event_id='';
-        obj.api_event_home=meta.player_one;
-        obj.api_event_away=meta.player_two;
-        obj.api_commence_time='';
-        obj.api_match_status='MANUAL_TENNIS';
-        obj.odds_api_status='MANUAL';
-        obj.event_source='MANUAL_TENNIS';
-        obj.manual_event_id=meta.manual_event_id;
-        obj.spielart='Tennis';
-        // User requirement: every Tennis tip goes immediately into Live-Alarm 1.
-        obj.live_alarm_1='JA';
-        return obj;
-      };
-
-      const body=opts.body;
-      if(typeof body==='string'){
-        let done=false;
-        try{
-          const obj=JSON.parse(body);
-          if(obj&&typeof obj==='object'){
-            opts.body=JSON.stringify(enrich(obj));
-            done=true;
-          }
-        }catch(e){}
-        if(!done){
-          const p=new URLSearchParams(body);
-          if([...p.keys()].length){
-            const obj=Object.fromEntries(p.entries());
-            const enriched=enrich(obj);
-            const next=new URLSearchParams();
-            Object.entries(enriched).forEach(([k,v])=>next.set(k,String(v??'')));
-            opts.body=next.toString();
-          }
-        }
-      }else if(typeof URLSearchParams!=='undefined' && body instanceof URLSearchParams){
-        const p=new URLSearchParams(body);
-        const enriched=enrich(Object.fromEntries(p.entries()));
-        const next=new URLSearchParams();
-        Object.entries(enriched).forEach(([k,v])=>next.set(k,String(v??'')));
-        opts.body=next;
-      }else if(typeof FormData!=='undefined' && body instanceof FormData){
-        const fd=new FormData();
-        for(const [k,v] of body.entries()) fd.append(k,v);
-        const enriched=enrich({});
-        Object.entries(enriched).forEach(([k,v])=>fd.set(k,String(v??'')));
-        opts.body=fd;
-      }
-    }catch(e){
-      console.warn('BetInsight Tennis payload enrichment failed',e);
-    }
-    return inheritedFetch(input,opts);
-  };
-
-  const boot=()=>{
-    // Wichtig: bewusst KEIN MutationObserver.
-    // Der frühere Observer reagierte auf DOM-Änderungen, die der Tennis-Modus selbst
-    // auslöst (Markt-Optionen / Auswahl-Helfer). Zusammen mit der Basis-UI konnte
-    // dadurch eine Rückkopplung entstehen und der Browser-Tab beim Klick auf Tennis hängen.
-    mount();
-  };
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
-  else boot();
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
 })();
