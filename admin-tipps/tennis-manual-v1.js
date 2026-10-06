@@ -4,7 +4,7 @@
 const clean=v=>String(v??'').trim();
 const API_URL='https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-tennis-admin';
 const SESSION_KEY='betinsight_admin_session_v1';
-const VERSION='Tennis API v15';
+const VERSION='Tennis API v16';
 const $=id=>document.getElementById(id);
 let sportMode='Fussball';
 let tournamentsLoaded=false;
@@ -12,14 +12,33 @@ const eventsById=new Map();
 const oddsCache=new Map();
 let currentOddsRows=[];
 
-const TENNIS_MARKETS=[
-  'Matchsieger','Satz 1 Sieger','Satz 2 Sieger','Satz 3 Sieger',
-  'Exaktes Satzergebnis','Satz Handicap','Game Handicap',
-  'Games Over/Under Match','Games Over/Under Satz 1','Games Over/Under Satz 2',
-  'Sätze Over/Under','Tie-Break im Match Ja/Nein',
-  'Beide gewinnen einen Satz Ja/Nein','Spieler gewinnt mindestens einen Satz',
-  'Erster Break','Eigener Markt'
+const MANUAL_TENNIS_MARKETS=[
+  'Exaktes Satzergebnis',
+  'Tie-Break im Match Ja/Nein',
+  'Beide gewinnen einen Satz Ja/Nein',
+  'Spieler gewinnt mindestens einen Satz',
+  'Erster Break',
+  'Eigener Markt'
 ];
+
+const TENNIS_API_MARKETS={
+  h2h:{label:'Matchsieger',unit:''},
+  spreads:{label:'Game Handicap',unit:'Games'},
+  alternate_spreads:{label:'Game Handicap · weitere Linien',unit:'Games'},
+  totals:{label:'Games Over/Under Match',unit:'Games'},
+  alternate_totals:{label:'Games Over/Under Match · weitere Linien',unit:'Games'},
+  h2h_s1:{label:'Satz 1 Sieger',unit:''},
+  h2h_s2:{label:'Satz 2 Sieger',unit:''},
+  spreads_s1:{label:'Game Handicap Satz 1',unit:'Games'},
+  alternate_set_spreads:{label:'Satz Handicap · weitere Linien',unit:'Sätze'},
+  totals_s1:{label:'Games Over/Under Satz 1',unit:'Games'},
+  alternate_totals_s1:{label:'Games Over/Under Satz 1 · weitere Linien',unit:'Games'},
+  alternate_totals_s2:{label:'Games Over/Under Satz 2 · weitere Linien',unit:'Games'},
+  alternate_set_totals:{label:'Sätze Over/Under · weitere Linien',unit:'Sätze'}
+};
+
+let availableApiMarketKeys=new Set();
+let availableApiBookmakersByMarket=new Map();
 
 const marketField=()=> $('markt') || $('market') ||
   document.querySelector('[name="markt"],[data-field="markt"],[name="market"],[data-field="market"]');
@@ -88,14 +107,39 @@ function setFootballControlsDisabled(disabled){
 }
 function addTennisMarkets(){
   const el=marketField(); if(!el||el.tagName!=='SELECT') return;
-  TENNIS_MARKETS.forEach(label=>{
-    if([...el.options].some(o=>o.value===label)) return;
-    const o=document.createElement('option');o.value=label;o.textContent='🎾 '+label;o.dataset.biTennisOption='1';el.appendChild(o);
+  MANUAL_TENNIS_MARKETS.forEach(label=>{
+    if([...el.options].some(o=>o.value===label&&o.dataset.biTennisOption==='1')) return;
+    const o=document.createElement('option');
+    o.value=label;o.textContent='🎾 '+label+' · manuell';
+    o.dataset.biTennisOption='1';o.dataset.biManualTennisMarket='1';
+    el.appendChild(o);
   });
+}
+function resetTennisApiMarketOptions(){
+  const el=marketField();if(!el||el.tagName!=='SELECT')return;
+  el.querySelectorAll('option[data-bi-api-market-key]').forEach(o=>o.remove());
+}
+function addDynamicApiMarkets(keys){
+  const el=marketField();if(!el||el.tagName!=='SELECT')return;
+  resetTennisApiMarketOptions();
+  const order=['h2h','spreads','alternate_spreads','totals','alternate_totals','h2h_s1','h2h_s2','spreads_s1','alternate_set_spreads','totals_s1','alternate_totals_s1','alternate_totals_s2','alternate_set_totals'];
+  order.filter(k=>keys.has(k)&&TENNIS_API_MARKETS[k]).forEach(k=>{
+    const info=TENNIS_API_MARKETS[k];
+    const count=availableApiBookmakersByMarket.get(k)?.size||0;
+    const o=document.createElement('option');
+    o.value='API:'+k;
+    o.textContent='🎾 '+info.label+(count?' · '+count+' Buchmacher':'');
+    o.dataset.biTennisOption='1';
+    o.dataset.biApiMarketKey=k;
+    el.appendChild(o);
+  });
+  addTennisMarkets();
 }
 function removeTennisMarkets(){
   const el=marketField(); if(!el||el.tagName!=='SELECT') return;
   el.querySelectorAll('option[data-bi-tennis-option="1"]').forEach(o=>o.remove());
+  availableApiMarketKeys=new Set();
+  availableApiBookmakersByMarket=new Map();
 }
 function tennisPlayers(){
   const m=window.__biTennisMeta||{};
@@ -103,10 +147,15 @@ function tennisPlayers(){
 }
 
 function apiMarketKey(market){
-  if(market==='Matchsieger') return 'h2h';
-  if(market==='Game Handicap') return 'spreads';
-  if(market==='Games Over/Under Match') return 'totals';
+  const el=marketField();
+  const selected=el?.selectedOptions?.[0];
+  const key=clean(selected?.dataset?.biApiMarketKey);
+  if(key)return key;
+  if(/^API:/.test(clean(market)))return clean(market).slice(4);
   return '';
+}
+function apiMarketLabel(key){
+  return TENNIS_API_MARKETS[key]?.label||key;
 }
 function decimalDE(v){
   const n=Number(v);
@@ -115,17 +164,19 @@ function decimalDE(v){
 function outcomeLabel(outcome,marketKey){
   const name=clean(outcome?.name);
   const point=Number(outcome?.point);
-  if(marketKey==='h2h') return name;
-  if(marketKey==='spreads'){
+  if(['h2h','h2h_s1','h2h_s2'].includes(marketKey)) return name;
+  if(['spreads','alternate_spreads','spreads_s1','alternate_set_spreads'].includes(marketKey)){
     if(!name||!Number.isFinite(point)) return '';
-    return name+' '+(point>0?'+':'')+decimalDE(point)+' Games';
+    const unit=TENNIS_API_MARKETS[marketKey]?.unit||'';
+    return name+' '+(point>0?'+':'')+decimalDE(point)+(unit?' '+unit:'');
   }
-  if(marketKey==='totals'){
+  if(['totals','alternate_totals','totals_s1','alternate_totals_s1','alternate_totals_s2','alternate_set_totals'].includes(marketKey)){
     if(!Number.isFinite(point)) return '';
     const side=/^over$/i.test(name)?'Über':/^under$/i.test(name)?'Unter':name;
-    return side+' '+decimalDE(point)+' Games';
+    const unit=TENNIS_API_MARKETS[marketKey]?.unit||'';
+    return side+' '+decimalDE(point)+(unit?' '+unit:'');
   }
-  return '';
+  return name;
 }
 function fieldByLabel(re){
   const root=$('marketFieldset')||document;
@@ -216,7 +267,7 @@ function mountTennisOddsPanel(){
   wrap.style.cssText='margin-top:14px;padding:14px 16px;border:1px solid rgba(255,186,73,.42);border-radius:14px;background:rgba(255,186,73,.08)';
   wrap.innerHTML=
     '<div style="font-weight:900;color:#ffe1a6;margin-bottom:5px">🎾 Tennis-Buchmacherquote · API</div>'+
-    '<div id="biTennisOddsNote" style="color:#cfe7f2;font-size:13px;line-height:1.45;margin-bottom:10px">Markt und Auswahl festlegen. Verfügbare Buchmacher werden automatisch geladen.</div>'+
+    '<div id="biTennisOddsNote" style="color:#cfe7f2;font-size:13px;line-height:1.45;margin-bottom:10px">Wie beim Fußball: Markt und Auswahl festlegen, danach einen der aktuell von der API gelieferten Buchmacher auswählen.</div>'+
     '<button id="biTennisOddsReload" type="button" style="width:100%;padding:11px 14px;border-radius:999px;border:1px solid rgba(0,218,255,.4);background:#0d5577;color:#fff;font-weight:900;cursor:pointer">↻ Buchmacherquoten neu laden</button>'+
     '<select id="biTennisBookmakerSelect" disabled style="width:100%;margin-top:10px;padding:12px;border-radius:10px;background:#061d2a;color:#fff;border:1px solid rgba(0,218,255,.35)"><option value="">Zuerst Markt und Auswahl wählen</option></select>';
   host.appendChild(wrap);
@@ -303,7 +354,7 @@ async function loadOddsForCurrentMarket(force=false){
           const label=outcomeLabel(out,key);
           const price=Number(out.price);
           if(!label||!Number.isFinite(price))continue;
-          rows.push({bookmaker:clean(b.title||b.key),bookmaker_key:clean(b.key),label,price:String(price),link:clean(out.link||m.link||b.link)});
+          rows.push({bookmaker:clean(b.title||b.key),bookmaker_key:clean(b.key),label,price:String(price),point:Number.isFinite(Number(out.point))?Number(out.point):null,link:clean(out.link||m.link||b.link)});
         }
       }
     }
@@ -346,7 +397,8 @@ function populateTennisSelection(){
   if(sportMode!=='Tennis') return;
   const market=clean(marketField()?.value); const [p1,p2]=tennisPlayers();
   if(!market){setSelectionOptions([],'Zuerst Markt auswählen');currentOddsRows=[];renderBookmakerChoices();return}
-  if(apiMarketKey(market)&&window.__biTennisMeta?.api_event_id){
+  const apiKey=apiMarketKey(market);
+  if(apiKey&&window.__biTennisMeta?.api_event_id){
     loadOddsForCurrentMarket(false);
     return;
   }
@@ -400,6 +452,45 @@ function useMeta(meta,statusText){
   setTimeout(populateTennisSelection,0);
   setStatus(statusText,'ok');
 }
+async function loadAvailableApiMarkets(){
+  const meta=window.__biTennisMeta||{};
+  if(!meta.api_event_id||!meta.api_sport_key){
+    availableApiMarketKeys=new Set();
+    availableApiBookmakersByMarket=new Map();
+    resetTennisApiMarketOptions();
+    addTennisMarkets();
+    return;
+  }
+  setStatus('Verfügbare Tennis-Märkte und Buchmacher werden aus der API geladen …');
+  try{
+    const data=await apiRequest('markets',meta.api_sport_key,{event_id:meta.api_event_id});
+    const body=data?.markets||{};
+    const byMarket=new Map();
+    for(const b of (Array.isArray(body.bookmakers)?body.bookmakers:[])){
+      for(const m of (Array.isArray(b.markets)?b.markets:[])){
+        const key=clean(m.key);
+        if(!TENNIS_API_MARKETS[key])continue;
+        if(!byMarket.has(key))byMarket.set(key,new Set());
+        byMarket.get(key).add(clean(b.title||b.key));
+      }
+    }
+    availableApiBookmakersByMarket=byMarket;
+    availableApiMarketKeys=new Set([...byMarket.keys()]);
+    addDynamicApiMarkets(availableApiMarketKeys);
+    const el=marketField();
+    if(el){el.value='';el.dispatchEvent(new Event('change',{bubbles:true}));}
+    const totalBookies=new Set();
+    byMarket.forEach(set=>set.forEach(x=>totalBookies.add(x)));
+    setStatus('✓ '+availableApiMarketKeys.size+' API-Markt'+(availableApiMarketKeys.size===1?'':'märkte')+' von '+totalBookies.size+' Buchmachern für dieses Match verfügbar.','ok');
+  }catch(e){
+    availableApiMarketKeys=new Set();
+    availableApiBookmakersByMarket=new Map();
+    resetTennisApiMarketOptions();
+    addTennisMarkets();
+    setStatus((e.message||'Markt-Liste konnte nicht geladen werden.')+' Manuelle Tennis-Märkte bleiben verfügbar.','error');
+  }
+}
+
 function fillTournaments(items){
   const s=$('biTennisTournamentSelect'); if(!s)return;
   s.innerHTML='<option value="">Turnier auswählen</option>';
@@ -435,7 +526,7 @@ async function loadEvents(){
   }catch(err){setStatus(err.message||'Matches konnten nicht geladen werden.','error')}
 }
 function chooseEvent(){const id=clean($('biTennisEventSelect')?.value);$('biTennisApplyApi').disabled=!id}
-function applyApi(){
+async function applyApi(){
   const ev=eventsById.get(clean($('biTennisEventSelect')?.value));
   if(!ev){setStatus('Bitte zuerst ein Match auswählen.','error');return}
   const p=ev._p||berlinParts(ev.commence_time);
@@ -449,7 +540,10 @@ function applyApi(){
     odds_api_status:'EXTERNAL_API',event_source:'ODDS_API_TENNIS',
     spielart:'Tennis',sportart:'Tennis',wettbewerb:title,home_team:clean(ev.player_one),away_team:clean(ev.player_two)
   };
-  try{useMeta(meta,'✓ API-Match übernommen: '+meta.player_one+' – '+meta.player_two+' · '+p.label)}catch(e){setStatus(e.message,'error')}
+  try{
+    useMeta(meta,'✓ API-Match übernommen: '+meta.player_one+' – '+meta.player_two+' · '+p.label);
+    await loadAvailableApiMarkets();
+  }catch(e){setStatus(e.message,'error')}
 }
 function toggleManual(){
   const p=$('biTennisManualPanel');p.hidden=!p.hidden;
@@ -483,7 +577,7 @@ function setMode(mode){
   if(sportMode==='Tennis'){
     setFootballControlsDisabled(true);showFootballSection(false);addTennisMarkets();bindMarketHandler();mountTennisOddsPanel();
     const oddsWrap=$('biTennisOddsWrap');if(oddsWrap)oddsWrap.hidden=false;
-    $('biSportNote').textContent='🎾 '+VERSION+' · Turnier, Match und verfügbare Buchmacherquoten werden automatisch geladen. Manuelle Eingabe ist nur Fallback.';
+    $('biSportNote').textContent='🎾 '+VERSION+' · Turnier, Match, verfügbare Märkte und Buchmacher werden dynamisch aus der API geladen. Manuelle Eingabe ist nur Fallback.';
     if(!tournamentsLoaded)loadTournaments();
   }else{
     const oddsWrap=$('biTennisOddsWrap');if(oddsWrap)oddsWrap.hidden=true;
