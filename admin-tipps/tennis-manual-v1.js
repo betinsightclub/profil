@@ -278,17 +278,11 @@
   };
 
   const boot=()=>{
+    // Wichtig: bewusst KEIN MutationObserver.
+    // Der frühere Observer reagierte auf DOM-Änderungen, die der Tennis-Modus selbst
+    // auslöst (Markt-Optionen / Auswahl-Helfer). Zusammen mit der Basis-UI konnte
+    // dadurch eine Rückkopplung entstehen und der Browser-Tab beim Klick auf Tennis hängen.
     mount();
-    const mo=new MutationObserver(()=>{
-      mount();
-      if(sportMode==='Tennis'){
-        addTennisMarkets();
-        forceManualTipEntry();
-        const alarm=$('biLiveAlarmOne');
-        if(alarm){alarm.checked=true;alarm.disabled=true;}
-      }
-    });
-    mo.observe(document.body,{childList:true,subtree:true});
   };
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
   else boot();
