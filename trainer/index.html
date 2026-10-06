@@ -2997,7 +2997,10 @@
             else if(error.data&&error.data.error==="LINK_CHECK_REQUIRED")showToast("Bitte den Link-Schalter aktivieren.");
             else if(error.data&&error.data.error==="INVALID_EXTERNAL_URL")showToast("Der Link ist ungültig.");
             else if(error.data&&error.data.error==="BILLING_NOT_CONFIGURED")showToast("Unit-Abrechnung ist noch nicht aktiviert.");
-            else showToast("Beitrag konnte nicht gespeichert werden.");
+            else if(error.data&&error.data.error==="UNIT_SERVICE_INVALID_RESPONSE")showToast("Die Unit-Buchung wurde nicht eindeutig bestätigt. Es wurde nicht automatisch erneut abgebucht.");
+            else if(error.data&&error.data.error==="UNIT_CHARGE_FAILED")showToast("Die Unit-Abbuchung ist fehlgeschlagen. Bitte Guthaben und Buchungsstatus prüfen.");
+            else if(error.data&&error.data.error)showToast("Beitrag nicht gespeichert: "+String(error.data.error).replaceAll("_"," "));
+            else showToast("Beitrag konnte nicht gespeichert werden: "+String(error.message||"unbekannter Fehler"));
             return;
           }
         }
