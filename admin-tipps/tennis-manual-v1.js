@@ -35,9 +35,8 @@
   let eventsById=new Map();
 
   const $=id=>document.getElementById(id);
-  const marketField=()=> $('markt') || $('market') || document.querySelector('[data-field="markt"],[name="markt"],[data-field="market"],[name="market"]');
-  const tipField=()=> $('selection') || $('auswahl') || $('tipp') ||
-    document.querySelector('[data-field="selection"],[name="selection"],[data-field="auswahl"],[name="auswahl"],[data-field="tipp"],[name="tipp"]');
+  const marketField=()=> $('markt') || document.querySelector('[data-field="markt"],[name="markt"]');
+  const tipField=()=> $('tipp') || document.querySelector('[data-field="tipp"],[name="tipp"]');
 
   function bytesToHex(bytes){
     return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
@@ -210,10 +209,7 @@
 
   function setTipSelectOptions(options,placeholder='Bitte auswählen'){
     const tip=tipField();
-    if(!tip){
-      setStatus('Auswahlfeld konnte technisch nicht gebunden werden. Bitte Seite neu laden.','error');
-      return;
-    }
+    if(!tip) return;
     tip.style.display='';
     tip.removeAttribute('readonly');
     if(tip.tagName!=='SELECT'){
