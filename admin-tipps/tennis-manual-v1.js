@@ -198,7 +198,13 @@
 
   function tennisPlayers(){
     const meta=window.__biTennisMeta||{};
-    return [clean(meta.player_one),clean(meta.player_two)].filter(Boolean);
+    let players=[clean(meta.player_one),clean(meta.player_two)].filter(Boolean);
+    if(players.length===2) return players;
+
+    const summary=clean($('gameSummary')?.textContent);
+    const match=summary.match(/^(.+?)\s+[–-]\s+(.+?)(?:\s+·|$)/);
+    if(match) players=[clean(match[1]),clean(match[2])].filter(Boolean);
+    return players;
   }
 
   function setTipSelectOptions(options,placeholder='Bitte auswählen'){
@@ -260,6 +266,19 @@
       }
     }
     return out;
+  }
+
+  let tennisSelectionTimer=0;
+  function scheduleTennisSelection(){
+    if(sportMode!=='Tennis') return;
+    clearTimeout(tennisSelectionTimer);
+    populateTennisSelection();
+    tennisSelectionTimer=setTimeout(()=>{
+      if(sportMode==='Tennis') populateTennisSelection();
+    },60);
+    setTimeout(()=>{
+      if(sportMode==='Tennis') populateTennisSelection();
+    },180);
   }
 
   function populateTennisSelection(){
@@ -364,7 +383,7 @@
     window.__biUseManualEvent(meta);
     addTennisMarkets();
     forceTennisTipEntry();
-    populateTennisSelection();
+    scheduleTennisSelection();
 
     const alarm=$('biLiveAlarmOne');
     if(alarm){
@@ -619,6 +638,7 @@
       setFootballSectionVisible(false);
       addTennisMarkets();
       forceTennisTipEntry();
+      scheduleTennisSelection();
       if(note) note.textContent='🎾 Tennis: Turnier und Match oben auswählen. Spieler, Datum und Uhrzeit werden automatisch übernommen; der Fußball-Bereich wird in diesem Modus ausgeblendet.';
       if(!tournamentsLoaded) loadTournaments(false);
     }else{
@@ -681,8 +701,14 @@
     wrap.querySelectorAll('[data-bi-sport-btn]').forEach(btn=>btn.addEventListener('click',()=>setMode(btn.dataset.biSportBtn)));
     $('biTennisTournamentSelect')?.addEventListener('change',loadEvents);
     marketField()?.addEventListener('change',()=>{
-      if(sportMode==='Tennis') populateTennisSelection();
-    });
+      if(sportMode==='Tennis') scheduleTennisSelection();
+    },true);
+
+    document.addEventListener('change',event=>{
+      if(sportMode!=='Tennis') return;
+      const market=marketField();
+      if(event.target===market) scheduleTennisSelection();
+    },true);
     $('biTennisEventSelect')?.addEventListener('change',chooseEvent);
     $('biTennisApplyApi')?.addEventListener('click',applyApiTennis);
     $('biTennisRefresh')?.addEventListener('click',()=>{
@@ -780,6 +806,13 @@
         setFootballSectionVisible(false);
         addTennisMarkets();
         forceTennisTipEntry();
+
+        const market=clean(marketField()?.value);
+        const tip=tipField();
+        const placeholder=clean(tip?.selectedOptions?.[0]?.textContent||tip?.value);
+        const baseReset=/^Zuerst Markt auswählen$/i.test(placeholder) || (market && tip && tip.options && tip.options.length<=1);
+        if(baseReset) scheduleTennisSelection();
+
         const alarm=$('biLiveAlarmOne');
         if(alarm){alarm.checked=true;alarm.disabled=true;}
       }else{
