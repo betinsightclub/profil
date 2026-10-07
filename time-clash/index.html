@@ -1998,6 +1998,124 @@ renderStadiumChooser();$("#pause").onclick=()=>{paused=!paused;$("#pause").textC
  else if(h==="#match-lab")setMode("lab",false);
  else if(h==="#fortschritt")setMode("progress",false);
 })();
+</script><script id="tcPenaltyBridgeP1">
+(function(){
+ const qp=new URLSearchParams(location.search);
+ if(qp.get("penaltyBridge")!=="1")return;
+
+ const CHILD_URL="https://betinsight.club/play/v21/?bridge=1&build=20261007-p1";
+ const CHILD_ORIGIN="https://betinsight.club";
+ const lang=(typeof TC_DISPLAY_LANG!=="undefined"?TC_DISPLAY_LANG:(qp.get("lang")||"de")).toLowerCase();
+ const COPY={
+  de:{button:"⚽ NUR ELFMETERSCHIESSEN · PHASE 1",hint:"Testbrücke: aktuelle Teams, Kader, Torhüter und Stadion direkt an Penalty Clash übergeben.",title:"TIME CLASH → PENALTY CLASH",waiting:"Penalty Clash wird verbunden …",needTeams:"Bitte zuerst zwei Mannschaften auswählen.",needStadium:"Bitte zuerst ein Stadion auswählen.",needRoster:"Für beide Teams muss ein vollständiger Kader verfügbar sein.",received:"Ergebnis zurück in TIME CLASH übernommen",close:"Schließen ×"},
+  en:{button:"⚽ PENALTIES ONLY · PHASE 1",hint:"Test bridge: send the current teams, squads, goalkeepers and stadium directly to Penalty Clash.",title:"TIME CLASH → PENALTY CLASH",waiting:"Connecting Penalty Clash …",needTeams:"Please select two teams first.",needStadium:"Please select a stadium first.",needRoster:"A complete squad must be available for both teams.",received:"Result returned to TIME CLASH",close:"Close ×"},
+  es:{button:"⚽ SOLO PENALTIS · FASE 1",hint:"Puente de prueba: envía equipos, plantillas, porteros y estadio directamente a Penalty Clash.",title:"TIME CLASH → PENALTY CLASH",waiting:"Conectando Penalty Clash …",needTeams:"Primero selecciona dos equipos.",needStadium:"Primero selecciona un estadio.",needRoster:"Ambos equipos necesitan una plantilla completa.",received:"Resultado devuelto a TIME CLASH",close:"Cerrar ×"},
+  fr:{button:"⚽ TIRS AU BUT UNIQUEMENT · PHASE 1",hint:"Pont de test : équipes, effectifs, gardiens et stade sont envoyés directement à Penalty Clash.",title:"TIME CLASH → PENALTY CLASH",waiting:"Connexion à Penalty Clash …",needTeams:"Choisis d’abord deux équipes.",needStadium:"Choisis d’abord un stade.",needRoster:"Un effectif complet doit être disponible pour les deux équipes.",received:"Résultat renvoyé dans TIME CLASH",close:"Fermer ×"},
+  it:{button:"⚽ SOLO RIGORI · FASE 1",hint:"Ponte di test: squadre, rose, portieri e stadio vengono inviati direttamente a Penalty Clash.",title:"TIME CLASH → PENALTY CLASH",waiting:"Connessione a Penalty Clash …",needTeams:"Seleziona prima due squadre.",needStadium:"Seleziona prima uno stadio.",needRoster:"Per entrambe le squadre deve essere disponibile una rosa completa.",received:"Risultato restituito a TIME CLASH",close:"Chiudi ×"},
+  pt:{button:"⚽ APENAS PENÁLTIS · FASE 1",hint:"Ponte de teste: equipas, plantéis, guarda-redes e estádio são enviados diretamente para Penalty Clash.",title:"TIME CLASH → PENALTY CLASH",waiting:"A ligar ao Penalty Clash …",needTeams:"Escolhe primeiro duas equipas.",needStadium:"Escolhe primeiro um estádio.",needRoster:"As duas equipas precisam de um plantel completo.",received:"Resultado devolvido ao TIME CLASH",close:"Fechar ×"},
+  nl:{button:"⚽ ALLEEN STRAFSCHOPPEN · FASE 1",hint:"Testbrug: huidige teams, selecties, keepers en stadion rechtstreeks naar Penalty Clash.",title:"TIME CLASH → PENALTY CLASH",waiting:"Penalty Clash wordt gekoppeld …",needTeams:"Kies eerst twee teams.",needStadium:"Kies eerst een stadion.",needRoster:"Voor beide teams moet een volledige selectie beschikbaar zijn.",received:"Resultaat teruggestuurd naar TIME CLASH",close:"Sluiten ×"},
+  "zh-tw":{button:"⚽ 只進行十二碼 · 第一階段",hint:"測試橋接：把目前球隊、名單、守門員與球場直接交給 Penalty Clash。",title:"TIME CLASH → PENALTY CLASH",waiting:"正在連接 Penalty Clash…",needTeams:"請先選擇兩支球隊。",needStadium:"請先選擇球場。",needRoster:"兩支球隊都必須有完整名單。",received:"結果已回傳 TIME CLASH",close:"關閉 ×"}
+ };
+ const T=COPY[lang]||COPY.de;
+ let frame=null,overlay=null,lastPayload=null,lastResult=null;
+
+ const style=document.createElement("style");
+ style.textContent=`
+ .tcPenaltyP1Wrap{margin:12px 16px 18px;padding:13px;border:1px solid #2f7395;border-radius:14px;background:linear-gradient(135deg,#061a27,#082b3c);text-align:center}
+ .tcPenaltyP1Wrap button{border:1px solid #f7c64e;background:linear-gradient(135deg,#f7c64e,#e6ad2e);color:#10202a;border-radius:11px;padding:12px 18px;font-weight:1000;cursor:pointer}
+ .tcPenaltyP1Wrap small{display:block;margin-top:8px;color:#91adba;line-height:1.4}
+ .tcPenaltyP1Status{margin-top:8px;color:#74d9ff;font-weight:800;font-size:12px}
+ .tcPenaltyBridgeOverlay{position:fixed;inset:0;z-index:999999;background:#020a10ee;backdrop-filter:blur(10px);padding:14px;display:grid;place-items:center}
+ .tcPenaltyBridgeShell{width:min(1500px,98vw);height:min(920px,96vh);background:#03131d;border:1px solid #2b6685;border-radius:18px;overflow:hidden;box-shadow:0 30px 100px #000b;display:grid;grid-template-rows:auto 1fr}
+ .tcPenaltyBridgeHead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid #1e4c64;background:#061b28}
+ .tcPenaltyBridgeHead b{color:#f7c64e}.tcPenaltyBridgeHead span{color:#8fb2c2;font-size:12px;margin-left:10px}
+ .tcPenaltyBridgeHead button{border:1px solid #315d73;background:#082638;color:#fff;border-radius:9px;padding:8px 11px;font-weight:900;cursor:pointer}
+ .tcPenaltyBridgeFrame{width:100%;height:100%;border:0;background:#020d14}
+ @media(max-width:700px){.tcPenaltyBridgeOverlay{padding:0}.tcPenaltyBridgeShell{width:100vw;height:100vh;border-radius:0}.tcPenaltyBridgeHead span{display:none}}
+ `;
+ document.head.appendChild(style);
+
+ function uiStatus(msg,isError=false){
+   const el=document.getElementById("tcPenaltyP1Status");
+   if(el){el.textContent=msg;el.style.color=isError?"#ff788a":"#74d9ff"}
+ }
+ function toPenaltyTeam(side){
+   const team=side==="A"?TA:TB;
+   const raw=(typeof squad==="function"?squad(side):[]).map((p,i)=>typeof normalizePlayer==="function"?normalizePlayer(p,i):p);
+   const keepers=raw.filter(p=>String(p.prole||p.role||"")==="Torwart").sort((a,b)=>Number(b.strength||0)-Number(a.strength||0));
+   const activeKeeper=(typeof startingLineup==="function"?startingLineup(side):[]).find(p=>String(p.prole||p.role||"")==="Torwart")||keepers[0];
+   const field=raw.filter(p=>String(p.prole||p.role||"")!=="Torwart").sort((a,b)=>{
+     const wb=typeof playerWeight==="function"?playerWeight(b,"penalty"):Number(b.strength||0);
+     const wa=typeof playerWeight==="function"?playerWeight(a,"penalty"):Number(a.strength||0);
+     return wb-wa;
+   });
+   const fallbackStrength=Math.max(8,Math.min(22,Math.round(8+(Number(team.rating||75)-65)*.5)));
+   return{
+     id:String(team.name||side).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""),
+     name:team.name,
+     nation:team.base||team.name,
+     flag:team.flag||"⚽",
+     rating:Number(team.rating||75),
+     keeper:{id:activeKeeper?.id||null,name:activeKeeper?.name||"Torwart",club:team.name,strength:Number(activeKeeper?.strength||fallbackStrength)},
+     shooters:field.map(p=>({id:p.id||null,name:p.name||"Spieler",strength:Number(p.strength||fallbackStrength),role:p.prole||p.role||"Feldspieler"}))
+   };
+ }
+ function buildPayload(reason="direct"){
+   if(!chosenA||!chosenB||!TA?.name||!TB?.name)throw new Error(T.needTeams);
+   if(!selectedStartStadium)throw new Error(T.needStadium);
+   if((typeof rosterReady==="function")&&(!rosterReady("A")||!rosterReady("B")))throw new Error(T.needRoster);
+   return{
+     protocol:"betinsight-penalty-v1",
+     context_id:(crypto.randomUUID?crypto.randomUUID():"tc-"+Date.now()+"-"+Math.random().toString(36).slice(2)),
+     reason,
+     language:lang,
+     source_origin:location.origin,
+     stadium_id:selectedStartStadium,
+     team_a:toPenaltyTeam("A"),
+     team_b:toPenaltyTeam("B")
+   };
+ }
+ function closeOverlay(){
+   if(overlay){overlay.remove();overlay=null;frame=null}
+ }
+ function sendInit(){
+   if(frame?.contentWindow&&lastPayload)frame.contentWindow.postMessage({type:"betinsight:penalty-init",payload:lastPayload},CHILD_ORIGIN);
+ }
+ function launch(reason="direct"){
+   try{lastPayload=buildPayload(reason)}catch(err){uiStatus(String(err.message||err),true);return}
+   closeOverlay();
+   overlay=document.createElement("div");overlay.className="tcPenaltyBridgeOverlay";
+   overlay.innerHTML='<div class="tcPenaltyBridgeShell"><div class="tcPenaltyBridgeHead"><div><b>'+T.title+'</b><span id="tcPenaltyBridgeHeadStatus">'+T.waiting+'</span></div><button type="button" id="tcPenaltyBridgeClose">'+T.close+'</button></div><iframe class="tcPenaltyBridgeFrame" title="Penalty Clash"></iframe></div>';
+   document.body.appendChild(overlay);
+   frame=overlay.querySelector("iframe");
+   document.getElementById("tcPenaltyBridgeClose").onclick=closeOverlay;
+   overlay.addEventListener("click",e=>{if(e.target===overlay)closeOverlay()});
+   frame.addEventListener("load",()=>setTimeout(sendInit,80),{once:true});
+   frame.src=CHILD_URL+"&context="+encodeURIComponent(lastPayload.context_id);
+   uiStatus(T.waiting);
+ }
+ addEventListener("message",e=>{
+   if(e.origin!==CHILD_ORIGIN||!frame||e.source!==frame.contentWindow)return;
+   if(e.data?.type==="betinsight:penalty-ready"){sendInit();return}
+   if(e.data?.type==="betinsight:penalty-close"){closeOverlay();return}
+   if(e.data?.type==="betinsight:penalty-result"){
+     const r=e.data.payload;
+     if(!r||r.protocol!=="betinsight-penalty-v1"||r.context_id!==lastPayload?.context_id)return;
+     lastResult=r;window.__TC_LAST_PENALTY_RESULT=r;
+     const msg=T.received+": "+r.team_a+" "+r.penalties_a+":"+r.penalties_b+" "+r.team_b+" · "+r.winner;
+     uiStatus(msg);
+     const hs=document.getElementById("tcPenaltyBridgeHeadStatus");if(hs)hs.textContent=msg;
+   }
+ });
+ const pick=document.querySelector(".pick");
+ if(pick){
+   const wrap=document.createElement("div");wrap.className="tcPenaltyP1Wrap";
+   wrap.innerHTML='<button type="button" id="tcPenaltyOnlyP1">'+T.button+'</button><small>'+T.hint+'</small><div class="tcPenaltyP1Status" id="tcPenaltyP1Status">PHASE 1 · postMessage bridge · no Make</div>';
+   pick.insertAdjacentElement("afterend",wrap);
+   document.getElementById("tcPenaltyOnlyP1").onclick=()=>launch("direct");
+ }
+ window.tcLaunchPenaltyBridgeP1=launch;
+})();
 </script><script src="../assets/session-reconnect.js?v=20260930-1" defer></script>
 </body></html>
 <style>@media(max-width:700px){.brand{width:220px;height:56px}.brand img{width:210px;height:52px;max-width:none;transform:scale(2.7);transform-origin:left center}}
