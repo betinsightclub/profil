@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>BetInsight · Community Feed</title>
+  <link rel="icon" href="../favicon.ico">
+  <link rel="stylesheet" href="../assets/app-navigation.css?v=20260930-headerfix-1">
+  <style>
+    :root{
+      --bg:#06141d;--panel:#0b2230;--panel2:#0d2735;--line:rgba(143,203,230,.16);
+      --line2:rgba(143,203,230,.28);--text:#f4fbff;--muted:#9fb7c3;--blue:#1687ff;
+      --green:#16d69d;--gold:#f3c95c;--shadow:0 22px 70px rgba(0,0,0,.30);--max:1120px
+    }
+    *{box-sizing:border-box}
+    html{background:var(--bg)}
+    body{margin:0;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:
+      radial-gradient(circle at 10% 0,rgba(22,135,255,.12),transparent 28rem),
+      radial-gradient(circle at 90% 15%,rgba(22,214,157,.06),transparent 26rem),var(--bg);min-height:100vh}
+    button,input{font:inherit}
+    a{color:inherit}
+    .appbar{position:sticky;top:0;z-index:80;background:rgba(3,20,29,.90);border-bottom:1px solid rgba(255,255,255,.08);backdrop-filter:blur(16px)}
+    .appbar-inner{width:min(calc(100% - 28px),var(--max));min-height:68px;margin:auto;display:flex;align-items:center;gap:14px}
+    .brand{display:flex;align-items:center;text-decoration:none}
+    .brand img{width:128px;height:auto}
+    .page-label{margin-left:auto;color:#b8ccd6;font-size:13px;font-weight:800}
+    .profile-btn{border:1px solid rgba(143,203,230,.22);background:rgba(255,255,255,.05);color:#eef9ff;border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer}
+    .profile-btn:hover{background:rgba(255,255,255,.08);border-color:var(--line2)}
+    main{width:min(calc(100% - 28px),var(--max));margin:18px auto 56px}
+    .hero{border:1px solid var(--line);border-radius:22px;background:linear-gradient(145deg,rgba(13,39,53,.96),rgba(5,24,34,.96));padding:26px;box-shadow:var(--shadow)}
+    .kicker{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#70c9ff;font-weight:950}
+    h1{margin:7px 0 9px;font-size:clamp(30px,4vw,48px);line-height:1}
+    .lead{margin:0;color:#b7cad4;line-height:1.6;max-width:800px}
+    .toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:18px}
+    .live{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:#c8f4df;font-weight:850}
+    .live:before{content:"";width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 13px rgba(22,214,157,.75)}
+    .refresh{margin-left:auto;border:1px solid var(--line);background:rgba(255,255,255,.04);color:#dff5ff;border-radius:10px;padding:8px 11px;font-weight:850;cursor:pointer}
+    .refresh:hover{background:rgba(255,255,255,.08)}
+    .notice{margin:14px 0 0;padding:11px 13px;border:1px solid rgba(72,215,255,.15);border-radius:12px;background:rgba(72,215,255,.035);color:#91afbb;font-size:12px;line-height:1.5}
+    .feed{display:grid;gap:16px;margin-top:18px}
+    .state{padding:26px;border:1px dashed rgba(255,255,255,.14);border-radius:17px;text-align:center;color:#9bb2bf;background:rgba(255,255,255,.025)}
+    .post{border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.025));box-shadow:0 14px 38px rgba(0,0,0,.18);overflow:hidden}
+    .post-inner{padding:18px}
+    .post-head{display:flex;align-items:center;gap:12px}
+    .avatar{width:48px;height:48px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:#173a4b;border:2px solid rgba(143,203,230,.24);font-weight:950;flex:0 0 auto}
+    .avatar img{width:100%;height:100%;object-fit:cover}
+    .author-link{display:flex;align-items:center;gap:12px;text-decoration:none;min-width:0}
+    .author{min-width:0}
+    .author strong{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .author small{display:block;color:#8ca7b4;font-size:11px;margin-top:2px}
+    .rank{margin-left:auto;border:1px solid var(--line);border-radius:999px;padding:6px 9px;font-size:11px;font-weight:900;white-space:nowrap}
+    .body{margin-top:14px;white-space:pre-wrap;color:#e5f0f5;line-height:1.6;font-size:14px}
+    .media{margin-top:14px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#03141d}
+    .media img{display:block;width:100%;max-height:620px;object-fit:contain;background:#03141d}
+    .external{display:inline-flex;margin-top:12px;color:#87ddff;font-size:12px;font-weight:850;word-break:break-all}
+    .post-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding:11px 18px;color:#8fa9b7;font-size:12px}
+    .scope{color:#8fd3ff;font-weight:850}
+    @media(max-width:760px){
+      .page-label{display:none}.profile-btn{padding:9px 10px;font-size:12px}.hero{padding:20px}
+      .rank{display:none}.post-inner{padding:15px}.post-foot{flex-direction:column;align-items:flex-start}
+    }
+  </style>
+  <script src="../assets/app-navigation-v2.js?v=20261007-feedfix-2" defer></script>
+</head>
+<body>
+<header class="appbar">
+  <div class="appbar-inner">
+    <a class="brand" href="../"><img src="../logo_betisight.club.png" alt="BetInsight.club"></a>
+    <span class="page-label" data-copy="pageLabel">TIME CLASH · Community Feed</span>
+    <button class="profile-btn" id="myProfileBtn" type="button" data-copy="myProfile">Mein Trainerprofil</button>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="kicker">BETINSIGHT COMMUNITY</div>
+    <h1 data-copy="title">Community Feed</h1>
+    <p class="lead" data-copy="lead">Alle global veröffentlichten Beiträge unserer Trainer und Mannschaften – innerhalb deines eingeloggten BetInsight-Bereichs.</p>
+    <div class="toolbar">
+      <span class="live" data-copy="live">Live aus der Community</span>
+      <button class="refresh" id="refreshBtn" type="button" data-copy="refresh">Aktualisieren</button>
+    </div>
+    <div class="notice" data-copy="notice">Hier siehst du ausschließlich Beiträge, die global veröffentlicht wurden. Dein Login bleibt aktiv.</div>
+  </section>
+
+  <section class="feed" id="feed">
+    <div class="state" data-copy="loading">Community Feed wird geladen …</div>
+  </section>
+</main>
+
+<script>
+"use strict";
+const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/community-api";
+const SUPPORTED=["de","en","es","fr","it","pt","nl","zh-tw"];
+const COPY={
+  de:{pageLabel:"TIME CLASH · Community Feed",myProfile:"Mein Trainerprofil",title:"Community Feed",lead:"Alle global veröffentlichten Beiträge unserer Trainer und Mannschaften – innerhalb deines eingeloggten BetInsight-Bereichs.",live:"Live aus der Community",refresh:"Aktualisieren",notice:"Hier siehst du ausschließlich Beiträge, die global veröffentlicht wurden. Dein Login bleibt aktiv.",loading:"Community Feed wird geladen …",empty:"Noch keine globalen Beiträge veröffentlicht.",error:"Der Community Feed konnte gerade nicht geladen werden.",team:"Mannschaft",trainer:"Trainer",global:"GLOBAL · COMMUNITY",reactions:"Reaktionen",comments:"Kommentare"},
+  en:{pageLabel:"TIME CLASH · Community Feed",myProfile:"My coach profile",title:"Community Feed",lead:"All globally published posts from our coaches and teams – inside your signed-in BetInsight area.",live:"Live from the community",refresh:"Refresh",notice:"Only globally published posts are shown here. You remain signed in.",loading:"Loading Community Feed …",empty:"No global posts have been published yet.",error:"The Community Feed could not be loaded right now.",team:"Team",trainer:"Coach",global:"GLOBAL · COMMUNITY",reactions:"Reactions",comments:"Comments"},
+  es:{pageLabel:"TIME CLASH · Feed de la comunidad",myProfile:"Mi perfil de entrenador",title:"Feed de la comunidad",lead:"Todas las publicaciones globales de nuestros entrenadores y equipos dentro de tu área BetInsight iniciada.",live:"En directo desde la comunidad",refresh:"Actualizar",notice:"Aquí solo ves publicaciones globales. Tu sesión permanece activa.",loading:"Cargando el feed de la comunidad …",empty:"Aún no se han publicado entradas globales.",error:"No se pudo cargar el feed de la comunidad.",team:"Equipo",trainer:"Entrenador",global:"GLOBAL · COMUNIDAD",reactions:"Reacciones",comments:"Comentarios"},
+  fr:{pageLabel:"TIME CLASH · Fil de la communauté",myProfile:"Mon profil d’entraîneur",title:"Fil de la communauté",lead:"Toutes les publications globales de nos entraîneurs et équipes dans votre espace BetInsight connecté.",live:"En direct de la communauté",refresh:"Actualiser",notice:"Seules les publications globales sont affichées ici. Vous restez connecté.",loading:"Chargement du fil de la communauté …",empty:"Aucune publication globale pour le moment.",error:"Le fil de la communauté ne peut pas être chargé.",team:"Équipe",trainer:"Entraîneur",global:"GLOBAL · COMMUNAUTÉ",reactions:"Réactions",comments:"Commentaires"},
+  it:{pageLabel:"TIME CLASH · Feed della community",myProfile:"Il mio profilo allenatore",title:"Feed della community",lead:"Tutti i post pubblicati globalmente da allenatori e squadre, all’interno della tua area BetInsight connessa.",live:"Live dalla community",refresh:"Aggiorna",notice:"Qui vedi solo i post globali. Resti connesso.",loading:"Caricamento del feed della community …",empty:"Non sono ancora stati pubblicati post globali.",error:"Al momento non è possibile caricare il feed della community.",team:"Squadra",trainer:"Allenatore",global:"GLOBAL · COMMUNITY",reactions:"Reazioni",comments:"Commenti"},
+  pt:{pageLabel:"TIME CLASH · Feed da comunidade",myProfile:"Meu perfil de treinador",title:"Feed da comunidade",lead:"Todas as publicações globais dos nossos treinadores e equipas dentro da tua área BetInsight autenticada.",live:"Ao vivo da comunidade",refresh:"Atualizar",notice:"Aqui vês apenas publicações globais. Continuas autenticado.",loading:"A carregar o feed da comunidade …",empty:"Ainda não existem publicações globais.",error:"Não foi possível carregar o feed da comunidade.",team:"Equipa",trainer:"Treinador",global:"GLOBAL · COMUNIDADE",reactions:"Reações",comments:"Comentários"},
+  nl:{pageLabel:"TIME CLASH · Community Feed",myProfile:"Mijn trainerprofiel",title:"Community Feed",lead:"Alle wereldwijd gepubliceerde berichten van trainers en teams binnen je ingelogde BetInsight-omgeving.",live:"Live uit de community",refresh:"Vernieuwen",notice:"Hier zie je alleen wereldwijde berichten. Je blijft ingelogd.",loading:"Community Feed wordt geladen …",empty:"Er zijn nog geen wereldwijde berichten.",error:"De Community Feed kan momenteel niet worden geladen.",team:"Team",trainer:"Trainer",global:"GLOBAL · COMMUNITY",reactions:"Reacties",comments:"Reacties"},
+  "zh-tw":{pageLabel:"TIME CLASH · 社群動態",myProfile:"我的教練個人檔案",title:"社群動態",lead:"在已登入的 BetInsight 區域中查看所有教練與球隊的全球公開貼文。",live:"社群即時動態",refresh:"重新整理",notice:"這裡只顯示全球公開貼文，你仍保持登入狀態。",loading:"正在載入社群動態…",empty:"目前尚無全球公開貼文。",error:"目前無法載入社群動態。",team:"球隊",trainer:"教練",global:"全球 · 社群",reactions:"反應",comments:"留言"}
+};
+let lang="de",postsCache=[];
+
+function currentLanguage(){
+  const q=new URLSearchParams(location.search).get("lang");
+  if(SUPPORTED.includes(q)) return q;
+  try{
+    const s=localStorage.getItem("betinsight_language");
+    if(SUPPORTED.includes(s)) return s;
+  }catch(_e){}
+  const h=(navigator.language||"de").toLowerCase();
+  if(h.startsWith("zh")) return "zh-tw";
+  const short=h.split("-")[0];
+  return SUPPORTED.includes(short)?short:"de";
+}
+function t(k){return (COPY[lang]||COPY.de)[k]||COPY.de[k]||k}
+function applyCopy(){
+  document.documentElement.lang=lang;
+  document.querySelectorAll("[data-copy]").forEach(el=>{const key=el.dataset.copy;if(t(key))el.textContent=t(key)});
+}
+function esc(v){
+  return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+}
+function initials(name){
+  return String(name||"TR").split(/\s+/).filter(Boolean).slice(0,2).map(x=>(x[0]||"").toUpperCase()).join("")||"TR";
+}
+function rankFromWins(w){
+  const n=Number(w||0);
+  if(n>=200)return {icon:"🏆",label:"Elite"};
+  if(n>=100)return {icon:"💠",label:"Platin"};
+  if(n>=50)return {icon:"🥇",label:"Gold"};
+  if(n>=30)return {icon:"🥈",label:"Silber"};
+  if(n>=5)return {icon:"🥉",label:"Bronze"};
+  return {icon:"⚽",label:"Startliga"};
+}
+function localDate(v){
+  try{return new Intl.DateTimeFormat(lang==="zh-tw"?"zh-TW":lang,{dateStyle:"medium",timeStyle:"short"}).format(new Date(v))}
+  catch(_e){return ""}
+}
+function profileHref(post){
+  if(!post.public_slug)return "../trainer/";
+  const u=new URL("../trainer/",location.href);
+  u.searchParams.set("p",post.public_slug);
+  u.searchParams.set("lang",lang);
+  return u.pathname+"?"+u.searchParams.toString();
+}
+function renderPosts(posts){
+  postsCache=Array.isArray(posts)?posts:[];
+  const box=document.getElementById("feed");
+  box.innerHTML="";
+  if(!postsCache.length){box.innerHTML='<div class="state">'+esc(t("empty"))+'</div>';return}
+  postsCache.forEach(post=>{
+    const article=document.createElement("article");article.className="post";
+    const inner=document.createElement("div");inner.className="post-inner";article.appendChild(inner);
+    const head=document.createElement("div");head.className="post-head";inner.appendChild(head);
+    const link=document.createElement("a");link.className="author-link";link.href=profileHref(post);head.appendChild(link);
+    const avatar=document.createElement("div");avatar.className="avatar";
+    if(post.author_avatar_url){const img=document.createElement("img");img.src=post.author_avatar_url;img.alt="";img.loading="lazy";avatar.appendChild(img)}
+    else avatar.textContent=initials(post.author||t("trainer"));
+    link.appendChild(avatar);
+    const author=document.createElement("div");author.className="author";
+    const strong=document.createElement("strong");strong.textContent=post.author||t("trainer");author.appendChild(strong);
+    const small=document.createElement("small");small.textContent=(post.team_name||t("team"))+" · "+localDate(post.created_at);author.appendChild(small);
+    link.appendChild(author);
+    const rank=rankFromWins(post.author_wins);const badge=document.createElement("span");badge.className="rank";badge.textContent=rank.icon+" "+rank.label;head.appendChild(badge);
+    const body=document.createElement("div");body.className="body";body.textContent=post.body||"";inner.appendChild(body);
+    if(post.media&&post.media.public_url){
+      const media=document.createElement("div");media.className="media";const img=document.createElement("img");img.src=post.media.public_url;img.alt="";img.loading="lazy";media.appendChild(img);inner.appendChild(media);
+    }
+    if(post.external_url){
+      const a=document.createElement("a");a.className="external";a.href=post.external_url;a.target="_blank";a.rel="noopener noreferrer nofollow";a.textContent=post.external_url;inner.appendChild(a);
+    }
+    const foot=document.createElement("div");foot.className="post-foot";
+    const counts=document.createElement("span");counts.textContent="♡ "+(Array.isArray(post.reactions)?post.reactions.length:0)+" · 💬 "+(Array.isArray(post.comments)?post.comments.length:0);foot.appendChild(counts);
+    const scope=document.createElement("span");scope.className="scope";scope.textContent=t("global");foot.appendChild(scope);
+    article.appendChild(foot);box.appendChild(article);
+  });
+}
+async function loadFeed(){
+  const box=document.getElementById("feed");
+  box.innerHTML='<div class="state">'+esc(t("loading"))+'</div>';
+  try{
+    const r=await fetch(API+"?action=feed&scope=global",{cache:"no-store",credentials:"omit",headers:{Accept:"application/json"}});
+    const d=await r.json();
+    if(!r.ok||d.ok!==true||!Array.isArray(d.posts))throw new Error("feed");
+    renderPosts(d.posts);
+  }catch(e){
+    console.error("Community Feed",e);
+    box.innerHTML='<div class="state">'+esc(t("error"))+'</div>';
+  }
+}
+lang=currentLanguage();applyCopy();loadFeed();
+
+document.getElementById("refreshBtn").addEventListener("click",loadFeed);
+document.getElementById("myProfileBtn").addEventListener("click",()=>location.assign("../trainer/"));
+window.addEventListener("bi:languagechange",event=>{
+  const next=event&&event.detail&&event.detail.language;
+  if(SUPPORTED.includes(next)){lang=next;applyCopy();renderPosts(postsCache)}
+});
+</script>
+<script src="../assets/session-reconnect.js?v=20260930-1" defer></script>
+</body>
+</html>
