@@ -1,0 +1,33 @@
+name: TIME CLASH branding guard
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "time-clash/assets/branding/time-clash-wordmark-clean-1024.png"
+      - ".github/workflows/time-clash-branding-guard.yml"
+  pull_request:
+    paths:
+      - "time-clash/assets/branding/time-clash-wordmark-clean-1024.png"
+      - ".github/workflows/time-clash-branding-guard.yml"
+
+jobs:
+  verify-approved-wordmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify approved TIME CLASH wordmark
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE="time-clash/assets/branding/time-clash-wordmark-clean-1024.png"
+          EXPECTED_BLOB="7fe2268d8c9642c569b9fb1bddd05f7485cd1d8a"
+          test -f "$FILE" || { echo "::error::Approved TIME CLASH wordmark is missing."; exit 1; }
+          ACTUAL_BLOB="$(git hash-object "$FILE")"
+          echo "Expected blob: $EXPECTED_BLOB"
+          echo "Actual blob:   $ACTUAL_BLOB"
+          if [ "$ACTUAL_BLOB" != "$EXPECTED_BLOB" ]; then
+            echo "::error::TIME CLASH branding asset changed. Only the approved clean wordmark may be used. Do not replace it with a regenerated, duplicated, overlaid or altered BetInsight logo."
+            exit 1
+          fi
+          echo "Approved TIME CLASH wordmark verified."
