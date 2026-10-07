@@ -2813,6 +2813,7 @@
         var url=new URL("/time-clash/mein-team/",location.origin);
         url.searchParams.set("edit","coach");
         url.searchParams.set("lang",trainerLanguage||"de");
+        url.searchParams.set("v","20261007-coach-save-fix2");
         document.getElementById("profileEditModal").classList.remove("show");
         location.assign(url.pathname+"?"+url.searchParams.toString());
       });
