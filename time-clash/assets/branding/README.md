@@ -6,3 +6,12 @@ Approved web branding assets (2026-09-29).
 - `time-clash-seal-stamp.png` — supporting seal/stamp for homepage banners, cards and promotional modules.
 
 Usage rule: use the 1024 px clean wordmark directly and only scale it down in CSS. Do not upscale a reduced derivative and do not use transform scaling.
+
+
+## Locked production asset
+
+Approved Git blob: `7fe2268d8c9642c569b9fb1bddd05f7485cd1d8a`
+
+This production wordmark is locked by `.github/workflows/time-clash-branding-guard.yml`.
+Do not replace it with regenerated artwork, duplicate BetInsight lettering, overlays, shadows, or modified logos.
+Any intentional replacement requires a new visually approved master asset and a deliberate update of both this record and the guard.
