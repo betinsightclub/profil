@@ -196,7 +196,15 @@
       case "time-clash-team": navigateProtected("time-clash/mein-team"); break;
       case "time-clash-trainer": navigateProtected("trainer"); break;
       case "time-clash-ranking": navigateProtected("time-clash/rangliste"); break;
-      case "time-clash-feed": window.location.assign("https://betinsight.club/trainer-feed/"); break;
+      case "time-clash-feed": {
+        if (!requireDashboardAccess()) break;
+        const target = new URL(session().appPath("trainer"), window.location.origin);
+        target.searchParams.set("feed","global");
+        const language = i18n()?.getLanguage?.();
+        if (language) target.searchParams.set("lang", language);
+        window.location.assign(target.pathname + target.search);
+        break;
+      }
       case "time-clash-credits": navigateProtected("clash-token-tausch"); break;
       case "kaufen": navigateProtected("pakete"); break;
       case "wechselboerse": navigateProtected("wechselboerse"); break;
@@ -245,7 +253,11 @@
     if (first === "time-clash" && second === "mein-team") return "time-clash-team";
     if (first === "time-clash" && second === "rangliste") return "time-clash-ranking";
     if (first === "time-clash") return "time-clash";
-    if (first === "trainer") return "time-clash-trainer";
+    if (first === "trainer") {
+      return new URLSearchParams(window.location.search).get("feed")==="global"
+        ? "time-clash-feed"
+        : "time-clash-trainer";
+    }
     if (first === "clash-token-tausch") return "time-clash-credits";
     const known = ["daily","fan-challenge","tipps","freigeschaltet","wechselboerse","verkaufen","meine-verkaufsangebote","wallet","anbieter","ressourcen","marketing-center","support"];
     return known.includes(first) ? first : "dashboard";

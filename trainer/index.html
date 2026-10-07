@@ -1362,7 +1362,7 @@
       var selectedImageData = "";
       var selectedDistributionScope = "PROFILE";
       var globalPricingState = null;
-      var feedMode = "profile";
+      var feedMode = params.get("feed")==="global" ? "global" : "profile";
       var postLinkEnabled = false;
       var storageKey = "betinsight_trainer_posts";
       var safeReturnUrl = memberCredential ? "/time-clash/" : "https://betinsight.club/de/time-clash/community/";
@@ -2294,6 +2294,18 @@
         }
       }
 
+      function feedViewText(key){
+        var all={
+          de:{note:"Community-Feed · Hier erscheinen ausschließlich global veröffentlichte Beiträge aller Trainer.",empty:"Noch keine globalen Trainer-Feed-Beiträge veröffentlicht."},
+          en:{note:"Community feed · Only globally published posts from all coaches appear here.",empty:"No global coach-feed posts have been published yet."},
+          es:{note:"Feed de la comunidad · Aquí aparecen únicamente las publicaciones globales de todos los entrenadores.",empty:"Todavía no se han publicado entradas globales en el feed de entrenadores."},
+          fr:{note:"Fil de la communauté · Seules les publications globales de tous les entraîneurs apparaissent ici.",empty:"Aucune publication globale des entraîneurs n’a encore été publiée."},
+          it:{note:"Feed della community · Qui compaiono solo i post pubblicati globalmente da tutti gli allenatori.",empty:"Non sono ancora stati pubblicati post globali nel feed allenatori."},
+          pt:{note:"Feed da comunidade · Aqui aparecem apenas publicações globais de todos os treinadores.",empty:"Ainda não existem publicações globais no feed de treinadores."}
+        };
+        return (all[trainerLanguage]||all.de)[key]||"";
+      }
+
       async function loadServerFeed(mode){
         mode=mode||feedMode||"profile";
         if(mode==="profile"&&!clubId)return;
@@ -2320,10 +2332,10 @@
           feed.innerHTML="";
           if(note){
             note.classList.toggle("show",mode==="global");
-            note.textContent=mode==="global"?"Community-Feed · Hier erscheinen ausschließlich global veröffentlichte Beiträge aller Trainer.":"";
+            note.textContent=mode==="global"?feedViewText("note"):"";
           }
           if(posts.length)posts.forEach(function(post){feed.appendChild(renderPost(post));});
-          else feed.innerHTML='<div class="card empty-state">'+(mode==="global"?"Noch keine globalen Trainer-Feed-Beiträge veröffentlicht.":"Noch keine Beiträge veröffentlicht.")+'</div>';
+          else feed.innerHTML='<div class="card empty-state">'+(mode==="global"?feedViewText("empty"):"Noch keine Beiträge veröffentlicht.")+'</div>';
         }catch(_){}
       }
 
@@ -3015,7 +3027,16 @@
       renderPosts();
       setupProfileTabs();
       activateProfileTab("posts");
-      loadProfileContext();
+      document.querySelectorAll("#feedSwitch [data-feed-mode]").forEach(function(btn){
+        btn.classList.toggle("active",btn.dataset.feedMode===feedMode);
+      });
+      loadProfileContext().then(function(){
+        if(feedMode==="global"){
+          setTimeout(function(){
+            document.getElementById("feedSwitch")?.scrollIntoView({behavior:"smooth",block:"start"});
+          },180);
+        }
+      });
       document.addEventListener("visibilitychange",refreshProfileAfterPlay);
       window.addEventListener("focus",refreshProfileAfterPlay);
 
@@ -3344,6 +3365,11 @@
         btn.addEventListener("click",function(){
           feedMode=btn.dataset.feedMode==="global"?"global":"profile";
           document.querySelectorAll("#feedSwitch [data-feed-mode]").forEach(function(x){x.classList.toggle("active",x===btn);});
+          var url=new URL(location.href);
+          if(feedMode==="global") url.searchParams.set("feed","global");
+          else url.searchParams.delete("feed");
+          history.pushState(null,"",url.pathname+(url.searchParams.toString()?"?"+url.searchParams.toString():"")+url.hash);
+          window.dispatchEvent(new PopStateEvent("popstate"));
           loadServerFeed(feedMode);
         });
       });
