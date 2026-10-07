@@ -42,7 +42,7 @@
       #${MODULE_ID} .bmp-mode{min-width:190px}
       #${MODULE_ID} .bmp-mode label{display:block;margin-bottom:5px;color:#86bdd8;font-size:10px;text-transform:uppercase;font-weight:800}
       #${MODULE_ID} select{width:100%;min-height:38px;padding:8px 10px;border:1px solid rgba(133,202,236,.24);border-radius:10px;background:#082536;color:#fff}
-      #${MODULE_ID} .bmp-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:13px}
+      #${MODULE_ID} .bmp-kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;margin-bottom:13px}
       #${MODULE_ID} .bmp-kpi{padding:11px;border:1px solid rgba(159,208,233,.13);border-radius:11px;background:rgba(255,255,255,.03)}
       #${MODULE_ID} .bmp-kpi span{display:block;color:#85aabd;font-size:10px;text-transform:uppercase;font-weight:800;margin-bottom:5px}
       #${MODULE_ID} .bmp-kpi strong{display:block;color:#fff;font-size:17px}
@@ -75,8 +75,10 @@
       </div>
       <div class="bmp-kpis">
         <div class="bmp-kpi"><span>Startkapital</span><strong>1.000,00 €</strong></div>
-        <div class="bmp-kpi"><span>Dein aktueller Modellstand</span><strong id="bmpActual">–</strong></div>
-        <div class="bmp-kpi"><span>Gewonnen / verloren</span><strong id="bmpWL">–</strong></div>
+        <div class="bmp-kpi"><span>Freischaltungen gesamt</span><strong id="bmpUnlocks">–</strong></div>
+        <div class="bmp-kpi"><span>Gewertet / offen</span><strong id="bmpSettled">–</strong></div>
+        <div class="bmp-kpi"><span>Gewonnen / verloren / neutral</span><strong id="bmpWL">–</strong></div>
+        <div class="bmp-kpi"><span>Dein Modellstand</span><strong id="bmpActual">–</strong></div>
         <div class="bmp-kpi"><span>Trefferquote</span><strong id="bmpRate">–</strong></div>
       </div>
       <div class="bmp-chart">
@@ -109,8 +111,10 @@
     const box=createModule();if(!box)return;
     if(data.visible!==true){box.classList.remove("visible");return}
     box.classList.add("visible");
+    document.getElementById("bmpUnlocks").textContent=String(data.actual?.unlocks_total??0);
+    document.getElementById("bmpSettled").textContent=String(data.actual?.settled??data.actual?.tips??0)+" / "+String(data.actual?.open??0);
     document.getElementById("bmpActual").textContent=euro(data.actual?.end_capital);
-    document.getElementById("bmpWL").textContent=(data.actual?.wins??0)+" / "+(data.actual?.losses??0);
+    document.getElementById("bmpWL").textContent=(data.actual?.wins??0)+" / "+(data.actual?.losses??0)+" / "+(data.actual?.neutral??0);
     document.getElementById("bmpRate").textContent=pct(data.actual?.hit_rate??0);
     chart(data.points);
   }
