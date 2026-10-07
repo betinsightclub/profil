@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<!-- BETINSIGHT APP NOINDEX START -->
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+<!-- BETINSIGHT APP NOINDEX END -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta name="theme-color" content="#031018">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<title>BetInsight – Nutzer-Performance Präsentation</title>
+<style>
+:root{color-scheme:dark;--bg:#031018;--panel:#061d2a;--border:rgba(0,218,255,.28);--text:#fff;--muted:#a9cad9;--blue:#16a8f5;--green:#18d89f}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:radial-gradient(circle at top,#0b3b55 0%,#061d2a 42%,#031018 100%);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+body{min-height:100vh;padding:18px}
+main{width:min(1280px,100%);margin:0 auto}
+.presentation-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px;padding:11px 13px;border:1px solid rgba(126,196,230,.18);border-radius:14px;background:rgba(3,20,30,.88);box-shadow:0 12px 30px rgba(0,0,0,.18)}
+.presentation-toolbar .left{display:flex;align-items:center;gap:12px;min-width:0}
+.presentation-toolbar img{width:92px;height:auto;display:block}
+.presentation-title{font-weight:900;font-size:16px;white-space:nowrap}
+.presentation-sub{color:var(--muted);font-size:12px;margin-top:2px}
+.toolbar-actions{display:flex;gap:9px;align-items:center}
+.toolbar-button,.toolbar-link{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:9px 12px;border-radius:10px;border:1px solid rgba(126,196,230,.28);background:#082536;color:#fff;text-decoration:none;font:inherit;font-weight:800;cursor:pointer}
+.toolbar-button{border:0;background:linear-gradient(90deg,#168aff,#00b8ff)}
+.toolbar-button:hover,.toolbar-link:hover{filter:brightness(1.08)}
+.footer{margin:16px 0 4px;text-align:center;color:rgba(255,255,255,.42);font-size:12px}
+#accessState{margin:80px auto;max-width:640px;padding:28px;border:1px solid var(--border);border-radius:18px;background:rgba(6,29,42,.95);text-align:center;line-height:1.6}
+#accessState strong{display:block;margin-bottom:8px;font-size:20px}
+body.presentation{padding:0;background:#031018}
+body.presentation .presentation-toolbar,body.presentation .footer{display:none!important}
+body.presentation main{width:100%;max-width:none;margin:0;padding:0}
+body.presentation #betinsightMemberPerformanceAdmin{margin:0!important;min-height:100vh;border-radius:0!important;border:0!important;box-shadow:none!important;padding:28px 34px!important}
+body.presentation #betinsightMemberPerformanceAdmin .bi-perf-chartwrap{min-height:52vh}
+body.presentation #betinsightMemberPerformanceAdmin svg{height:46vh!important;min-height:360px}
+@media(max-width:760px){
+  body{padding:10px}
+  .presentation-toolbar{align-items:flex-start;flex-direction:column}
+  .toolbar-actions{width:100%}
+  .toolbar-button,.toolbar-link{flex:1}
+  .presentation-toolbar img{width:78px}
+}
+</style>
+</head>
+<body>
+<main id="performancePage">
+  <div id="accessState"><strong>Nutzer-Performance wird geladen …</strong>Master-Sitzung wird geprüft.</div>
+
+  <div id="presentationToolbar" class="presentation-toolbar" hidden>
+    <div class="left">
+      <img src="/logo_betisight.club.png" alt="BetInsight Club" onerror="this.style.display='none'">
+      <div>
+        <div class="presentation-title">Nutzer-Performance · Workshop / Webinar</div>
+        <div class="presentation-sub">Isolierte Master-Ansicht – keine anderen Backoffice-Daten sichtbar.</div>
+      </div>
+    </div>
+    <div class="toolbar-actions">
+      <a class="toolbar-link" href="/admin/">← Admin Center</a>
+      <button id="presentationModeBtn" class="toolbar-button" type="button">⛶ Präsentationsmodus</button>
+    </div>
+  </div>
+
+  <footer class="footer" hidden>© 2026 BetInsight Club · Master-Präsentationsansicht</footer>
+</main>
+
+<script>
+"use strict";
+const SESSION_KEY="betinsight_admin_session_v1";
+const AUTH_API_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=admin-auth";
+
+function readSession(){
+  try{
+    const raw=sessionStorage.getItem(SESSION_KEY);
+    if(!raw)return null;
+    const session=JSON.parse(raw);
+    return session&&session.token?session:null;
+  }catch(_){return null}
+}
+function isMaster(session){
+  const master=String(session?.master||"").trim().toUpperCase();
+  const role=String(session?.role||"").trim().toUpperCase();
+  return master==="JA"||role==="MASTER"||String(session?.adminId||"")==="ADM-001";
+}
+async function sha256Hex(text){
+  const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(String(text||"")));
+  return Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,"0")).join("");
+}
+async function verifyMasterSession(session){
+  if(!session||!isMaster(session))return false;
+  if(Number(session.expiresMs||0)&&Date.now()>=Number(session.expiresMs))return false;
+  try{
+    const sessionHash=await sha256Hex(session.token);
+    const response=await fetch(AUTH_API_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      cache:"no-store",
+      credentials:"omit",
+      body:JSON.stringify({action:"verify",session_hash:sessionHash})
+    });
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok||data?.ok!==true)return false;
+    const verified={
+      token:session.token,
+      expiresMs:Number(data.expires_ms||session.expiresMs||0),
+      adminId:String(data.admin_id||session.adminId||""),
+      name:String(data.name||session.name||"Admin"),
+      role:String(data.role||session.role||"ADMIN"),
+      master:String(data.master||session.master||"NEIN")
+    };
+    if(!isMaster(verified))return false;
+    sessionStorage.setItem(SESSION_KEY,JSON.stringify(verified));
+    return true;
+  }catch(_){
+    return false;
+  }
+}
+function showDenied(){
+  const state=document.getElementById("accessState");
+  state.innerHTML="<strong>Kein Master-Zugriff.</strong>Bitte zuerst im Admin Center mit der Master-Sitzung anmelden.<br><br><a class='toolbar-link' href='/admin/'>Zum Admin Center</a>";
+}
+function loadPerformanceModule(){
+  document.getElementById("accessState").remove();
+  document.getElementById("presentationToolbar").hidden=false;
+  document.querySelector("footer.footer").hidden=false;
+  const script=document.createElement("script");
+  script.src="../backoffice/member-performance-admin.js?v=20261007-3";
+  script.defer=true;
+  document.body.appendChild(script);
+}
+async function start(){
+  const session=readSession();
+  if(!(await verifyMasterSession(session))){showDenied();return}
+  loadPerformanceModule();
+}
+async function enterPresentation(){
+  try{
+    if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();
+  }catch(_){}
+  document.body.classList.add("presentation");
+}
+function leavePresentation(){
+  document.body.classList.remove("presentation");
+}
+document.getElementById("presentationModeBtn").addEventListener("click",enterPresentation);
+document.addEventListener("fullscreenchange",()=>{if(!document.fullscreenElement)leavePresentation()});
+document.addEventListener("keydown",event=>{if(event.key==="Escape")leavePresentation()});
+start();
+</script>
+</body>
+</html>
