@@ -613,10 +613,64 @@ qs("#pcSaveSection")?.addEventListener("click",()=>{
   setSectionSaveTarget("player");
   qs("#save")?.click();
 });
-qs("#coachSaveSection")?.addEventListener("click",()=>{
+qs("#coachSaveSection")?.addEventListener("click",async()=>{
   coachLook=coachForm();
   setSectionSaveTarget("coach");
-  qs("#save")?.click();
+  const status=qs("#coachSaveStatus");
+  const o=ownerRef();
+  if(!o){
+    if(status){status.className="pcStatus";status.innerHTML='<span class="bad">BetInsight-Sitzung nicht gefunden. Bitte neu anmelden.</span>'}
+    return;
+  }
+  const coachPayload={
+    name:qs("#coachName")?.value.trim()||"",
+    style:qs("#coachStyle")?.value||"Ausgeglichen",
+    appearance:coachLook
+  };
+  try{
+    const r=await fetch(CLUB_API,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({action:"save_coach",credential:o,language:teamPageLang,coach:coachPayload})
+    });
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok||!d.ok||!d.club){
+      const reason=d.message||(
+        d.error==="coach_appearance_required"?"Trainerbild konnte nicht gelesen werden.":
+        d.error==="invalid_identity"?"BetInsight-Sitzung konnte nicht bestätigt werden.":
+        d.error==="club_not_found"?"TIME-CLASH-Club wurde nicht gefunden.":
+        d.error==="name_policy"?"Trainername ist nicht zulässig.":
+        "Trainer konnte nicht gespeichert werden."
+      );
+      if(status){status.className="pcStatus";status.innerHTML='<span class="bad">'+String(reason)+'</span>'}
+      return;
+    }
+    loadedCoach=d.club.coach||coachPayload;
+    coachLook=loadedCoach.appearance||coachLook;
+    try{
+      const local=JSON.parse(localStorage.getItem("biMyClub")||"null");
+      if(local){
+        local.coach=loadedCoach;
+        localStorage.setItem("biMyClub",JSON.stringify(local));
+      }
+    }catch(_e){}
+    initCoachConfigurator(loadedCoach);
+    renderCoachPreview();
+    const okText={
+      de:"✓ Trainer gespeichert. Das Trainerbild ist jetzt im Profil aktiv.",
+      en:"✓ Coach saved. The coach image is now active in your profile.",
+      es:"✓ Entrenador guardado. La imagen ya está activa en tu perfil.",
+      fr:"✓ Entraîneur enregistré. L’image est maintenant active sur ton profil.",
+      it:"✓ Allenatore salvato. L’immagine è ora attiva nel profilo.",
+      pt:"✓ Treinador guardado. A imagem já está ativa no perfil."
+    };
+    if(status){status.className="pcStatus good";status.textContent=okText[teamPageLang]||okText.de}
+    const msg=qs("#msg");
+    if(msg)msg.innerHTML='<span class="ok">'+(okText[teamPageLang]||okText.de)+'</span>';
+  }catch(err){
+    console.error("TIME CLASH coach save",err);
+    if(status){status.className="pcStatus";status.innerHTML='<span class="bad">Verbindung zum Server fehlgeschlagen. Bitte erneut speichern.</span>'}
+  }
 });
 qs("#save").onclick=async()=>{if(activeSectionSaveTarget!=="player"&&activeSectionSaveTarget!=="coach")activeSectionSaveTarget="team";await refreshProgressFromServer();let name=qs("#clubName").value.trim(),names=qsa(".pn"),strengths=qsa(".ps"),total=strengths.filter(x=>!x.disabled).reduce((s,x)=>s+(+x.value||0),0);if(!name){qs("#msg").textContent="Bitte gib deinem Club einen Namen.";return}if(total!==currentBudget){let missing=Math.max(0,currentBudget-total);qs("#msg").textContent=missing>0?"Durch deinen Aufstieg sind "+missing+" neue Entwicklungspunkte verfügbar. Bitte verteile insgesamt "+currentBudget+" Stärkepunkte. Aktuell: "+total+".":"Bitte verteile genau "+currentBudget+" Stärkepunkte. Aktuell: "+total+".";return}if(strengths.filter(x=>!x.disabled).some(x=>Number(x.value)<1||Number(x.value)>25)){qs("#msg").textContent="Ein Spieler darf zwischen 1 und maximal 25 Stärkepunkte erhalten.";return}if(names.some(x=>!x.value.trim())){qs("#msg").textContent="Bitte benenne alle 11 Stammspieler und alle 6 Ersatzspieler.";return}
 let shirtNumbers=qsa(".shirtNo").map(x=>Math.max(1,Math.min(99,Number(x.value||0))));if(new Set(shirtNumbers).size!==shirtNumbers.length){qs("#msg").innerHTML='<span class="bad">'+pcU().duplicateNo+'</span>';return}
