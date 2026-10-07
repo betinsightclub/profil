@@ -34,8 +34,9 @@
         const provisionCopyCleanupScript = '<scr' + 'ipt src="./provision-copy-cleanup.js?v=20260912-4"></scr' + 'ipt>';
         const regionalComplianceScript = '<scr' + 'ipt src="./regional-compliance-control.js?v=20260927-1"></scr' + 'ipt>';
         const frankPrivacyScript = '<scr' + 'ipt src="./frank-share-privacy.js?v=20260930-1"></scr' + 'ipt>';
+        const memberPerformanceScript = '<scr' + 'ipt src="./member-performance-admin.js?v=20261007-1"></scr' + 'ipt>';
         const marker = '<!-- WALLET-FREIGABE-MASTER · PREMIUM-EINGAENGE-LIVE · PREMIUM-SOFORTPROVISIONEN-LIVE · ADMIN-UNIT-GUTSCHRIFT-MASTER · ADMIN-CLASH-TOKEN-MASTER · NETZWERK-STRUKTUR-MOVE-MASTER · MINIMUM-EUR-LABEL · KAUF-UNIT-VERBRAUCHSNACHWEIS-PRIVACY-v1 · PROVISIONS-COPY-CLEANUP-v4 · Kernstand 2026-09-05 unverändert eingebunden -->';
-        const composed = coreHtml.replace(/<\/body>/i, walletApprovalScript + premiumScript + premiumProvisionenScript + adminUnitCreditScript + adminClashCreditScript + networkMoveScript + minimumEurLabelScript + provisionUnitUsageScript + provisionCopyCleanupScript + regionalComplianceScript + frankPrivacyScript + marker + "</body>");
+        const composed = coreHtml.replace(/<\/body>/i, walletApprovalScript + premiumScript + premiumProvisionenScript + adminUnitCreditScript + adminClashCreditScript + networkMoveScript + minimumEurLabelScript + provisionUnitUsageScript + provisionCopyCleanupScript + regionalComplianceScript + frankPrivacyScript + memberPerformanceScript + marker + "</body>");
         document.open();
         document.write(composed);
         document.close();
