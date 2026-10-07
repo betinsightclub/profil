@@ -2774,7 +2774,8 @@
               payload[field]=uploaded.media.id;
               var saved=await communityCall("update_profile",payload);
               currentProfile=saved.profile;
-              showToast("Bild optimiert und gespeichert. Es wird vor der öffentlichen Anzeige geprüft.");
+              if(saved.profile) applyProfile(saved.profile,true);
+              showToast("Bild optimiert und gespeichert.");
             }else{
               showToast("Bild optimiert: "+formatFileSize(result.originalBytes)+" → "+formatFileSize(result.blob.size));
             }
@@ -2829,8 +2830,10 @@
 
       document.getElementById("coverEditBtn").addEventListener("click",function(){document.getElementById("coverInput").click();});
       document.getElementById("avatarEditBtn").addEventListener("click",function(){document.getElementById("avatarInput").click();});
-      bindFilePreview("coverInput","coverImage",null,{maxWidth:1600,maxHeight:900,targetBytes:520*1024,maxInputBytes:25*1024*1024},"cover");
-      bindFilePreview("avatarInput","avatarImage","avatarFallback",{maxWidth:512,maxHeight:512,targetBytes:180*1024,maxInputBytes:25*1024*1024},"avatar");
+      // Profil- und Hintergrundbilder bewusst als JPEG erzeugen.
+      // WebP-canvas-Encoding führte auf einzelnen Linux/Chromium-Systemen zu farbigen Streifen.
+      bindFilePreview("coverInput","coverImage",null,{maxWidth:1600,maxHeight:900,targetBytes:520*1024,maxInputBytes:25*1024*1024,preferredType:"image/jpeg"},"cover");
+      bindFilePreview("avatarInput","avatarImage","avatarFallback",{maxWidth:512,maxHeight:512,targetBytes:180*1024,maxInputBytes:25*1024*1024,preferredType:"image/jpeg"},"avatar");
 
       document.getElementById("photoBtn").addEventListener("click",function(e){
         e.preventDefault();
