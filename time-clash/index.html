@@ -2114,6 +2114,21 @@ renderStadiumChooser();$("#pause").onclick=()=>{paused=!paused;$("#pause").textC
    pick.insertAdjacentElement("afterend",wrap);
    document.getElementById("tcPenaltyOnlyP1").onclick=()=>launch("direct");
  }
+ const hubGrid=document.querySelector("#tcUxHub .tcUxGrid");
+ if(hubGrid){
+   const card=document.createElement("button");
+   card.type="button";
+   card.className="tcUxCard";
+   card.id="tcPenaltyHubP1";
+   card.innerHTML='<span class="ico">⚽</span><b>'+T.button.replace(" · PHASE 1","").replace(" · FASE 1","")+'</b><span>'+T.hint+'</span>';
+   hubGrid.appendChild(card);
+   card.addEventListener("click",()=>{
+     if(typeof window.tcSetMode==="function")window.tcSetMode("lab");
+     const chooser=document.querySelector(".chooser");
+     if(chooser)setTimeout(()=>chooser.scrollIntoView({behavior:"smooth",block:"start"}),80);
+     uiStatus(T.needTeams);
+   });
+ }
  window.tcLaunchPenaltyBridgeP1=launch;
 })();
 </script><script src="../assets/session-reconnect.js?v=20260930-1" defer></script>
