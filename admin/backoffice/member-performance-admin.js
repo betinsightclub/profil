@@ -4,6 +4,7 @@
   const API = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-performance";
   const SESSION_KEY = "betinsight_admin_session_v1";
   const MODULE_ID = "betinsightMemberPerformanceAdmin";
+  const PRIVACY_KEY = "betinsight_member_performance_email_privacy_v1";
 
   function esc(v){
     return String(v == null ? "" : v)
@@ -59,7 +60,7 @@
       #${MODULE_ID} .bi-perf-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:16px}
       #${MODULE_ID} h3{margin:0 0 6px;color:#fff;font-size:20px}
       #${MODULE_ID} .bi-perf-sub{margin:0;color:#9fc2d3;font-size:13px;line-height:1.55}
-      #${MODULE_ID} .bi-perf-testpill{padding:6px 10px;border:1px solid rgba(255,207,51,.35);border-radius:999px;color:#ffdb68;background:rgba(255,207,51,.08);font-size:11px;font-weight:900;white-space:nowrap}
+      #${MODULE_ID} .bi-perf-head-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}\n      #${MODULE_ID} .bi-perf-testpill{padding:6px 10px;border:1px solid rgba(255,207,51,.35);border-radius:999px;color:#ffdb68;background:rgba(255,207,51,.08);font-size:11px;font-weight:900;white-space:nowrap}\n      #${MODULE_ID} .bi-perf-privacy{padding:7px 10px;border:1px solid rgba(115,210,255,.3);border-radius:999px;background:rgba(25,126,178,.12);color:#bfeaff;font-size:11px;font-weight:900;cursor:pointer;white-space:nowrap}\n      #${MODULE_ID} .bi-perf-privacy.active{border-color:rgba(24,216,159,.38);background:rgba(24,216,159,.1);color:#9af5d4}
       #${MODULE_ID} .bi-perf-controls{display:grid;grid-template-columns:minmax(260px,2fr) minmax(180px,1fr) auto;gap:10px;align-items:end;margin-bottom:15px}
       #${MODULE_ID} label{display:block;margin:0 0 6px;color:#9edbf5;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
       #${MODULE_ID} select,#${MODULE_ID} button{font:inherit}
@@ -69,7 +70,7 @@
       #${MODULE_ID} .bi-perf-publish{background:linear-gradient(90deg,#0dbb83,#13d39a);color:#042017}
       #${MODULE_ID} .bi-perf-publish.is-live{background:rgba(255,113,120,.12);color:#ffc5c8;border:1px solid rgba(255,113,120,.35)}
       #${MODULE_ID} button:disabled{opacity:.5;cursor:not-allowed}
-      #${MODULE_ID} .bi-perf-meta{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-bottom:14px}
+      #${MODULE_ID} .bi-perf-meta{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;margin-bottom:14px}
       #${MODULE_ID} .bi-perf-kpi{padding:11px;border:1px solid rgba(151,205,230,.13);border-radius:11px;background:rgba(255,255,255,.03);min-width:0}
       #${MODULE_ID} .bi-perf-kpi span{display:block;color:#88adbf;font-size:10px;text-transform:uppercase;font-weight:800;margin-bottom:5px}
       #${MODULE_ID} .bi-perf-kpi strong{display:block;color:#fff;font-size:17px;overflow-wrap:anywhere}
@@ -112,7 +113,7 @@
           <h3>📈 Nutzer-Performance · Testmodul</h3>
           <p class="bi-perf-sub">Ein Nutzer nach dem anderen: tatsächliche Freischaltungen gegen die Vergleichslinie „alle verfügbaren Tipps seit Registrierung“.</p>
         </div>
-        <span class="bi-perf-testpill">MASTER · TEST</span>
+        <div class="bi-perf-head-actions"><button class="bi-perf-privacy active" id="biPerfPrivacy" type="button" aria-pressed="true">🔒 E-Mail ausgeblendet</button><span class="bi-perf-testpill">MASTER · TEST</span></div>
       </div>
       <div class="bi-perf-controls">
         <div>
@@ -130,8 +131,9 @@
       </div>
       <div class="bi-perf-meta">
         <div class="bi-perf-kpi"><span>Registriert</span><strong id="biPerfRegistered">–</strong></div>
-        <div class="bi-perf-kpi"><span>Gewertete Freischaltungen</span><strong id="biPerfTips">–</strong></div>
-        <div class="bi-perf-kpi"><span>Gewonnen / verloren</span><strong id="biPerfWL">–</strong></div>
+        <div class="bi-perf-kpi"><span>Freischaltungen gesamt</span><strong id="biPerfUnlocks">–</strong></div>
+        <div class="bi-perf-kpi"><span>Gewertet / offen</span><strong id="biPerfTips">–</strong></div>
+        <div class="bi-perf-kpi"><span>Gewonnen / verloren / neutral</span><strong id="biPerfWL">–</strong></div>
         <div class="bi-perf-kpi"><span>Eigener Verlauf</span><strong id="biPerfActual">–</strong></div>
         <div class="bi-perf-kpi"><span>Alle verfügbaren Tipps</span><strong id="biPerfBenchmark">–</strong></div>
       </div>
@@ -196,17 +198,46 @@
 
   let users=[];
   let current=null;
+  let emailPrivacyActive=true;
+
+  function readPrivacy(){
+    try{
+      const stored=sessionStorage.getItem(PRIVACY_KEY);
+      emailPrivacyActive=stored===null?true:stored!=="0";
+    }catch(_){emailPrivacyActive=true}
+  }
+  function renderPrivacyButton(){
+    const btn=document.getElementById("biPerfPrivacy");
+    if(!btn)return;
+    btn.classList.toggle("active",emailPrivacyActive);
+    btn.setAttribute("aria-pressed",emailPrivacyActive?"true":"false");
+    btn.textContent=emailPrivacyActive?"🔒 E-Mail ausgeblendet":"🔓 E-Mail sichtbar";
+  }
+  function renderUserOptions(){
+    const sel=document.getElementById("biPerfUser");
+    if(!sel)return;
+    const selected=sel.value;
+    sel.innerHTML='<option value="">Bitte Nutzer auswählen</option>'+users.map(u=>{
+      const identity=(u.ref_code||u.user_id);
+      const emailPart=emailPrivacyActive?"":(" · "+u.email);
+      const label=identity+emailPart+" · "+(u.unlock_count||0)+" Freisch.";
+      return '<option value="'+esc(u.user_id)+'">'+esc(label)+(u.visible?" · LIVE":"")+'</option>';
+    }).join("");
+    if(selected&&users.some(u=>String(u.user_id)===String(selected)))sel.value=selected;
+  }
+  function toggleEmailPrivacy(){
+    emailPrivacyActive=!emailPrivacyActive;
+    try{sessionStorage.setItem(PRIVACY_KEY,emailPrivacyActive?"1":"0")}catch(_){}
+    renderPrivacyButton();
+    renderUserOptions();
+  }
 
   async function loadUsers(){
     setStatus("Nutzerliste wird geladen …","");
     const data=await api({action:"list_users"});
     users=Array.isArray(data.users)?data.users:[];
-    const sel=document.getElementById("biPerfUser");
-    sel.innerHTML='<option value="">Bitte Nutzer auswählen</option>'+users.map(u=>{
-      const label=(u.ref_code||u.user_id)+" · "+u.email+" · "+(u.unlock_count||0)+" Freisch.";
-      return '<option value="'+esc(u.user_id)+'">'+esc(label)+(u.visible?" · LIVE":"")+'</option>';
-    }).join("");
-    setStatus(users.length+" Nutzer verfügbar. Auswahl lädt noch keine Daten.","ok");
+    renderUserOptions();
+    setStatus(users.length+" Nutzer verfügbar. Datenschutz ist standardmäßig aktiv: E-Mail-Adressen sind in der Auswahl ausgeblendet.","ok");
   }
   async function loadSelected(){
     const sel=document.getElementById("biPerfUser");
@@ -219,8 +250,9 @@
       const data=await api({action:"load_user",user_id:userId,mode});
       current=data;
       document.getElementById("biPerfRegistered").textContent=formatDate(data.user?.registered_at);
-      document.getElementById("biPerfTips").textContent=String(data.actual?.tips??0);
-      document.getElementById("biPerfWL").textContent=(data.actual?.wins??0)+" / "+(data.actual?.losses??0)+" · "+pct(data.actual?.hit_rate??0);
+      document.getElementById("biPerfUnlocks").textContent=String(data.actual?.unlocks_total??0);
+      document.getElementById("biPerfTips").textContent=String(data.actual?.settled??data.actual?.tips??0)+" / "+String(data.actual?.open??0);
+      document.getElementById("biPerfWL").textContent=(data.actual?.wins??0)+" / "+(data.actual?.losses??0)+" / "+(data.actual?.neutral??0)+" · "+pct(data.actual?.hit_rate??0);
       document.getElementById("biPerfActual").textContent=euro(data.actual?.end_capital);
       document.getElementById("biPerfBenchmark").textContent=euro(data.benchmark?.end_capital);
       chart(data.points);
@@ -268,6 +300,9 @@
     injectStyles();
     const module=createModule();
     if(!module)return;
+    readPrivacy();
+    renderPrivacyButton();
+    document.getElementById("biPerfPrivacy")?.addEventListener("click",toggleEmailPrivacy);
     document.getElementById("biPerfLoad")?.addEventListener("click",loadSelected);
     document.getElementById("biPerfUser")?.addEventListener("change",()=>{ if(document.getElementById("biPerfUser").value) loadSelected(); });
     document.getElementById("biPerfMode")?.addEventListener("change",()=>{ if(document.getElementById("biPerfUser").value) loadSelected(); });
