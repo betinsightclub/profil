@@ -2,7 +2,7 @@
   "use strict";
 
   const SESSION_KEY = "betinsight_admin_session_v1";
-  const API_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=network-move";
+  const API_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-network-move";
 
   let previewState = null;
 
