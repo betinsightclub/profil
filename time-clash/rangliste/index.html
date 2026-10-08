@@ -10,7 +10,7 @@ const q=new URLSearchParams(location.search);let requested=(q.get("lang")||"de")
 document.documentElement.lang=T.html;document.title=T.title;
 const $=id=>document.getElementById(id),esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
 function teamName(raw){let s=String(raw||"");const m=COUNTRY_MAPS[LANG]||{};for(const [a,b] of Object.entries(m)){if(s===a||s.startsWith(a+" ")){s=b+s.slice(a.length);break}}const sf=SUFFIXES[LANG]||SUFFIXES.de;s=s.replace(/ · Weltmeister/g," · "+sf[0]).replace(/ · Europameister/g," · "+sf[1]);return s}
-scope.textContent=T.area;h1.textContent=T.h1;lead.textContent=T.lead;publicNote.textContent=T.publicNote;w3.textContent=T.w3.replace(/^3\s*(points?|Punkte|puntos|points|punti|pontos)\s*·\s*/i,"");w1.textContent=T.w1.replace(/^1\s*(point|Punkt|punto|point|punto|ponto)\s*·\s*/i,"");w0.textContent=T.w0.replace(/^0\s*(points?|Punkte|puntos|points|punti|pontos)\s*·\s*/i,"");tie.textContent=T.tie;all.textContent=T.all;meta.textContent=T.loading;foot.textContent=T.foot;
+scope.textContent=T.area+" · BUILD 20261008-P6";h1.textContent=T.h1;lead.textContent=T.lead;publicNote.textContent=T.publicNote;w3.textContent=T.w3.replace(/^3\s*(points?|Punkte|puntos|points|punti|pontos)\s*·\s*/i,"");w1.textContent=T.w1.replace(/^1\s*(point|Punkt|punto|point|punto|ponto)\s*·\s*/i,"");w0.textContent=T.w0.replace(/^0\s*(points?|Punkte|puntos|points|punti|pontos)\s*·\s*/i,"");tie.textContent=T.tie;all.textContent=T.all;meta.textContent=T.loading;foot.textContent=T.foot;
 [["thRank","rank"],["thTeam","team"],["thMp","mp"],["thW","w"],["thD","d"],["thL","l"],["thGoals","goals"],["thGd","gd"],["thPts","pts"]].forEach(([id,k])=>$(id).textContent=T[k]);
 backLink.textContent=T.back;backLink.href="/time-clash/"+(LANG==="de"?"":"?lang="+LANG)+"#match-lab";publicLink.textContent=T.public;publicLink.href="https://betinsight.club/"+LANG+"/time-clash/rangliste/";
 const labels={de:"🇩🇪 DE",en:"🇬🇧 EN",es:"🇪🇸 ES",fr:"🇫🇷 FR",it:"🇮🇹 IT",pt:"🇵🇹 PT",nl:"🇳🇱 NL","zh-tw":"🇹🇼 繁中"};langMenu.innerHTML=Object.keys(I18N).map(l=>'<a class="'+(l===LANG?"active":"")+'" href="?lang='+l+'">'+labels[l]+'</a>').join("");
@@ -48,6 +48,17 @@ const RANKEXTRA={
  nl:{tabs:{world:"🌍 Teams",players:"⚽ Spelers",scorers:"🥅 Topschutters",assists:"🎯 Assists",keepers:"🧤 Keepers"},player:"Speler",team:"Team / tijdperk",apps:"GW",goals:"Goals",assists:"Ast.",def:"Verd.",points:"Punten",saves:"Reddingen",clean:"Nul",rate:"Ratio",ga:"Tegengoals",gpg:"TG/W",unranked:"nog niet gerangschikt",playersTitle:"Spelersranglijst",scorersTitle:"Topschutters",assistsTitle:"Assistranglijst",keepersTitle:"Keepersranglijst",playerInfo:"Spelerpunten: goal × 5 · assist × 3 · verdedigende actie × 1 · geel −0,5 · rood −3.",keeperInfo:"Keeperpunten: redding × 1 · clean sheet × 4 · tegengoal −0,5. Officiële ranglijst vanaf 5 wedstrijden.",empty:"Nog geen spelergegevens.",load:"Laden …",err:"Ranglijst kan nu niet worden geladen."},
  "zh-tw":{tabs:{world:"🌍 球隊",players:"⚽ 球員",scorers:"🥅 射手",assists:"🎯 助攻",keepers:"🧤 守門員"},player:"球員",team:"球隊 / 年代",apps:"場",goals:"進球",assists:"助攻",def:"防守",points:"積分",saves:"撲救",clean:"零封",rate:"比例",ga:"失球",gpg:"場均失球",unranked:"尚未列入正式排名",playersTitle:"球員排名",scorersTitle:"射手榜",assistsTitle:"助攻榜",keepersTitle:"守門員排名",playerInfo:"球員積分：進球×5 · 助攻×3 · 防守動作×1 · 黃牌−0.5 · 紅牌−3。",keeperInfo:"守門員積分：撲救×1 · 零封×4 · 失球−0.5。至少出賽5場才列入正式排名。",empty:"尚無球員統計資料。",load:"載入中 …",err:"目前無法載入排名。"}
 };
+const SHOOTOUT_I18N={
+ de:{tabs:{shootout_players:"🎯 Elfmeter",shootout_keepers:"🧤 Shootout-Torhüter",shootouts:"📜 Shootouts"},spTitle:"Elfmeterschützen-Rangliste",gkTitle:"Shootout-Torhüter-Rangliste",histTitle:"Shootout-Historie",spInfo:"Shootout-Tore werden getrennt von normalen Spieltoren geführt. Rangfolge: verwandelte Elfmeter → Trefferquote → Versuche.",gkInfo:"Shootout-Paraden werden getrennt von normalen Torwartparaden geführt. Rangfolge: gehaltene Elfmeter → Haltequote → Elfmeter gegen den Torwart.",histInfo:"Dauerhaft gespeicherte Penalty-Clash-Entscheidungen. Elfmetertore verändern keine normalen TIME-CLASH-Tore.",shootouts:"SO",taken:"Elfm.",scored:"Treffer",missed:"Fehl.",conversion:"Quote",faced:"Gegen",saved:"Geh.",conceded:"Rein",shooterMisses:"Vorbei",result:"Ergebnis",winner:"Sieger",mode:"Modus",direct:"Nur Elfmeter",tiebreak:"Entscheidung"},
+ en:{tabs:{shootout_players:"🎯 Penalties",shootout_keepers:"🧤 Shootout keepers",shootouts:"📜 Shootouts"},spTitle:"Penalty taker ranking",gkTitle:"Shootout goalkeeper ranking",histTitle:"Shootout history",spInfo:"Shootout goals are kept separate from normal match goals. Ranking: penalties scored → conversion rate → attempts.",gkInfo:"Shootout saves are kept separate from normal goalkeeper saves. Ranking: penalties saved → save rate → penalties faced.",histInfo:"Permanently stored Penalty Clash decisions. Shootout goals never change normal TIME CLASH goals.",shootouts:"SO",taken:"Pens",scored:"Scored",missed:"Missed",conversion:"Rate",faced:"Faced",saved:"Saved",conceded:"Conceded",shooterMisses:"Off target",result:"Result",winner:"Winner",mode:"Mode",direct:"Penalties only",tiebreak:"Decider"},
+ es:{tabs:{shootout_players:"🎯 Penaltis",shootout_keepers:"🧤 Porteros de tanda",shootouts:"📜 Tandas"},spTitle:"Ranking de lanzadores",gkTitle:"Ranking de porteros en tandas",histTitle:"Historial de tandas",spInfo:"Los goles de la tanda se separan de los goles normales. Orden: penaltis marcados → porcentaje → intentos.",gkInfo:"Las paradas en tanda se separan de las paradas normales. Orden: penaltis parados → porcentaje → recibidos.",histInfo:"Decisiones de Penalty Clash guardadas de forma permanente. Los penaltis no alteran los goles normales de TIME CLASH.",shootouts:"TD",taken:"Pen.",scored:"Marc.",missed:"Fall.",conversion:"%",faced:"Rec.",saved:"Par.",conceded:"Enc.",shooterMisses:"Fuera",result:"Resultado",winner:"Ganador",mode:"Modo",direct:"Solo penaltis",tiebreak:"Desempate"},
+ fr:{tabs:{shootout_players:"🎯 Tirs au but",shootout_keepers:"🧤 Gardiens TAB",shootouts:"📜 Séances"},spTitle:"Classement des tireurs",gkTitle:"Classement des gardiens en séance",histTitle:"Historique des séances",spInfo:"Les buts en séance sont séparés des buts normaux. Classement : tirs réussis → taux → tentatives.",gkInfo:"Les arrêts en séance sont séparés des arrêts normaux. Classement : tirs arrêtés → taux d’arrêt → tirs subis.",histInfo:"Décisions Penalty Clash enregistrées durablement. Les tirs au but ne modifient jamais les buts normaux TIME CLASH.",shootouts:"TAB",taken:"Tirs",scored:"Réussis",missed:"Ratés",conversion:"Taux",faced:"Subis",saved:"Arrêtés",conceded:"Encaissés",shooterMisses:"Hors cadre",result:"Résultat",winner:"Vainqueur",mode:"Mode",direct:"Tirs au but",tiebreak:"Décision"},
+ it:{tabs:{shootout_players:"🎯 Rigori",shootout_keepers:"🧤 Portieri rigori",shootouts:"📜 Tiri di rigore"},spTitle:"Classifica rigoristi",gkTitle:"Classifica portieri ai rigori",histTitle:"Storico tiri di rigore",spInfo:"I gol ai rigori sono separati dai gol normali. Classifica: rigori segnati → percentuale → tentativi.",gkInfo:"Le parate ai rigori sono separate dalle parate normali. Classifica: rigori parati → percentuale → rigori affrontati.",histInfo:"Decisioni Penalty Clash salvate in modo permanente. I rigori non modificano i gol normali di TIME CLASH.",shootouts:"TR",taken:"Rig.",scored:"Segn.",missed:"Sbag.",conversion:"Perc.",faced:"Affr.",saved:"Par.",conceded:"Sub.",shooterMisses:"Fuori",result:"Risultato",winner:"Vincitore",mode:"Modalità",direct:"Solo rigori",tiebreak:"Decisione"},
+ pt:{tabs:{shootout_players:"🎯 Penáltis",shootout_keepers:"🧤 Guarda-redes",shootouts:"📜 Desempates"},spTitle:"Ranking de marcadores de penáltis",gkTitle:"Ranking de guarda-redes em penáltis",histTitle:"Histórico de desempates",spInfo:"Os golos em penáltis ficam separados dos golos normais. Ranking: penáltis marcados → taxa → tentativas.",gkInfo:"As defesas em penáltis ficam separadas das defesas normais. Ranking: penáltis defendidos → taxa → penáltis enfrentados.",histInfo:"Decisões Penalty Clash guardadas de forma permanente. Os penáltis não alteram os golos normais do TIME CLASH.",shootouts:"SO",taken:"Pen.",scored:"Marc.",missed:"Falh.",conversion:"Taxa",faced:"Enfr.",saved:"Def.",conceded:"Sof.",shooterMisses:"Fora",result:"Resultado",winner:"Vencedor",mode:"Modo",direct:"Só penáltis",tiebreak:"Decisão"},
+ nl:{tabs:{shootout_players:"🎯 Strafschoppen",shootout_keepers:"🧤 Shootout-keepers",shootouts:"📜 Shootouts"},spTitle:"Strafschopnemersranglijst",gkTitle:"Shootout-keepersranglijst",histTitle:"Shootout-historie",spInfo:"Shootout-goals blijven gescheiden van normale goals. Rangorde: gescoord → percentage → pogingen.",gkInfo:"Shootout-reddingen blijven gescheiden van normale keeperreddingen. Rangorde: gered → reddingspercentage → strafschoppen tegen.",histInfo:"Permanent opgeslagen Penalty Clash-beslissingen. Shootout-goals veranderen nooit normale TIME CLASH-goals.",shootouts:"SO",taken:"Pens",scored:"Gescoord",missed:"Gemist",conversion:"Ratio",faced:"Tegen",saved:"Gered",conceded:"Binnen",shooterMisses:"Naast",result:"Uitslag",winner:"Winnaar",mode:"Modus",direct:"Alleen strafschoppen",tiebreak:"Beslissing"},
+ "zh-tw":{tabs:{shootout_players:"🎯 十二碼",shootout_keepers:"🧤 十二碼守門員",shootouts:"📜 十二碼紀錄"},spTitle:"十二碼射手排名",gkTitle:"十二碼守門員排名",histTitle:"十二碼決勝紀錄",spInfo:"十二碼決勝進球與一般比賽進球分開統計。排名：命中數 → 命中率 → 次數。",gkInfo:"十二碼撲救與一般守門員撲救分開統計。排名：撲救數 → 撲救率 → 面對次數。",histInfo:"永久保存的 Penalty Clash 決勝紀錄。十二碼決勝進球不會加入一般 TIME CLASH 進球。",shootouts:"PK",taken:"主罰",scored:"命中",missed:"未進",conversion:"命中率",faced:"面對",saved:"撲出",conceded:"失球",shooterMisses:"射失",result:"結果",winner:"勝者",mode:"模式",direct:"只踢十二碼",tiebreak:"決勝"}
+};
+const SX=SHOOTOUT_I18N[LANG]||SHOOTOUT_I18N.de;
 const RX=RANKEXTRA[LANG]||RANKEXTRA.de;
 const RANKFILTERS={
  de:{all:"Alle",nation:"Nationalmannschaften",club:"Clubs",trainer:"👤 Trainerteams",football:"🌐 Weltfußball",titles:{all:"Gesamtrangliste",nation:"Nationalmannschaften",club:"Club-Rangliste",trainer:"TIME-CLASH-Trainerteams",football:"Weltfußball · Clubs & Nationalteams"},nationKind:"Nationalmannschaft",clubKind:"Club",trainerKind:"Trainerteam"},
@@ -61,9 +72,9 @@ const RANKFILTERS={
 };
 RANKEXTRA[LANG].filters=RANKFILTERS[LANG]||RANKFILTERS.de;
 
-const rankTypes=["world","players","scorers","assists","keepers"];
+const rankTypes=["world","players","scorers","assists","keepers","shootout_players","shootout_keepers","shootouts"];
 let ACTIVE_RANK_TYPE="world",PERSON_ROWS=[];
-rankTabs.innerHTML=rankTypes.map(x=>'<button type="button" class="rankTab" data-rank="'+x+'">'+RX.tabs[x]+'</button>').join("");
+rankTabs.innerHTML=rankTypes.map(x=>'<button type="button" class="rankTab" data-rank="'+x+'">'+(RX.tabs[x]||SX.tabs[x])+'</button>').join("");
 const teamFilterTabs=document.getElementById("teamFilterTabs");
 function filterLabel(k){
  const F=RX.filters||RANKFILTERS.de;
@@ -93,16 +104,19 @@ function rankHead(type){
  if(type==="players")return '<tr><th>'+T.rank+'</th><th>'+RX.player+'</th><th>'+RX.team+'</th><th>'+RX.apps+'</th><th>'+RX.goals+'</th><th>'+RX.assists+'</th><th>'+RX.def+'</th><th>'+RX.points+'</th></tr>';
  if(type==="scorers")return '<tr><th>'+T.rank+'</th><th>'+RX.player+'</th><th>'+RX.team+'</th><th>'+RX.apps+'</th><th>'+RX.goals+'</th><th>'+RX.assists+'</th></tr>';
  if(type==="assists")return '<tr><th>'+T.rank+'</th><th>'+RX.player+'</th><th>'+RX.team+'</th><th>'+RX.apps+'</th><th>'+RX.assists+'</th><th>'+RX.goals+'</th></tr>';
+ if(type==="shootout_players")return '<tr><th>'+T.rank+'</th><th>'+RX.player+'</th><th>'+RX.team+'</th><th>'+SX.shootouts+'</th><th>'+SX.taken+'</th><th>'+SX.scored+'</th><th>'+SX.missed+'</th><th>'+SX.conversion+'</th></tr>';
+ if(type==="shootout_keepers")return '<tr><th>'+T.rank+'</th><th>'+RX.player+'</th><th>'+RX.team+'</th><th>'+SX.shootouts+'</th><th>'+SX.faced+'</th><th>'+SX.saved+'</th><th>'+SX.conceded+'</th><th>'+SX.shooterMisses+'</th><th>'+SX.conversion+'</th></tr>';
+ if(type==="shootouts")return '<tr><th>'+T.rank+'</th><th>'+RX.team+'</th><th>'+SX.result+'</th><th>'+SX.winner+'</th><th>'+SX.mode+'</th></tr>';
  return '<tr><th>'+T.rank+'</th><th>'+RX.player+'</th><th>'+RX.team+'</th><th>'+RX.apps+'</th><th>'+RX.clean+'</th><th>'+RX.rate+'</th><th>'+RX.ga+'</th><th>'+RX.gpg+'</th><th>'+RX.saves+'</th><th>'+RX.points+'</th></tr>';
 }
 function baseRankTitle(type){
- return type==="players"?RX.playersTitle:type==="scorers"?RX.scorersTitle:type==="assists"?RX.assistsTitle:RX.keepersTitle;
+ return type==="players"?RX.playersTitle:type==="scorers"?RX.scorersTitle:type==="assists"?RX.assistsTitle:type==="shootout_players"?SX.spTitle:type==="shootout_keepers"?SX.gkTitle:type==="shootouts"?SX.histTitle:RX.keepersTitle;
 }
 function renderPersonRanking(type){
  const arr=filterRowsByTeamKind(PERSON_ROWS);
  const title=baseRankTitle(type);
  all.textContent=WORLD_FILTER==="all"?title:(title+" · "+filterLabel(WORLD_FILTER));
- rankInfo.textContent=type==="keepers"?RX.keeperInfo:RX.playerInfo;
+ rankInfo.textContent=type==="keepers"?RX.keeperInfo:type==="shootout_players"?SX.spInfo:type==="shootout_keepers"?SX.gkInfo:type==="shootouts"?SX.histInfo:RX.playerInfo;
  meta.textContent=arr.length+" "+RX.player;
  if(!arr.length){rows.innerHTML='<tr><td colspan="10" class="empty">'+RX.empty+'</td></tr>';return}
  if(type==="players"){
@@ -111,6 +125,12 @@ function renderPersonRanking(type){
    rows.innerHTML=arr.map((r,i)=>'<tr><td class="rank">#'+(i+1)+'</td><td class="team">'+esc(r.player_name)+'</td><td>'+esc(teamName(r.team_name))+'</td><td>'+Number(r.appearances||0)+'</td><td class="pts">'+Number(r.goals||0)+'</td><td>'+Number(r.assists||0)+'</td></tr>').join("");
  }else if(type==="assists"){
    rows.innerHTML=arr.map((r,i)=>'<tr><td class="rank">#'+(i+1)+'</td><td class="team">'+esc(r.player_name)+'</td><td>'+esc(teamName(r.team_name))+'</td><td>'+Number(r.appearances||0)+'</td><td class="pts">'+Number(r.assists||0)+'</td><td>'+Number(r.goals||0)+'</td></tr>').join("");
+ }else if(type==="shootout_players"){
+   rows.innerHTML=arr.map((r,i)=>'<tr><td class="rank">#'+(i+1)+'</td><td class="team">'+esc(r.player_name)+'</td><td>'+esc(teamName(r.team_name))+'</td><td>'+Number(r.shootouts||0)+'</td><td>'+Number(r.penalties_taken||0)+'</td><td class="pts">'+Number(r.penalties_scored||0)+'</td><td>'+Number(r.penalties_missed||0)+'</td><td>'+Number(r.conversion_rate||0).toFixed(1)+'%</td></tr>').join("");
+ }else if(type==="shootout_keepers"){
+   rows.innerHTML=arr.map((r,i)=>'<tr><td class="rank">#'+(i+1)+'</td><td class="team">'+esc(r.player_name)+'</td><td>'+esc(teamName(r.team_name))+'</td><td>'+Number(r.shootouts||0)+'</td><td>'+Number(r.penalties_faced||0)+'</td><td class="keeperPts">'+Number(r.penalties_saved||0)+'</td><td>'+Number(r.penalties_conceded||0)+'</td><td>'+Number(r.shooter_misses||0)+'</td><td>'+Number(r.save_rate||0).toFixed(1)+'%</td></tr>').join("");
+ }else if(type==="shootouts"){
+   rows.innerHTML=PERSON_ROWS.map((r,i)=>'<tr><td class="rank">#'+(i+1)+'</td><td><span class="team">'+esc(teamName(r.team_a))+'</span><span class="subtle"> vs. '+esc(teamName(r.team_b))+'</span></td><td class="pts">'+Number(r.penalties_a||0)+':'+Number(r.penalties_b||0)+'</td><td>'+esc(teamName(r.winner))+'</td><td>'+(r.source_mode==="series_tiebreak"?SX.tiebreak:SX.direct)+'</td></tr>').join("");
  }else{
    let kp=0;
    rows.innerHTML=arr.map(r=>{const eligible=Number(r.appearances||0)>=5,pos=eligible?(++kp):null;return '<tr><td class="rank">'+(pos?'#'+pos:'—<span class="qual">'+RX.unranked+'</span>')+'</td><td class="team">'+esc(r.player_name)+'</td><td>'+esc(teamName(r.team_name))+'</td><td>'+Number(r.appearances||0)+'</td><td>'+Number(r.clean_sheets||0)+'</td><td>'+Number(r.clean_sheet_rate||0).toFixed(1)+'%</td><td>'+Number(r.goals_conceded||0)+'</td><td>'+Number(r.goals_conceded_per_game||0).toFixed(2)+'</td><td>'+Number(r.saves||0)+'</td><td class="keeperPts">'+Number(r.keeper_points||0).toFixed(1)+'</td></tr>'}).join("");
@@ -122,6 +142,7 @@ async function loadRankType(type){
  rankThead.innerHTML=rankHead(type);
  rows.innerHTML='<tr><td colspan="10" class="empty">'+RX.load+'</td></tr>';
  renderTeamFilters();
+ teamFilterTabs.classList.toggle("hidden",type==="shootouts");
  if(type==="world"){
    rankInfo.textContent=T.foot;
    await load();
@@ -129,7 +150,7 @@ async function loadRankType(type){
    return;
  }
  all.textContent=baseRankTitle(type);
- rankInfo.textContent=type==="keepers"?RX.keeperInfo:RX.playerInfo;
+ rankInfo.textContent=type==="keepers"?RX.keeperInfo:type==="shootout_players"?SX.spInfo:type==="shootout_keepers"?SX.gkInfo:type==="shootouts"?SX.histInfo:RX.playerInfo;
  meta.textContent=RX.load;
  try{
    const res=await fetch(API+"?type="+encodeURIComponent(type)+"&scope=app&limit=500",{cache:"no-store"}),data=await res.json();
