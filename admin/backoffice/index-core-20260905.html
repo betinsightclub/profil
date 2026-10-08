@@ -2336,7 +2336,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
               <thead>
                 <tr>
                   <th>Währung</th><th>Netzwerk</th><th>Verfügbar</th><th>Reserviert</th>
-                  <th>Aktueller Wert</th><th>Letzter Ladestand</th><th>Bis Auszahlung</th>
+                  <th>Aktueller Wallet-Wert</th><th>Wert beim letzten Laden</th><th>Fehlt bis Auszahlung</th>
                   <th>Mindestauszahlung</th><th>Wallet-Adresse</th><th>Auszahlung möglich</th>
                 </tr>
               </thead>
@@ -4223,15 +4223,20 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
 
     function formatProvisionCurrency(item, cryptoKey, eurValue) {
       const currency = String(item?.payment_currency || item?.waehrung || "EUR").toUpperCase();
-      let cryptoValue = Number(item?.[cryptoKey]);
+      const rawCrypto = item?.[cryptoKey];
+      let cryptoValue =
+        rawCrypto !== undefined && rawCrypto !== null && String(rawCrypto).trim() !== ""
+          ? Number(rawCrypto)
+          : NaN;
       if (!Number.isFinite(cryptoValue)) {
         const rate = num(item?.exchange_rate_eur_per_coin);
         cryptoValue = rate > 0 ? num(eurValue) / rate : NaN;
       }
+      if (currency === "EUR") return formatEuro(eurValue);
       if (Number.isFinite(cryptoValue)) {
         return formatNumber(cryptoValue, provisionCurrencyDecimals(currency)) + " " + currency;
       }
-      return formatEuro(eurValue);
+      return "– " + currency;
     }
 
     function renderBalances(items, wallets) {
@@ -5360,7 +5365,8 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
 
     function renderSharedCosts(summary, isMaster) {
       const overviewCard = document.getElementById("sharedCostOverviewCard");
-      if (overviewCard) overviewCard.classList.remove("hidden");
+      if (overviewCard) overviewCard.classList.toggle("hidden", !isMaster);
+      if (!isMaster) return;
       const currentCosts = num(summary?.actual_costs_eur);
       const totalCosts = num(summary?.total_recorded_costs_eur);
       const contribution = num(summary?.prepayment_eur);
