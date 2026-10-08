@@ -2217,7 +2217,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
           <div class="cost-transparency-stat">
             <span class="cost-transparency-label">Zurückgelegte Kostenreserve · 2,5 %</span>
             <span class="cost-transparency-value privacy-sensitive" id="sharedCostContribution">0,00 €</span>
-            <span class="cost-transparency-note" id="sharedCostRateNote">Aktueller Satz: 2,50 %</span>
+            <span class="cost-transparency-note" id="sharedCostRateNote">Altbestand und laufender Monat werden getrennt ausgewiesen.</span>
           </div>
         </div>
 
@@ -5365,6 +5365,8 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       const currentCosts = num(summary?.actual_costs_eur);
       const totalCosts = num(summary?.total_recorded_costs_eur);
       const contribution = num(summary?.prepayment_eur);
+      const contributionCurrentMonth = num(summary?.prepayment_current_month_eur ?? contribution);
+      const contributionLegacy = num(summary?.prepayment_legacy_eur ?? Math.max(contribution - contributionCurrentMonth, 0));
       const currentRate = num(summary?.prepayment_pct);
       const nextRate = summary?.next_prepayment_pct !== undefined ? num(summary.next_prepayment_pct) : currentRate;
       const difference = num(summary?.difference_eur);
@@ -5382,14 +5384,17 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       if (currentEl) currentEl.textContent = formatEuro(currentCosts);
       if (totalEl) totalEl.textContent = formatEuro(totalCosts);
       if (contributionEl) contributionEl.textContent = formatEuro(contribution);
-      if (rateNote) rateNote.textContent = "Aktueller Satz: " + formatNumber(currentRate, 2) + " %";
+      if (rateNote) rateNote.textContent =
+        "Altbestand: " + formatEuro(contributionLegacy) +
+        " · laufender Monat: " + formatEuro(contributionCurrentMonth) +
+        " · aktueller Satz: " + formatNumber(currentRate, 2) + " %";
 
       const coverage = document.getElementById("sharedCostCoverage");
       if (coverage) {
         coverage.classList.remove("positive", "negative");
         coverage.classList.add(difference >= 0 ? "positive" : "negative");
         coverage.innerHTML = "<strong>Deckung laufender Monat:</strong> " +
-          escapeHtml(formatEuro(contribution)) + " von " + escapeHtml(formatEuro(currentCosts)) +
+          escapeHtml(formatEuro(contributionCurrentMonth)) + " von " + escapeHtml(formatEuro(currentCosts)) +
           " · Differenz: <strong>" + escapeHtml((difference > 0 ? "+" : "") + formatEuro(difference)) + "</strong>";
       }
 
