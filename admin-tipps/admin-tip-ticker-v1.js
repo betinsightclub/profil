@@ -34,13 +34,17 @@ function mount(){
  #bi-tip-ticker *{box-sizing:border-box}
  .bi-ticker-title{display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:700;margin-bottom:7px;font-size:13px}
  .bi-ticker-live{color:#4de4a7;font-size:10px;letter-spacing:.07em}
- .bi-ticker-row{display:flex;align-items:center;gap:8px;min-height:27px;padding:2px 0;border-top:1px solid rgba(210,239,255,.12)}
- .bi-ticker-name{flex:0 0 103px;font-size:11px;font-weight:800;white-space:nowrap}
+ .bi-ticker-row{display:flex;align-items:center;gap:8px;min-height:28px;padding:2px 5px;border-top:1px solid rgba(210,239,255,.18);border-left:3px solid transparent}
+ .bi-ticker-row + .bi-ticker-row{border-top-color:rgba(210,239,255,.27)}
+ .bi-ticker-name{flex:0 0 100px;font-size:11px;font-weight:800;white-space:nowrap}
+ .bi-ticker-row[data-who="frank"]{border-left-color:#61e3a8;background:rgba(97,227,168,.055)}
+ .bi-ticker-row[data-who="martin"]{border-left-color:#82c5ff;background:rgba(130,197,255,.06)}
+ .bi-ticker-row[data-who="system"]{border-left-color:#ffd37e;background:rgba(255,211,126,.06)}
  .bi-ticker-row[data-who="frank"] .bi-ticker-name{color:#61e3a8}
  .bi-ticker-row[data-who="martin"] .bi-ticker-name{color:#82c5ff}
  .bi-ticker-row[data-who="system"] .bi-ticker-name{color:#ffd37e}
- .bi-ticker-track{flex:1;min-width:0;overflow:hidden;white-space:nowrap;border-radius:5px;background:rgba(255,255,255,.045);height:23px;display:flex;align-items:center}
- .bi-ticker-moving{display:inline-block;white-space:nowrap;padding-left:8px;animation:bi-tip-move 24s linear infinite}
+ .bi-ticker-track{flex:1;min-width:0;overflow:hidden;white-space:nowrap;border-radius:5px;background:rgba(0,0,0,.12);height:23px;display:flex;align-items:center}
+ .bi-ticker-moving{display:inline-block;white-space:nowrap;padding-left:8px;animation:bi-tip-move 24s linear infinite;will-change:transform}
  .bi-ticker-track:hover .bi-ticker-moving{animation-play-state:paused}
  .bi-ticker-empty{color:#93adc0;font-style:italic;padding:0 8px}
  @keyframes bi-tip-move{from{transform:translateX(-100%)}to{transform:translateX(110%)}}
