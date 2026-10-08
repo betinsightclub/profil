@@ -1,15 +1,29 @@
 (function () {
   "use strict";
 
+  function minimumColumnIndex() {
+    const table = document.querySelector('#balanceTableBody')?.closest('table');
+    if (!table) return -1;
+    const headers = Array.from(table.querySelectorAll('thead th')).map(function (th) {
+      return String(th.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+    });
+    return headers.findIndex(function (text) {
+      return text.includes('mindestauszahlung');
+    });
+  }
+
   function formatMinimumValues() {
     const tbody = document.getElementById("balanceTableBody");
     if (!tbody) return;
 
+    const targetIndex = minimumColumnIndex();
+    if (targetIndex < 0) return;
+
     tbody.querySelectorAll("tr").forEach(function (row) {
       const cells = row.querySelectorAll("td");
-      if (cells.length < 5) return;
+      if (cells.length <= targetIndex) return;
 
-      const target = cells[4].querySelector(".privacy-sensitive") || cells[4];
+      const target = cells[targetIndex].querySelector(".privacy-sensitive") || cells[targetIndex];
       const raw = String(target.textContent || "").trim();
 
       if (!raw || raw === "–" || raw.includes("€ Mindestwert")) return;
