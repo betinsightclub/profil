@@ -518,6 +518,10 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
     .choice-card strong { display:block; margin-bottom:4px; }
     .choice-card small { color:var(--muted); line-height:1.45; }
 
+    .live-up { color: #72e7b4 !important; font-weight: 800; }
+    .live-down { color: #ff9b9b !important; font-weight: 800; }
+    .live-flat { color: var(--muted) !important; }
+
     .route-hint {
       margin-top: 8px;
       color: var(--muted);
@@ -2193,8 +2197,8 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       <article class="content-card full cost-transparency-card" id="sharedCostOverviewCard">
         <div class="panel-heading">
           <div>
-            <h3>🏢 Betriebskosten &amp; Kostenreserve</h3>
-            <p class="muted">Gemeinsame Betriebskosten und der dafür zurückgelegte Umsatzanteil – für alle Admins transparent.</p>
+            <h3>🏢 Betriebskosten &amp; Kostenreserve · Master</h3>
+            <p class="muted">Interne LucMedia-Kostenübersicht. Nur im Master-Backoffice sichtbar.</p>
           </div>
           <div class="route-hint" id="sharedCostMonthLabel">Aktueller Monat</div>
         </div>
@@ -2211,7 +2215,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
             <span class="cost-transparency-note">Summe aller bisher genehmigten und erfassten Rechnungen.</span>
           </div>
           <div class="cost-transparency-stat">
-            <span class="cost-transparency-label">Betriebskostenbeitrag aus Umsätzen</span>
+            <span class="cost-transparency-label">Zurückgelegte Kostenreserve · 2,5 %</span>
             <span class="cost-transparency-value privacy-sensitive" id="sharedCostContribution">0,00 €</span>
             <span class="cost-transparency-note" id="sharedCostRateNote">Aktueller Satz: 2,50 %</span>
           </div>
@@ -2331,6 +2335,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
               <thead>
                 <tr>
                   <th>Währung</th><th>Netzwerk</th><th>Verfügbar</th><th>Reserviert</th>
+                  <th>Aktueller Wert</th><th>Letzter Ladestand</th><th>Bis Auszahlung</th>
                   <th>Mindestauszahlung</th><th>Wallet-Adresse</th><th>Auszahlung möglich</th>
                 </tr>
               </thead>
@@ -2966,6 +2971,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
     const PRIVACY_KEY = "betinsight_admin_privacy_active";
     const ROUTE_PREF_KEY = "betinsight_admin_route_payout_preference";
     const LOCAL_WALLET_KEY = "betinsight_admin_local_wallets";
+    const LIVE_EUR_SNAPSHOT_KEY = "betinsight_admin_live_eur_snapshot";
     const TIPSTER_DRAFT_KEY = "betinsight_master_tipster_drafts";
 
     const API_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=backoffice-read"; // Session-gesicherter READ-ONLY Backoffice-Datenwebhook.
@@ -3178,6 +3184,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
     const testPaymentMessage = document.getElementById("testPaymentMessage");
 
     let latestBalances = [];
+    let previousLiveEurValues = {};
     let latestWallets = [];
     let latestTipsters = [];
     let latestTipResults = [];
@@ -4181,9 +4188,54 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       applyPrivacyState(stored === null ? true : stored === "1");
     }
 
+    function liveSnapshotStorageKey() {
+      const current = getCurrentAdmin();
+      return LIVE_EUR_SNAPSHOT_KEY + "_" + String(current.adminId || current.code || "unknown");
+    }
+
+    function prepareLiveEurSnapshot(items) {
+      let previous = {};
+      try {
+        previous = JSON.parse(localStorage.getItem(liveSnapshotStorageKey()) || "{}");
+      } catch (_) {
+        previous = {};
+      }
+      previousLiveEurValues = previous && typeof previous === "object" ? previous : {};
+
+      const currentSnapshot = {};
+      (Array.isArray(items) ? items : []).forEach(function (item) {
+        const key = routeKey(item.currency, item.network);
+        const current = num(item.live_value_eur ?? item.available_eur ?? 0);
+        currentSnapshot[key] = current;
+      });
+      try {
+        localStorage.setItem(liveSnapshotStorageKey(), JSON.stringify(currentSnapshot));
+      } catch (_) {}
+    }
+
+    function provisionCurrencyDecimals(currency) {
+      const cur = String(currency || "").toUpperCase();
+      if (cur === "BTC") return 8;
+      if (["ETH","BNB","SOL","TON","TRX"].includes(cur)) return 6;
+      return 6;
+    }
+
+    function formatProvisionCurrency(item, cryptoKey, eurValue) {
+      const currency = String(item?.payment_currency || item?.waehrung || "EUR").toUpperCase();
+      let cryptoValue = Number(item?.[cryptoKey]);
+      if (!Number.isFinite(cryptoValue)) {
+        const rate = num(item?.exchange_rate_eur_per_coin);
+        cryptoValue = rate > 0 ? num(eurValue) / rate : NaN;
+      }
+      if (Number.isFinite(cryptoValue)) {
+        return formatNumber(cryptoValue, provisionCurrencyDecimals(currency)) + " " + currency;
+      }
+      return formatEuro(eurValue);
+    }
+
     function renderBalances(items, wallets) {
       if (!Array.isArray(items) || !items.length) {
-        balanceTableBody.innerHTML = '<tr><td colspan="7"><div class="empty-state">Keine Guthaben vorhanden.</div></td></tr>';
+        balanceTableBody.innerHTML = '<tr><td colspan="10"><div class="empty-state">Keine Guthaben vorhanden.</div></td></tr>';
         return;
       }
 
@@ -4194,13 +4246,31 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
           String(item.network || "").toUpperCase() === "INTERN";
         const wallet = internalAccounting ? {} : (findWallet(wallets, item) || {});
         const address = internalAccounting ? "Interne Abrechnung" : getWalletAddress(wallet);
-        const minimumDisplay = internalAccounting ? "–" : formatNumber(item.minimum, 8);
+
+        const minimumEur = internalAccounting ? 0 : num(item.minimum ?? item.system_minimum_eur ?? 0);
+        const currentEur = num(item.live_value_eur ?? item.available_eur ?? 0);
+        const key = routeKey(item.currency, item.network);
+        const hasPrevious = Object.prototype.hasOwnProperty.call(previousLiveEurValues, key);
+        const previousEur = hasPrevious ? num(previousLiveEurValues[key]) : null;
+        const delta = hasPrevious ? currentEur - previousEur : 0;
+        const deltaClass = delta > 0.004 ? "live-up" : delta < -0.004 ? "live-down" : "live-flat";
+        const deltaText = hasPrevious
+          ? ((delta > 0 ? "+" : "") + formatEuro(delta) + " seit letztem Laden")
+          : "Erster Live-Wert";
+        const missing = internalAccounting ? 0 : num(item.payout_missing_eur ?? Math.max(0, minimumEur - currentEur));
+
         return `<tr>
           <td>${escapeHtml(item.currency || "–")}</td>
           <td>${escapeHtml(item.network || "–")}</td>
           <td><span class="privacy-sensitive">${formatNumber(item.available, 8)}</span></td>
           <td><span class="privacy-sensitive">${formatNumber(item.reserved, 8)}</span></td>
-          <td><span class="privacy-sensitive">${minimumDisplay}</span></td>
+          <td>
+            <span class="privacy-sensitive"><strong>${formatEuro(currentEur)}</strong></span>
+            <div class="route-hint ${deltaClass}">${escapeHtml(deltaText)}</div>
+          </td>
+          <td><span class="privacy-sensitive">${hasPrevious ? formatEuro(previousEur) : "–"}</span></td>
+          <td><span class="privacy-sensitive">${internalAccounting ? "–" : formatEuro(missing)}</span></td>
+          <td><span class="privacy-sensitive">${internalAccounting ? "–" : formatEuro(minimumEur)}</span></td>
           <td><span class="privacy-sensitive">${escapeHtml(address || "Noch nicht hinterlegt")}</span></td>
           <td><span class="status-pill">${escapeHtml(payoutStatusText(item.payout_status, possible))}</span></td>
         </tr>`;
@@ -4488,15 +4558,15 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
           <td>${escapeHtml(item.date || item.zahlung_bestaetigt_am || "–")}</td>
           <td>${escapeHtml(item.package || item.paket_code || "–")}</td>
           <td>${escapeHtml(item.payment_currency || item.waehrung || "–")}</td>
-          <td><span class="privacy-sensitive">${formatEuro(incoming)}</span></td>
-          <td><span class="privacy-sensitive">${formatEuro(costs)}</span></td>
-          <td><span class="privacy-sensitive">${formatEuro(affiliate)}</span></td>
-          <td><span class="privacy-sensitive">${formatEuro(distribution)}</span></td>
-          <td><span class="privacy-sensitive">${formatEuro(immediatePool)}</span></td>
-          <td><span class="privacy-sensitive">${formatEuro(usagePool)}</span></td>
-          <td><span class="privacy-sensitive">${formatEuro(immediateCredit)}</span></td>
+          <td><span class="privacy-sensitive">${formatProvisionCurrency(item, "incoming_after_plisio_crypto", incoming)}</span></td>
+          <td><span class="privacy-sensitive">${formatProvisionCurrency(item, "cost_prepayment_crypto", costs)}</span></td>
+          <td><span class="privacy-sensitive">${formatProvisionCurrency(item, "affiliate_budget_crypto", affiliate)}</span></td>
+          <td><span class="privacy-sensitive">${formatProvisionCurrency(item, "distribution_basis_crypto", distribution)}</span></td>
+          <td><span class="privacy-sensitive">${formatProvisionCurrency(item, "sofort_pool_crypto", immediatePool)}</span></td>
+          <td><span class="privacy-sensitive">${formatProvisionCurrency(item, "nutzungspool_crypto", usagePool)}</span></td>
+          <td><span class="privacy-sensitive">${formatProvisionCurrency(item, "sofort_person_crypto", immediateCredit)}</span></td>
           <td>
-            <span class="privacy-sensitive">${formatEuro(unitCredit)}</span>
+            <span class="privacy-sensitive">${formatProvisionCurrency(item, "unit_credit_released_crypto", unitCredit)}</span>
             <div class="route-hint">${formatNumber(usedPurchaseUnits, 2)} Kauf-Units verbraucht</div>
           </td>
           <td><span class="status-pill">${escapeHtml(label(item.status || item.abrechnungsstatus || "offen"))}</span></td>
@@ -5288,6 +5358,9 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
     }
 
     function renderSharedCosts(summary, isMaster) {
+      const overviewCard = document.getElementById("sharedCostOverviewCard");
+      if (overviewCard) overviewCard.classList.toggle("hidden", !isMaster);
+      if (!isMaster) return;
       const currentCosts = num(summary?.actual_costs_eur);
       const totalCosts = num(summary?.total_recorded_costs_eur);
       const contribution = num(summary?.prepayment_eur);
@@ -5492,6 +5565,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       }
 
       latestBalances = parseJsonValue(data.balances, []);
+      prepareLiveEurSnapshot(latestBalances);
       latestWallets = mergeWallets(parseJsonValue(data.wallets, []));
       const provisions = parseJsonValue(data.provisions, []);
       const payouts = parseJsonValue(data.payout_history, []);
