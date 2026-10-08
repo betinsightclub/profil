@@ -7,11 +7,29 @@ const LABELS=[["frank","Frank"],["martin","Martin"],["system","System / Schulung
 let rows=[],timer=0,refreshTimer=0;
 function session(){try{const s=JSON.parse(sessionStorage.getItem(KEY)||"null");return s&&s.token&&Number(s.expiresMs)>Date.now()?s:null}catch(_){return null}}
 async function hash(token){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(token));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
+function target(){
+ const h=[...document.querySelectorAll("h1,h2,h3")].find(x=>/Odds-fähigen Tipp vorbereiten/i.test(x.textContent||""));
+ if(!h)return null;
+ const wrapper=h.closest("section,article,.card,.panel")||h.parentElement;
+ return wrapper&&wrapper.parentNode?wrapper:null;
+}
 function mount(){
- const existing=document.getElementById("bi-tip-ticker");
- const el=existing||document.createElement("section");el.id="bi-tip-ticker";el.setAttribute("aria-label","Veröffentlichte, bevorstehende Tipps der Administratoren");
- if(!existing)el.innerHTML='<div class="bi-ticker-title"><span>⚽ Aktuelle Tipps im System</span><span class="bi-ticker-live">● LIVE</span></div><div class="bi-ticker-rows"></div>';
- const css=document.createElement("style");css.textContent=`
+ const point=target();
+ if(!point)return false;
+ let el=document.getElementById("bi-tip-ticker");
+ if(!el){el=document.createElement("section");el.id="bi-tip-ticker";el.setAttribute("aria-label","Veröffentlichte bevorstehende Tipps der Administratoren");
+ el.innerHTML='<div class="bi-ticker-title"><span>⚽ Aktuelle Tipps im System</span><span class="bi-ticker-live">● LIVE</span></div><div class="bi-ticker-rows"></div>';
+ for(const [id,label] of LABELS){
+  const line=document.createElement("div");line.className="bi-ticker-row";line.dataset.who=id;
+  const name=document.createElement("span");name.className="bi-ticker-name";name.textContent=label;
+  const track=document.createElement("div");track.className="bi-ticker-track";
+  line.append(name,track);el.querySelector(".bi-ticker-rows").appendChild(line);
+ }
+ }
+ // Immer an den sichtbaren authentifizierten Formularbereich verschieben.
+ if(el.parentNode!==point.parentNode||el.nextElementSibling!==point)point.parentNode.insertBefore(el,point);
+ if(!document.getElementById("bi-tip-ticker-style")){
+ const css=document.createElement("style");css.id="bi-tip-ticker-style";css.textContent=`
  #bi-tip-ticker{box-sizing:border-box;width:min(100%,1020px);margin:12px auto 16px;padding:10px 12px;color:#eef8ff;background:#09273a;border:1px solid rgba(34,185,230,.33);border-radius:12px;font:12px/1.35 Arial,sans-serif;text-align:left;box-shadow:0 8px 22px rgba(0,0,0,.12)}
  #bi-tip-ticker *{box-sizing:border-box}
  .bi-ticker-title{display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:700;margin-bottom:7px;font-size:13px}
@@ -30,16 +48,8 @@ function mount(){
  @media(prefers-reduced-motion:reduce){.bi-ticker-moving{animation:none}}
  `;
  document.head.appendChild(css);
- // Das Terminal verwendet verschiedene Wrapper-Versionen: vor dem ersten Eingabeformular einfügen.
- const form=document.querySelector("form");const parent=form?.closest("main,article,.card,.panel,.container")||form;
- if(!existing){if(parent&&parent.parentNode)parent.parentNode.insertBefore(el,parent);else document.body.insertBefore(el,document.body.firstChild);}
- if(!existing)LABELS.forEach(([id,label])=>{
-  const line=document.createElement("div");line.className="bi-ticker-row";line.dataset.who=id;
-  const name=document.createElement("span");name.className="bi-ticker-name";name.textContent=label;
-  const track=document.createElement("div");track.className="bi-ticker-track";
-  line.append(name,track);el.querySelector(".bi-ticker-rows").appendChild(line);
- });
- render();
+ }
+ render();return true;
 }
 function render(){
  const now=Date.now();
@@ -65,6 +75,13 @@ async function load(){
  }catch(_){rows=[]}
  render();
 }
-function boot(){mount();load();if(!timer)timer=setInterval(render,1000);if(!refreshTimer)refreshTimer=setInterval(load,60000);window.addEventListener("focus",load)}
+function boot(){
+ const observer=new MutationObserver(()=>{if(target()&&!document.getElementById("bi-tip-ticker"))mount()});
+ observer.observe(document.documentElement,{childList:true,subtree:true});
+ mount();load();
+ if(!timer)timer=setInterval(()=>{mount();render()},1000);
+ if(!refreshTimer)refreshTimer=setInterval(load,60000);
+ window.addEventListener("focus",()=>{mount();load()});
+}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
 })();
