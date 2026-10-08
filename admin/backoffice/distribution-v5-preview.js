@@ -12,7 +12,19 @@ function ses(){try{return JSON.parse(sessionStorage.getItem(KEY)||"null")}catch(
 function master(){return String(ses()?.adminId||"")==="ADM-001"}
 async function sha256Hex(text){const d=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(String(text||"")));return Array.from(new Uint8Array(d),b=>b.toString(16).padStart(2,"0")).join("")}
 async function loadLive(){const s=ses();if(!s?.token)throw new Error("Keine aktive Admin-Session.");const session_hash=await sha256Hex(s.token);const r=await fetch(LIVE_API,{method:"POST",headers:{"Content-Type":"application/json"},cache:"no-store",credentials:"omit",body:JSON.stringify({action:"load",session_hash})});const raw=await r.text();let j={};try{j=raw?JSON.parse(raw):{}}catch(_){throw new Error("Ungültige V5-Antwort.");}if(!r.ok||j.ok!==true)throw new Error(j.message||j.error||("HTTP "+r.status));livePurchases=Array.isArray(j.settlement_v5_purchases)?j.settlement_v5_purchases:[];liveUsages=Array.isArray(j.settlement_v5_usages)?j.settlement_v5_usages:[];}
-function num(v){const s=String(v??"").replace(/\s/g,"").replace(/\./g,"").replace(",",".").replace(/[^0-9+-.]/g,"");const n=Number(s);return Number.isFinite(n)?n:0}
+function num(v){
+ if(typeof v==="number") return Number.isFinite(v)?v:0;
+ let s=String(v??"").trim().replace(/\s/g,"").replace(/[^0-9+.,-]/g,"");
+ if(!s)return 0;
+ if(s.includes(",")&&s.includes(".")){
+   if(s.lastIndexOf(",")>s.lastIndexOf(".")) s=s.replace(/\./g,"").replace(",",".");
+   else s=s.replace(/,/g,"");
+ }else if(s.includes(",")){
+   s=s.replace(",",".");
+ }
+ const n=Number(s);
+ return Number.isFinite(n)?n:0;
+}
 function eur(v){return Number(v||0).toLocaleString("de-DE",{style:"currency",currency:"EUR",minimumFractionDigits:2,maximumFractionDigits:6})}
 function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 function money(g,r,isV5,partnerView=false){
@@ -61,12 +73,12 @@ function paidDate(v){
 }
 function partnerNet(net,legacy){
  return legacy
-  ? '<strong>'+eur(net)+'</strong><small>Altbestand · unverändert übernommen</small>'
-  : '<strong class="v5net">'+eur(net)+' netto</strong><small>Gesetzlich erforderliche Einbehalte werden von LucMedia direkt abgeführt.</small>';
+  ? '<strong>'+eur(net)+'</strong>'
+  : '<strong class="v5net">'+eur(net)+' netto</strong>';
 }
 function masterPartner(net,gross,tax,legacy){
  return legacy
-  ? '<strong>'+eur(net)+'</strong><small>Altbestand · unverändert übernommen</small>'
+  ? '<strong>'+eur(net)+'</strong>'
   : '<strong class="v5net">'+eur(net)+' netto</strong><small>'+eur(gross)+' brutto · '+eur(tax)+' IRRF-Reserve</small>';
 }
 function renderPurchase(){
@@ -77,7 +89,7 @@ function renderPurchase(){
   B.innerHTML=rows.length?rows.map(r=>{
    const legacy=!!r.is_legacy;
    return '<tr>'+
-    '<td>'+esc(paidDate(r.paid_at_text))+'<small>'+(legacy?'ALT · unverändert':'V5 · live')+'</small></td>'+
+    '<td>'+esc(paidDate(r.paid_at_text))+'</td>'+
     '<td>'+esc(r.package_code||"–")+'</td>'+
     '<td>'+esc(r.payment_currency||"–")+'</td>'+
     '<td>'+eur(r.incoming_after_plisio_eur)+'</td>'+
@@ -90,7 +102,7 @@ function renderPurchase(){
     '<td>'+masterPartner(r.martin_immediate_net_eur,r.martin_immediate_gross_eur,r.martin_irrf_reserve_eur,legacy)+'</td>'+
     '<td>'+masterPartner(r.frank_immediate_net_eur,r.frank_immediate_gross_eur,r.frank_irrf_reserve_eur,legacy)+'</td>'+
     '<td>'+(legacy?'–':eur(r.special_reserve_eur))+'</td>'+
-    '<td>'+eur(r.luciano_usage_released_eur)+'<small>'+num(r.used_purchase_units).toLocaleString("de-DE",{maximumFractionDigits:2})+' Kauf-Units verbraucht</small></td>'+
+    '<td>'+eur(r.luciano_usage_released_eur)+'</td>'+
     '<td>'+esc(r.status||"–")+'<small>'+esc(r.rule_version||"")+'</small></td>'+
     '</tr>';
   }).join(""):'<tr><td colspan="15">Noch keine Abrechnungen vorhanden.</td></tr>';
@@ -102,7 +114,7 @@ function renderPurchase(){
    const imm=isM?r.martin_immediate_net_eur:r.frank_immediate_net_eur;
    const rel=isM?r.martin_usage_released_eur:r.frank_usage_released_eur;
    return '<tr>'+
-    '<td>'+esc(paidDate(r.paid_at_text))+'<small>'+(legacy?'ALT · unverändert':'V5 · live')+'</small></td>'+
+    '<td>'+esc(paidDate(r.paid_at_text))+'</td>'+
     '<td>'+esc(r.package_code||"–")+'</td>'+
     '<td>'+esc(r.payment_currency||"–")+'</td>'+
     '<td>'+eur(r.incoming_after_plisio_eur)+'</td>'+
@@ -112,7 +124,7 @@ function renderPurchase(){
     '<td>'+eur(r.immediate_pool_eur)+'</td>'+
     '<td>'+eur(r.usage_pool_eur)+'</td>'+
     '<td>'+partnerNet(imm,legacy)+'</td>'+
-    '<td>'+partnerNet(rel,legacy)+'<small>'+num(r.used_purchase_units).toLocaleString("de-DE",{maximumFractionDigits:2})+' Kauf-Units verbraucht</small></td>'+
+    '<td>'+partnerNet(rel,legacy)+'</td>'+
     '<td>'+esc(r.status||"–")+'</td>'+
     '</tr>';
   }).join(""):'<tr><td colspan="12">Noch keine Abrechnungen vorhanden.</td></tr>';
@@ -162,7 +174,7 @@ function render(){
  const r=role[view];
  document.getElementById("v5rule").textContent=view==="ADM-001"
  ? "V5: Sofortpool 40 % → Luciano 40 % · Martin 30 % brutto · Frank 10 % brutto · Sondertopf 20 %. Normaler Unit-Verbrauch 40/30/10/20; Tennis 50/30/0/20. Altbuchungen bleiben unverändert."
- : r.name+": Sofortpool "+r.now+" %. Normaler Unit-Verbrauch "+r.normal+" %, Tennis "+r.tennis+" %. Angezeigt wird dein Nettoanteil. Gesetzlich erforderliche Einbehalte werden von LucMedia direkt abgeführt. Altbuchungen bleiben unverändert.";
+ : r.name+": Angezeigt wird dein Nettoanteil. Gesetzlich erforderliche Einbehalte werden von LucMedia direkt abgeführt. Altbuchungen bleiben unverändert.";
 }
 
 async function init(){
