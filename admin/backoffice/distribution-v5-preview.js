@@ -25,7 +25,7 @@ function num(v){
  const n=Number(s);
  return Number.isFinite(n)?n:0;
 }
-function eur(v){return Number(v||0).toLocaleString("de-DE",{style:"currency",currency:"EUR",minimumFractionDigits:2,maximumFractionDigits:6})}
+function eur(v){return Number(v||0).toLocaleString("de-DE",{style:"currency",currency:"EUR",minimumFractionDigits:2,maximumFractionDigits:6})}\nfunction cryptoAmt(v,c){const x=String(c||"").toUpperCase();return Number(v||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:8})+" "+x}\nfunction cv(r,ck,ek){const cur=String(r?.payment_currency||r?.abrechnungs_waehrung||"EUR").toUpperCase();if(cur==="EUR")return eur(r?.[ek]||0);let v=Number(r?.[ck]);if(!Number.isFinite(v)){const rate=Number(r?.exchange_rate_eur_per_coin||r?.wechselkurs_eur_je_coin||0);v=rate>0?Number(r?.[ek]||0)/rate:0}return cryptoAmt(v,cur)}
 function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 function money(g,r,isV5,partnerView=false){
  const gross=Number(g||0);
@@ -92,17 +92,17 @@ function renderPurchase(){
     '<td>'+esc(paidDate(r.paid_at_text))+'</td>'+
     '<td>'+esc(r.package_code||"–")+'</td>'+
     '<td>'+esc(r.payment_currency||"–")+'</td>'+
-    '<td>'+eur(r.incoming_after_plisio_eur)+'</td>'+
-    '<td>'+eur(r.operating_cost_eur)+'</td>'+
-    '<td>'+eur(r.affiliate_budget_eur)+'</td>'+
-    '<td>'+eur(r.distributable_net_eur)+'</td>'+
-    '<td>'+eur(r.immediate_pool_eur)+'</td>'+
-    '<td>'+eur(r.usage_pool_eur)+'</td>'+
-    '<td>'+eur(r.luciano_immediate_eur)+'</td>'+
+    '<td>'+cv(r,"incoming_after_plisio_crypto","incoming_after_plisio_eur")+'</td>'+
+    '<td>'+cv(r,"operating_cost_crypto","operating_cost_eur")+'</td>'+
+    '<td>'+cv(r,"affiliate_budget_crypto","affiliate_budget_eur")+'</td>'+
+    '<td>'+cv(r,"distributable_net_crypto","distributable_net_eur")+'</td>'+
+    '<td>'+cv(r,"immediate_pool_crypto","immediate_pool_eur")+'</td>'+
+    '<td>'+cv(r,"usage_pool_crypto","usage_pool_eur")+'</td>'+
+    '<td>'+cv(r,"luciano_immediate_crypto","luciano_immediate_eur")+'</td>'+
     '<td>'+masterPartner(r.martin_immediate_net_eur,r.martin_immediate_gross_eur,r.martin_irrf_reserve_eur,legacy)+'</td>'+
     '<td>'+masterPartner(r.frank_immediate_net_eur,r.frank_immediate_gross_eur,r.frank_irrf_reserve_eur,legacy)+'</td>'+
     '<td>'+(legacy?'–':eur(r.special_reserve_eur))+'</td>'+
-    '<td>'+eur(r.luciano_usage_released_eur)+'</td>'+
+    '<td>'+cv(r,"luciano_usage_released_crypto","luciano_usage_released_eur")+'</td>'+
     '<td>'+esc(r.status||"–")+'<small>'+esc(r.rule_version||"")+'</small></td>'+
     '</tr>';
   }).join(""):'<tr><td colspan="15">Noch keine Abrechnungen vorhanden.</td></tr>';
@@ -117,12 +117,12 @@ function renderPurchase(){
     '<td>'+esc(paidDate(r.paid_at_text))+'</td>'+
     '<td>'+esc(r.package_code||"–")+'</td>'+
     '<td>'+esc(r.payment_currency||"–")+'</td>'+
-    '<td>'+eur(r.incoming_after_plisio_eur)+'</td>'+
-    '<td>'+eur(r.operating_cost_eur)+'</td>'+
-    '<td>'+eur(r.affiliate_budget_eur)+'</td>'+
-    '<td>'+eur(r.distributable_net_eur)+'</td>'+
-    '<td>'+eur(r.immediate_pool_eur)+'</td>'+
-    '<td>'+eur(r.usage_pool_eur)+'</td>'+
+    '<td>'+cv(r,"incoming_after_plisio_crypto","incoming_after_plisio_eur")+'</td>'+
+    '<td>'+cv(r,"operating_cost_crypto","operating_cost_eur")+'</td>'+
+    '<td>'+cv(r,"affiliate_budget_crypto","affiliate_budget_eur")+'</td>'+
+    '<td>'+cv(r,"distributable_net_crypto","distributable_net_eur")+'</td>'+
+    '<td>'+cv(r,"immediate_pool_crypto","immediate_pool_eur")+'</td>'+
+    '<td>'+cv(r,"usage_pool_crypto","usage_pool_eur")+'</td>'+
     '<td>'+partnerNet(imm,legacy)+'</td>'+
     '<td>'+partnerNet(rel,legacy)+'</td>'+
     '<td>'+esc(r.status||"–")+'</td>'+
@@ -143,8 +143,8 @@ function renderUsage(){
     '<td><strong>'+esc(r.sportart||"Fussball")+'</strong><small>'+esc(r.tipp_id||"–")+' · '+esc(r.spiel||"")+'</small></td>'+
     '<td>'+esc(r.paket_kauf_id||"–")+'</td>'+
     '<td>'+num(r.kauf_units_verbraucht).toLocaleString("de-DE",{maximumFractionDigits:2})+' Units</td>'+
-    '<td>'+eur(r.nutzungspool_zugeordnet_eur)+'</td>'+
-    '<td>'+eur(r.luciano_freigegeben_eur)+'</td>'+
+    '<td>'+cv(r,"nutzungspool_zugeordnet_crypto","nutzungspool_zugeordnet_eur")+'</td>'+
+    '<td>'+cv(r,"luciano_freigegeben_crypto","luciano_freigegeben_eur")+'</td>'+
     '<td>'+masterPartner(r.martin_freigegeben_eur,r.martin_brutto_eur,r.martin_irrf_eur,!live)+'</td>'+
     '<td>'+masterPartner(r.frank_freigegeben_eur,r.frank_brutto_eur,r.frank_irrf_eur,!live)+'</td>'+
     '<td>'+(live?eur(r.sondertopf_eur):'–')+'</td>'+
