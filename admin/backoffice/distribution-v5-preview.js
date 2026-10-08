@@ -2,7 +2,7 @@
 "use strict";
 const KEY="betinsight_admin_session_v1", ID="distributionV5Preview", IRRF=25;
 const LIVE_API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=backoffice-read-shadow";
-let view="ADM-001", livePurchases=[], liveUsages=[];
+let view="ADM-001", livePurchases=[], liveUsages=[];\nlet activeMoneyRow=null;
 const role={
  "ADM-001":{name:"Luciano",old:40,now:40,normal:40,tennis:50,irrf:false,usage:7},
  "ADM-002":{name:"Martin",old:30,now:30,normal:30,tennis:30,irrf:true,usage:8},
@@ -25,7 +25,7 @@ function num(v){
  const n=Number(s);
  return Number.isFinite(n)?n:0;
 }
-function eur(v){return Number(v||0).toLocaleString("de-DE",{style:"currency",currency:"EUR",minimumFractionDigits:2,maximumFractionDigits:6})}\nfunction cryptoAmt(v,c){const x=String(c||"").toUpperCase();return Number(v||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:8})+" "+x}\nfunction cv(r,ck,ek){const cur=String(r?.payment_currency||r?.abrechnungs_waehrung||"EUR").toUpperCase();if(cur==="EUR")return eur(r?.[ek]||0);let v=Number(r?.[ck]);if(!Number.isFinite(v)){const rate=Number(r?.exchange_rate_eur_per_coin||r?.wechselkurs_eur_je_coin||0);v=rate>0?Number(r?.[ek]||0)/rate:0}return cryptoAmt(v,cur)}
+function eur(v){const r=activeMoneyRow;const cur=String(r?.payment_currency||r?.abrechnungs_waehrung||"EUR").toUpperCase();if(r&&cur!=="EUR"){const rate=Number(r?.exchange_rate_eur_per_coin||r?.wechselkurs_eur_je_coin||0);const coin=rate>0?Number(v||0)/rate:0;return Number(coin).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:8})+" "+cur}return Number(v||0).toLocaleString("de-DE",{style:"currency",currency:"EUR",minimumFractionDigits:2,maximumFractionDigits:6})}\nfunction cryptoAmt(v,c){const x=String(c||"").toUpperCase();return Number(v||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:8})+" "+x}\nfunction cv(r,ck,ek){const cur=String(r?.payment_currency||r?.abrechnungs_waehrung||"EUR").toUpperCase();if(cur==="EUR")return eur(r?.[ek]||0);let v=Number(r?.[ck]);if(!Number.isFinite(v)){const rate=Number(r?.exchange_rate_eur_per_coin||r?.wechselkurs_eur_je_coin||0);v=rate>0?Number(r?.[ek]||0)/rate:0}return cryptoAmt(v,cur)}
 function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 function money(g,r,isV5,partnerView=false){
  const gross=Number(g||0);
