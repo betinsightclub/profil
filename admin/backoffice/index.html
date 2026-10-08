@@ -23,7 +23,7 @@
         if (!response.ok) throw new Error("Backoffice-Kern konnte nicht geladen werden (HTTP " + response.status + ").");
         const coreHtml = await response.text();
 
-        const walletApprovalScript = '<scr' + 'ipt src="./wallet-approval.js?v=20260906-1"></scr' + 'ipt>';
+        const walletApprovalScript = '<scr' + 'ipt src="./wallet-approval.js?v=20261008-1"></scr' + 'ipt>';
         const premiumScript = '<scr' + 'ipt src="./premium-eingaenge.js?v=20260905-2"></scr' + 'ipt>';
         const premiumProvisionenScript = '<scr' + 'ipt src="./premium-provisionen.js?v=20260912-1"></scr' + 'ipt>';
         const adminUnitCreditScript = '<scr' + 'ipt src="./admin-unit-credit.js?v=20261008-1"></scr' + 'ipt>';
