@@ -5365,8 +5365,9 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
 
     function renderSharedCosts(summary, isMaster) {
       const overviewCard = document.getElementById("sharedCostOverviewCard");
-      if (overviewCard) overviewCard.classList.toggle("hidden", !isMaster);
-      if (!isMaster) return;
+      if (!overviewCard) return;
+      overviewCard.classList.remove("hidden");
+
       const currentCosts = num(summary?.actual_costs_eur);
       const totalCosts = num(summary?.total_recorded_costs_eur);
       const contribution = num(summary?.prepayment_eur);
@@ -5380,22 +5381,63 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       const expectedKnown = num(summary?.expected_total_known_eur || totalCosts + plannedKnown);
       const effective = String(summary?.next_prepayment_effective || "");
 
+      const heading = overviewCard.querySelector(".panel-heading h3");
+      const subtitle = overviewCard.querySelector(".panel-heading p");
       const monthLabel = document.getElementById("sharedCostMonthLabel");
-      if (monthLabel) monthLabel.textContent = String(summary?.display_month || summary?.month || "Aktueller Monat");
       const currentEl = document.getElementById("sharedCostCurrent");
       const totalEl = document.getElementById("sharedCostTotal");
       const contributionEl = document.getElementById("sharedCostContribution");
       const rateNote = document.getElementById("sharedCostRateNote");
+      const currentStat = currentEl?.closest(".cost-transparency-stat");
+      const totalStat = totalEl?.closest(".cost-transparency-stat");
+      const contributionStat = contributionEl?.closest(".cost-transparency-stat");
+      const contributionLabel = contributionStat?.querySelector(".cost-transparency-label");
+      const coverage = document.getElementById("sharedCostCoverage");
+      const planning = document.getElementById("sharedCostPlanning");
+      const plan = document.getElementById("sharedCostPlan");
+      const control = document.getElementById("costMasterControl");
+
+      if (monthLabel) monthLabel.textContent = String(summary?.display_month || summary?.month || "Aktueller Monat");
+      if (contributionEl) contributionEl.textContent = formatEuro(contribution);
+
+      if (!isMaster) {
+        if (heading) heading.textContent = "🏢 Betriebskostenbeitrag";
+        if (subtitle) subtitle.textContent =
+          "Transparente Anzeige deines Kostenbeitrags. Interne Kosten- und Reserveplanung bleibt ausschließlich im Master.";
+        if (currentStat) currentStat.classList.add("hidden");
+        if (totalStat) totalStat.classList.add("hidden");
+        if (contributionStat) contributionStat.classList.remove("hidden");
+        if (contributionLabel) contributionLabel.textContent = "Betriebskostenbeitrag gesamt";
+        if (rateNote) rateNote.textContent =
+          "Altbestand: " + formatEuro(contributionLegacy) +
+          " · laufender Monat: " + formatEuro(contributionCurrentMonth) +
+          " · aktueller Satz: " + formatNumber(currentRate, 2) + " %";
+        if (coverage) coverage.classList.add("hidden");
+        if (planning) planning.classList.add("hidden");
+        if (plan) plan.classList.add("hidden");
+        if (control) control.classList.add("hidden");
+        return;
+      }
+
+      if (heading) heading.textContent = "🏢 Betriebskosten & Kostenreserve";
+      if (subtitle) subtitle.textContent =
+        "Gemeinsame Betriebskosten und der dafür zurückgelegte Umsatzanteil – interne Master-Sicht.";
+      if (currentStat) currentStat.classList.remove("hidden");
+      if (totalStat) totalStat.classList.remove("hidden");
+      if (contributionStat) contributionStat.classList.remove("hidden");
+      if (contributionLabel) contributionLabel.textContent = "Betriebskostenbeitrag aus Umsätzen";
+      if (coverage) coverage.classList.remove("hidden");
+      if (planning) planning.classList.remove("hidden");
+      if (plan) plan.classList.remove("hidden");
+
       if (currentEl) currentEl.textContent = formatEuro(currentCosts);
       if (totalEl) totalEl.textContent = formatEuro(totalCosts);
-      if (contributionEl) contributionEl.textContent = formatEuro(contribution);
       if (rateNote) rateNote.textContent =
         "Gesamtreserve: " + formatEuro(contribution) +
         " · Altbestand: " + formatEuro(contributionLegacy) +
         " · laufender Monat: " + formatEuro(contributionCurrentMonth) +
         " · aktueller Satz: " + formatNumber(currentRate, 2) + " %";
 
-      const coverage = document.getElementById("sharedCostCoverage");
       if (coverage) {
         coverage.classList.remove("positive", "negative");
         coverage.classList.add(difference >= 0 ? "positive" : "negative");
@@ -5404,7 +5446,6 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
           " · Differenz: <strong>" + escapeHtml((difference > 0 ? "+" : "") + formatEuro(difference)) + "</strong>";
       }
 
-      const planning = document.getElementById("sharedCostPlanning");
       if (planning) {
         if (plannedCount > 0) {
           planning.innerHTML = plannedKnown > 0
@@ -5418,7 +5459,6 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
         }
       }
 
-      const plan = document.getElementById("sharedCostPlan");
       if (plan) {
         plan.innerHTML = "<strong>Aktueller Satz:</strong> " + escapeHtml(formatNumber(currentRate, 2) + " %") +
           " · <strong>ab " + escapeHtml(formatCostDate(effective)) + " geplant:</strong> " +
@@ -5426,7 +5466,6 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
           " · Änderungen gelten nicht rückwirkend.";
       }
 
-      const control = document.getElementById("costMasterControl");
       if (control) control.classList.toggle("hidden", !isMaster);
       const input = document.getElementById("nextCostPctInput");
       if (input && document.activeElement !== input) input.value = nextRate.toFixed(2);
