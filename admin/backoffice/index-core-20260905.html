@@ -2349,7 +2349,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
 
         <article class="content-card full">
           <h3>Letzte Aktivitäten</h3>
-          <p class="muted">Die jüngsten Provisionen, Wallet-Änderungen und Auszahlungsvorgänge.</p>
+          <p class="muted">Die jüngsten Provisionen in der jeweiligen Kaufwährung sowie Wallet-Änderungen und Auszahlungsvorgänge.</p>
           <div id="activitySummary" class="activity-list">
             <div class="empty-state">Noch keine echten Aktivitäten vorhanden.</div>
           </div>
@@ -5360,8 +5360,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
 
     function renderSharedCosts(summary, isMaster) {
       const overviewCard = document.getElementById("sharedCostOverviewCard");
-      if (overviewCard) overviewCard.classList.toggle("hidden", !isMaster);
-      if (!isMaster) return;
+      if (overviewCard) overviewCard.classList.remove("hidden");
       const currentCosts = num(summary?.actual_costs_eur);
       const totalCosts = num(summary?.total_recorded_costs_eur);
       const contribution = num(summary?.prepayment_eur);
@@ -5385,7 +5384,8 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       if (totalEl) totalEl.textContent = formatEuro(totalCosts);
       if (contributionEl) contributionEl.textContent = formatEuro(contribution);
       if (rateNote) rateNote.textContent =
-        "Altbestand: " + formatEuro(contributionLegacy) +
+        "Gesamtreserve: " + formatEuro(contribution) +
+        " · Altbestand: " + formatEuro(contributionLegacy) +
         " · laufender Monat: " + formatEuro(contributionCurrentMonth) +
         " · aktueller Satz: " + formatNumber(currentRate, 2) + " %";
 
@@ -5741,11 +5741,12 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       }
 
       (provisions || []).forEach(function (item) {
+        const eurValue = num(item.sofort_person_eur ?? item.commission_eur ?? 0);
         entries.push({
           date: item.date || item.zahlung_bestaetigt_am || '–',
           title: 'Provision · ' + (item.package || item.paket_code || 'Paket'),
           detail: 'Bestätigte Kundenzahlung',
-          value: formatEuro(item.sofort_person_eur ?? item.commission_eur ?? 0)
+          value: formatProvisionCurrency(item, "sofort_person_crypto", eurValue)
         });
       });
 
