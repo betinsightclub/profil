@@ -87,7 +87,7 @@ function renderPurchase(){
  if(view==="ADM-001"){
   H.innerHTML="<tr><th>Datum</th><th>Paket</th><th>Währung</th><th>Eingang nach Plisio</th><th>Betriebskosten</th><th>Affiliate</th><th>Verteilbarer Netto</th><th>Sofortpool</th><th>Unit-Pool</th><th>Luciano</th><th>Martin</th><th>Frank</th><th>Sondertopf</th><th>Freigegebener Unit-Anteil</th><th>Status</th></tr>";
   B.innerHTML=rows.length?rows.map(r=>{
-   const legacy=!!r.is_legacy;
+   activeMoneyRow=r;\n   const legacy=!!r.is_legacy;
    return '<tr>'+
     '<td>'+esc(paidDate(r.paid_at_text))+'</td>'+
     '<td>'+esc(r.package_code||"–")+'</td>'+
