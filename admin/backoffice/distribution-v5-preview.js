@@ -1,7 +1,8 @@
 (() => {
 "use strict";
 const KEY="betinsight_admin_session_v1", ID="distributionV5Preview", IRRF=25;
-let view="ADM-001";
+const LIVE_API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=backoffice-read-shadow";
+let view="ADM-001", livePurchases=[], liveUsages=[];
 const role={
  "ADM-001":{name:"Luciano",old:40,now:40,normal:40,tennis:50,irrf:false,usage:7},
  "ADM-002":{name:"Martin",old:30,now:30,normal:30,tennis:30,irrf:true,usage:8},
@@ -9,6 +10,8 @@ const role={
 };
 function ses(){try{return JSON.parse(sessionStorage.getItem(KEY)||"null")}catch(_){return null}}
 function master(){return String(ses()?.adminId||"")==="ADM-001"}
+async function sha256Hex(text){const d=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(String(text||"")));return Array.from(new Uint8Array(d),b=>b.toString(16).padStart(2,"0")).join("")}
+async function loadLive(){const s=ses();if(!s?.token)throw new Error("Keine aktive Admin-Session.");const session_hash=await sha256Hex(s.token);const r=await fetch(LIVE_API,{method:"POST",headers:{"Content-Type":"application/json"},cache:"no-store",credentials:"omit",body:JSON.stringify({action:"load",session_hash})});const raw=await r.text();let j={};try{j=raw?JSON.parse(raw):{}}catch(_){throw new Error("Ungültige V5-Antwort.");}if(!r.ok||j.ok!==true)throw new Error(j.message||j.error||("HTTP "+r.status));livePurchases=Array.isArray(j.settlement_v5_purchases)?j.settlement_v5_purchases:[];liveUsages=Array.isArray(j.settlement_v5_usages)?j.settlement_v5_usages:[];}
 function num(v){const s=String(v??"").replace(/\s/g,"").replace(/\./g,"").replace(",",".").replace(/[^0-9+-.]/g,"");const n=Number(s);return Number.isFinite(n)?n:0}
 function eur(v){return Number(v||0).toLocaleString("de-DE",{style:"currency",currency:"EUR",minimumFractionDigits:2,maximumFractionDigits:6})}
 function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
@@ -42,51 +45,116 @@ function css(){
 function make(){
  const panel=document.getElementById("tab-provisions"); if(!panel||document.getElementById(ID))return;
  const x=document.createElement("article");x.id=ID;
- x.innerHTML='<div class="h"><div><h3>V5-Abrechnungsansicht · Vorschau</h3><p>Gleicher Aufbau wie bisher, mit alten Daten plus neuer V5-Verteilung. Nur Luciano sieht diese Vorschau.</p></div><span class="badge">MASTER · NICHT LIVE</span></div>'+
+ x.innerHTML='<div class="h"><div><h3>Abrechnung · V5-Liveansicht</h3><p>Altbestand 1:1 übernommen. Neue Paketkäufe und neue Kauf-Unit-Verbräuche werden automatisch ergänzt. Martin und Frank sehen diese neue Ansicht noch nicht.</p></div><span class="badge">LIVE-ERFASSUNG · MASTER</span></div>'+
  '<div class="tabs"><button class="on" data-v="ADM-001">Meine Ansicht · Luciano</button><button data-v="ADM-002">Vorschau · Martin</button><button data-v="ADM-003">Vorschau · Frank</button></div>'+
- '<div class="sec"><h4>Abgewickelte Paketkäufe</h4><div class="note">V5-Testzeile oben, vorhandene Altbuchungen darunter unverändert.</div><div class="wrap"><table><thead id="v5ph"></thead><tbody id="v5pb"></tbody></table></div></div>'+
- '<div class="sec"><h4>Abgewickelte Kauf-Unit-Verbräuche</h4><div class="note">Normal/Fußball und Tennis als V5-Test; vorhandene Altbuchungen bleiben darunter.</div><div class="wrap"><table><thead id="v5uh"></thead><tbody id="v5ub"></tbody></table></div></div>'+
+ '<div class="sec"><h4>Abgewickelte Paketkäufe</h4><div class="note">Musterdaten entfernt. Altbestand bleibt unverändert; neue V5-Käufe erscheinen automatisch.</div><div class="wrap"><table><thead id="v5ph"></thead><tbody id="v5pb"></tbody></table></div></div>'+
+ '<div class="sec"><h4>Abgewickelte Kauf-Unit-Verbräuche</h4><div class="note">Musterdaten entfernt. Bestehende Verbrauchsdaten bleiben unverändert; neue V5-Vorgänge erscheinen automatisch.</div><div class="wrap"><table><thead id="v5uh"></thead><tbody id="v5ub"></tbody></table></div></div>'+
  '<div class="rule" id="v5rule"></div>';
  const h=panel.querySelector(".panel-heading"); if(h)h.insertAdjacentElement("afterend",x);else panel.prepend(x);
  x.querySelectorAll("button[data-v]").forEach(b=>b.onclick=()=>{view=b.dataset.v;x.querySelectorAll("button[data-v]").forEach(y=>y.classList.toggle("on",y===b));render()});
 }
-function oldPurchases(){
- const src=[...document.querySelectorAll("#provisionTableBody tr")];
- return src.filter(r=>r.children.length>=12).map(r=>[...r.children].map(c=>c.textContent.trim()));
+
+function paidDate(v){
+ const raw=String(v??"").trim(); if(!raw)return "–";
+ const d=new Date(raw); if(Number.isNaN(d.getTime()))return raw;
+ return d.toLocaleString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
 }
-function oldUsage(){
- const src=[...document.querySelectorAll("#uupBody tr")];
- return src.filter(r=>r.children.length>=11).map(r=>[...r.children].map(c=>c.textContent.trim()));
+function partnerNet(net,legacy){
+ return legacy
+  ? '<strong>'+eur(net)+'</strong><small>Altbestand · unverändert übernommen</small>'
+  : '<strong class="v5net">'+eur(net)+' netto</strong><small>Gesetzlich erforderliche Einbehalte werden von LucMedia direkt abgeführt.</small>';
+}
+function masterPartner(net,gross,tax,legacy){
+ return legacy
+  ? '<strong>'+eur(net)+'</strong><small>Altbestand · unverändert übernommen</small>'
+  : '<strong class="v5net">'+eur(net)+' netto</strong><small>'+eur(gross)+' brutto · '+eur(tax)+' IRRF-Reserve</small>';
 }
 function renderPurchase(){
- const r=role[view], H=document.getElementById("v5ph"), B=document.getElementById("v5pb"), old=oldPurchases();
+ const H=document.getElementById("v5ph"),B=document.getElementById("v5pb");
+ const rows=livePurchases.slice().sort((a,b)=>Number(b.settlement_id||0)-Number(a.settlement_id||0));
  if(view==="ADM-001"){
-   H.innerHTML="<tr><th>Datum</th><th>Paket</th><th>Währung</th><th>Eingang nach Plisio</th><th>Betriebskosten</th><th>Affiliate</th><th>Verteilbarer Netto</th><th>Sofortpool</th><th>Unit-Pool</th><th>Luciano</th><th>Martin</th><th>Frank</th><th>Sondertopf</th><th>Status</th></tr>";
-   let html='<tr class="testrow"><td>V5 · TEST<span class="tag">keine Buchung</span></td><td>Beispielkauf 100 €</td><td>EUR</td><td>'+eur(99.5)+'</td><td>'+eur(2.4875)+'</td><td>'+eur(9.95)+'</td><td>'+eur(87.0625)+'</td><td>'+eur(34.825)+'</td><td>'+eur(52.2375)+'</td><td>'+money(13.93,role["ADM-001"],true)+'</td><td>'+money(10.4475,role["ADM-002"],true)+'</td><td>'+money(3.4825,role["ADM-003"],true)+'</td><td>'+eur(6.965)+'</td><td>V5 Vorschau</td></tr>';
-   old.forEach(a=>{const imm=num(a[7]);html+='<tr><td>'+esc(a[0])+'<small>ALT · unverändert</small></td><td>'+esc(a[1])+'</td><td>'+esc(a[2])+'</td><td>'+esc(a[3])+'</td><td>'+esc(a[4])+'</td><td>'+esc(a[5])+'</td><td>'+esc(a[6])+'</td><td>'+esc(a[7])+'</td><td>'+esc(a[8])+'</td><td>'+eur(imm*.40)+'</td><td>'+eur(imm*.30)+'</td><td>'+eur(imm*.30)+'</td><td>–</td><td>'+esc(a[11])+'</td></tr>'});
-   B.innerHTML=html;
+  H.innerHTML="<tr><th>Datum</th><th>Paket</th><th>Währung</th><th>Eingang nach Plisio</th><th>Betriebskosten</th><th>Affiliate</th><th>Verteilbarer Netto</th><th>Sofortpool</th><th>Unit-Pool</th><th>Luciano</th><th>Martin</th><th>Frank</th><th>Sondertopf</th><th>Freigegebener Unit-Anteil</th><th>Status</th></tr>";
+  B.innerHTML=rows.length?rows.map(r=>{
+   const legacy=!!r.is_legacy;
+   return '<tr>'+
+    '<td>'+esc(paidDate(r.paid_at_text))+'<small>'+(legacy?'ALT · unverändert':'V5 · live')+'</small></td>'+
+    '<td>'+esc(r.package_code||"–")+'</td>'+
+    '<td>'+esc(r.payment_currency||"–")+'</td>'+
+    '<td>'+eur(r.incoming_after_plisio_eur)+'</td>'+
+    '<td>'+eur(r.operating_cost_eur)+'</td>'+
+    '<td>'+eur(r.affiliate_budget_eur)+'</td>'+
+    '<td>'+eur(r.distributable_net_eur)+'</td>'+
+    '<td>'+eur(r.immediate_pool_eur)+'</td>'+
+    '<td>'+eur(r.usage_pool_eur)+'</td>'+
+    '<td>'+eur(r.luciano_immediate_eur)+'</td>'+
+    '<td>'+masterPartner(r.martin_immediate_net_eur,r.martin_immediate_gross_eur,r.martin_irrf_reserve_eur,legacy)+'</td>'+
+    '<td>'+masterPartner(r.frank_immediate_net_eur,r.frank_immediate_gross_eur,r.frank_irrf_reserve_eur,legacy)+'</td>'+
+    '<td>'+(legacy?'–':eur(r.special_reserve_eur))+'</td>'+
+    '<td>'+eur(r.luciano_usage_released_eur)+'<small>'+num(r.used_purchase_units).toLocaleString("de-DE",{maximumFractionDigits:2})+' Kauf-Units verbraucht</small></td>'+
+    '<td>'+esc(r.status||"–")+'<small>'+esc(r.rule_version||"")+'</small></td>'+
+    '</tr>';
+  }).join(""):'<tr><td colspan="15">Noch keine Abrechnungen vorhanden.</td></tr>';
  }else{
-   H.innerHTML="<tr><th>Datum</th><th>Paket</th><th>Währung</th><th>Eingang nach Plisio</th><th>Betriebskosten</th><th>Affiliate</th><th>Verteilbarer Netto</th><th>Sofortpool</th><th>Unit-Pool</th><th>Deine Sofortgutschrift</th><th>Freigegebener Unit-Anteil</th><th>Status</th></tr>";
-   const gross=34.825*r.now/100, unit=52.2375*r.normal/100;
-   let html='<tr class="testrow"><td>V5 · TEST<span class="tag">keine Buchung</span></td><td>Beispielkauf 100 €</td><td>EUR</td><td>'+eur(99.5)+'</td><td>'+eur(2.4875)+'</td><td>'+eur(9.95)+'</td><td>'+eur(87.0625)+'</td><td>'+eur(34.825)+'</td><td>'+eur(52.2375)+'</td><td>'+money(gross,r,true,true)+'</td><td>'+money(unit,r,true,true)+'<small>Beispiel: kompletter Unit-Pool als normaler Fußball-Tipp</small></td><td>V5 Vorschau</td></tr>';
-   old.forEach(a=>{const imm=num(a[7]);html+='<tr><td>'+esc(a[0])+'<small>ALT · unverändert</small></td><td>'+esc(a[1])+'</td><td>'+esc(a[2])+'</td><td>'+esc(a[3])+'</td><td>'+esc(a[4])+'</td><td>'+esc(a[5])+'</td><td>'+esc(a[6])+'</td><td>'+esc(a[7])+'</td><td>'+esc(a[8])+'</td><td>'+money(imm*r.old/100,r,false)+'</td><td><strong>siehe Verbrauchsnachweis unten</strong><small>Altwerte werden nicht neu berechnet</small></td><td>'+esc(a[11])+'</td></tr>'});
-   B.innerHTML=html;
+  const isM=view==="ADM-002";
+  H.innerHTML="<tr><th>Datum</th><th>Paket</th><th>Währung</th><th>Eingang nach Plisio</th><th>Betriebskosten</th><th>Affiliate</th><th>Verteilbarer Netto</th><th>Sofortpool</th><th>Unit-Pool</th><th>Deine Sofortgutschrift</th><th>Freigegebener Unit-Anteil</th><th>Status</th></tr>";
+  B.innerHTML=rows.length?rows.map(r=>{
+   const legacy=!!r.is_legacy;
+   const imm=isM?r.martin_immediate_net_eur:r.frank_immediate_net_eur;
+   const rel=isM?r.martin_usage_released_eur:r.frank_usage_released_eur;
+   return '<tr>'+
+    '<td>'+esc(paidDate(r.paid_at_text))+'<small>'+(legacy?'ALT · unverändert':'V5 · live')+'</small></td>'+
+    '<td>'+esc(r.package_code||"–")+'</td>'+
+    '<td>'+esc(r.payment_currency||"–")+'</td>'+
+    '<td>'+eur(r.incoming_after_plisio_eur)+'</td>'+
+    '<td>'+eur(r.operating_cost_eur)+'</td>'+
+    '<td>'+eur(r.affiliate_budget_eur)+'</td>'+
+    '<td>'+eur(r.distributable_net_eur)+'</td>'+
+    '<td>'+eur(r.immediate_pool_eur)+'</td>'+
+    '<td>'+eur(r.usage_pool_eur)+'</td>'+
+    '<td>'+partnerNet(imm,legacy)+'</td>'+
+    '<td>'+partnerNet(rel,legacy)+'<small>'+num(r.used_purchase_units).toLocaleString("de-DE",{maximumFractionDigits:2})+' Kauf-Units verbraucht</small></td>'+
+    '<td>'+esc(r.status||"–")+'</td>'+
+    '</tr>';
+  }).join(""):'<tr><td colspan="12">Noch keine Abrechnungen vorhanden.</td></tr>';
  }
 }
 function renderUsage(){
- const r=role[view],H=document.getElementById("v5uh"),B=document.getElementById("v5ub"),old=oldUsage();
+ const H=document.getElementById("v5uh"),B=document.getElementById("v5ub");
+ const rows=liveUsages.slice().sort((a,b)=>Number(b.audit_seq||0)-Number(a.audit_seq||0));
  if(view==="ADM-001"){
-  H.innerHTML="<tr><th>Datum</th><th>User</th><th>Tipp / Spiel</th><th>Kaufcharge</th><th>Kauf-Units</th><th>Unit-Pool</th><th>Luciano</th><th>Martin</th><th>Frank</th><th>Sondertopf</th><th>Status</th></tr>";
-  let html="";
-  [["Normal/Fußball",.40,.30,.10],["Tennis",.50,.30,0]].forEach(x=>{html+='<tr class="testrow"><td>V5 · TEST<span class="tag">keine Buchung</span></td><td>User TEST</td><td>'+x[0]+'</td><td>V5-TEST-CHARGE</td><td>Beispiel</td><td>'+eur(52.2375)+'</td><td>'+money(52.2375*x[1],role["ADM-001"],true)+'</td><td>'+money(52.2375*x[2],role["ADM-002"],true)+'</td><td>'+money(52.2375*x[3],role["ADM-003"],true)+'</td><td>'+eur(52.2375*.20)+'</td><td>V5 Vorschau</td></tr>'});
-  old.forEach(a=>{html+='<tr><td>'+esc(a[0])+'<small>ALT · unverändert</small></td><td>'+esc(a[1])+'</td><td>'+esc(a[2])+'</td><td>'+esc(a[3])+'</td><td>'+esc(a[4])+'</td><td>'+esc(a[6])+'</td><td>'+esc(a[7])+'</td><td>'+esc(a[8])+'</td><td>'+esc(a[9])+'</td><td>–</td><td>'+esc(a[11])+'</td></tr>'});
-  B.innerHTML=html;
+  H.innerHTML="<tr><th>Datum</th><th>User</th><th>Sport / Tipp / Spiel</th><th>Kaufcharge</th><th>Kauf-Units</th><th>Unit-Pool</th><th>Luciano</th><th>Martin</th><th>Frank</th><th>Sondertopf</th><th>Status</th></tr>";
+  B.innerHTML=rows.length?rows.map(r=>{
+   const live=String(r.regelversion||"").includes("IRRF25-v5");
+   return '<tr>'+
+    '<td>'+esc(paidDate(r.freigeschaltet_am))+'<small>'+(live?'V5 · live':'ALT · unverändert')+'</small></td>'+
+    '<td>'+esc(r.user_id||"–")+'</td>'+
+    '<td><strong>'+esc(r.sportart||"Fussball")+'</strong><small>'+esc(r.tipp_id||"–")+' · '+esc(r.spiel||"")+'</small></td>'+
+    '<td>'+esc(r.paket_kauf_id||"–")+'</td>'+
+    '<td>'+num(r.kauf_units_verbraucht).toLocaleString("de-DE",{maximumFractionDigits:2})+' Units</td>'+
+    '<td>'+eur(r.nutzungspool_zugeordnet_eur)+'</td>'+
+    '<td>'+eur(r.luciano_freigegeben_eur)+'</td>'+
+    '<td>'+masterPartner(r.martin_freigegeben_eur,r.martin_brutto_eur,r.martin_irrf_eur,!live)+'</td>'+
+    '<td>'+masterPartner(r.frank_freigegeben_eur,r.frank_brutto_eur,r.frank_irrf_eur,!live)+'</td>'+
+    '<td>'+(live?eur(r.sondertopf_eur):'–')+'</td>'+
+    '<td>'+esc(r.abrechnungsstatus||"–")+'<small>'+esc(r.regelversion||"")+'</small></td>'+
+    '</tr>';
+  }).join(""):'<tr><td colspan="11">Noch keine Kauf-Unit-Verbräuche vorhanden.</td></tr>';
  }else{
-  H.innerHTML="<tr><th>Datum</th><th>User</th><th>Tipp / Spiel</th><th>Kaufcharge</th><th>Kauf-Units</th><th>Deine Provision</th><th>Status</th></tr>";
-  let html="";
-  [["Normal/Fußball",r.normal],["Tennis",r.tennis]].forEach(x=>{html+='<tr class="testrow"><td>V5 · TEST<span class="tag">keine Buchung</span></td><td>User TEST</td><td>'+x[0]+'</td><td>V5-TEST-CHARGE</td><td>Beispiel</td><td>'+money(52.2375*x[1]/100,r,true,true)+'</td><td>'+(x[0]==="Tennis"&&view==="ADM-003"?"Tennis · kein Anteil":"V5 Vorschau")+'</td></tr>'});
-  old.forEach(a=>{html+='<tr><td>'+esc(a[0])+'<small>ALT · unverändert</small></td><td>'+esc(a[1])+'</td><td>'+esc(a[2])+'</td><td>'+esc(a[3])+'</td><td>'+esc(a[4])+'</td><td>'+money(num(a[r.usage]),r,false)+'</td><td>'+esc(a[11])+'</td></tr>'});
-  B.innerHTML=html;
+  const isM=view==="ADM-002";
+  H.innerHTML="<tr><th>Datum</th><th>User</th><th>Sport / Tipp / Spiel</th><th>Kaufcharge</th><th>Kauf-Units</th><th>Deine Provision</th><th>Status</th></tr>";
+  B.innerHTML=rows.length?rows.map(r=>{
+   const live=String(r.regelversion||"").includes("IRRF25-v5");
+   const net=isM?r.martin_freigegeben_eur:r.frank_freigegeben_eur;
+   return '<tr>'+
+    '<td>'+esc(paidDate(r.freigeschaltet_am))+'<small>'+(live?'V5 · live':'ALT · unverändert')+'</small></td>'+
+    '<td>'+esc(r.user_id||"–")+'</td>'+
+    '<td><strong>'+esc(r.sportart||"Fussball")+'</strong><small>'+esc(r.tipp_id||"–")+' · '+esc(r.spiel||"")+'</small></td>'+
+    '<td>'+esc(r.paket_kauf_id||"–")+'</td>'+
+    '<td>'+num(r.kauf_units_verbraucht).toLocaleString("de-DE",{maximumFractionDigits:2})+' Units</td>'+
+    '<td>'+partnerNet(net,!live)+'</td>'+
+    '<td>'+esc(r.abrechnungsstatus||"–")+'</td>'+
+    '</tr>';
+  }).join(""):'<tr><td colspan="7">Noch keine Kauf-Unit-Verbräuche vorhanden.</td></tr>';
  }
 }
 function render(){
@@ -96,11 +164,19 @@ function render(){
  ? "V5: Sofortpool 40 % → Luciano 40 % · Martin 30 % brutto · Frank 10 % brutto · Sondertopf 20 %. Normaler Unit-Verbrauch 40/30/10/20; Tennis 50/30/0/20. Altbuchungen bleiben unverändert."
  : r.name+": Sofortpool "+r.now+" %. Normaler Unit-Verbrauch "+r.normal+" %, Tennis "+r.tennis+" %. Angezeigt wird dein Nettoanteil. Gesetzlich erforderliche Einbehalte werden von LucMedia direkt abgeführt. Altbuchungen bleiben unverändert.";
 }
-function wait(n=0){
- const p=document.querySelectorAll("#provisionTableBody tr"),u=document.querySelectorAll("#uupBody tr");
- if((p.length&&u.length)||n>30){render();return}
- setTimeout(()=>wait(n+1),300);
+
+async function init(){
+ if(!master())return;
+ css();make();
+ try{
+  await loadLive();
+  render();
+  const badge=document.querySelector("#"+ID+" .badge");
+  if(badge)badge.textContent="LIVE-ERFASSUNG · MASTER · Musterdaten 0";
+ }catch(e){
+  const rule=document.getElementById("v5rule");
+  if(rule)rule.textContent="Live-Abrechnung konnte nicht geladen werden: "+(e?.message||e);
+ }
 }
-function init(){if(!master())return;css();make();wait()}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>setTimeout(init,500),{once:true});else setTimeout(init,500);
 })();
