@@ -2,8 +2,8 @@
   "use strict";
 
   const SESSION_KEY = "betinsight_admin_session_v1";
-  const READ_API_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=backoffice-read";
-  const APPROVAL_API_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=wallet-approval";
+  const READ_API_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-wallet-review";
+  const APPROVAL_API_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-wallet-review";
 
   function readSession() {
     try {
