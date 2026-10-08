@@ -3,9 +3,9 @@
 const KEY="betinsight_admin_session_v1", ID="distributionV5Preview", IRRF=25;
 let view="ADM-001";
 const role={
- "ADM-001":{name:"Luciano",old:40,now:40,normal:40,tennis:50,irrf:false,usage:6},
- "ADM-002":{name:"Martin",old:30,now:30,normal:30,tennis:30,irrf:true,usage:7},
- "ADM-003":{name:"Frank",old:30,now:10,normal:10,tennis:0,irrf:true,usage:8}
+ "ADM-001":{name:"Luciano",old:40,now:40,normal:40,tennis:50,irrf:false,usage:7},
+ "ADM-002":{name:"Martin",old:30,now:30,normal:30,tennis:30,irrf:true,usage:8},
+ "ADM-003":{name:"Frank",old:30,now:10,normal:10,tennis:0,irrf:true,usage:9}
 };
 function ses(){try{return JSON.parse(sessionStorage.getItem(KEY)||"null")}catch(_){return null}}
 function master(){return String(ses()?.adminId||"")==="ADM-001"}
