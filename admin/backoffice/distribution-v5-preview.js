@@ -12,10 +12,13 @@ function master(){return String(ses()?.adminId||"")==="ADM-001"}
 function num(v){const s=String(v??"").replace(/\s/g,"").replace(/\./g,"").replace(",",".").replace(/[^0-9+-.]/g,"");const n=Number(s);return Number.isFinite(n)?n:0}
 function eur(v){return Number(v||0).toLocaleString("de-DE",{style:"currency",currency:"EUR",minimumFractionDigits:2,maximumFractionDigits:6})}
 function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
-function money(g,r,isV5){
+function money(g,r,isV5,partnerView=false){
  const gross=Number(g||0);
- if(!isV5||!r.irrf) return '<strong>'+eur(gross)+'</strong><small>'+(isV5?'kein Partner-IRRF':'Altbestand · keine Rückrechnung')+'</small>';
+ if(!isV5||!r.irrf) return '<strong>'+eur(gross)+'</strong><small>'+(isV5?'Netto':'Altbestand · keine Rückrechnung')+'</small>';
  const tax=gross*IRRF/100, net=gross-tax;
+ if(partnerView){
+   return '<strong class="v5net">'+eur(net)+' netto</strong><small>Gesetzlich erforderliche Einbehalte werden von LucMedia direkt abgeführt.</small>';
+ }
  return '<strong class="v5net">'+eur(net)+' netto</strong><small>'+eur(gross)+' brutto · '+eur(tax)+' IRRF-Reserve</small>';
 }
 function css(){
@@ -65,7 +68,7 @@ function renderPurchase(){
  }else{
    H.innerHTML="<tr><th>Datum</th><th>Paket</th><th>Währung</th><th>Eingang nach Plisio</th><th>Betriebskosten</th><th>Affiliate</th><th>Verteilbarer Netto</th><th>Sofortpool</th><th>Unit-Pool</th><th>Deine Sofortgutschrift</th><th>Freigegebener Unit-Anteil</th><th>Status</th></tr>";
    const gross=34.825*r.now/100, unit=52.2375*r.normal/100;
-   let html='<tr class="testrow"><td>V5 · TEST<span class="tag">keine Buchung</span></td><td>Beispielkauf 100 €</td><td>EUR</td><td>'+eur(99.5)+'</td><td>'+eur(2.4875)+'</td><td>'+eur(9.95)+'</td><td>'+eur(87.0625)+'</td><td>'+eur(34.825)+'</td><td>'+eur(52.2375)+'</td><td>'+money(gross,r,true)+'</td><td>'+money(unit,r,true)+'<small>Beispiel: kompletter Unit-Pool als normaler Fußball-Tipp</small></td><td>V5 Vorschau</td></tr>';
+   let html='<tr class="testrow"><td>V5 · TEST<span class="tag">keine Buchung</span></td><td>Beispielkauf 100 €</td><td>EUR</td><td>'+eur(99.5)+'</td><td>'+eur(2.4875)+'</td><td>'+eur(9.95)+'</td><td>'+eur(87.0625)+'</td><td>'+eur(34.825)+'</td><td>'+eur(52.2375)+'</td><td>'+money(gross,r,true,true)+'</td><td>'+money(unit,r,true,true)+'<small>Beispiel: kompletter Unit-Pool als normaler Fußball-Tipp</small></td><td>V5 Vorschau</td></tr>';
    old.forEach(a=>{const imm=num(a[7]);html+='<tr><td>'+esc(a[0])+'<small>ALT · unverändert</small></td><td>'+esc(a[1])+'</td><td>'+esc(a[2])+'</td><td>'+esc(a[3])+'</td><td>'+esc(a[4])+'</td><td>'+esc(a[5])+'</td><td>'+esc(a[6])+'</td><td>'+esc(a[7])+'</td><td>'+esc(a[8])+'</td><td>'+money(imm*r.old/100,r,false)+'</td><td><strong>siehe Verbrauchsnachweis unten</strong><small>Altwerte werden nicht neu berechnet</small></td><td>'+esc(a[11])+'</td></tr>'});
    B.innerHTML=html;
  }
@@ -81,7 +84,7 @@ function renderUsage(){
  }else{
   H.innerHTML="<tr><th>Datum</th><th>User</th><th>Tipp / Spiel</th><th>Kaufcharge</th><th>Kauf-Units</th><th>Deine Provision</th><th>Status</th></tr>";
   let html="";
-  [["Normal/Fußball",r.normal],["Tennis",r.tennis]].forEach(x=>{html+='<tr class="testrow"><td>V5 · TEST<span class="tag">keine Buchung</span></td><td>User TEST</td><td>'+x[0]+'</td><td>V5-TEST-CHARGE</td><td>Beispiel</td><td>'+money(52.2375*x[1]/100,r,true)+'</td><td>'+(x[0]==="Tennis"&&view==="ADM-003"?"Tennis · kein Anteil":"V5 Vorschau")+'</td></tr>'});
+  [["Normal/Fußball",r.normal],["Tennis",r.tennis]].forEach(x=>{html+='<tr class="testrow"><td>V5 · TEST<span class="tag">keine Buchung</span></td><td>User TEST</td><td>'+x[0]+'</td><td>V5-TEST-CHARGE</td><td>Beispiel</td><td>'+money(52.2375*x[1]/100,r,true,true)+'</td><td>'+(x[0]==="Tennis"&&view==="ADM-003"?"Tennis · kein Anteil":"V5 Vorschau")+'</td></tr>'});
   old.forEach(a=>{html+='<tr><td>'+esc(a[0])+'<small>ALT · unverändert</small></td><td>'+esc(a[1])+'</td><td>'+esc(a[2])+'</td><td>'+esc(a[3])+'</td><td>'+esc(a[4])+'</td><td>'+money(num(a[r.usage]),r,false)+'</td><td>'+esc(a[11])+'</td></tr>'});
   B.innerHTML=html;
  }
@@ -91,7 +94,7 @@ function render(){
  const r=role[view];
  document.getElementById("v5rule").textContent=view==="ADM-001"
  ? "V5: Sofortpool 40 % → Luciano 40 % · Martin 30 % brutto · Frank 10 % brutto · Sondertopf 20 %. Normaler Unit-Verbrauch 40/30/10/20; Tennis 50/30/0/20. Altbuchungen bleiben unverändert."
- : r.name+": Sofortpool "+r.now+" %. Normaler Unit-Verbrauch "+r.normal+" %, Tennis "+r.tennis+" %. Neue V5-Ansprüche zeigen Brutto, IRRF-Reserve und Netto; Altbuchungen bleiben unverändert.";
+ : r.name+": Sofortpool "+r.now+" %. Normaler Unit-Verbrauch "+r.normal+" %, Tennis "+r.tennis+" %. Angezeigt wird dein Nettoanteil. Gesetzlich erforderliche Einbehalte werden von LucMedia direkt abgeführt. Altbuchungen bleiben unverändert.";
 }
 function wait(n=0){
  const p=document.querySelectorAll("#provisionTableBody tr"),u=document.querySelectorAll("#uupBody tr");
