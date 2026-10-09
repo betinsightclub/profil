@@ -97,20 +97,30 @@
   function formatSelect(select) {
     if(!leagueSelect(select))return;
     let changed=false;
-    const seen=new Set();
     const options=Array.from(select.options);
-    // Prefer the canonical API-compatible value if it already exists.
-    const canonical=options.find(o=>clean(o.value)==='LaLiga 2');
+    const chosen=select.selectedOptions[0]||null;
+    const keyOf=opt=>{
+      const original=opt.dataset.biOriginalLeague||clean(opt.value)||clean(opt.textContent);
+      const hit=identify(original)||identify(opt.textContent);
+      return hit?hit.key:'text:'+norm(clean(opt.textContent).replace(/^[^a-zA-Z0-9]+/,''));
+    };
+    // Keep a selected API value intact. Without an existing user selection,
+    // prefer the established LaLiga 2 API option over its visible aliases.
+    const keep=new Map();
+    for(const opt of options){
+      if(!clean(opt.value))continue;
+      const key=keyOf(opt),current=keep.get(key);
+      if(!current || opt===chosen && chosen.value ||
+         opt!==chosen && current!==chosen && key==='es2' && clean(opt.value)==='LaLiga 2') keep.set(key,opt);
+    }
     for(const opt of options){
       const original=opt.dataset.biOriginalLeague||clean(opt.value)||clean(opt.textContent);
       if(!opt.dataset.biOriginalLeague) opt.dataset.biOriginalLeague=original;
       const hit=identify(original)||identify(opt.textContent);
       const raw=clean(opt.textContent);
       if(!raw || !clean(opt.value))continue;
-      let key=hit?hit.key:'text:'+norm(raw.replace(/^[^a-zA-Z0-9]+/,''));
-      if(hit?.key==='es2' && canonical && opt!==canonical){opt.remove();changed=true;continue;}
-      if(seen.has(key)){opt.remove();changed=true;continue;}
-      seen.add(key);
+      const key=keyOf(opt);
+      if(keep.get(key)!==opt){opt.remove();changed=true;continue;}
       const label=hit?display(hit.name+(hit.key==='es2'?'':' '+hit.country+' '+hit.tier)):display(raw);
       if(opt.textContent!==label){opt.textContent=label;changed=true;}
     }
