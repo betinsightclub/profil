@@ -37,6 +37,7 @@
     name = name.replace(/ spanien segunda division$/,'');
     const hit = catalogue.find(c=>c.aliases.test(name));
     if (hit) return hit;
+    if (/^la ?liga 2(?: |$)/.test(name)) return catalogue.find(c=>c.key==='es2');
     // Match the established friendly display values as well.
     return catalogue.find(c=>norm(c.name+' '+c.country+' '+c.tier)===name) || null;
   }
@@ -75,7 +76,7 @@
   }
   function display(value) {
     const raw=clean(value),hit=identify(raw);
-    if(hit) return hit.flag+' '+hit.name+' – '+hit.country+' ('+hit.tier+')'+(hit.key==='es2'?'':'');
+    if(hit) return hit.flag+' '+hit.name+' – '+hit.country+' ('+(hit.key==='es2'?'Segunda División':hit.tier)+')';
     const fl=flag(raw);
     return (raw.startsWith(fl)?'':fl+' ')+raw;
   }
