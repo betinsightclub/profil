@@ -299,7 +299,7 @@
       await loadScript("premium-network-handoff.js?v=20260830-9","BetInsightPremiumNetworkHandoff");
       if (isRootDashboard()) {
         await loadScript("dashboard-layout.js?v=20260911-2");
-        await loadScript("account-history.js?v=20261009-credit-reason-1");
+        await loadScript("account-history.js?v=20261010-verified-unit-usage-v1");
         if (!window.BetInsightMemberCompletion) await loadScript("i18n/dashboard-completion.js");
         await loadScript("partner-invite-links.js?v=20260905-1");
       }
