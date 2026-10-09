@@ -281,7 +281,13 @@
         reason,
         note
       }, 45000);
-      showMessage(`Erfolgreich: ${result.affected_count || affected} Nutzer verschoben. Move-ID: ${result.move_id || "–"}. Historische Provisionen blieben unverändert.`);
+      const sheetStatus = String(result.sheet_sync_status || "UNKNOWN").toUpperCase();
+      const sheetMessage = sheetStatus === "SYNCED"
+        ? "Google Sheets wurde ebenfalls synchronisiert."
+        : sheetStatus === "FAILED"
+          ? "Die Verschiebung in Supabase war erfolgreich, aber Google Sheets konnte noch nicht synchronisiert werden. NICHT erneut verschieben; bitte anhand der Move-ID den Abgleich prüfen."
+          : "Der Google-Sheets-Abgleich ist noch nicht bestätigt. NICHT erneut verschieben.";
+      showMessage(`Supabase erfolgreich: ${result.affected_count || affected} Nutzer verschoben. Move-ID: ${result.move_id || "–"}. ${sheetMessage} Historische Provisionen blieben unverändert.`, sheetStatus !== "SYNCED");
       previewState = null;
       document.getElementById("nmovePreview")?.classList.remove("visible");
       document.getElementById("nmoveConfirmArea")?.classList.remove("visible");
