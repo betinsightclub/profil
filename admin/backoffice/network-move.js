@@ -225,12 +225,12 @@
       document.getElementById("nmoveRootInfo").textContent = displayName(result.root);
       document.getElementById("nmoveOldSponsor").textContent = displayName(result.old_sponsor);
       document.getElementById("nmoveNewSponsor").textContent = displayName(result.new_sponsor);
-      document.getElementById("nmoveAffected").textContent = `${result.affected_count || 0} Nutzer · ${result.descendants_count || 0} darunter`;
+      document.getElementById("nmoveAffected").textContent = `${Number(result.affected_count || 0)} Nutzer · ${Number(result.descendants_count || 0)} darunter · ${Number(result.subtree_depth || 0)} Ebenen tief`;
 
       const list = document.getElementById("nmoveAffectedList");
       const preview = Array.isArray(result.affected_preview) ? result.affected_preview : [];
       list.innerHTML = preview.length
-        ? preview.map(item => `<li>Ebene im Ast ${Number(item.depth || 0)} · <strong>${escapeHtml(item.ref_code || item.user_id)}</strong> · ${escapeHtml(item.name || "")}</li>`).join("")
+        ? preview.map(item => `<li><strong>${Number(item.depth || 0) === 0 ? "Hauptnutzer" : `Wird mitverschoben · Ebene ${Number(item.depth || 0)}`}</strong> · ${escapeHtml(item.ref_code || item.user_id)} · ${escapeHtml(item.name || "")}</li>`).join("")
         : "<li>Keine Detailvorschau verfügbar.</li>";
       if ((result.affected_count || 0) > preview.length) {
         list.insertAdjacentHTML("beforeend", `<li>… plus ${Number(result.affected_count) - preview.length} weitere Nutzer im Ast.</li>`);
