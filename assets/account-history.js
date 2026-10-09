@@ -108,7 +108,7 @@
     if (!raw) return "";
     const lower = raw.toLocaleLowerCase("de").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const fcMatch = lower.match(/^fan[\s-]*challenge\s*(?:[-–:]\s*)?(?:platz\s*)?(\d{1,3})\s*(?:\.\s*platz|\.?\s*(?:place|rank|rang))?\s*$/i);
-    if (fcMatch) return tr("reasonFanChallenge", "Fan Challenge – {rank}. Platz", { rank: Number(fcMatch[1]) });
+    if (fcMatch) return tr("reasonFanChallenge", "Fan Challenge – {{rank}}. Platz", { rank: Number(fcMatch[1]) });
     if (/^webinar[\s-]*(?:gewinn|preis|bonus)$/.test(lower) || /^webinar prize$/.test(lower))
       return tr("reasonWebinar", "Webinar-Gewinn");
     if (/^(gewinnspiel|verlosung|giveaway|giveaway prize)$/.test(lower))
