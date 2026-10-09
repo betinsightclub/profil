@@ -101,6 +101,24 @@
       .replaceAll("'", "&#039;");
   }
 
+  // Only standardized, well-known reward reasons are translated. Free-form
+  // admin reasons remain verbatim so the customer's receipt stays accurate.
+  function localizedCreditReason(value) {
+    const raw = String(value || "").trim();
+    if (!raw) return "";
+    const lower = raw.toLocaleLowerCase("de").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const fcMatch = lower.match(/^fan[\s-]*challenge\s*(?:[-–:]\s*)?(?:platz\s*)?(\d{1,3})\s*(?:\.\s*platz|\.?\s*(?:place|rank|rang))?\s*$/i);
+    if (fcMatch) return tr("reasonFanChallenge", "Fan Challenge – {rank}. Platz", { rank: Number(fcMatch[1]) });
+    if (/^webinar[\s-]*(?:gewinn|preis|bonus)$/.test(lower) || /^webinar prize$/.test(lower))
+      return tr("reasonWebinar", "Webinar-Gewinn");
+    if (/^(gewinnspiel|verlosung|giveaway|giveaway prize)$/.test(lower))
+      return tr("reasonGiveaway", "Gewinnspiel");
+    if (/^(bonus|boni)$/.test(lower)) return tr("reasonBonus", "Bonus");
+    if (/^(kulanz|coulance|goodwill|goodwill credit)$/.test(lower))
+      return tr("reasonCourtesy", "Kulanz");
+    return raw;
+  }
+
   function movementLabel(item) {
     const type = String(item.type || "").trim().toLowerCase();
     if (type === "wechselstube_kauf") return tr("exchangeBuy", "Wechselstube · Units gekauft");
@@ -110,6 +128,7 @@
     if (type === "referral_aufs_konto") return tr("referralToAccount", "Referral-Units aufs Konto");
     if (type === "kauf") return tr("packageBought", "Unit-Paket gekauft");
     if (type === "tipp_freischaltung") return tr("tipUnlocked", "Tipp freigeschaltet");
+    if (type === "admin_gutschrift") return tr("adminCredit", "🎁 Unit-Gutschrift");
     if (String(item.source || "") === "daily_bonus") {
       return type === "box_geoeffnet" ? tr("dailyLoyaltyBox", "Daily Bonus · Treuebox") : tr("dailyBonus", "Daily Bonus");
     }
@@ -283,7 +302,11 @@
       const sign = delta === null || delta === 0 ? "" : delta > 0 ? "+" : "−";
       const amount = delta === null ? "–" : `${sign}${formatUnits(Math.abs(delta))} Units`;
       let detail = formatDate(item.date);
-      if (item.label) detail += ` · ${item.label}`;
+      if (item.label) {
+        detail += item.type.toLowerCase() === "admin_gutschrift"
+          ? ` · ${tr("creditReason", "Grund")}: ${localizedCreditReason(item.label)}`
+          : ` · ${item.label}`;
+      }
       const privateClass = protectedNow ? " account-private-value private-value-hidden" : " account-private-value";
       let after = "";
       if (item.balanceAfter !== null) {
