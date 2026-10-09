@@ -80,7 +80,9 @@
     return [...new Map(parts.map(p=>[identify(p).key,p])).values()];
   }
   function display(value) {
-    const raw=clean(value),multi=splitKnownLeagues(raw);
+    const raw=clean(value);
+    if(!raw)return '';
+    const multi=splitKnownLeagues(raw);
     if(multi)return multi.map(display).join(' · ');
     const hit=identify(raw);
     if(hit) return hit.flag+' '+hit.name+' – '+hit.country+' ('+(hit.key==='es2'?'Segunda División':hit.tier)+')';
