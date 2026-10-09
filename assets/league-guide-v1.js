@@ -74,13 +74,22 @@
     const raw=clean(value);
     const f=flags.find(([re])=>re.test(raw));return f?f[1]:(/uefa|fifa|weltmeisterschaft|world cup|champions league|europa league|nations league/i.test(raw)?'🌍':'🌐');
   }
+  function splitKnownLeagues(raw) {
+    const parts=clean(raw).split(/\s*(?:[|;]|\s+\/\s+|\s+\+\s+|,\s+)\s*/).filter(Boolean);
+    if(parts.length<2 || !parts.every(part=>identify(part)))return null;
+    return [...new Map(parts.map(p=>[identify(p).key,p])).values()];
+  }
   function display(value) {
-    const raw=clean(value),hit=identify(raw);
+    const raw=clean(value),multi=splitKnownLeagues(raw);
+    if(multi)return multi.map(display).join(' · ');
+    const hit=identify(raw);
     if(hit) return hit.flag+' '+hit.name+' – '+hit.country+' ('+(hit.key==='es2'?'Segunda División':hit.tier)+')';
     const fl=flag(raw);
     return (raw.startsWith(fl)?'':fl+' ')+raw;
   }
   function explain(value,language) {
+    const multi=splitKnownLeagues(value);
+    if(multi)return multi.map(p=>explain(p,language)).join(' ');
     const hit=identify(value); const en=/^en\b/i.test(clean(language));
     if(!hit)return '';
     if(hit.key==='es1')return en?'La Liga is the highest division of Spanish club football (first division).':'La Liga ist die höchste spanische Fußballliga (1. Liga).';
@@ -102,7 +111,7 @@
     const keyOf=opt=>{
       const original=opt.dataset.biOriginalLeague||clean(opt.value)||clean(opt.textContent);
       const hit=identify(original)||identify(opt.textContent);
-      return hit?hit.key:'text:'+norm(clean(opt.textContent).replace(/^[^a-zA-Z0-9]+/,''));
+      return hit?hit.key:'text:'+norm(clean(opt.textContent).replace(/^[^a-zA-Z0-9]+/,''))+'|value:'+norm(opt.value);
     };
     // Keep a selected API value intact. Without an existing user selection,
     // prefer the established LaLiga 2 API option over its visible aliases.
