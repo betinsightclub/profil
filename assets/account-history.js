@@ -119,6 +119,24 @@
     return raw;
   }
 
+  // Sprachen der Dashboard-Kontobewegungen, auch wenn eine alte
+  // Locale-Datei die neuen Detailbegriffe noch nicht kennt.
+  function usageText(key, fallback) {
+    const translations = {
+      de: {tipId:"Tipp-ID",purchaseUsed:"Kauf-Units",giftUsed:"Geschenk-Units",referralUsed:"Referral-Units",legacyUnassigned:"Historisch nicht zugeordnet"},
+      en: {tipId:"Tip ID",purchaseUsed:"Purchased units",giftUsed:"Gift units",referralUsed:"Referral units",legacyUnassigned:"Historical type unverified"},
+      es: {tipId:"ID del pronóstico",purchaseUsed:"Unidades compradas",giftUsed:"Unidades de regalo",referralUsed:"Unidades por referidos",legacyUnassigned:"Tipo histórico sin verificar"},
+      pt: {tipId:"ID do palpite",purchaseUsed:"Unidades compradas",giftUsed:"Unidades de presente",referralUsed:"Unidades de indicação",legacyUnassigned:"Tipo histórico não confirmado"},
+      it: {tipId:"ID pronostico",purchaseUsed:"Unità acquistate",giftUsed:"Unità regalo",referralUsed:"Unità referral",legacyUnassigned:"Tipo storico non verificato"},
+      fr: {tipId:"ID du pronostic",purchaseUsed:"Unités achetées",giftUsed:"Unités offertes",referralUsed:"Unités de parrainage",legacyUnassigned:"Type historique non vérifié"},
+      nl: {tipId:"Tip-ID",purchaseUsed:"Gekochte units",giftUsed:"Cadeau-units",referralUsed:"Referral-units",legacyUnassigned:"Historisch type niet bevestigd"},
+      "zh-tw": {tipId:"投注建議編號",purchaseUsed:"購買單位",giftUsed:"贈送單位",referralUsed:"推薦獎勵單位",legacyUnassigned:"歷史類型尚未確認"}
+    };
+    const lang=locale().toLowerCase();
+    const normalized=lang.startsWith("zh")?"zh-tw":lang.split("-")[0];
+    return tr(key, translations[normalized]?.[key] || fallback);
+  }
+
   function movementLabel(item) {
     const type = String(item.type || "").trim().toLowerCase();
     if (type === "wechselstube_kauf") return tr("exchangeBuy", "Wechselstube · Units gekauft");
@@ -313,16 +331,16 @@
           : ` · ${item.label}`;
       }
       if (item.type.toLowerCase() === "tipp_freischaltung") {
-        if (item.reference) detail += ` · ${tr("tipId", "Tipp-ID")}: ${item.reference}`;
+        if (item.reference) detail += ` · ${usageText("tipId", "Tipp-ID")}: ${item.reference}`;
         const portions = [];
         if (item.purchaseUsed !== null && item.purchaseUsed > 0)
-          portions.push(`${tr("purchaseUsed", "Kauf-Units")}: ${formatUnits(item.purchaseUsed)}`);
+          portions.push(`${usageText("purchaseUsed", "Kauf-Units")}: ${formatUnits(item.purchaseUsed)}`);
         if (item.giftUsed !== null && item.giftUsed > 0)
-          portions.push(`${tr("giftUsed", "Geschenk-Units")}: ${formatUnits(item.giftUsed)}`);
+          portions.push(`${usageText("giftUsed", "Geschenk-Units")}: ${formatUnits(item.giftUsed)}`);
         if (item.referralUsed !== null && item.referralUsed > 0)
-          portions.push(`${tr("referralUsed", "Referral-Units")}: ${formatUnits(item.referralUsed)}`);
+          portions.push(`${usageText("referralUsed", "Referral-Units")}: ${formatUnits(item.referralUsed)}`);
         if (item.unassignedUsed !== null && item.unassignedUsed > 0.000001)
-          portions.push(`${tr("legacyUnassigned", "Historisch nicht zugeordnet")}: ${formatUnits(item.unassignedUsed)}`);
+          portions.push(`${usageText("legacyUnassigned", "Historisch nicht zugeordnet")}: ${formatUnits(item.unassignedUsed)}`);
         if (portions.length) detail += ` · ${portions.join(" · ")}`;
       }
       const privateClass = protectedNow ? " account-private-value private-value-hidden" : " account-private-value";
