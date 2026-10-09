@@ -8,7 +8,7 @@
   "use strict";
 
   const NETWORK_API_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=referral-overview";
-  const CACHE_PREFIX = "betinsight_network_cache_v7:";
+  const CACHE_PREFIX = "betinsight_network_cache_v8_referral_lots:";
   const CACHE_TTL_MS = 5 * 60 * 1000;
   const TOKEN_RETRY_MS = 250;
   const TOKEN_RETRY_MAX = 40;
