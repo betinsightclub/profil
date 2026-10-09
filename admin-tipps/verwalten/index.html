@@ -86,7 +86,7 @@
 "use strict";
 const SESSION_KEY="betinsight_admin_session_v1";
 const AUTH_API_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=admin-auth";
-const MANAGE_API_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-gateway?route=tip-manage";
+const MANAGE_API_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-tip-manage";
 const MAINTENANCE_API_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-tip-maintenance";
 const ADMIN_CENTER_URL="https://betinsightclub.github.io/profil/admin/";
 let verifiedSession=null,sessionHash="",allTips=[],activeFilter="all",flashTimer=null;
@@ -97,7 +97,7 @@ function readSession(){try{const s=JSON.parse(sessionStorage.getItem(SESSION_KEY
 function clearSession(){try{sessionStorage.removeItem(SESSION_KEY)}catch(e){}}
 function expiredSession(s){return !Number(s?.expiresMs||0)||Date.now()>=Number(s.expiresMs)}
 async function sha256Hex(text){const d=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(String(text||"")));return Array.from(new Uint8Array(d),b=>b.toString(16).padStart(2,"0")).join("")}
-async function postJson(url,payload){const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},cache:"no-store",credentials:"omit",body:JSON.stringify(payload)});const raw=await r.text();let data={};try{data=raw?JSON.parse(raw):{}}catch(e){throw new Error("Der Server hat keine gültige Antwort geliefert.")}if(!r.ok||data?.ok===false){const er=new Error(data?.message||data?.error||"Die Anfrage wurde abgelehnt.");er.code=data?.code||"REQUEST_FAILED";er.status=r.status;throw er}return data}
+async function postJson(url,payload){const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},cache:"no-store",credentials:"omit",body:JSON.stringify(payload)});const raw=await r.text();let data={};try{data=raw?JSON.parse(raw):{}}catch(e){throw new Error(r.ok?"Die Serverantwort konnte nicht verarbeitet werden.":"Der Tipp-Server ist gerade nicht erreichbar (HTTP "+r.status+"). Bitte erneut versuchen.")}if(!r.ok||data?.ok===false){const er=new Error(data?.message||data?.error||"Die Anfrage wurde abgelehnt.");er.code=data?.code||"REQUEST_FAILED";er.status=r.status;throw er}return data}
 function requestId(prefix){try{return prefix+"-"+crypto.randomUUID()}catch(e){return prefix+"-"+Date.now()+"-"+Math.random().toString(16).slice(2)}}
 function germanToInputDate(v){const p=String(v||"").split(".");return p.length===3?p[2]+"-"+p[1].padStart(2,"0")+"-"+p[0].padStart(2,"0"):""}
 function inputToGermanDate(v){const p=String(v||"").split("-");return p.length===3?p[2]+"."+p[1]+"."+p[0]:""}
