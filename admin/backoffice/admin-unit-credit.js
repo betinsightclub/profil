@@ -113,11 +113,12 @@
           <input id="aucUnits" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="z. B. 10 oder 27,5">
         </div>
         <div class="auc-field">
-          <label for="aucReason">Grund · frei wählbar</label>
-          <input id="aucReason" type="text" maxlength="120" placeholder="z. B. Webinar-Gewinn">
+          <label for="aucReason">Grund · wird dem Kunden in den Kontobewegungen angezeigt</label>
+          <input id="aucReason" type="text" maxlength="120" list="aucReasonSuggestions" placeholder="z. B. Fan Challenge – 3. Platz" autocomplete="off">
+          <datalist id="aucReasonSuggestions"><option value="Webinar-Gewinn"></option><option value="Fan Challenge – 1. Platz"></option><option value="Fan Challenge – 2. Platz"></option><option value="Fan Challenge – 3. Platz"></option><option value="Gewinnspiel"></option><option value="Bonus"></option><option value="Kulanz"></option></datalist>
         </div>
         <div class="auc-field auc-full">
-          <label for="aucNote">Notiz · optional</label>
+          <label for="aucNote">Interne Notiz · nicht für den Kunden sichtbar</label>
           <textarea id="aucNote" maxlength="500" placeholder="Interne Notiz zur Gutschrift"></textarea>
         </div>
         <div class="auc-actions auc-full">
