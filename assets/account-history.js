@@ -10,7 +10,7 @@
   const TIPS_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-tips-api?action=movements";
   const DAILY_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-daily-api?action=movements";
   const DASHBOARD_STORAGE_KEY = "betinsight_dashboard_token";
-  const CACHE_PREFIX = "betinsight_account_history_v2:";
+  const CACHE_PREFIX = "betinsight_account_history_v3_unit_breakdown:";
   const CACHE_TTL_MS = 5 * 60 * 1000;
   const REFRESH_COOLDOWN_MS = 15 * 1000;
   const ROOT_PATHS = new Set(["/", "/profil/"]);
@@ -150,7 +150,12 @@
       label: String(item?.label || ""),
       balanceBefore: numberValue(item?.balanceBefore),
       balanceAfter: numberValue(item?.balanceAfter),
-      bucket: String(item?.bucket || "")
+      bucket: String(item?.bucket || ""),
+      purchaseUsed: numberValue(item?.purchaseUsed),
+      giftUsed: numberValue(item?.giftUsed),
+      referralUsed: numberValue(item?.referralUsed),
+      unassignedUsed: numberValue(item?.unassignedUsed),
+      breakdownSource: String(item?.breakdownSource || "")
     };
   }
 
@@ -306,6 +311,19 @@
         detail += item.type.toLowerCase() === "admin_gutschrift"
           ? ` · ${tr("creditReason", "Grund")}: ${localizedCreditReason(item.label)}`
           : ` · ${item.label}`;
+      }
+      if (item.type.toLowerCase() === "tipp_freischaltung") {
+        if (item.reference) detail += ` · ${tr("tipId", "Tipp-ID")}: ${item.reference}`;
+        const portions = [];
+        if (item.purchaseUsed !== null && item.purchaseUsed > 0)
+          portions.push(`${tr("purchaseUsed", "Kauf-Units")}: ${formatUnits(item.purchaseUsed)}`);
+        if (item.giftUsed !== null && item.giftUsed > 0)
+          portions.push(`${tr("giftUsed", "Geschenk-Units")}: ${formatUnits(item.giftUsed)}`);
+        if (item.referralUsed !== null && item.referralUsed > 0)
+          portions.push(`${tr("referralUsed", "Referral-Units")}: ${formatUnits(item.referralUsed)}`);
+        if (item.unassignedUsed !== null && item.unassignedUsed > 0.000001)
+          portions.push(`${tr("legacyUnassigned", "Historisch nicht zugeordnet")}: ${formatUnits(item.unassignedUsed)}`);
+        if (portions.length) detail += ` · ${portions.join(" · ")}`;
       }
       const privateClass = protectedNow ? " account-private-value private-value-hidden" : " account-private-value";
       let after = "";
