@@ -293,7 +293,7 @@
   function loadNetworkLazy() {
     if (document.querySelector('script[data-bi-network-lazy="1"]')) return;
     const script = document.createElement("script");
-    script.src = new URL("network-lazy.js?v=20261010-i18n-purchase-balances-v2", SCRIPT_BASE).toString();
+    script.src = new URL("network-lazy.js?v=20261010-network-i18n-complete-v3", SCRIPT_BASE).toString();
     script.async = false;
     script.dataset.biNetworkLazy = "1";
     script.addEventListener("error", () => console.error("BetInsight Netzwerk-Sparmodus konnte nicht geladen werden."), { once:true });
