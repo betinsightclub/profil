@@ -27,16 +27,33 @@
   const esc = value => typeof window.escapeHtml === "function"
     ? window.escapeHtml(value)
     : String(value ?? "").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]));
-  // Presentation only: resolve the labels from the currently selected language.
-  // Network data, balances, purchase lots and calculations are never modified.
-  const purchaseBalanceLabel = key => {
-    const fallback = key === "purchased" ? "Kauf-Units übrig" : "Verbleibende Kauf-Units";
-    return String(window.BetInsightI18n?.t?.("dashboardPage." + key, {}, fallback) || fallback);
+  // Presentation only, sourced from the same eight locale dictionaries as the app.
+  const NETWORK_LABELS=Object.freeze({
+    level:"Ebene {{level}}", directPartners:"Ebene 1 – direkte Partner",
+    partner:"Partner",partnersTotal:"Partner gesamt",
+    purchased:"Kauf-Units übrig",expected:"Erwartet",released:"Freigegeben",
+    biNumber:"BI-Nummer",sponsor:"Sponsor",purchasedUnits:"Verbleibende Kauf-Units",
+    totalConsumedUnits:"Gesamt verbrauchte Units",usedPurchasedUnits:"Verbrauchte Kauf-Units",
+    expectedReferral:"Erwartete Referral Units",releasedReferral:"Freigegebene Referral Units",
+    noPartnersLevel:"In dieser Ebene sind aktuell keine Partner vorhanden.",
+    levelLoadHint:"Netzwerkdaten werden bei Bedarf geladen.",
+    levelLoadInfo:"Beim Öffnen werden alle drei Ebenen gemeinsam geladen."
+  });
+  const networkLabel=(key,vars={})=>{
+    const fallback=String(NETWORK_LABELS[key]||key).replace(/\{\{\s*([\w.-]+)\s*\}\}/g,(_,k)=>String(vars[k]??""));
+    return String(window.BetInsightI18n?.t?.("dashboardPage."+key,vars,fallback)||fallback);
   };
-  function updatePurchaseBalanceLabels(){
-    document.querySelectorAll("#levelList [data-bi-purchase-balance]").forEach(el=>{
-      const key=el.getAttribute("data-bi-purchase-balance");
-      if(key==="purchased" || key==="purchasedUnits") el.textContent=purchaseBalanceLabel(key);
+  const markLabel=(key,level)=>{
+    const vars=level===undefined?{}:{level};
+    const depth=level===undefined?"":' data-bi-network-level="'+String(level)+'"';
+    return '<span data-bi-i18n-ignore data-bi-network-label="'+key+'"'+depth+'>'+esc(networkLabel(key,vars))+'</span>';
+  };
+  function refreshNetworkLabels(){
+    document.querySelectorAll("#levelList [data-bi-network-label], #networkPartnerTotal [data-bi-network-label]").forEach(el=>{
+      const key=el.getAttribute("data-bi-network-label");
+      if(!(key in NETWORK_LABELS))return;
+      const vars=key==="level"?{level:Number(el.getAttribute("data-bi-network-level")||0)}:{};
+      el.textContent=networkLabel(key,vars);
     });
   }
   const first = (obj,keys,fallback=0) => {
@@ -118,7 +135,7 @@
       total=document.createElement("div");
       total.id="networkPartnerTotal";
       total.className="bi-network-partner-total";
-      total.innerHTML='<strong id="networkPartnerTotalValue">–</strong><span>Partner gesamt</span>';
+      total.innerHTML='<strong id="networkPartnerTotalValue">–</strong>'+markLabel("partnersTotal");
       firstStat.insertBefore(total,levels);
     }
     return total;
@@ -145,18 +162,18 @@
   }
 
   function placeholderCard(level){
-    const title=level===1?"Ebene 1 – direkte Partner":"Ebene "+level;
+    const title=markLabel(level===1?"directPartners":"level",level);
     return `<article class="level-card" id="levelCard${level}" data-bi-lazy-level="${level}">
       <div class="level-head" onclick="toggleLevel(${level})">
         <div class="level-number">${level}</div>
         <div class="level-name">${title}</div>
-        <div class="level-metric"><div class="level-metric-label">Partner</div><div class="level-metric-value">–</div></div>
-        <div class="level-metric"><div class="level-metric-label" data-bi-i18n-ignore data-bi-purchase-balance="purchased">${esc(purchaseBalanceLabel("purchased"))}</div><div class="level-metric-value">–</div></div>
-        <div class="level-metric"><div class="level-metric-label">Erwartet</div><div class="level-metric-value">–</div></div>
-        <div class="level-metric"><div class="level-metric-label">Freigegeben</div><div class="level-metric-value">–</div></div>
+        <div class="level-metric"><div class="level-metric-label">${markLabel("partner")}</div><div class="level-metric-value">–</div></div>
+        <div class="level-metric"><div class="level-metric-label">${markLabel("purchased")}</div><div class="level-metric-value">–</div></div>
+        <div class="level-metric"><div class="level-metric-label">${markLabel("expected")}</div><div class="level-metric-value">–</div></div>
+        <div class="level-metric"><div class="level-metric-label">${markLabel("released")}</div><div class="level-metric-value">–</div></div>
         <div class="level-arrow">⌄</div>
       </div>
-      <div class="level-body"><div class="bi-lazy-level-note"><strong>Netzwerkdaten werden bei Bedarf geladen.</strong><br>Beim Öffnen werden alle drei Ebenen gemeinsam geladen.</div></div>
+      <div class="level-body"><div class="bi-lazy-level-note"><strong>${markLabel("levelLoadHint")}</strong><br>${markLabel("levelLoadInfo")}</div></div>
     </article>`;
   }
 
@@ -197,7 +214,7 @@
   }
 
   function loadedRows(partners){
-    if(!partners.length) return `<tr><td colspan="7" class="empty-row">In dieser Ebene sind aktuell keine Partner vorhanden.</td></tr>`;
+    if(!partners.length) return `<tr><td colspan="7" class="empty-row">${markLabel("noPartnersLevel")}</td></tr>`;
     return partners.map(p=>{
       const bi=first(p,["bi_nummer","bi_number","ref_code","user_id","7","6"],"-");
       const sponsor=first(p,["sponsor","sponsor_ref","sponsor_code","sponsor_ref_code","8","9"],"-");
@@ -216,16 +233,16 @@
     state.partners=partners;
     state.summary=summary;
     if(!card) return;
-    const title=level===1?"Ebene 1 – direkte Partner":"Ebene "+level;
+    const title=markLabel(level===1?"directPartners":"level",level);
     card.className="level-card"+(open?" open":"");
     card.innerHTML=`<div class="level-head" onclick="toggleLevel(${level})">
       <div class="level-number">${level}</div><div class="level-name">${title}</div>
-      <div class="level-metric"><div class="level-metric-label">Partner</div><div class="level-metric-value">${fmt(summary.partnerCount)}</div></div>
-      <div class="level-metric"><div class="level-metric-label" data-bi-i18n-ignore data-bi-purchase-balance="purchased">${esc(purchaseBalanceLabel("purchased"))}</div><div class="level-metric-value">${fmt(summary.purchased)} Units</div></div>
-      <div class="level-metric"><div class="level-metric-label">Erwartet</div><div class="level-metric-value">${fmt(summary.expected)}</div></div>
-      <div class="level-metric"><div class="level-metric-label">Freigegeben</div><div class="level-metric-value">${fmt(summary.released)}</div></div>
+      <div class="level-metric"><div class="level-metric-label">${markLabel("partner")}</div><div class="level-metric-value">${fmt(summary.partnerCount)}</div></div>
+      <div class="level-metric"><div class="level-metric-label">${markLabel("purchased")}</div><div class="level-metric-value">${fmt(summary.purchased)} Units</div></div>
+      <div class="level-metric"><div class="level-metric-label">${markLabel("expected")}</div><div class="level-metric-value">${fmt(summary.expected)}</div></div>
+      <div class="level-metric"><div class="level-metric-label">${markLabel("released")}</div><div class="level-metric-value">${fmt(summary.released)}</div></div>
       <div class="level-arrow">${open?"⌃":"⌄"}</div></div>
-      <div class="level-body"><div class="table-wrap"><table class="network-table"><thead><tr><th>BI-Nummer</th><th>Sponsor</th><th data-bi-i18n-ignore data-bi-purchase-balance="purchasedUnits">${esc(purchaseBalanceLabel("purchasedUnits"))}</th><th>Gesamt verbrauchte Units</th><th>Verbrauchte Kauf-Units</th><th>Erwartete Referral Units</th><th>Freigegebene Referral Units</th></tr></thead><tbody>${loadedRows(partners)}</tbody></table></div></div>`;
+      <div class="level-body"><div class="table-wrap"><table class="network-table"><thead><tr><th>${markLabel("biNumber")}</th><th>${markLabel("sponsor")}</th><th>${markLabel("purchasedUnits")}</th><th>${markLabel("totalConsumedUnits")}</th><th>${markLabel("usedPurchasedUnits")}</th><th>${markLabel("expectedReferral")}</th><th>${markLabel("releasedReferral")}</th></tr></thead><tbody>${loadedRows(partners)}</tbody></table></div></div>`;
     const top=document.getElementById("networkLevel"+level);
     if(top) top.textContent=fmt(summary.partnerCount);
     applyPrivacy(card);
@@ -450,8 +467,8 @@
     if(isNetworkHash()) requestWhenRelevant(0);
     window.addEventListener("hashchange",()=>{ if(isNetworkHash()) requestWhenRelevant(0); });
     // Covers placeholder labels and already loaded tables without another API call.
-    window.addEventListener("bi:languagechange", updatePurchaseBalanceLabels);
-    updatePurchaseBalanceLabels();
+    window.addEventListener("bi:languagechange", refreshNetworkLabels);
+    refreshNetworkLabels();
 
     const privacyObserver=new MutationObserver(()=>applyOverviewPrivacy());
     if(section) privacyObserver.observe(section,{attributes:true,attributeFilter:["style","class"]});
