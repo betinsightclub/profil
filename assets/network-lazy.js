@@ -27,6 +27,18 @@
   const esc = value => typeof window.escapeHtml === "function"
     ? window.escapeHtml(value)
     : String(value ?? "").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]));
+  // Presentation only: resolve the labels from the currently selected language.
+  // Network data, balances, purchase lots and calculations are never modified.
+  const purchaseBalanceLabel = key => {
+    const fallback = key === "purchased" ? "Kauf-Units übrig" : "Verbleibende Kauf-Units";
+    return String(window.BetInsightI18n?.t?.("dashboardPage." + key, {}, fallback) || fallback);
+  };
+  function updatePurchaseBalanceLabels(){
+    document.querySelectorAll("#levelList [data-bi-purchase-balance]").forEach(el=>{
+      const key=el.getAttribute("data-bi-purchase-balance");
+      if(key==="purchased" || key==="purchasedUnits") el.textContent=purchaseBalanceLabel(key);
+    });
+  }
   const first = (obj,keys,fallback=0) => {
     for (const key of keys) if (obj && obj[key] !== undefined && obj[key] !== null && obj[key] !== "") return obj[key];
     return fallback;
@@ -139,7 +151,7 @@
         <div class="level-number">${level}</div>
         <div class="level-name">${title}</div>
         <div class="level-metric"><div class="level-metric-label">Partner</div><div class="level-metric-value">–</div></div>
-        <div class="level-metric"><div class="level-metric-label">Gekauft</div><div class="level-metric-value">–</div></div>
+        <div class="level-metric"><div class="level-metric-label" data-bi-i18n-ignore data-bi-purchase-balance="purchased">${esc(purchaseBalanceLabel("purchased"))}</div><div class="level-metric-value">–</div></div>
         <div class="level-metric"><div class="level-metric-label">Erwartet</div><div class="level-metric-value">–</div></div>
         <div class="level-metric"><div class="level-metric-label">Freigegeben</div><div class="level-metric-value">–</div></div>
         <div class="level-arrow">⌄</div>
@@ -209,11 +221,11 @@
     card.innerHTML=`<div class="level-head" onclick="toggleLevel(${level})">
       <div class="level-number">${level}</div><div class="level-name">${title}</div>
       <div class="level-metric"><div class="level-metric-label">Partner</div><div class="level-metric-value">${fmt(summary.partnerCount)}</div></div>
-      <div class="level-metric"><div class="level-metric-label">Gekauft</div><div class="level-metric-value">${fmt(summary.purchased)} Units</div></div>
+      <div class="level-metric"><div class="level-metric-label" data-bi-i18n-ignore data-bi-purchase-balance="purchased">${esc(purchaseBalanceLabel("purchased"))}</div><div class="level-metric-value">${fmt(summary.purchased)} Units</div></div>
       <div class="level-metric"><div class="level-metric-label">Erwartet</div><div class="level-metric-value">${fmt(summary.expected)}</div></div>
       <div class="level-metric"><div class="level-metric-label">Freigegeben</div><div class="level-metric-value">${fmt(summary.released)}</div></div>
       <div class="level-arrow">${open?"⌃":"⌄"}</div></div>
-      <div class="level-body"><div class="table-wrap"><table class="network-table"><thead><tr><th>BI-Nummer</th><th>Sponsor</th><th>Gekaufte Units</th><th>Gesamt verbrauchte Units</th><th>Verbrauchte Kauf-Units</th><th>Erwartete Referral Units</th><th>Freigegebene Referral Units</th></tr></thead><tbody>${loadedRows(partners)}</tbody></table></div></div>`;
+      <div class="level-body"><div class="table-wrap"><table class="network-table"><thead><tr><th>BI-Nummer</th><th>Sponsor</th><th data-bi-i18n-ignore data-bi-purchase-balance="purchasedUnits">${esc(purchaseBalanceLabel("purchasedUnits"))}</th><th>Gesamt verbrauchte Units</th><th>Verbrauchte Kauf-Units</th><th>Erwartete Referral Units</th><th>Freigegebene Referral Units</th></tr></thead><tbody>${loadedRows(partners)}</tbody></table></div></div>`;
     const top=document.getElementById("networkLevel"+level);
     if(top) top.textContent=fmt(summary.partnerCount);
     applyPrivacy(card);
@@ -437,6 +449,9 @@
 
     if(isNetworkHash()) requestWhenRelevant(0);
     window.addEventListener("hashchange",()=>{ if(isNetworkHash()) requestWhenRelevant(0); });
+    // Covers placeholder labels and already loaded tables without another API call.
+    window.addEventListener("bi:languagechange", updatePurchaseBalanceLabels);
+    updatePurchaseBalanceLabels();
 
     const privacyObserver=new MutationObserver(()=>applyOverviewPrivacy());
     if(section) privacyObserver.observe(section,{attributes:true,attributeFilter:["style","class"]});
