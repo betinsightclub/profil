@@ -6,6 +6,16 @@ on:
     branches:
       - main
     paths:
+      - "assets/network-lazy.js"
+      - "tests/network-lazy-i18n.test.cjs"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "assets/network-lazy.js"
+      - "assets/i18n/**"
+      - "tests/network-lazy-i18n.test.cjs"
+      - ".github/workflows/finalize-six-language-ui-20260916.yml"
       - "assets/i18n/**"
       - "assets/member-language-switch.js"
       - "freigeschaltet/index.html"
@@ -25,6 +35,9 @@ jobs:
 
       - name: Validate eight-language member UI
         run: python3 .github/scripts/validate_member_i18n_eight_languages_20260930.py
+
+      - name: Runtime-test network labels in eight languages
+        run: node tests/network-lazy-i18n.test.cjs
 
       - name: Validate locale JSON syntax
         shell: bash
