@@ -79,6 +79,7 @@
       #${MODULE_ID} .bi-perf-dot{display:inline-block;width:22px;height:3px;border-radius:3px;vertical-align:middle;margin-right:6px}
       #${MODULE_ID} .bi-perf-dot.actual{background:#18d89f}
       #${MODULE_ID} .bi-perf-dot.benchmark{background:rgba(72,176,255,.55)}
+      #${MODULE_ID} .bi-perf-dot.start{background:repeating-linear-gradient(90deg,#ffdc88 0 6px,transparent 6px 11px)}
       #${MODULE_ID} svg{display:block;width:100%;height:300px}
       #${MODULE_ID} .bi-perf-chart-empty{padding:65px 12px;text-align:center;color:#8db0c0}
       #${MODULE_ID} .bi-perf-actions{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:13px;flex-wrap:wrap}
@@ -141,6 +142,7 @@
         <div class="bi-perf-legend">
           <span><i class="bi-perf-dot actual"></i>Deine tatsächliche Entwicklung</span>
           <span><i class="bi-perf-dot benchmark"></i>Alle verfügbaren Tipps seit Registrierung</span>
+          <span><i class="bi-perf-dot start"></i>Startkapital: 1.000 €</span>
         </div>
         <div id="biPerfChart" class="bi-perf-chart-empty">Bitte zuerst einen Nutzer auswählen.</div>
       </div>
@@ -168,34 +170,43 @@
       return;
     }
     host.className="";
+    const START_CAPITAL=1000;
     const W=1000,H=300,pL=56,pR=18,pT=20,pB=42;
-    const vals=[];
+    const vals=[START_CAPITAL];
     points.forEach(p=>{vals.push(Number(p.actual)||0,Number(p.benchmark)||0)});
     let min=Math.min(...vals),max=Math.max(...vals);
     const pad=Math.max(20,(max-min)*.15);
-    min=Math.floor((min-pad)/25)*25;
-    max=Math.ceil((max+pad)/25)*25;
-    if(max<=min)max=min+100;
-    const x=i=>pL+(points.length===1?0:(i/(points.length-1))*(W-pL-pR));
+    const lower=min-pad,upper=max+pad;
+    const rawStep=Math.max(1,(upper-lower)/5);
+    const magnitude=Math.pow(10,Math.floor(Math.log10(rawStep)));
+    const step=magnitude*([1,2,2.5,5,10].find(m=>m*magnitude>=rawStep)||10);
+    min=START_CAPITAL+Math.floor((lower-START_CAPITAL)/step)*step;
+    max=START_CAPITAL+Math.ceil((upper-START_CAPITAL)/step)*step;
+    if(max<=min){min=START_CAPITAL-step;max=START_CAPITAL+step}
+    const x=i=>pL+(i/(points.length-1))*(W-pL-pR);
     const y=v=>pT+((max-v)/(max-min))*(H-pT-pB);
     const path=key=>points.map((p,i)=>(i?"L":"M")+x(i).toFixed(1)+" "+y(Number(p[key])||0).toFixed(1)).join(" ");
-    const grid=[0,.25,.5,.75,1].map(t=>{
-      const yy=pT+t*(H-pT-pB),value=max-t*(max-min);
-      return '<line x1="'+pL+'" y1="'+yy+'" x2="'+(W-pR)+'" y2="'+yy+'" stroke="rgba(180,215,232,.12)" stroke-width="1"/>'+
-        '<text x="'+(pL-8)+'" y="'+(yy+4)+'" text-anchor="end" fill="#789dad" font-size="11">'+esc(Math.round(value)+" €")+'</text>';
-    }).join("");
+    const grid=[];
+    for(let v=min,n=0;v<=max+step*.001&&n<15;v+=step,n++){
+      const yy=y(v),baseline=Math.abs(v-START_CAPITAL)<step*.001;
+      grid.push('<line x1="'+pL+'" y1="'+yy+'" x2="'+(W-pR)+'" y2="'+yy+'" stroke="'+(baseline?'rgba(255,216,125,.68)':'rgba(180,215,232,.12)')+'" stroke-width="'+(baseline?'1.8':'1')+'"'+(baseline?' stroke-dasharray="6 5"':'')+' vector-effect="non-scaling-stroke"/>'+
+        '<text x="'+(pL-8)+'" y="'+(yy+4)+'" text-anchor="end" fill="'+(baseline?'#ffdc88':'#789dad')+'" font-size="11"'+(baseline?' font-weight="bold"':'')+'>'+esc(Math.round(v)+" €")+'</text>');
+    }
     const first=esc(points[0].label||points[0].date||"");
     const last=esc(points[points.length-1].label||points[points.length-1].date||"");
-    host.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" role="img" aria-label="Persönliche Kapitalentwicklung">'+
-      grid+
+    const startLabelY=Math.max(pT+12,y(Number(points[0].actual)||0)-12);
+    host.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" role="img" aria-label="Kapitalentwicklung, Referenzlinie Startkapital 1.000 Euro">'+
+      grid.join("")+
       '<path d="'+path("benchmark")+'" fill="none" stroke="rgba(72,176,255,.48)" stroke-width="3" stroke-dasharray="8 7" vector-effect="non-scaling-stroke"/>'+
       '<path d="'+path("actual")+'" fill="none" stroke="#18d89f" stroke-width="4" vector-effect="non-scaling-stroke"/>'+
-      '<circle cx="'+x(points.length-1)+'" cy="'+y(points[points.length-1].actual)+'" r="5" fill="#18d89f"/>'+
+      '<circle cx="'+x(0)+'" cy="'+y(Number(points[0].benchmark)||0)+'" r="5" fill="#48b0ff" stroke="#061d2a" stroke-width="2" vector-effect="non-scaling-stroke"/>'+
+      '<circle cx="'+x(0)+'" cy="'+y(Number(points[0].actual)||0)+'" r="5" fill="#18d89f" stroke="#061d2a" stroke-width="2" vector-effect="non-scaling-stroke"/>'+
+      '<text x="'+(x(0)+12)+'" y="'+startLabelY+'" fill="#d8f9ec" font-weight="bold" font-size="12">'+esc("Start: "+euro(points[0].actual))+'</text>'+
+      '<circle cx="'+x(points.length-1)+'" cy="'+y(Number(points[points.length-1].actual)||0)+'" r="5" fill="#18d89f"/>'+
       '<text x="'+pL+'" y="'+(H-12)+'" fill="#789dad" font-size="11">'+first+'</text>'+
       '<text x="'+(W-pR)+'" y="'+(H-12)+'" text-anchor="end" fill="#789dad" font-size="11">'+last+'</text>'+
       '</svg>';
   }
-
   let users=[];
   let current=null;
   let emailPrivacyActive=true;
