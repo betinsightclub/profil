@@ -2504,6 +2504,17 @@
           }
           if(posts.length)posts.forEach(function(post){feed.appendChild(renderPost(post));});
           else feed.innerHTML='<div class="card empty-state">'+(mode==="global"?feedViewText("empty"):"Noch keine Beiträge veröffentlicht.")+'</div>';
+          // A Community → Profile link must land on the exact discussion,
+          // even though the server feed arrives after the initial page render.
+          const targetPostId=String(params.get("post")||"");
+          if(targetPostId&&posts.some(function(post){return String(post.id)===targetPostId;})){
+            setTimeout(function(){
+              const item=document.getElementById("card-"+targetPostId);
+              if(!item)return;
+              item.scrollIntoView({behavior:"smooth",block:"center"});
+              item.style.outline="2px solid rgba(22,135,255,.55)";
+            },120);
+          }
         }catch(_){}
       }
 
