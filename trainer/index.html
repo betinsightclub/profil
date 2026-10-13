@@ -2430,6 +2430,7 @@
             return {
               id:p.id,server:true,ownerRef:p.owner_ref||"",clubId:p.club_id||"",author:(p.author||trainerName||teamName||"Trainerprofil"),team:(p.team_name||teamName||"Mannschaft"),
               publicSlug:p.public_slug||"",distributionScope:p.distribution_scope||"PROFILE",
+              unitChargeStatus:p.unit_charge_status||"NOT_REQUIRED",isOfficial:p.is_official===true,
               time:new Intl.DateTimeFormat(trainerLocale(),{dateStyle:"short",timeStyle:"short"}).format(new Date(p.created_at)),
               text:p.body||"",emotion:resolveEmotion(p.emotion),
               image:p.media&&p.media.public_url?p.media.public_url:"",externalUrl:p.external_url||"",reactions:(p.reactions||[]).length,
@@ -2535,6 +2536,8 @@
       function renderPost(post){
         var article = document.createElement("article");
         article.className = "card post";
+        article.dataset.unitPaid=post.unitChargeStatus==="PAID"?"true":"false";
+        article.dataset.official=post.isOfficial===true?"true":"false";
         article.id = "card-" + post.id;
         var commentCount = Array.isArray(post.comments) ? post.comments.length : 0;
         var primaryEmotion = resolveEmotion(post.emotion);
@@ -3510,5 +3513,6 @@
     })();
   </script>
 <script src="../assets/session-reconnect.js?v=20260930-1" defer></script>
+<script src="../assets/community-tiles-v1.js?v=20261013" defer></script>
 </body>
 </html>
