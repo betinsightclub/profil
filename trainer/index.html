@@ -544,6 +544,12 @@
       display:none;position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.66);padding:20px;align-items:center;justify-content:center
     }
     .modal-backdrop.show{display:flex}
+    .profile-refresh-backdrop{z-index:5000}
+    .profile-refresh-backdrop .modal{width:min(100%,460px);text-align:left}
+    .profile-refresh-backdrop h2{display:flex;align-items:center;gap:9px}
+    .profile-refresh-backdrop .modal-actions{flex-wrap:wrap}
+    .profile-refresh-backdrop .modal-actions .pill-btn.primary{background:#1686eb;color:#fff}
+
     .modal{
       width:min(100%,520px);border:1px solid var(--line2);border-radius:20px;background:#092331;box-shadow:var(--shadow);padding:20px
     }
@@ -995,6 +1001,16 @@
     </div>
   </div>
 
+  <div class="modal-backdrop profile-refresh-backdrop" id="profileImageRefreshModal" role="dialog" aria-modal="true" aria-labelledby="profileImageRefreshTitle">
+    <div class="modal">
+      <h2 id="profileImageRefreshTitle">✅ Bild gespeichert</h2>
+      <p id="profileImageRefreshNote">Dein Bild wurde gespeichert. Damit es zuverlässig sichtbar wird, aktualisiere bitte dein Profil.</p>
+      <div class="modal-actions">
+        <button class="pill-btn" type="button" id="profileImageRefreshLater">Später</button>
+        <button class="pill-btn primary" type="button" id="profileImageRefreshNow">🔄 Profil aktualisieren</button>
+      </div>
+    </div>
+  </div>
   <div class="toast" id="toast">Gespeichert</div>
   <div class="preview-label">BetInsight · Trainerprofil</div>
 
@@ -3025,45 +3041,88 @@
         }
         cropState.drag=null;
       }
+      function showProfileImageRefreshPrompt(purpose){
+        var box=document.getElementById("profileImageRefreshModal");
+        var note=document.getElementById("profileImageRefreshNote");
+        if(note)note.textContent=(purpose==="avatar"?"Dein Profilbild":"Dein Hintergrundbild")+" wurde auf dem Server gespeichert. Die neue Grafik konnte in dieser Ansicht noch nicht zuverlässig angezeigt werden. Bitte klicke auf „Profil aktualisieren“. Deine Änderung bleibt gespeichert.";
+        if(box){box.classList.add("show");document.getElementById("profileImageRefreshNow")?.focus();}
+      }
+      document.getElementById("profileImageRefreshNow").addEventListener("click",function(){location.reload();});
+      document.getElementById("profileImageRefreshLater").addEventListener("click",function(){document.getElementById("profileImageRefreshModal").classList.remove("show");});
+      async function showSavedProfileImage(profile,purpose,expectedMediaId){
+        // Use the verified public storage URL, never an inline data: URL that may be blocked.
+        var verified=profile;
+        var item=verified?.media?.[purpose];
+        if(!item||item.id!==expectedMediaId||!item.public_url){
+          // In case the update response was stale, retrieve the committed profile once.
+          try{
+            var latest=await communityCall("my_profile",{credential:memberCredential,club_id:clubId});
+            if(latest.profile?.media?.[purpose]?.id===expectedMediaId){
+              verified=latest.profile;
+              item=verified.media[purpose];
+            }
+          }catch(error){console.warn("Bild gespeichert, aber neues Profil nicht sofort abrufbar",error);}
+        }
+        if(!item||item.id!==expectedMediaId||!item.public_url)return false;
+        try{
+          currentProfile=verified;
+          applyProfile(verified,true);
+          var img=document.getElementById(purpose==="avatar"?"avatarImage":"coverImage");
+          if(!img)return false;
+          // A successful API response alone is not enough: verify the actual rendered image.
+          if(img.getAttribute("src")!==item.public_url)img.src=item.public_url;
+          img.classList.remove("hidden");
+          await Promise.race([
+            typeof img.decode==="function"?img.decode():new Promise(function(resolve,reject){
+              if(img.complete)return img.naturalWidth>0?resolve():reject(new Error("Bilddatei ungültig"));
+              img.addEventListener("load",resolve,{once:true});
+              img.addEventListener("error",reject,{once:true});
+            }),
+            new Promise(function(_,reject){setTimeout(function(){reject(new Error("Bild lädt zu langsam"));},4500);})
+          ]);
+          return img.complete&&img.naturalWidth>0&&!img.classList.contains("hidden");
+        }catch(error){
+          console.warn("Bild gespeichert, aber nicht direkt darstellbar",error);
+          return false;
+        }
+      }
       async function saveCropDialog(){
         var e=cropEls();
         if(!cropState.data||!isOwner||!serverMode)return;
+        var purpose=cropState.purpose;
         e.save.disabled=true;
         e.save.textContent="Wird gespeichert …";
+        var uploaded=null,saved=null;
         try{
-          var uploaded=await communityCall("upload_media",{
+          uploaded=await communityCall("upload_media",{
             credential:memberCredential,
             club_id:clubId,
-            purpose:cropState.purpose,
+            purpose:purpose,
             data_url:cropState.data.dataUrl,
             width:cropState.data.width,
             height:cropState.data.height
           });
-          var field=cropState.purpose==="avatar"?"avatar_media_id":"cover_media_id";
-          var cropField=cropState.purpose==="avatar"?"avatar_crop":"cover_crop";
+          var field=purpose==="avatar"?"avatar_media_id":"cover_media_id";
+          var cropField=purpose==="avatar"?"avatar_crop":"cover_crop";
           var payload={credential:memberCredential,club_id:clubId};
           payload[field]=uploaded.media.id;
           payload[cropField]={x:cropState.x,y:cropState.y,zoom:cropState.zoom};
-          var saved=await communityCall("update_profile",payload);
+          saved=await communityCall("update_profile",payload);
           if(!saved.profile)throw new Error("Die Profilaktualisierung wurde nicht bestätigt. Bitte erneut versuchen.");
-          // The returned media bundle may still contain the previous image.
-          // Use the successfully uploaded original immediately; a reload uses the persisted media URL.
-          var updatedProfile=saved.profile;
-          updatedProfile.media=updatedProfile.media||{};
-          updatedProfile.media[cropState.purpose]={
-            ...(updatedProfile.media[cropState.purpose]||{}),
-            id:uploaded.media.id,
-            public_url:cropState.data.dataUrl
-          };
-          currentProfile=updatedProfile;
-          closeCropDialog(true);
-          applyProfile(updatedProfile,true);
-          showToast(cropState.purpose==="cover"?"✓ Hintergrund gespeichert und sofort angezeigt.":"✓ Profilbild gespeichert und sofort angezeigt.");
         }catch(error){
+          // Never falsely claim that a failed upload was saved.
           showToast(error&&error.message?error.message:"Bild konnte nicht gespeichert werden.");
-        }finally{
           e.save.disabled=false;
           e.save.textContent="Ausschnitt speichern";
+          return;
+        }
+        closeCropDialog(true);
+        e.save.disabled=false;
+        e.save.textContent="Ausschnitt speichern";
+        if(await showSavedProfileImage(saved.profile,purpose,uploaded.media.id)){
+          showToast(purpose==="cover"?"✓ Hintergrund gespeichert und angezeigt.":"✓ Profilbild gespeichert und angezeigt.");
+        }else{
+          showProfileImageRefreshPrompt(purpose);
         }
       }
       async function changeProfileImageMode(mode){
@@ -3191,11 +3250,11 @@
               payload[field]=uploaded.media.id;
               var saved=await communityCall("update_profile",payload);
               if(!saved.profile)throw new Error("Die Profilaktualisierung wurde nicht bestätigt.");
-              saved.profile.media=saved.profile.media||{};
-              saved.profile.media[purpose]={...(saved.profile.media[purpose]||{}),id:uploaded.media.id,public_url:result.dataUrl};
-              currentProfile=saved.profile;
-              applyProfile(saved.profile,true);
-              showToast("Bild optimiert, gespeichert und sofort angezeigt.");
+              if(await showSavedProfileImage(saved.profile,purpose,uploaded.media.id)){
+                showToast("✓ Bild optimiert, gespeichert und angezeigt.");
+              }else{
+                showProfileImageRefreshPrompt(purpose);
+              }
             }else{
               showToast("Bild optimiert: "+formatFileSize(result.originalBytes)+" → "+formatFileSize(result.blob.size));
             }
