@@ -3090,9 +3090,9 @@
         var btn=document.getElementById(avatar?"editRemoveAvatarBtn":"editRemoveCoverBtn");
         if(btn)btn.disabled=true;
         try{
-          var payload={credential:memberCredential,club_id:clubId};
-          payload[avatar?"avatar_media_id":"cover_media_id"]=null;
-          var saved=await communityCall("update_profile",payload);
+          var saved=await communityCall("delete_profile_image",{
+            credential:memberCredential,club_id:clubId,purpose:purpose
+          });
           if(!saved.profile)throw new Error("Der Server hat das Entfernen nicht bestätigt.");
           // Show the actual saved status now, never replace a deleted image with the trainer portrait.
           if(!saved.profile.media)saved.profile.media={};
@@ -3101,7 +3101,7 @@
           applyProfile(saved.profile,true);
           document.getElementById(avatar?"avatarInput":"coverInput").value="";
           openProfileEditor();
-          showToast("✓ "+label+" aus deinem Profil entfernt.");
+          showToast(saved.storage_deleted===false?label+" aus dem Profil entfernt. Die Serverdatei konnte noch nicht endgültig gelöscht werden.":"✓ "+label+" entfernt und gelöscht.");
         }catch(err){
           profileEditError(label+" konnte nicht entfernt werden: "+String(err?.message||"Unbekannter Fehler"));
         }finally{if(btn)btn.disabled=false;}
