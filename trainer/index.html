@@ -1009,31 +1009,7 @@
   <div class="toast" id="toast">Gespeichert</div>
   <div class="preview-label">BetInsight · Trainerprofil</div>
 
-  <script src="/time-clash/avatar-assets-v3.js?v=20260925f"></script>
-  <script src="/time-clash/avatar-face-assets-v6-1.js?v=20260926d"></script>
-  <script src="/time-clash/avatar-face-assets-v6-2.js?v=20260926d"></script>
-  <script src="/time-clash/avatar-face-assets-v6-3.js?v=20260926d"></script>
-  <script src="/time-clash/avatar-face-assets-v6-4.js?v=20260926d"></script>
-  <script src="/time-clash/avatar-face-assets-v6.js?v=20260926d"></script>
-  <script src="/time-clash/assets/trainer-body-pack.js?v=20260926b"></script>
   <script>window.__TCBR=""</script>
-  <script src="/time-clash/assets/beard-real-b64-1.js?v=20260926a"></script>
-  <script src="/time-clash/assets/beard-real-b64-2.js?v=20260926a"></script>
-  <script src="/time-clash/assets/beard-real-b64-3.js?v=20260926a"></script>
-  <script src="/time-clash/assets/beard-real-b64-4.js?v=20260926a"></script>
-  <script src="/time-clash/assets/beard-real-b64-5.js?v=20260926a"></script>
-  <script src="/time-clash/assets/beard-real-b64-6.js?v=20260926a"></script>
-  <script src="/time-clash/assets/beard-real-b64-7p1.js?v=20260926a"></script>
-  <script src="/time-clash/assets/beard-real-b64-7p2.js?v=20260926a"></script>
-  <script src="/time-clash/assets/beard-real-b64-7p3.js?v=20260926a"></script>
-  <script src="/time-clash/assets/beard-real-b64-8p1.js?v=20260926a"></script>
-  <script src="/time-clash/assets/beard-real-b64-8p2.js?v=20260926a"></script>
-  <script src="/time-clash/assets/beard-real-b64-8p3.js?v=20260926a"></script>
-  <script src="/time-clash/assets/beard-real-b64-9.js?v=20260926a"></script>
-  <script src="/time-clash/assets/beard-pack-real.js?v=20260926a"></script>
-  <script src="/time-clash/assets/hair-pack-real.js?v=20260927b"></script>
-  <script src="/time-clash/avatar-engine.js?v=20260927e"></script>
-
   <script>
     (function(){
       "use strict";
@@ -1962,6 +1938,50 @@
         }
       }
 
+
+      const TRAINER_PORTRAIT_ASSETS=["/time-clash/avatar-assets-v3.js?v=20260925f","/time-clash/avatar-face-assets-v6-1.js?v=20260926d","/time-clash/avatar-face-assets-v6-2.js?v=20260926d","/time-clash/avatar-face-assets-v6-3.js?v=20260926d","/time-clash/avatar-face-assets-v6-4.js?v=20260926d","/time-clash/avatar-face-assets-v6.js?v=20260926d","/time-clash/assets/trainer-body-pack.js?v=20260926b","/time-clash/assets/beard-real-b64-1.js?v=20260926a","/time-clash/assets/beard-real-b64-2.js?v=20260926a","/time-clash/assets/beard-real-b64-3.js?v=20260926a","/time-clash/assets/beard-real-b64-4.js?v=20260926a","/time-clash/assets/beard-real-b64-5.js?v=20260926a","/time-clash/assets/beard-real-b64-6.js?v=20260926a","/time-clash/assets/beard-real-b64-7p1.js?v=20260926a","/time-clash/assets/beard-real-b64-7p2.js?v=20260926a","/time-clash/assets/beard-real-b64-7p3.js?v=20260926a","/time-clash/assets/beard-real-b64-8p1.js?v=20260926a","/time-clash/assets/beard-real-b64-8p2.js?v=20260926a","/time-clash/assets/beard-real-b64-8p3.js?v=20260926a","/time-clash/assets/beard-real-b64-9.js?v=20260926a","/time-clash/assets/beard-pack-real.js?v=20260926a","/time-clash/assets/hair-pack-real.js?v=20260927b","/time-clash/avatar-engine.js?v=20260927e"];
+      var trainerPortraitAssetsPromise=null;
+      function ensureTrainerPortraitAssets(){
+        if(window.TimeClashAvatar&&typeof window.TimeClashAvatar.renderCoachPortrait==="function")return Promise.resolve(true);
+        if(trainerPortraitAssetsPromise)return trainerPortraitAssetsPromise;
+        const started=performance.now();
+        trainerPortraitAssetsPromise=new Promise(function(resolve,reject){
+          var left=TRAINER_PORTRAIT_ASSETS.length,failed=false;
+          const scripts=TRAINER_PORTRAIT_ASSETS.map(function(path){
+            const element=document.createElement("script");
+            element.src=path;
+            element.async=false; // concurrent network fetch; ordered script execution
+            element.onload=function(){
+              if(--left===0&&!failed){
+                const ready=Boolean(window.TimeClashAvatar&&typeof window.TimeClashAvatar.renderCoachPortrait==="function");
+                console.info("[BetInsight Performance] Trainerporträt-Bibliothek geladen: "+Math.round(performance.now()-started)+" ms");
+                ready?resolve(true):reject(new Error("Trainerporträt-Bibliothek unvollständig"));
+              }
+            };
+            element.onerror=function(){
+              if(!failed){failed=true;reject(new Error("Trainerporträt-Ressource konnte nicht geladen werden"));}
+            };
+            return element;
+          });
+          scripts.forEach(function(element){document.head.appendChild(element);});
+        }).catch(function(error){console.warn("Trainerporträt-Nachladen",error);return false;});
+        return trainerPortraitAssetsPromise;
+      }
+      function scheduleCurrentCoachPortrait(profile){
+        if(!profile||profile.avatar_display_mode!=="coach"||!profile.coach_appearance)return;
+        setTimeout(function(){
+          ensureTrainerPortraitAssets().then(function(ok){
+            if(!ok||!currentProfile||currentProfile.club_id!==profile.club_id||currentProfile.avatar_display_mode!=="coach")return;
+            renderConfiguredCoachAvatar(currentProfile);
+            applyAvatarRankFrame(currentProfile);
+            document.querySelectorAll("#postFeed .post-author-avatar").forEach(function(host){
+              const avatarData=host.closest(".post")?.__trainerAvatarData;
+              if(avatarData)renderMiniAvatar(host,avatarData);
+            });
+          });
+        },80);
+      }
+
       function renderConfiguredCoachAvatar(profile){
         var appearance=profile&&profile.coach_appearance;
         if(!appearance || typeof appearance!=="object" || !window.TimeClashAvatar || !window.TimeClashAvatar.renderCoachPortrait) return false;
@@ -2098,8 +2118,15 @@
 
         renderRecentMatches(profile.recent_matches||[]);
         renderProfileData(profile);
-        loadServerFeed();
-        if(ownerView)loadPostPricing();
+        lastProfileRefreshAt=Date.now();
+        const firstPaint=performance.now();
+        setTimeout(function(){
+          if(currentProfile?.club_id!==profile.club_id)return;
+          loadServerFeed(feedMode);
+          if(ownerView)loadPostPricing();
+          scheduleCurrentCoachPortrait(profile);
+          console.info("[BetInsight Performance] Trainer-Profil: Nebenabfragen gestartet nach "+Math.round(performance.now()-firstPaint)+" ms");
+        },0);
       }
 
       async function fetchPublicProfile(){
@@ -2388,6 +2415,24 @@
         });
       }
 
+      function mountTrainerLazyPreviews(){
+        const feed=document.getElementById("postFeed");
+        if(!feed||feed.dataset.lazyPreviewMounted==="1")return;
+        feed.dataset.lazyPreviewMounted="1";
+        feed.addEventListener("click",function(event){
+          const post=event.target.closest(".post");
+          if(!post||!event.target.closest(".bi-tile-toggle"))return;
+          setTimeout(function(){
+            if(!post.classList.contains("bi-open"))return;
+            post.querySelectorAll(".post-link-preview[data-preview-pending]").forEach(function(el){
+              const url=el.dataset.previewPending;
+              delete el.dataset.previewPending;
+              scheduleLinkPreview(el,url);
+            });
+          },40);
+        });
+      }
+
       function renderPosts(){
         var feed = document.getElementById("postFeed");
         var posts=readPosts();
@@ -2558,7 +2603,7 @@
         });
         reactionStickers=reactionStickers.slice(0,3);
         var emotionHtml = primaryEmotion ? '<div class="post-emotion">'+stickerHtml(primaryEmotion,"sticker-post-art")+'</div>' : "";
-        var imageHtml = post.image ? '<div class="post-image-wrap"><img src="' + esc(post.image) + '" alt="Beitragsbild"></div>' : "";
+        var imageHtml = post.image ? '<div class="post-image-wrap"><img src="' + esc(post.image) + '" alt="Beitragsbild" loading="lazy" decoding="async"></div>' : "";
         var linkHtml = post.externalUrl ? '<div class="post-link-preview" data-link-preview="'+esc(post.externalUrl)+'"></div>' : "";
         var commentsHtml = "";
         (post.comments || []).forEach(function(c){
@@ -2597,16 +2642,21 @@
           '</div>' +
           '<div class="comments">' + commentsHtml + interactionHtml + '</div>';
 
-        renderMiniAvatar(article.querySelector("[data-post-author-avatar]"),{
+        const miniAvatarData={
           authorWins:Number(post.authorWins||0),
           coachAppearance:post.coachAppearance||null,
           avatarMode:post.avatarMode||"custom",
           avatarUrl:post.authorAvatarUrl||"",
           name:post.author||trainerName||teamName||"BI"
-        });
+        };
+        article.__trainerAvatarData=miniAvatarData;
+        renderMiniAvatar(article.querySelector("[data-post-author-avatar]"),miniAvatarData);
 
         var linkPreviewEl=article.querySelector(".post-link-preview");
-        if(linkPreviewEl&&post.externalUrl)scheduleLinkPreview(linkPreviewEl,post.externalUrl);
+        if(linkPreviewEl&&post.externalUrl){
+          linkPreviewEl.innerHTML=previewCardHtml(post.externalUrl,null);
+          linkPreviewEl.dataset.previewPending=post.externalUrl;
+        }
 
         var reactToggle = article.querySelector(".react-toggle");
         var reactionMenu = article.querySelector(".reaction-menu");
@@ -3248,6 +3298,7 @@
         if(!e.target.closest(".post-menu-wrap")) closePostOptionMenus();
       });
       renderPosts();
+      mountTrainerLazyPreviews();
       setupProfileTabs();
       activateProfileTab("posts");
       document.querySelectorAll("#feedSwitch [data-feed-mode]").forEach(function(btn){
