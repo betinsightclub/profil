@@ -1712,7 +1712,7 @@ function dashboardFeedPostHtml(post){
   const comments=Array.isArray(post.comments)?post.comments.length:0;
   const reactions=Array.isArray(post.reactions)?post.reactions.length:0;
   const external=post.external_url||"";
-  return '<article class="dashboard-feed-post">'+
+  return '<article class="dashboard-feed-post" data-unit-paid="'+(post.unit_charge_status==="PAID"?"true":"false")+'" data-official="'+(post.is_official===true?"true":"false")+'">'+
     '<div class="dashboard-feed-author">'+dashboardFeedAvatarHtml(post)+
       '<div class="dashboard-feed-author-copy"><strong>'+dashboardFeedEsc(post.author||"Trainer")+'</strong><small>'+dashboardFeedEsc(post.team_name||"BetInsight")+' · '+dashboardFeedEsc(dashboardFeedDate(post.created_at))+'</small></div></div>'+
     (post.body?'<p class="dashboard-feed-text">'+dashboardFeedEsc(post.body)+'</p>':'')+
@@ -1734,7 +1734,10 @@ async function loadDashboardCommunityFeed(){
     const response=await fetch(DASHBOARD_COMMUNITY_API+"?action=feed&scope=global",{method:"GET",cache:"no-store",credentials:"omit"});
     const data=await response.json();
     if(!response.ok||data.ok!==true||!Array.isArray(data.posts))throw new Error("feed");
-    const posts=data.posts.slice(0,5);
+    /* Six compact preview tiles; reserve two placements for paid global community posts. */
+    const paidPosts=data.posts.filter(p=>p.distribution_scope==="GLOBAL"&&p.unit_charge_status==="PAID").slice(0,2);
+    const keepIds=new Set(paidPosts.map(p=>p.id));
+    const posts=[...paidPosts,...data.posts.filter(p=>!keepIds.has(p.id))].slice(0,6);
     if(!posts.length){
       list.innerHTML='<div class="dashboard-feed-empty">Noch keine globalen Community-Beiträge vorhanden.</div>';
       return;
@@ -1758,5 +1761,6 @@ setTimeout(loadDashboardCommunityFeed,250);
 
 <script src="./member-performance.js?v=20261012-1"></script>
 
+<script src="./assets/community-tiles-v1.js?v=20261013" defer></script>
 </body>
 </html>
