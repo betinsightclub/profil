@@ -315,7 +315,18 @@ button{border:0}
 .dashboard-official-section{border-bottom:1px solid rgba(95,194,242,.23);background:linear-gradient(145deg,rgba(7,55,73,.29),rgba(4,25,37,.14))}
 .dashboard-official-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:15px 17px 18px}
 .dashboard-official-card{display:flex;flex-direction:column;min-width:0;min-height:148px;padding:14px 15px;border:1px solid rgba(83,180,236,.30);border-radius:15px;background:linear-gradient(148deg,#103249,#091d2c);color:#e8f7ff;text-decoration:none;transition:border-color .16s,background .16s}
-.dashboard-official-card:hover,.dashboard-official-card:focus-visible{border-color:#72d6ff;background:#11425a;outline:none}
+.dashboard-official-card:hover,.dashboard-official-card:focus-within{border-color:#72d6ff;background:#11425a}
+.dashboard-official-main{display:flex;flex:1;flex-direction:column;min-width:0;color:inherit;text-decoration:none;border-radius:9px}
+.dashboard-official-main:focus-visible{outline:2px solid #75d6ff;outline-offset:3px}
+.dashboard-official-actions{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(133,207,244,.12)}
+.dashboard-official-reaction{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:31px;max-width:100%;padding:6px 8px;border:1px solid rgba(117,196,238,.28);border-radius:9px;background:#09293d;color:#c8e8f7;font:inherit;font-size:11px;font-weight:750;cursor:pointer;white-space:nowrap}
+.dashboard-official-reaction:hover,.dashboard-official-reaction:focus-visible{border-color:#66c9fa;background:#164460;outline:none}
+.dashboard-official-reaction[aria-pressed="true"]{border-color:#72d6fa;background:rgba(35,148,217,.26);color:#fff}
+.dashboard-official-reaction:disabled{opacity:.55;cursor:wait}
+.dashboard-official-count{font-weight:900;color:#8fdefb;font-variant-numeric:tabular-nums}
+.dashboard-official-feedback{flex-basis:100%;min-height:0;font-size:10px;color:#9cdefd;line-height:1.4}
+.dashboard-official-feedback:empty{display:none}
+.dashboard-official-feedback.is-error{color:#ffd2a3}
 .dashboard-official-source{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:10px;font-weight:800;color:#82d9ff}
 .dashboard-official-time{font-size:10px;color:#8dafbd;white-space:nowrap}
 .dashboard-official-title{font-size:14px;font-weight:850;line-height:1.35;margin:11px 0 7px;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -1766,12 +1777,98 @@ function dashboardOfficialTileHtml(post){
     ?"trainer/?p="+encodeURIComponent(post.public_slug)+"&post="+encodeURIComponent(post.id)
     :"meldungen/";
   const shortDate=dashboardFeedDate(post.published_at||post.created_at);
-  return '<a class="dashboard-official-card" href="'+dashboardFeedEsc(url)+'" aria-label="'+dashboardFeedEsc(title)+' – vollständigen Beitrag öffnen">'+
-    '<div class="dashboard-official-source"><span>● BETINSIGHT · '+dashboardFeedEsc(post.author||"Offizielle Meldung")+'</span><time class="dashboard-official-time">'+dashboardFeedEsc(shortDate)+'</time></div>'+
-    '<strong class="dashboard-official-title">'+dashboardFeedEsc(title)+'</strong>'+
-    '<span class="dashboard-official-excerpt">'+dashboardFeedEsc(excerpt)+'</span>'+
-    '<span class="dashboard-official-more">Beitrag vollständig lesen →</span>'+
-  '</a>';
+  const reactions=Array.isArray(post.reactions)?post.reactions:[];
+  const likes=reactions.filter(r=>r.reaction==="LIKE").length;
+  const thanks=reactions.filter(r=>r.reaction==="THANKS").length;
+  return '<article class="dashboard-official-card" data-official-post-id="'+dashboardFeedEsc(post.id)+'">'+
+    '<a class="dashboard-official-main" href="'+dashboardFeedEsc(url)+'" aria-label="'+dashboardFeedEsc(title)+' – vollständigen Beitrag öffnen">'+
+      '<div class="dashboard-official-source"><span>● BETINSIGHT · '+dashboardFeedEsc(post.author||"Offizielle Meldung")+'</span><time class="dashboard-official-time">'+dashboardFeedEsc(shortDate)+'</time></div>'+
+      '<strong class="dashboard-official-title">'+dashboardFeedEsc(title)+'</strong>'+
+      '<span class="dashboard-official-excerpt">'+dashboardFeedEsc(excerpt)+'</span>'+
+      '<span class="dashboard-official-more">Beitrag vollständig lesen →</span>'+
+    '</a>'+
+    '<div class="dashboard-official-actions" aria-label="Reaktionen auf diese Meldung">'+
+      '<button type="button" class="dashboard-official-reaction" data-official-reaction="LIKE" aria-pressed="false" aria-label="Hilfreich – '+likes+' Reaktionen">👍 Hilfreich <span class="dashboard-official-count" data-official-count="LIKE">'+likes+'</span></button>'+
+      '<button type="button" class="dashboard-official-reaction" data-official-reaction="THANKS" aria-pressed="false" aria-label="Danke – '+thanks+' Reaktionen">🙏 Danke <span class="dashboard-official-count" data-official-count="THANKS">'+thanks+'</span></button>'+
+      '<span class="dashboard-official-feedback" role="status" aria-live="polite"></span>'+
+    '</div>'+
+  '</article>';
+}
+async function dashboardOfficialApi(action,payload){
+  const token=String(getConfirmedDashboardToken()||getActiveToken()||"").trim();
+  if(!token)throw new Error("Bitte melde dich an, um zu reagieren.");
+  const response=await fetch(DASHBOARD_COMMUNITY_API+"?action="+encodeURIComponent(action),{
+    method:"POST",cache:"no-store",credentials:"omit",
+    headers:{"Content-Type":"application/json","Accept":"application/json"},
+    body:JSON.stringify({...payload,credential:token})
+  });
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok||data.ok!==true){
+    if(response.status===401)throw new Error("Deine Anmeldung ist abgelaufen. Bitte erneut anmelden.");
+    if(data.error==="POST_NOT_AVAILABLE")throw new Error("Diese Meldung ist nicht mehr verfügbar.");
+    throw new Error("Reaktion nicht gespeichert. Bitte versuche es erneut.");
+  }
+  return data;
+}
+function dashboardOfficialRenderSelected(card,selected){
+  card.querySelectorAll("button[data-official-reaction]").forEach(button=>{
+    const kind=button.dataset.officialReaction;
+    button.setAttribute("aria-pressed",String(kind===selected));
+  });
+}
+function dashboardOfficialBindActions(){
+  const container=document.getElementById("dashboardOfficialList");
+  if(!container||container.dataset.reactionActionsReady==="true")return;
+  container.dataset.reactionActionsReady="true";
+  container.addEventListener("click",async event=>{
+    const button=event.target.closest("button[data-official-reaction]");
+    if(!button||!container.contains(button))return;
+    const card=button.closest("[data-official-post-id]");
+    const id=card?.dataset.officialPostId,kind=button.dataset.officialReaction;
+    if(!id||!["LIKE","THANKS"].includes(kind))return;
+    const status=card.querySelector(".dashboard-official-feedback");
+    const buttons=[...card.querySelectorAll("button[data-official-reaction]")];
+    if(buttons.some(b=>b.disabled))return;
+    card.dataset.reactionInteracted="true";
+    buttons.forEach(b=>b.disabled=true);
+    status.classList.remove("is-error");
+    status.textContent="Reaktion wird gespeichert …";
+    try{
+      const result=await dashboardOfficialApi("official_quick_react",{post_id:id,reaction:kind});
+      dashboardOfficialRenderSelected(card,result.reaction||"");
+      ["LIKE","THANKS"].forEach(key=>{
+        const count=Number(result.counts?.[key]||0);
+        const countEl=card.querySelector('[data-official-count="'+key+'"]');
+        if(countEl)countEl.textContent=String(count);
+        const target=card.querySelector('[data-official-reaction="'+key+'"]');
+        if(target)target.setAttribute("aria-label",(key==="LIKE"?"Hilfreich":"Danke")+" – "+count+" Reaktionen");
+      });
+      // Update the in-memory copy; the next dashboard load also receives fresh counts.
+      const post=window.__biDashboardFeedPosts?.get(id);
+      if(post){
+        post.reactions=Array.isArray(post.reactions)?post.reactions:[];
+      }
+      status.textContent=result.reaction?"Reaktion gespeichert.":"Reaktion entfernt.";
+    }catch(error){
+      status.classList.add("is-error");
+      status.textContent=error?.message||"Reaktion konnte nicht gespeichert werden.";
+    }finally{buttons.forEach(b=>b.disabled=false);}
+  });
+}
+async function dashboardOfficialLoadSelections(posts){
+  if(!posts.length)return;
+  const token=String(getConfirmedDashboardToken()||getActiveToken()||"").trim();
+  if(!token)return;
+  try{
+    const data=await dashboardOfficialApi("official_reaction_status",{post_ids:posts.map(p=>p.id)});
+    posts.forEach(post=>{
+      const card=[...document.querySelectorAll("#dashboardOfficialList [data-official-post-id]")]
+        .find(el=>el.dataset.officialPostId===post.id);
+      if(card&&!card.dataset.reactionInteracted)dashboardOfficialRenderSelected(card,data.reactions?.[post.id]||"");
+    });
+  }catch(error){
+    console.warn("Eigene offizielle Reaktionen können gerade nicht geladen werden.",error);
+  }
 }
 async function loadDashboardCommunityFeed(){
   const box=document.getElementById("dashboardCommunityFeed");
@@ -1794,7 +1891,9 @@ async function loadDashboardCommunityFeed(){
       .sort(newest).slice(0,3);
     if(officialSection&&officialList){
       officialSection.hidden=official.length===0;
+      dashboardOfficialBindActions();
       officialList.innerHTML=official.map(dashboardOfficialTileHtml).join("");
+      dashboardOfficialLoadSelections(official);
     }
     const memberPosts=all.filter(p=>p.is_official!==true).sort(newest);
     // Paid placement is limited to two member cards for only 48h after publication.
