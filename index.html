@@ -311,6 +311,19 @@ button{border:0}
   box-shadow:0 22px 56px rgba(0,0,0,.24);
 }
 .dashboard-feed-module.show{display:block}
+.dashboard-feed-section[hidden]{display:none!important}
+.dashboard-official-section{border-bottom:1px solid rgba(95,194,242,.23);background:linear-gradient(145deg,rgba(7,55,73,.29),rgba(4,25,37,.14))}
+.dashboard-official-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:15px 17px 18px}
+.dashboard-official-card{display:flex;flex-direction:column;min-width:0;min-height:148px;padding:14px 15px;border:1px solid rgba(83,180,236,.30);border-radius:15px;background:linear-gradient(148deg,#103249,#091d2c);color:#e8f7ff;text-decoration:none;transition:border-color .16s,background .16s}
+.dashboard-official-card:hover,.dashboard-official-card:focus-visible{border-color:#72d6ff;background:#11425a;outline:none}
+.dashboard-official-source{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:10px;font-weight:800;color:#82d9ff}
+.dashboard-official-time{font-size:10px;color:#8dafbd;white-space:nowrap}
+.dashboard-official-title{font-size:14px;font-weight:850;line-height:1.35;margin:11px 0 7px;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.dashboard-official-excerpt{font-size:12px;line-height:1.45;color:#a8c9d8;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.dashboard-official-more{font-size:11px;color:#8fd7ff;font-weight:800;margin-top:auto;padding-top:10px}
+@media(max-width:850px){.dashboard-official-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.dashboard-official-grid{grid-template-columns:minmax(0,1fr);padding:12px;gap:9px}.dashboard-official-card{min-height:112px}.dashboard-feed-head{flex-wrap:wrap}}
+
 .dashboard-feed-head{
   display:flex;
   align-items:center;
@@ -1160,19 +1173,31 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
 </header>
 
 <section id="dashboardCommunityFeed" class="dashboard-feed-module" aria-label="Community Feed Vorschau">
-  <div class="dashboard-feed-head">
-    <div>
-      <h2 class="dashboard-feed-title">🌍 Community Feed</h2>
-      <p class="dashboard-feed-subtitle">Aktuelle Beiträge aus der BetInsight Community.</p>
+  <section id="dashboardOfficialSection" class="dashboard-feed-section dashboard-official-section" aria-label="Aktuelle offizielle BetInsight-Meldungen" hidden>
+    <div class="dashboard-feed-head">
+      <div>
+        <h2 class="dashboard-feed-title">📡 Aktuelle BetInsight-Meldungen</h2>
+        <p class="dashboard-feed-subtitle">Offizielle Neuigkeiten aus MatchRadar, NewsRadar, AusfallRadar und BetInsight.</p>
+      </div>
+      <a class="dashboard-feed-open" href="meldungen/">Weitere offizielle Meldungen →</a>
     </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
-      <a id="dashboardAllFeeds" class="dashboard-feed-open" href="https://betinsight.club/trainer-feed/?lang=de" target="_blank" rel="noopener">Alle Beiträge →</a>
-      <a id="dashboardMyTrainerProfile" class="dashboard-feed-open" href="trainer/">Mein Trainerprofil →</a>
+    <div id="dashboardOfficialList" class="dashboard-official-grid" aria-live="polite"></div>
+  </section>
+  <section class="dashboard-feed-section dashboard-community-section" aria-label="Community-Beiträge">
+    <div class="dashboard-feed-head">
+      <div>
+        <h2 class="dashboard-feed-title">🌍 Aus unserer Community</h2>
+        <p class="dashboard-feed-subtitle">Sechs aktuelle Beiträge unserer Mitglieder – neueste zuerst.</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+        <a id="dashboardAllFeeds" class="dashboard-feed-open" href="https://betinsight.club/trainer-feed/?lang=de" target="_blank" rel="noopener">Alle Community-Beiträge →</a>
+        <a id="dashboardMyTrainerProfile" class="dashboard-feed-open" href="trainer/">Mein Trainerprofil →</a>
+      </div>
     </div>
-  </div>
-  <div id="dashboardFeedList" class="dashboard-feed-list">
-    <div class="dashboard-feed-empty">Feed wird geladen …</div>
-  </div>
+    <div id="dashboardFeedList" class="dashboard-feed-list" aria-live="polite">
+      <div class="dashboard-feed-empty">Community wird geladen …</div>
+    </div>
+  </section>
 </section>
 
 <section id="profileBox" class="profile-box">
@@ -1728,8 +1753,30 @@ function dashboardFeedPostHtml(post){
     '</div>'+
   '</article>';
 }
+
+function dashboardPostTimestamp(post){
+  const d=Date.parse(post?.published_at||post?.created_at||"");
+  return Number.isFinite(d)?d:0;
+}
+function dashboardOfficialTileHtml(post){
+  const lines=String(post.body||"").split(/\n+/).map(p=>p.trim()).filter(Boolean);
+  const title=lines[0]||"Neue BetInsight-Meldung";
+  const excerpt=lines.slice(1).filter(l=>!/^👉/.test(l)).join(" ");
+  const url=post.public_slug
+    ?"trainer/?p="+encodeURIComponent(post.public_slug)+"&post="+encodeURIComponent(post.id)
+    :"meldungen/";
+  const shortDate=dashboardFeedDate(post.published_at||post.created_at);
+  return '<a class="dashboard-official-card" href="'+dashboardFeedEsc(url)+'" aria-label="'+dashboardFeedEsc(title)+' – vollständigen Beitrag öffnen">'+
+    '<div class="dashboard-official-source"><span>● BETINSIGHT · '+dashboardFeedEsc(post.author||"Offizielle Meldung")+'</span><time class="dashboard-official-time">'+dashboardFeedEsc(shortDate)+'</time></div>'+
+    '<strong class="dashboard-official-title">'+dashboardFeedEsc(title)+'</strong>'+
+    '<span class="dashboard-official-excerpt">'+dashboardFeedEsc(excerpt)+'</span>'+
+    '<span class="dashboard-official-more">Beitrag vollständig lesen →</span>'+
+  '</a>';
+}
 async function loadDashboardCommunityFeed(){
   const box=document.getElementById("dashboardCommunityFeed");
+  const officialSection=document.getElementById("dashboardOfficialSection");
+  const officialList=document.getElementById("dashboardOfficialList");
   const list=document.getElementById("dashboardFeedList");
   const allFeeds=document.getElementById("dashboardAllFeeds");
   const myProfile=document.getElementById("dashboardMyTrainerProfile");
@@ -1739,25 +1786,39 @@ async function loadDashboardCommunityFeed(){
     const response=await fetch(DASHBOARD_COMMUNITY_API+"?action=feed&scope=global",{method:"GET",cache:"no-store",credentials:"omit"});
     const data=await response.json();
     if(!response.ok||data.ok!==true||!Array.isArray(data.posts))throw new Error("feed");
-    /* Six compact preview tiles; reserve two placements for paid global community posts. */
-    const paidPosts=data.posts.filter(p=>p.distribution_scope==="GLOBAL"&&p.unit_charge_status==="PAID").slice(0,2);
-    const keepIds=new Set(paidPosts.map(p=>p.id));
-    const posts=[...paidPosts,...data.posts.filter(p=>!keepIds.has(p.id))].slice(0,6);
-    if(!posts.length){
-      list.innerHTML='<div class="dashboard-feed-empty">Noch keine globalen Community-Beiträge vorhanden.</div>';
-      return;
+    const all=data.posts.filter(p=>p.distribution_scope==="GLOBAL");
+    const newest=(a,b)=>dashboardPostTimestamp(b)-dashboardPostTimestamp(a);
+    const now=Date.now();
+    // Show only news from the last 7 days; never keep old announcements at the top.
+    const official=all.filter(p=>p.is_official===true&&dashboardPostTimestamp(p)>=now-7*86400000)
+      .sort(newest).slice(0,3);
+    if(officialSection&&officialList){
+      officialSection.hidden=official.length===0;
+      officialList.innerHTML=official.map(dashboardOfficialTileHtml).join("");
     }
-    window.__biDashboardFeedPosts=new Map(posts.map(p=>[p.id,p]));
-    list.innerHTML=posts.map(dashboardFeedPostHtml).join("");
-    list.querySelectorAll(".dashboard-feed-link-slot").forEach(function(el){
-      hydrateDashboardFeedLink(el,el.getAttribute("data-url")||"");
-    });
+    const memberPosts=all.filter(p=>p.is_official!==true).sort(newest);
+    // Paid placement is limited to two member cards for only 48h after publication.
+    const promoted=memberPosts.filter(p=>p.unit_charge_status==="PAID"
+        &&dashboardPostTimestamp(p)>=now-48*3600000
+        &&dashboardPostTimestamp(p)<=now+5*60000).slice(0,2);
+    const reserved=new Set(promoted.map(p=>p.id));
+    const posts=[...promoted,...memberPosts.filter(p=>!reserved.has(p.id))].slice(0,6);
+    window.__biDashboardFeedPosts=new Map([...official,...posts].map(p=>[p.id,p]));
+    if(!posts.length){
+      list.innerHTML='<div class="dashboard-feed-empty">Zurzeit sind keine Community-Beiträge vorhanden.</div>';
+    }else{
+      list.innerHTML=posts.map(dashboardFeedPostHtml).join("");
+      list.querySelectorAll(".dashboard-feed-link-slot").forEach(el=>{
+        hydrateDashboardFeedLink(el,el.getAttribute("data-url")||"");
+      });
+    }
     const token=getConfirmedDashboardToken()||getActiveToken()||"";
     if(myProfile)myProfile.href="trainer/"+(token?"?token="+encodeURIComponent(token):"");
     if(allFeeds)allFeeds.href="https://betinsight.club/trainer-feed/?lang=de";
   }catch(error){
     console.error("Community-Feed konnte nicht geladen werden:",error);
-    list.innerHTML='<div class="dashboard-feed-empty">Der Community Feed konnte gerade nicht geladen werden. <a href="trainer/?feed=global" style="color:#65bfff">Feed direkt öffnen</a></div>';
+    if(officialSection)officialSection.hidden=true;
+    list.innerHTML='<div class="dashboard-feed-empty">Die Beiträge konnten gerade nicht geladen werden. <a href="trainer/?feed=global" style="color:#65bfff">Feed direkt öffnen</a></div>';
   }
 }
 
