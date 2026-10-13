@@ -420,6 +420,7 @@
     .feed-switch{display:flex;gap:7px;margin:0 0 12px;padding:5px;border:1px solid rgba(143,203,230,.14);border-radius:13px;background:rgba(255,255,255,.025);width:max-content;max-width:100%}
     .feed-switch button{border:0;border-radius:9px;background:transparent;color:#91aab6;padding:8px 11px;font-size:11px;font-weight:900;cursor:pointer}
     .feed-switch button.active{background:rgba(22,135,255,.16);color:#fff;box-shadow:inset 0 0 0 1px rgba(77,178,255,.18)}
+    .feed-switch #openStandaloneCommunityBtn{border:1px solid rgba(104,190,229,.24);background:rgba(21,112,153,.14);color:#8bd6ff}
     .feed-mode-note{display:none;margin-bottom:12px;padding:10px 12px;border:1px solid rgba(22,135,255,.18);border-radius:12px;background:rgba(22,135,255,.05);color:#a8c3cf;font-size:11px}
     .feed-mode-note.show{display:block}
     @media(max-width:620px){.post-scope{grid-template-columns:1fr}.post-scope,.post-billing-hint{margin-left:0}}
@@ -656,7 +657,7 @@
         <input id="profileSearch" type="search" placeholder="Trainer, Mannschaft oder Beitrag suchen">
       </label>
       <div class="top-actions">
-        <button class="pill-btn tc-nav tc-back" id="profileBackBtn" type="button">← TIME CLASH</button>
+        <button class="pill-btn tc-nav tc-back" id="profileBackBtn" type="button">← Zurück</button>
         <button class="pill-btn tc-nav tc-club member-only hidden" id="myClubBtn" type="button">🛡️ Mein Club</button>
         <div class="trainer-lang" id="trainerLang">
           <button class="trainer-lang-btn" id="trainerLangBtn" type="button" aria-haspopup="true" aria-expanded="false">🇩🇪 DE ▾</button>
@@ -860,7 +861,7 @@
 
         <div class="feed-switch" id="feedSwitch" aria-label="Beitragsansicht">
           <button type="button" class="active" data-feed-mode="profile">Profil-Beiträge</button>
-          <button type="button" data-feed-mode="global">Community-Feed</button>
+          <button type="button" id="openStandaloneCommunityBtn">🌍 Zur Community →</button>
         </div>
         <div class="feed-mode-note" id="feedModeNote"></div>
         <div class="feed" id="postFeed"></div>
@@ -1395,6 +1396,13 @@
         function paint(){
           var item=TRAINER_LANGUAGES[trainerLanguage]||TRAINER_LANGUAGES.de;
           btn.textContent=item.flag+" "+item.code+" ▾";
+          var communityWords={
+            de:"🌍 Zur Community →",en:"🌍 Open Community →",es:"🌍 Ir a Comunidad →",
+            fr:"🌍 Ouvrir la communauté →",it:"🌍 Apri la community →",pt:"🌍 Abrir comunidade →",
+            nl:"🌍 Naar de community →","zh-tw":"🌍 前往社群 →"
+          };
+          var button=document.getElementById("openStandaloneCommunityBtn");
+          if(button)button.textContent=communityWords[trainerLanguage]||communityWords.de;
           menu.querySelectorAll("[data-lang]").forEach(function(option){
             option.classList.toggle("active",option.dataset.lang===trainerLanguage);
           });
@@ -1633,7 +1641,7 @@
 
       function setupBackNavigation(){
         var from=sameAppReturn();
-        safeReturnUrl=from || (memberCredential ? appRoute("/time-clash/") : "https://betinsight.club/de/time-clash/community/");
+        safeReturnUrl=from || (memberCredential ? appRoute("/") : "https://betinsight.club/");
         var back=document.getElementById("profileBackBtn");
         if(back) back.onclick=function(){location.assign(safeReturnUrl);};
         var myClub=document.getElementById("myClubBtn");
@@ -3300,6 +3308,9 @@
       renderPosts();
       mountTrainerLazyPreviews();
       setupProfileTabs();
+      document.getElementById("openStandaloneCommunityBtn")?.addEventListener("click",function(){
+        location.assign(appRoute("/trainer-feed/"));
+      });
       activateProfileTab("posts");
       document.querySelectorAll("#feedSwitch [data-feed-mode]").forEach(function(btn){
         btn.classList.toggle("active",btn.dataset.feedMode===feedMode);
