@@ -868,11 +868,6 @@
 
       <aside class="column right-col">
         <article class="card card-pad">
-          <div class="card-title"><h2>Andere Trainer</h2><a href="#">Galerie</a></div>
-          <div class="trainer-list" id="trainerList"><div class="empty-state">Weitere Trainerprofile werden geladen …</div></div>
-        </article>
-
-        <article class="card card-pad">
           <div class="card-title"><h2>Profil teilen</h2></div>
           <!-- Intern: Geteilte Profil-/Beitragslinks dürfen den öffentlichen Referral-Code mitnehmen; geheime Dashboard-Tokens niemals öffentlich ausgeben. -->
           <button class="pill-btn" id="copyInviteBtn" style="width:100%">🔗 Einladungslink kopieren</button>
@@ -2183,29 +2178,6 @@
           canonical.searchParams.delete("club_id");
           canonical.searchParams.set("p",target.public_slug);
           history.replaceState(null,"",canonical.pathname+"?"+canonical.searchParams.toString()+canonical.hash);
-        }
-        loadTrainerSuggestions();
-      }
-
-      async function loadTrainerSuggestions(){
-        var box=document.getElementById("trainerList");
-        if(!box) return;
-        try{
-          var response=await fetch(COMMUNITY_API+"?action=profiles",{cache:"no-store",credentials:"omit"});
-          var data=await response.json();
-          var profiles=(data.profiles||[]).filter(function(p){return p.club_id!==clubId && p.is_official_news_profile!==true;}).slice(0,4);
-          if(!profiles.length){
-            box.innerHTML='<div class="empty-state">Noch keine weiteren öffentlichen Trainerprofile.</div>';
-            return;
-          }
-          box.innerHTML=profiles.map(function(p){
-            var name=p.display_name||"Trainerprofil";
-            var line=(p.team_name||"Mannschaft")+(p.country?" · "+p.country:"");
-            var pr=rankFromWins(p.stats&&p.stats.wins||0);
-            return '<a class="trainer-card" href="?p='+encodeURIComponent(p.public_slug)+'"><div class="mini-avatar rank-'+pr.key+'" title="'+esc(pr.label)+'">'+esc(p.team_initials||initials(p.team_name||"BI"))+'</div><div><strong>'+esc(name)+'</strong><small>'+esc(line)+'</small></div><span class="go-arrow">›</span></a>';
-          }).join("");
-        }catch(_e){
-          box.innerHTML='<div class="empty-state">Weitere Trainerprofile sind momentan nicht verfügbar.</div>';
         }
       }
 
