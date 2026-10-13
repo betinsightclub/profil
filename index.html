@@ -1695,6 +1695,11 @@ function dashboardFeedRankKey(wins){
   return "start";
 }
 function dashboardFeedAvatarHtml(post){
+  // Prefer the author's actual uploaded trainer profile picture.
+  const uploaded=String(post&&post.author_avatar_url||"").trim();
+  if(/^https:\/\//i.test(uploaded)){
+    return '<div class="dashboard-feed-avatar"><img src="'+dashboardFeedEsc(uploaded)+'" alt="" loading="lazy" decoding="async" style="display:block;width:100%;height:100%;object-fit:cover;border-radius:50%"></div>';
+  }
   const appearance=post&&post.coach_appearance;
   if(appearance&&typeof appearance==="object"&&window.TimeClashAvatar&&window.TimeClashAvatar.renderCoachPortrait){
     try{

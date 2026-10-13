@@ -2543,6 +2543,11 @@
         article.className = "card post";
         article.dataset.unitPaid=post.unitChargeStatus==="PAID"?"true":"false";
         article.dataset.official=post.isOfficial===true?"true":"false";
+        article.dataset.authorName=post.author||trainerName||"Community-Profil";
+        article.dataset.authorAvatar=post.authorAvatarUrl||"";
+        article.dataset.profileHref=post.publicSlug
+          ? "/trainer/?p="+encodeURIComponent(post.publicSlug)
+          : location.origin+location.pathname;
         article.id = "card-" + post.id;
         var commentCount = Array.isArray(post.comments) ? post.comments.length : 0;
         var primaryEmotion = resolveEmotion(post.emotion);

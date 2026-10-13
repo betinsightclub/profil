@@ -19,10 +19,58 @@
     .bi-tile-grid .bi-tile.bi-page-hidden{display:none!important}
     .bi-tile-grid .bi-tile:hover{border-color:rgba(80,177,242,.55)!important}
     .bi-tile-grid .bi-tile.bi-open{grid-column:1/-1!important;border-color:rgba(73,185,245,.62)!important}
-    .bi-tile-grid .bi-tile:not(.bi-open)>:not(.bi-tile-toggle){display:none!important}
+    .bi-tile-grid .bi-tile:not(.bi-open)>:not(.bi-tile-toggle):not(.bi-tile-author){display:none!important}
+
+    /* Always show the real writer in every closed Community headline tile. */
+    .bi-tile-grid .bi-tile .bi-tile-author{
+      width:100%;box-sizing:border-box;display:flex!important;align-items:center;gap:7px;
+      min-width:0;padding:11px 14px 8px;border-bottom:1px solid rgba(117,187,229,.13);
+    }
+    .bi-tile-grid .bi-tile .bi-tile-author-link{
+      display:flex;flex:1 1 auto;align-items:center;gap:9px;min-width:0;
+      color:#e3f4ff;text-decoration:none;font-size:12px;
+    }
+    .bi-tile-grid .bi-tile a.bi-tile-author-link:hover .bi-tile-author-name{
+      text-decoration:underline;color:#a3e0ff;
+    }
+    .bi-tile-grid .bi-tile a.bi-tile-author-link:focus-visible{
+      outline:2px solid #60caff;outline-offset:3px;border-radius:6px;
+    }
+    .bi-tile-grid .bi-tile .bi-tile-mini-avatar{
+      display:grid;place-items:center;flex:0 0 35px;width:35px;height:35px;
+      border-radius:50%;border:1px solid rgba(101,207,244,.45);overflow:hidden;
+      background:#11364e;color:#e2faff;font-size:12px;font-weight:800;
+      text-align:center;line-height:1;box-sizing:border-box;
+    }
+    .bi-tile-grid .bi-tile .bi-tile-mini-avatar img,
+    .bi-tile-grid .bi-tile .bi-tile-mini-avatar svg{
+      display:block!important;width:100%!important;height:100%!important;
+      max-width:100%!important;max-height:100%!important;
+      object-fit:cover;border:0!important;border-radius:50%!important;
+      margin:0!important;flex:none!important;box-shadow:none!important;
+    }
+    .bi-tile-grid .bi-tile .bi-tile-author-details{
+      display:flex;flex-direction:column;min-width:0;gap:2px;flex:1 1 auto;
+      align-items:flex-start;
+    }
+    .bi-tile-grid .bi-tile .bi-tile-author-name{
+      width:100%;font-size:12px;line-height:1.25;font-weight:800;
+      overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+    }
+    .bi-tile-grid .bi-tile .bi-tile-author-sub{
+      width:100%;font-size:10px;line-height:1.25;color:#96b6c9;
+      overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+    }
+    .bi-tile-grid .bi-tile .bi-tile-official-badge{
+      font-size:9px;font-weight:800;color:#6fdbff;padding:4px 6px;
+      border-radius:6px;background:rgba(19,134,197,.14);
+      flex:0 0 auto;white-space:nowrap;
+    }
+    .bi-tile-grid .bi-tile.bi-open > .dashboard-feed-author,
+    .bi-tile-grid .bi-tile.bi-open > .trainer-post-head{display:none!important}
     .bi-tile-grid .bi-tile .bi-tile-toggle{
       display:flex;flex:0 0 auto;flex-direction:column;align-items:flex-start;text-align:left;gap:9px;
-      width:100%;min-height:158px;border:0;color:#f0f7ff;background:transparent;
+      width:100%;min-height:110px;border:0;color:#f0f7ff;background:transparent;
       font:inherit;padding:15px 17px;cursor:pointer;white-space:normal;
     }
     .bi-tile-grid .bi-tile .bi-tile-toggle:focus-visible{outline:2px solid #48c4ff;outline-offset:-3px}
@@ -83,7 +131,7 @@
     @media(max-width:520px){
       #homeTrainerFeed.bi-tile-grid,#dashboardFeedList.bi-tile-grid,#publicFeed.bi-tile-grid,
       #feed.bi-tile-grid,#postFeed.bi-tile-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
-      .bi-tile-grid .bi-tile .bi-tile-toggle{padding:12px;min-height:158px}
+      .bi-tile-grid .bi-tile .bi-tile-toggle{padding:10px 12px;min-height:112px}
       .bi-tile-grid .bi-tile .bi-tile-headline{font-size:13px!important}
     }
   `;
@@ -112,10 +160,74 @@
     return {title:lines[0],preview:""};
   }
   function label(item){
-    if(item.dataset.unitPaid==="true") return {text:"Community · Globaler Beitragsplatz",type:"paid"};
-    if(item.dataset.official==="true") return {text:"BetInsight · Offizielle Meldung",type:"official"};
-    const author=item.querySelector(".trainer-author strong,.dashboard-feed-author-copy strong,.author strong,.post-author strong");
-    return {text:(author?.textContent||"Community-Beitrag").trim(),type:"normal"};
+    if(item.dataset.unitPaid==="true")return {text:"GLOBAL · Community-Beitrag",type:"paid"};
+    if(item.dataset.official==="true")return {text:"BETINSIGHT · OFFIZIELLE MELDUNG",type:"official"};
+    return {text:"COMMUNITY",type:"normal"};
+  }
+  function authorHeader(item){
+    // Author details must remain visible in the collapsed tile.
+    // Link is an independent anchor, never nested in the expandable button.
+    const source=item.querySelector(
+      ".trainer-post-head .trainer-author,.dashboard-feed-author-copy,"+
+      ".post-inner .post-head .author,.post-head .post-author"
+    );
+    const displayName=item.dataset.authorName||
+      source?.querySelector("strong")?.textContent?.trim()||
+      "Community-Profil";
+    const secondary=source?.querySelector("small")?.textContent?.trim()||"";
+    const candidate=item.dataset.profileHref||
+      item.querySelector(".trainer-post-head .bi-author-profile,.dashboard-feed-profile-link,"+
+        ".post-inner .post-head .author-link,.post-inner .post-head .bi-author-profile")?.getAttribute("href")||
+      "";
+    let href="";
+    if(candidate){
+      try{
+        const parsed=new URL(candidate,location.href);
+        const trusted=["app.betinsight.club","betinsight.club","www.betinsight.club",
+          "betinsightclub.github.io"].includes(parsed.hostname);
+        if(parsed.protocol==="https:"&&trusted)href=parsed.href;
+      }catch(_){}
+    }
+    const row=document.createElement("div");
+    row.className="bi-tile-author";
+    const main=document.createElement(href?"a":"span");
+    main.className="bi-tile-author-link";
+    if(href){main.href=href;main.title="Profil von "+displayName+" ansehen";}
+    const avatar=document.createElement("span");
+    avatar.className="bi-tile-mini-avatar";
+    avatar.setAttribute("aria-hidden","true");
+    const original=item.querySelector(
+      ".trainer-post-head .trainer-avatar,.dashboard-feed-author .dashboard-feed-avatar,"+
+      ".post-inner .post-head .avatar,.post-head .post-author-avatar"
+    );
+    const photo=original?.querySelector("img,svg");
+    if(photo){
+      const clone=photo.cloneNode(true);
+      if(clone.tagName?.toLowerCase()==="img"){clone.alt="";clone.loading="lazy";}
+      avatar.appendChild(clone);
+    }else if(item.dataset.authorAvatar){
+      const img=document.createElement("img");img.src=item.dataset.authorAvatar;
+      img.alt="";img.loading="lazy";avatar.append(img);
+    }else{
+      avatar.textContent=(original?.textContent||displayName.split(/\s+/).slice(0,2).map(s=>s.charAt(0)).join("")).trim().slice(0,3);
+    }
+    const details=document.createElement("span");
+    details.className="bi-tile-author-details";
+    const name=document.createElement("span");name.className="bi-tile-author-name";name.textContent=displayName;
+    details.append(name);
+    if(secondary){
+      const sub=document.createElement("span");sub.className="bi-tile-author-sub";sub.textContent=secondary;
+      details.append(sub);
+    }
+    main.append(avatar,details);
+    row.append(main);
+    if(item.dataset.official==="true"){
+      const official=document.createElement("span");
+      official.className="bi-tile-official-badge";
+      official.textContent="✓ Offiziell";
+      row.append(official);
+    }
+    return row;
   }
   function enhance(item){
     if(item.classList.contains("bi-tile"))return;
@@ -129,7 +241,10 @@
     button.append(mark,title);
     if(copy.preview)button.append(preview);
     button.append(more);
-    item.classList.add("bi-tile");item.insertBefore(button,item.firstChild);
+    const header=authorHeader(item);
+    item.classList.add("bi-tile");
+    item.insertBefore(header,item.firstChild);
+    item.insertBefore(button,header.nextSibling);
     button.addEventListener("click",function(){
       const open=item.classList.contains("bi-open");
       if(!open){
