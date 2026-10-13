@@ -2177,7 +2177,7 @@
         try{
           var response=await fetch(COMMUNITY_API+"?action=profiles",{cache:"no-store",credentials:"omit"});
           var data=await response.json();
-          var profiles=(data.profiles||[]).filter(function(p){return p.club_id!==clubId;}).slice(0,4);
+          var profiles=(data.profiles||[]).filter(function(p){return p.club_id!==clubId && p.is_official_news_profile!==true;}).slice(0,4);
           if(!profiles.length){
             box.innerHTML='<div class="empty-state">Noch keine weiteren öffentlichen Trainerprofile.</div>';
             return;
