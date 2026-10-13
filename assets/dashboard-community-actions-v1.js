@@ -23,6 +23,7 @@
     {code:"LIVE_ALARM",label:"Live-Alarm",col:3,row:3,emoji:"🔔"}
   ];
   const css=[
+    ".bi-tile-grid .bi-tile.bi-open{overflow:visible!important}",
     ".bi-dash-social{position:relative;padding:4px 15px 12px;border-top:1px solid rgba(130,208,255,.12);font-size:13px}",
     ".bi-dash-social-stats{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:34px;color:#9db7c8;font-size:11px}",
     ".bi-dash-social-stats .bi-dash-stat{display:flex;align-items:center;gap:5px}",
