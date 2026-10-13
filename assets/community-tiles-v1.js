@@ -16,6 +16,7 @@
       border-radius:16px!important;border:1px solid rgba(108,190,235,.22)!important;
       background:linear-gradient(155deg,#0b2336,#081724)!important;box-shadow:none!important;
     }
+    .bi-tile-grid .bi-tile.bi-page-hidden{display:none!important}
     .bi-tile-grid .bi-tile:hover{border-color:rgba(80,177,242,.55)!important}
     .bi-tile-grid .bi-tile.bi-open{grid-column:1/-1!important;border-color:rgba(73,185,245,.62)!important}
     .bi-tile-grid .bi-tile:not(.bi-open)>:not(.bi-tile-toggle){display:none!important}
@@ -125,7 +126,7 @@
     if(!config.page)return;
     const size=config.page;
     const visible=Number(box.dataset.tilesVisible||size);
-    items.forEach((item,i)=>{item.style.display=i<visible?"":"none"});
+    items.forEach((item,i)=>{item.classList.toggle("bi-page-hidden",i>=visible)});
     let more=box.nextElementSibling;
     if(!more||!more.classList.contains("bi-tile-load-more")){
       more=document.createElement("button");more.type="button";more.className="bi-tile-load-more";
