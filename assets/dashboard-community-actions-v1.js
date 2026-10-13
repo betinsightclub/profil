@@ -56,7 +56,7 @@
     ".bi-dash-signin-note{color:#96b6c5;font-size:11px;margin:7px 0 0}",
     "@media(max-width:700px){.bi-dash-reaction-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.bi-dash-reaction-menu{width:min(315px,calc(100vw - 40px))}.bi-dash-social-toolbar button{font-size:11px;gap:4px}.bi-dash-comment-form{flex-wrap:wrap}.bi-dash-comment-submit{margin-left:auto}}"
   ].join("\n");
-  const style=document.createElement("style");style.id="bi-dashboard-social-v2";style.textContent=css;document.head.append(style);
+  const style=document.createElement("style");style.id="bi-dashboard-social-v2";style.textContent=css+"\n#dashboardFeedList .bi-dash-comment-form{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:10px!important;align-items:end!important;width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important;flex-wrap:nowrap!important}\n#dashboardFeedList .bi-dash-comment-form>.bi-dash-comment-input{display:block!important;grid-column:1!important;grid-row:1!important;flex:none!important;width:100%!important;min-width:0!important;max-width:100%!important;min-height:82px!important;box-sizing:border-box!important;font-size:14px!important;line-height:1.45!important;resize:vertical!important}\n#dashboardFeedList .bi-dash-comment-form>.bi-dash-comment-submit{display:inline-flex!important;align-items:center!important;justify-content:center!important;grid-column:2!important;grid-row:1!important;flex:none!important;min-height:42px!important;width:auto!important;min-width:85px!important;max-width:132px!important;padding:9px 14px!important;margin:0!important;align-self:end!important;justify-self:end!important}\n.bi-dash-share-overlay{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(0,10,19,.78);backdrop-filter:blur(4px)}\n.bi-dash-share-dialog{box-sizing:border-box;width:min(490px,100%);max-height:90vh;overflow:auto;padding:22px;background:#092332;color:#f0f8ff;border:1px solid rgba(115,207,243,.36);border-radius:19px;box-shadow:0 20px 80px rgba(0,0,0,.58)}\n.bi-dash-share-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}\n.bi-dash-share-head h3{margin:0;font-size:20px;color:#fff}\n.bi-dash-share-dialog button,.bi-dash-share-dialog a{font:inherit;cursor:pointer;box-sizing:border-box}\n.bi-dash-share-close{flex:none;width:34px;height:34px;min-width:34px;border:1px solid rgba(170,216,246,.25);border-radius:50%;background:#173a4d;color:#fff;font-size:20px}\n.bi-dash-share-intro{color:#b0c9d8;font-size:13px;margin:0 0 14px;line-height:1.45}\n.bi-dash-share-link{box-sizing:border-box;display:block;width:100%;max-width:100%;padding:12px;color:#e4f5ff;background:#041622;border:1px solid rgba(130,207,245,.3);border-radius:10px;font-size:12px}\n.bi-dash-share-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:14px}\n.bi-dash-share-actions button,.bi-dash-share-actions a{display:flex;align-items:center;justify-content:center;min-height:43px;min-width:0;width:100%!important;padding:9px 12px;text-align:center;text-decoration:none;background:#123c59;color:#e7f7ff;border:1px solid rgba(95,183,235,.32);border-radius:10px;font-size:13px;font-weight:700}\n.bi-dash-share-actions button:hover,.bi-dash-share-actions a:hover{background:#195476}\n.bi-dash-share-actions .bi-dash-share-copy{background:#1463a1}\n.bi-dash-share-status{margin:11px 0 0;min-height:17px;color:#8be2c2;font-size:12px}\n@media(max-width:530px){#dashboardFeedList .bi-dash-comment-form{grid-template-columns:minmax(0,1fr)!important}#dashboardFeedList .bi-dash-comment-form>.bi-dash-comment-input{grid-column:1!important;grid-row:1!important}#dashboardFeedList .bi-dash-comment-form>.bi-dash-comment-submit{grid-column:1!important;grid-row:2!important;justify-self:end!important}.bi-dash-share-dialog{padding:16px}}";document.head.append(style);
 
   function credential(){
     try{
@@ -141,24 +141,57 @@
     }
     return "https://betinsight.club/trainer-feed/?lang=de";
   }
-  async function shareLink(post,id,status){
-    const link=profileLink(post,id);
-    try{
-      if(navigator.share){
-        await navigator.share({title:"BetInsight Community",url:link});return;
-      }
-      if(navigator.clipboard&&navigator.clipboard.writeText){
-        await navigator.clipboard.writeText(link);
-        status.textContent="Beitragslink kopiert.";return;
-      }
-      const temp=document.createElement("input");temp.value=link;temp.style.position="fixed";temp.style.opacity="0";
-      document.body.append(temp);temp.select();
-      if(!document.execCommand("copy"))throw new Error("copy unsupported");
-      temp.remove();status.textContent="Beitragslink kopiert.";
-    }catch(error){
-      if(error?.name==="AbortError")return;
-      status.textContent="Link konnte nicht kopiert werden.";
+  async function copyShareUrl(value,input){
+    if(navigator.clipboard?.writeText){
+      try{await navigator.clipboard.writeText(value);return true}catch(_){}
     }
+    input.focus();input.select();
+    try{return document.execCommand("copy")}catch(_){return false}
+  }
+  function shareLink(post,id,status){
+    const link=profileLink(post,id),trigger=document.activeElement;
+    const title=String(post.body||"BetInsight Community").split(/\n/).find(Boolean)?.trim().slice(0,150)||"BetInsight Community";
+    const overlay=element("div","bi-dash-share-overlay");
+    const dialog=element("section","bi-dash-share-dialog");
+    dialog.setAttribute("role","dialog");dialog.setAttribute("aria-modal","true");dialog.setAttribute("aria-label","Beitrag teilen");
+    const head=element("div","bi-dash-share-head");
+    const close=element("button","bi-dash-share-close","×");close.type="button";close.setAttribute("aria-label","Teilen schließen");
+    head.append(element("h3","","Beitrag teilen"),close);dialog.append(head);
+    dialog.append(element("p","bi-dash-share-intro","Über einen Dienst teilen oder den direkten Beitragslink kopieren."));
+    const input=element("input","bi-dash-share-link");input.type="text";input.value=link;input.readOnly=true;
+    input.setAttribute("aria-label","Beitragslink");input.addEventListener("click",()=>input.select());dialog.append(input);
+    const actions=element("div","bi-dash-share-actions");
+    const copy=element("button","bi-dash-share-copy","🔗 Link kopieren");copy.type="button";
+    const wa=element("a","","WhatsApp");wa.href="https://wa.me/?text="+encodeURIComponent(title+"\n"+link);
+    const tg=element("a","","Telegram");tg.href="https://t.me/share/url?url="+encodeURIComponent(link)+"&text="+encodeURIComponent(title);
+    const open=element("a","","↗ Beitrag öffnen");open.href=link;
+    [wa,tg,open].forEach(a=>{a.target="_blank";a.rel="noopener noreferrer"});
+    actions.append(copy,wa,tg,open);
+    const notice=element("p","bi-dash-share-status");notice.setAttribute("role","status");
+    if(typeof navigator.share==="function"){
+      const native=element("button","","Weitere Apps");native.type="button";
+      native.addEventListener("click",async()=>{
+        try{await navigator.share({title,url:link})}catch(e){if(e?.name!=="AbortError")notice.textContent="Systemteilen nicht verfügbar."}
+      });
+      actions.append(native);
+    }
+    dialog.append(actions,notice);overlay.append(dialog);
+    function dismiss(){overlay.remove();document.removeEventListener("keydown",keydown);trigger?.focus?.()}
+    function keydown(event){
+      if(event.key==="Escape"){event.preventDefault();dismiss();return}
+      if(event.key!=="Tab")return;
+      const nodes=[...dialog.querySelectorAll("button,a,input")].filter(e=>!e.disabled);
+      if(event.shiftKey&&document.activeElement===nodes[0]){event.preventDefault();nodes.at(-1).focus()}
+      else if(!event.shiftKey&&document.activeElement===nodes.at(-1)){event.preventDefault();nodes[0].focus()}
+    }
+    close.addEventListener("click",dismiss);
+    overlay.addEventListener("click",e=>{if(e.target===overlay)dismiss()});
+    copy.addEventListener("click",async()=>{
+      const ok=await copyShareUrl(link,input);
+      notice.textContent=ok?"✓ Link erfolgreich kopiert.":"Bitte den markierten Link mit Strg+C kopieren.";
+      if(ok)status.textContent="Beitragslink kopiert.";
+    });
+    document.body.append(overlay);document.addEventListener("keydown",keydown);close.focus();
   }
   function enhance(item){
     if(item.dataset.biInteractionReady==="true")return;
