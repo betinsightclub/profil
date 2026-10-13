@@ -1712,7 +1712,7 @@ function dashboardFeedPostHtml(post){
   const comments=Array.isArray(post.comments)?post.comments.length:0;
   const reactions=Array.isArray(post.reactions)?post.reactions.length:0;
   const external=post.external_url||"";
-  return '<article class="dashboard-feed-post" data-unit-paid="'+(post.unit_charge_status==="PAID"?"true":"false")+'" data-official="'+(post.is_official===true?"true":"false")+'">'+
+  return '<article class="dashboard-feed-post" data-post-id="'+dashboardFeedEsc(post.id||"")+'" data-unit-paid="'+(post.unit_charge_status==="PAID"?"true":"false")+'" data-official="'+(post.is_official===true?"true":"false")+'">'+
     '<div class="dashboard-feed-author">'+dashboardFeedAvatarHtml(post)+
       '<div class="dashboard-feed-author-copy"><strong>'+dashboardFeedEsc(post.author||"Trainer")+'</strong><small>'+dashboardFeedEsc(post.team_name||"BetInsight")+' · '+dashboardFeedEsc(dashboardFeedDate(post.created_at))+'</small></div></div>'+
     (post.body?'<p class="dashboard-feed-text">'+dashboardFeedEsc(post.body)+'</p>':'')+
@@ -1742,6 +1742,7 @@ async function loadDashboardCommunityFeed(){
       list.innerHTML='<div class="dashboard-feed-empty">Noch keine globalen Community-Beiträge vorhanden.</div>';
       return;
     }
+    window.__biDashboardFeedPosts=new Map(posts.map(p=>[p.id,p]));
     list.innerHTML=posts.map(dashboardFeedPostHtml).join("");
     list.querySelectorAll(".dashboard-feed-link-slot").forEach(function(el){
       hydrateDashboardFeedLink(el,el.getAttribute("data-url")||"");
@@ -1762,5 +1763,6 @@ setTimeout(loadDashboardCommunityFeed,250);
 <script src="./member-performance.js?v=20261012-1"></script>
 
 <script src="./assets/community-tiles-v1.js?v=20261013" defer></script>
+<script src="./assets/dashboard-community-actions-v1.js?v=20261013" defer></script>
 </body>
 </html>
