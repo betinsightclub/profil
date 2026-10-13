@@ -22,7 +22,7 @@
     .bi-tile-grid .bi-tile:not(.bi-open)>:not(.bi-tile-toggle){display:none!important}
     .bi-tile-grid .bi-tile .bi-tile-toggle{
       display:flex;flex:0 0 auto;flex-direction:column;align-items:flex-start;text-align:left;gap:9px;
-      width:100%;min-height:109px;border:0;color:#f0f7ff;background:transparent;
+      width:100%;min-height:158px;border:0;color:#f0f7ff;background:transparent;
       font:inherit;padding:15px 17px;cursor:pointer;white-space:normal;
     }
     .bi-tile-grid .bi-tile .bi-tile-toggle:focus-visible{outline:2px solid #48c4ff;outline-offset:-3px}
@@ -38,6 +38,12 @@
       font-size:clamp(13px,1.25vw,16px)!important;line-height:1.38;font-weight:850!important;
       overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
     }
+    .bi-tile-grid .bi-tile .bi-tile-preview{
+      display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
+      overflow:hidden;min-height:0;color:#aec5d7;font-size:12px;line-height:1.42;
+      font-weight:450;overflow-wrap:anywhere;width:100%;
+    }
+    .bi-tile-grid .bi-tile.bi-open .bi-tile-preview{display:none}
     .bi-tile-grid .bi-tile .bi-tile-more{font-size:11px;color:#80c9f5;margin-top:auto;font-weight:750}
     .bi-tile-grid .bi-tile.bi-open .bi-tile-toggle{min-height:auto;background:rgba(56,163,224,.08)}
     .bi-tile-grid .bi-tile.bi-open .bi-tile-headline{font-size:18px!important;-webkit-line-clamp:unset}
@@ -77,7 +83,7 @@
     @media(max-width:520px){
       #homeTrainerFeed.bi-tile-grid,#dashboardFeedList.bi-tile-grid,#publicFeed.bi-tile-grid,
       #feed.bi-tile-grid,#postFeed.bi-tile-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
-      .bi-tile-grid .bi-tile .bi-tile-toggle{padding:12px;min-height:112px}
+      .bi-tile-grid .bi-tile .bi-tile-toggle{padding:12px;min-height:158px}
       .bi-tile-grid .bi-tile .bi-tile-headline{font-size:13px!important}
     }
   `;
@@ -89,11 +95,21 @@
     {id:"feed",item:".post",page:12},
     {id:"postFeed",item:".post",page:12}
   ];
-  function headline(item){
+  function tileCopy(item){
     const body=item.querySelector(".trainer-post-text,.dashboard-feed-text,.post-text,.body");
     const raw=(body?body.textContent:"").trim();
-    const line=(raw.split(/\n+/).find(s=>s.trim())||raw||"Community-Beitrag").trim();
-    return line.length>125?line.slice(0,122).trimEnd()+"…":line;
+    const lines=raw.split(/\n+/).map(s=>s.replace(/\s+/g," ").trim()).filter(Boolean);
+    if(!lines.length)return {title:"Community-Beitrag",preview:""};
+    if(lines.length>1){
+      const title=lines[0].length>125?lines[0].slice(0,122).trimEnd()+"…":lines[0];
+      return {title,preview:lines.slice(1).join(" ")};
+    }
+    const words=lines[0].split(/\s+/);
+    if(words.length>18){
+      const title=words.slice(0,18).join(" ")+"…";
+      return {title,preview:words.slice(18).join(" ")};
+    }
+    return {title:lines[0],preview:""};
   }
   function label(item){
     if(item.dataset.unitPaid==="true") return {text:"Community · Globaler Beitragsplatz",type:"paid"};
@@ -106,9 +122,13 @@
     const tag=label(item),button=document.createElement("button");
     button.type="button";button.className="bi-tile-toggle";button.setAttribute("aria-expanded","false");
     const mark=document.createElement("span");mark.className="bi-tile-tag bi-tile-"+tag.type;mark.textContent=tag.text;
-    const title=document.createElement("span");title.className="bi-tile-headline";title.textContent=headline(item);
-    const more=document.createElement("span");more.className="bi-tile-more";more.textContent="Beitrag öffnen ↓";
-    button.append(mark,title,more);
+    const copy=tileCopy(item);
+    const title=document.createElement("span");title.className="bi-tile-headline";title.textContent=copy.title;
+    const preview=document.createElement("span");preview.className="bi-tile-preview";preview.textContent=copy.preview;
+    const more=document.createElement("span");more.className="bi-tile-more";more.textContent="Weiterlesen ↓";
+    button.append(mark,title);
+    if(copy.preview)button.append(preview);
+    button.append(more);
     item.classList.add("bi-tile");item.insertBefore(button,item.firstChild);
     button.addEventListener("click",function(){
       const open=item.classList.contains("bi-open");
@@ -116,12 +136,12 @@
         item.parentElement?.querySelectorAll(".bi-tile.bi-open").forEach(other=>{
           if(other===item)return;
           other.classList.remove("bi-open");
-          const b=other.querySelector(".bi-tile-toggle");if(b){b.setAttribute("aria-expanded","false");const m=b.querySelector(".bi-tile-more");if(m)m.textContent="Beitrag öffnen ↓";}
+          const b=other.querySelector(".bi-tile-toggle");if(b){b.setAttribute("aria-expanded","false");const m=b.querySelector(".bi-tile-more");if(m)m.textContent="Weiterlesen ↓";}
         });
       }
       item.classList.toggle("bi-open",!open);
       button.setAttribute("aria-expanded",String(!open));
-      more.textContent=open?"Beitrag öffnen ↓":"Beitrag schließen ↑";
+      more.textContent=open?"Weiterlesen ↓":"Beitrag schließen ↑";
     });
   }
   function applyPaging(box,config,items){
