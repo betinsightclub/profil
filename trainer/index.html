@@ -308,7 +308,7 @@
     .card-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
     .card-title h2{font-size:19px;letter-spacing:-.015em}
     .card-title a,.card-title button{border:0;background:transparent;color:#63b8ff;font-weight:800;text-decoration:none;padding:0}
-    .bio{margin:0 0 15px;color:#c2d3dc;font-size:14px}
+    .bio{margin:0 0 15px;color:#c2d3dc;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}.bio a{color:#69c8ff;text-decoration:underline;text-underline-offset:2px;font-weight:700}.bio a:hover{color:#d0f4ff}
     .about-list{display:grid;gap:10px;color:#c4d6df;font-size:14px}
     .about-row{display:grid;grid-template-columns:22px 1fr;gap:8px}
     .about-row span:first-child{text-align:center}
@@ -909,7 +909,7 @@
           <input id="editCity" maxlength="80" placeholder="Optional">
         </label>
         <label class="profile-edit-label wide">Über mich
-          <textarea id="editBio" maxlength="600" placeholder="Optional – kurze Beschreibung deines Trainerprofils"></textarea>
+          <textarea id="editBio" maxlength="600" placeholder="Optional – kurze Beschreibung deines Trainerprofils"></textarea><small style="display:block;margin-top:6px;color:var(--muted);font-size:12px">Eigene Webseiten- und Social-Media-Links sind im Profil weltweit erlaubt.</small>
         </label>
         <label class="profile-edit-label wide">Sichtbarkeit
           <select id="editVisibility">
@@ -1048,7 +1048,7 @@
           "Beiträge und Kommentare können gemeldet werden":"Posts and comments can be reported","Externe Links nur über das separate Link-Feld bei globalen Posts":"External links only through the separate link field on global posts",
           "Beitrag teilen":"Share post","Link zum Beitrag teilen oder kopieren.":"Share or copy the post link.","Schließen":"Close","Link kopieren":"Copy link",
           "Trainerprofil bearbeiten":"Edit coach profile","Diese Angaben sind öffentlich. Du kannst sie auch später jederzeit ergänzen oder ändern.":"This information is public. You can add or change it at any time later.",
-          "Trainername":"Coach name","Land":"Country","Stadt / Region":"City / region","Über mich":"About me","Sichtbarkeit":"Visibility","Öffentlich":"Public","Nur über direkten Link":"Direct link only","Privat":"Private",
+          "Trainername":"Coach name","Land":"Country","Stadt / Region":"City / region","Über mich":"About me","Eigene Webseiten- und Social-Media-Links sind im Profil weltweit erlaubt.":"Personal website and social-media links are allowed in profiles worldwide.","Sichtbarkeit":"Visibility","Öffentlich":"Public","Nur über direkten Link":"Direct link only","Privat":"Private",
           "Abbrechen":"Cancel","Speichern":"Save","Inhalt melden":"Report content","Wähle den Grund. Meldungen werden im Adminbereich geprüft. Drei unabhängige offene Meldungen können einen Beitrag vorübergehend ausblenden.":"Choose a reason. Reports are reviewed in the admin area. Three independent open reports can temporarily hide a post.",
           "Spam / unerlaubte Werbung":"Spam / unauthorized advertising","Beleidigung / Belästigung":"Insult / harassment","Hass / diskriminierender Inhalt":"Hate / discriminatory content","Sexueller Inhalt":"Sexual content",
           "Gewalt / Drohung":"Violence / threat","Betrug / Scam":"Fraud / scam","Persönliche Daten":"Personal data","Möglicherweise rechtswidrig":"Possibly illegal","Sonstiger Grund":"Other reason",
@@ -1082,7 +1082,7 @@
           "Beiträge und Kommentare können gemeldet werden":"Las publicaciones y comentarios se pueden denunciar","Externe Links nur über das separate Link-Feld bei globalen Posts":"Enlaces externos solo mediante el campo separado en publicaciones globales",
           "Beitrag teilen":"Compartir publicación","Link zum Beitrag teilen oder kopieren.":"Comparte o copia el enlace de la publicación.","Schließen":"Cerrar","Link kopieren":"Copiar enlace",
           "Trainerprofil bearbeiten":"Editar perfil del entrenador","Diese Angaben sind öffentlich. Du kannst sie auch später jederzeit ergänzen oder ändern.":"Estos datos son públicos. Puedes completarlos o modificarlos en cualquier momento.",
-          "Trainername":"Nombre del entrenador","Land":"País","Stadt / Region":"Ciudad / región","Über mich":"Sobre mí","Sichtbarkeit":"Visibilidad","Öffentlich":"Público","Nur über direkten Link":"Solo mediante enlace directo","Privat":"Privado",
+          "Trainername":"Nombre del entrenador","Land":"País","Stadt / Region":"Ciudad / región","Über mich":"Sobre mí","Eigene Webseiten- und Social-Media-Links sind im Profil weltweit erlaubt.":"Los enlaces a sitios web y redes sociales están permitidos en los perfiles de todo el mundo.","Sichtbarkeit":"Visibilidad","Öffentlich":"Público","Nur über direkten Link":"Solo mediante enlace directo","Privat":"Privado",
           "Abbrechen":"Cancelar","Speichern":"Guardar","Inhalt melden":"Denunciar contenido","Wähle den Grund. Meldungen werden im Adminbereich geprüft. Drei unabhängige offene Meldungen können einen Beitrag vorübergehend ausblenden.":"Elige el motivo. Las denuncias se revisan en el área de administración. Tres denuncias abiertas independientes pueden ocultar temporalmente una publicación.",
           "Spam / unerlaubte Werbung":"Spam / publicidad no autorizada","Beleidigung / Belästigung":"Insulto / acoso","Hass / diskriminierender Inhalt":"Odio / contenido discriminatorio","Sexueller Inhalt":"Contenido sexual",
           "Gewalt / Drohung":"Violencia / amenaza","Betrug / Scam":"Fraude / estafa","Persönliche Daten":"Datos personales","Möglicherweise rechtswidrig":"Posiblemente ilegal","Sonstiger Grund":"Otro motivo",
@@ -1116,7 +1116,7 @@
           "Beiträge und Kommentare können gemeldet werden":"Les publications et commentaires peuvent être signalés","Externe Links nur über das separate Link-Feld bei globalen Posts":"Liens externes uniquement via le champ séparé des publications globales",
           "Beitrag teilen":"Partager la publication","Link zum Beitrag teilen oder kopieren.":"Partager ou copier le lien de la publication.","Schließen":"Fermer","Link kopieren":"Copier le lien",
           "Trainerprofil bearbeiten":"Modifier le profil de l’entraîneur","Diese Angaben sind öffentlich. Du kannst sie auch später jederzeit ergänzen oder ändern.":"Ces informations sont publiques. Vous pouvez les compléter ou les modifier à tout moment.",
-          "Trainername":"Nom de l’entraîneur","Land":"Pays","Stadt / Region":"Ville / région","Über mich":"À propos de moi","Sichtbarkeit":"Visibilité","Öffentlich":"Public","Nur über direkten Link":"Lien direct uniquement","Privat":"Privé",
+          "Trainername":"Nom de l’entraîneur","Land":"Pays","Stadt / Region":"Ville / région","Über mich":"À propos de moi","Eigene Webseiten- und Social-Media-Links sind im Profil weltweit erlaubt.":"Les liens vers des sites web et les réseaux sociaux sont autorisés dans les profils du monde entier.","Sichtbarkeit":"Visibilité","Öffentlich":"Public","Nur über direkten Link":"Lien direct uniquement","Privat":"Privé",
           "Abbrechen":"Annuler","Speichern":"Enregistrer","Inhalt melden":"Signaler le contenu","Wähle den Grund. Meldungen werden im Adminbereich geprüft. Drei unabhängige offene Meldungen können einen Beitrag vorübergehend ausblenden.":"Choisissez le motif. Les signalements sont examinés dans l’administration. Trois signalements ouverts indépendants peuvent masquer temporairement une publication.",
           "Spam / unerlaubte Werbung":"Spam / publicité non autorisée","Beleidigung / Belästigung":"Insulte / harcèlement","Hass / diskriminierender Inhalt":"Haine / contenu discriminatoire","Sexueller Inhalt":"Contenu sexuel",
           "Gewalt / Drohung":"Violence / menace","Betrug / Scam":"Fraude / arnaque","Persönliche Daten":"Données personnelles","Möglicherweise rechtswidrig":"Potentiellement illégal","Sonstiger Grund":"Autre motif",
@@ -1150,7 +1150,7 @@
           "Beiträge und Kommentare können gemeldet werden":"Post e commenti possono essere segnalati","Externe Links nur über das separate Link-Feld bei globalen Posts":"Link esterni solo tramite il campo separato nei post globali",
           "Beitrag teilen":"Condividi post","Link zum Beitrag teilen oder kopieren.":"Condividi o copia il link del post.","Schließen":"Chiudi","Link kopieren":"Copia link",
           "Trainerprofil bearbeiten":"Modifica profilo allenatore","Diese Angaben sind öffentlich. Du kannst sie auch später jederzeit ergänzen oder ändern.":"Queste informazioni sono pubbliche. Puoi aggiungerle o modificarle in qualsiasi momento.",
-          "Trainername":"Nome allenatore","Land":"Paese","Stadt / Region":"Città / regione","Über mich":"Su di me","Sichtbarkeit":"Visibilità","Öffentlich":"Pubblico","Nur über direkten Link":"Solo tramite link diretto","Privat":"Privato",
+          "Trainername":"Nome allenatore","Land":"Paese","Stadt / Region":"Città / regione","Über mich":"Su di me","Eigene Webseiten- und Social-Media-Links sind im Profil weltweit erlaubt.":"I link ai siti web e ai social media sono consentiti nei profili in tutto il mondo.","Sichtbarkeit":"Visibilità","Öffentlich":"Pubblico","Nur über direkten Link":"Solo tramite link diretto","Privat":"Privato",
           "Abbrechen":"Annulla","Speichern":"Salva","Inhalt melden":"Segnala contenuto","Wähle den Grund. Meldungen werden im Adminbereich geprüft. Drei unabhängige offene Meldungen können einen Beitrag vorübergehend ausblenden.":"Scegli il motivo. Le segnalazioni vengono controllate nell’area admin. Tre segnalazioni aperte indipendenti possono nascondere temporaneamente un post.",
           "Spam / unerlaubte Werbung":"Spam / pubblicità non autorizzata","Beleidigung / Belästigung":"Insulto / molestie","Hass / diskriminierender Inhalt":"Odio / contenuto discriminatorio","Sexueller Inhalt":"Contenuto sessuale",
           "Gewalt / Drohung":"Violenza / minaccia","Betrug / Scam":"Frode / truffa","Persönliche Daten":"Dati personali","Möglicherweise rechtswidrig":"Potenzialmente illegale","Sonstiger Grund":"Altro motivo",
@@ -1184,7 +1184,7 @@
           "Beiträge und Kommentare können gemeldet werden":"Publicações e comentários podem ser denunciados","Externe Links nur über das separate Link-Feld bei globalen Posts":"Links externos apenas através do campo separado em publicações globais",
           "Beitrag teilen":"Partilhar publicação","Link zum Beitrag teilen oder kopieren.":"Partilha ou copia o link da publicação.","Schließen":"Fechar","Link kopieren":"Copiar link",
           "Trainerprofil bearbeiten":"Editar perfil do treinador","Diese Angaben sind öffentlich. Du kannst sie auch später jederzeit ergänzen oder ändern.":"Estas informações são públicas. Podes completá-las ou alterá-las a qualquer momento.",
-          "Trainername":"Nome do treinador","Land":"País","Stadt / Region":"Cidade / região","Über mich":"Sobre mim","Sichtbarkeit":"Visibilidade","Öffentlich":"Público","Nur über direkten Link":"Apenas por link direto","Privat":"Privado",
+          "Trainername":"Nome do treinador","Land":"País","Stadt / Region":"Cidade / região","Über mich":"Sobre mim","Eigene Webseiten- und Social-Media-Links sind im Profil weltweit erlaubt.":"Os links para sites e redes sociais são permitidos nos perfis em todo o mundo.","Sichtbarkeit":"Visibilidade","Öffentlich":"Público","Nur über direkten Link":"Apenas por link direto","Privat":"Privado",
           "Abbrechen":"Cancelar","Speichern":"Guardar","Inhalt melden":"Denunciar conteúdo","Wähle den Grund. Meldungen werden im Adminbereich geprüft. Drei unabhängige offene Meldungen können einen Beitrag vorübergehend ausblenden.":"Escolhe o motivo. As denúncias são analisadas na área de administração. Três denúncias abertas independentes podem ocultar temporariamente uma publicação.",
           "Spam / unerlaubte Werbung":"Spam / publicidade não autorizada","Beleidigung / Belästigung":"Insulto / assédio","Hass / diskriminierender Inhalt":"Ódio / conteúdo discriminatório","Sexueller Inhalt":"Conteúdo sexual",
           "Gewalt / Drohung":"Violência / ameaça","Betrug / Scam":"Fraude / burla","Persönliche Daten":"Dados pessoais","Möglicherweise rechtswidrig":"Possivelmente ilegal","Sonstiger Grund":"Outro motivo",
@@ -1962,6 +1962,31 @@
         }
       }
 
+      function renderTrainerBio(container,value){
+        if(!container)return;
+        var text=String(value||"");
+        container.replaceChildren();
+        var pattern=/(?:https?:\/\/|www\.)[^\s<>"'`]+|\b[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9-]+)*\.(?:com|net|org|club|io|gg|de|fr|it|es|pt|br|co|uk|us|me|info|biz|app|ai)(?:[\/?#][^\s<>"'`]*)?/gi;
+        var last=0,match;
+        while((match=pattern.exec(text))!==null){
+          var raw=match[0],cleaned=raw.replace(/[.,;:!?\])}]+$/g,"");
+          if(!cleaned)continue;
+          var href="";
+          try{
+            var parsed=new URL(/^https?:\/\//i.test(cleaned)?cleaned:"https://"+cleaned);
+            if(["http:","https:"].includes(parsed.protocol)&&parsed.hostname.includes(".")&&!parsed.username&&!parsed.password)href=parsed.href;
+          }catch(_e){}
+          if(!href)continue;
+          if(match.index>last)container.appendChild(document.createTextNode(text.slice(last,match.index)));
+          var link=document.createElement("a");
+          link.href=href;link.target="_blank";link.rel="nofollow ugc noopener noreferrer";
+          link.textContent=cleaned;
+          container.appendChild(link);
+          last=match.index+cleaned.length;
+        }
+        if(last<text.length)container.appendChild(document.createTextNode(text.slice(last)));
+      }
+
       function applyProfile(profile,ownerView){
         if(!profile) return;
         currentProfile=profile;
@@ -1981,7 +2006,7 @@
         setMode();
 
         var bio=document.getElementById("trainerBio");
-        if(bio) bio.textContent=profile.bio || (isOwner ? "Noch keine Beschreibung angelegt. Über „Bearbeiten“ kannst du dein Profil nach und nach ergänzen." : "");
+        if(bio) renderTrainerBio(bio,profile.bio || (isOwner ? "Noch keine Beschreibung angelegt. Über „Bearbeiten“ kannst du dein Profil nach und nach ergänzen." : ""));
 
         var locationParts=[profile.city,profile.country].filter(Boolean);
         var locationRow=document.getElementById("locationRow");
@@ -2187,7 +2212,7 @@
           applyProfile(saved.profile,true);
           showToast("Trainerprofil gespeichert.");
         }catch(error){
-          showToast(error.data&&error.data.flags?moderationMessage(error.data.flags):"Profil konnte nicht gespeichert werden.");
+          showToast(error.data&&error.data.flags?(error.data.field==="bio"&&error.data.flags.includes("external_link_in_text")?"Weblinks sind in der Profilbeschreibung erlaubt. Bitte erneut versuchen.":moderationMessage(error.data.flags)):"Profil konnte nicht gespeichert werden.");
         }
       }
 
