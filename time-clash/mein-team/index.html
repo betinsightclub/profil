@@ -631,7 +631,7 @@ qs("#coachSaveSection")?.addEventListener("click",async()=>{
     const r=await fetch(CLUB_API,{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({action:"save_coach",credential:o,language:teamPageLang,coach:coachPayload})
+      body:JSON.stringify({action:"save_draft",section:"coach",name:qs("#clubName")?.value.trim()||"",credential:o,language:teamPageLang,coach:coachPayload})
     });
     const d=await r.json().catch(()=>({}));
     if(!r.ok||!d.ok||!d.club){
