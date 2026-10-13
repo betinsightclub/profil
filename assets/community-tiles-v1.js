@@ -26,6 +26,8 @@
       font:inherit;padding:15px 17px;cursor:pointer;white-space:normal;
     }
     .bi-tile-grid .bi-tile .bi-tile-toggle:focus-visible{outline:2px solid #48c4ff;outline-offset:-3px}
+    .bi-tile-grid .bi-author-profile{color:inherit!important;text-decoration:none!important}
+    .bi-tile-grid .bi-author-profile:hover{text-decoration:underline!important}
     .bi-tile-grid .bi-tile .bi-tile-tag{
       color:#9dbfd4;font-size:10px!important;font-weight:800;line-height:1.4;letter-spacing:.045em;
       text-transform:uppercase;word-break:break-word;
