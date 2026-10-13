@@ -129,25 +129,32 @@
     host.append(note);
     item.append(host);
     showCounts(item,post);showComments(item,post);
-    const isSignedIn=Boolean(credential());
-    note.hidden=isSignedIn;
-    if(!isSignedIn){heart.disabled=true;field.disabled=true;submit.disabled=true}
+    function refreshAuthentication(){
+      const loggedIn=Boolean(credential());
+      note.hidden=loggedIn;
+      if(!heart.dataset.busy)heart.disabled=!loggedIn;
+      if(!submit.dataset.busy)submit.disabled=!loggedIn;
+      field.disabled=!loggedIn;
+    }
+    refreshAuthentication();
+    const tileToggle=item.querySelector(".bi-tile-toggle");
+    if(tileToggle)tileToggle.addEventListener("click",refreshAuthentication);
     heart.addEventListener("click",async()=>{
       if(heart.disabled)return;
-      heart.disabled=true;status.textContent="Herz wird gespeichert …";
+      heart.dataset.busy="1";heart.disabled=true;status.textContent="Herz wird gespeichert …";
       try{
         await send("react",{post_id:id,reaction:"HEART"});
         heart.setAttribute("aria-pressed","true");
         status.textContent="❤️ Dein Herz wurde gespeichert.";
         await refreshOne(item);
       }catch(e){status.textContent=e.message||"Reaktion nicht möglich."}
-      finally{heart.disabled=false}
+      finally{delete heart.dataset.busy;refreshAuthentication()}
     });
     form.addEventListener("submit",async ev=>{
       ev.preventDefault();
       const text=field.value.trim();
       if(!text)return;
-      submit.disabled=true;status.textContent="Kommentar wird geprüft …";
+      submit.dataset.busy="1";submit.disabled=true;status.textContent="Kommentar wird geprüft …";
       try{
         const result=await send("create_comment",{post_id:id,text});
         field.value="";
@@ -158,7 +165,7 @@
         }
         await refreshOne(item);
       }catch(e){status.textContent=e.message||"Kommentar konnte nicht gespeichert werden."}
-      finally{submit.disabled=false}
+      finally{delete submit.dataset.busy;refreshAuthentication()}
     });
   }
   function attach(){
