@@ -2045,8 +2045,9 @@
 
         var avatar=document.getElementById("avatarImage");
         var fallback=document.getElementById("avatarFallback");
-        var configuredCoachAvatar=renderConfiguredCoachAvatar(profile);
-        if(!configuredCoachAvatar && profile.media&&profile.media.avatar&&profile.media.avatar.public_url){
+        var hasUploadedAvatar=Boolean(profile.media&&profile.media.avatar&&profile.media.avatar.public_url);
+        var configuredCoachAvatar=hasUploadedAvatar?false:renderConfiguredCoachAvatar(profile);
+        if(hasUploadedAvatar){
           clearConfiguredCoachAvatar();
           avatar.src=profile.media.avatar.public_url;
           var ac=profile.avatar_crop||{x:50,y:50,zoom:1};
@@ -2940,10 +2941,20 @@
           payload[field]=uploaded.media.id;
           payload[cropField]={x:cropState.x,y:cropState.y,zoom:cropState.zoom};
           var saved=await communityCall("update_profile",payload);
-          currentProfile=saved.profile;
+          if(!saved.profile)throw new Error("Die Profilaktualisierung wurde nicht bestätigt. Bitte erneut versuchen.");
+          // The returned media bundle may still contain the previous image.
+          // Use the successfully uploaded original immediately; a reload uses the persisted media URL.
+          var updatedProfile=saved.profile;
+          updatedProfile.media=updatedProfile.media||{};
+          updatedProfile.media[cropState.purpose]={
+            ...(updatedProfile.media[cropState.purpose]||{}),
+            id:uploaded.media.id,
+            public_url:cropState.data.dataUrl
+          };
+          currentProfile=updatedProfile;
           closeCropDialog(false);
-          if(saved.profile)applyProfile(saved.profile,true);
-          showToast(cropState.purpose==="cover"?"Hintergrund gespeichert.":"Profilbild gespeichert.");
+          applyProfile(updatedProfile,true);
+          showToast(cropState.purpose==="cover"?"✓ Hintergrund gespeichert und sofort angezeigt.":"✓ Profilbild gespeichert und sofort angezeigt.");
         }catch(error){
           showToast(error&&error.message?error.message:"Bild konnte nicht gespeichert werden.");
         }finally{
@@ -3031,9 +3042,12 @@
               var payload={credential:memberCredential,club_id:clubId};
               payload[field]=uploaded.media.id;
               var saved=await communityCall("update_profile",payload);
+              if(!saved.profile)throw new Error("Die Profilaktualisierung wurde nicht bestätigt.");
+              saved.profile.media=saved.profile.media||{};
+              saved.profile.media[purpose]={...(saved.profile.media[purpose]||{}),id:uploaded.media.id,public_url:result.dataUrl};
               currentProfile=saved.profile;
-              if(saved.profile) applyProfile(saved.profile,true);
-              showToast("Bild optimiert und gespeichert.");
+              applyProfile(saved.profile,true);
+              showToast("Bild optimiert, gespeichert und sofort angezeigt.");
             }else{
               showToast("Bild optimiert: "+formatFileSize(result.originalBytes)+" → "+formatFileSize(result.blob.size));
             }
