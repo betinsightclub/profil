@@ -523,6 +523,10 @@
     }
     .share-note b{color:#4be4b1}
     .privacy-note{margin-top:10px;color:#77929e;font-size:10px}.empty-state{padding:18px 12px;border:1px dashed rgba(255,255,255,.11);border-radius:13px;color:#7f9aa7;text-align:center;font-size:12px}.profile-back{display:inline-flex;align-items:center;gap:6px}.profile-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.profile-edit-grid .wide{grid-column:1/-1}.profile-edit-label{display:grid;gap:5px;color:#b8ccd6;font-size:11px;font-weight:800}.profile-edit-label input,.profile-edit-label textarea,.profile-edit-label select{width:100%;border:1px solid var(--line);border-radius:12px;background:#061a24;color:white;padding:10px 11px;outline:0}.profile-edit-label textarea{min-height:100px;resize:vertical}
+.profile-bio-counter{display:block;margin-top:3px;text-align:right;font-size:12px;font-weight:750;color:#a7c7d8}
+.profile-bio-counter.is-limit{color:#f3c95c}
+.profile-edit-error{display:none;margin:12px 0 0;padding:10px 12px;background:rgba(255,101,113,.08);border:1px solid rgba(255,101,113,.35);border-radius:12px;color:#ffb9c0;font-size:12px;font-weight:650;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.profile-edit-error.visible{display:block}
 .profile-edit-appearance{grid-column:1/-1;display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;align-items:center;padding:12px;border:1px solid rgba(99,184,255,.18);border-radius:14px;background:rgba(22,135,255,.045)}
 .profile-edit-avatar-preview{width:58px;height:58px}
 .profile-edit-appearance-copy b{display:block;font-size:12px}.profile-edit-appearance-copy small{display:block;margin-top:3px;color:#89a8b6;font-size:10px;line-height:1.4}
@@ -909,7 +913,7 @@
           <input id="editCity" maxlength="80" placeholder="Optional">
         </label>
         <label class="profile-edit-label wide">Über mich
-          <textarea id="editBio" maxlength="600" placeholder="Optional – kurze Beschreibung deines Trainerprofils"></textarea><small style="display:block;margin-top:6px;color:var(--muted);font-size:12px">Eigene Webseiten- und Social-Media-Links sind im Profil weltweit erlaubt.</small>
+          <textarea id="editBio" maxlength="600" placeholder="Optional – kurze Beschreibung deines Trainerprofils" aria-describedby="editBioCounter"></textarea><output id="editBioCounter" class="profile-bio-counter" for="editBio" aria-live="polite">0 / 600 Zeichen verwendet · 600 frei</output><small style="display:block;margin-top:6px;color:var(--muted);font-size:12px">Eigene Webseiten- und Social-Media-Links sind im Profil weltweit erlaubt.</small>
         </label>
         <label class="profile-edit-label wide">Sichtbarkeit
           <select id="editVisibility">
@@ -931,6 +935,7 @@
           </div>
         </div>
       </div>
+      <div id="profileEditError" class="profile-edit-error" role="alert" aria-live="assertive"></div>
       <div class="modal-actions">
         <button class="pill-btn" id="closeProfileEdit">Abbrechen</button>
         <button class="pill-btn primary" id="saveProfileEdit">Speichern</button>
@@ -2178,12 +2183,59 @@
         }
       }
 
+      function updateProfileBioCounter(){
+        var field=document.getElementById("editBio");
+        var counter=document.getElementById("editBioCounter");
+        if(!field||!counter)return;
+        var used=field.value.length,available=Math.max(0,600-used);
+        var labels={
+          de:[ "Zeichen verwendet","frei" ],
+          en:[ "characters used","left" ],
+          es:[ "caracteres usados","disponibles" ],
+          fr:[ "caractères utilisés","restants" ],
+          it:[ "caratteri utilizzati","disponibili" ],
+          pt:[ "caracteres usados","disponíveis" ]
+        };
+        var words=labels[trainerLanguage]||labels.de;
+        counter.textContent=used+" / 600 "+words[0]+" · "+available+" "+words[1];
+        counter.classList.toggle("is-limit",available===0);
+      }
+      function profileEditError(message){
+        var el=document.getElementById("profileEditError");
+        if(!el)return;
+        el.textContent=message||"";
+        el.classList.toggle("visible",!!message);
+      }
+      function profileSaveErrorMessage(error){
+        var data=error&&error.data||{},code=String(data.error||"").trim(),status=Number(error&&error.status||0);
+        var fieldNames={bio:"Profilbeschreibung",display_name:"Trainername",country:"Land",city:"Stadt / Region"};
+        if(code==="PROFILE_TEXT_REVIEW"){
+          var field=fieldNames[data.field]||"Der Text";
+          var flags=Array.isArray(data.flags)?data.flags:[];
+          if(flags.length)return field+": "+moderationMessage(flags);
+          return field+" wurde von der Inhaltsprüfung abgelehnt. Bitte Text prüfen.";
+        }
+        if(code==="TEAM_REQUIRED")return "Dein Trainerprofil ist momentan nicht mit deinem Club verbunden. Bitte erneut anmelden oder die Seite neu öffnen.";
+        if(code==="AUTH_REQUIRED"||code==="INVALID_IDENTITY"||status===401)return "Deine Sitzung ist abgelaufen. Bitte neu anmelden und erneut speichern.";
+        if(status===429||code==="RATE_LIMITED")return "Zu viele Anfragen in kurzer Zeit. Bitte später erneut speichern.";
+        if(status===413)return "Die Daten sind zu groß. Bitte die Eingabe verkleinern.";
+        if(status>=500)return "Serverfehler (HTTP "+status+") bei der Speicherung. Bitte erneut versuchen. Fehlercode: "+(code||"SERVER_ERROR");
+        if(status>=400)return "Speichern abgelehnt (HTTP "+status+"). Fehlercode: "+(code||"UNBEKANNT")+".";
+        return "Verbindung oder Speicherung fehlgeschlagen: "+String(error&&error.message||"Bitte erneut versuchen.");
+      }
+      document.getElementById("editBio")?.addEventListener("input",function(){
+        updateProfileBioCounter();
+        profileEditError("");
+      });
+
       function openProfileEditor(){
         if(!isOwner||!currentProfile) return;
         document.getElementById("editDisplayName").value=currentProfile.custom_display_name||currentProfile.configured_coach_name||"";
         document.getElementById("editCountry").value=currentProfile.country||"";
         document.getElementById("editCity").value=currentProfile.city||"";
         document.getElementById("editBio").value=currentProfile.bio||"";
+        updateProfileBioCounter();
+        profileEditError("");
         document.getElementById("editVisibility").value=currentProfile.visibility||"public";
         var editAvatar=document.getElementById("editProfileAvatarPreview");
         if(editAvatar)renderMiniAvatar(editAvatar,currentProfileAvatarData());
@@ -2198,22 +2250,53 @@
       }
 
       async function saveProfileEditor(){
-        if(!isOwner||!serverMode) return;
+        if(!isOwner||!serverMode)return;
+        var bioField=document.getElementById("editBio");
+        updateProfileBioCounter();
+        profileEditError("");
+        if(bioField.value.length>600){
+          profileEditError("Die Profilbeschreibung ist zu lang: "+bioField.value.length+" von maximal 600 Zeichen.");
+          bioField.focus();return;
+        }
+        var btn=document.getElementById("saveProfileEdit");
+        if(btn.disabled)return;
+        var oldLabel=btn.textContent;
+        btn.disabled=true;
+        btn.textContent="Wird gespeichert …";
+        var saved=null;
         try{
-          var saved=await communityCall("update_profile",{
+          saved=await communityCall("update_profile",{
             credential:memberCredential,
             club_id:clubId,
             display_name:document.getElementById("editDisplayName").value.trim(),
             country:document.getElementById("editCountry").value.trim(),
             city:document.getElementById("editCity").value.trim(),
-            bio:document.getElementById("editBio").value.trim(),
+            bio:bioField.value.trim(),
             visibility:document.getElementById("editVisibility").value
           });
-          document.getElementById("profileEditModal").classList.remove("show");
-          applyProfile(saved.profile,true);
-          showToast("Trainerprofil gespeichert.");
+          if(!saved||!saved.profile)throw new Error("Der Server hat kein aktualisiertes Trainerprofil zurückgegeben.");
         }catch(error){
-          showToast(error.data&&error.data.flags?(error.data.field==="bio"&&error.data.flags.includes("external_link_in_text")?"Weblinks sind in der Profilbeschreibung erlaubt. Bitte erneut versuchen.":moderationMessage(error.data.flags)):"Profil konnte nicht gespeichert werden.");
+          console.error("Trainerprofil konnte nicht gespeichert werden",error);
+          var message=profileSaveErrorMessage(error);
+          profileEditError(message);
+          showToast("Speichern fehlgeschlagen – Details im Formular.");
+          btn.disabled=false;
+          btn.textContent=oldLabel;
+          return;
+        }
+        // The server has already committed the changes. UI errors must never be reported as save failures.
+        try{
+          applyProfile(saved.profile,true);
+          document.getElementById("profileEditModal").classList.remove("show");
+          showToast("✓ Trainerprofil erfolgreich gespeichert.");
+        }catch(renderError){
+          console.error("Trainerprofil gespeichert, aber Anzeige konnte nicht aktualisiert werden",renderError);
+          currentProfile=saved.profile;
+          document.getElementById("profileEditModal").classList.remove("show");
+          showToast("✓ Gespeichert. Bitte Seite neu laden, um die Änderungen zu sehen.");
+        }finally{
+          btn.disabled=false;
+          btn.textContent=oldLabel;
         }
       }
 
