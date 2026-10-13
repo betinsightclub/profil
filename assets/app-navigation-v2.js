@@ -37,7 +37,9 @@
     network:'<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="6" r="2.5"/><circle cx="6" cy="17" r="2.5"/><circle cx="18" cy="17" r="2.5"/><path d="m10.7 8.2-3.4 6.5M13.3 8.2l3.4 6.5M8.5 17h7"/></svg>',
     membership:'<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.2 4.4 4.8.7-3.5 3.4.8 4.8-4.3-2.2-4.3 2.2.8-4.8L5 8.1l4.8-.7Z"/><path d="M7 19h10"/></svg>',
     support:'<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13a8 8 0 0 1 16 0"/><path d="M4 13v4a2 2 0 0 0 2 2h2v-7H4Zm16 0v4a2 2 0 0 1-2 2h-2v-7h4Z"/><path d="M16 19c0 1.1-.9 2-2 2h-2"/></svg>',
-    timeclash:'<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3.5 2"/><path d="m7.5 5.5-2-2M16.5 5.5l2-2"/></svg>'
+    timeclash:'<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3.5 2"/><path d="m7.5 5.5-2-2M16.5 5.5l2-2"/></svg>',
+    profile:'<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg>',
+    community:'<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2.5 21v-3a5.5 5.5 0 0 1 11 0v3M14 15.3a5.5 5.5 0 0 1 7.5 5.2"/></svg>'
   };
 
   const navigation = [
@@ -51,13 +53,13 @@
       {id:"freigeschaltet",key:"nav.unlockedTips",fallback:"Freigeschaltete Tipps"}
     ]},
     {id:"time-clash-group",key:"nav.timeClash",fallback:"TIME CLASH",icon:icons.timeclash,children:[
-      {id:"time-clash",key:"nav.timeClashOverview",fallback:"Übersicht & Clash starten",fallbackEn:"Overview & start Clash"},
+      {id:"time-clash",key:"nav.timeClashOverview",fallback:"Spiel starten",fallbackEn:"Start a match"},
       {id:"time-clash-team",key:"nav.timeClashTeam",fallback:"Mein Team",fallbackEn:"My Team"},
-      {id:"time-clash-trainer",key:"nav.timeClashTrainer",fallback:"Trainerprofil",fallbackEn:"Coach Profile"},
       {id:"time-clash-ranking",key:"nav.timeClashRanking",fallback:"Weltrangliste",fallbackEn:"World Ranking"},
-      {id:"time-clash-feed",key:"nav.timeClashFeed",fallback:"Community Feed",fallbackEn:"Community Feed"},
       {id:"time-clash-credits",key:"nav.timeClashCredits",fallback:"ClashToken aufladen",fallbackEn:"Top up ClashToken"}
     ]},
+    {id:"my-public-profile",key:"nav.myPublicProfile",fallback:"Mein Profil",fallbackEn:"My Profile",icon:icons.profile},
+    {id:"community",key:"nav.community",fallback:"Community",fallbackEn:"Community",icon:icons.community},
     {id:"kaufen",key:"nav.buyPackages",fallback:"Units-Pakete kaufen",icon:icons.buy},
     {id:"exchange-group",key:"nav.exchange",fallback:"Unit-Wechselstube",icon:icons.exchange,children:[
       {id:"wechselboerse",key:"nav.overview",fallback:"Übersicht"},
@@ -194,9 +196,9 @@
       case "freigeschaltet": navigateProtected("freigeschaltet"); break;
       case "time-clash": navigateProtected("time-clash"); break;
       case "time-clash-team": navigateProtected("time-clash/mein-team"); break;
-      case "time-clash-trainer": navigateProtected("trainer"); break;
+      case "my-public-profile": navigateAnyProtected("trainer"); break;
       case "time-clash-ranking": navigateProtected("time-clash/rangliste"); break;
-      case "time-clash-feed": navigateProtected("trainer-feed"); break;
+      case "community": session().navigateLocal("trainer-feed"); break;
       case "time-clash-credits": navigateProtected("clash-token-tausch"); break;
       case "kaufen": navigateProtected("pakete"); break;
       case "wechselboerse": navigateProtected("wechselboerse"); break;
@@ -245,8 +247,8 @@
     if (first === "time-clash" && second === "mein-team") return "time-clash-team";
     if (first === "time-clash" && second === "rangliste") return "time-clash-ranking";
     if (first === "time-clash") return "time-clash";
-    if (first === "trainer-feed") return "time-clash-feed";
-    if (first === "trainer") return "time-clash-trainer";
+    if (first === "trainer-feed") return "community";
+    if (first === "trainer") return "my-public-profile";
     if (first === "clash-token-tausch") return "time-clash-credits";
     const known = ["daily","fan-challenge","tipps","freigeschaltet","wechselboerse","verkaufen","meine-verkaufsangebote","wallet","anbieter","ressourcen","marketing-center","support"];
     return known.includes(first) ? first : "dashboard";
@@ -255,7 +257,7 @@
   function groupForRoute(id) {
     if (["daily","fan-challenge"].includes(id)) return "free-units-group";
     if (["tipps","freigeschaltet"].includes(id)) return "tips-group";
-    if (["time-clash","time-clash-team","time-clash-trainer","time-clash-ranking","time-clash-feed","time-clash-credits"].includes(id)) return "time-clash-group";
+    if (["time-clash","time-clash-team","time-clash-ranking","time-clash-credits"].includes(id)) return "time-clash-group";
     if (["wechselboerse","angebote","verkaufen","meine-verkaufsangebote"].includes(id)) return "exchange-group";
     if (["netzwerk","premium-provisionen"].includes(id)) return "network-group";
     return "";
