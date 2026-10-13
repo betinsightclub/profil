@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#071d2c">
+<title>Offizielle BetInsight-Meldungen · MatchRadar, NewsRadar & AusfallRadar</title>
+<meta name="description" content="Aktuelle offizielle Meldungen der BetInsight-Community: MatchRadar, NewsRadar, AusfallRadar und weitere Systemnachrichten.">
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color-scheme:dark;background:#071925;color:#eaf7fd}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -10%,#164561 0%,#0b293b 40%,#061723 88%);line-height:1.45}
+a{color:inherit}
+header{border-bottom:1px solid rgba(132,210,244,.15);background:rgba(3,18,28,.65)}
+nav{max-width:1140px;margin:auto;padding:19px 22px;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.brand{font-size:23px;font-weight:950;letter-spacing:-1.3px;text-decoration:none;color:#67c8fa}
+.brand small{font-size:13px;color:#a0d87c;letter-spacing:0;margin-left:3px}
+.navlinks{display:flex;gap:11px;flex-wrap:wrap}
+.navlinks a{border:1px solid rgba(86,180,231,.26);background:#103048;text-decoration:none;padding:10px 13px;border-radius:11px;font-size:12px;font-weight:800}
+.navlinks a:hover,.navlinks a:focus-visible{background:#175075}
+main{max-width:1140px;margin:0 auto;padding:35px 22px 60px}
+h1{font-size:clamp(24px,3.1vw,39px);margin:0;font-weight:900}
+.lead{margin:11px 0 23px;color:#aed1df;max-width:750px;font-size:15px}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 23px}
+.legend span{border:1px solid rgba(115,196,238,.18);background:#0b3045;padding:8px 11px;border-radius:40px;font-size:12px;color:#bcdfeb}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.card{display:flex;flex-direction:column;min-width:0;min-height:185px;background:linear-gradient(155deg,#123649,#081e2c);border:1px solid rgba(98,194,238,.24);border-radius:17px;padding:17px 18px;text-decoration:none}
+.card:hover,.card:focus-visible{border-color:#7bd8ff;background:#17445b;outline:none}
+.source{font-size:11px;font-weight:900;color:#86d6fe;letter-spacing:.035em}
+.date{margin:5px 0 0;color:#91adbb;font-size:11px}
+.card h2{font-size:16px;line-height:1.35;overflow-wrap:anywhere;margin:14px 0 9px}
+.excerpt{font-size:13px;color:#b3d0de;margin:0 0 13px;line-height:1.5;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;overflow:hidden;white-space:pre-wrap}
+.read{color:#8adbfd;margin-top:auto;font-size:12px;font-weight:900}
+.state{border:1px dashed #34607a;border-radius:13px;padding:30px 20px;text-align:center;color:#a9cede}
+footer{text-align:center;color:#7697a8;font-size:12px;padding:21px}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:570px){main{padding:24px 14px}.grid{grid-template-columns:minmax(0,1fr)}.card{min-height:155px}nav{padding:14px}}
+</style>
+</head>
+<body>
+<header><nav>
+  <a class="brand" href="../">betInsight <small>club</small></a>
+  <div class="navlinks">
+    <a href="../">← Dashboard</a>
+    <a href="../trainer/">Trainerprofile</a>
+    <a href="https://betinsight.club/trainer-feed/?lang=de">Gesamter Community-Feed →</a>
+  </div>
+</nav></header>
+<main>
+<h1>📡 Aktuelle BetInsight-Meldungen</h1>
+<p class="lead">Offizielle Nachrichten von BetInsight: Neue Sporttipps, aktuelle Fußballentwicklungen, Spielerausfälle und wichtige Informationen. Die Beiträge sind nach Veröffentlichung sortiert.</p>
+<div class="legend"><span>🥅 MatchRadar</span><span>📰 NewsRadar</span><span>🚨 AusfallRadar</span><span>✅ Offizielle Meldungen</span></div>
+<div id="state" class="state" role="status">Offizielle Meldungen werden geladen …</div>
+<section id="grid" class="grid" aria-label="Offizielle Beiträge" hidden></section>
+</main>
+<footer>© BetInsight Club · Offizielle Systemmeldungen, quellenbasiert und übersichtlich</footer>
+<script>
+(function(){
+  "use strict";
+  var api="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/community-api?action=feed&scope=official";
+  var grid=document.getElementById("grid"),state=document.getElementById("state");
+  function safe(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
+  function millis(p){var n=Date.parse(p.published_at||p.created_at||"");return Number.isFinite(n)?n:0}
+  function date(p){var n=millis(p);return n?new Intl.DateTimeFormat("de-DE",{dateStyle:"medium",timeStyle:"short"}).format(new Date(n)):""}
+  function card(p){
+    var parts=String(p.body||"").split(/\n+/).map(function(s){return s.trim()}).filter(Boolean);
+    var title=parts.shift()||"BetInsight-Meldung";
+    var excerpt=parts.filter(function(s){return s.indexOf("👉")!==0}).join(" ");
+    var href=p.public_slug
+      ?"../trainer/?p="+encodeURIComponent(p.public_slug)+"&post="+encodeURIComponent(p.id)
+      :"../trainer/";
+    return '<a class="card" href="'+safe(href)+'">'+
+      '<span class="source">● '+safe(p.author||"BETINSIGHT")+' · OFFIZIELL</span>'+
+      '<span class="date">'+safe(date(p))+'</span>'+
+      '<h2>'+safe(title)+'</h2>'+
+      '<p class="excerpt">'+safe(excerpt)+'</p>'+
+      '<span class="read">Vollständigen Beitrag lesen →</span>'+
+    '</a>';
+  }
+  fetch(api,{cache:"no-store",credentials:"omit"}).then(function(r){
+    if(!r.ok)throw new Error("API: "+r.status);
+    return r.json();
+  }).then(function(data){
+    if(!data.ok||!Array.isArray(data.posts))throw new Error("Invalid news response");
+    var posts=data.posts.filter(function(p){return p.is_official===true&&p.distribution_scope==="GLOBAL"})
+      .sort(function(a,b){return millis(b)-millis(a)});
+    if(!posts.length){state.textContent="Zurzeit liegen noch keine offiziellen Meldungen vor.";return;}
+    grid.innerHTML=posts.map(card).join("");
+    state.hidden=true;
+    grid.hidden=false;
+  }).catch(function(e){
+    console.error("BetInsight Meldungen",e);
+    state.textContent="Meldungen sind vorübergehend nicht verfügbar. Bitte versuche es später erneut.";
+  });
+})();
+</script>
+</body></html>
