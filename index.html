@@ -1178,8 +1178,8 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
         <p class="dashboard-feed-subtitle">Sechs aktuelle Beiträge unserer Mitglieder – neueste zuerst.</p>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
-        <a id="dashboardAllFeeds" class="dashboard-feed-open" href="https://betinsight.club/trainer-feed/?lang=de" target="_blank" rel="noopener">Alle Community-Beiträge →</a>
-        <a id="dashboardMyTrainerProfile" class="dashboard-feed-open" href="trainer/">Mein Trainerprofil →</a>
+        <a id="dashboardAllFeeds" class="dashboard-feed-open" href="trainer-feed/">Alle Community-Beiträge →</a>
+        <a id="dashboardMyTrainerProfile" class="dashboard-feed-open" href="trainer/">Mein Profil →</a>
       </div>
     </div>
     <div id="dashboardFeedList" class="dashboard-feed-list" aria-live="polite">
@@ -1906,12 +1906,12 @@ async function loadDashboardCommunityFeed(){
     }
     const token=getConfirmedDashboardToken()||getActiveToken()||"";
     if(myProfile)myProfile.href="trainer/"+(token?"?token="+encodeURIComponent(token):"");
-    if(allFeeds)allFeeds.href="https://betinsight.club/trainer-feed/?lang=de";
+    if(allFeeds)allFeeds.href="trainer-feed/";
     console.info("[BetInsight Performance] Dashboard-Feed bereit in "+Math.round(performance.now()-feedStartedAt)+" ms; "+data.posts.length+" Beiträge vom Server.");
   }catch(error){
     console.error("Community-Feed konnte nicht geladen werden:",error);
     if(officialSection)officialSection.hidden=true;
-    list.innerHTML='<div class="dashboard-feed-empty">Die Beiträge konnten gerade nicht geladen werden. <a href="trainer/?feed=global" style="color:#65bfff">Feed direkt öffnen</a></div>';
+    list.innerHTML='<div class="dashboard-feed-empty">Die Beiträge konnten gerade nicht geladen werden. <a href="trainer-feed/" style="color:#65bfff">Feed direkt öffnen</a></div>';
   }
 }
 
