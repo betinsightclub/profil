@@ -24,6 +24,7 @@
   ];
   const css=[
     ".bi-tile-grid .bi-tile.bi-open{overflow:visible!important}",
+    "#dashboardFeedList .bi-interaction-ready .dashboard-feed-meta>span:first-child{display:none!important}",
     ".bi-dash-social{position:relative;padding:4px 15px 12px;border-top:1px solid rgba(130,208,255,.12);font-size:13px}",
     ".bi-dash-social-stats{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:34px;color:#9db7c8;font-size:11px}",
     ".bi-dash-social-stats .bi-dash-stat{display:flex;align-items:center;gap:5px}",
@@ -164,6 +165,7 @@
     const id=item.dataset.postId,post=currentPost(id);
     if(!id||!post)return;
     item.dataset.biInteractionReady="true";
+    item.classList.add("bi-interaction-ready");
     const root=element("section","bi-dash-social");
     root.setAttribute("aria-label","Community-Reaktionen und Kommentare");
     const statsBar=element("div","bi-dash-social-stats");
