@@ -28,7 +28,7 @@ function num(v){
 }
 function eur(v){const r=activeMoneyRow;const cur=String(r?.payment_currency||r?.abrechnungs_waehrung||"EUR").toUpperCase();if(r&&cur!=="EUR"){const rate=Number(r?.exchange_rate_eur_per_coin||r?.wechselkurs_eur_je_coin||0);const coin=rate>0?Number(v||0)/rate:0;return Number(coin).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:8})+" "+cur}return Number(v||0).toLocaleString("de-DE",{style:"currency",currency:"EUR",minimumFractionDigits:2,maximumFractionDigits:6})}
 function cryptoAmt(v,c){const x=String(c||"").toUpperCase();return Number(v||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:8})+" "+x}
-function cv(r,ck,ek){const cur=String(r?.payment_currency||r?.abrechnungs_waehrung||"EUR").toUpperCase();if(cur==="EUR")return eur(r?.[ek]||0);let v=Number(r?.[ck]);if(!Number.isFinite(v)){const rate=Number(r?.exchange_rate_eur_per_coin||r?.wechselkurs_eur_je_coin||0);v=rate>0?Number(r?.[ek]||0)/rate:0}return cryptoAmt(v,cur)}
+function cv(r,ck,ek){const cur=String(r?.payment_currency||r?.abrechnungs_waehrung||"EUR").toUpperCase();if(cur==="EUR")return Number(r?.[ek]||0).toLocaleString("de-DE",{style:"currency",currency:"EUR",minimumFractionDigits:2,maximumFractionDigits:6});const raw=r?.[ck];let v=raw===null||raw===undefined||String(raw).trim()===""?NaN:Number(raw);if(!Number.isFinite(v)){const rate=Number(r?.exchange_rate_eur_per_coin||r?.wechselkurs_eur_je_coin||0);if(!(rate>0))return Number(r?.[ek]||0).toLocaleString("de-DE",{style:"currency",currency:"EUR"})+" (Umrechnung nicht verfügbar)";v=Number(r?.[ek]||0)/rate}return cryptoAmt(v,cur)}
 function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 function money(g,r,isV5,partnerView=false){
  const gross=Number(g||0);
@@ -84,6 +84,9 @@ function masterPartner(net,gross,tax,legacy){
   ? '<strong>'+eur(net)+'</strong>'
   : '<strong class="v5net">'+eur(net)+' netto</strong><small>'+eur(gross)+' brutto · '+eur(tax)+' IRRF-Reserve</small>';
 }
+function rowEur(r,value){const cur=String(r?.payment_currency||r?.abrechnungs_waehrung||"EUR").toUpperCase();const n=Number(value||0);if(cur==="EUR")return n.toLocaleString("de-DE",{style:"currency",currency:"EUR"});const rate=Number(r?.exchange_rate_eur_per_coin||r?.wechselkurs_eur_je_coin||0);return rate>0?cryptoAmt(n/rate,cur):n.toLocaleString("de-DE",{style:"currency",currency:"EUR"})+" (Umrechnung nicht verfügbar)"}
+function purchasePartner(r,who,legacy){const net=cv(r,who+"_immediate_net_crypto",who+"_immediate_net_eur");if(legacy)return '<strong>'+net+'</strong>';return '<strong class="v5net">'+net+' netto</strong><small>'+rowEur(r,r?.[who+"_immediate_gross_eur"])+' brutto · '+rowEur(r,r?.[who+"_irrf_reserve_eur"])+' IRRF-Reserve</small>'}
+function usagePartner(r,who,legacy){const net=cv(r,who+"_freigegeben_crypto",who+"_freigegeben_eur");if(legacy)return '<strong>'+net+'</strong>';const gross=cv(r,who+"_brutto_crypto",who+"_brutto_eur");const tax=cv(r,who+"_irrf_crypto",who+"_irrf_eur");return '<strong class="v5net">'+net+' netto</strong><small>'+gross+' brutto · '+tax+' IRRF-Reserve</small>'}
 function renderPurchase(){
  const H=document.getElementById("v5ph"),B=document.getElementById("v5pb");
  const rows=livePurchases.slice().sort((a,b)=>Number(b.settlement_id||0)-Number(a.settlement_id||0));
@@ -103,9 +106,9 @@ function renderPurchase(){
     '<td>'+cv(r,"immediate_pool_crypto","immediate_pool_eur")+'</td>'+
     '<td>'+cv(r,"usage_pool_crypto","usage_pool_eur")+'</td>'+
     '<td>'+cv(r,"luciano_immediate_crypto","luciano_immediate_eur")+'</td>'+
-    '<td>'+masterPartner(r.martin_immediate_net_eur,r.martin_immediate_gross_eur,r.martin_irrf_reserve_eur,legacy)+'</td>'+
-    '<td>'+masterPartner(r.frank_immediate_net_eur,r.frank_immediate_gross_eur,r.frank_irrf_reserve_eur,legacy)+'</td>'+
-    '<td>'+(legacy?'–':eur(r.special_reserve_eur))+'</td>'+
+    '<td>'+purchasePartner(r,"martin",legacy)+'</td>'+
+    '<td>'+purchasePartner(r,"frank",legacy)+'</td>'+
+    '<td>'+(legacy?'–':cv(r,'special_reserve_crypto','special_reserve_eur'))+'</td>'+
     '<td>'+cv(r,"luciano_usage_released_crypto","luciano_usage_released_eur")+'</td>'+
     '<td>'+esc(r.status||"–")+'<small>'+esc(r.rule_version||"")+'</small></td>'+
     '</tr>';
@@ -127,8 +130,8 @@ function renderPurchase(){
     '<td>'+cv(r,"distributable_net_crypto","distributable_net_eur")+'</td>'+
     '<td>'+cv(r,"immediate_pool_crypto","immediate_pool_eur")+'</td>'+
     '<td>'+cv(r,"usage_pool_crypto","usage_pool_eur")+'</td>'+
-    '<td>'+partnerNet(imm,legacy)+'</td>'+
-    '<td>'+partnerNet(rel,legacy)+'</td>'+
+    '<td>'+cv(r,isM?'martin_immediate_net_crypto':'frank_immediate_net_crypto',isM?'martin_immediate_net_eur':'frank_immediate_net_eur')+'</td>'+
+    '<td>'+cv(r,isM?'martin_usage_released_crypto':'frank_usage_released_crypto',isM?'martin_usage_released_eur':'frank_usage_released_eur')+'</td>'+
     '<td>'+esc(r.status||"–")+'</td>'+
     '</tr>';
   }).join(""):'<tr><td colspan="12">Noch keine Abrechnungen vorhanden.</td></tr>';
@@ -149,9 +152,9 @@ function renderUsage(){
     '<td>'+num(r.kauf_units_verbraucht).toLocaleString("de-DE",{maximumFractionDigits:2})+' Units</td>'+
     '<td>'+cv(r,"nutzungspool_zugeordnet_crypto","nutzungspool_zugeordnet_eur")+'</td>'+
     '<td>'+cv(r,"luciano_freigegeben_crypto","luciano_freigegeben_eur")+'</td>'+
-    '<td>'+masterPartner(r.martin_freigegeben_eur,r.martin_brutto_eur,r.martin_irrf_eur,!live)+'</td>'+
-    '<td>'+masterPartner(r.frank_freigegeben_eur,r.frank_brutto_eur,r.frank_irrf_eur,!live)+'</td>'+
-    '<td>'+(live?eur(r.sondertopf_eur):'–')+'</td>'+
+    '<td>'+usagePartner(r,"martin",!live)+'</td>'+
+    '<td>'+usagePartner(r,"frank",!live)+'</td>'+
+    '<td>'+(live?cv(r,'sondertopf_crypto','sondertopf_eur'):'–')+'</td>'+
     '<td>'+esc(r.abrechnungsstatus||"–")+'<small>'+esc(r.regelversion||"")+'</small></td>'+
     '</tr>';
   }).join(""):'<tr><td colspan="11">Noch keine Kauf-Unit-Verbräuche vorhanden.</td></tr>';
@@ -167,7 +170,7 @@ function renderUsage(){
     '<td><strong>'+esc(r.sportart||"Fussball")+'</strong><small>'+esc(r.tipp_id||"–")+' · '+esc(r.spiel||"")+'</small></td>'+
     '<td>'+esc(r.paket_kauf_id||"–")+'</td>'+
     '<td>'+num(r.kauf_units_verbraucht).toLocaleString("de-DE",{maximumFractionDigits:2})+' Units</td>'+
-    '<td>'+partnerNet(net,!live)+'</td>'+
+    '<td>'+cv(r,isM?'martin_freigegeben_crypto':'frank_freigegeben_crypto',isM?'martin_freigegeben_eur':'frank_freigegeben_eur')+'</td>'+
     '<td>'+esc(r.abrechnungsstatus||"–")+'</td>'+
     '</tr>';
   }).join(""):'<tr><td colspan="7">Noch keine Kauf-Unit-Verbräuche vorhanden.</td></tr>';
