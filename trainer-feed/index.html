@@ -153,7 +153,7 @@ function renderPosts(posts){
   box.innerHTML="";
   if(!postsCache.length){box.innerHTML='<div class="state">'+esc(t("empty"))+'</div>';return}
   postsCache.forEach(post=>{
-    const article=document.createElement("article");article.className="post";
+    const article=document.createElement("article");article.className="post";article.dataset.unitPaid=post.unit_charge_status==="PAID"?"true":"false";article.dataset.official=post.is_official===true?"true":"false";
     const inner=document.createElement("div");inner.className="post-inner";article.appendChild(inner);
     const head=document.createElement("div");head.className="post-head";inner.appendChild(head);
     const link=document.createElement("a");link.className="author-link";link.href=profileHref(post);head.appendChild(link);
@@ -202,5 +202,6 @@ window.addEventListener("bi:languagechange",event=>{
 });
 </script>
 <script src="../assets/session-reconnect.js?v=20260930-1" defer></script>
+<script src="../assets/community-tiles-v1.js?v=20261013" defer></script>
 </body>
 </html>
