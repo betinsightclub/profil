@@ -170,7 +170,6 @@
   <button class="tcUxCard primary" type="button" data-tc-mode="own"><span class="ico">⚔️</span><b>Mein Team spielen lassen</b><span>Dein Club gegen einen erlaubten Community-Gegner. Fortschritt, Level und Teamstärke bleiben erhalten.</span></button>
   <button class="tcUxCard" type="button" data-tc-mode="lab"><span class="ico">🕰️</span><b>Teams gegeneinander antreten lassen</b><span>Historische Nationalmannschaften und Clubs auswählen und eine Serie simulieren.</span></button>
   <a class="tcUxCard" href="/time-clash/mein-team/" style="text-decoration:none"><span class="ico">🛡️</span><b>Mein Club</b><span>Trainer, Wappen, Trikots und einzelne Spieler übersichtlich verwalten.</span></a>
-  <a class="tcUxCard" id="tcTrainerProfileCard" href="/trainer/" style="text-decoration:none"><span class="ico">👤</span><b id="tcTrainerProfileCardTitle">Trainerprofil & Community</b><span id="tcTrainerProfileCardText">Beiträge posten, dein öffentliches Trainerprofil bearbeiten und den Community-Feed öffnen.</span></a>
   <button class="tcUxCard" type="button" data-tc-mode="progress"><span class="ico">📊</span><b>Fortschritt & Historie</b><span>Level, Spielguthaben, Siege, Clash Points, letzte Serien und Monatsranking ansehen.</span></button>
  </div>
 </section>
@@ -662,14 +661,14 @@ function syncAppLanguageNav(){
   if(lang===TC_DISPLAY_LANG)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");
  });
  const trainerCopy={
-  de:{nav:"👤 Trainerprofil",title:"Trainerprofil & Community",text:"Beiträge posten, dein öffentliches Trainerprofil bearbeiten und den Community-Feed öffnen."},
-  en:{nav:"👤 Coach profile",title:"Coach profile & community",text:"Post updates, edit your public coach profile and open the community feed."},
-  es:{nav:"👤 Perfil de entrenador",title:"Perfil de entrenador y comunidad",text:"Publica contenido, edita tu perfil público de entrenador y abre el feed de la comunidad."},
-  fr:{nav:"👤 Profil entraîneur",title:"Profil entraîneur & communauté",text:"Publie des contenus, modifie ton profil public d’entraîneur et ouvre le fil de la communauté."},
-  it:{nav:"👤 Profilo allenatore",title:"Profilo allenatore e community",text:"Pubblica contenuti, modifica il profilo pubblico dell’allenatore e apri il feed della community."},
-  pt:{nav:"👤 Perfil do treinador",title:"Perfil do treinador e comunidade",text:"Publica conteúdos, edita o teu perfil público de treinador e abre o feed da comunidade."},
-  nl:{nav:"👤 Trainersprofiel",title:"Trainersprofiel & community",text:"Plaats berichten, bewerk je openbare trainersprofiel en open de communityfeed."},
-  "zh-tw":{nav:"👤 教練個人檔案",title:"教練個人檔案與社群",text:"發布內容、編輯你的公開教練個人檔案，並開啟社群動態。"}
+  de:{nav:"👤 Mein Profil",title:"Trainerprofil & Community",text:"Beiträge posten, dein öffentliches Trainerprofil bearbeiten und den Community-Feed öffnen."},
+  en:{nav:"👤 My Profile",title:"Coach profile & community",text:"Post updates, edit your public coach profile and open the community feed."},
+  es:{nav:"👤 Mi perfil",title:"Perfil de entrenador y comunidad",text:"Publica contenido, edita tu perfil público de entrenador y abre el feed de la comunidad."},
+  fr:{nav:"👤 Mon profil",title:"Profil entraîneur & communauté",text:"Publie des contenus, modifie ton profil public d’entraîneur et ouvre le fil de la communauté."},
+  it:{nav:"👤 Il mio profilo",title:"Profilo allenatore e community",text:"Pubblica contenuti, modifica il profilo pubblico dell’allenatore e apri il feed della community."},
+  pt:{nav:"👤 Meu perfil",title:"Perfil do treinador e comunidade",text:"Publica conteúdos, edita o teu perfil público de treinador e abre o feed da comunidade."},
+  nl:{nav:"👤 Mijn profiel",title:"Trainersprofiel & community",text:"Plaats berichten, bewerk je openbare trainersprofiel en open de communityfeed."},
+  "zh-tw":{nav:"👤 我的個人檔案",title:"教練個人檔案與社群",text:"發布內容、編輯你的公開教練個人檔案，並開啟社群動態。"}
  }[TC_DISPLAY_LANG];
  const trainerLink=document.getElementById("tcTrainerProfileLink");
  const trainerCard=document.getElementById("tcTrainerProfileCard");
