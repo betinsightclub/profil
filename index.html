@@ -140,30 +140,7 @@ Version: 2026.09.28-02
 <link rel="stylesheet" href="assets/app-navigation.css">
 <script src="assets/regional-restrictions.js?v=20260927-2"></script>
 <script src="assets/app-navigation.js?v=20261010-network-i18n-complete-v3" defer></script>
-<script src="/time-clash/avatar-assets-v3.js?v=20260925f" defer></script>
-<script src="/time-clash/avatar-face-assets-v6-1.js?v=20260926d" defer></script>
-<script src="/time-clash/avatar-face-assets-v6-2.js?v=20260926d" defer></script>
-<script src="/time-clash/avatar-face-assets-v6-3.js?v=20260926d" defer></script>
-<script src="/time-clash/avatar-face-assets-v6-4.js?v=20260926d" defer></script>
-<script src="/time-clash/avatar-face-assets-v6.js?v=20260926d" defer></script>
-<script src="/time-clash/assets/trainer-body-pack.js?v=20260926b" defer></script>
-<script src="/time-clash/assets/beard-real-b64-1.js?v=20260926a" defer></script>
-<script src="/time-clash/assets/beard-real-b64-2.js?v=20260926a" defer></script>
-<script src="/time-clash/assets/beard-real-b64-3.js?v=20260926a" defer></script>
-<script src="/time-clash/assets/beard-real-b64-4.js?v=20260926a" defer></script>
-<script src="/time-clash/assets/beard-real-b64-5.js?v=20260926a" defer></script>
-<script src="/time-clash/assets/beard-real-b64-6.js?v=20260926a" defer></script>
-<script src="/time-clash/assets/beard-real-b64-7p1.js?v=20260926a" defer></script>
-<script src="/time-clash/assets/beard-real-b64-7p2.js?v=20260926a" defer></script>
-<script src="/time-clash/assets/beard-real-b64-7p3.js?v=20260926a" defer></script>
-<script src="/time-clash/assets/beard-real-b64-8p1.js?v=20260926a" defer></script>
-<script src="/time-clash/assets/beard-real-b64-8p2.js?v=20260926a" defer></script>
-<script src="/time-clash/assets/beard-real-b64-8p3.js?v=20260926a" defer></script>
-<script src="/time-clash/assets/beard-real-b64-9.js?v=20260926a" defer></script>
-<script src="/time-clash/assets/beard-pack-real.js?v=20260926a" defer></script>
-<script src="/time-clash/assets/hair-pack-real.js?v=20260927b" defer></script>
-<script src="/time-clash/avatar-engine.js?v=20260927e" defer></script>
-  <script src="assets/tip-notifications.js?v=20261005-1" defer></script>
+<script src="assets/tip-notifications.js?v=20261005-1" defer></script>
 
 <style>
 * { box-sizing:border-box; }
@@ -1736,17 +1713,10 @@ function dashboardFeedAvatarHtml(post){
   if(/^https:\/\//i.test(uploaded)){
     return '<div class="dashboard-feed-avatar"><img src="'+dashboardFeedEsc(uploaded)+'" alt="" loading="lazy" decoding="async" style="display:block;width:100%;height:100%;object-fit:cover;border-radius:50%"></div>';
   }
-  const appearance=post&&post.coach_appearance;
-  if(appearance&&typeof appearance==="object"&&window.TimeClashAvatar&&window.TimeClashAvatar.renderCoachPortrait){
-    try{
-      const svg=window.TimeClashAvatar.renderCoachPortrait(appearance);
-      if(svg){
-        const rank=dashboardFeedRankKey(post.author_wins);
-        return '<div class="dashboard-feed-avatar configured rank-'+rank+'" title="'+dashboardFeedEsc(rank)+'">'+svg+'</div>';
-      }
-    }catch(error){console.error("Dashboard Trainerbild konnte nicht gerendert werden",error);}
-  }
-  return '<div class="dashboard-feed-avatar">'+dashboardFeedEsc(dashboardFeedInitials(post.author||"Trainer"))+'</div>';
+  // Home dashboard needs only lightweight avatars. Full interactive 3D
+  // trainer portraits remain available on TIME CLASH and trainer pages.
+  // Never download the 20+ face/beard texture modules for small dashboard tiles.
+  return '<div class="dashboard-feed-avatar" aria-label="'+dashboardFeedEsc(post.author||"Trainer")+'">'+dashboardFeedEsc(dashboardFeedInitials(post.author||"Trainer"))+'</div>';
 }
 function dashboardFeedPostHtml(post){
   const image=post.media&&post.media.public_url?post.media.public_url:"";
@@ -1870,6 +1840,24 @@ async function dashboardOfficialLoadSelections(posts){
     console.warn("Eigene offizielle Reaktionen können gerade nicht geladen werden.",error);
   }
 }
+function dashboardLazyLinkPreview(card){
+  if(!card||!card.classList.contains("bi-open"))return;
+  card.querySelectorAll(".dashboard-feed-link-slot:not([data-preview-requested])").forEach(el=>{
+    el.dataset.previewRequested="true";
+    hydrateDashboardFeedLink(el,el.getAttribute("data-url")||"");
+  });
+}
+function dashboardSetupLazyPreviews(){
+  const list=document.getElementById("dashboardFeedList");
+  if(!list||list.dataset.previewEventsReady==="1")return;
+  list.dataset.previewEventsReady="1";
+  list.addEventListener("click",event=>{
+    const post=event.target.closest(".dashboard-feed-post");
+    if(post&&event.target.closest(".bi-tile-toggle")){
+      setTimeout(()=>dashboardLazyLinkPreview(post),50);
+    }
+  });
+}
 async function loadDashboardCommunityFeed(){
   const box=document.getElementById("dashboardCommunityFeed");
   const officialSection=document.getElementById("dashboardOfficialSection");
@@ -1879,8 +1867,10 @@ async function loadDashboardCommunityFeed(){
   const myProfile=document.getElementById("dashboardMyTrainerProfile");
   if(!box||!list)return;
   box.classList.add("show");
+  dashboardSetupLazyPreviews();
+  const feedStartedAt=performance.now();
   try{
-    const response=await fetch(DASHBOARD_COMMUNITY_API+"?action=feed&scope=global",{method:"GET",cache:"no-store",credentials:"omit"});
+    const response=await fetch(DASHBOARD_COMMUNITY_API+"?action=feed&scope=dashboard",{method:"GET",cache:"no-store",credentials:"omit"});
     const data=await response.json();
     if(!response.ok||data.ok!==true||!Array.isArray(data.posts))throw new Error("feed");
     const all=data.posts.filter(p=>p.distribution_scope==="GLOBAL");
@@ -1907,13 +1897,17 @@ async function loadDashboardCommunityFeed(){
       list.innerHTML='<div class="dashboard-feed-empty">Zurzeit sind keine Community-Beiträge vorhanden.</div>';
     }else{
       list.innerHTML=posts.map(dashboardFeedPostHtml).join("");
+      // Render a working link immediately; fetch third-party preview
+      // metadata only if the reader expands the relevant post.
       list.querySelectorAll(".dashboard-feed-link-slot").forEach(el=>{
-        hydrateDashboardFeedLink(el,el.getAttribute("data-url")||"");
+        const url=el.getAttribute("data-url")||"";
+        el.innerHTML=dashboardFeedLinkHtml(url,null);
       });
     }
     const token=getConfirmedDashboardToken()||getActiveToken()||"";
     if(myProfile)myProfile.href="trainer/"+(token?"?token="+encodeURIComponent(token):"");
     if(allFeeds)allFeeds.href="https://betinsight.club/trainer-feed/?lang=de";
+    console.info("[BetInsight Performance] Dashboard-Feed bereit in "+Math.round(performance.now()-feedStartedAt)+" ms; "+data.posts.length+" Beiträge vom Server.");
   }catch(error){
     console.error("Community-Feed konnte nicht geladen werden:",error);
     if(officialSection)officialSection.hidden=true;
