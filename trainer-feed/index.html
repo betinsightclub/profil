@@ -26,6 +26,7 @@
     .page-label{margin-left:auto;color:#b8ccd6;font-size:13px;font-weight:800}
     .profile-btn{border:1px solid rgba(143,203,230,.22);background:rgba(255,255,255,.05);color:#eef9ff;border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer}
     .profile-btn:hover{background:rgba(255,255,255,.08);border-color:var(--line2)}
+    .post-open-discussion{display:inline-flex;align-items:center;min-height:33px;padding:7px 11px;border:1px solid rgba(95,192,239,.28);border-radius:10px;background:rgba(17,75,109,.24);color:#91ddff;text-decoration:none;font-size:12px;font-weight:800}.post-open-discussion:hover,.post-open-discussion:focus-visible{border-color:#81d4ff;background:rgba(30,114,159,.4)}
     main{width:min(calc(100% - 28px),var(--max));margin:18px auto 56px}
     .hero{border:1px solid var(--line);border-radius:22px;background:linear-gradient(145deg,rgba(13,39,53,.96),rgba(5,24,34,.96));padding:26px;box-shadow:var(--shadow)}
     .kicker{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#70c9ff;font-weight:950}
@@ -66,8 +67,8 @@
 <header class="appbar">
   <div class="appbar-inner">
     <a class="brand" href="../"><img src="../logo_betisight.club.png" alt="BetInsight.club"></a>
-    <span class="page-label" data-copy="pageLabel">TIME CLASH · Community Feed</span>
-    <button class="profile-btn" id="myProfileBtn" type="button" data-copy="myProfile">Mein Trainerprofil</button>
+    <span class="page-label" data-copy="pageLabel">BetInsight · Community</span>
+    <button class="profile-btn" id="myProfileBtn" type="button" data-copy="myProfile">Mein Profil</button>
   </div>
 </header>
 
@@ -93,14 +94,14 @@
 const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/community-api";
 const SUPPORTED=["de","en","es","fr","it","pt","nl","zh-tw"];
 const COPY={
-  de:{pageLabel:"TIME CLASH · Community Feed",myProfile:"Mein Trainerprofil",title:"Community Feed",lead:"Alle global veröffentlichten Beiträge unserer Trainer und Mannschaften – innerhalb deines eingeloggten BetInsight-Bereichs.",live:"Live aus der Community",refresh:"Aktualisieren",notice:"Hier siehst du ausschließlich Beiträge, die global veröffentlicht wurden. Dein Login bleibt aktiv.",loading:"Community Feed wird geladen …",empty:"Noch keine globalen Beiträge veröffentlicht.",error:"Der Community Feed konnte gerade nicht geladen werden.",team:"Mannschaft",trainer:"Trainer",global:"GLOBAL · COMMUNITY",reactions:"Reaktionen",comments:"Kommentare"},
-  en:{pageLabel:"TIME CLASH · Community Feed",myProfile:"My coach profile",title:"Community Feed",lead:"All globally published posts from our coaches and teams – inside your signed-in BetInsight area.",live:"Live from the community",refresh:"Refresh",notice:"Only globally published posts are shown here. You remain signed in.",loading:"Loading Community Feed …",empty:"No global posts have been published yet.",error:"The Community Feed could not be loaded right now.",team:"Team",trainer:"Coach",global:"GLOBAL · COMMUNITY",reactions:"Reactions",comments:"Comments"},
-  es:{pageLabel:"TIME CLASH · Feed de la comunidad",myProfile:"Mi perfil de entrenador",title:"Feed de la comunidad",lead:"Todas las publicaciones globales de nuestros entrenadores y equipos dentro de tu área BetInsight iniciada.",live:"En directo desde la comunidad",refresh:"Actualizar",notice:"Aquí solo ves publicaciones globales. Tu sesión permanece activa.",loading:"Cargando el feed de la comunidad …",empty:"Aún no se han publicado entradas globales.",error:"No se pudo cargar el feed de la comunidad.",team:"Equipo",trainer:"Entrenador",global:"GLOBAL · COMUNIDAD",reactions:"Reacciones",comments:"Comentarios"},
-  fr:{pageLabel:"TIME CLASH · Fil de la communauté",myProfile:"Mon profil d’entraîneur",title:"Fil de la communauté",lead:"Toutes les publications globales de nos entraîneurs et équipes dans votre espace BetInsight connecté.",live:"En direct de la communauté",refresh:"Actualiser",notice:"Seules les publications globales sont affichées ici. Vous restez connecté.",loading:"Chargement du fil de la communauté …",empty:"Aucune publication globale pour le moment.",error:"Le fil de la communauté ne peut pas être chargé.",team:"Équipe",trainer:"Entraîneur",global:"GLOBAL · COMMUNAUTÉ",reactions:"Réactions",comments:"Commentaires"},
-  it:{pageLabel:"TIME CLASH · Feed della community",myProfile:"Il mio profilo allenatore",title:"Feed della community",lead:"Tutti i post pubblicati globalmente da allenatori e squadre, all’interno della tua area BetInsight connessa.",live:"Live dalla community",refresh:"Aggiorna",notice:"Qui vedi solo i post globali. Resti connesso.",loading:"Caricamento del feed della community …",empty:"Non sono ancora stati pubblicati post globali.",error:"Al momento non è possibile caricare il feed della community.",team:"Squadra",trainer:"Allenatore",global:"GLOBAL · COMMUNITY",reactions:"Reazioni",comments:"Commenti"},
-  pt:{pageLabel:"TIME CLASH · Feed da comunidade",myProfile:"Meu perfil de treinador",title:"Feed da comunidade",lead:"Todas as publicações globais dos nossos treinadores e equipas dentro da tua área BetInsight autenticada.",live:"Ao vivo da comunidade",refresh:"Atualizar",notice:"Aqui vês apenas publicações globais. Continuas autenticado.",loading:"A carregar o feed da comunidade …",empty:"Ainda não existem publicações globais.",error:"Não foi possível carregar o feed da comunidade.",team:"Equipa",trainer:"Treinador",global:"GLOBAL · COMUNIDADE",reactions:"Reações",comments:"Comentários"},
-  nl:{pageLabel:"TIME CLASH · Community Feed",myProfile:"Mijn trainerprofiel",title:"Community Feed",lead:"Alle wereldwijd gepubliceerde berichten van trainers en teams binnen je ingelogde BetInsight-omgeving.",live:"Live uit de community",refresh:"Vernieuwen",notice:"Hier zie je alleen wereldwijde berichten. Je blijft ingelogd.",loading:"Community Feed wordt geladen …",empty:"Er zijn nog geen wereldwijde berichten.",error:"De Community Feed kan momenteel niet worden geladen.",team:"Team",trainer:"Trainer",global:"GLOBAL · COMMUNITY",reactions:"Reacties",comments:"Reacties"},
-  "zh-tw":{pageLabel:"TIME CLASH · 社群動態",myProfile:"我的教練個人檔案",title:"社群動態",lead:"在已登入的 BetInsight 區域中查看所有教練與球隊的全球公開貼文。",live:"社群即時動態",refresh:"重新整理",notice:"這裡只顯示全球公開貼文，你仍保持登入狀態。",loading:"正在載入社群動態…",empty:"目前尚無全球公開貼文。",error:"目前無法載入社群動態。",team:"球隊",trainer:"教練",global:"全球 · 社群",reactions:"反應",comments:"留言"}
+  de:{pageLabel:"BetInsight · Community",myProfile:"Mein Profil",openPost:"Beitrag öffnen · reagieren & kommentieren →",title:"Community Feed",lead:"Alle global veröffentlichten Beiträge unserer Trainer und Mannschaften – innerhalb deines eingeloggten BetInsight-Bereichs.",live:"Live aus der Community",refresh:"Aktualisieren",notice:"Hier siehst du ausschließlich Beiträge, die global veröffentlicht wurden. Dein Login bleibt aktiv.",loading:"Community Feed wird geladen …",empty:"Noch keine globalen Beiträge veröffentlicht.",error:"Der Community Feed konnte gerade nicht geladen werden.",team:"Mannschaft",trainer:"Trainer",global:"GLOBAL · COMMUNITY",reactions:"Reaktionen",comments:"Kommentare"},
+  en:{pageLabel:"BetInsight · Community",myProfile:"My Profile",openPost:"Open post · react & comment →",title:"Community Feed",lead:"All globally published posts from our coaches and teams – inside your signed-in BetInsight area.",live:"Live from the community",refresh:"Refresh",notice:"Only globally published posts are shown here. You remain signed in.",loading:"Loading Community Feed …",empty:"No global posts have been published yet.",error:"The Community Feed could not be loaded right now.",team:"Team",trainer:"Coach",global:"GLOBAL · COMMUNITY",reactions:"Reactions",comments:"Comments"},
+  es:{pageLabel:"BetInsight · Comunidad",myProfile:"Mi perfil",openPost:"Abrir publicación · reaccionar y comentar →",title:"Feed de la comunidad",lead:"Todas las publicaciones globales de nuestros entrenadores y equipos dentro de tu área BetInsight iniciada.",live:"En directo desde la comunidad",refresh:"Actualizar",notice:"Aquí solo ves publicaciones globales. Tu sesión permanece activa.",loading:"Cargando el feed de la comunidad …",empty:"Aún no se han publicado entradas globales.",error:"No se pudo cargar el feed de la comunidad.",team:"Equipo",trainer:"Entrenador",global:"GLOBAL · COMUNIDAD",reactions:"Reacciones",comments:"Comentarios"},
+  fr:{pageLabel:"BetInsight · Communauté",myProfile:"Mon profil",openPost:"Ouvrir la publication · réagir et commenter →",title:"Fil de la communauté",lead:"Toutes les publications globales de nos entraîneurs et équipes dans votre espace BetInsight connecté.",live:"En direct de la communauté",refresh:"Actualiser",notice:"Seules les publications globales sont affichées ici. Vous restez connecté.",loading:"Chargement du fil de la communauté …",empty:"Aucune publication globale pour le moment.",error:"Le fil de la communauté ne peut pas être chargé.",team:"Équipe",trainer:"Entraîneur",global:"GLOBAL · COMMUNAUTÉ",reactions:"Réactions",comments:"Commentaires"},
+  it:{pageLabel:"BetInsight · Community",myProfile:"Il mio profilo",openPost:"Apri il post · reagisci e commenta →",title:"Feed della community",lead:"Tutti i post pubblicati globalmente da allenatori e squadre, all’interno della tua area BetInsight connessa.",live:"Live dalla community",refresh:"Aggiorna",notice:"Qui vedi solo i post globali. Resti connesso.",loading:"Caricamento del feed della community …",empty:"Non sono ancora stati pubblicati post globali.",error:"Al momento non è possibile caricare il feed della community.",team:"Squadra",trainer:"Allenatore",global:"GLOBAL · COMMUNITY",reactions:"Reazioni",comments:"Commenti"},
+  pt:{pageLabel:"BetInsight · Comunidade",myProfile:"Meu perfil",openPost:"Abrir publicação · reagir e comentar →",title:"Feed da comunidade",lead:"Todas as publicações globais dos nossos treinadores e equipas dentro da tua área BetInsight autenticada.",live:"Ao vivo da comunidade",refresh:"Atualizar",notice:"Aqui vês apenas publicações globais. Continuas autenticado.",loading:"A carregar o feed da comunidade …",empty:"Ainda não existem publicações globais.",error:"Não foi possível carregar o feed da comunidade.",team:"Equipa",trainer:"Treinador",global:"GLOBAL · COMUNIDADE",reactions:"Reações",comments:"Comentários"},
+  nl:{pageLabel:"BetInsight · Community",myProfile:"Mijn profiel",openPost:"Bericht openen · reageren en reageren met commentaar →",title:"Community Feed",lead:"Alle wereldwijd gepubliceerde berichten van trainers en teams binnen je ingelogde BetInsight-omgeving.",live:"Live uit de community",refresh:"Vernieuwen",notice:"Hier zie je alleen wereldwijde berichten. Je blijft ingelogd.",loading:"Community Feed wordt geladen …",empty:"Er zijn nog geen wereldwijde berichten.",error:"De Community Feed kan momenteel niet worden geladen.",team:"Team",trainer:"Trainer",global:"GLOBAL · COMMUNITY",reactions:"Reacties",comments:"Reacties"},
+  "zh-tw":{pageLabel:"BetInsight · 社群",myProfile:"我的個人檔案",openPost:"開啟貼文 · 回應與留言 →",title:"社群動態",lead:"在已登入的 BetInsight 區域中查看所有教練與球隊的全球公開貼文。",live:"社群即時動態",refresh:"重新整理",notice:"這裡只顯示全球公開貼文，你仍保持登入狀態。",loading:"正在載入社群動態…",empty:"目前尚無全球公開貼文。",error:"目前無法載入社群動態。",team:"球隊",trainer:"教練",global:"全球 · 社群",reactions:"反應",comments:"留言"}
 };
 let lang="de",postsCache=[];
 
@@ -176,6 +177,15 @@ function renderPosts(posts){
     const foot=document.createElement("div");foot.className="post-foot";
     const counts=document.createElement("span");counts.textContent="♡ "+(Array.isArray(post.reactions)?post.reactions.length:0)+" · 💬 "+(Array.isArray(post.comments)?post.comments.length:0);foot.appendChild(counts);
     const scope=document.createElement("span");scope.className="scope";scope.textContent=t("global");foot.appendChild(scope);
+    // Link directly to the exact post where existing full sticker reactions and comments work.
+    if(post.id&&post.public_slug){
+      const discuss=document.createElement("a");discuss.className="post-open-discussion";
+      const url=new URL(profileHref(post),location.href);
+      url.searchParams.set("post",String(post.id));
+      discuss.href=url.pathname+url.search;
+      discuss.textContent=t("openPost");
+      foot.appendChild(discuss);
+    }
     article.appendChild(foot);box.appendChild(article);
   });
 }
@@ -195,7 +205,11 @@ async function loadFeed(){
 lang=currentLanguage();applyCopy();loadFeed();
 
 document.getElementById("refreshBtn").addEventListener("click",loadFeed);
-document.getElementById("myProfileBtn").addEventListener("click",()=>location.assign("../trainer/"));
+document.getElementById("myProfileBtn").addEventListener("click",()=>{
+  const destination=new URL("../trainer/",location.href);
+  if(lang!=="de")destination.searchParams.set("lang",lang);
+  location.assign(destination.pathname+destination.search);
+});
 window.addEventListener("bi:languagechange",event=>{
   const next=event&&event.detail&&event.detail.language;
   if(SUPPORTED.includes(next)){lang=next;applyCopy();renderPosts(postsCache)}
