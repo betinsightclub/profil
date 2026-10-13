@@ -671,7 +671,7 @@
   <main class="shell">
     <section class="profile-head">
       <div class="cover">
-        <img id="coverImage" src="../betinsightcommunity/assets/hero-fussball-dunkel.png" alt="Profil-Hintergrund">
+        <img id="coverImage" class="hidden" alt="Profil-Hintergrund">
         <button class="cover-edit owner-only" id="coverEditBtn">📷 Hintergrund ändern</button>
         <input id="coverInput" class="hidden" type="file" accept="image/jpeg,image/png,image/webp">
       </div>
@@ -932,6 +932,9 @@
             <button class="pill-btn primary" type="button" id="editTrainerAppearanceBtn">🎨 Trainer-Aussehen bearbeiten</button>
             <button class="pill-btn" type="button" id="editProfileImageBtn">📷 Profilbild ändern</button>
             <button class="pill-btn" type="button" id="editCoverImageBtn">🖼️ Hintergrund ändern</button>
+            <button class="pill-btn hidden" type="button" id="editRemoveAvatarBtn">🗑️ Profilbild entfernen</button>
+            <button class="pill-btn hidden" type="button" id="editRemoveCoverBtn">🗑️ Hintergrund entfernen</button>
+            <button class="pill-btn hidden" type="button" id="editUseCoachPortraitBtn">🎨 Trainerporträt als Profilbild wählen</button>
           </div>
         </div>
       </div>
@@ -1393,7 +1396,9 @@
       }
 
       function initials(name){
-        return String(name).split(/\s+/).filter(Boolean).slice(0,2).map(function(part){return part.charAt(0).toUpperCase();}).join("") || "TR";
+        // Unicode-aware: emoji must never become half a surrogate pair or a broken glyph.
+        var words=String(name||"").split(/\s+/).map(function(part){return part.replace(/^[^\p{L}\p{N}]+/gu,"");}).filter(Boolean);
+        return words.slice(0,2).map(function(part){return Array.from(part)[0].toLocaleUpperCase();}).join("")||"TR";
       }
 
       function setupTrainerLanguage(){
@@ -1677,7 +1682,12 @@
         var wins=Number(data.authorWins||0);
         applyRankFrameToElement(el,wins);
         var appearance=data.coachAppearance;
-        if(appearance&&typeof appearance==="object"&&window.TimeClashAvatar&&window.TimeClashAvatar.renderCoachPortrait){
+        var mode=data.avatarMode||"custom";
+        if(mode==="custom"&&data.avatarUrl){
+          el.innerHTML='<img src="'+esc(data.avatarUrl)+'" alt="">';
+          return;
+        }
+        if(mode==="coach"&&appearance&&typeof appearance==="object"&&window.TimeClashAvatar&&window.TimeClashAvatar.renderCoachPortrait){
           try{
             var svg=window.TimeClashAvatar.renderCoachPortrait(appearance);
             if(svg){
@@ -1686,16 +1696,13 @@
             }
           }catch(_e){}
         }
-        if(data.avatarUrl){
-          el.innerHTML='<img src="'+esc(data.avatarUrl)+'" alt="">';
-          return;
-        }
         el.innerHTML='<span class="mini-avatar-fallback">'+esc(initials(data.name||"BI"))+'</span>';
       }
       function currentProfileAvatarData(){
         return {
           authorWins:progressionWins(currentProfile),
           coachAppearance:currentProfile&&currentProfile.coach_appearance||null,
+          avatarMode:currentProfile&&currentProfile.avatar_display_mode||"custom",
           avatarUrl:currentProfile&&currentProfile.media&&currentProfile.media.avatar&&currentProfile.media.avatar.public_url||"",
           name:trainerName||teamName||"BI"
         };
@@ -1709,6 +1716,7 @@
           renderMiniAvatar(el,{
             authorWins:wins,
             coachAppearance:profile&&profile.coach_appearance||null,
+            avatarMode:profile&&profile.avatar_display_mode||"custom",
             avatarUrl:profile&&profile.media&&profile.media.avatar&&profile.media.avatar.public_url||"",
             name:profile&&profile.display_name||trainerName||teamName||"BI"
           });
@@ -2037,6 +2045,7 @@
         var cover=document.getElementById("coverImage");
         var hasCover=profile.media&&profile.media.cover&&profile.media.cover.public_url;
         cover.src=hasCover?profile.media.cover.public_url:DEFAULT_COVER;
+        cover.classList.remove("hidden");
         if(hasCover){
           var cc=profile.cover_crop||{x:50,y:50,zoom:1};
           cover.style.objectPosition=Number(cc.x??50)+"% "+Number(cc.y??50)+"%";
@@ -2050,8 +2059,9 @@
 
         var avatar=document.getElementById("avatarImage");
         var fallback=document.getElementById("avatarFallback");
-        var hasUploadedAvatar=Boolean(profile.media&&profile.media.avatar&&profile.media.avatar.public_url);
-        var configuredCoachAvatar=hasUploadedAvatar?false:renderConfiguredCoachAvatar(profile);
+        var avatarMode=profile.avatar_display_mode||"custom";
+        var hasUploadedAvatar=avatarMode==="custom"&&Boolean(profile.media&&profile.media.avatar&&profile.media.avatar.public_url);
+        var configuredCoachAvatar=avatarMode==="coach"?renderConfiguredCoachAvatar(profile):false;
         if(hasUploadedAvatar){
           clearConfiguredCoachAvatar();
           avatar.src=profile.media.avatar.public_url;
@@ -2071,8 +2081,8 @@
         }
         var avatarEdit=document.getElementById("avatarEditBtn");
         if(avatarEdit){
-          avatarEdit.classList.toggle("hidden",configuredCoachAvatar || !isOwner);
-          avatarEdit.title=configuredCoachAvatar?"Trainerbild wird automatisch aus TIME CLASH übernommen":"Trainerbild ändern";
+          avatarEdit.classList.toggle("hidden",!isOwner);
+          avatarEdit.title="Eigenes Profilbild auswählen oder ersetzen";
         }
 
         renderRecentMatches(profile.recent_matches||[]);
@@ -2241,11 +2251,18 @@
         if(editAvatar)renderMiniAvatar(editAvatar,currentProfileAvatarData());
         var appearanceHint=document.getElementById("editProfileAppearanceHint");
         var hasConfigured=Boolean(currentProfile&&currentProfile.coach_appearance&&typeof currentProfile.coach_appearance==="object");
-        if(appearanceHint)appearanceHint.textContent=hasConfigured
-          ? "Dein konfigurierter TIME-CLASH-Trainer ist aktiv. Änderungen am Aussehen werden automatisch im Profil und in deinen Community-Beiträgen übernommen."
-          : "Noch kein TIME-CLASH-Trainer konfiguriert. Du kannst ein Profilbild hochladen oder deinen Trainer vollständig gestalten.";
+        var activeMode=currentProfile&&currentProfile.avatar_display_mode||"custom";
+        if(appearanceHint)appearanceHint.textContent=activeMode==="coach"
+          ? "Du hast das TIME-CLASH-Trainerporträt ausdrücklich gewählt. Du kannst jederzeit dein eigenes Bild hochladen oder das Porträt entfernen."
+          : "Dein Profilbild bestimmst nur du: eigenes Foto hochladen, beliebig ersetzen oder entfernen. Ein TIME-CLASH-Trainerbild erscheint nur auf ausdrücklichen Wunsch.";
         var imageBtn=document.getElementById("editProfileImageBtn");
-        if(imageBtn)imageBtn.textContent=hasConfigured?"📷 Eigenes Profilbild wählen":"📷 Profilbild ändern";
+        if(imageBtn)imageBtn.textContent="📷 Profilbild hochladen / ersetzen";
+        var removeAvatar=document.getElementById("editRemoveAvatarBtn");
+        if(removeAvatar)removeAvatar.classList.toggle("hidden",!(activeMode==="coach"||Boolean(currentProfile&&currentProfile.media&&currentProfile.media.avatar)));
+        var removeCover=document.getElementById("editRemoveCoverBtn");
+        if(removeCover)removeCover.classList.toggle("hidden",!(currentProfile&&currentProfile.media&&currentProfile.media.cover));
+        var coachBtn=document.getElementById("editUseCoachPortraitBtn");
+        if(coachBtn)coachBtn.classList.toggle("hidden",!hasConfigured||activeMode==="coach");
         document.getElementById("profileEditModal").classList.add("show");
       }
 
@@ -2434,7 +2451,7 @@
               time:new Intl.DateTimeFormat(trainerLocale(),{dateStyle:"short",timeStyle:"short"}).format(new Date(p.created_at)),
               text:p.body||"",emotion:resolveEmotion(p.emotion),
               image:p.media&&p.media.public_url?p.media.public_url:"",externalUrl:p.external_url||"",reactions:(p.reactions||[]).length,
-              authorWins:Number(p.author_wins||0),coachAppearance:p.coach_appearance||null,authorAvatarUrl:p.author_avatar_url||"",
+              authorWins:Number(p.author_wins||0),coachAppearance:p.coach_appearance||null,avatarMode:p.avatar_display_mode||"custom",authorAvatarUrl:p.author_avatar_url||"",
               reactionCodes:(p.reactions||[]).map(function(x){return x.reaction;}),comments:comments
             };
           });
@@ -2590,6 +2607,7 @@
         renderMiniAvatar(article.querySelector("[data-post-author-avatar]"),{
           authorWins:Number(post.authorWins||0),
           coachAppearance:post.coachAppearance||null,
+          avatarMode:post.avatarMode||"custom",
           avatarUrl:post.authorAvatarUrl||"",
           name:post.author||trainerName||teamName||"BI"
         });
@@ -3038,7 +3056,7 @@
             public_url:cropState.data.dataUrl
           };
           currentProfile=updatedProfile;
-          closeCropDialog(false);
+          closeCropDialog(true);
           applyProfile(updatedProfile,true);
           showToast(cropState.purpose==="cover"?"✓ Hintergrund gespeichert und sofort angezeigt.":"✓ Profilbild gespeichert und sofort angezeigt.");
         }catch(error){
@@ -3048,6 +3066,50 @@
           e.save.textContent="Ausschnitt speichern";
         }
       }
+      async function changeProfileImageMode(mode){
+        if(!isOwner||!serverMode||!currentProfile)return;
+        var btn=document.getElementById("editUseCoachPortraitBtn");
+        if(btn)btn.disabled=true;
+        try{
+          var saved=await communityCall("update_profile",{
+            credential:memberCredential,club_id:clubId,avatar_display_mode:mode
+          });
+          if(!saved.profile)throw new Error("Die Änderung wurde nicht bestätigt.");
+          applyProfile(saved.profile,true);
+          openProfileEditor();
+          showToast("✓ Trainerporträt jetzt sichtbar. Jederzeit änderbar.");
+        }catch(err){
+          profileEditError("Trainerporträt konnte nicht gewählt werden: "+String(err?.message||"Unbekannter Fehler"));
+        }finally{if(btn)btn.disabled=false;}
+      }
+      async function removeProfilePicture(purpose){
+        if(!isOwner||!serverMode||!currentProfile)return;
+        var avatar=purpose==="avatar";
+        var label=avatar?"Profilbild":"Hintergrund";
+        if(!confirm(label+" wirklich aus dem Profil entfernen? Du kannst jederzeit ein anderes Bild hochladen."))return;
+        var btn=document.getElementById(avatar?"editRemoveAvatarBtn":"editRemoveCoverBtn");
+        if(btn)btn.disabled=true;
+        try{
+          var payload={credential:memberCredential,club_id:clubId};
+          payload[avatar?"avatar_media_id":"cover_media_id"]=null;
+          var saved=await communityCall("update_profile",payload);
+          if(!saved.profile)throw new Error("Der Server hat das Entfernen nicht bestätigt.");
+          // Show the actual saved status now, never replace a deleted image with the trainer portrait.
+          if(!saved.profile.media)saved.profile.media={};
+          saved.profile.media[purpose]=null;
+          if(avatar)saved.profile.avatar_display_mode="none";
+          applyProfile(saved.profile,true);
+          document.getElementById(avatar?"avatarInput":"coverInput").value="";
+          openProfileEditor();
+          showToast("✓ "+label+" aus deinem Profil entfernt.");
+        }catch(err){
+          profileEditError(label+" konnte nicht entfernt werden: "+String(err?.message||"Unbekannter Fehler"));
+        }finally{if(btn)btn.disabled=false;}
+      }
+      document.getElementById("editRemoveAvatarBtn").addEventListener("click",function(){removeProfilePicture("avatar");});
+      document.getElementById("editRemoveCoverBtn").addEventListener("click",function(){removeProfilePicture("cover");});
+      document.getElementById("editUseCoachPortraitBtn").addEventListener("click",function(){changeProfileImageMode("coach");});
+
       function bindCropUpload(inputId,purpose){
         var input=document.getElementById(inputId);
         if(!input)return;
@@ -3436,6 +3498,7 @@
           reactions:0,
           authorWins:progressionWins(currentProfile),
           coachAppearance:currentProfile&&currentProfile.coach_appearance||null,
+          avatarMode:currentProfile&&currentProfile.avatar_display_mode||"custom",
           authorAvatarUrl:currentProfile&&currentProfile.media&&currentProfile.media.avatar&&currentProfile.media.avatar.public_url||"",
           reactionCodes:[],
           comments:[]
