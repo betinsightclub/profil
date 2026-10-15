@@ -13,12 +13,12 @@
     if(document.getElementById("betinsightResultHealth")||!tab)return;
     const art=document.createElement("article");
     art.id="betinsightResultHealth";art.className="content-card full";art.style.marginBottom="16px";
-    art.innerHTML='<div class="panel-heading"><div><h3>🛡️ Ergebnis- &amp; Berichtskontrolle</h3><p class="muted">Automatischer Abgleich mit Google Sheets alle 10 Minuten · Berichtsnachprüfung stündlich</p></div></div>'+
+    art.innerHTML='<div class="panel-heading"><div><h3>🛡️ Ergebnisse &amp; Berichte prüfen</h3><p class="muted">Nur auf deine Anforderung. Keine regelmäßige Prüfung, kein automatischer Abgleich.</p></div></div>'+
       '<div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center">'+
-      '<span id="biHealthSheet">Google Sheets: wird geprüft …</span>'+
-      '<span id="biHealthStory">Spielberichte: wird geprüft …</span>'+
-      '<button type="button" class="button button-neutral" id="biHealthRefresh">Status jetzt prüfen</button></div>'+
-      '<p class="muted" id="biHealthNote" style="margin-top:9px;font-size:12px">Die Ergebnisbestätigung ist unabhängig von einem externen Bericht.</p>';
+      '<span id="biHealthSheet">Google Sheets: noch nicht geprüft</span>'+
+      '<span id="biHealthStory">Spielberichte: noch nicht geprüft</span>'+
+      '<button type="button" class="button button-neutral" id="biHealthRefresh">Jetzt prüfen &amp; abgleichen</button></div>'+
+      '<p class="muted" style="margin-top:9px;font-size:12px">Bedeutung: „synchron“ = Ergebnisstand auch im Google Sheet. „Fertig“ = Spielbericht mit geprüften externen Daten; „fehlend“ = noch kein externer Bericht; „in Prüfung“ = der Datenanbieter konnte noch nicht abschließend bestätigt werden. Deine Gewinn-/Verlust-Wertung und Units werden nicht verändert.</p>'+'<p class="muted" id="biHealthNote" style="margin-top:6px;font-size:12px">Es erfolgt erst durch deinen Klick ein einmaliger Abgleich der ausstehenden Ergebniszeilen und eine einmalige Nachprüfung fehlender Fußball-/Tennisberichte.</p>';
     const nearby=document.getElementById("masterResultsTableBody")?.closest("article");
     if(nearby?.parentElement)nearby.insertAdjacentElement("afterend",art);
     else tab.appendChild(art);
@@ -33,11 +33,11 @@
     const btn=document.getElementById("biHealthRefresh"),sheet=document.getElementById("biHealthSheet"),
           story=document.getElementById("biHealthStory"),note=document.getElementById("biHealthNote"),s=session();
     if(!s?.token)return;
-    if(btn)btn.disabled=true;
+    if(btn){btn.disabled=true;btn.textContent="Prüfung läuft …";}
     try{
       const resp=await fetch(API,{method:"POST",cache:"no-store",credentials:"omit",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({action:"health",session_hash:await sha256(s.token)})});
+        body:JSON.stringify({action:"health_run",session_hash:await sha256(s.token)})});
       const data=await resp.json();
       if(!resp.ok||data?.ok!==true)throw Error(data?.error||"STATUS_NOT_AVAILABLE");
       const sync=data.sheet||{},pending=Number(sync.PENDING||0),failed=Number(sync.FAILED||0);
@@ -49,15 +49,20 @@
         "Quellenberichte: nächste automatische Prüfung steht aus";
       if(note){
         const stamp=stats.checked_at?new Date(stats.checked_at).toLocaleString("de-DE"):"noch keine";
-        note.textContent=(failed?"Achtung: Fehlgeschlagener Sheets-Abgleich wird automatisch wiederholt. ":"")+
-          "Letzte Berichtsprüfung: "+stamp+". Externe Spieldaten werden niemals erfunden oder zur automatischen Änderung deiner Master-Wertung benutzt.";
+        const run=data.manual_run||{};
+        const sheetStep=run.sheets||{}, storyStep=run.stories||{}, tennisStep=run.tennis||{};
+        const failedSteps=[["Sheet-Abgleich",sheetStep],["Berichtsnachprüfung",storyStep],["Tennis-Ergebnissicherung",tennisStep]].filter(([,v])=>v.ok===false).map(([name])=>name);
+        note.textContent="Einmalig geprüft: "+stamp+". "+
+          (sheetStep.ok?"Jetzt aktualisierte Sheet-Zeilen: "+Number(sheetStep.synced||0)+". ":"")+
+          (storyStep.ok?"Geprüfte Berichtsanfragen: "+Number(storyStep.checked||0)+". ":"")+
+          (tennisStep.ok?"Gesicherte Tennisergebnisse: "+Number(tennisStep.stored||0)+". ":"")+
+          (failedSteps.length?"Nicht erfolgreich: "+failedSteps.join(", ")+". ":"")+
+          "Kein weiterer Lauf ohne erneuten Klick.";
       }
     }catch(e){if(note)note.textContent="Status derzeit nicht abrufbar: "+String(e?.message||e).slice(0,100)}
-    finally{if(btn)btn.disabled=false}
+    finally{if(btn){btn.disabled=false;btn.textContent="Jetzt prüfen & abgleichen";}}
   }
-  function start(){if(!document.getElementById("tab-master"))return;inject();refresh();
-    setInterval(()=>{if(session())refresh()},5*60*1000);
-  }
+  function start(){if(!document.getElementById("tab-master"))return;inject();}
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});
   else start();
 })();
