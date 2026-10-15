@@ -2917,27 +2917,23 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
         </article>
 
         <article class="content-card full">
-          <h3>Master-Kennzahlen</h3>
+          <h3>Systemübersicht</h3>
+          <p class="muted">Nur zur Übersicht: Beträge in der Firmenreserve, offene Auszahlungsanträge und vorübergehend gesperrte Vorgänge. Hier wird nichts gebucht, freigegeben oder ausgezahlt.</p>
           <div class="kpi-grid">
             <div class="kpi-card">
               <div class="kpi-label">Firmenreserve</div>
               <div class="kpi-value" id="masterCompanyReserve">0,00</div>
-              <div class="kpi-note">Nicht verdiente, frei gewordene und Anrechnungsbeträge</div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-label">Luciano-Anteil</div>
-              <div class="kpi-value" id="masterLucianoShare">40 %</div>
-              <div class="kpi-note">40 % Sofortpool plus 40/50 % des verbrauchten Unit-Pools</div>
+              <div class="kpi-note">Beträge aus der internen Abrechnung, die aktuell keiner Auszahlung zugeordnet sind</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">Offene Auszahlungen</div>
               <div class="kpi-value" id="masterOpenPayouts">0</div>
-              <div class="kpi-note">Offene Anträge</div>
+              <div class="kpi-note">Auszahlungsanträge, die noch bearbeitet werden müssen</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">Gesperrte Vorgänge</div>
               <div class="kpi-value" id="masterBlockedProcesses">0</div>
-              <div class="kpi-note">Gesperrte Vorgänge</div>
+              <div class="kpi-note">Zur Überprüfung zurückgehaltene Vorgänge</div>
             </div>
           </div>
         </article>
@@ -5647,8 +5643,6 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
         renderMasterModel(master);
         document.getElementById("masterCompanyReserve").innerHTML = '<span class="privacy-sensitive">' +
           formatEuro(master.company_reserve_eur || 0) + '</span>';
-        document.getElementById("masterLucianoShare").innerHTML = '<span class="privacy-sensitive">' +
-          formatEuro(master.luciano_share_eur || 0) + '</span>';
         document.getElementById("masterOpenPayouts").textContent = String(master.open_payouts ?? 0);
         document.getElementById("masterBlockedProcesses").textContent = String(master.blocked_processes ?? 0);
       } else {
