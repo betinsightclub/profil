@@ -3,6 +3,8 @@
 
   const SESSION_KEY = "betinsight_admin_session_v1";
   const API_URL = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-network-move";
+  const LAST_MOVE_KEY = "betinsight_network_move_last_v1";
+  let activeMoveId = null;
 
   let previewState = null;
 
@@ -138,6 +140,10 @@
       </div>
 
       <div class="nmove-message" id="nmoveMessage"></div>
+      <div class="nmove-actions" id="nmoveSyncActions" style="display:none;margin-top:10px">
+        <button class="button button-neutral" type="button" id="nmoveSyncCheckButton">Abgleich prüfen</button>
+        <button class="button button-neutral" type="button" id="nmoveSyncRetryButton" hidden>Google Sheets erneut synchronisieren</button>
+      </div>
     `;
 
     const anchor = document.getElementById("masterUnitCreditCard") || document.getElementById("masterWalletApprovalCard") || document.getElementById("masterCostBookCard");
@@ -146,6 +152,8 @@
 
     document.getElementById("nmovePreviewButton")?.addEventListener("click", previewMove);
     document.getElementById("nmoveExecuteButton")?.addEventListener("click", executeMove);
+    document.getElementById("nmoveSyncCheckButton")?.addEventListener("click", () => checkSyncStatus(false));
+    document.getElementById("nmoveSyncRetryButton")?.addEventListener("click", () => checkSyncStatus(true));
     document.getElementById("nmoveConfirmCheck")?.addEventListener("change", syncExecuteButton);
     document.getElementById("nmoveReason")?.addEventListener("input", syncExecuteButton);
     ["nmoveRoot", "nmoveSponsor"].forEach(id => document.getElementById(id)?.addEventListener("input", invalidatePreview));
@@ -158,6 +166,44 @@
     el.textContent = text;
     el.classList.add("visible");
     el.classList.toggle("error", !!error);
+  }
+
+  function revealSyncControls(moveId, sheetStatus) {
+    const id = String(moveId || "");
+    if (!/^MOVE-[0-9]{17}-[0-9]{9}-[a-f0-9]{8}$/.test(id)) return;
+    activeMoveId = id;
+    try { localStorage.setItem(LAST_MOVE_KEY, id); } catch (_) {}
+    const actions = document.getElementById("nmoveSyncActions");
+    if (actions) actions.style.display = "flex";
+    const retry = document.getElementById("nmoveSyncRetryButton");
+    if (retry) retry.hidden = String(sheetStatus || "").toUpperCase() !== "FAILED";
+  }
+
+  async function checkSyncStatus(retry = false) {
+    if (!activeMoveId) return;
+    if (retry && !window.confirm("Nur den Google-Sheets-Abgleich erneut versuchen? Die Netzwerkstruktur wird NICHT ein zweites Mal verschoben.")) return;
+    const check = document.getElementById("nmoveSyncCheckButton");
+    const retryButton = document.getElementById("nmoveSyncRetryButton");
+    if (check) check.disabled = true;
+    if (retryButton) retryButton.disabled = true;
+    try {
+      const result = await post({ action: retry ? "retry_sync" : "sync_status", move_id: activeMoveId }, 35000);
+      const status = String(result.sheet_sync_status || "UNKNOWN").toUpperCase();
+      revealSyncControls(result.move_id || activeMoveId, status);
+      if (status === "SYNCED") {
+        showMessage("Abgeschlossen: Supabase und Google Sheets sind für diesen Netzwerkwechsel synchronisiert. Move-ID: " + activeMoveId);
+      } else if (status === "RETRYING") {
+        showMessage("Der Google-Sheets-Abgleich wird bereits bearbeitet. Bitte kurz warten und danach auf \"Abgleich prüfen\" klicken.");
+      } else {
+        const extra = result.sheet_sync_error ? " (" + result.sheet_sync_error + ")" : "";
+        showMessage("Netzwerkverschiebung abgeschlossen, aber Google Sheets noch nicht bestätigt" + extra + ". Du kannst den Abgleich separat wiederholen, ohne den Nutzer erneut zu verschieben.", true);
+      }
+    } catch (error) {
+      showMessage("Statusprüfung fehlgeschlagen: " + (error?.message || String(error)), true);
+    } finally {
+      if (check) check.disabled = false;
+      if (retryButton) retryButton.disabled = false;
+    }
   }
 
   function displayName(item) {
@@ -288,6 +334,7 @@
           ? "Die Verschiebung in Supabase war erfolgreich, aber Google Sheets konnte noch nicht synchronisiert werden. NICHT erneut verschieben; bitte anhand der Move-ID den Abgleich prüfen."
           : "Der Google-Sheets-Abgleich ist noch nicht bestätigt. NICHT erneut verschieben.";
       showMessage(`Supabase erfolgreich: ${result.affected_count || affected} Nutzer verschoben. Move-ID: ${result.move_id || "–"}. ${sheetMessage} Historische Provisionen blieben unverändert.`, sheetStatus !== "SYNCED");
+      revealSyncControls(result.move_id, sheetStatus);
       previewState = null;
       document.getElementById("nmovePreview")?.classList.remove("visible");
       document.getElementById("nmoveConfirmArea")?.classList.remove("visible");
@@ -310,6 +357,10 @@
     const session = readSession();
     if (!isMaster(session)) return;
     injectCard();
+    try {
+      const last = localStorage.getItem(LAST_MOVE_KEY);
+      if (last) { revealSyncControls(last, "UNKNOWN"); checkSyncStatus(false); }
+    } catch (_) {}
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true });
