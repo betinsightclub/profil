@@ -359,8 +359,17 @@
     injectCard();
     try {
       const last = localStorage.getItem(LAST_MOVE_KEY);
-      if (last) { revealSyncControls(last, "UNKNOWN"); checkSyncStatus(false); }
+      if (last) revealSyncControls(last, "UNKNOWN");
     } catch (_) {}
+    // Find the latest completed move on the server, including moves executed before this UI was installed.
+    post({ action: "latest_sync" }, 15000).then(result => {
+      if (result.move_id) {
+        revealSyncControls(result.move_id, result.sheet_sync_status);
+        checkSyncStatus(false);
+      }
+    }).catch(() => {
+      if (activeMoveId) checkSyncStatus(false);
+    });
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true });
