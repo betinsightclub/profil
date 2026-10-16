@@ -2921,9 +2921,14 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
           <p class="muted">Nur zur Übersicht: Beträge in der Firmenreserve, offene Auszahlungsanträge und vorübergehend gesperrte Vorgänge. Hier wird nichts gebucht, freigegeben oder ausgezahlt.</p>
           <div class="kpi-grid">
             <div class="kpi-card">
-              <div class="kpi-label">Firmenreserve</div>
-              <div class="kpi-value" id="masterCompanyReserve">0,00</div>
-              <div class="kpi-note">Beträge aus der internen Abrechnung, die aktuell keiner Auszahlung zugeordnet sind</div>
+              <div class="kpi-label">Firmenreserve gesamt</div>
+              <div class="kpi-value" id="masterCompanyReserve" style="font-size:20px">Nicht abgestimmt</div>
+              <div class="kpi-note">Kein vollständiger, nach Reservetöpfen und Abgängen abgestimmter Saldo vorhanden. Daher wird keine irreführende 0,00 € angezeigt.</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Noch nicht verdiente Tippanteile</div>
+              <div class="kpi-value" id="masterUnallocatedTipReserve" style="font-size:23px">Nicht ermittelt</div>
+              <div class="kpi-note">Nur der Teilbetrag aus BO_TIPP_NUTZUNGEN. Weitere Reserven und Auszahlungen sind hier nicht enthalten.</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-label">Offene Auszahlungen</div>
@@ -5641,8 +5646,21 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
         renderTipsterCards(tipsters);
         renderMasterResults(masterTipResults);
         renderMasterModel(master);
-        document.getElementById("masterCompanyReserve").innerHTML = '<span class="privacy-sensitive">' +
-          formatEuro(master.company_reserve_eur || 0) + '</span>';
+        // A missing master.company_reserve_eur is NOT proof of a zero company reserve.
+        // The global company balance includes several distinct ledgers and must be reconciled.
+        document.getElementById("masterCompanyReserve").textContent = "Nicht abgestimmt";
+        const tipReserveRaw = master.unallocated_partner_share_eur;
+        const tipReserveNode = document.getElementById("masterUnallocatedTipReserve");
+        if (tipReserveNode) {
+          const isPresent = tipReserveRaw !== undefined && tipReserveRaw !== null && String(tipReserveRaw).trim() !== "";
+          const numeric = isPresent ? num(tipReserveRaw) : NaN;
+          if (isPresent && Number.isFinite(numeric) && numeric >= 0) {
+            tipReserveNode.textContent = formatEuro(numeric);
+            tipReserveNode.classList.add("privacy-sensitive");
+          } else {
+            tipReserveNode.textContent = "Nicht verfügbar";
+          }
+        }
         document.getElementById("masterOpenPayouts").textContent = String(master.open_payouts ?? 0);
         document.getElementById("masterBlockedProcesses").textContent = String(master.blocked_processes ?? 0);
       } else {
