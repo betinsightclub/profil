@@ -30,6 +30,7 @@
         const adminClashCreditScript = '<scr' + 'ipt src="./admin-clash-credit.js?v=20260924-1"></scr' + 'ipt>';
         const networkMoveScript = '<scr' + 'ipt src="./network-move.js?v=20261015-sync-v2"></scr' + 'ipt>';
         const resultHealthScript = '<scr' + 'ipt src="./admin-result-health.js?v=20261015-manual-v2"></scr' + 'ipt>';
+        const reserveLedgerScript = '<scr' + 'ipt src="./admin-reserve-ledger.js?v=20261016-reserve-ledger-1"></scr' + 'ipt>';
         const minimumEurLabelScript = '<scr' + 'ipt src="./minimum-eur-label.js?v=20261008-2"></scr' + 'ipt>';
         const provisionUnitUsageScript = '<scr' + 'ipt src="./provision-unit-usage.js?v=20260912-3"></scr' + 'ipt>';
         const provisionCopyCleanupScript = '<scr' + 'ipt src="./provision-copy-cleanup.js?v=20260912-4"></scr' + 'ipt>';
@@ -38,7 +39,7 @@
         const memberPerformanceScript = '<scr' + 'ipt src="./member-performance-admin.js?v=20261012-1"></scr' + 'ipt>';
         const distributionV5PreviewScript = '<scr' + 'ipt src="./distribution-v5-preview.js?v=20261013-currency-1"></scr' + 'ipt>';
         const marker = '<!-- WALLET-FREIGABE-MASTER · PREMIUM-EINGAENGE-LIVE · PREMIUM-SOFORTPROVISIONEN-LIVE · ADMIN-UNIT-GUTSCHRIFT-MASTER · ADMIN-CLASH-TOKEN-MASTER · NETZWERK-STRUKTUR-MOVE-MASTER · MINIMUM-EUR-LABEL · KAUF-UNIT-VERBRAUCHSNACHWEIS-PRIVACY-v1 · PROVISIONS-COPY-CLEANUP-v4 · Kernstand 2026-09-05 unverändert eingebunden -->';
-        const composed = coreHtml.replace(/<\/body>/i, walletApprovalScript + premiumScript + premiumProvisionenScript + adminUnitCreditScript + adminClashCreditScript + networkMoveScript + resultHealthScript + minimumEurLabelScript + provisionUnitUsageScript + provisionCopyCleanupScript + regionalComplianceScript + frankPrivacyScript + memberPerformanceScript + distributionV5PreviewScript + marker + "</body>");
+        const composed = coreHtml.replace(/<\/body>/i, walletApprovalScript + premiumScript + premiumProvisionenScript + adminUnitCreditScript + adminClashCreditScript + networkMoveScript + resultHealthScript + reserveLedgerScript + minimumEurLabelScript + provisionUnitUsageScript + provisionCopyCleanupScript + regionalComplianceScript + frankPrivacyScript + memberPerformanceScript + distributionV5PreviewScript + marker + "</body>");
         document.open();
         document.write(composed);
         document.close();
