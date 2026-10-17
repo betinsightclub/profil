@@ -1,0 +1,31 @@
+name: BetInsight Admin-Auth migration guard
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'admin/**'
+      - 'admin-tipps/**'
+      - 'tests/admin-auth-routing.test.cjs'
+      - '.github/workflows/admin-auth-routing.yml'
+  pull_request:
+    paths:
+      - 'admin/**'
+      - 'admin-tipps/**'
+      - 'tests/admin-auth-routing.test.cjs'
+      - '.github/workflows/admin-auth-routing.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  admin-auth-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check single-source Admin authentication and tip publisher linkage
+        run: node --test tests/admin-auth-routing.test.cjs
