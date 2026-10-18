@@ -141,6 +141,7 @@ Version: 2026.09.28-02
 <script src="assets/regional-restrictions.js?v=20260927-2"></script>
 <script src="assets/app-navigation.js?v=20261013-social-split-1" defer></script>
 <script src="assets/tip-notifications.js?v=20261005-1" defer></script>
+<script src="assets/welcome-guides-v1.js?v=20261018-1" defer></script>
 
 <style>
 * { box-sizing:border-box; }
@@ -1189,6 +1190,8 @@ input{width:100%;min-height:47px;padding:12px 14px;border:2px solid var(--blue);
 </section>
 
 <section id="profileBox" class="profile-box">
+  <!-- Only visible with an open member profile; language follows the app selector. -->
+  <section data-bi-welcome-guide="dashboard" aria-label="BetInsight Welcome Guide"></section>
   <div class="profile-grid">
     <section class="panel">
       <div class="panel-head">
