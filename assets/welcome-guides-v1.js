@@ -9,7 +9,7 @@
     it: {file:"BetInsight_Guida_di_Benvenuto_IT.pdf",name:"Italiano",heading:"La tua guida di benvenuto BetInsight",description:"Scopri BetInsight: profilo, pronostici, Units, Fan Challenge e altre funzioni.",view:"📄 Visualizza PDF",download:"⬇ Scarica PDF",academy:"Apri Academy"},
     fr: {file:"BetInsight_Guide_de_Bienvenue_FR_avec_packs.pdf",name:"Français",heading:"Votre guide de bienvenue BetInsight",description:"Découvrez BetInsight : profil, pronostics, Units, Fan Challenge et autres fonctionnalités.",view:"📄 Voir le PDF",download:"⬇ Télécharger le PDF",academy:"Ouvrir l’Academy"}
   });
-  const scriptUrl = [...document.scripts].find(s => /\\/welcome-guides-v1\\.js(?:\\?|$)/.test(s.src))?.src || new URL("assets/welcome-guides-v1.js",location.href).href;
+  const scriptUrl = [...document.scripts].find(s => s.src.includes("/welcome-guides-v1.js"))?.src || new URL("/assets/welcome-guides-v1.js",location.origin).href;
   const asset = file => new URL("../marketing-center/downloads/anleitungen/" + encodeURIComponent(file),scriptUrl).href;
   const academyUrl = new URL("../academy/",scriptUrl).href;
   function language() {
