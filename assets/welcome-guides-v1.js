@@ -2,16 +2,16 @@
 (() => {
   "use strict";
   const GUIDES = Object.freeze({
-    de: {file:"BetInsight_Willkommensguide_DE_korrigiert.pdf",name:"Deutsch",heading:"Dein BetInsight-Willkommensguide",description:"Der Einstieg in BetInsight: Profil, Tipps, Units, Fan Challenge und weitere Funktionen.",view:"📄 PDF ansehen",download:"⬇ PDF herunterladen",academy:"Zur Academy"},
-    en: {file:"BetInsight_Welcome_Guide_EN_International_Final.pdf",name:"English",heading:"Your BetInsight Welcome Guide",description:"Get started with BetInsight: your profile, tips, Units, Fan Challenge and more.",view:"📄 View PDF",download:"⬇ Download PDF",academy:"Open Academy"},
-    es: {file:"BetInsight_Guia_de_Bienvenida_ES_Alta_Legibilidad.pdf",name:"Español",heading:"Tu guía de bienvenida de BetInsight",description:"Conoce BetInsight: tu perfil, pronósticos, Units, Fan Challenge y mucho más.",view:"📄 Ver PDF",download:"⬇ Descargar PDF",academy:"Abrir Academy"},
-    pt: {file:"BetInsight_Guia_de_Boas_Vindas_PT.pdf",name:"Português",heading:"Seu guia de boas-vindas BetInsight",description:"Conheça a BetInsight: perfil, dicas, Units, Fan Challenge e muito mais.",view:"📄 Ver PDF",download:"⬇ Baixar PDF",academy:"Abrir Academy"},
-    it: {file:"BetInsight_Guida_di_Benvenuto_IT.pdf",name:"Italiano",heading:"La tua guida di benvenuto BetInsight",description:"Scopri BetInsight: profilo, pronostici, Units, Fan Challenge e altre funzioni.",view:"📄 Visualizza PDF",download:"⬇ Scarica PDF",academy:"Apri Academy"},
-    fr: {file:"BetInsight_Guide_de_Bienvenue_FR_avec_packs.pdf",name:"Français",heading:"Votre guide de bienvenue BetInsight",description:"Découvrez BetInsight : profil, pronostics, Units, Fan Challenge et autres fonctionnalités.",view:"📄 Voir le PDF",download:"⬇ Télécharger le PDF",academy:"Ouvrir l’Academy"}
+    de: {file:"BetInsight_Willkommensguide_DE_korrigiert.pdf",name:"Deutsch",heading:"Dein BetInsight-Willkommensguide",description:"Der Einstieg in BetInsight: Profil, Tipps, Units, Fan Challenge und weitere Funktionen.",view:"📄 PDF ansehen",download:"⬇ PDF herunterladen",academy:"🌐 Sprache wählen"},
+    en: {file:"BetInsight_Welcome_Guide_EN_International_Final.pdf",name:"English",heading:"Your BetInsight Welcome Guide",description:"Get started with BetInsight: your profile, tips, Units, Fan Challenge and more.",view:"📄 View PDF",download:"⬇ Download PDF",academy:"🌐 Choose language"},
+    es: {file:"BetInsight_Guia_de_Bienvenida_ES_Alta_Legibilidad.pdf",name:"Español",heading:"Tu guía de bienvenida de BetInsight",description:"Conoce BetInsight: tu perfil, pronósticos, Units, Fan Challenge y mucho más.",view:"📄 Ver PDF",download:"⬇ Descargar PDF",academy:"🌐 Elegir idioma"},
+    pt: {file:"BetInsight_Guia_de_Boas_Vindas_PT.pdf",name:"Português (Portugal)",heading:"O seu guia de boas-vindas BetInsight",description:"Conheça a BetInsight: perfil, prognósticos, Units, Fan Challenge e muito mais.",view:"📄 Ver PDF",download:"⬇ Descarregar PDF",academy:"🌐 Escolher idioma"},
+    it: {file:"BetInsight_Guida_di_Benvenuto_IT.pdf",name:"Italiano",heading:"La tua guida di benvenuto BetInsight",description:"Scopri BetInsight: profilo, pronostici, Units, Fan Challenge e altre funzioni.",view:"📄 Visualizza PDF",download:"⬇ Scarica PDF",academy:"🌐 Scegli la lingua"},
+    fr: {file:"BetInsight_Guide_de_Bienvenue_FR_avec_packs.pdf",name:"Français",heading:"Votre guide de bienvenue BetInsight",description:"Découvrez BetInsight : profil, pronostics, Units, Fan Challenge et autres fonctionnalités.",view:"📄 Voir le PDF",download:"⬇ Télécharger le PDF",academy:"🌐 Choisir la langue"}
   });
   const scriptUrl = [...document.scripts].find(s => s.src.includes("/welcome-guides-v1.js"))?.src || new URL("/assets/welcome-guides-v1.js",location.origin).href;
   const asset = file => new URL("../marketing-center/downloads/anleitungen/" + encodeURIComponent(file),scriptUrl).href;
-  const academyUrl = new URL("../academy/",scriptUrl).href;
+  const stepsUrl = new URL("../erste-schritte/",scriptUrl).href;
   function language() {
     let pref="";
     try { pref=localStorage.getItem("betinsight_language")||""; } catch(_e) {}
@@ -36,10 +36,8 @@
       const download=make("a","bi-welcome-button bi-welcome-primary",g.download);
       download.href=href;download.download=g.file;
       actions.append(view,download);
-      if(root.dataset.biWelcomeGuide==="dashboard") {
-        const more=make("a","bi-welcome-academy",g.academy+" →");
-        more.href=academyUrl;actions.append(more);
-      }
+      const more=make("a","bi-welcome-academy",g.academy+" →");
+      more.href=stepsUrl;actions.append(more);
       root.append(info,actions);
     });
   }
