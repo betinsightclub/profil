@@ -47,6 +47,8 @@ summary:focus-visible{outline:2px solid var(--blue);outline-offset:-3px}
 footer{margin:36px 0 0;color:#7696a5;font-size:.78rem;text-align:center}
 @media(max-width:750px){.quick{grid-template-columns:1fr}.quickcard{padding:17px}.sectionhead{display:block}.search{width:100%;margin-top:12px}.quickcard .symbol{font-size:1.4rem}}
 @media(max-width:480px){header{align-items:flex-start;gap:9px;margin-bottom:29px}.headlink{padding:7px 9px;font-size:.73rem}.wrap{width:min(100% - 20px,1100px);padding-top:14px}.language-switch a{font-size:.77rem;padding:7px 10px}}
+
+.topic-nav{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 15px}.topic{min-height:37px;padding:8px 12px;border:1px solid rgba(128,196,224,.3);border-radius:999px;background:#092a39;color:#cfe8f1;cursor:pointer;font:750 .82rem/1.15 Inter,Arial,sans-serif}.topic:hover,.topic:focus-visible{border-color:#5bebc6;outline:none}.topic[aria-pressed="true"]{border-color:#20dcaf;background:rgba(32,220,175,.16);color:#b9ffe8}.faq-count{color:var(--muted);font-size:.81rem;margin:0 0 16px}
 </style>
 </head>
 <body>
@@ -63,18 +65,20 @@ footer{margin:36px 0 0;color:#7696a5;font-size:.78rem;text-align:center}
     <a href="?lang=it" data-lang="it">🇮🇹 Italiano</a><a href="?lang=fr" data-lang="fr">🇫🇷 Français</a>
   </nav>
   <nav class="quick" aria-label="Hilfethemen">
-    <a class="quickcard" href="../erste-schritte/"><span class="symbol" aria-hidden="true">📘</span><strong id="stepsTitle">Die wichtigsten Schritte</strong><small id="stepsInfo">Unsere bebilderte Anleitung in sechs Sprachen.</small><span class="go" id="stepsGo">Anleitung öffnen →</span></a>
+    <a class="quickcard" id="helpStepsLink" href="../erste-schritte/"><span class="symbol" aria-hidden="true">📘</span><strong id="stepsTitle">Die wichtigsten Schritte</strong><small id="stepsInfo">Unsere bebilderte Anleitung in sechs Sprachen.</small><span class="go" id="stepsGo">Anleitung öffnen →</span></a>
     <a class="quickcard" href="#fragen"><span class="symbol" aria-hidden="true">❓</span><strong id="questionsTitle">Häufige Fragen</strong><small id="questionsInfo">Schnelle Antworten zu Konto, Units und Tipps.</small><span class="go" id="questionsGo">Fragen ansehen →</span></a>
     <a class="quickcard" href="../support/"><span class="symbol" aria-hidden="true">🎧</span><strong id="supportTitle">Persönliche Hilfe</strong><small id="supportInfo">Schreibe unserem Support über deinen angemeldeten Mitgliederbereich.</small><span class="go" id="supportGo">Support öffnen →</span></a>
   </nav>
   <section id="fragen" aria-labelledby="faqHeading">
     <div class="sectionhead"><h2 id="faqHeading">Häufige Fragen und Antworten</h2><input class="search" type="search" id="search" placeholder="Frage suchen …" aria-label="Häufige Fragen durchsuchen" autocomplete="off"></div>
+    <nav class="topic-nav" id="topicNav" aria-label="FAQ-Themen"></nav><p class="faq-count" id="faqCount" aria-live="polite"></p>
     <div class="questions" id="questionsList"></div>
     <p class="no-results" id="noResults" hidden>Keine passende Antwort gefunden.</p>
   </section>
   <section class="bottom"><strong id="bottomHeading">Noch Fragen?</strong><p><span id="bottomCopy">Unsere Anleitungen helfen beim Einstieg. Für Fragen zu deinem persönlichen Konto nutze bitte den geschützten </span><a href="../support/" id="supportBottom">BetInsight Support</a>.</p></section>
   <footer>© 2026 BetInsight Club · Hilfe & FAQ</footer>
 </main>
+<script src="../assets/help-faq-extended-v1.js?v=20261020-1" defer></script>
 <script>
 (() => {
 "use strict";
@@ -149,27 +153,56 @@ const candidates=(navigator.languages&&navigator.languages.length?navigator.lang
 for(const candidate of candidates){const found=norm(candidate);if(found)return found;}
 return "en";
 }
-let active="de";
+let active="de",selectedTopic="all";
+const topicIds=["all","account","units","tips","exchange","network","membership"];
+const oldTopics=["account","account","units","exchange","tips","account","account","tips"];
+const extra=window.BetInsightFaqExtra||{more:{},topics:{}};
 function fold(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();}
+function memberContext(){
+  // For display only; this is not an authentication or permission check.
+  try{return Boolean(localStorage.getItem("betinsight_dashboard_token")||localStorage.getItem("betinsight_profile_token"));}catch(e){return false;}
+}
+function renderTopics(){
+  const root=document.getElementById("topicNav");root.replaceChildren();
+  topicIds.forEach((id,i)=>{
+    const button=document.createElement("button");button.type="button";button.className="topic";
+    button.dataset.topic=id;
+    button.textContent=(extra.topics[active]||extra.topics.en||[])[i]||id;
+    button.setAttribute("aria-pressed",selectedTopic===id?"true":"false");
+    button.addEventListener("click",()=>{
+      selectedTopic=id;
+      root.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.topic===id?"true":"false"));
+      displayFaq();
+    });
+    root.appendChild(button);
+  });
+}
 function displayFaq(){
-const data=dictionaries[active],query=fold(document.getElementById("search").value.trim()),list=document.getElementById("questionsList");
-list.replaceChildren();let hits=0;
-data.faq.forEach(([q,a])=>{
-if(query&&!fold(q+" "+a).includes(query))return;
-const details=document.createElement("details"),summary=document.createElement("summary"),answer=document.createElement("div");
-summary.textContent=q;answer.className="answer";answer.textContent=a;details.append(summary,answer);list.append(details);hits++;
-});
-document.getElementById("noResults").hidden=hits!==0;
+  const data=dictionaries[active],query=fold(document.getElementById("search").value.trim()),list=document.getElementById("questionsList");
+  list.replaceChildren();let hits=0;
+  const base=data.faq.map((row,i)=>({q:row[0],a:row[1],topic:oldTopics[i],loginOnly:i===0}));
+  const more=(extra.more[active]||[]).map(row=>({q:row[0],a:row[1],topic:row[2],loginOnly:false}));
+  base.concat(more).forEach(item=>{
+    if(item.loginOnly&&memberContext())return;
+    if(selectedTopic!=="all"&&item.topic!==selectedTopic)return;
+    if(query&&!fold(item.q+" "+item.a).includes(query))return;
+    const details=document.createElement("details"),summary=document.createElement("summary"),answer=document.createElement("div");
+    summary.textContent=item.q;answer.className="answer";answer.textContent=item.a;
+    details.append(summary,answer);list.append(details);hits++;
+  });
+  document.getElementById("noResults").hidden=hits!==0;
+  const suffix=({de:"Antworten",en:"answers",es:"respuestas",pt:"respostas",it:"risposte",fr:"réponses"})[active]||"answers";
+  document.getElementById("faqCount").textContent=hits+" "+suffix;
 }
 function render(lang){
-active=dictionaries[lang]?lang:"en";const data=dictionaries[active];document.documentElement.lang=active;
-ids.forEach(id=>{document.getElementById(id).textContent=data[id]});
-document.getElementById("memberHeader").textContent=data.account;
-const input=document.getElementById("search");input.value="";input.placeholder=data.placeholder;input.setAttribute("aria-label",data.placeholder);
-document.getElementById("noResults").textContent=data.noResults;
-document.querySelectorAll("[data-lang]").forEach(a=>a.setAttribute("aria-current",a.dataset.lang===active?"true":"false"));
-displayFaq();
-const steps=document.querySelector('.quickcard[href="../erste-schritte/"]');steps.href="../erste-schritte/?lang="+encodeURIComponent(active);
+  active=dictionaries[lang]?lang:"en";const data=dictionaries[active];document.documentElement.lang=active;
+  ids.forEach(id=>{document.getElementById(id).textContent=data[id]});
+  document.getElementById("memberHeader").textContent=data.account;
+  const input=document.getElementById("search");input.value="";input.placeholder=data.placeholder;input.setAttribute("aria-label",data.placeholder);
+  document.getElementById("noResults").textContent=data.noResults;
+  document.querySelectorAll("[data-lang]").forEach(a=>a.setAttribute("aria-current",a.dataset.lang===active?"true":"false"));
+  selectedTopic="all";renderTopics();displayFaq();
+  document.getElementById("helpStepsLink").href="../erste-schritte/?lang="+encodeURIComponent(active);
 }
 document.querySelectorAll("[data-lang]").forEach(a=>a.addEventListener("click",event=>{
 event.preventDefault();const lang=norm(a.dataset.lang);if(!lang)return;
