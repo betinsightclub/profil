@@ -75,6 +75,7 @@
     ]},
     {id:"ressourcen",key:"nav.resources",fallback:"Academy & Ressourcen",fallbackEn:"Academy & Resources",icon:icons.membership},
     {id:"premium",key:"nav.membership",fallback:"Mitgliedschaft",icon:icons.membership},
+    {id:"hilfe",key:"nav.help",fallback:"Hilfe & FAQ",icon:icons.support},
     {id:"support",key:"nav.support",fallback:"Support",icon:icons.support}
   ];
 
@@ -120,7 +121,13 @@
   const session = () => window.BetInsightSession;
   const t = (key, fallback) => i18n()?.t(key, {}, fallback) || fallback;
   const isMobile = () => window.matchMedia(`(max-width:${MOBILE_BREAKPOINT}px)`).matches;
-  const localizedFallback = item => i18n()?.getLanguage?.() === "en" && item?.fallbackEn ? item.fallbackEn : item?.fallback;
+  const localizedFallback = item => {
+    if (item?.id === "hilfe") {
+      const lang=String(i18n()?.getLanguage?.()||"de").toLowerCase().split("-")[0];
+      return ({de:"Hilfe & FAQ",en:"Help & FAQ",es:"Ayuda y preguntas",pt:"Ajuda e perguntas",it:"Aiuto e FAQ",fr:"Aide et FAQ"})[lang] || "Help & FAQ";
+    }
+    return i18n()?.getLanguage?.() === "en" && item?.fallbackEn ? item.fallbackEn : item?.fallback;
+  };
   const itemLabel = item => t(item.key, localizedFallback(item));
   const socialText = (de,en) => i18n()?.getLanguage?.() === "en" ? en : de;
 
@@ -211,6 +218,7 @@
       case "premium": navigateProfileHash("premium"); break;
       case "ressourcen": navigateProtected("ressourcen"); break;
       case "marketing-center": navigateProtected("marketing-center"); break;
+      case "hilfe": session().navigateLocal("hilfe"); break;
       case "support": navigateProtected("support"); break;
       case "premium-provisionen": {
         showMessage(t("session.networkOpening", "Premium & Network wird sicher geöffnet …"));
@@ -250,7 +258,7 @@
     if (first === "trainer-feed") return "community";
     if (first === "trainer") return "my-public-profile";
     if (first === "clash-token-tausch") return "time-clash-credits";
-    const known = ["daily","fan-challenge","tipps","freigeschaltet","wechselboerse","verkaufen","meine-verkaufsangebote","wallet","anbieter","ressourcen","marketing-center","support"];
+    const known = ["daily","fan-challenge","tipps","freigeschaltet","wechselboerse","verkaufen","meine-verkaufsangebote","wallet","anbieter","ressourcen","marketing-center","hilfe","support"];
     return known.includes(first) ? first : "dashboard";
   }
 
@@ -372,8 +380,10 @@
       .bi-language-button:hover,.bi-language-button:focus-visible{outline:none;border-color:rgba(89,168,255,.38);color:#fff}
       .bi-language-button[aria-pressed="true"]{border-color:rgba(37,230,167,.45);background:rgba(37,230,167,.10);color:#caffed}
       .bi-nav-v2-toast{position:fixed;right:18px;bottom:18px;z-index:10050;max-width:min(420px,calc(100vw - 36px));padding:13px 15px;border:1px solid rgba(255,200,87,.34);border-radius:12px;background:#102633;color:#f7e5ad;font:700 13px/1.45 Inter,Arial,sans-serif;box-shadow:0 18px 50px rgba(0,0,0,.34)}
-      .bi-social-footer{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;margin:50px auto 0;padding:18px 0 4px;border-top:1px solid rgba(104,191,230,.12);color:#7398aa;font-family:Inter,Arial,sans-serif}
+      .bi-social-footer{width:100%;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;margin:50px auto 0;padding:18px 0 4px;border-top:1px solid rgba(104,191,230,.12);color:#7398aa;font-family:Inter,Arial,sans-serif}
       .bi-social-footer-label{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+      .bi-social-footer-help{display:inline-flex;align-items:center;min-height:34px;padding:7px 13px;margin-left:5px;border:1px solid rgba(32,220,175,.28);border-radius:10px;background:rgba(32,220,175,.07);color:#b3e9dc;text-decoration:none;font-size:11px;font-weight:800}
+      .bi-social-footer-help:hover,.bi-social-footer-help:focus-visible{border-color:#40ebbf;outline:2px solid rgba(32,220,175,.3);outline-offset:2px}
       .bi-social-links{display:flex;align-items:center;justify-content:center;gap:8px}
       .bi-social-link{display:grid;place-items:center;width:34px;height:34px;border:1px solid rgba(255,255,255,.10);border-radius:10px;background:rgba(3,24,35,.58);text-decoration:none;box-shadow:0 8px 20px rgba(0,0,0,.16);transition:transform .16s ease,border-color .16s ease,background .16s ease}
       .bi-social-link:hover,.bi-social-link:focus-visible{transform:translateY(-1px);border-color:rgba(89,168,255,.48);background:rgba(12,49,68,.52);outline:none}
@@ -459,6 +469,12 @@
 
     links.append(youtube,telegram,x,facebook,bluesky,minds);
     footer.appendChild(links);
+    const help=document.createElement("a");
+    help.className="bi-social-footer-help";
+    help.href=new URL("../hilfe/",SCRIPT_URL).href;
+    help.textContent=localizedFallback({id:"hilfe"});
+    help.setAttribute("aria-label",help.textContent);
+    footer.appendChild(help);
     page.appendChild(footer);
   }
 
