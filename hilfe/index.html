@@ -78,7 +78,7 @@ footer{margin:36px 0 0;color:#7696a5;font-size:.78rem;text-align:center}
   <section class="bottom"><strong id="bottomHeading">Noch Fragen?</strong><p><span id="bottomCopy">Unsere Anleitungen helfen beim Einstieg. Für Fragen zu deinem persönlichen Konto nutze bitte den geschützten </span><a href="../support/" id="supportBottom">BetInsight Support</a>.</p></section>
   <footer>© 2026 BetInsight Club · Hilfe & FAQ</footer>
 </main>
-<script src="../assets/help-faq-extended-v1.js?v=20261020-3"></script>
+<script src="../assets/help-faq-extended-v1.js?v=20261020-4"></script>
 <script>
 (() => {
 "use strict";
@@ -190,17 +190,18 @@ function displayFaq(){
     summary.textContent=item.q;answer.className="answer";answer.textContent=item.a;
     if(item.links?.length){
       const labels={
-        de:{events:"📅 Eventseite & Anmeldung",telegram:"📣 Termine auf Telegram",video:"▶ Video ansehen · ca. 8 Min."},
-        en:{events:"📅 Events & registration",telegram:"📣 Dates on Telegram",video:"▶ Watch video · approx. 8 min"},
-        es:{events:"📅 Eventos e inscripción",telegram:"📣 Fechas en Telegram",video:"▶ Ver vídeo · aprox. 8 min"},
-        pt:{events:"📅 Eventos e inscrição",telegram:"📣 Datas no Telegram",video:"▶ Ver vídeo · aprox. 8 min"},
-        it:{events:"📅 Eventi e iscrizione",telegram:"📣 Date su Telegram",video:"▶ Guarda video · ca. 8 min"},
-        fr:{events:"📅 Événements et inscription",telegram:"📣 Dates sur Telegram",video:"▶ Voir la vidéo · env. 8 min"}
+        de:{events:"📅 Eventseite & Anmeldung",telegram:"📣 Termine auf Telegram",video:"▶ Video ansehen · ca. 8 Min.",youtube:"🔔 YouTube-Kanal abonnieren"},
+        en:{events:"📅 Events & registration",telegram:"📣 Dates on Telegram",video:"▶ Watch video · approx. 8 min",youtube:"🔔 Subscribe to our YouTube channel"},
+        es:{events:"📅 Eventos e inscripción",telegram:"📣 Fechas en Telegram",video:"▶ Ver vídeo · aprox. 8 min",youtube:"🔔 Suscribirse al canal de YouTube"},
+        pt:{events:"📅 Eventos e inscrição",telegram:"📣 Datas no Telegram",video:"▶ Ver vídeo · aprox. 8 min",youtube:"🔔 Subscrever o canal no YouTube"},
+        it:{events:"📅 Eventi e iscrizione",telegram:"📣 Date su Telegram",video:"▶ Guarda video · ca. 8 min",youtube:"🔔 Iscriviti al canale YouTube"},
+        fr:{events:"📅 Événements et inscription",telegram:"📣 Dates sur Telegram",video:"▶ Voir la vidéo · env. 8 min",youtube:"🔔 S’abonner à notre chaîne YouTube"}
       };
       const destinations={
         events:"https://betinsight.club/"+active+"/events/",
         telegram:"https://t.me/betinsightclub_official",
-        video:"https://www.youtube.com/watch?v=gYsMrWiK3uo"
+        video:"https://www.youtube.com/watch?v=gYsMrWiK3uo",
+        youtube:"https://www.youtube.com/@betinsightclub"
       };
       const actions=document.createElement("div");actions.className="faq-actions";
       item.links.forEach(id=>{
