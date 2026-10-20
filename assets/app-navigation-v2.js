@@ -475,6 +475,15 @@
     help.textContent=localizedFallback({id:"hilfe"});
     help.setAttribute("aria-label",help.textContent);
     footer.appendChild(help);
+    const video=document.createElement("a");
+    video.className="bi-social-footer-help";
+    video.href="https://www.youtube.com/watch?v=gYsMrWiK3uo";
+    video.target="_blank";
+    video.rel="noopener noreferrer";
+    const videoLang=String(i18n()?.getLanguage?.()||"de").toLowerCase().split("-")[0];
+    video.textContent=({de:"▶ BetInsight-Video · ca. 8 Min.",en:"▶ BetInsight video · 8 min",es:"▶ Vídeo BetInsight · 8 min",pt:"▶ Vídeo BetInsight · 8 min",it:"▶ Video BetInsight · 8 min",fr:"▶ Vidéo BetInsight · 8 min"})[videoLang]||"▶ BetInsight video · 8 min";
+    video.setAttribute("aria-label",video.textContent);
+    footer.appendChild(video);
     page.appendChild(footer);
   }
 
