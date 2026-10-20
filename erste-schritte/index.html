@@ -57,6 +57,7 @@
       <a href="../" aria-label="BetInsight Club"><img class="logo" src="../logo_betisight.club.png" alt="BetInsight Club"></a>
       <nav class="toplinks" aria-label="Weiterführende Seiten">
         <a class="nav" href="../academy/" id="academyLink">🎓 Academy</a>
+        <a class="nav" href="../hilfe/" id="helpLink">❓ Hilfe & FAQ</a>
         <a class="nav" href="../" id="dashboardLink">↗ Mitgliederbereich</a>
       </nav>
     </header>
@@ -118,6 +119,7 @@
         const open=document.getElementById("openPdf"),download=document.getElementById("downloadPdf");
         open.href=file;open.textContent=g.open;download.href=file;download.download=g.file;download.textContent=g.download;
         document.getElementById("dashboardLink").textContent=g.account;
+        document.getElementById("helpLink").textContent=({de:"❓ Hilfe & FAQ",en:"❓ Help & FAQ",es:"❓ Ayuda y preguntas",pt:"❓ Ajuda e perguntas",it:"❓ Aiuto e FAQ",fr:"❓ Aide et FAQ"})[lang]||"❓ Help & FAQ";
         document.getElementById("footerNote").textContent=g.footer;
         document.querySelectorAll("[data-language]").forEach(el=>{const active=el.dataset.language===lang;el.setAttribute("aria-current",active?"true":"false")});
       }
