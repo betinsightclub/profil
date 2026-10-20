@@ -5,8 +5,23 @@
   const FLAG="SCHULUNGSTIPP";
   const TITLE="🎓 SCHULUNGSTIPP – WORKSHOP MITTWOCH, 20 UHR";
   const ID="biSchulungTipCheckbox";
-  function isEnabled(){ return document.getElementById(ID)?.checked===true; }
+  // Same session key and role contract as the BetInsight Admin Center.
+  // Client-side visibility is cosmetic; Supabase validates Master rights again on publish.
+  function isLucianoMaster(){
+    try{
+      const session=JSON.parse(sessionStorage.getItem("betinsight_admin_session_v1")||"null");
+      return session?.adminId==="ADM-001" &&
+        (String(session?.role||"").toUpperCase()==="MASTER" ||
+         String(session?.master||"").toUpperCase()==="JA") &&
+        Number(session?.expiresMs||0)>Date.now();
+    }catch(_){return false;}
+  }
+  function isEnabled(){ return isLucianoMaster() && document.getElementById(ID)?.checked===true; }
   function mount(){
+    if(!isLucianoMaster()){
+      document.getElementById("biSchulungTipPanel")?.remove();
+      return;
+    }
     if(document.getElementById(ID)) return;
     const btn=Array.from(document.querySelectorAll("button,input[type=submit]")).find(el=>
       /veröffentlichen|veroeffentlichen/i.test(String(el.textContent||el.value||""))
