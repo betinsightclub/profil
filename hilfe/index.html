@@ -48,7 +48,7 @@ footer{margin:36px 0 0;color:#7696a5;font-size:.78rem;text-align:center}
 @media(max-width:750px){.quick{grid-template-columns:1fr}.quickcard{padding:17px}.sectionhead{display:block}.search{width:100%;margin-top:12px}.quickcard .symbol{font-size:1.4rem}}
 @media(max-width:480px){header{align-items:flex-start;gap:9px;margin-bottom:29px}.headlink{padding:7px 9px;font-size:.73rem}.wrap{width:min(100% - 20px,1100px);padding-top:14px}.language-switch a{font-size:.77rem;padding:7px 10px}}
 
-.topic-nav{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 15px}.topic{min-height:37px;padding:8px 12px;border:1px solid rgba(128,196,224,.3);border-radius:999px;background:#092a39;color:#cfe8f1;cursor:pointer;font:750 .82rem/1.15 Inter,Arial,sans-serif}.topic:hover,.topic:focus-visible{border-color:#5bebc6;outline:none}.topic[aria-pressed="true"]{border-color:#20dcaf;background:rgba(32,220,175,.16);color:#b9ffe8}.faq-count{color:var(--muted);font-size:.81rem;margin:0 0 16px}
+.topic-nav{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 15px}.topic{min-height:37px;padding:8px 12px;border:1px solid rgba(128,196,224,.3);border-radius:999px;background:#092a39;color:#cfe8f1;cursor:pointer;font:750 .82rem/1.15 Inter,Arial,sans-serif}.topic:hover,.topic:focus-visible{border-color:#5bebc6;outline:none}.topic[aria-pressed="true"]{border-color:#20dcaf;background:rgba(32,220,175,.16);color:#b9ffe8}.faq-count{color:var(--muted);font-size:.81rem;margin:0 0 16px}.faq-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:15px}.faq-action{display:inline-flex;align-items:center;min-height:39px;padding:8px 13px;border:1px solid rgba(58,222,181,.42);border-radius:10px;color:#a3f5dc;background:#103b42;font-size:.85rem;font-weight:800;text-decoration:none}.faq-action:hover,.faq-action:focus-visible{outline:2px solid #8be9ff;outline-offset:2px;border-color:#57e6c4}
 </style>
 </head>
 <body>
@@ -78,7 +78,7 @@ footer{margin:36px 0 0;color:#7696a5;font-size:.78rem;text-align:center}
   <section class="bottom"><strong id="bottomHeading">Noch Fragen?</strong><p><span id="bottomCopy">Unsere Anleitungen helfen beim Einstieg. Für Fragen zu deinem persönlichen Konto nutze bitte den geschützten </span><a href="../support/" id="supportBottom">BetInsight Support</a>.</p></section>
   <footer>© 2026 BetInsight Club · Hilfe & FAQ</footer>
 </main>
-<script src="../assets/help-faq-extended-v1.js?v=20261020-1"></script>
+<script src="../assets/help-faq-extended-v1.js?v=20261020-2"></script>
 <script>
 (() => {
 "use strict";
@@ -181,13 +181,36 @@ function displayFaq(){
   const data=dictionaries[active],query=fold(document.getElementById("search").value.trim()),list=document.getElementById("questionsList");
   list.replaceChildren();let hits=0;
   const base=data.faq.map((row,i)=>({q:row[0],a:row[1],topic:oldTopics[i],loginOnly:i===0}));
-  const more=(extra.more[active]||[]).map(row=>({q:row[0],a:row[1],topic:row[2],loginOnly:false}));
+  const more=(extra.more[active]||[]).map(row=>({q:row[0],a:row[1],topic:row[2],links:Array.isArray(row[3])?row[3]:[],loginOnly:false}));
   base.concat(more).forEach(item=>{
     if(item.loginOnly&&memberContext())return;
     if(selectedTopic!=="all"&&item.topic!==selectedTopic)return;
     if(query&&!fold(item.q+" "+item.a).includes(query))return;
     const details=document.createElement("details"),summary=document.createElement("summary"),answer=document.createElement("div");
     summary.textContent=item.q;answer.className="answer";answer.textContent=item.a;
+    if(item.links?.length){
+      const labels={
+        de:["📅 Eventseite & Anmeldung","📣 Termine auf Telegram"],
+        en:["📅 Events & registration","📣 Dates on Telegram"],
+        es:["📅 Eventos e inscripción","📣 Fechas en Telegram"],
+        pt:["📅 Eventos e inscrição","📣 Datas no Telegram"],
+        it:["📅 Eventi e iscrizione","📣 Date su Telegram"],
+        fr:["📅 Événements et inscription","📣 Dates sur Telegram"]
+      };
+      const destinations={
+        events:"https://betinsight.club/"+active+"/events/",
+        telegram:"https://t.me/betinsightclub_official"
+      };
+      const actions=document.createElement("div");actions.className="faq-actions";
+      item.links.forEach(id=>{
+        if(!Object.prototype.hasOwnProperty.call(destinations,id))return;
+        const a=document.createElement("a");a.className="faq-action";
+        a.href=destinations[id];a.target="_blank";a.rel="noopener noreferrer";
+        a.textContent=(labels[active]||labels.en)[id==="events"?0:1];
+        actions.appendChild(a);
+      });
+      answer.appendChild(actions);
+    }
     details.append(summary,answer);list.append(details);hits++;
   });
   document.getElementById("noResults").hidden=hits!==0;
