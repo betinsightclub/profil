@@ -69,6 +69,12 @@ footer{text-align:center;color:#7697a8;font-size:12px;padding:21px}
     var href=p.public_slug
       ?"../trainer/?p="+encodeURIComponent(p.public_slug)+"&post="+encodeURIComponent(p.id)
       :"../trainer/";
+    // Official NewsRadar articles open directly, with the existing post fallback unchanged.
+    try {
+      var articleUrl=new URL(String(p.external_url||""));
+      if(articleUrl.protocol==="https:" && (articleUrl.hostname==="betinsight.club" || articleUrl.hostname==="www.betinsight.club"))
+        href=articleUrl.href;
+    }catch(e){};
     return '<a class="card" href="'+safe(href)+'">'+
       '<span class="source">● '+safe(p.author||"BETINSIGHT")+' · OFFIZIELL</span>'+
       '<span class="date">'+safe(date(p))+'</span>'+
