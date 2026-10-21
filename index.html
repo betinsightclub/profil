@@ -1746,9 +1746,16 @@ function dashboardOfficialTileHtml(post){
   const lines=String(post.body||"").split(/\n+/).map(p=>p.trim()).filter(Boolean);
   const title=lines[0]||"Neue BetInsight-Meldung";
   const excerpt=lines.slice(1).filter(l=>!/^👉/.test(l)).join(" ");
-  const url=post.public_slug
+  // Official editorial posts link to their real article, never to a trainer profile.
+  // Accept only our public website; external links from other hosts keep the old fallback.
+  let url=post.public_slug
     ?"trainer/?p="+encodeURIComponent(post.public_slug)+"&post="+encodeURIComponent(post.id)
     :"meldungen/";
+  try{
+    const articleUrl=new URL(String(post.external_url||""));
+    if(articleUrl.protocol==="https:" && ["betinsight.club","www.betinsight.club"].includes(articleUrl.hostname))
+      url=articleUrl.href;
+  }catch(_){};
   const shortDate=dashboardFeedDate(post.published_at||post.created_at);
   const reactions=Array.isArray(post.reactions)?post.reactions:[];
   const likes=reactions.filter(r=>r.reaction==="LIKE").length;
