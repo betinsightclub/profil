@@ -40,9 +40,14 @@ https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbi
 | Intertops | ITSP Services GmbH | intertops.de |
 | Sportwetten.de, Betstar, Betbird | NetX Betting Limited | sportwetten.de; betstar.sportwetten.de; betstar.sw.de; betbird.de |
 | ODDSET | Oddset Sportwetten GmbH | oddset.de |
-| Original Wetten | Tipico Co. Limited | original-wetten.de |
+| Original Wetten | **Tipico Karlsruhe Limited** | original-wetten.de |
 | Tipico (**derzeit in DE-Basis nicht enthalten**) | Tipico Co. Limited | tipico.de |
-| 888sport | Betreiber-Einzelprüfung noch offen | 888sport.de |
+| DAZN BET | DZBT Operations Limited | daznbet.de |
+| PokerStars Sports | Cyan Blue International Limited | pokerstars.de/sports |
+| Merkur Sports / XTiP / Merkur Bets | Merkur Bets Malta Limited | merkur-sports.de; xtip.de; merkurbets.de |
+| 888sport | 888 Germany Limited | 888sport.de |
+
+**Korrektur/Identitätsabgleich:** `original-wetten.de` gehört laut GGL zu **Tipico Karlsruhe Limited**, während `tipico.de` zu **Tipico Co. Limited** gehört. Trotz gemeinsamer Markenfamilie sind das zwei getrennte Erlaubnisinhaber. `pokerstars.de/sports` ist laut GGL als Sportwetten-Angebot von **Cyan Blue International Limited** registriert; die allgemeine PokerStars-Pokerlizenz unter Reel Germany ist davon getrennt. Die aktuelle tatsächliche Sports-Produkterreichbarkeit bleibt unabhängig von der Registererlaubnis prüfpflichtig. 
 
 **Wichtig:** Ein Treffer in der GGL-Seite beweist nur den dort aufgeführten rechtlichen Status. Er bestätigt **keinen** Affiliate-Vertrag, keine aktiven Redirect-Zieladressen, Bonusaktion oder zulässige werbliche Ausgestaltung. GGL-Quelle wurde als öffentliche HTML-Seite geprüft; es wird keine behauptete vollständige automatisierte Listenprüfung ausgewiesen.
 
