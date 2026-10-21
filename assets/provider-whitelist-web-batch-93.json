@@ -1,7 +1,7 @@
 {
   "version": "2026-10-21-safe",
   "updated": "2026-10-21",
-  "description": "Country/brand/domain regulator reconciliation; affiliate and bonus promotions remain disabled without distinct verification",
+  "description": "Current DE/CH online sports-betting country audit and BR exclusion. Austria keeps independently documented September regional candidates in batch 88; no new promotional links authorized.",
   "country_rules": {
     "DE": {
       "status": "verified",
@@ -602,90 +602,6 @@
           "bonus_status": "UNGEPRUEFT"
         }
       ]
-    },
-    "AT": {
-      "status": "regional",
-      "provider_state": "regional_review_required",
-      "scope": "online_sports_betting",
-      "checked": "2026-10-21",
-      "source_name": "BMF Austria & Landesbehörden",
-      "source_url": "https://www.bmf.gv.at/themen/gluecksspiel-spielerschutz/gesetzliche-grundlagen-gluecksspiel/faq-gluecksspielmonopol.html",
-      "review_due": "2026-11-01",
-      "note_de": "Landesrechtliche Online-Bewilligungen noch nicht je Betreiber und Bundesland für Oktober erneut bestätigt; bis dahin keine Anzeige.",
-      "previous_candidates_under_review": [
-        "win2day",
-        "Tipico",
-        "tipp3",
-        "ADMIRAL",
-        "Sicher.Wetten",
-        "tippbet360",
-        "VERSUSbet"
-      ],
-      "regions": {
-        "AT-1": {
-          "status": "pending_filter",
-          "provider_state": "operator_licence_revalidation",
-          "providers": [],
-          "checked": "2026-10-21",
-          "note_de": "Die sieben bisherigen Kandidaten sind nicht als bundeslandbezogene Online-Erlaubnis bestätigt. Aktuelle Landesrechts- und Betreiberprüfung erforderlich."
-        },
-        "AT-2": {
-          "status": "pending_filter",
-          "provider_state": "operator_licence_revalidation",
-          "providers": [],
-          "checked": "2026-10-21",
-          "note_de": "Die sieben bisherigen Kandidaten sind nicht als bundeslandbezogene Online-Erlaubnis bestätigt. Aktuelle Landesrechts- und Betreiberprüfung erforderlich."
-        },
-        "AT-3": {
-          "status": "pending_filter",
-          "provider_state": "operator_licence_revalidation",
-          "providers": [],
-          "checked": "2026-10-21",
-          "note_de": "Die sieben bisherigen Kandidaten sind nicht als bundeslandbezogene Online-Erlaubnis bestätigt. Aktuelle Landesrechts- und Betreiberprüfung erforderlich."
-        },
-        "AT-4": {
-          "status": "pending_filter",
-          "provider_state": "operator_licence_revalidation",
-          "providers": [],
-          "checked": "2026-10-21",
-          "note_de": "Die sieben bisherigen Kandidaten sind nicht als bundeslandbezogene Online-Erlaubnis bestätigt. Aktuelle Landesrechts- und Betreiberprüfung erforderlich."
-        },
-        "AT-5": {
-          "status": "pending_filter",
-          "provider_state": "operator_licence_revalidation",
-          "providers": [],
-          "checked": "2026-10-21",
-          "note_de": "Die sieben bisherigen Kandidaten sind nicht als bundeslandbezogene Online-Erlaubnis bestätigt. Aktuelle Landesrechts- und Betreiberprüfung erforderlich."
-        },
-        "AT-6": {
-          "status": "pending_filter",
-          "provider_state": "operator_licence_revalidation",
-          "providers": [],
-          "checked": "2026-10-21",
-          "note_de": "Die sieben bisherigen Kandidaten sind nicht als bundeslandbezogene Online-Erlaubnis bestätigt. Aktuelle Landesrechts- und Betreiberprüfung erforderlich."
-        },
-        "AT-7": {
-          "status": "pending_filter",
-          "provider_state": "operator_licence_revalidation",
-          "providers": [],
-          "checked": "2026-10-21",
-          "note_de": "Die sieben bisherigen Kandidaten sind nicht als bundeslandbezogene Online-Erlaubnis bestätigt. Aktuelle Landesrechts- und Betreiberprüfung erforderlich."
-        },
-        "AT-8": {
-          "status": "pending_filter",
-          "provider_state": "operator_licence_revalidation",
-          "providers": [],
-          "checked": "2026-10-21",
-          "note_de": "Die sieben bisherigen Kandidaten sind nicht als bundeslandbezogene Online-Erlaubnis bestätigt. Aktuelle Landesrechts- und Betreiberprüfung erforderlich."
-        },
-        "AT-9": {
-          "status": "pending_filter",
-          "provider_state": "operator_licence_revalidation",
-          "providers": [],
-          "checked": "2026-10-21",
-          "note_de": "Die sieben bisherigen Kandidaten sind nicht als bundeslandbezogene Online-Erlaubnis bestätigt. Aktuelle Landesrechts- und Betreiberprüfung erforderlich."
-        }
-      }
     },
     "BR": {
       "status": "excluded",
