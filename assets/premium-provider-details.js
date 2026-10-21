@@ -359,6 +359,8 @@
     return originalFetch(input, Object.assign({}, init, { body: JSON.stringify(payload) }));
   };
 
+  window.BetInsightPremiumEligibility = { isValid: detailsComplete, getCountryCode: currentCountryCode, getRegionCode: () => selectedRegionCode };
+
   ensureStyle();
   ensureRegionBox();
   loadWhitelist();
