@@ -1,0 +1,25 @@
+name: BetInsight Whitelist Regression
+on:
+  pull_request:
+    paths:
+      - 'anbieter/**'
+      - 'anbieter-auswahl/**'
+      - 'assets/provider-whitelist*'
+      - 'assets/regional-restrictions.js'
+      - 'assets/premium-provider-details.js'
+      - 'premium-upgrade/**'
+      - 'scripts/test-whitelist-release.mjs'
+      - '.github/workflows/whitelist-release-regression.yml'
+  workflow_dispatch:
+jobs:
+  verify-whitelist:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check country/provider data and JavaScript syntax
+        run: node scripts/test-whitelist-release.mjs
