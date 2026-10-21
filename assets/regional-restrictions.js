@@ -121,7 +121,8 @@
       if (typeof data?.brazil_betting_block_active !== "boolean") {
         throw new Error("invalid regional config");
       }
-      brazilBettingBlockActive = data.brazil_betting_block_active;
+      // BetInsight BR target-market exclusion cannot be overridden by legacy marketing settings.
+      brazilBettingBlockActive = true;
       configUpdatedAt = String(data.updated_at || "");
       configLoaded = true;
       window.dispatchEvent(new CustomEvent("bi:regional-config", {
