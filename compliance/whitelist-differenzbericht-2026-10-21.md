@@ -84,6 +84,8 @@ Anbieterquellen zur Plausibilitätsprüfung:
 - https://www.tipico.de/wett-tipps/tipico-umsatzbedingungen
 - https://www.tipico.de/wett-tipps/freunde-werben-tipico
 
+**Ergänzende deutsche Betreiber-/Domainmatrix:** `compliance/de-ggl-betreiber-domains-2026-10-21.csv` enthält **31 Zuordnungen** (30 bestehende BetInsight-Marken plus Tipico-Kandidat) zu den auf der amtlichen GGL-Webliste vom 02.10.2026 genannten Online-Sportwettenbetreibern und Domains. Die Tabelle ist ein Prüfbeleg, keine Affiliate- oder Marketingfreigabe. Produkt-Erreichbarkeit, Redirect, Alters- und Werberegeln müssen weiterhin getestet werden.
+
 CSV-Register: `compliance/bonus-und-anbieterregister-2026-10-21.csv` enthält **40 Zeilen**: 30 bisherige DE-Marken + Tipico-Kandidat, sieben AT-Marken, zwei CH-Produkte; ungeprüfte Bonusfelder stehen auf `UNGEPRUEFT`.
 
 ## 7. Geltende Aktivierungssperre / technischer Freigabeprozess
@@ -105,6 +107,7 @@ CSV-Register: `compliance/bonus-und-anbieterregister-2026-10-21.csv` enthält **
 | 2026-09-09 | Letzte bekannte Override-Batches (87–92) | historischer Ergänzungsstand | bereits in `main` |
 | 2026-10-02 | Neuer amtlicher GGL-Whitelist-Stand | externe Registeränderung | nicht automatisch übertragen |
 | 2026-10-21 | Bundes-/Länderprüfung und Code-Audit; BR-Risiko, DE-Tipico-Lücke, AT-Kopiermatrix, globale Showcase-Route, Premium-Fallback dokumentiert | **Audit-Dokumentation** | **nur Audit-Branch** |
+| 2026-10-21 | GGL-Sportwetten-Betreiber-/Domainmatrix für 30 Bestandsmarken + Tipico ergänzt; Tipico Co. Limited und Tipico Karlsruhe Limited juristisch getrennt | **31 Prüfzeilen, kein Affiliate-/Bonusabschluss** | **nur Audit-Branch** |
 
 ## 9. Begrenzung und nächster Kontrollpunkt
 
