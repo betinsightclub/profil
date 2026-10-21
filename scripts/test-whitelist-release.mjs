@@ -16,9 +16,7 @@ assert.ok(overlay.country_rules.DE.providers.every(p=>p.domains.length&&p.licens
 assert.deepEqual(overlay.country_rules.CH.providers.map(p=>p.name), ['Swisslos Sporttip','Loterie Romande · Jouez Sport']);
 assert.equal(overlay.country_rules.BR.status, 'excluded');
 assert.deepEqual(overlay.country_rules.BR.providers, []);
-assert.equal(overlay.country_rules.AT.status, 'regional');
-assert.equal(Object.keys(overlay.country_rules.AT.regions).length,9);
-assert.ok(Object.values(overlay.country_rules.AT.regions).every(r=>r.status!=='verified'&&r.providers.length===0));
+assert.ok(!Object.hasOwn(overlay.country_rules,'AT'), 'restore unchanged AT regional list from batch 88');
 
 const deepMerge = (target, source) => {
  for (const [k,v] of Object.entries(source)) {
@@ -34,8 +32,12 @@ for(const file of manifest.files) deepMerge(base,json('assets/'+file));
 assert.equal(base.country_rules.DE.providers.length,31, 'final merged DE rule');
 assert.equal(base.country_rules.CH.providers.length,2, 'final merged CH rule');
 assert.equal(base.country_rules.BR.status,'excluded','final merged Brazil rule');
-assert.equal(base.country_rules.AT.regions['AT-9'].status,'pending_filter');
-assert.equal(base.country_rules.AT.regions['AT-1'].providers.length,0);
+assert.equal(base.country_rules.AT.status,'regional', 'Austria is still a regional market');
+assert.equal(Object.keys(base.country_rules.AT.regions).length,9);
+assert.ok(Object.values(base.country_rules.AT.regions).every(r=>r.status==='verified'&&r.providers.length===7),'all nine Austria regions retain seven historical candidates');
+assert.equal(base.country_rules.FR.status,'verified','France retains its published country list');
+assert.equal(base.country_rules.FR.providers.length,17,'France historical ANJ list restored');
+assert.equal(base.country_rules.BR.providers.length,0);
 
 const regional = read('assets/regional-restrictions.js');
 assert.match(regional,/return code === "BR";/);
@@ -44,7 +46,9 @@ const legacy=read('anbieter-auswahl/index.html');
 assert.match(legacy,/<meta http-equiv="refresh" content="0;url=\.\.\/anbieter\/"/);
 assert.match(legacy,/location\.replace\("\.\.\/anbieter\/"\)/);
 const selector=read('anbieter/index.html');
-assert.match(selector,/function ruleIsFresh/);
+assert.match(selector,/function ruleHasPublishedList/);
+assert.doesNotMatch(selector,/Date\.now\(\) - checked/);
+assert.doesNotMatch(selector,/Für \\?\$\{locationText\} sind noch keine von BetInsight verifizierten Anbieter hinterlegt/);
 assert.match(selector,/Bonusbedingungen: ungeprüft/);
 assert.match(selector,/Amtlich registrierte Domain/);
 const premium=read('premium-upgrade/index.html');
@@ -68,4 +72,4 @@ for(const path of ['anbieter/index.html','anbieter-auswahl/index.html','premium-
  }
  assert.ok(scripts>0,path+' must have inline JS');
 }
-console.log('PASS BetInsight whitelist regression: 93 merge files; DE 31; CH 2; AT 9 restricted; BR denied; legacy redirect; Premium script guards; all inline scripts parse.');
+console.log('PASS BetInsight production whitelist regression: DE 31; CH 2; AT 9x7 restored; FR 17 restored; BR denied; 93 merge files; legacy redirect; Premium unchanged; all inline scripts parse.');
