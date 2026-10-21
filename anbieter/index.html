@@ -743,7 +743,7 @@
         while(cursor<files.length) {
           const index=cursor++;
           const file=files[index];
-          if(typeof file!=='string'||!/^provider-whitelist-web-batch(?:-\\d+)?\\.json$/.test(file)) {
+          if(typeof file!=='string'||!/^provider-whitelist-web-batch(?:-\d+)?\.json$/.test(file)) {
             throw new Error('Ungültige Whitelist-Datei');
           }
           const url=new URL(`../assets/${file}`,location.href);
