@@ -733,19 +733,47 @@
       return target;
     }
 
+    // Load the verified whitelist in parallel with bounded concurrency.
+    // Merge in manifest order: later regulatory reviews always take precedence.
+    async function fetchWhitelistBatches(files,revision) {
+      const batches=new Array(files.length);
+      const concurrency=Math.min(8,files.length);
+      let cursor=0;
+      async function worker() {
+        while(cursor<files.length) {
+          const index=cursor++;
+          const file=files[index];
+          if(typeof file!=='string'||!/^provider-whitelist-web-batch(?:-\\d+)?\\.json$/.test(file)) {
+            throw new Error('Ungültige Whitelist-Datei');
+          }
+          const url=new URL(`../assets/${file}`,location.href);
+          url.searchParams.set('v',revision);
+          let error;
+          for(let attempt=0;attempt<2;attempt++) {
+            try {
+              const response=await fetch(url,{cache:'default'});
+              if(!response.ok) throw new Error(`HTTP ${response.status}`);
+              batches[index]=await response.json();
+              error=null;
+              break;
+            } catch(e) {error=e;}
+          }
+          if(error) throw new Error(`Whitelist batch: ${file} – ${String(error.message||error)}`);
+        }
+      }
+      await Promise.all(Array.from({length:concurrency},()=>worker()));
+      return batches;
+    }
+
     Promise.all([
       fetch(DATA_URL,{cache:'no-store'}).then(response=>{ if(!response.ok) throw new Error(`Whitelist HTTP ${response.status}`); return response.json(); }),
       fetch(BATCH_MANIFEST_URL,{cache:'no-store'}).then(response=>{ if(!response.ok) throw new Error(`Whitelist manifest HTTP ${response.status}`); return response.json(); })
     ]).then(async ([baseData,manifest])=>{
-      config=baseData;
+      // Fail closed on a missing regulatory batch. Never show a partially loaded list.
       const files=Array.isArray(manifest?.files)?manifest.files:[];
-      for (const file of files) {
-        const url=new URL(`../assets/${file}`,location.href);
-        url.searchParams.set('v',manifest.updated||manifest.version||Date.now());
-        const response=await fetch(url,{cache:'no-store'});
-        if(!response.ok) throw new Error(`Whitelist batch HTTP ${response.status}: ${file}`);
-        config=deepMerge(config,await response.json());
-      }
+      const batches=await fetchWhitelistBatches(files,manifest.updated||manifest.version||'1');
+      config=baseData;
+      for(const batch of batches) config=deepMerge(config,batch);
       if (manifest?.updated && (!config.updated || manifest.updated > config.updated)) config.updated=manifest.updated;
       dataStand.textContent=formatIsoDate(config.updated);
       populateCountries(countrySelect.value);
