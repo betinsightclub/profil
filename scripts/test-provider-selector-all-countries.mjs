@@ -101,7 +101,7 @@ async function fakeFetch(url) {
 const html=read('anbieter/index.html');
 const scripts=[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].filter(m=>!/src\s*=/.test(m[1]) && m[2].trim());
 assert.equal(scripts.length,1,'exactly one inline selector controller');
-const context=vm.createContext({document,window,location,fetch:fakeFetch,URL,Intl,Date,Event,Set,console});
+const context=vm.createContext({document,window,location,fetch:fakeFetch,URL,URLSearchParams,Intl,Date,Event,Set,console});
 new vm.Script(scripts[0][2],{filename:'anbieter/index.html'}).runInContext(context);
 
 for(let i=0;i<300 && !el('dataStand').textContent.includes('2026');i++) await new Promise(resolve=>setTimeout(resolve,10));
