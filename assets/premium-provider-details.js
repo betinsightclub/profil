@@ -290,7 +290,8 @@
   }
 
   function updateContinueState() {
-    const baseReady = Boolean(clean(country.value)) && Boolean(clean(document.getElementById("tariff")?.value));
+    const accountReady = Boolean(clean(document.getElementById("buyerEmail")?.value)) && document.getElementById("emailStatus")?.classList.contains("ok");
+    const baseReady = Boolean(clean(country.value)) && Boolean(clean(document.getElementById("tariff")?.value)) && accountReady;
     continueBtn.disabled = !baseReady || !detailsComplete();
   }
 
