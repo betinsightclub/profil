@@ -51,6 +51,16 @@ assert.doesNotMatch(selector,/Date\.now\(\) - checked/);
 assert.doesNotMatch(selector,/Für \\?\$\{locationText\} sind noch keine von BetInsight verifizierten Anbieter hinterlegt/);
 assert.match(selector,/Bonusbedingungen: ungeprüft/);
 assert.match(selector,/Amtlich registrierte Domain/);
+assert.match(selector, /id="countryDropdownTrigger"/, 'custom country trigger must be present');
+assert.match(selector, /id="countryDropdownList"/, 'scrollable country list must be present');
+assert.match(selector, /id="countrySelect" class="hidden"/, 'legacy select must remain as source of truth');
+assert.match(selector, /max-height:min\(360px,55vh\);overflow-y:auto/, 'list needs independently scrollable height');
+assert.match(selector, /countryDropdownList\.addEventListener\('click'/, 'select country with simple click');
+assert.match(selector, /countrySelect\.dispatchEvent\(new Event\('change'/, 'notify existing region handlers');
+assert.match(selector, /document\.addEventListener\('pointerdown'/, 'close on outside click only');
+assert.match(selector, /if \(!countryPicker\.contains\(event\.target\)\)/);
+assert.doesNotMatch(selector, /countryDropdownList\.addEventListener\('pointerup'/, 'mouse release must not collapse country list');
+
 const premium=read('premium-upgrade/index.html');
 const guard=read('assets/premium-provider-details.js');
 assert.match(premium,/premium-provider-details\.js\?v=20261021-1/);
