@@ -660,7 +660,7 @@
       const rule=getRule();
       if (!ruleHasPublishedList(rule)) {
         resultsSubtitle.textContent=`Anbieterübersicht · ${locationText}`;
-        showStatus(`Für ${locationText} ist derzeit keine Online-Sportwetten-Anbieterliste verfügbar.`);
+        showStatus(t('providersPage.notVerified',{location:locationText},`Für ${locationText} liegt noch keine abschließend verifizierte Online-Sportwetten-Anbieterliste vor. Deshalb werden derzeit keine Anbieter angezeigt.`));
         return;
       }
       let entries=normalizeEntries(rule).filter(entry=>entry.allowed);
@@ -736,9 +736,10 @@
       countryForm.classList.add('hidden'); confirmedCountry.classList.remove('hidden'); results.classList.add('hidden'); activeMode='';
       if (selectedCountry==='BR' || regional?.isBrazilBlocked?.(selectedCountry)) { showBrazilBlocked(); return; }
       filterStep.classList.remove('hidden');
-      // Clearly show verified zero-provider countries without requiring a second, apparently ineffective click.
-      const selectedRule=getRule();
-      if(ruleHasPublishedList(selectedRule) && selectedRule.providers.length===0) renderProviders('any');
+      // Every selected country gets an immediate visible result, even if the list is
+      // empty or still awaiting verification. This is a display-only preference:
+      // the existing regulatory whitelist and Brazil exclusion remain mandatory.
+      renderProviders('any');
       const returnTarget=new URLSearchParams(location.search).get('return');
       // Legacy provider showcase is retired; stay on this country-controlled selector.
     });
