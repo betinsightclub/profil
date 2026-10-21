@@ -343,8 +343,8 @@
   <script>
   (() => {
     'use strict';
-    const DATA_URL = '../assets/provider-whitelist.json?v=20261021-1';
-    const BATCH_MANIFEST_URL = '../assets/provider-whitelist-batches.json?v=20261021-1';
+    const DATA_URL = '../assets/provider-whitelist.json?v=20261021-2';
+    const BATCH_MANIFEST_URL = '../assets/provider-whitelist-batches.json?v=20261021-2';
     const BI = window.BetInsightI18n;
     const t = (key, vars={}, fallback='') => BI?.t(key, vars, fallback) || fallback;
     const countrySearch = document.getElementById('countrySearch');
@@ -491,11 +491,10 @@
       if (selectedRegion && base.regions?.[selectedRegion]) return base.regions[selectedRegion];
       return base;
     }
-    function ruleIsFresh(rule) {
-      if (!rule || rule.status !== 'verified' || !rule.checked) return false;
-      const checked = Date.parse(rule.checked + 'T00:00:00Z');
-      const elapsed = Date.now() - checked;
-      return Number.isFinite(checked) && elapsed >= -86400000 && elapsed <= 31*86400000;
+    // A review date is a maintenance deadline, not a switch that removes a published country list.
+    // Regulatory status still controls inclusion; never introduce providers from unapproved regions.
+    function ruleHasPublishedList(rule) {
+      return Boolean(rule && rule.status === 'verified' && Array.isArray(rule.providers));
     }
     function providerById(id) { return (config?.providers||[]).find(provider=>provider.id===id)||{id,name:id}; }
     function normalizeEntries(rule) {
@@ -539,9 +538,9 @@
       providerGrid.innerHTML='';
       const locationText=selectedLocationText();
       const rule=getRule();
-      if (!ruleIsFresh(rule)) {
-        resultsSubtitle.textContent=t('providersPage.pendingSubtitle',{location:locationText},`Prüfung für ${locationText} ausstehend`);
-        showStatus(t('providersPage.unverified',{location:locationText},`Für ${locationText} sind noch keine von BetInsight verifizierten Anbieter hinterlegt.`));
+      if (!ruleHasPublishedList(rule)) {
+        resultsSubtitle.textContent=`Anbieterübersicht · ${locationText}`;
+        showStatus(`Für ${locationText} ist derzeit keine Online-Sportwetten-Anbieterliste verfügbar.`);
         return;
       }
       let entries=normalizeEntries(rule).filter(entry=>entry.allowed);
@@ -554,7 +553,7 @@
         showStatus(t(key,{location:locationText},fallback));
         return;
       }
-      const verifiedBadge=escapeHtml(t('providersPage.verifiedBadge',{},'✓ Land geprüft'));
+      const verifiedBadge=escapeHtml(t('providersPage.bookmakerBadge',{},'Sportwettenanbieter'));
       const cryptoBadge=escapeHtml(t('providersPage.cryptoBadge',{},'₿ Krypto bestätigt'));
       const future=escapeHtml(t('providersPage.futureLink',{},'Partner- oder Reflink wird später separat ergänzt.'));
       providerGrid.innerHTML=entries.map(entry=>{
