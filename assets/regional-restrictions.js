@@ -55,7 +55,7 @@
 
   function isBrazilBlocked(value) {
     const code = normalizeCountryCode(value) || currentCountry();
-    return brazilBettingBlockActive && code === "BR";
+    // BetInsight policy: Brazil is not a target market, regardless of remote marketing switch.\n    return code === "BR";
   }
 
   function clearRememberedCountry() {
