@@ -244,8 +244,8 @@
   <script>
   (() => {
     'use strict';
-    const DATA_URL = '../assets/provider-whitelist.json?v=20260831-4';
-    const BATCH_MANIFEST_URL = '../assets/provider-whitelist-batches.json?v=20260831-1';
+    const DATA_URL = '../assets/provider-whitelist.json?v=20261021-1';
+    const BATCH_MANIFEST_URL = '../assets/provider-whitelist-batches.json?v=20261021-1';
     const BI = window.BetInsightI18n;
     const t = (key, vars={}, fallback='') => BI?.t(key, vars, fallback) || fallback;
     const countrySearch = document.getElementById('countrySearch');
@@ -392,6 +392,12 @@
       if (selectedRegion && base.regions?.[selectedRegion]) return base.regions[selectedRegion];
       return base;
     }
+    function ruleIsFresh(rule) {
+      if (!rule || rule.status !== 'verified' || !rule.checked) return false;
+      const checked = Date.parse(rule.checked + 'T00:00:00Z');
+      const elapsed = Date.now() - checked;
+      return Number.isFinite(checked) && elapsed >= -86400000 && elapsed <= 31*86400000;
+    }
     function providerById(id) { return (config?.providers||[]).find(provider=>provider.id===id)||{id,name:id}; }
     function normalizeEntries(rule) {
       return (rule?.providers||[]).map(entry=>{
@@ -401,7 +407,9 @@
           name:entry.name || '',
           allowed:entry.allowed!==false,
           crypto:entry.crypto===true || entry.crypto_status==='yes' || entry.crypto_status==='confirmed',
-          priority:Number(entry.priority||999)
+          priority:Number(entry.priority||999),
+          domains:Array.isArray(entry.domains)?entry.domains:[],
+          license_holder:entry.license_holder || ''
         };
       });
     }
@@ -425,14 +433,14 @@
     function renderProviders(mode=activeMode) {
       if (!selectedCountry) return;
       const regional=window.BetInsightRegionalRestrictions;
-      if (regional?.isBrazilBlocked?.(selectedCountry)) { showBrazilBlocked(); return; }
+      if (selectedCountry==='BR' || regional?.isBrazilBlocked?.(selectedCountry)) { showBrazilBlocked(); return; }
       activeMode=mode;
       results.classList.remove('hidden');
       statusBox.classList.add('hidden');
       providerGrid.innerHTML='';
       const locationText=selectedLocationText();
       const rule=getRule();
-      if (!rule || rule.status!=='verified') {
+      if (!ruleIsFresh(rule)) {
         resultsSubtitle.textContent=t('providersPage.pendingSubtitle',{location:locationText},`Prüfung für ${locationText} ausstehend`);
         showStatus(t('providersPage.unverified',{location:locationText},`Für ${locationText} sind noch keine von BetInsight verifizierten Anbieter hinterlegt.`));
         return;
@@ -452,7 +460,7 @@
       const future=escapeHtml(t('providersPage.futureLink',{},'Partner- oder Reflink wird später separat ergänzt.'));
       providerGrid.innerHTML=entries.map(entry=>{
         const providerName=entry.name || providerById(entry.id).name;
-        return `<article class="provider-card"><h3>${escapeHtml(providerName)}</h3><div class="badges"><span class="badge verified">${verifiedBadge}</span>${entry.crypto?`<span class="badge crypto">${cryptoBadge}</span>`:''}</div><p class="future">${future}</p></article>`;
+        return `<article class="provider-card"><h3>${escapeHtml(providerName)}</h3><div class="badges"><span class="badge verified">${verifiedBadge}</span>${entry.crypto?`<span class="badge crypto">${cryptoBadge}</span>`:''}</div>${entry.domains?.length?`<p class="future">Amtlich registrierte Domain(s): ${escapeHtml(entry.domains.join(', '))}</p>`:''}${entry.license_holder?`<p class="future">Lizenzinhaber: ${escapeHtml(entry.license_holder)}</p>`:''}<p class="future">${future} Bonusbedingungen: ungeprüft.</p></article>`;
       }).join('');
     }
     function refreshLanguage() {
@@ -499,10 +507,10 @@
       regional?.rememberCountry?.(selectedCountry);
       updateConfirmedLabel();
       countryForm.classList.add('hidden'); confirmedCountry.classList.remove('hidden'); results.classList.add('hidden'); activeMode='';
-      if (regional?.isBrazilBlocked?.(selectedCountry)) { showBrazilBlocked(); return; }
+      if (selectedCountry==='BR' || regional?.isBrazilBlocked?.(selectedCountry)) { showBrazilBlocked(); return; }
       filterStep.classList.remove('hidden');
       const returnTarget=new URLSearchParams(location.search).get('return');
-      if (returnTarget==='anbieter-auswahl') { location.href='../anbieter-auswahl/'; }
+      // Legacy provider showcase is retired; stay on this country-controlled selector.
     });
     changeCountry.addEventListener('click',()=>{
       selectedCountry=''; selectedRegion=''; activeMode='';

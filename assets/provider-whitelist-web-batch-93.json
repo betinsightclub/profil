@@ -1,0 +1,701 @@
+{
+  "version": "2026-10-21-safe",
+  "updated": "2026-10-21",
+  "description": "Country/brand/domain regulator reconciliation; affiliate and bonus promotions remain disabled without distinct verification",
+  "country_rules": {
+    "DE": {
+      "status": "verified",
+      "provider_state": "ggl_sports_betting_domains_checked",
+      "scope": "online_sports_betting",
+      "checked": "2026-10-21",
+      "source_updated": "2026-10-02",
+      "source_name": "GGL – Sportwetten",
+      "source_url": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+      "review_due": "2026-11-01",
+      "note_de": "31 GGL-Sportwetten-Marken inkl. Tipico. Namen nur zur Anbieterinformation; Bonus-/Affiliate-Links nicht freigegeben.",
+      "providers": [
+        {
+          "id": "Bet-at-home",
+          "name": "Bet-at-home",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "Bet-at-home.com Internet Limited",
+          "domains": [
+            "bet-at-home.de"
+          ],
+          "license_channel": "online",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "Betano",
+          "name": "Betano",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "Betkick Sportsbetting Limited",
+          "domains": [
+            "betano.de"
+          ],
+          "license_channel": "online",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "Betway",
+          "name": "Betway",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "Betway Limited",
+          "domains": [
+            "betway.de"
+          ],
+          "license_channel": "online",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "bwin",
+          "name": "bwin",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "bwin (Deutschland) Limited",
+          "domains": [
+            "bwin.de"
+          ],
+          "license_channel": "online",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "PokerStars Sports",
+          "name": "PokerStars Sports",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "Cyan Blue International Limited",
+          "domains": [
+            "pokerstars.de/sports"
+          ],
+          "license_channel": "online",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "DAZN BET",
+          "name": "DAZN BET",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "DZBT Operations Limited",
+          "domains": [
+            "daznbet.de"
+          ],
+          "license_channel": "online",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "AdmiralBet",
+          "name": "AdmiralBet",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "Greentube Betting Malta Limited",
+          "domains": [
+            "admiralbet.de"
+          ],
+          "license_channel": "online/stationaer",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "Neo.bet",
+          "name": "Neo.bet",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "Greenvest Betting Limited",
+          "domains": [
+            "neobet.de"
+          ],
+          "license_channel": "online",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "bet365",
+          "name": "bet365",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "Hillside (Europe) ENC",
+          "domains": [
+            "bet365.de"
+          ],
+          "license_channel": "online",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "Wettarena",
+          "name": "Wettarena",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "I.B.C. Sportsbetting Limited",
+          "domains": [
+            "wettarena.de"
+          ],
+          "license_channel": "online/stationaer",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "Bet3000",
+          "name": "Bet3000",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "I.B.C. Sportsbetting Limited",
+          "domains": [
+            "bet3000.de"
+          ],
+          "license_channel": "online/stationaer",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "Interwetten",
+          "name": "Interwetten",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "Interwetten Gaming Limited",
+          "domains": [
+            "interwetten.de"
+          ],
+          "license_channel": "online",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "Intertops",
+          "name": "Intertops",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "ITSP Services GmbH",
+          "domains": [
+            "intertops.de"
+          ],
+          "license_channel": "online",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "Bpremium",
+          "name": "Bpremium",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "Ladbrokes (Deutschland) Limited",
+          "domains": [
+            "bpremium.de"
+          ],
+          "license_channel": "online",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "LeoVegas",
+          "name": "LeoVegas",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "LVSports Limited",
+          "domains": [
+            "leovegas.de"
+          ],
+          "license_channel": "online",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "Merkur Sports",
+          "name": "Merkur Sports",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "Merkur Bets Malta Limited",
+          "domains": [
+            "merkur-sports.de"
+          ],
+          "license_channel": "online/stationaer",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "XTiP",
+          "name": "XTiP",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "Merkur Bets Malta Limited",
+          "domains": [
+            "xtip.de"
+          ],
+          "license_channel": "online/stationaer",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "Merkur Bets",
+          "name": "Merkur Bets",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "Merkur Bets Malta Limited",
+          "domains": [
+            "merkurbets.de"
+          ],
+          "license_channel": "online/stationaer",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "Sportwetten.de",
+          "name": "Sportwetten.de",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "NetX Betting Limited",
+          "domains": [
+            "sportwetten.de"
+          ],
+          "license_channel": "stationaer/online",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "Betstar",
+          "name": "Betstar",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "NetX Betting Limited",
+          "domains": [
+            "betstar.sportwetten.de",
+            "betstar.sw.de"
+          ],
+          "license_channel": "stationaer/online",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "Betbird",
+          "name": "Betbird",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "NetX Betting Limited",
+          "domains": [
+            "betbird.de"
+          ],
+          "license_channel": "stationaer/online",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "ODDSET",
+          "name": "ODDSET",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "Oddset Sportwetten GmbH",
+          "domains": [
+            "oddset.de"
+          ],
+          "license_channel": "online/stationaer",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "VBET",
+          "name": "VBET",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "SCGO Limited",
+          "domains": [
+            "vbet.de"
+          ],
+          "license_channel": "online",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "Sportingbet",
+          "name": "Sportingbet",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "Sportingbet (Deutschland) Limited",
+          "domains": [
+            "sportingbet.de"
+          ],
+          "license_channel": "online",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "Letsbet",
+          "name": "Letsbet",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "Starlet Entertainment Limited",
+          "domains": [
+            "letsbet.de"
+          ],
+          "license_channel": "online",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "Original Wetten",
+          "name": "Original Wetten",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "Tipico Karlsruhe Limited",
+          "domains": [
+            "original-wetten.de"
+          ],
+          "license_channel": "online/stationaer",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "Tipwin",
+          "name": "Tipwin",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "Tipwin Limited",
+          "domains": [
+            "tipwin.de"
+          ],
+          "license_channel": "online/stationaer",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "Tiptorro",
+          "name": "Tiptorro",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "Torro Tec Limited",
+          "domains": [
+            "tiptorro.de"
+          ],
+          "license_channel": "online/stationaer",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "Winamax",
+          "name": "Winamax",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "WINAMAX (Société anonyme)",
+          "domains": [
+            "winamax.de"
+          ],
+          "license_channel": "online",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "888sport",
+          "name": "888sport",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "888 Germany Limited",
+          "domains": [
+            "888sport.de"
+          ],
+          "license_channel": "online",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "Tipico",
+          "name": "Tipico",
+          "allowed": true,
+          "crypto": false,
+          "priority": 999,
+          "license_holder": "Tipico Co. Limited",
+          "domains": [
+            "tipico.de"
+          ],
+          "license_channel": "online/stationaer",
+          "license_scope": "online_sports_betting",
+          "official_source": "https://www.gluecksspiel-behoerde.de/de/fuer-spielende/uebersicht-erlaubter-anbieter-whitelist",
+          "source_updated": "2026-10-02",
+          "checked": "2026-10-21",
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        }
+      ]
+    },
+    "CH": {
+      "status": "verified",
+      "provider_state": "gespa_two_online_operators",
+      "scope": "online_sports_betting",
+      "checked": "2026-10-21",
+      "source_name": "Gespa – Sportwetten",
+      "source_url": "https://www.gespa.ch/de/geldspielformen/sportwetten",
+      "review_due": "2026-11-01",
+      "note_de": "Nur Swisslos/Sporttip und Loterie Romande/Jouez Sport; fremde Anbieter und Links nicht zugelassen.",
+      "providers": [
+        {
+          "id": "Swisslos Sporttip",
+          "name": "Swisslos Sporttip",
+          "allowed": true,
+          "crypto": false,
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        },
+        {
+          "id": "Loterie Romande · Jouez Sport",
+          "name": "Loterie Romande · Jouez Sport",
+          "allowed": true,
+          "crypto": false,
+          "affiliate_status": "UNGEPRUEFT",
+          "bonus_status": "UNGEPRUEFT"
+        }
+      ]
+    },
+    "AT": {
+      "status": "regional",
+      "provider_state": "regional_review_required",
+      "scope": "online_sports_betting",
+      "checked": "2026-10-21",
+      "source_name": "BMF Austria & Landesbehörden",
+      "source_url": "https://www.bmf.gv.at/themen/gluecksspiel-spielerschutz/gesetzliche-grundlagen-gluecksspiel/faq-gluecksspielmonopol.html",
+      "review_due": "2026-11-01",
+      "note_de": "Landesrechtliche Online-Bewilligungen noch nicht je Betreiber und Bundesland für Oktober erneut bestätigt; bis dahin keine Anzeige.",
+      "previous_candidates_under_review": [
+        "win2day",
+        "Tipico",
+        "tipp3",
+        "ADMIRAL",
+        "Sicher.Wetten",
+        "tippbet360",
+        "VERSUSbet"
+      ],
+      "regions": {
+        "AT-1": {
+          "status": "pending_filter",
+          "provider_state": "operator_licence_revalidation",
+          "providers": [],
+          "checked": "2026-10-21",
+          "note_de": "Die sieben bisherigen Kandidaten sind nicht als bundeslandbezogene Online-Erlaubnis bestätigt. Aktuelle Landesrechts- und Betreiberprüfung erforderlich."
+        },
+        "AT-2": {
+          "status": "pending_filter",
+          "provider_state": "operator_licence_revalidation",
+          "providers": [],
+          "checked": "2026-10-21",
+          "note_de": "Die sieben bisherigen Kandidaten sind nicht als bundeslandbezogene Online-Erlaubnis bestätigt. Aktuelle Landesrechts- und Betreiberprüfung erforderlich."
+        },
+        "AT-3": {
+          "status": "pending_filter",
+          "provider_state": "operator_licence_revalidation",
+          "providers": [],
+          "checked": "2026-10-21",
+          "note_de": "Die sieben bisherigen Kandidaten sind nicht als bundeslandbezogene Online-Erlaubnis bestätigt. Aktuelle Landesrechts- und Betreiberprüfung erforderlich."
+        },
+        "AT-4": {
+          "status": "pending_filter",
+          "provider_state": "operator_licence_revalidation",
+          "providers": [],
+          "checked": "2026-10-21",
+          "note_de": "Die sieben bisherigen Kandidaten sind nicht als bundeslandbezogene Online-Erlaubnis bestätigt. Aktuelle Landesrechts- und Betreiberprüfung erforderlich."
+        },
+        "AT-5": {
+          "status": "pending_filter",
+          "provider_state": "operator_licence_revalidation",
+          "providers": [],
+          "checked": "2026-10-21",
+          "note_de": "Die sieben bisherigen Kandidaten sind nicht als bundeslandbezogene Online-Erlaubnis bestätigt. Aktuelle Landesrechts- und Betreiberprüfung erforderlich."
+        },
+        "AT-6": {
+          "status": "pending_filter",
+          "provider_state": "operator_licence_revalidation",
+          "providers": [],
+          "checked": "2026-10-21",
+          "note_de": "Die sieben bisherigen Kandidaten sind nicht als bundeslandbezogene Online-Erlaubnis bestätigt. Aktuelle Landesrechts- und Betreiberprüfung erforderlich."
+        },
+        "AT-7": {
+          "status": "pending_filter",
+          "provider_state": "operator_licence_revalidation",
+          "providers": [],
+          "checked": "2026-10-21",
+          "note_de": "Die sieben bisherigen Kandidaten sind nicht als bundeslandbezogene Online-Erlaubnis bestätigt. Aktuelle Landesrechts- und Betreiberprüfung erforderlich."
+        },
+        "AT-8": {
+          "status": "pending_filter",
+          "provider_state": "operator_licence_revalidation",
+          "providers": [],
+          "checked": "2026-10-21",
+          "note_de": "Die sieben bisherigen Kandidaten sind nicht als bundeslandbezogene Online-Erlaubnis bestätigt. Aktuelle Landesrechts- und Betreiberprüfung erforderlich."
+        },
+        "AT-9": {
+          "status": "pending_filter",
+          "provider_state": "operator_licence_revalidation",
+          "providers": [],
+          "checked": "2026-10-21",
+          "note_de": "Die sieben bisherigen Kandidaten sind nicht als bundeslandbezogene Online-Erlaubnis bestätigt. Aktuelle Landesrechts- und Betreiberprüfung erforderlich."
+        }
+      }
+    },
+    "BR": {
+      "status": "excluded",
+      "provider_state": "betinsight_target_market_excluded",
+      "scope": "betinsight_business_excluded",
+      "checked": "2026-10-21",
+      "source_name": "BetInsight target-market decision",
+      "source_url": null,
+      "providers": [],
+      "note_de": "BetInsight Wett-Tipps, Sportanalyse-Vertrieb, Anbieter, Boni und Affiliate-Links in Brasilien nicht verfügbar."
+    }
+  }
+}

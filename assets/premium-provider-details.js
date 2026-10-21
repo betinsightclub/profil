@@ -13,8 +13,8 @@
   window.__betInsightPremiumProviderDetailsInstalled = true;
 
   const CHECKOUT_HOST_FRAGMENT = "hook.eu1.make.com/oj6bq9eh2cprdkszwlbegh62nszod6v6";
-  const BASE_URL = "../assets/provider-whitelist.json?v=20260831-4";
-  const MANIFEST_URL = "../assets/provider-whitelist-batches.json?v=20260909-1";
+  const BASE_URL = "../assets/provider-whitelist.json?v=20261021-1";
+  const MANIFEST_URL = "../assets/provider-whitelist-batches.json?v=20261021-1";
   const clean = value => String(value || "").trim();
   const normalize = value => clean(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 
@@ -64,7 +64,7 @@
       renderAllSlots();
     } catch (error) {
       console.error("Premium whitelist konnte nicht geladen werden:", error);
-      whitelistLoadError = "Die Länder-Whitelist konnte gerade nicht geladen werden. Whitelist-Anbieter bitte vorübergehend manuell eintragen.";
+      whitelistLoadError = "Die aktuelle Länderprüfung konnte nicht geladen werden. Aus Sicherheitsgründen ist keine Anbieterwahl oder Zahlung möglich.";
       renderAllSlots();
     }
   }
@@ -131,11 +131,19 @@
     return null;
   }
 
+  function isFreshAllowedRule(rule) {
+    if (!rule || rule.status !== "verified" || !rule.checked) return false;
+    const checkedAt = Date.parse(rule.checked + "T00:00:00Z");
+    const diff = Date.now() - checkedAt;
+    return Number.isFinite(checkedAt) && diff >= -86400000 && diff <= 31 * 86400000;
+  }
   function effectiveRule() {
+    const code = currentCountryCode();
+    if (!code || code === "BR" || window.BetInsightRegionalRestrictions?.isBrazilBlocked?.(code)) return null;
     const rule = currentCountryRule();
     if (!rule) return null;
-    if (clean(rule.status).toLowerCase() === "regional") return regionRule(rule, selectedRegionCode) || null;
-    return rule;
+    const resolved = clean(rule.status).toLowerCase() === "regional" ? regionRule(rule, selectedRegionCode) : rule;
+    return isFreshAllowedRule(resolved) ? resolved : null;
   }
 
   function providersFromRule(rule) {
@@ -253,17 +261,12 @@
         updateContinueState();
         return;
       }
-      const state = clean(rule?.provider_state || rule?.status).replaceAll("_", " ");
-      container.innerHTML = `<label>Whitelist-Anbieter</label><input class="bi-concrete-provider" data-provider-detail="${index + 1}" type="text" maxlength="80" placeholder="Name des Anbieters" value="${oldValue.replace(/"/g, "&quot;")}"><div class="bi-hint bi-warning">Für diese Auswahl liefert die Whitelist aktuell keine Anbieter-Liste${state ? ` (${state})` : ""}. Bitte Anbietername eintragen; die Master-Zuordnung prüft ihn.</div>`;
-      container.querySelector(".bi-concrete-provider")?.addEventListener("input", updateContinueState);
+      container.innerHTML = `<label>Whitelist-Anbieter</label><div class="bi-hint bi-warning">Für dieses Land oder diese Region liegt noch keine aktuelle geprüfte Anbieterfreigabe vor. Eine manuelle Eingabe ist bis zur Prüfung nicht möglich.</div>`;
       updateContinueState();
       return;
     }
 
-    const label = type === "KRYPTO" ? "Welchen Krypto-Anbieter nutzt du?" : (type === "SONSTIGE" ? "Wie heißt dein sonstiger Anbieter?" : "Wie heißt dein Anbieter?");
-    const hint = type === "KRYPTO" ? "Bitte den konkreten Krypto-Anbieter eintragen. Er kann später im Premium-Master einem festen Anbieter zugeordnet werden." : "Bitte den konkreten Anbieter eintragen. Freitexte werden im Premium-Master normalisiert und zugeordnet.";
-    container.innerHTML = `<label>${label}</label><input class="bi-concrete-provider" data-provider-detail="${index + 1}" type="text" maxlength="80" autocomplete="off" placeholder="Anbietername" value="${oldValue.replace(/"/g, "&quot;")}"><div class="bi-hint">${hint}${whitelistLoadError ? ` ${whitelistLoadError}` : ""}</div>`;
-    container.querySelector(".bi-concrete-provider")?.addEventListener("input", updateContinueState);
+    container.innerHTML = `<div class="bi-hint bi-warning">Krypto- und sonstige Anbieter sind bis zur einzelnen Länder-/Domainprüfung nicht zur Aktivierung freigegeben. Bitte einen bestätigten Whitelist-Anbieter wählen.${whitelistLoadError ? " " + whitelistLoadError : ""}</div>`;
     updateContinueState();
   }
 
@@ -275,18 +278,21 @@
   function detailsComplete() {
     const slotList = [...slots.querySelectorAll(".slot")];
     if (!slotList.length) return false;
-    const countryRule = currentCountryRule();
-    if (clean(countryRule?.status).toLowerCase() === "regional" && !selectedRegionCode) return false;
+    const rule = effectiveRule();
+    if (!rule) return false;
+    const approved = providersFromRule(rule);
+    if (!approved.length) return false;
     return slotList.every(slot => {
-      const type = clean(categorySelect(slot)?.value);
+      const type = clean(categorySelect(slot)?.value).toUpperCase();
       const value = currentDetailValue(slot);
-      return Boolean(type && value);
+      return type === "WHITELISTED" && approved.includes(value);
     });
   }
 
   function updateContinueState() {
-    const baseReady = Boolean(clean(country.value)) && Boolean(clean(document.getElementById("tariff")?.value));
-    if (!baseReady || !detailsComplete()) continueBtn.disabled = true;
+    const accountReady = Boolean(clean(document.getElementById("buyerEmail")?.value)) && document.getElementById("emailStatus")?.classList.contains("ok");
+    const baseReady = Boolean(clean(country.value)) && Boolean(clean(document.getElementById("tariff")?.value)) && accountReady;
+    continueBtn.disabled = !baseReady || !detailsComplete();
   }
 
   function showNotice(message) {
@@ -302,7 +308,7 @@
       event.preventDefault();
       event.stopImmediatePropagation();
     }
-    showNotice("Bitte für jeden Platz einen konkreten Anbieter auswählen bzw. eintragen. Bei regional geregelten Ländern bitte zuerst die Region wählen.");
+    showNotice("Nur aktuell geprüfte Whitelist-Anbieter sind zugelassen. Bitte Land/Region und einen bestätigten Anbieter auswählen; freie Krypto-/Sonstige-Eingaben sind gesperrt.");
     return false;
   }
 
@@ -326,7 +332,7 @@
   }, true);
 
   const observer = new MutationObserver(() => renderAllSlots());
-  observer.observe(slots, { childList: true, subtree: true });
+  observer.observe(slots, { childList: true });
 
   const originalFetch = window.fetch.bind(window);
   window.fetch = async function(input, init = {}) {
@@ -339,7 +345,7 @@
 
     let payload;
     try { payload = JSON.parse(String(init.body || "{}")); }
-    catch (_) { return originalFetch(input, init); }
+    catch (_) { return new Response(JSON.stringify({ ok: false, error: "INVALID_CHECKOUT_PAYLOAD" }), { status: 400, headers: { "Content-Type": "application/json" } }); }
 
     const slotList = [...slots.querySelectorAll(".slot")];
     slotList.forEach((slot, index) => {
@@ -349,10 +355,12 @@
     });
     payload.whitelist_country_code = currentCountryCode();
     payload.whitelist_region_code = selectedRegionCode;
-    payload.provider_selection_version = "PREMIUM-PROVIDER-WHITELIST-V2";
+    payload.provider_selection_version = "PREMIUM-PROVIDER-WHITELIST-V3-20261021";
 
     return originalFetch(input, Object.assign({}, init, { body: JSON.stringify(payload) }));
   };
+
+  window.BetInsightPremiumEligibility = { isValid: detailsComplete, getCountryCode: currentCountryCode, getRegionCode: () => selectedRegionCode };
 
   ensureStyle();
   ensureRegionBox();
