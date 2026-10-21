@@ -121,7 +121,8 @@
       if (typeof data?.brazil_betting_block_active !== "boolean") {
         throw new Error("invalid regional config");
       }
-      brazilBettingBlockActive = data.brazil_betting_block_active;
+      // Marketing admin flag is advisory only: Brazil is permanently excluded as a betting target market.
+      brazilBettingBlockActive = true;
       configUpdatedAt = String(data.updated_at || "");
       configLoaded = true;
       window.dispatchEvent(new CustomEvent("bi:regional-config", {
