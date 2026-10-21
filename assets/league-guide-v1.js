@@ -72,6 +72,8 @@
   function flag(value) {
     const hit=identify(value); if(hit)return hit.flag;
     const raw=clean(value);
+    // UEFA Europa League must not be mistaken for Australia's "A League".
+    if (/^(?:uefa\s+)?europa\s+league$/i.test(raw)) return '🇪🇺';
     const f=flags.find(([re])=>re.test(raw));return f?f[1]:(/uefa|fifa|weltmeisterschaft|world cup|champions league|europa league|nations league/i.test(raw)?'🌍':'🌐');
   }
   function splitKnownLeagues(raw) {
