@@ -1,0 +1,34 @@
+{
+  "version": "2026-10-21-audit-candidate",
+  "updated": "2026-10-21",
+  "publication_status": "DRAFT_ONLY_NEVER_DEPLOY_BEFORE_REVIEW",
+  "description": "Staged conservative BR exclusion and CH-only-online source reconciliation; other countries require dedicated review.",
+  "country_rules": {
+    "BR": {
+      "status": "excluded",
+      "provider_state": "excluded_target_market",
+      "scope": "betinsight_business_scope_excluded",
+      "checked": "2026-10-21",
+      "source_name": "BetInsight internal target-market policy",
+      "source_url": null,
+      "providers": [],
+      "note_de": "Brasilien ist fuer Wett-Tipp-, Anbieter-, Quotenvergleich- und Sportanalyse-Vertriebsangebote von BetInsight als Zielmarkt ausgeschlossen. Keine Anbieter, Boni, Affiliate-Links oder Weiterleitungen anzeigen. Nicht per Marketing-Schalter aufhebbar.",
+      "note_en": "Brazil is excluded as a BetInsight target market for betting picks, operator promotions and sportsbook-linked sports analysis. Never show operators, bonuses, affiliate links or betting redirects; cannot be overridden by a marketing flag."
+    },
+    "CH": {
+      "status": "verified",
+      "provider_state": "online_sports_betting_regulator_confirmed",
+      "scope": "online_sports_betting",
+      "checked": "2026-10-21",
+      "source_name": "Gespa – Sportwetten / illegale Spielangebote",
+      "source_url": "https://www.gespa.ch/de/geldspielformen/sportwetten",
+      "supporting_source_url": "https://www.gespa.ch/de/bekaempfung-illegaler-aktivitaeten/illegale-spielangebote",
+      "providers": [
+        "Swisslos Sporttip",
+        "Loterie Romande · Jouez Sport"
+      ],
+      "note_de": "Gespa bestaetigt ausschliesslich Swisslos und Loterie Romande fuer Online-Sportwetten. Konkrete Angebots- oder Affiliate-Links bleiben bis zur separaten Domain- und Marketingpruefung deaktiviert.",
+      "note_en": "Only Swisslos and Loterie Romande may offer online sports betting in Switzerland; concrete provider or affiliate links require separate domain and marketing approval."
+    }
+  }
+}
