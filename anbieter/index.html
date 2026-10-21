@@ -140,6 +140,8 @@
       padding:20px;border:1px solid rgba(255,174,53,.30);border-radius:16px;background:rgba(255,174,53,.07);
       color:#ffe3ae;text-align:center
     }
+    .status-box a{display:inline-block;margin-top:12px;color:#a8dcff;font-weight:800;text-underline-offset:3px}
+    .choice.active{border-color:rgba(33,208,122,.7);background:rgba(33,208,122,.10);box-shadow:inset 0 0 0 1px rgba(33,208,122,.12)}
     .provider-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
     .provider-card{
       min-height:120px;padding:20px;border:1px solid var(--line);border-radius:17px;
@@ -615,6 +617,24 @@
       confirmedLabel.textContent=`${flag(selectedCountry)} ${selectedLocationText()}`;
     }
     function showStatus(message) { providerGrid.innerHTML=''; statusBox.textContent=message; statusBox.classList.remove('hidden'); }
+    // A verified empty jurisdiction is a meaningful compliance result, not a broken preference button.
+    function showVerifiedEmpty(rule,locationText) {
+      const isAlbania=selectedCountry==='AL';
+      const copy=isAlbania
+        ?t('providersPage.albaniaNoLicense',{},'Die albanische Glücksspielaufsicht (AMLF) führt derzeit keine lizenzierten Online-Sportwettenanbieter. Deshalb können wir für Albanien keine Anbieter anzeigen.')
+        :t('providersPage.verifiedZero',{location:locationText},'Für '+locationText+' enthält die geprüfte BetInsight-Liste derzeit keine freigegebenen Online-Sportwettenanbieter.');
+      showStatus(copy);
+      const source=isAlbania?'https://amlf.gov.al/subjekte-te-licensuara/':String(rule?.source_url||'');
+      try {
+        const url=new URL(source);
+        if(url.protocol!=='https:'||url.username||url.password) return;
+        const link=document.createElement('a');
+        link.href=url.href;link.target='_blank';link.rel='noopener noreferrer';
+        link.textContent=t('providersPage.officialSource',{},'Offizielles Lizenzregister prüfen ↗');
+        statusBox.appendChild(document.createElement('br'));
+        statusBox.appendChild(link);
+      } catch (_) {}
+    }
     function showBrazilBlocked() {
       const regional=window.BetInsightRegionalRestrictions;
       const msg=regional?.getMessages?.() || {title:'Für Brasilien derzeit nicht verfügbar',body:'BetInsight zeigt Nutzern in Brasilien derzeit keine Wettanbieter, Casino-Angebote, Affiliate-Links oder anbieterbezogenen Quotenfunktionen.'};
@@ -628,6 +648,11 @@
       const regional=window.BetInsightRegionalRestrictions;
       if (selectedCountry==='BR' || regional?.isBrazilBlocked?.(selectedCountry)) { showBrazilBlocked(); return; }
       activeMode=mode;
+      document.querySelectorAll('.choice').forEach(button=>{
+        const active=button.dataset.mode===mode;
+        button.classList.toggle('active',active);
+        button.setAttribute('aria-pressed',String(active));
+      });
       results.classList.remove('hidden');
       statusBox.classList.add('hidden');
       providerGrid.innerHTML='';
@@ -643,6 +668,10 @@
       if (mode==='any') entries=entries.sort((a,b)=>a.priority-b.priority);
       resultsSubtitle.textContent=t('providersPage.resultsSubtitle',{location:locationText,count:entries.length},`Auswahl für ${locationText} · ${entries.length} Anbieter`);
       if (!entries.length) {
+        if (rule.providers.length===0) {
+          showVerifiedEmpty(rule,locationText);
+          return;
+        }
         const key=mode==='crypto'?'providersPage.noCrypto':'providersPage.noAllowed';
         const fallback=mode==='crypto'?`Für ${locationText} ist aktuell kein freigegebener Anbieter mit bestätigter Krypto-Zahlung hinterlegt.`:`Für ${locationText} sind aktuell keine freigegebenen Anbieter hinterlegt.`;
         showStatus(t(key,{location:locationText},fallback));
@@ -707,11 +736,15 @@
       countryForm.classList.add('hidden'); confirmedCountry.classList.remove('hidden'); results.classList.add('hidden'); activeMode='';
       if (selectedCountry==='BR' || regional?.isBrazilBlocked?.(selectedCountry)) { showBrazilBlocked(); return; }
       filterStep.classList.remove('hidden');
+      // Clearly show verified zero-provider countries without requiring a second, apparently ineffective click.
+      const selectedRule=getRule();
+      if(ruleHasPublishedList(selectedRule) && selectedRule.providers.length===0) renderProviders('any');
       const returnTarget=new URLSearchParams(location.search).get('return');
       // Legacy provider showcase is retired; stay on this country-controlled selector.
     });
     changeCountry.addEventListener('click',()=>{
       selectedCountry=''; selectedRegion=''; activeMode='';
+      document.querySelectorAll('.choice').forEach(button=>{button.classList.remove('active');button.setAttribute('aria-pressed','false')});
       window.BetInsightRegionalRestrictions?.clearRememberedCountry?.();
       countryForm.classList.remove('hidden'); confirmedCountry.classList.add('hidden'); filterStep.classList.add('hidden'); results.classList.add('hidden');
       countrySelect.value=''; renderCountryDropdown(); setCountryDropdownOpen(false);
