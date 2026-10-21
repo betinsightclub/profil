@@ -69,17 +69,8 @@
   const SUPABASE_KEY='sb_publishable_GcavIYFtdaryt97JzSkIkg_7YPicQQP';
   const FAN_LOAD_RPC=SUPABASE_URL+'/functions/v1/betinsight-fan-gateway?route=load';
   const FAN_SUBMIT_RPC=SUPABASE_URL+'/functions/v1/betinsight-fan-gateway?route=submit';
-  // Temporary rollback path while the new protected Edge gateway is validated.
-  const FAN_LOAD_LEGACY_RPC=SUPABASE_URL+'/rest/v1/rpc/betinsight_fan_load_v1';
-  const FAN_SUBMIT_LEGACY_RPC=SUPABASE_URL+'/rest/v1/rpc/betinsight_fan_submit_v1';
   async function fanRpc(url,body){
-    const options={method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify(body),cache:'no-store',credentials:'omit'};
-    const fallback=url===FAN_LOAD_RPC?FAN_LOAD_LEGACY_RPC:(url===FAN_SUBMIT_RPC?FAN_SUBMIT_LEGACY_RPC:null);
-    let res;
-    try{res=await fetch(url,options)}
-    catch(e){if(!fallback)throw e;res=await fetch(fallback,options)}
-    // Temporary fallback only for gateway outages, never for unauthorized/rate-limited requests.
-    if(fallback&&[502,503,504].includes(res.status))res=await fetch(fallback,options);
+    const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify(body),cache:'no-store',credentials:'omit'});
     let data={};
     try{data=await res.json()}catch(_){}
     if(!res.ok)throw new Error(data?.message||('HTTP '+res.status));
