@@ -552,6 +552,56 @@
     } catch (error) {
       console.warn("BetInsight account strip could not be loaded:", error);
     }
+
+    // All members: keep this shared balance current instead of leaving a one-time
+    // profile snapshot visible after Daily Bonus, tip unlocks or other unit changes.
+    let lastUnitsRefreshAt = Date.now();
+    let unitsRefreshInFlight = false;
+    let balanceMutationGeneration = 0;
+    const unitsCell = strip.querySelector('[data-bi-balance="units"]');
+    async function refreshSharedUnits() {
+      if (!strip.isConnected || document.visibilityState === "hidden" || unitsRefreshInFlight) return;
+      if (Date.now() - lastUnitsRefreshAt < 12000) return;
+      const currentAccess = String(session()?.getDashboardUuid?.() || session()?.getProfileToken?.() || "").trim();
+      if (!currentAccess || currentAccess !== access) return;
+      const generation = balanceMutationGeneration;
+      unitsRefreshInFlight = true;
+      lastUnitsRefreshAt = Date.now();
+      try {
+        const response = await fetch(profileApi + "&token=" + encodeURIComponent(access), {cache:"no-store", credentials:"omit"});
+        if (!response.ok) throw new Error("profile_refresh_failed");
+        const data = await response.json();
+        if (!data || data.found === false || data.einsetzbare_units == null) throw new Error("balance_missing");
+        const parsed = Number(String(data.einsetzbare_units).replace(",", "."));
+        if (!Number.isFinite(parsed)) throw new Error("balance_invalid");
+        // An event received during the request takes precedence over an older reply.
+        if (balanceMutationGeneration !== generation || !strip.isConnected) return;
+        unitsCell.textContent = fmtUnits(parsed);
+        unitsCell.title = "";
+      } catch (error) {
+        // Never label a potentially stale number as an up-to-date available balance.
+        if (balanceMutationGeneration === generation && strip.isConnected) {
+          unitsCell.textContent = "–";
+          unitsCell.title = socialText("Aktueller Kontostand nicht abrufbar", "Current balance unavailable");
+        }
+        console.warn("BetInsight units balance refresh failed:", error);
+      } finally {
+        unitsRefreshInFlight = false;
+      }
+    }
+
+    window.addEventListener("focus", refreshSharedUnits);
+    window.addEventListener("pageshow", refreshSharedUnits);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") refreshSharedUnits();
+    });
+    window.addEventListener("bi:balances-changed", () => {
+      balanceMutationGeneration++;
+      // A fresh server read follows an optimistic client-side balance update.
+      lastUnitsRefreshAt = 0;
+      setTimeout(refreshSharedUnits, 800);
+    });
+    setInterval(refreshSharedUnits, 60000);
   }
 
   function destroyNavigation() {
