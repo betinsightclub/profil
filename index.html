@@ -1344,7 +1344,7 @@ const CLASH_BALANCE_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/t
 const TOKEN_STORAGE_KEY="betinsight_profile_token";
 const DASHBOARD_TOKEN_STORAGE_KEY="betinsight_dashboard_token";
 const PROFILE_SNAPSHOT_CACHE_KEY="betinsight_profile_snapshot_v1";
-const PROFILE_SNAPSHOT_CACHE_TTL_MS=60*60*1000;
+const PROFILE_SNAPSHOT_CACHE_TTL_MS=0; // Kontostände niemals eine Stunde aus dem Browsercache anzeigen
 const NETWORK_SNAPSHOT_CACHE_KEY="betinsight_network_snapshot_v1";
 /* Solange Premium noch nicht offiziell kaufbar geschaltet ist, ist der Telegram Live-Alarm fuer alle registrierten Nutzer freigegeben. Beim Premium-Go-Live auf true setzen; ab dann gilt dauerhaft Gruenderrecht ODER aktives Premium. */
 const PREMIUM_SALES_ACTIVE=false;
@@ -1610,7 +1610,7 @@ function isValidEmailAddress(email){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(Str
 async function requestCurrentProfileLink(){const email=String(currentProfileData.email||"").trim().toLowerCase(),msg=document.getElementById("message"),button=document.getElementById("resendProfileButton");if(!isValidEmailAddress(email)){msg.innerText="Die registrierte E-Mail-Adresse ist nicht verfügbar oder ungültig.";return}if(requestLinkInFlight)return;requestLinkInFlight=true;if(button){button.disabled=true;button.innerText="⏳ Wird gesendet..."}try{const response=await fetch(REQUEST_LINK_WEBHOOK_URL+"&email="+encodeURIComponent(email),{cache:"no-store"});if(!response.ok)throw new Error("HTTP "+response.status);msg.innerText="Der persönliche Profil-Link wurde erneut an deine registrierte E-Mail-Adresse gesendet."}catch(e){console.error(e);msg.innerText="Der Profil-Link konnte nicht gesendet werden. Bitte versuche es später erneut."}finally{requestLinkInFlight=false;if(button){button.disabled=false;button.innerText="📩 Profil-Link erneut per E-Mail senden"}}}
 
 async function fetchProfileByToken(variants,index,forceFresh=false){if(index>=variants.length){document.getElementById("units").innerText="0,00";renderHeaderReferralAvailable(0);document.getElementById("accountUnits").innerText="0";document.getElementById("unlockedTips").innerText="0";document.getElementById("consumedUnits").innerText="–";document.getElementById("email").innerText="Nicht gefunden";renderMembership(0,"Basis");showRequestBox();return}const token=variants[index];let data=null,cachedProfile=false;
-const cached=!forceFresh?readProfileSnapshotCache(token):null;
+const cached=null; // Profil- und Unit-Werte bei jedem Aufruf frisch vom Server laden
 if(cached){data=cached.data;cachedProfile=true}
 try{if(!data){const sep=PROFILE_WEBHOOK_URL.includes("?")?"&":"?";const refreshSuffix=forceFresh&&PROFILE_WEBHOOK_URL===PROFILE_WEBHOOK_SUPABASE_URL?"&refresh=1":"";const response=await fetch(PROFILE_WEBHOOK_URL+sep+"token="+encodeURIComponent(token)+refreshSuffix,{cache:"no-store"});if(!response.ok)throw new Error("Profilabruf HTTP "+response.status);const raw=await response.text();data=JSON.parse(raw.trim());if(data&&data.found!==false&&data.email)writeProfileSnapshotCache(token,data)}}catch(error){console.error("Profilabruf fehlgeschlagen:",token,error);fetchProfileByToken(variants,index+1,forceFresh);return}if(!data||data.found===false||!data.email){fetchProfileByToken(variants,index+1,forceFresh);return}try{const finalToken=data.token||token,total=safeNumber(data.einsetzbare_units),referralAvailable=safeNumber(firstDefined(data,["ref_verfuegbar","referral_available","available_ref_units"],0)),consumed=firstDefined(data,["verbrauchte_units","consumed_units","used_units"],null),unlocked=safeNumber(firstDefined(data,["freigeschaltete_tipps","unlocked_tips","unlock_count"],0)),membershipLevel=safeNumber(firstDefined(data,["mitgliedschaft_level","membership_level","premium_level"],0)),membership=String(firstDefined(data,["mitgliedschaft","membership"],"Basis")).trim()||"Basis",premiumStart=firstDefined(data,["premium_start","premium_von","periode_von"],null),premiumUntil=firstDefined(data,["premium_bis","premium_until","periode_bis"],null),graceUntil=firstDefined(data,["kulanz_bis","grace_until"],null),premiumStatus=String(firstDefined(data,["premium_status","membership_status"],"")).trim(),autoRenew=String(firstDefined(data,["auto_verlaengerung","auto_renew"],"NEIN")).trim().toUpperCase(),tariffCode=String(firstDefined(data,["tarif_code","tariff_code"],"")).trim(),telegramAlarmBonus=String(firstDefined(data,["telegram_alarm_bonus"],"")).trim(),telegramAlarmBonusSince=String(firstDefined(data,["telegram_alarm_bonus_seit"],"")).trim(),telegramAlarmBonusCode=String(firstDefined(data,["telegram_alarm_bonus_code"],"")).trim(),clashTokens=safeNumber(firstDefined(data,["clash_tokens","time_clash_tokens"],0)),clashPoints=safeNumber(firstDefined(data,["clash_points","time_clash_points"],0));currentProfileData={email:data.email||"",units:total,referralAvailable,refCode:String(data.ref_code||"").trim(),dashboardToken:String(data.dashboard_token||"").trim(),refLink:String(data.ref_link||"").trim(),consumedUnits:consumed,unlockedTips:unlocked,membershipLevel,membership,premiumStart,premiumUntil,graceUntil,premiumStatus,autoRenew,tariffCode,telegramAlarmBonus,telegramAlarmBonusSince,telegramAlarmBonusCode,clashTokens,clashPoints};saveDashboardToken(currentProfileData.dashboardToken);if(isDashboardUuid(finalToken))saveDashboardToken(finalToken);else saveToken(finalToken);showProfileBox();document.getElementById("units").innerText=formatUnitsTwoDecimals(total);renderHeaderReferralAvailable(referralAvailable);document.getElementById("accountUnits").innerText=formatNumber(total);document.getElementById("unlockedTips").innerText=formatNumber(unlocked);document.getElementById("consumedUnits").innerText=formatOptionalNumber(consumed);document.getElementById("email").innerText=data.email;renderMembership(membershipLevel,membership);setBetInsightId(data.ref_code);setMaskedToken(finalToken);setUnitColor(total);document.getElementById("headerClashTokens").textContent=String(Math.trunc(clashTokens));document.getElementById("headerClashPoints").textContent=String(Math.trunc(clashPoints));refreshClashBalance();setReferralLinks(data);prepareNetworkSection();renderCachedNetworkPayload();refreshSupportUnread();document.getElementById("message").innerText=cachedProfile?"Kontostand aus lokalem Zwischenspeicher geladen. Für Live-Werte „Aktualisieren“ wählen.":"Kontostand wurde aktualisiert.";handleDeepLinkAfterProfileLoad()}catch(error){console.error("Profil wurde gefunden, aber die Anzeige hatte einen Fehler:",error);showProfileBox();document.getElementById("email").innerText=data.email||"Profil gefunden";document.getElementById("message").innerText="Profil wurde gefunden. Einzelne Anzeigen konnten noch nicht vollständig aufgebaut werden.";handleDeepLinkAfterProfileLoad()}}
 function loadUnits(forceFresh=false){const fromUrl=String(getTokenFromUrl()||"").trim(),dashboard=String(getSavedDashboardToken()||"").trim(),profile=String(getSavedToken()||"").trim(),candidates=[];for(const value of [fromUrl,dashboard,profile]){if(!value)continue;for(const variant of buildTokenVariants(value)){if(variant&&!candidates.includes(variant))candidates.push(variant)}}if(!candidates.length){showRequestBox();return}showProfileBox();document.getElementById("message").innerText="Kontostand wird geladen...";document.getElementById("units").innerText="0,00";renderHeaderReferralAvailable(0);document.getElementById("accountUnits").innerText="0";document.getElementById("unlockedTips").innerText="0";document.getElementById("consumedUnits").innerText="–";document.getElementById("email").innerText="Lade...";renderMembership(0,"Basis");fetchProfileByToken(candidates,0,forceFresh)}
@@ -1925,6 +1925,46 @@ async function loadDashboardCommunityFeed(){
   }
 }
 
+// Unit-Salden bei Rueckkehr in den Tab und auch bei laenger offenem Dashboard live abgleichen.
+let liveUnitRefreshRunning=false;
+let lastLiveUnitRefreshAt=0;
+async function refreshLiveUnitBalance(){
+  if(document.visibilityState!=="visible"||!currentProfileData.email||liveUnitRefreshRunning)return;
+  if(Date.now()-lastLiveUnitRefreshAt<12000)return;
+  const access=String(getConfirmedDashboardToken()||getActiveToken()||"").trim();
+  if(!access)return;
+  lastLiveUnitRefreshAt=Date.now();
+  liveUnitRefreshRunning=true;
+  try{
+    const sep=PROFILE_WEBHOOK_URL.includes("?")?"&":"?";
+    const response=await fetch(PROFILE_WEBHOOK_URL+sep+"token="+encodeURIComponent(access),{cache:"no-store",credentials:"omit"});
+    if(!response.ok)throw new Error("HTTP "+response.status);
+    const data=await response.json();
+    if(!data||data.found===false||data.einsetzbare_units===undefined)return;
+    if(String(data.email||"").toLowerCase()!==String(currentProfileData.email||"").toLowerCase())return;
+    const total=safeNumber(data.einsetzbare_units);
+    currentProfileData.units=total;
+    document.getElementById("units").innerText=formatUnitsTwoDecimals(total);
+    document.getElementById("accountUnits").innerText=formatNumber(total);
+    setUnitColor(total);
+    if(data.verbrauchte_units!==undefined){
+      currentProfileData.consumedUnits=data.verbrauchte_units;
+      document.getElementById("consumedUnits").innerText=formatOptionalNumber(data.verbrauchte_units);
+    }
+    if(data.freigeschaltete_tipps!==undefined){
+      currentProfileData.unlockedTips=safeNumber(data.freigeschaltete_tipps);
+      document.getElementById("unlockedTips").innerText=formatNumber(data.freigeschaltete_tipps);
+    }
+  }catch(error){
+    console.warn("Live-Kontostand konnte nicht aktualisiert werden:",error);
+  }finally{
+    liveUnitRefreshRunning=false;
+  }
+}
+window.addEventListener("focus",refreshLiveUnitBalance);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")refreshLiveUnitBalance()});
+window.addEventListener("pageshow",refreshLiveUnitBalance);
+setInterval(refreshLiveUnitBalance,60000);
 loadUnits();
 setTimeout(loadDashboardCommunityFeed,250);
 </script>
