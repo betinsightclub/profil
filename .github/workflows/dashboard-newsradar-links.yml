@@ -1,0 +1,21 @@
+name: Dashboard NewsRadar official article links
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'meldungen/index.html'
+      - 'scripts/test-dashboard-newsradar-links.mjs'
+      - '.github/workflows/dashboard-newsradar-links.yml'
+  workflow_dispatch:
+jobs:
+  official-article-links:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test official news card URLs and inline JavaScript syntax
+        run: node scripts/test-dashboard-newsradar-links.mjs
