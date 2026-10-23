@@ -400,8 +400,34 @@
     document.head.appendChild(style);
   }
 
+  function gabAccessibleLabel() {
+    const language = String(i18n()?.getLanguage?.() || document.documentElement.lang || "de").toLowerCase();
+    const labels = {
+      de:"BetInsight Club auf Gab öffnen",
+      en:"Open BetInsight Club on Gab",
+      es:"Abrir BetInsight Club en Gab",
+      pt:"Abrir BetInsight Club no Gab",
+      it:"Apri BetInsight Club su Gab",
+      fr:"Ouvrir BetInsight Club sur Gab",
+      nl:"BetInsight Club op Gab openen",
+      "zh-tw":"在 Gab 開啟 BetInsight Club",
+      zh:"在 Gab 打开 BetInsight Club"
+    };
+    return labels[language] || labels[language.split("-")[0]] || labels.en;
+  }
+
   function buildSocialFooter(page) {
-    if (!page || page.querySelector(".bi-social-footer")) return;
+    if (!page) return;
+    const existing = page.querySelector(".bi-social-footer");
+    if (existing) {
+      const gab = existing.querySelector(".bi-social-gab");
+      if (gab) {
+        const label = gabAccessibleLabel();
+        gab.setAttribute("aria-label",label);
+        gab.title = label;
+      }
+      return;
+    }
     const footer = document.createElement("footer");
     footer.className = "bi-social-footer";
     footer.setAttribute("aria-label", "BetInsight Social Media");
@@ -474,19 +500,7 @@
     gab.href = GAB_URL;
     gab.target = "_blank";
     gab.rel = "noopener noreferrer";
-    const gabLanguage = String(i18n()?.getLanguage?.() || document.documentElement.lang || "de").toLowerCase();
-    const gabLabels = {
-      de:"BetInsight Club auf Gab öffnen",
-      en:"Open BetInsight Club on Gab",
-      es:"Abrir BetInsight Club en Gab",
-      pt:"Abrir BetInsight Club no Gab",
-      it:"Apri BetInsight Club su Gab",
-      fr:"Ouvrir BetInsight Club sur Gab",
-      nl:"BetInsight Club op Gab openen",
-      "zh-tw":"在 Gab 開啟 BetInsight Club",
-      zh:"在 Gab 打开 BetInsight Club"
-    };
-    const gabLabel = gabLabels[gabLanguage] || gabLabels[gabLanguage.split("-")[0]] || gabLabels.en;
+    const gabLabel = gabAccessibleLabel();
     gab.setAttribute("aria-label",gabLabel);
     gab.title = gabLabel;
     gab.innerHTML = '<svg class="bi-social-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#00b77f"/><text x="12" y="17" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="900" text-anchor="middle">g</text></svg>';
