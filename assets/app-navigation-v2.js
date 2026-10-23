@@ -22,6 +22,7 @@
   const FACEBOOK_URL = "https://www.facebook.com/betinsightclub";
   const BLUESKY_URL = "https://bsky.app/profile/betinsight.bsky.social";
   const MINDS_URL = "https://www.minds.com/betinsightclub/";
+  const GAB_URL = "https://gab.com/betinsightclub/";
   const ACCOUNT_SETTINGS_URL = "https://app.betinsight.club/konto-einstellungen/";
   const SCRIPT_URL = document.currentScript?.src || "";
   const ASSET_BASE = SCRIPT_URL ? new URL("./", SCRIPT_URL) : new URL("/assets/", window.location.origin);
@@ -467,7 +468,30 @@
     minds.title = mindsLabel;
     minds.innerHTML = '<svg class="bi-social-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#ffd21f"/><path d="M5.5 17.5v-11h2.7l3.8 4.7 3.8-4.7h2.7v11h-2.8v-6.6L12 15.3l-3.7-4.4v6.6Z" fill="#171717"/></svg>';
 
-    links.append(youtube,telegram,x,facebook,bluesky,minds);
+
+    const gab = document.createElement("a");
+    gab.className = "bi-social-link bi-social-gab";
+    gab.href = GAB_URL;
+    gab.target = "_blank";
+    gab.rel = "noopener noreferrer";
+    const gabLanguage = String(i18n()?.getLanguage?.() || document.documentElement.lang || "de").toLowerCase();
+    const gabLabels = {
+      de:"BetInsight Club auf Gab öffnen",
+      en:"Open BetInsight Club on Gab",
+      es:"Abrir BetInsight Club en Gab",
+      pt:"Abrir BetInsight Club no Gab",
+      it:"Apri BetInsight Club su Gab",
+      fr:"Ouvrir BetInsight Club sur Gab",
+      nl:"BetInsight Club op Gab openen",
+      "zh-tw":"在 Gab 開啟 BetInsight Club",
+      zh:"在 Gab 打开 BetInsight Club"
+    };
+    const gabLabel = gabLabels[gabLanguage] || gabLabels[gabLanguage.split("-")[0]] || gabLabels.en;
+    gab.setAttribute("aria-label",gabLabel);
+    gab.title = gabLabel;
+    gab.innerHTML = '<svg class="bi-social-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#00b77f"/><text x="12" y="17" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="900" text-anchor="middle">g</text></svg>';
+
+    links.append(youtube,telegram,x,facebook,bluesky,minds,gab);
     footer.appendChild(links);
     const help=document.createElement("a");
     help.className="bi-social-footer-help";
