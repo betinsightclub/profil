@@ -25,14 +25,22 @@
   const key=String(entry).split("|")[0];
   if(!key||seen.includes(key))continue;
   seen.push(key);
-  const real=Array.isArray(source[key])?source[key].slice():[];
+  const real=Array.isArray(source[key])?source[key].map(p=>({...p})):[];
   const name=String(key).replace(/[^a-z0-9]+/gi,"-").toLowerCase();
   const actualIds=new Set(real.map(p=>String(p.id||p.name)));
   let augmented=real.slice();
   const hasKeeper=real.some(p=>/^(TW|GK)$/i.test(String(p.pos||""))||/torwart|goalkeeper/i.test(String(p.prole||p.role||"")));
   // A goalkeeper must exist. Do not change real player records.
   if(!hasKeeper){
-   augmented.push({id:"tc-reconstruction-"+name+"-gk",name:"Rekonstruktion · Torwart",pos:"TW",prole:"Torwart",impact:3,starter:real.length===0,squadIndex:augmented.length,reconstructed:true,provenance:"SIMULATION_ONLY"});
+   // Force the reconstructed goalkeeper into the XI when the archived XI has none.
+   // Historical membership is retained; one outfield player becomes a reserve.
+   const starters=augmented.filter((p,i)=>p.starter===true||(p.starter===undefined&&i<11));
+   if(starters.length>=11){
+    const candidate=augmented.findLastIndex(p=>p.starter===true);
+    if(candidate>=0)augmented[candidate].starter=false;
+    else if(augmented.length>=11)augmented[10].starter=false;
+   }
+   augmented.push({id:"tc-reconstruction-"+name+"-gk",name:"Rekonstruktion · Torwart",pos:"TW",prole:"Torwart",impact:3,starter:true,squadIndex:augmented.length,reconstructed:true,provenance:"SIMULATION_ONLY"});
   }
   let ix=0;
   while(augmented.length<18){
