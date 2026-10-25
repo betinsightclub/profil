@@ -358,6 +358,7 @@ nation:{
 "USA · MLS":["Inter Miami|🇺🇸|78","Los Angeles FC|🇺🇸|77","Seattle Sounders|🇺🇸|77"]
 },myclub:{"Mein Club":[]},community:{"BetInsight Community":[]}};
 if(window.TC_ADDITIONAL_NATIONS){Object.assign(catalog.nation,window.TC_ADDITIONAL_NATIONS)}
+if(typeof window.TC_COMPLETE_ROSTERS==="function"){window.TC_COMPLETE_ROSTERS(catalog)}
 /* tc-all-country-merge-v1 */
 if(window.TC_CLUB_CATALOG){
  for(const [group,entries] of Object.entries(window.TC_CLUB_CATALOG)){
