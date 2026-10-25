@@ -1356,6 +1356,9 @@
       var activeReportTarget = null;
       var selectedEmotion = null;
       var selectedImageData = "";
+      var selectedImageDimensions = {width:0,height:0};
+      var postImagePreparing = false;
+      var postImageSelectionCounter = 0;
       var selectedDistributionScope = "PROFILE";
       var globalPricingState = null;
       var feedMode = params.get("feed")==="global" ? "global" : "profile";
@@ -2951,6 +2954,32 @@
         });
       }
 
+      function imageStripeScore(img){
+        // Detect the severe vertical-stripe artifact seen in Chromium canvas/JPEG conversions.
+        var c=document.createElement("canvas");c.width=48;c.height=48;
+        var g=c.getContext("2d",{willReadFrequently:true});
+        if(!g)return 0;
+        g.drawImage(img,0,0,48,48);
+        var p=g.getImageData(0,0,48,48).data;
+        var horizontal=0,vertical=0;
+        for(var y=1;y<48;y++)for(var x=1;x<48;x++){
+          var at=(y*48+x)*4,left=at-4,above=at-48*4;
+          for(var k=0;k<3;k++){
+            horizontal+=Math.abs(p[at+k]-p[left+k]);
+            vertical+=Math.abs(p[at+k]-p[above+k]);
+          }
+        }
+        return horizontal/(vertical+1);
+      }
+      async function verifiedImageDataUrl(blob,original){
+        // A decodable JPEG can still contain encoder/GPU stripes: reject it before publishing.
+        var decoded=await loadImageFile(blob);
+        if(imageStripeScore(decoded)>9 && imageStripeScore(original)<4){
+          throw new Error("Die Bildverarbeitung hat Streifen erzeugt. Bitte Bild erneut wählen oder als kleineres JPG/PNG speichern.");
+        }
+        return await blobDataUrl(blob);
+      }
+
       async function compressImageFile(file,options){
         options = options || {};
         var maxWidth = options.maxWidth || 1280;
@@ -2970,6 +2999,11 @@
         var sourceWidth = image.naturalWidth || image.width;
         var sourceHeight = image.naturalHeight || image.height;
         if(!sourceWidth || !sourceHeight) throw new Error("Ungültige Bildabmessungen.");
+        // Send already-small originals unchanged, bypassing the browser canvas/JPEG encoder.
+        // Community upload_media accepts files of at most 700,000 raw bytes.
+        if(file.size<=690000 && /^image\/(?:jpeg|png|webp)$/i.test(file.type||"")){
+          return {blob:file,dataUrl:await blobDataUrl(file),width:sourceWidth,height:sourceHeight,originalBytes:file.size};
+        }
 
         var scale = Math.min(1,maxWidth / sourceWidth,maxHeight / sourceHeight);
         var width = Math.max(1,Math.round(sourceWidth * scale));
@@ -2980,7 +3014,10 @@
           var canvas = document.createElement("canvas");
           canvas.width = width;
           canvas.height = height;
-          var ctx = canvas.getContext("2d",{alpha:true});
+          // Request a software-backed canvas to avoid GPU-related color/stripe artifacts.
+          var ctx = canvas.getContext("2d",{alpha:false,willReadFrequently:true});
+          if(!ctx)throw new Error("Bildverarbeitung nicht verfügbar.");
+          ctx.fillStyle="#ffffff";ctx.fillRect(0,0,width,height);
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = "high";
           ctx.drawImage(image,0,0,width,height);
@@ -2993,7 +3030,7 @@
             if(blob && blob.size <= targetBytes){
               return {
                 blob:blob,
-                dataUrl:await blobDataUrl(blob),
+                dataUrl:await verifiedImageDataUrl(blob,image),
                 width:width,
                 height:height,
                 originalBytes:file.size
@@ -3009,7 +3046,7 @@
 
         return {
           blob:bestBlob,
-          dataUrl:await blobDataUrl(bestBlob),
+          dataUrl:await verifiedImageDataUrl(bestBlob,image),
           width:width,
           height:height,
           originalBytes:file.size
@@ -3391,26 +3428,42 @@
         if(!file)return;
         var preview=document.getElementById("postImagePreview");
         var box=document.getElementById("composerPreview");
+        var request=++postImageSelectionCounter;
+        selectedImageData="";
+        selectedImageDimensions={width:0,height:0};
+        postImagePreparing=true;
+        updatePublishState();
         var localUrl=URL.createObjectURL(file);
         preview.src=localUrl;
         box.classList.add("show");
-        showToast("Beitragsbild wird automatisch verkleinert …");
+        showToast("Beitragsbild wird geprüft …");
         try{
           var result=await compressImageFile(file,{maxWidth:1280,maxHeight:1280,targetBytes:320*1024,maxInputBytes:25*1024*1024,preferredType:"image/jpeg"});
+          if(request!==postImageSelectionCounter)return;
+          // Show exactly the file that will be uploaded; never the uncompressed original.
+          preview.src=result.dataUrl;
           selectedImageData=result.dataUrl;
-          updatePublishState();
-          showToast("Beitragsbild bereit.");
+          selectedImageDimensions={width:result.width,height:result.height};
+          showToast("Beitragsbild bereit – Vorschau entspricht dem Upload.");
         }catch(error){
+          if(request!==postImageSelectionCounter)return;
           input.value="";
           selectedImageData="";
+          selectedImageDimensions={width:0,height:0};
+          preview.removeAttribute("src");
           box.classList.remove("show");
-          updatePublishState();
           showToast(error&&error.message?error.message:"Beitragsbild konnte nicht verarbeitet werden.");
+        }finally{
+          URL.revokeObjectURL(localUrl);
+          if(request===postImageSelectionCounter){postImagePreparing=false;updatePublishState();}
         }
       });
       document.getElementById("removePostImage").addEventListener("click",function(e){
         e.preventDefault();
+        ++postImageSelectionCounter;
+        postImagePreparing=false;
         selectedImageData="";
+        selectedImageDimensions={width:0,height:0};
         document.getElementById("postImageInput").value="";
         document.getElementById("postImagePreview").src="";
         document.getElementById("composerPreview").classList.remove("show");
@@ -3484,7 +3537,7 @@
 
       function updatePublishState(){
         var hasText = document.getElementById("postText").value.trim().length > 0;
-        document.getElementById("publishPostBtn").disabled = !(hasText || selectedImageData || selectedEmotion);
+        document.getElementById("publishPostBtn").disabled = postImagePreparing || !(hasText || selectedImageData || selectedEmotion);
       }
       document.getElementById("postText").addEventListener("input",updatePublishState);
 
@@ -3496,6 +3549,7 @@
             return;
           }
         }
+        if(postImagePreparing){showToast("Das Beitragsbild wird noch geprüft.");return;}
         var text = document.getElementById("postText").value.trim();
         if(!text && !selectedImageData && !selectedEmotion) return;
         // Inhaltsregeln werden serverseitig anhand des angemeldeten Trainerkontos geprüft.
@@ -3526,14 +3580,13 @@
             }
             var mediaId=null;
             if(selectedImageData){
-              var img=document.getElementById("postImagePreview");
               var uploaded=await communityCall("upload_media",{
                 credential:memberCredential,
                 club_id:clubId,
                 purpose:"post",
                 data_url:selectedImageData,
-                width:img.naturalWidth||null,
-                height:img.naturalHeight||null
+                width:selectedImageDimensions.width||null,
+                height:selectedImageDimensions.height||null
               });
               mediaId=uploaded.media && uploaded.media.id ? uploaded.media.id : null;
             }
