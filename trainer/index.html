@@ -1356,6 +1356,8 @@
       var activeReportTarget = null;
       var selectedEmotion = null;
       var selectedImageData = "";
+      var selectedImageFile = null;
+      var selectedImagePreviewUrl = "";
       var selectedImageDimensions = {width:0,height:0};
       var postImagePreparing = false;
       var postImageSelectionCounter = 0;
@@ -2599,13 +2601,10 @@
           if(!file)return;
           try{
             showToast("Ersatzbild wird geprüft …");
-            var result=await compressImageFile(file,{
-              maxWidth:1280,maxHeight:1280,targetBytes:320*1024,
-              maxInputBytes:25*1024*1024,preferredType:"image/jpeg"
-            });
-            var media=await communityCall("upload_media",{
-              credential:memberCredential,club_id:clubId,purpose:"post",
-              data_url:result.dataUrl,width:result.width,height:result.height
+            var original=await loadImageFile(file);
+            var media=await uploadOriginalPostImage(file,{
+              width:original.naturalWidth||original.width,
+              height:original.naturalHeight||original.height
             });
             if(!media.media||!media.media.id)throw new Error("Bild-Upload fehlgeschlagen.");
             var changed=await communityCall("replace_post_media",{
@@ -3000,6 +2999,47 @@
           reader.onerror = function(){ reject(new Error("Das verkleinerte Bild konnte nicht gelesen werden.")); };
           reader.readAsDataURL(blob);
         });
+      }
+
+      function clearPostImagePreviewUrl(){
+        if(selectedImagePreviewUrl){
+          URL.revokeObjectURL(selectedImagePreviewUrl);
+          selectedImagePreviewUrl="";
+        }
+      }
+      async function uploadOriginalPostImage(file,dimensions){
+        // Store the exact original file; no canvas, JPEG re-encoding or base64.
+        if(!file||!["image/jpeg","image/png","image/webp"].includes(file.type))
+          throw new Error("Bitte JPG, PNG oder WebP auswählen.");
+        if(file.size<=0||file.size>8_000_000)
+          throw new Error("Das Bild darf maximal 8 MB groß sein.");
+        var ticket=await communityCall("create_post_upload",{
+          credential:memberCredential,club_id:clubId,
+          mime_type:file.type,bytes:file.size
+        });
+        if(!ticket.upload||!ticket.upload.signed_url||!ticket.upload.path)
+          throw new Error("Bild-Upload konnte nicht autorisiert werden.");
+        var target=new URL(ticket.upload.signed_url);
+        if(target.origin!==new URL(COMMUNITY_API).origin||
+          !target.pathname.includes("/storage/v1/object/upload/sign/community-media/"))
+          throw new Error("Ungültiges Upload-Ziel.");
+        var form=new FormData();
+        form.append("cacheControl","3600");
+        form.append("",file,file.name||"post-image");
+        var uploaded=await fetch(target.toString(),{
+          method:"PUT",body:form,headers:{"x-upsert":"false"},
+          credentials:"omit",redirect:"error"
+        });
+        if(!uploaded.ok)throw new Error("Originalbild konnte nicht gespeichert werden (HTTP "+uploaded.status+").");
+        var done=await communityCall("finish_post_upload",{
+          credential:memberCredential,club_id:clubId,
+          path:ticket.upload.path,
+          width:dimensions&&dimensions.width||null,
+          height:dimensions&&dimensions.height||null
+        });
+        if(!done.ok||!done.media||!done.media.id)
+          throw new Error("Bild konnte nicht bestätigt werden.");
+        return done;
       }
 
       function imageStripeScore(img){
@@ -3478,31 +3518,35 @@
         var box=document.getElementById("composerPreview");
         var request=++postImageSelectionCounter;
         selectedImageData="";
+        selectedImageFile=null;
         selectedImageDimensions={width:0,height:0};
         postImagePreparing=true;
         updatePublishState();
-        var localUrl=URL.createObjectURL(file);
-        preview.src=localUrl;
+        clearPostImagePreviewUrl();
+        selectedImagePreviewUrl=URL.createObjectURL(file);
+        preview.src=selectedImagePreviewUrl;
         box.classList.add("show");
-        showToast("Beitragsbild wird geprüft …");
+        showToast("Originalbild wird geprüft – keine Umwandlung …");
         try{
-          var result=await compressImageFile(file,{maxWidth:1280,maxHeight:1280,targetBytes:320*1024,maxInputBytes:25*1024*1024,preferredType:"image/jpeg"});
+          if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>8_000_000||!file.size)
+            throw new Error("Nur JPG, PNG und WebP bis maximal 8 MB sind zulässig.");
+          var original=await loadImageFile(file);
           if(request!==postImageSelectionCounter)return;
-          // Show exactly the file that will be uploaded; never the uncompressed original.
-          preview.src=result.dataUrl;
-          selectedImageData=result.dataUrl;
-          selectedImageDimensions={width:result.width,height:result.height};
-          showToast("Beitragsbild bereit – Vorschau entspricht dem Upload.");
+          selectedImageFile=file;
+          selectedImageDimensions={width:original.naturalWidth||original.width,height:original.naturalHeight||original.height};
+          if(!serverMode)selectedImageData=await blobDataUrl(file);
+          showToast("Originalbild bereit – unverändert für den Upload.");
         }catch(error){
           if(request!==postImageSelectionCounter)return;
           input.value="";
+          selectedImageFile=null;
           selectedImageData="";
           selectedImageDimensions={width:0,height:0};
           preview.removeAttribute("src");
+          clearPostImagePreviewUrl();
           box.classList.remove("show");
-          showToast(error&&error.message?error.message:"Beitragsbild konnte nicht verarbeitet werden.");
+          showToast(error&&error.message?error.message:"Beitragsbild konnte nicht gelesen werden.");
         }finally{
-          URL.revokeObjectURL(localUrl);
           if(request===postImageSelectionCounter){postImagePreparing=false;updatePublishState();}
         }
       });
@@ -3511,7 +3555,9 @@
         ++postImageSelectionCounter;
         postImagePreparing=false;
         selectedImageData="";
+        selectedImageFile=null;
         selectedImageDimensions={width:0,height:0};
+        clearPostImagePreviewUrl();
         document.getElementById("postImageInput").value="";
         document.getElementById("postImagePreview").src="";
         document.getElementById("composerPreview").classList.remove("show");
@@ -3585,7 +3631,7 @@
 
       function updatePublishState(){
         var hasText = document.getElementById("postText").value.trim().length > 0;
-        document.getElementById("publishPostBtn").disabled = postImagePreparing || !(hasText || selectedImageData || selectedEmotion);
+        document.getElementById("publishPostBtn").disabled = postImagePreparing || !(hasText || selectedImageFile || selectedImageData || selectedEmotion);
       }
       document.getElementById("postText").addEventListener("input",updatePublishState);
 
@@ -3599,7 +3645,7 @@
         }
         if(postImagePreparing){showToast("Das Beitragsbild wird noch geprüft.");return;}
         var text = document.getElementById("postText").value.trim();
-        if(!text && !selectedImageData && !selectedEmotion) return;
+        if(!text && !selectedImageFile && !selectedImageData && !selectedEmotion) return;
         // Inhaltsregeln werden serverseitig anhand des angemeldeten Trainerkontos geprüft.
         var externalUrl=postLinkEnabled?document.getElementById("postExternalUrl").value.trim():"";
         if(postLinkEnabled){
@@ -3627,16 +3673,17 @@
               if(!ok)return;
             }
             var mediaId=null;
-            if(selectedImageData){
-              var uploaded=await communityCall("upload_media",{
-                credential:memberCredential,
-                club_id:clubId,
-                purpose:"post",
-                data_url:selectedImageData,
-                width:selectedImageDimensions.width||null,
+            if(selectedImageFile){
+              var uploaded=await uploadOriginalPostImage(selectedImageFile,selectedImageDimensions);
+              mediaId=uploaded.media.id;
+            }else if(selectedImageData){
+              // Compatibility for old non-server demo only.
+              var uploadedLegacy=await communityCall("upload_media",{
+                credential:memberCredential,club_id:clubId,purpose:"post",
+                data_url:selectedImageData,width:selectedImageDimensions.width||null,
                 height:selectedImageDimensions.height||null
               });
-              mediaId=uploaded.media && uploaded.media.id ? uploaded.media.id : null;
+              mediaId=uploadedLegacy.media && uploadedLegacy.media.id ? uploadedLegacy.media.id : null;
             }
 
             var saved=await communityCall("create_post",{
@@ -3653,6 +3700,9 @@
             document.getElementById("postText").value = "";
             selectedEmotion = null;
             selectedImageData = "";
+            selectedImageFile = null;
+            selectedImageDimensions={width:0,height:0};
+            clearPostImagePreviewUrl();
             document.querySelectorAll(".emotion-option").forEach(function(b){b.classList.remove("selected");});
             document.getElementById("emotionPicker").classList.remove("open");
             document.getElementById("emojiPicker").classList.remove("open");
