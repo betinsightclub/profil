@@ -2588,6 +2588,53 @@
         }
       }
 
+      function replaceOwnPostImage(post,article){
+        if(!post||!post.server||!isOwner||!serverMode)return;
+        var picker=document.createElement("input");
+        picker.type="file";picker.accept="image/jpeg,image/png,image/webp";picker.hidden=true;
+        document.body.appendChild(picker);
+        picker.addEventListener("change",async function(){
+          var file=picker.files&&picker.files[0];
+          picker.remove();
+          if(!file)return;
+          try{
+            showToast("Ersatzbild wird geprüft …");
+            var result=await compressImageFile(file,{
+              maxWidth:1280,maxHeight:1280,targetBytes:320*1024,
+              maxInputBytes:25*1024*1024,preferredType:"image/jpeg"
+            });
+            var media=await communityCall("upload_media",{
+              credential:memberCredential,club_id:clubId,purpose:"post",
+              data_url:result.dataUrl,width:result.width,height:result.height
+            });
+            if(!media.media||!media.media.id)throw new Error("Bild-Upload fehlgeschlagen.");
+            var changed=await communityCall("replace_post_media",{
+              credential:memberCredential,post_id:post.id,media_id:media.media.id
+            });
+            if(!changed.ok||!changed.public_url)throw new Error("Bild-Austausch fehlgeschlagen.");
+            post.image=changed.public_url;
+            if(article){
+              var wrap=article.querySelector(".post-image-wrap");
+              if(!wrap){
+                wrap=document.createElement("div");
+                wrap.className="post-image-wrap";
+                var body=article.querySelector(".post-body");
+                if(body)body.appendChild(wrap);
+              }
+              if(wrap){
+                var img=document.createElement("img");
+                img.src=changed.public_url;img.alt="Beitragsbild";img.loading="lazy";img.decoding="async";
+                wrap.replaceChildren(img);
+              }
+            }
+            showToast("Bild ersetzt · der Beitrag bleibt bestehen · keine weiteren Units berechnet.");
+          }catch(error){
+            showToast(error&&error.message?error.message:"Bild konnte nicht ersetzt werden.");
+          }
+        },{once:true});
+        picker.click();
+      }
+
       async function deleteOwnPost(post,article){
         if(!post||!post.server)return;
         var paid=post.distributionScope==="GLOBAL";
@@ -2646,7 +2693,7 @@
             '<div class="mini-avatar post-author-avatar" data-post-author-avatar></div>' +
             '<div class="post-author"><strong>' + esc(post.author || trainerName) + '</strong><small>' + esc(post.team || teamName) + ' · ' + esc(post.time || "gerade eben") + ' · ' + (post.distributionScope==="GLOBAL"?"🌍 Community-Feed":"🌐 Profil") + '</small></div>' +
             '<div class="post-menu-wrap"><button type="button" class="more-btn" aria-label="Beitragsmenü" aria-expanded="false">•••</button><div class="post-options" role="menu"><button type="button" class="post-option" data-action="share">↗ Teilen</button>' +
-            (ownServerPost ? '<button type="button" class="post-option" data-action="edit">✏️ Bearbeiten</button><button type="button" class="post-option danger" data-action="delete">🗑️ Löschen</button>' : (isMember ? '<button type="button" class="post-option danger" data-action="report">⚑ Melden</button>' : '')) +
+            (ownServerPost ? '<button type="button" class="post-option" data-action="edit">✏️ Bearbeiten</button><button type="button" class="post-option" data-action="replace-image">🖼️ Bild ersetzen (ohne Units)</button><button type="button" class="post-option danger" data-action="delete">🗑️ Löschen</button>' : (isMember ? '<button type="button" class="post-option danger" data-action="report">⚑ Melden</button>' : '')) +
             '</div></div>' +
           '</div>' +
           '<div class="post-body"><p class="post-text">' + esc(post.text) + '</p>' + emotionHtml + imageHtml + linkHtml + '</div>' +
@@ -2701,6 +2748,7 @@
             var kind=action.getAttribute("data-action");
             if(kind==="share") openShare(post.id,post.publicSlug);
             if(kind==="edit") editOwnPost(post,article);
+            if(kind==="replace-image") replaceOwnPostImage(post,article);
             if(kind==="delete") deleteOwnPost(post,article);
             if(kind==="report") openReport("post",post.id);
           });
