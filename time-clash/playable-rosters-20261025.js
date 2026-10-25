@@ -18,8 +18,8 @@
   "Russland 2018 · WM-Viertelfinale|🇷🇺|79"
  ];
  const source=window.TC_ROSTER_DB=window.TC_ROSTER_DB||{};
+ function completeEntries(all){
  const seen=[];
- const all=[...Object.values(club).flat(),...Object.values(nation).flat()];
  const roles=["TW","ABW","ABW","ABW","ABW","MIT","MIT","MIT","MIT","ST","ST","TW","ABW","ABW","MIT","MIT","ST","ST"];
  for(const entry of all){
   const key=String(entry).split("|")[0];
@@ -52,5 +52,9 @@
   }
   if(real.length<18||!hasKeeper)source[key]=augmented;
  }
- window.TC_RECONSTRUCTION_STATUS={catalogTeams:seen.length,reconstructionPolicy:"SIMULATION_ONLY",generatedOn:"2026-10-25"};
+ return seen.length;
+ }
+ const firstPass=completeEntries([...Object.values(club).flat(),...Object.values(nation).flat()]);
+ window.TC_COMPLETE_ROSTERS=function(catalog){return completeEntries([...Object.values(catalog.club||{}).flat(),...Object.values(catalog.nation||{}).flat()]);};
+ window.TC_RECONSTRUCTION_STATUS={catalogTeams:firstPass,reconstructionPolicy:"SIMULATION_ONLY",generatedOn:"2026-10-25"};
 })();
