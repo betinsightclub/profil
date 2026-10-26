@@ -20,7 +20,7 @@ button.secondary{background:#123f59;color:#d6f4ff;border:1px solid #498aa6}butto
 <main><header><div class="brand">BETINSIGHT <span>TIPP-WERKSTATT</span></div><nav><a href="/admin/testlabor/">← Testlabor</a> · <a href="/admin/testlabor/community/">Test-Community</a></nav></header>
 <section id="locked" class="card"><h1>Zugang wird geprüft …</h1><p>Die Tipp-Werkstatt ist ausschließlich mit gültiger Admin-Sitzung erreichbar.</p></section>
 <div id="workspace" class="hidden">
-<div class="eyebrow">Internes Versuchslabor · Keine echte Veröffentlichung</div><p class="note" style="margin-top:4px">Version 0.4 · Automatischer SportsAPI-V4-Marktcheck</p><h1>Tipp bewerten und Vorschau erstellen</h1>
+<div class="eyebrow">Internes Versuchslabor · Keine echte Veröffentlichung</div><p class="note" style="margin-top:4px">Version 0.5 · Gezielter SportsAPI-V4-Quotencheck</p><h1>Tipp bewerten und Vorschau erstellen</h1>
 <p class="muted">Wir erstellen einen konkreten Tipp für ein bevorstehendes Spiel. Die Sport-API liefert Spielpläne, aber wir haben für dieses Spiel noch keinen geprüften Quoten- und Prognose-Endpunkt. Deshalb werden im Testschritt ausschließlich von dir überprüfte Quoten und eigene Wahrscheinlichkeitsschätzungen verwendet. Wir erfinden keine Zahlen.</p>
 <div class="card"><span class="tag">Spiel aus dem Testlabor</span><div id="match" class="teams"></div><p id="kickoff" class="muted"></p></div>
 <div class="card"><h2>1. Wettmarkt und Bewertung</h2>
@@ -110,6 +110,10 @@ async function inspect(){
      lastMarket=null;$("marketInsights").classList.add("hidden");
      const errors={
        NO_MATCH_ID_MAPPED:"Keine eindeutige Übereinstimmung dieses Spiels mit dem V4-Quotenfeed.",
+       MATCH_NOT_ON_FIRST_PAGE:"Die passende Begegnung liegt nicht auf der ersten Datenseite; zusätzliche API-Suchabfragen werden vermieden.",
+       V4_PROVIDER_PAUSED:"Der Quotendienst hat einen vorübergehenden Serverfehler gemeldet. Für diese Sportart pausieren neue Abrufe automatisch für 30 Minuten.",
+       V4_HTTP_401:"Der Anbieter lehnt die V4-Anmeldung ab (401).",
+       V4_HTTP_403:"Der Anbieter lehnt den V4-Zugriff ab (403).",
        AMBIGUOUS_MATCH:"Mehrere passende Begegnungen – automatische Zuordnung aus Sicherheitsgründen gestoppt.",
        NO_VERIFIED_TWO_WAY_MARKET:"Kein eindeutig zugeordneter Zwei-Wege-Siegermarkt vorhanden.",
        ODDS_DAILY_QUOTA_REACHED:"Unser kostenloses Testkontingent für V4-Quoten ist heute erreicht."};
@@ -142,7 +146,7 @@ for(const team of [game.home,game.away]){const o=document.createElement("option"
 $("market").value=game.sport==="table-tennis"?"Sieger der Begegnung":game.sport==="cricket"?"Matchsieger (Abrechnungsregeln prüfen)":"Spielsieger einschließlich möglicher Verlängerung";
 $("inspect").disabled=game.source!=="sportsapi";
 $("inspectStatus").textContent=game.source==="sportsapi"
- ?"Du kannst V4-Buchmacherquoten und einen Marktvergleich mit einem Klick abfragen. Die Markt-Einschätzung ist keine unabhängige Modellprognose."
+ ?"Version 0.5: Gezielte V4-Sportsuche über den dokumentierten produktiven Host. Bei Serverfehlern werden zusätzliche Anbieterabrufe 30 Minuten pausiert. Der Marktvergleich ist keine unabhängige Modellprognose."
  :"BALLDONTLIE Free bietet für dieses Spiel keine automatische Quotenzuordnung; die Quote kann hier nur manuell geprüft werden.";
 for(const id of ["market","pick","bookie","odds","prob","analysis"])$(id).addEventListener("input",clearPreview);
 $("pick").addEventListener("change",()=>{if(lastMarket?.found)applyOffer()});
