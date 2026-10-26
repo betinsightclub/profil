@@ -179,7 +179,7 @@
  <div class="tcQuickStepsHead"><div class="eyebrow" id="tcGuideKicker">SO STARTET DEIN TIME CLASH</div><h2 id="tcGuideTitle">In 3 Schritten zur Serie</h2><p id="tcGuideSub">Alles direkt auf der Seite erklärt – du brauchst kein Video, um loszulegen.</p></div>
  <div class="tcQuickStepsGrid">
   <div class="tcStep"><span class="tcStepNo">1</span><div><span class="stepLabel" id="tcStep1Label">SCHRITT 1</span><b id="tcStep1Title">Gegner / Teams wählen</b><p id="tcStep1Text">Wähle zuerst die Mannschaften, die gegeneinander antreten sollen.</p></div></div>
-  <div class="tcStep"><span class="tcStepNo">2</span><div><span class="stepLabel" id="tcStep2Label">SCHRITT 2</span><b id="tcStep2Title">Serienlänge festlegen</b><p id="tcStep2Text">Wähle, wie viele Partien die Serie enthalten soll.</p><div class="lengthpick tcInlineLength"><button data-len="1">1</button><button data-len="3">3</button><button class="sel" data-len="5">5</button><button data-len="10">10</button></div><span class="tcStepHint" id="tcStep2Hint">1 = Einzelspiel · 3 = kurz · 5 = Standard · 10 = lang</span></div></div>
+  <div class="tcStep"><span class="tcStepNo">2</span><div><span class="stepLabel" id="tcStep2Label">SCHRITT 2</span><b id="tcStep2Title">Serienlänge festlegen</b><p id="tcStep2Text">Wähle, wie viele Partien die Serie enthalten soll.</p><div class="lengthpick tcInlineLength"><button data-len="3">3</button><button class="sel" data-len="5">5</button><button data-len="10">10</button></div><span class="tcStepHint" id="tcStep2Hint">3 = kurz · 5 = Standard · 10 = lang</span></div></div>
   <div class="tcStep"><span class="tcStepNo">3</span><div><span class="stepLabel" id="tcStep3Label">SCHRITT 3</span><b id="tcStep3Title">Sieger tippen & starten</b><p id="tcStep3Text">Tippe im Spielfeld auf deinen Favoriten und starte anschließend den TIME CLASH.</p><button class="tcStepToArena" id="tcStepToArena" type="button">Zu Tipp & Start ↓</button></div></div>
  </div>
 </section>
@@ -220,7 +220,7 @@
     </div>
   </div>
 </section>
-<div class="lengthpick"><b>Serienlänge:</b><button data-len="1">1 Spiel</button><button data-len="3">3 Spiele</button><button class="sel" data-len="5">5 Spiele</button><button data-len="10">10 Spiele</button></div><div class="seoLink"><a href="https://betinsight.club/de/time-clash/community/">🌍 Bereits gespielte TIME CLASHES der Community ansehen →</a></div></section>
+<div class="lengthpick"><b>Serienlänge:</b><button data-len="3">3 Spiele</button><button class="sel" data-len="5">5 Spiele</button><button data-len="10">10 Spiele</button></div><div class="seoLink"><a href="https://betinsight.club/de/time-clash/community/">🌍 Bereits gespielte TIME CLASHES der Community ansehen →</a></div></section>
 <section class="worldRankingPreview tcUxHidden" id="worldRankingPreview">
   <div class="worldRankHead">
     <div><div class="eyebrow">TIME CLASH · WORLD RANKING</div><h2>Weltrangliste</h2><p>Jedes einzelne historische Spiel zählt: Sieg 3 · Unentschieden 1 · Niederlage 0.</p></div>
@@ -1114,14 +1114,14 @@ function applyWikiScenarioPrefill(){
    } return false;
   }
   const okA=setSide("A",qa),okB=setSide("B",qb);if(okA||okB)updateTeams();
-  if([1,3,5,10].includes(ql)){seriesLen=ql;document.querySelectorAll("[data-len]").forEach(x=>x.classList.toggle("sel",Number(x.dataset.len)===ql));makeSeries()}
+  if([3,5,10].includes(ql)){seriesLen=ql;document.querySelectorAll("[data-len]").forEach(x=>x.classList.toggle("sel",Number(x.dataset.len)===ql));makeSeries()}
   if(okA&&okB){$("#next").textContent="Football Wiki: Dieses noch ungespielte Szenario ist vorausgewählt. Wähle deinen Sieger und starte den TIME CLASH.";document.querySelector(".chooser")?.scrollIntoView({behavior:"smooth",block:"start"})}
  }catch(e){}
 }
 setTimeout(applyWikiScenarioPrefill,0);/* Valid visible defaults count as selected: normal users do not have to re-select a team just to unlock Start. */
 $("#loadLeagueMatch").onclick=()=>{if(!memberClub){$("#next").textContent="Bitte zuerst dein eigenes TIME-CLASH-Team erstellen.";return}let opponent=$("#memberOpponent").value,meta=allCommunityClubs.find(x=>x.club_name===opponent);if(!meta){$("#next").textContent="Kein erlaubter Community-Gegner ausgewählt.";return}let ownPlayers=Array.isArray(memberClub.players)?memberClub.players:[],oppPlayers=Array.isArray(meta.players)?meta.players:[],ownSum=ownPlayers.slice(0,11).reduce((s,p)=>s+Number(p.strength||0),0),oppSum=oppPlayers.slice(0,11).reduce((s,p)=>s+Number(p.strength||0),0);TA=parseTeam(memberClub.club_name+"|🛡️|"+ratingFromStrength(ownSum));TB=parseTeam(meta.club_name+"|🛡️|"+ratingFromStrength(oppSum));kindAActive="myclub";kindBActive="community";activeMode="member";chosenA=chosenB=true;renderActiveTeams();$("#next").textContent="Liga-Duell geladen: "+memberClub.club_name+" gegen "+opponent+". Die obere Auswahl bleibt unverändert."};
 $("#eliteVsSelected").onclick=()=>{if(!memberProgress?.elite){$("#next").textContent="Dieses Crossover wird erst mit Elite freigeschaltet.";return}let realType=$("#typeB").value,realValue=$("#teamB").value;if(!["nation","club"].includes(realType)||!realValue){realType="nation";let first=(catalog.nation[Object.keys(catalog.nation)[0]]||[])[0];realValue=first||"Italien 2006 · Weltmeister|🇮🇹|84"}let ownPlayers=Array.isArray(memberClub?.players)?memberClub.players:[],ownSum=ownPlayers.slice(0,11).reduce((s,p)=>s+Number(p.strength||0),0);TA=parseTeam(memberClub.club_name+"|🛡️|"+ratingFromStrength(ownSum));TB=parseTeam(realValue);kindAActive="myclub";kindBActive=realType;activeMode="elite";chosenA=chosenB=true;renderActiveTeams();$("#next").textContent="Elite-Crossover geladen. Dein Club spielt gegen das oben bei Team B ausgewählte echte/historische Team. Die obere Auswahl bleibt unverändert."};
-document.querySelectorAll("[data-len]").forEach(b=>b.onclick=()=>{if(running)return;seriesLen=+b.dataset.len;$("#heroClaim").textContent="EGAL WIE VIELE SPIELE. EIN SERIENSIEGER.";document.querySelectorAll("[data-len]").forEach(x=>x.classList.toggle("sel",Number(x.dataset.len)===seriesLen));if(typeof tcRenderSeriesStrategy==="function")tcRenderSeriesStrategy();makeSeries()});
+document.querySelectorAll("[data-len]").forEach(b=>b.onclick=()=>{if(running)return;seriesLen=[3,5,10].includes(Number(b.dataset.len))?Number(b.dataset.len):5;$("#heroClaim").textContent="EGAL WIE VIELE SPIELE. EIN SERIENSIEGER.";document.querySelectorAll("[data-len]").forEach(x=>x.classList.toggle("sel",Number(x.dataset.len)===seriesLen));if(typeof tcRenderSeriesStrategy==="function")tcRenderSeriesStrategy();makeSeries()});
 function conflicts(){
  const a=rosterDB[TA.name]||[],b=rosterDB[TB.name]||[],bm=new Map(b.map(p=>[p.id,p])),hits=a.filter(p=>bm.has(p.id));
  $("#conflictBox").classList.toggle("hidden",!hits.length);
@@ -1710,7 +1710,7 @@ function saveActiveSeries(){
 function restoreActiveSeries(){
  try{
   let st=JSON.parse(localStorage.getItem(ACTIVE_SERIES_KEY)||"null");if(!st)return false;
-  if(Date.now()-Number(st.saved_at||0)>6*60*60*1000||st.owner!==activeSeriesOwner()||![1,3,5,10].includes(Number(st.seriesLen))||!Array.isArray(st.games)||st.games.length!==Number(st.seriesLen)){clearActiveSeries();return false}
+  if(Date.now()-Number(st.saved_at||0)>6*60*60*1000||st.owner!==activeSeriesOwner()||![3,5,10].includes(Number(st.seriesLen))||!Array.isArray(st.games)||st.games.length!==Number(st.seriesLen)){clearActiveSeries();return false}
   TA=st.TA;TB=st.TB;kindAActive=st.kindAActive;kindBActive=st.kindBActive;activeMode=st.activeMode;seriesLen=Number(st.seriesLen);selectedStartStadium=String(st.selectedStartStadium||"");pick=st.pick;g=Number(st.g||0);serA=Number(st.serA||0);serB=Number(st.serB||0);games=st.games;chosenA=st.chosenA!==false;chosenB=st.chosenB!==false;fast=!!st.fast;seriesDecision=null;paused=false;running=false;i=0;A=B=0;
   document.querySelectorAll("[data-len]").forEach(x=>x.classList.toggle("sel",Number(x.dataset.len)===seriesLen));$("#heroClaim").textContent="EGAL WIE VIELE SPIELE. EIN SERIENSIEGER.";$("#series").dataset.long=seriesLen>5?"1":"0";$("#series").dataset.count=String(seriesLen);
   renderActiveTeams();renderStadiumChooser();if(selectedStartStadium)previewStadium(stadiumBySlug(selectedStartStadium),"MASTER");if(pick)select(pick);$("#serA").textContent=serA;$("#serB").textContent=serB;$("#seriesText").textContent="Serie nach Aktualisierung wiederhergestellt";renderTabs();renderHistory();$("#next").textContent="Gespeicherte Serie wird ohne weiteren Guthabenabzug fortgesetzt …";setTimeout(beginGame,250);return true
