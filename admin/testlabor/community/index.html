@@ -1,0 +1,67 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><title>BetInsight · Test-Community-Vorschau</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{font:15px/1.55 system-ui,-apple-system,Arial,sans-serif;margin:0;min-height:100vh;background:radial-gradient(ellipse at top,#113951,#03131e 75%);color:#f2fbff}
+main{max-width:1200px;padding:23px 17px 70px;margin:auto}header{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;align-items:center;padding-bottom:20px;border-bottom:1px solid #315469;margin-bottom:29px}
+a{color:#94dcff}.brand{font-size:19px;font-weight:900}.brand span{color:#28e0ba}
+.overline{color:#74eecc;font-size:12px;font-weight:850;letter-spacing:.1em;text-transform:uppercase}h1{font-size:clamp(28px,4.5vw,40px);margin:9px 0}.sub{color:#b9d5e2}
+.panel{border:1px solid #336980;background:linear-gradient(135deg,#10354a,#062336);padding:23px;border-radius:19px;margin-bottom:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(315px,1fr));gap:18px}
+.tip{border:1px solid #36788d;background:linear-gradient(160deg,#12425a,#082b3e);border-radius:17px;padding:19px;box-shadow:0 16px 30px rgba(0,0,0,.2)}
+.eyebrow{color:#b7d5e6;font-size:12px}.head{display:flex;justify-content:space-between;gap:15px;align-items:center}
+.badge{font-size:11px;font-weight:850;padding:4px 9px;border-radius:999px;border:1px solid #cb9e4b;color:#f9d492;background:#68471131}
+.units{border-radius:10px;background:#30ddb6;color:#002d2c;font-weight:900;padding:7px 11px;font-size:13px;white-space:nowrap}
+.teams{font-size:clamp(21px,2.3vw,26px);font-weight:900;line-height:1.27;margin:14px 0}
+.market{background:#071d2a;padding:12px;border:1px solid #306681;border-radius:11px;margin:12px 0}.value{font-size:24px;color:#a8f8dd;font-weight:900}
+.data{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:15px 0}.data small{display:block;color:#a8c9d9}.data strong{font-weight:820}
+.note{font-size:12px;color:#c3d7e3}.reason{white-space:pre-wrap;overflow-wrap:anywhere;color:#e5f4fa;border-top:1px solid #296078;padding-top:12px}
+.empty{padding:35px;border:1px dashed #457a92;border-radius:14px;color:#d7e9f2;background:#0a2636}
+#message{min-height:25px}
+</style></head><body>
+<main><header><div class="brand">BETINSIGHT <span>COMMUNITY-VORSCHAU</span></div><nav><a href="/admin/testlabor/">← Testlabor</a> · <a href="/admin/">Admin Center</a></nav></header>
+<section id="locked" class="panel"><h1>Zugang prüfen …</h1><p>Die Liste ist nur mit gültiger BetInsight-Admin-Sitzung abrufbar.</p></section>
+<div id="content" style="display:none">
+<section class="panel"><div class="overline">Geschützter Simulationsbereich</div>
+<h1>So könnten unsere neuen Tipps aussehen</h1>
+<p class="sub">Die Karten unten sind noch <strong>keine echten Community-Tipps</strong>. Es werden keine Units verbraucht, keine Zahlungen ausgelöst und keine Benachrichtigungen verschickt. Das interne Preisschild zeigt nur, wie eine Freischaltung für <strong>1 Unit</strong> aussehen könnte.</p>
+<p id="message" role="status"></p>
+</section>
+<div id="cards" class="grid"></div>
+</div></main>
+<script>
+"use strict";
+const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-testlab-workshop";
+const $=id=>document.getElementById(id);
+const SESSION_KEY="betinsight_admin_session_v1";
+function session(){try{const s=JSON.parse(sessionStorage.getItem(SESSION_KEY)||"null");return s?.token&&Date.now()<Number(s.expiresMs||0)?s:null}catch(_){return null}}
+async function hash(v){const d=new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(v)));return Array.from(d,b=>b.toString(16).padStart(2,"0")).join("")}
+async function request(token){const r=await fetch(API,{method:"POST",headers:{"content-type":"application/json"},cache:"no-store",credentials:"omit",
+ body:JSON.stringify({action:"list",session_hash:await hash(token)})});const d=await r.json();if(!r.ok||d.ok!==true)throw Error(d.error||"SERVER_ERROR");return d}
+function e(tag,value,klass){const x=document.createElement(tag);x.textContent=String(value??"");if(klass)x.className=klass;return x}
+function appendMeta(parent,label,value){const box=document.createElement("div");box.append(e("small",label),e("strong",value));parent.append(box)}
+function date(v){let d=new Date(v);return Number.isFinite(d.getTime())?new Intl.DateTimeFormat("de-DE",{dateStyle:"medium",timeStyle:"short",timeZone:"Europe/Berlin"}).format(d)+" (DE)":"Datum unklar"}
+function money(v){return Number(v).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function card(t){
+ const root=document.createElement("article");root.className="tip";
+ const head=document.createElement("div");head.className="head";head.append(e("span","NUR SIMULATION · Nicht veröffentlicht","badge"),e("span","1 Test-Unit","units"));root.append(head);
+ root.append(e("p",t.sport+" · "+t.league,"eyebrow"));root.append(e("h2",t.home_team+" – "+t.away_team,"teams"));
+ root.append(e("p","Anpfiff: "+date(t.kickoff_at),"eyebrow"));
+ const market=e("div","","market");market.append(e("div","UNSER TEST-TIPP","overline"),e("div",t.selection,"value"),
+ e("div",t.market+" · Quote "+money(t.offered_odds)+" · "+t.bookmaker));root.append(market);
+ const data=document.createElement("div");data.className="data";
+ appendMeta(data,"Eingetragene Gewinnchance",Number(t.estimated_probability).toLocaleString("de-DE")+" %");
+ appendMeta(data,"Gewinnschwelle der Quote",(100/Number(t.offered_odds)).toLocaleString("de-DE",{maximumFractionDigits:1})+" %");
+ appendMeta(data,"Erstellt",date(t.created_at));
+ appendMeta(data,"Status","SIMULIERT");root.append(data);
+ root.append(e("p",t.analysis_text,"reason"));
+ root.append(e("p","Manuelle Wahrscheinlichkeitsschätzung, kein unabhängig bestätigtes Modell. Quote manuell eingetragen. 1 Unit ist nur ein fiktiver Freischaltpreis; kein Tipp wurde veröffentlicht.","note"));
+ return root;
+}
+async function load(){const s=session();if(!s){$("locked").querySelector("h1").textContent="Bitte im Admin Center anmelden.";return}
+try{const d=await request(s.token);$("locked").style.display="none";$("content").style.display="block";const items=d.items||[];
+$("message").textContent=items.length+" simulierte Tipps im internen Bereich";const container=$("cards");container.replaceChildren();
+if(!items.length)container.append(e("div","Noch keine simulierten Tipps vorhanden. Öffne ein zukünftiges Spiel im Testlabor und klicke auf „Tipp prüfen · Vorschau“.","empty"));
+else for(const t of items)container.append(card(t));
+}catch(e){$("locked").querySelector("h1").textContent="Keine bestätigte Admin-Freigabe.";}}
+load();
+</script></body></html>
