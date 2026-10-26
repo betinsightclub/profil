@@ -115,7 +115,7 @@ function persistView(){
 function restoreView(){
  try{
   const view=JSON.parse(sessionStorage.getItem(SAVED_VIEW)||"null");
-  if(!view||view.version!==2||!Array.isArray(view.providers)||!/^20\\d{2}-\\d{2}-\\d{2}$/.test(view.date))return false;
+  if(!view||view.version!==2||!Array.isArray(view.providers)||!/^20\d{2}-\d{2}-\d{2}$/.test(view.date))return false;
   $("day").value=view.date;
   if(CODES.includes(view.sport))$("sport").value=view.sport;
   lastFetchedDate=view.lastFetchedDate||"";
