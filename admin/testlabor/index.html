@@ -1,54 +1,94 @@
 <!doctype html>
 <html lang="de">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
-  <title>BetInsight · Privates Testlabor</title>
-  <style>
-    :root{color-scheme:dark;--bg:#061b28;--card:#0b2e40;--line:#276076;--text:#f6fcff;--muted:#b9d5e0;--accent:#1bd4a1}
-    *{box-sizing:border-box}body{margin:0;font:16px/1.55 system-ui,Arial,sans-serif;background:linear-gradient(135deg,#05141d,#092f43);color:var(--text);min-height:100vh}
-    main{max-width:1080px;margin:auto;padding:25px 18px 70px}header{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:28px}
-    a{color:#91eaff}h1{font-size:clamp(25px,4vw,37px);margin:8px 0 10px}h2{font-size:21px;margin:0 0 12px}.muted{color:var(--muted)}
-    .eyebrow{color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:.1em;font-size:13px}
-    .box{padding:23px;border-radius:17px;border:1px solid var(--line);background:var(--card);margin:20px 0}.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-    button{padding:12px 19px;background:#11a9cd;border:0;border-radius:10px;font-weight:800;color:#031724;cursor:pointer}button.secondary{background:#1c465a;color:white}button:disabled{opacity:.5;cursor:wait}
-    input{padding:10px 12px;background:#08212f;color:white;border:1px solid #498096;border-radius:9px}
-    .pill{display:inline-block;padding:3px 9px;border:1px solid #327182;border-radius:999px;color:#bfeff0;font-size:12px;margin:5px 0}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
-    .pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;background:#031c29;padding:12px;border:1px solid #235066;border-radius:8px}
-    .hidden{display:none}.ok{color:#77f0bd}.bad{color:#ffb5a9}.small{font-size:13px}
-  </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+<title>BetInsight · Privates Testlabor</title>
+<style>
+:root{color-scheme:dark;--bg:#051822;--card:#103248;--surface:#0a2739;--line:#28536c;--text:#f1f9fd;--muted:#afc9d5;--blue:#25b6f5;--mint:#28dab1;--yellow:#ffe08d;--red:#ff9da9}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top,#103e59 0%,#061923 48%,#031019 100%);color:var(--text);font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:1320px;margin:0 auto;padding:24px 22px 80px}a{color:#9bddff}header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px;margin-bottom:35px;padding-bottom:19px;border-bottom:1px solid var(--line)}
+.brand{font-weight:900;letter-spacing:.045em;font-size:19px}.brand span{color:var(--mint)}.overline{font-size:12px;color:var(--mint);letter-spacing:.13em;font-weight:850;text-transform:uppercase}
+h1{font-size:clamp(27px,4vw,39px);letter-spacing:-.03em;line-height:1.12;margin:8px 0 11px}h2{font-size:20px;margin:0 0 9px}h3{font-size:17px;margin:0}.muted{color:var(--muted)}
+.panel{background:linear-gradient(180deg,rgba(15,53,76,.96),rgba(8,35,51,.98));border:1px solid var(--line);border-radius:18px;padding:24px;margin:18px 0;box-shadow:0 13px 34px rgba(0,0,0,.15)}
+.controls{display:flex;align-items:flex-end;flex-wrap:wrap;gap:12px;margin:21px 0 8px}
+.control{display:flex;flex-direction:column;gap:4px}.control label{font-size:12px;font-weight:750;color:#b8d3df}
+select,input{font:inherit;background:#061e2e;color:#fff;border:1px solid #3b7790;border-radius:11px;min-height:43px;padding:10px 12px;min-width:160px}
+button{font:inherit;background:linear-gradient(120deg,#20caa8,#19a5da);border:0;color:#031921;border-radius:11px;min-height:44px;padding:10px 17px;font-weight:800;cursor:pointer}
+button.secondary{background:#153f5b;border:1px solid #34799e;color:#eaf8fd}
+button:disabled{opacity:.55;cursor:wait}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
+.kpi{border:1px solid var(--line);background:#092738;border-radius:12px;padding:15px}.kpi strong{display:block;font-size:23px}.kpi small{color:var(--muted)}
+.tag{display:inline-block;font-size:11px;font-weight:850;letter-spacing:.03em;padding:4px 8px;border-radius:999px;border:1px solid #338092;background:rgba(19,111,141,.14);color:#c2eeff}
+.tag.warn{border-color:#957746;color:#f7df9e;background:rgba(154,117,51,.12)}.tag.good{border-color:#348f70;color:#8bf3c9}
+.filters{display:flex;gap:9px;overflow-x:auto;padding:5px 0 14px;scrollbar-width:thin}.filter{flex:0 0 auto;white-space:nowrap;padding:8px 14px;min-height:38px;color:#bfddec;background:#082333;border:1px solid #31546a;border-radius:999px;cursor:pointer}.filter.active{border-color:#4ce5c0;color:#061a23;background:#58e2c1}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:26px 0 9px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(305px,1fr));gap:16px}
+.match{background:linear-gradient(165deg,#103b53,#09283c);border:1px solid #33617c;border-radius:17px;padding:20px;min-height:244px;position:relative;box-shadow:0 14px 30px rgba(0,0,0,.13)}
+.matchtop{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:12px;color:#aaccd8}
+.versus{font-size:clamp(19px,2vw,23px);font-weight:900;letter-spacing:-.02em;line-height:1.25;margin:16px 0 12px}
+.versus .vs{color:#73a9c4;font-weight:500;font-size:13px;margin:5px 0;display:block}.line{height:1px;background:#27536d;margin:14px 0}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px}
+.meta small{color:#9fbccc;display:block}.meta strong{font-weight:730}
+.no-tip{padding:10px 12px;margin-top:16px;border:1px dashed #507d91;background:#09283a;color:#d2e8f1;border-radius:10px;font-size:13px}
+.error{border-left:4px solid #fdad9e;background:rgba(124,36,55,.17);padding:13px 16px;margin:10px 0;border-radius:9px}
+.info{border:1px solid #377082;background:#0b3246;padding:13px 16px;border-radius:10px}
+.quota{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}.quota div{background:#082739;border:1px solid #2d576d;padding:12px;border-radius:11px}.quota strong{font-size:20px;display:block}.quota span{font-size:12px;color:#bcd9e2}
+.hidden{display:none!important}#message{min-height:24px;color:#d5eefa;margin:12px 0}
+@media(max-width:700px){main{padding:17px 12px 55px}.panel{padding:17px}.kpis{grid-template-columns:1fr 1fr}.kpi:last-child{grid-column:span 2}.grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 <main>
-<header><strong>BETINSIGHT <span class="eyebrow">Testlabor</span></strong><a href="/admin/">Zurück zum Admin Center</a></header>
-<section id="auth" class="box">
- <span class="eyebrow">Privater Admin-Zugang</span>
- <h1>Verbindungstest für zwei Datenanbieter</h1>
- <p class="muted" id="authMsg">Die bestehende Admin-Sitzung wird serverseitig überprüft …</p>
- <p class="small muted">Bitte im selben Browser-Tab über das BetInsight Admin Center öffnen. Ohne gültige Sitzung bleiben alle Daten gesperrt.</p>
+<header><div class="brand">BETINSIGHT <span>TESTLABOR</span></div><a href="/admin/">← Admin Center</a></header>
+<section id="auth" class="panel">
+ <div class="overline">Privater Adminbereich</div><h1>Zugang prüfen</h1>
+ <p id="authMsg">Die BetInsight-Admin-Sitzung wird serverseitig überprüft …</p>
+ <p class="muted">Öffne dieses Labor im selben Browser-Tab über das Admin Center. Ohne gültige Sitzung werden keine Sportdaten abgerufen.</p>
 </section>
 <section id="screen" class="hidden">
- <div class="box">
-  <span class="pill">Admin-only · Nur Testdaten · Keine Veröffentlichung</span>
-  <h1>SportsAPI Pro + BALLDONTLIE</h1>
-  <p class="muted">Erst prüfen wir die Schlüsselkonfiguration; auf Wunsch folgen zwei kostenlose Abfragen. Weder Tipps noch Units werden verändert oder veröffentlicht.</p>
-  <div class="row">
-   <button id="statusBtn" type="button">Schlüsselstatus prüfen</button>
-   <label for="day">NBA-Datum (UTC):</label>
-   <input id="day" type="date">
-   <button class="secondary" id="probeBtn" type="button">Beide Anbieter abfragen</button>
+ <div class="overline">Nur interne Auswertung · keine Kundenfreigabe</div><h1>Sportarten-Testlabor</h1>
+ <p class="muted">Zwei Datenanbieter, sechs Sportarten und ein gemeinsames internes Abfragebudget. Spielpläne sind noch keine Wetttipps: Empfehlungen werden erst mit tatsächlicher Auswahl, Wettmarkt und überprüfter Buchmacherquote übernommen.</p>
+ <div class="panel">
+  <div><span class="tag good">Admin geschützt</span> <span class="tag">SportsAPI Pro</span> <span class="tag">BALLDONTLIE · NBA</span></div>
+  <div class="controls">
+   <div class="control"><label for="sport">Sportart</label><select id="sport">
+    <option value="basketball">🏀 Basketball</option><option value="hockey">🏒 Eishockey</option>
+    <option value="cricket">🏏 Cricket</option><option value="table-tennis">🏓 Tischtennis</option>
+    <option value="baseball">⚾ Baseball</option><option value="american-football">🏈 American Football</option>
+   </select></div>
+   <div class="control"><label for="day">Spieldatum (UTC)</label><input id="day" type="date"></div>
+   <button id="one" type="button">Sportart abrufen</button>
+   <button id="multi" type="button" class="secondary">Alle 6 Sportarten abrufen</button>
   </div>
-  <p class="small muted">Die Abfrage verbraucht maximal eine SportsAPI-Pro-Anfrage und eine BALLDONTLIE-Anfrage. Zum Schutz des Freikontingents: höchstens zweimal pro fünf Minuten und Admin.</p>
-  <p id="message" role="status" aria-live="polite"></p>
+  <p id="message" role="status" aria-live="polite">Wähle eine Sportart oder rufe alle sechs mit einem Klick ab.</p>
+  <div class="kpis">
+   <div class="kpi"><strong id="gamesCount">0</strong><small>Gefundene Spiele · aktuelle Abfrage</small></div>
+   <div class="kpi"><strong id="tipsCount">0</strong><small>Vollständige Wett-Tipps</small></div>
+   <div class="kpi"><strong id="providersCount">0</strong><small>Erfolgreiche Datenquellen</small></div>
+  </div>
  </div>
- <div class="grid">
-   <section class="box"><h2>SportsAPI Pro</h2><p class="muted">Basketball · NBA-Spielplan</p><pre class="pre" id="sports">Noch nicht geprüft.</pre></section>
-   <section class="box"><h2>BALLDONTLIE</h2><p class="muted">NBA-Spielplan, Free API (keine Wettprognosen)</p><pre class="pre" id="bdl">Noch nicht geprüft.</pre></section>
+ <div class="panel">
+  <h2>Unser kostenloses Tagesbudget</h2>
+  <div class="quota">
+   <div><strong>15</strong><span>🏀 Basketball</span></div>
+   <div><strong>15</strong><span>🏒 Eishockey</span></div>
+   <div><strong>15</strong><span>🏏 Cricket</span></div>
+   <div><strong>15</strong><span>🏓 Tischtennis</span></div>
+   <div><strong>15</strong><span>⚾ Baseball + 🏈 NFL zusammen</span></div>
+   <div><strong>15</strong><span>Ergebnisse (vorgesehen)</span></div>
+   <div><strong>10</strong><span>Reserve (vorgesehen)</span></div>
+  </div>
+  <p class="muted" style="font-size:12px">100 Abfragen sind die Anbieterobergrenze, nicht 100 Spiele. Die hier gezeigte Aufteilung ist unser Plan, keine vom Anbieter bestätigte Verbrauchsanzeige. Derzeit begrenzen wir im Testlabor die 75 Sport-Abfragen; Ergebnisabrufe und automatische Tagesläufe sind noch nicht aktiviert. BALLDONTLIE besitzt eigene Limits.</p>
  </div>
- <div class="box"><h2>Derzeitiger Entwicklungsstand</h2>
-  <p>Dies ist ausschließlich der geschützte technische Verbindungstest. Das historische 100–200-Spiele-Archiv, Modellprognosen, Ergebnisabrechnung und der neue Tippgeber sind noch nicht eingerichtet.</p>
+ <div id="errors" aria-live="polite"></div>
+ <div class="section-head"><h2 id="sectionTitle">Spiele &amp; Testkandidaten</h2><span id="countLabel" class="muted">Noch keine Daten geladen</span></div>
+ <div class="filters" id="filters" aria-label="Sportfilter"></div>
+ <div class="grid" id="matches">
+   <div class="panel" style="margin:0;grid-column:1/-1">Nach dem Abruf erscheinen hier echte Begegnungen in einer BetInsight-Kartenansicht.</div>
+ </div>
+ <div class="panel"><h2>Was kommt als Nächstes?</h2>
+ <p>Diese Ansicht prüft echte Sportdaten. Der nächste Ausbau ergänzt Modellprognosen und Quoten, speichert daraus ausgewählte Testtipps <strong>vor Spielbeginn</strong> unveränderlich und führt eine separate Historie mit Gewinnen, Verlusten und Rendite. Bis dahin werden keine bloßen Spielpläne als gewonnene Tipps gezählt.</p>
  </div>
 </section>
 </main>
@@ -56,48 +96,94 @@
 "use strict";
 const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-testlab-providers";
 const SESSION_KEY="betinsight_admin_session_v1";
-const el=id=>document.getElementById(id);
-let rawToken="";
-function readSession(){try{const d=JSON.parse(sessionStorage.getItem(SESSION_KEY)||"null");return d?.token&&Date.now()<Number(d?.expiresMs||0)?d:null}catch(_){return null}}
-async function sha256(text){const bytes=new TextEncoder().encode(text);const digest=new Uint8Array(await crypto.subtle.digest("SHA-256",bytes));return Array.from(digest,b=>b.toString(16).padStart(2,"0")).join("")}
-async function request(action,date){
- const hash=await sha256(rawToken);
- const response=await fetch(API,{method:"POST",headers:{"content-type":"application/json"},cache:"no-store",credentials:"omit",body:JSON.stringify({action,session_hash:hash,...(date?{date}:{})})});
- const data=await response.json();
- if(!response.ok||data.ok!==true)throw new Error(String(data.error||"SERVER_ERROR")+" (HTTP "+response.status+")");
- return data;
+const CODES=["basketball","hockey","cricket","table-tennis","baseball","american-football"];
+const LABELS={"basketball":"🏀 Basketball","hockey":"🏒 Eishockey","cricket":"🏏 Cricket","table-tennis":"🏓 Tischtennis","baseball":"⚾ Baseball","american-football":"🏈 American Football"};
+const $=id=>document.getElementById(id);
+let rawToken="",records=[],activeFilter="all",providers=[];
+function readSession(){try{const s=JSON.parse(sessionStorage.getItem(SESSION_KEY)||"null");return s?.token&&Date.now()<Number(s?.expiresMs||0)?s:null}catch(_){return null}}
+async function hash(text){const digest=new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(text)));return Array.from(digest,b=>b.toString(16).padStart(2,"0")).join("")}
+async function request(action,extra={}){
+ const response=await fetch(API,{method:"POST",headers:{"content-type":"application/json"},cache:"no-store",credentials:"omit",body:JSON.stringify({action,session_hash:await hash(rawToken),...extra})});
+ const d=await response.json();
+ if(!response.ok||d.ok!==true)throw new Error(String(d.error||"ABFRAGE_FEHLGESCHLAGEN")+" (HTTP "+response.status+")");
+ return d;
 }
-const stringify=value=>JSON.stringify(value,null,2);
-function showStatus(data){
- el("sports").textContent="Secret hinterlegt: "+(data.providers.sportsapi_pro.configured?"JA":"NEIN")+".";
- el("bdl").textContent="Secret hinterlegt: "+(data.providers.balldontlie.configured?"JA":"NEIN")+".";
+function text(tag,content,css=""){const n=document.createElement(tag);n.textContent=String(content??"");if(css)n.className=css;return n}
+function timeLabel(v){if(!v)return "Nicht angegeben";const d=new Date(v);if(isNaN(d.getTime()))return String(v);return new Intl.DateTimeFormat("de-DE",{dateStyle:"medium",timeStyle:"short",timeZone:"Europe/Berlin"}).format(d)+" (DE)"}
+function addMeta(container,title,value){const d=document.createElement("div");d.append(text("small",title),text("strong",value));container.append(d)}
+function renderCard(item){
+ const card=document.createElement("article");card.className="match";
+ const top=text("div","","matchtop");
+ top.append(text("span",LABELS[item.sport]||item.sport),text("span",item.source==="balldontlie"?"BALLDONTLIE":"SportsAPI Pro"));
+ card.append(top);
+ card.append(text("div",item.league||"Liga nicht angegeben","muted"));
+ const teams=document.createElement("div");teams.className="versus";
+ teams.append(text("div",item.home||"Heimteam fehlt"),text("span","gegen","vs"),text("div",item.away||"Auswärtsteam fehlt"));card.append(teams);
+ card.append(text("div","","line"));
+ const meta=document.createElement("div");meta.className="meta";
+ addMeta(meta,"Anpfiff",timeLabel(item.kickoff));
+ addMeta(meta,"Spielstatus",item.status||"Unbekannt");
+ addMeta(meta,"Wettmarkt",item.market||"Noch offen");
+ addMeta(meta,"Quote",item.odds?String(item.odds).replace(".",","):"Noch nicht verfügbar");
+ card.append(meta);
+ const tip=text("div",item.pick?"Prognose: "+item.pick:"Noch kein geprüfter Wett-Tipp · Nur Spielansetzung","no-tip");card.append(tip);
+ return card;
 }
-async function handle(action) {
- const btn=action==="probe"?el("probeBtn"):el("statusBtn");
- el("message").textContent="Prüfung läuft …";btn.disabled=true;
+function renderFilters(){
+ const el=$("filters");el.replaceChildren();
+ for(const s of ["all",...CODES]){
+  const btn=text("button",s==="all"?"Alle Sportarten":LABELS[s],"filter"+(activeFilter===s?" active":""));
+  btn.type="button";btn.addEventListener("click",()=>{activeFilter=s;renderFilters();renderCards()});el.append(btn);
+ }
+}
+function renderCards(){
+ const subset=records.filter(r=>activeFilter==="all"||r.sport===activeFilter);
+ $("matches").replaceChildren();
+ $("countLabel").textContent=subset.length+" angezeigte Spiele";
+ if(!subset.length){const card=text("div","Für diesen Sport liegen bei der letzten Abfrage keine Begegnungen vor.","panel");card.style.gridColumn="1/-1";$("matches").append(card)}
+ else for(const v of subset)$("matches").append(renderCard(v));
+}
+function reportErrors(items){
+ const errors=$("errors");errors.replaceChildren();
+ for(const item of items.filter(x=>!x.ok)){
+  const p=text("div",(LABELS[item.sport]||item.sport)+" · "+(item.source==="balldontlie"?"BALLDONTLIE":"SportsAPI Pro")+": "+
+  (item.error==="INVALID_REQUEST_OR_ENDPOINT"?"HTTP 400 – Anfrage oder Endpunkt wird vom Anbieter abgelehnt":
+   item.error==="ACCESS_REJECTED"?"Zugriff abgelehnt – Tarif, API-Schlüssel oder Berechtigung prüfen":
+   item.error==="API_RATE_LIMIT"?"Kontingent beim Anbieter erreicht":
+   item.error==="LAB_REQUEST_BUDGET_REACHED"?"Unser internes Tagesbudget für diese Sportart ist ausgeschöpft":
+   (item.error||"Nicht verfügbar"))+(item.http_status?" (HTTP "+item.http_status+")":""),"error");
+  errors.append(p);
+ }
+}
+async function run(action){
+ const buttons=[$("one"),$("multi")];buttons.forEach(b=>b.disabled=true);
+ $("message").textContent="Die ausgewählten Sportarten werden abgefragt …";
  try{
-  const data=await request(action,action==="probe"?el("day").value:"");
-  if(action==="status")showStatus(data);else{
-   const map=Object.fromEntries((data.providers||[]).map(x=>[x.provider,x]));
-   el("sports").textContent=stringify(map.sports||{error:"Keine Antwort"});
-   el("bdl").textContent=stringify(map.bdl||{error:"Keine Antwort"});
-  }
-  el("message").textContent="Prüfung abgeschlossen. Prüfe die Anbieterantworten und HTTP-Statuscodes.";
- }catch(error){el("message").textContent="Prüfung nicht erfolgreich: "+String(error?.message||error);}
- finally{btn.disabled=false;}
+  const data=await request(action,{sport:$("sport").value,date:$("day").value});
+  providers=data.sources||[];records=providers.flatMap(x=>Array.isArray(x.games)?x.games:[]);
+  $("gamesCount").textContent=String(records.length);
+  $("tipsCount").textContent=String(records.filter(r=>r.pick&&r.odds&&r.market).length);
+  $("providersCount").textContent=String(providers.filter(x=>x.ok).length);
+  $("message").textContent=records.length+" echte Begegnungen empfangen. Keine davon wird ohne konkrete Wettprognose und Quote als Tipp gewertet.";
+  activeFilter="all";renderFilters();renderCards();reportErrors(providers);
+ }catch(e){$("message").textContent="Abruf fehlgeschlagen: "+String(e.message||e)}
+ finally{buttons.forEach(b=>b.disabled=false)}
 }
-async function boot() {
- const session=readSession();
- if(!session){el("authMsg").textContent="Keine gültige Admin-Sitzung gefunden. Bitte im selben Tab zuerst im Admin Center anmelden.";return;}
- rawToken=session.token;
+async function boot(){
+ const s=readSession();
+ if(!s){$("authMsg").textContent="Keine gültige Admin-Sitzung. Bitte im selben Tab über das Admin Center anmelden.";return}
+ rawToken=s.token;
  try{
-  const status=await request("status");
-  el("auth").classList.add("hidden");el("screen").classList.remove("hidden");showStatus(status);
- }catch(_){rawToken="";el("authMsg").textContent="Die Serverprüfung hat den Admin-Zugang nicht bestätigt. Bitte im selben Tab im Admin Center neu anmelden."}
+  const d=await request("status");
+  $("auth").classList.add("hidden");$("screen").classList.remove("hidden");
+  const sOk=d.providers?.sportsapi_pro?.configured, bOk=d.providers?.balldontlie?.configured;
+  $("message").textContent="Zugang bestätigt. SportsAPI Pro: "+(sOk?"Schlüssel hinterlegt":"Schlüssel fehlt")+" · BALLDONTLIE: "+(bOk?"Schlüssel hinterlegt":"Schlüssel fehlt")+". Jetzt Sportarten abrufen.";
+  renderFilters();
+ }catch(e){rawToken="";$("authMsg").textContent="Admin-Sitzung konnte serverseitig nicht bestätigt werden. Bitte erneut im Admin Center anmelden."}
 }
-el("day").value=new Date().toISOString().slice(0,10);
-el("statusBtn").addEventListener("click",()=>handle("status"));
-el("probeBtn").addEventListener("click",()=>handle("probe"));
+$("day").value=new Date().toISOString().slice(0,10);
+$("one").addEventListener("click",()=>run("sport"));
+$("multi").addEventListener("click",()=>run("multi"));
 boot();
 </script>
 </body>
