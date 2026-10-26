@@ -21,7 +21,7 @@ button.secondary{background:#123f59;color:#d6f4ff;border:1px solid #498aa6}butto
 <section id="locked" class="card"><h1>Zugang wird geprüft …</h1><p>Die Tipp-Werkstatt ist ausschließlich mit gültiger Admin-Sitzung erreichbar.</p></section>
 <div id="workspace" class="hidden">
 <div class="eyebrow">Internes Versuchslabor · Keine echte Veröffentlichung</div><h1>Tipp bewerten und Vorschau erstellen</h1>
-<p class="muted">Wir erstellen einen konkreten Tipp für ein bevorstehendes Spiel. Die externen Buchmacherquote und die eigene Gewinnwahrscheinlichkeit werden im aktuellen Testschritt manuell geprüft und eingetragen. Wir erfinden keine Zahlen.</p>
+<p class="muted">Wir erstellen einen konkreten Tipp für ein bevorstehendes Spiel. Die Sport-API liefert Spielpläne, aber wir haben für dieses Spiel noch keinen geprüften Quoten- und Prognose-Endpunkt. Deshalb werden im Testschritt ausschließlich von dir überprüfte Quoten und eigene Wahrscheinlichkeitsschätzungen verwendet. Wir erfinden keine Zahlen.</p>
 <div class="card"><span class="tag">Spiel aus dem Testlabor</span><div id="match" class="teams"></div><p id="kickoff" class="muted"></p></div>
 <div class="card"><h2>1. Wettmarkt und Bewertung</h2>
 <div class="fields">
@@ -34,7 +34,7 @@ button.secondary{background:#123f59;color:#d6f4ff;border:1px solid #498aa6}butto
 <label class="full">Eigene BetInsight-Begründung <textarea id="analysis" maxlength="1200" placeholder="Welche Fakten und Statistiken sprechen für genau diesen Tipp?"></textarea></label>
 </div>
 <div class="actions">
-<button id="inspect" class="secondary" type="button">Quotendaten bei SportsAPI prüfen</button>
+<button id="inspect" class="secondary" type="button">Automatische Quotensuche derzeit nicht verfügbar</button>
 <button id="evaluate" type="button">Bewerten und Vorschau anzeigen</button>
 </div><p id="inspectStatus" class="note" role="status"></p>
 <div id="metrics" class="metrics hidden">
@@ -100,8 +100,8 @@ $("match").textContent=game.home+" gegen "+game.away;
 $("kickoff").textContent=(game.league||"Liga") + " · "+dateLabel(game.kickoff);
 for(const team of [game.home,game.away]){const o=document.createElement("option");o.value=team;o.textContent=team;$("pick").append(o)}
 $("market").value=game.sport==="table-tennis"?"Sieger der Begegnung":game.sport==="cricket"?"Matchsieger (Abrechnungsregeln prüfen)":"Spielsieger einschließlich möglicher Verlängerung";
-$("inspect").disabled=game.source!=="sportsapi"||!/^\d{1,18}$/.test(String(game.id||""));
-$("inspectStatus").textContent=game.source!=="sportsapi"?"Für BALLDONTLIE Free liegt keine automatisch prüfbare Tippquote vor.":"Die API-Quotensuche ist vorläufig diagnostisch; genaue Wettquoten müssen noch manuell bestätigt werden.";
+$("inspect").disabled=true;
+$("inspectStatus").textContent="Die bisherige automatische Quotensuche lieferte HTTP 400. Weitere kostenpflichtige oder kontingentierte Probeabrufe sind ausgesetzt, bis wir den richtigen V4-Quotenendpunkt geprüft haben. Bitte deine Quote bis dahin manuell bestätigen.";
 for(const id of ["market","pick","bookie","odds","prob","analysis"])$(id).addEventListener("input",clearPreview);
 $("evaluate").addEventListener("click",evaluate);$("inspect").addEventListener("click",inspect);$("simulate").addEventListener("click",simulate);
 }

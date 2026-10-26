@@ -82,7 +82,7 @@ button:disabled{opacity:.55;cursor:wait}
    <div><strong>15</strong><span>Ergebnisse (vorgesehen)</span></div>
    <div><strong>10</strong><span>Reserve (vorgesehen)</span></div>
   </div>
-  <p class="muted" style="font-size:12px">100 Abfragen sind die Anbieterobergrenze, nicht 100 Spiele. Die hier gezeigte Aufteilung ist unser Plan, keine vom Anbieter bestätigte Verbrauchsanzeige. Derzeit begrenzen wir im Testlabor die 75 Sport-Abfragen; Ergebnisabrufe und automatische Tagesläufe sind noch nicht aktiviert. BALLDONTLIE besitzt eigene Limits.</p>
+  <p class="muted" style="font-size:12px">100 Abfragen sind die Anbieterobergrenze, nicht 100 Spiele. Bereits gespeicherte Abfragen werden dank Supabase-Cache nicht erneut beim Anbieter ausgelöst.  Die hier gezeigte Aufteilung ist unser Plan, keine vom Anbieter bestätigte Verbrauchsanzeige. Derzeit begrenzen wir im Testlabor die 75 Sport-Abfragen; Ergebnisabrufe und automatische Tagesläufe sind noch nicht aktiviert. BALLDONTLIE besitzt eigene Limits.</p>
  </div>
  <div id="errors" aria-live="polite"></div>
  <div class="section-head"><h2 id="sectionTitle">Kommende Begegnungen</h2><span id="countLabel" class="muted">Noch keine Daten geladen</span></div>
@@ -102,7 +102,46 @@ const SESSION_KEY="betinsight_admin_session_v1";
 const CODES=["basketball","hockey","cricket","table-tennis","baseball","american-football"];
 const LABELS={"basketball":"🏀 Basketball","hockey":"🏒 Eishockey","cricket":"🏏 Cricket","table-tennis":"🏓 Tischtennis","baseball":"⚾ Baseball","american-football":"🏈 American Football"};
 const $=id=>document.getElementById(id);
-let rawToken="",records=[],activeFilter="all",providers=[];
+let rawToken="",records=[],activeFilter="all",providers=[],lastFetchedDate="";
+const SAVED_VIEW="betinsight_testlab_saved_view_v2";
+function persistView(){
+  if(!rawToken)return;
+  try{
+    const view={version:2,date:$("day").value,sport:$("sport").value,lastFetchedDate,
+      activeFilter,providers,at:new Date().toISOString()};
+    sessionStorage.setItem(SAVED_VIEW,JSON.stringify(view));
+  }catch(_){}
+}
+function restoreView(){
+ try{
+  const view=JSON.parse(sessionStorage.getItem(SAVED_VIEW)||"null");
+  if(!view||view.version!==2||!Array.isArray(view.providers)||!/^20\\d{2}-\\d{2}-\\d{2}$/.test(view.date))return false;
+  $("day").value=view.date;
+  if(CODES.includes(view.sport))$("sport").value=view.sport;
+  lastFetchedDate=view.lastFetchedDate||"";
+  providers=view.providers;
+  activeFilter=view.activeFilter==="all"||CODES.includes(view.activeFilter)?view.activeFilter:"all";
+  records=providers.flatMap(p=>Array.isArray(p.games)?p.games:[]).filter(isUpcoming).sort((a,b)=>Date.parse(a.kickoff)-Date.parse(b.kickoff));
+  fillResults();
+  $("message").textContent="Gespeicherte Ansicht wiederhergestellt ("+timeLabel(view.at)+"). Dafür wurde KEINE neue Anbieterabfrage verwendet.";
+  return true;
+ }catch(_){return false}
+}
+function fillResults(){
+ const incoming=providers.flatMap(p=>Array.isArray(p.games)?p.games:[]);
+ const excluded=providers.reduce((sum,p)=>sum+Number(p.past_or_running_count||0),0)+(incoming.length-records.length);
+ $("excludedCount").textContent=String(excluded);
+ $("gamesCount").textContent=String(records.length);
+ $("tipsCount").textContent=String(records.filter(r=>r.pick&&r.odds&&r.market).length);
+ $("providersCount").textContent=String(providers.filter(p=>p.ok).length);
+ renderFilters();renderCards();reportErrors(providers);
+}
+function handleDateChange(){
+ if($("day").value===lastFetchedDate)return;
+ records=[];providers=[];activeFilter="all";lastFetchedDate="";
+ fillResults();persistView();
+ $("message").textContent="Neuer Spieltag gewählt – die vorherigen Karten werden nicht mit diesem Datum vermischt. Zum Laden bitte abrufen.";
+}
 function readSession(){try{const s=JSON.parse(sessionStorage.getItem(SESSION_KEY)||"null");return s?.token&&Date.now()<Number(s?.expiresMs||0)?s:null}catch(_){return null}}
 async function hash(text){const digest=new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(text)));return Array.from(digest,b=>b.toString(16).padStart(2,"0")).join("")}
 async function request(action,extra={}){
@@ -144,7 +183,7 @@ function renderFilters(){
  const el=$("filters");el.replaceChildren();
  for(const s of ["all",...CODES]){
   const btn=text("button",s==="all"?"Alle Sportarten":LABELS[s],"filter"+(activeFilter===s?" active":""));
-  btn.type="button";btn.addEventListener("click",()=>{activeFilter=s;renderFilters();renderCards()});el.append(btn);
+  btn.type="button";btn.addEventListener("click",()=>{activeFilter=s;renderFilters();renderCards();persistView()});el.append(btn);
  }
 }
 function isUpcoming(item){
@@ -181,14 +220,11 @@ async function run(action){
   providers=data.sources||[];
   const received=providers.flatMap(x=>Array.isArray(x.games)?x.games:[]);
   records=received.filter(isUpcoming).sort((a,b)=>Date.parse(a.kickoff)-Date.parse(b.kickoff));
-  const excluded=providers.reduce((sum,x)=>sum+Number(x.past_or_running_count||0),0)+(received.length-records.length);
-  $("excludedCount").textContent=String(excluded);
-  $("gamesCount").textContent=String(records.length);
-  $("tipsCount").textContent=String(records.filter(r=>r.pick&&r.odds&&r.market).length);
-  $("providersCount").textContent=String(providers.filter(x=>x.ok).length);
-  $("message").textContent=records.length?records.length+" bevorstehende Begegnungen angezeigt; "+excluded+" vergangene/laufende ausgeschlossen. Ohne konkrete Wettprognose und Quote kein Tipp.":
- "Keine zukünftigen Begegnungen für diesen Tag gefunden. Bitte mit + 1 Tag einen späteren Spieltag wählen. "+excluded+" vergangene/laufende Begegnungen wurden aussortiert.";
-  activeFilter="all";renderFilters();renderCards();reportErrors(providers);
+  lastFetchedDate=$("day").value;activeFilter="all";fillResults();persistView();
+  const cached=providers.filter(p=>p.cached===true).length;
+  const newCalls=Number(data.budgets?.fresh_upstream_calls||0);
+  $("message").textContent=records.length?records.length+" kommende Begegnungen angezeigt. Cache: "+cached+" Anbieterantworten gespeichert; "+newCalls+" neue externe Abfragen.":
+    "Keine kommenden Spiele gefunden. Cache: "+cached+" gespeichert, "+newCalls+" externe Abfragen. Einen späteren Spieltag auswählen.";
  }catch(e){$("message").textContent="Abruf fehlgeschlagen: "+String(e.message||e)}
  finally{buttons.forEach(b=>b.disabled=false)}
 }
@@ -201,18 +237,20 @@ async function boot(){
   $("auth").classList.add("hidden");$("screen").classList.remove("hidden");
   const sOk=d.providers?.sportsapi_pro?.configured, bOk=d.providers?.balldontlie?.configured;
   $("message").textContent="Zugang bestätigt. SportsAPI Pro: "+(sOk?"Schlüssel hinterlegt":"Schlüssel fehlt")+" · BALLDONTLIE: "+(bOk?"Schlüssel hinterlegt":"Schlüssel fehlt")+". Jetzt Sportarten abrufen.";
-  renderFilters();
+  if(!restoreView())renderFilters();
  }catch(e){rawToken="";$("authMsg").textContent="Admin-Sitzung konnte serverseitig nicht bestätigt werden. Bitte erneut im Admin Center anmelden."}
 }
 function setUtcDate(offset){const d=new Date(Date.now()+offset*86400000);$("day").value=d.toISOString().slice(0,10)}
 setUtcDate(1);
-$("tomorrow").addEventListener("click",()=>{setUtcDate(1);$("message").textContent="Morgen ausgewählt. Jetzt Sportarten abrufen.";});
+$("tomorrow").addEventListener("click",()=>{setUtcDate(1);handleDateChange();});
 $("nextDay").addEventListener("click",()=>{
  const old=$("day").value||new Date().toISOString().slice(0,10);
  const d=new Date(old+"T12:00:00Z");
  if(Number.isFinite(d.getTime())){d.setUTCDate(d.getUTCDate()+1);$("day").value=d.toISOString().slice(0,10)}
- $("message").textContent="Nächster Spieltag ausgewählt. Jetzt erneut abrufen.";
+ handleDateChange();
 });
+$("day").addEventListener("change",handleDateChange);
+$("sport").addEventListener("change",persistView);
 $("one").addEventListener("click",()=>run("sport"));
 $("multi").addEventListener("click",()=>run("multi"));
 boot();
