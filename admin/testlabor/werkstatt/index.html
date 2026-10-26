@@ -20,7 +20,7 @@ button.secondary{background:#123f59;color:#d6f4ff;border:1px solid #498aa6}butto
 <main><header><div class="brand">BETINSIGHT <span>TIPP-WERKSTATT</span></div><nav><a href="/admin/testlabor/">← Testlabor</a> · <a href="/admin/testlabor/community/">Test-Community</a></nav></header>
 <section id="locked" class="card"><h1>Zugang wird geprüft …</h1><p>Die Tipp-Werkstatt ist ausschließlich mit gültiger Admin-Sitzung erreichbar.</p></section>
 <div id="workspace" class="hidden">
-<div class="eyebrow">Internes Versuchslabor · Keine echte Veröffentlichung</div><h1>Tipp bewerten und Vorschau erstellen</h1>
+<div class="eyebrow">Internes Versuchslabor · Keine echte Veröffentlichung</div><p class="note" style="margin-top:4px">Version 0.4 · Automatischer SportsAPI-V4-Marktcheck</p><h1>Tipp bewerten und Vorschau erstellen</h1>
 <p class="muted">Wir erstellen einen konkreten Tipp für ein bevorstehendes Spiel. Die Sport-API liefert Spielpläne, aber wir haben für dieses Spiel noch keinen geprüften Quoten- und Prognose-Endpunkt. Deshalb werden im Testschritt ausschließlich von dir überprüfte Quoten und eigene Wahrscheinlichkeitsschätzungen verwendet. Wir erfinden keine Zahlen.</p>
 <div class="card"><span class="tag">Spiel aus dem Testlabor</span><div id="match" class="teams"></div><p id="kickoff" class="muted"></p></div>
 <div class="card"><h2>1. Wettmarkt und Bewertung</h2>
@@ -64,7 +64,7 @@ const $=id=>document.getElementById(id);
 let token="",game=null,preview=false,lastMarket=null;
 function session(){try{const s=JSON.parse(sessionStorage.getItem(KEY)||"null");return s&&s.token&&Date.now()<s.expiresMs?s:null}catch(_){return null}}
 async function sha(t){const d=new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t)));return Array.from(d,v=>v.toString(16).padStart(2,"0")).join("")}
-async function call(action,extra={}){const r=await fetch(API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action,session_hash:await sha(token),...extra}),cache:"no-store",credentials:"omit"});const data=await r.json();if(!r.ok||data.ok!==true)throw Error(String(data.error||"SERVICE_ERROR")+" (HTTP "+r.status+")");return data}
+async function call(action,extra={}){const r=await fetch(API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action,session_hash:await sha(token),...extra}),cache:"no-store",credentials:"omit",signal:AbortSignal.timeout(35000)});const data=await r.json();if(!r.ok||data.ok!==true)throw Error(String(data.error||"SERVICE_ERROR")+" (HTTP "+r.status+")");return data}
 function fmt(num,digits=1){return num.toLocaleString("de-DE",{minimumFractionDigits:digits,maximumFractionDigits:digits})}
 function dateLabel(s){const d=new Date(s);return isFinite(d.getTime())?new Intl.DateTimeFormat("de-DE",{dateStyle:"full",timeStyle:"short",timeZone:"Europe/Berlin"}).format(d)+" (DE)":s}
 function payload(){return {source:game.source,sport:game.sport,gameId:String(game.id||""),league:game.league,home:game.home,away:game.away,kickoff:game.kickoff,
