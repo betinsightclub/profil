@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+  <title>BetInsight · Privates Testlabor</title>
+  <style>
+    :root{color-scheme:dark;--bg:#061b28;--card:#0b2e40;--line:#276076;--text:#f6fcff;--muted:#b9d5e0;--accent:#1bd4a1}
+    *{box-sizing:border-box}body{margin:0;font:16px/1.55 system-ui,Arial,sans-serif;background:linear-gradient(135deg,#05141d,#092f43);color:var(--text);min-height:100vh}
+    main{max-width:1080px;margin:auto;padding:25px 18px 70px}header{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:28px}
+    a{color:#91eaff}h1{font-size:clamp(25px,4vw,37px);margin:8px 0 10px}h2{font-size:21px;margin:0 0 12px}.muted{color:var(--muted)}
+    .eyebrow{color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:.1em;font-size:13px}
+    .box{padding:23px;border-radius:17px;border:1px solid var(--line);background:var(--card);margin:20px 0}.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+    button{padding:12px 19px;background:#11a9cd;border:0;border-radius:10px;font-weight:800;color:#031724;cursor:pointer}button.secondary{background:#1c465a;color:white}button:disabled{opacity:.5;cursor:wait}
+    input{padding:10px 12px;background:#08212f;color:white;border:1px solid #498096;border-radius:9px}
+    .pill{display:inline-block;padding:3px 9px;border:1px solid #327182;border-radius:999px;color:#bfeff0;font-size:12px;margin:5px 0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+    .pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;background:#031c29;padding:12px;border:1px solid #235066;border-radius:8px}
+    .hidden{display:none}.ok{color:#77f0bd}.bad{color:#ffb5a9}.small{font-size:13px}
+  </style>
+</head>
+<body>
+<main>
+<header><strong>BETINSIGHT <span class="eyebrow">Testlabor</span></strong><a href="/admin/">Zurück zum Admin Center</a></header>
+<section id="auth" class="box">
+ <span class="eyebrow">Privater Admin-Zugang</span>
+ <h1>Verbindungstest für zwei Datenanbieter</h1>
+ <p class="muted" id="authMsg">Die bestehende Admin-Sitzung wird serverseitig überprüft …</p>
+ <p class="small muted">Bitte im selben Browser-Tab über das BetInsight Admin Center öffnen. Ohne gültige Sitzung bleiben alle Daten gesperrt.</p>
+</section>
+<section id="screen" class="hidden">
+ <div class="box">
+  <span class="pill">Admin-only · Nur Testdaten · Keine Veröffentlichung</span>
+  <h1>SportsAPI Pro + BALLDONTLIE</h1>
+  <p class="muted">Erst prüfen wir die Schlüsselkonfiguration; auf Wunsch folgen zwei kostenlose Abfragen. Weder Tipps noch Units werden verändert oder veröffentlicht.</p>
+  <div class="row">
+   <button id="statusBtn" type="button">Schlüsselstatus prüfen</button>
+   <label for="day">NBA-Datum (UTC):</label>
+   <input id="day" type="date">
+   <button class="secondary" id="probeBtn" type="button">Beide Anbieter abfragen</button>
+  </div>
+  <p class="small muted">Die Abfrage verbraucht maximal eine SportsAPI-Pro-Anfrage und eine BALLDONTLIE-Anfrage. Zum Schutz des Freikontingents: höchstens zweimal pro fünf Minuten und Admin.</p>
+  <p id="message" role="status" aria-live="polite"></p>
+ </div>
+ <div class="grid">
+   <section class="box"><h2>SportsAPI Pro</h2><p class="muted">Basketball · NBA-Spielplan</p><pre class="pre" id="sports">Noch nicht geprüft.</pre></section>
+   <section class="box"><h2>BALLDONTLIE</h2><p class="muted">NBA-Spielplan, Free API (keine Wettprognosen)</p><pre class="pre" id="bdl">Noch nicht geprüft.</pre></section>
+ </div>
+ <div class="box"><h2>Derzeitiger Entwicklungsstand</h2>
+  <p>Dies ist ausschließlich der geschützte technische Verbindungstest. Das historische 100–200-Spiele-Archiv, Modellprognosen, Ergebnisabrechnung und der neue Tippgeber sind noch nicht eingerichtet.</p>
+ </div>
+</section>
+</main>
+<script>
+"use strict";
+const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-testlab-providers";
+const SESSION_KEY="betinsight_admin_session_v1";
+const el=id=>document.getElementById(id);
+let rawToken="";
+function readSession(){try{const d=JSON.parse(sessionStorage.getItem(SESSION_KEY)||"null");return d?.token&&Date.now()<Number(d?.expiresMs||0)?d:null}catch(_){return null}}
+async function sha256(text){const bytes=new TextEncoder().encode(text);const digest=new Uint8Array(await crypto.subtle.digest("SHA-256",bytes));return Array.from(digest,b=>b.toString(16).padStart(2,"0")).join("")}
+async function request(action,date){
+ const hash=await sha256(rawToken);
+ const response=await fetch(API,{method:"POST",headers:{"content-type":"application/json"},cache:"no-store",credentials:"omit",body:JSON.stringify({action,session_hash:hash,...(date?{date}:{})})});
+ const data=await response.json();
+ if(!response.ok||data.ok!==true)throw new Error(String(data.error||"SERVER_ERROR")+" (HTTP "+response.status+")");
+ return data;
+}
+const stringify=value=>JSON.stringify(value,null,2);
+function showStatus(data){
+ el("sports").textContent="Secret hinterlegt: "+(data.providers.sportsapi_pro.configured?"JA":"NEIN")+".";
+ el("bdl").textContent="Secret hinterlegt: "+(data.providers.balldontlie.configured?"JA":"NEIN")+".";
+}
+async function handle(action) {
+ const btn=action==="probe"?el("probeBtn"):el("statusBtn");
+ el("message").textContent="Prüfung läuft …";btn.disabled=true;
+ try{
+  const data=await request(action,action==="probe"?el("day").value:"");
+  if(action==="status")showStatus(data);else{
+   const map=Object.fromEntries((data.providers||[]).map(x=>[x.provider,x]));
+   el("sports").textContent=stringify(map.sports||{error:"Keine Antwort"});
+   el("bdl").textContent=stringify(map.bdl||{error:"Keine Antwort"});
+  }
+  el("message").textContent="Prüfung abgeschlossen. Prüfe die Anbieterantworten und HTTP-Statuscodes.";
+ }catch(error){el("message").textContent="Prüfung nicht erfolgreich: "+String(error?.message||error);}
+ finally{btn.disabled=false;}
+}
+async function boot() {
+ const session=readSession();
+ if(!session){el("authMsg").textContent="Keine gültige Admin-Sitzung gefunden. Bitte im selben Tab zuerst im Admin Center anmelden.";return;}
+ rawToken=session.token;
+ try{
+  const status=await request("status");
+  el("auth").classList.add("hidden");el("screen").classList.remove("hidden");showStatus(status);
+ }catch(_){rawToken="";el("authMsg").textContent="Die Serverprüfung hat den Admin-Zugang nicht bestätigt. Bitte im selben Tab im Admin Center neu anmelden."}
+}
+el("day").value=new Date().toISOString().slice(0,10);
+el("statusBtn").addEventListener("click",()=>handle("status"));
+el("probeBtn").addEventListener("click",()=>handle("probe"));
+boot();
+</script>
+</body>
+</html>
