@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><title>BetInsight · Tipp-Werkstatt</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#103f5c,#061b2b 50%,#03101c);color:#effaff;font:15px/1.55 system-ui,Arial,sans-serif}
+main{max-width:1020px;padding:23px 18px 75px;margin:auto}header{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:10px 0 19px;margin-bottom:22px;border-bottom:1px solid #336176}a{color:#91dfff}.brand{font-size:19px;font-weight:900;letter-spacing:.04em}.brand span{color:#35edc4}.muted{color:#bbd5e2}.eyebrow{color:#4debc4;text-transform:uppercase;letter-spacing:.1em;font-size:12px;font-weight:850}
+h1{margin:8px 0;font-size:clamp(27px,4vw,39px);line-height:1.17}h2{font-size:21px;margin:0 0 13px}
+.card{margin:16px 0;background:linear-gradient(160deg,#113d58,#092637);border:1px solid #38718b;border-radius:18px;padding:21px;box-shadow:0 15px 36px rgba(0,0,0,.18)}
+.teams{font-size:clamp(21px,3vw,27px);font-weight:900;line-height:1.35;margin:12px 0}.sep{color:#93bbd3;font-size:14px;display:block;font-weight:500}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.fields label{display:flex;flex-direction:column;gap:5px;color:#c9e4ef;font-size:13px}
+.fields .full{grid-column:1/-1}input,select,textarea{padding:12px;background:#061d2b;border:1px solid #44859e;border-radius:11px;color:#f4fbff;font:inherit;width:100%;min-width:0}
+textarea{resize:vertical;min-height:100px}button{font:inherit;cursor:pointer;background:#34d7bb;color:#04202c;border:0;border-radius:11px;padding:12px 18px;font-weight:900;min-height:43px}
+button.secondary{background:#123f59;color:#d6f4ff;border:1px solid #498aa6}button:disabled{opacity:.55;cursor:wait}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin:17px 0}.box{background:#072638;border:1px solid #336078;border-radius:13px;padding:17px;margin:14px 0}
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.metric{padding:13px;background:#092d42;border:1px solid #325c70;border-radius:12px}.metric span{display:block;font-size:12px;color:#c0d8e4}.metric strong{display:block;font-size:21px;margin-top:3px}
+.tag{font-size:11px;font-weight:900;letter-spacing:.02em;display:inline-block;border-radius:100px;padding:4px 10px;border:1px solid #61a58e;color:#b3f8dc}.tag.warn{border-color:#8d7a47;color:#ffdf8e}
+.hidden{display:none!important}.good{color:#82f4c4}.bad{color:#ffb2ae}.note{font-size:13px;color:#c1d5e1}.error{padding:14px;border-left:3px solid #ef9394;border-radius:8px;background:#49202e}
+@media(max-width:600px){main{padding:16px 12px 50px}.card{padding:17px}.fields{grid-template-columns:1fr}.fields .full{grid-column:auto}.metrics{grid-template-columns:1fr}}
+</style></head><body>
+<main><header><div class="brand">BETINSIGHT <span>TIPP-WERKSTATT</span></div><nav><a href="/admin/testlabor/">← Testlabor</a> · <a href="/admin/testlabor/community/">Test-Community</a></nav></header>
+<section id="locked" class="card"><h1>Zugang wird geprüft …</h1><p>Die Tipp-Werkstatt ist ausschließlich mit gültiger Admin-Sitzung erreichbar.</p></section>
+<div id="workspace" class="hidden">
+<div class="eyebrow">Internes Versuchslabor · Keine echte Veröffentlichung</div><h1>Tipp bewerten und Vorschau erstellen</h1>
+<p class="muted">Wir erstellen einen konkreten Tipp für ein bevorstehendes Spiel. Die externen Buchmacherquote und die eigene Gewinnwahrscheinlichkeit werden im aktuellen Testschritt manuell geprüft und eingetragen. Wir erfinden keine Zahlen.</p>
+<div class="card"><span class="tag">Spiel aus dem Testlabor</span><div id="match" class="teams"></div><p id="kickoff" class="muted"></p></div>
+<div class="card"><h2>1. Wettmarkt und Bewertung</h2>
+<div class="fields">
+<label>Exakter Wettmarkt <input id="market" maxlength="130" placeholder="z. B. Sieger inklusive Verlängerung"></label>
+<label>Tipp für Mannschaft <select id="pick"></select></label>
+<label>Buchmacher (von dir geprüft) <input id="bookie" maxlength="100" placeholder="Name des Anbieters"></label>
+<label>Dezimalquote beim Buchmacher <input id="odds" type="number" step="0.01" min="1.02" max="99" placeholder="z. B. 1.65"></label>
+<label>Geschätzte Gewinnchance in % <input id="prob" type="number" step="0.1" min="0.1" max="99.9" placeholder="z. B. 66"></label>
+<label>Vorschaupreis <input value="1 Test-Unit · keine echte Abbuchung" disabled></label>
+<label class="full">Eigene BetInsight-Begründung <textarea id="analysis" maxlength="1200" placeholder="Welche Fakten und Statistiken sprechen für genau diesen Tipp?"></textarea></label>
+</div>
+<div class="actions">
+<button id="inspect" class="secondary" type="button">Quotendaten bei SportsAPI prüfen</button>
+<button id="evaluate" type="button">Bewerten und Vorschau anzeigen</button>
+</div><p id="inspectStatus" class="note" role="status"></p>
+<div id="metrics" class="metrics hidden">
+<div class="metric"><span>Gewinnschwelle laut Quote</span><strong id="threshold">—</strong></div>
+<div class="metric"><span>Geschätzte Siegchance</span><strong id="probability">—</strong></div>
+<div class="metric"><span>Geschätzter Erwartungswert bei 100 € virtuellem Einsatz</span><strong id="edge">—</strong></div>
+</div><p id="evaluateStatus" class="note" role="status"></p>
+</div>
+<div class="card hidden" id="preview"><span class="tag warn">NUR VORSCHAU · 1 TEST-UNIT</span><h2 style="margin-top:15px">2. So würde der Tipp in BetInsight aussehen</h2>
+<div class="box"><div id="previewTitle" class="teams"></div><p id="previewText" style="white-space:pre-line"></p></div>
+<p class="note">Die geschätzte Wahrscheinlichkeit stammt aus einer manuellen Eingabe und ist kein bestätigter Modellwert. Die Quote wurde noch nicht automatisch einer geprüften Buchmacher-Auswahl zugeordnet.</p>
+<div class="actions"><button id="simulate" type="button">In die simulierte Test-Community übernehmen</button>
+<a href="/admin/testlabor/community/" style="align-self:center">Gespeicherte Vorschauen ansehen</a></div>
+<p id="saveStatus" role="status"></p></div>
+</div></main>
+<script>
+"use strict";
+const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-testlab-workshop";
+const KEY="betinsight_admin_session_v1",FIXTURE="betinsight_testlab_current_fixture";
+const $=id=>document.getElementById(id);
+let token="",game=null,preview=false;
+function session(){try{const s=JSON.parse(sessionStorage.getItem(KEY)||"null");return s&&s.token&&Date.now()<s.expiresMs?s:null}catch(_){return null}}
+async function sha(t){const d=new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t)));return Array.from(d,v=>v.toString(16).padStart(2,"0")).join("")}
+async function call(action,extra={}){const r=await fetch(API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action,session_hash:await sha(token),...extra}),cache:"no-store",credentials:"omit"});const data=await r.json();if(!r.ok||data.ok!==true)throw Error(String(data.error||"SERVICE_ERROR")+" (HTTP "+r.status+")");return data}
+function fmt(num,digits=1){return num.toLocaleString("de-DE",{minimumFractionDigits:digits,maximumFractionDigits:digits})}
+function dateLabel(s){const d=new Date(s);return isFinite(d.getTime())?new Intl.DateTimeFormat("de-DE",{dateStyle:"full",timeStyle:"short",timeZone:"Europe/Berlin"}).format(d)+" (DE)":s}
+function payload(){return {source:game.source,sport:game.sport,gameId:String(game.id||""),league:game.league,home:game.home,away:game.away,kickoff:game.kickoff,
+market:$("market").value.trim(),selection:$("pick").value,bookmaker:$("bookie").value.trim(),
+odds:Number($("odds").value),probability:Number($("prob").value),analysis:$("analysis").value.trim()}}
+function validate(p){if(!p||!/^\d{1,18}$/.test(p.gameId))return "Eine gültige Spiel-ID fehlt.";
+if(Date.parse(p.kickoff)<=Date.now()+600000)return "Das Spiel beginnt zu bald oder hat bereits begonnen.";
+if(p.market.length<2||p.bookmaker.length<2||p.analysis.length<2)return "Bitte Wettmarkt, Buchmacher und Begründung eingeben.";
+if(![p.home,p.away].includes(p.selection))return "Bitte die Tippauswahl kontrollieren.";
+if(!(p.odds>1.01&&p.odds<100&&p.probability>0&&p.probability<100))return "Quote und geschätzte Gewinnchance müssen gültig sein.";
+return ""}
+function clearPreview(){preview=false;$("preview").classList.add("hidden");$("metrics").classList.add("hidden");$("evaluateStatus").textContent="";$("saveStatus").textContent=""}
+function evaluate(){const p=payload(),error=validate(p);if(error){$("evaluateStatus").textContent=error;$("preview").classList.add("hidden");return}
+const threshold=100/p.odds,edge=(p.probability/100*p.odds-1)*100;
+$("threshold").textContent=fmt(threshold)+" %";$("probability").textContent=fmt(p.probability)+" %";
+$("edge").textContent=(edge>=0?"+":"")+fmt(edge)+" €";$("edge").style.color=edge>0?"#80edbf":"#ffb3aa";$("metrics").classList.remove("hidden");
+$("evaluateStatus").textContent=(edge>0?"Rechnerisch positiver":"Rechnerisch nicht positiver")+" geschätzter Erwartungswert – abhängig von deiner noch nicht unabhängig geprüften Wahrscheinlichkeitsschätzung.";
+$("previewTitle").textContent=p.selection+" · "+p.home+" – "+p.away;
+$("previewText").textContent=p.league+" · "+dateLabel(p.kickoff)+"\nWettmarkt: "+p.market+"\nTipp: "+p.selection+
+"\nBuchmacher: "+p.bookmaker+" · Quote: "+fmt(p.odds,2)+"\nBegründung: "+p.analysis+
+"\nGeschätzte Gewinnchance: "+fmt(p.probability)+" % (manuelle Schätzung)\nTest-Freischaltung: 1 Unit (nur Simulation)";
+$("preview").classList.remove("hidden");preview=true}
+async function inspect(){if(!game||game.source!=="sportsapi")return;const btn=$("inspect");btn.disabled=true;$("inspectStatus").textContent="Prüfe Vor-Spiel-Quotendaten …";
+try{const result=await call("inspect_odds",{source:game.source,sport:game.sport,game_id:String(game.id),kickoff:game.kickoff});
+$("inspectStatus").textContent=result.found?"Anbieter liefert Quotendaten, aber noch keine eindeutig zugeordnete Mannschaft/Markt/Quote. Bitte beim Buchmacher bestätigen.":"Keine eindeutig zugeordneten Quotendaten ("+(result.provider_http_status||result.message||"unbekannt")+"). Bitte die Quote beim Buchmacher prüfen."}
+catch(e){$("inspectStatus").textContent="Quotenprüfung nicht erfolgreich: "+String(e.message||e)}finally{btn.disabled=false}}
+async function simulate(){const p=payload(),error=validate(p);if(!preview||error){$("saveStatus").textContent=error||"Zuerst die aktuelle Vorschau erstellen.";return}
+const btn=$("simulate");btn.disabled=true;$("saveStatus").textContent="Speichere ausschließlich die interne Simulation …";
+try{const r=await call("simulate",{tip:p});if(r.simulated&&r.published===false){$("saveStatus").textContent="Gespeichert! In der geschützten Test-Community sichtbar; keine echte Veröffentlichung und keine Unit-Abbuchung.";preview=false}else throw Error("SIMULATION_NOT_CONFIRMED")}
+catch(e){$("saveStatus").textContent="Nicht gespeichert: "+String(e.message||e)}finally{btn.disabled=false}}
+async function init(){const s=session();if(!s){$("locked").querySelector("h1").textContent="Bitte zuerst im Admin Center anmelden.";return}
+token=s.token;try{await call("list")}catch(e){$("locked").querySelector("h1").textContent="Admin-Zugang nicht bestätigt.";return}
+try{game=JSON.parse(sessionStorage.getItem(FIXTURE)||"null")}catch(_){}
+if(!game||!game.home||!game.away||Date.parse(game.kickoff)<=Date.now()+600000){
+$("locked").querySelector("h1").textContent="Kein gültiges zukünftiges Spiel ausgewählt.";
+$("locked").append(document.createTextNode(" Bitte im Testlabor bei einer kommenden Begegnung auf „Tipp prüfen“ klicken."));return}
+$("locked").classList.add("hidden");$("workspace").classList.remove("hidden");
+$("match").textContent=game.home+" gegen "+game.away;
+$("kickoff").textContent=(game.league||"Liga") + " · "+dateLabel(game.kickoff);
+for(const team of [game.home,game.away]){const o=document.createElement("option");o.value=team;o.textContent=team;$("pick").append(o)}
+$("market").value=game.sport==="table-tennis"?"Sieger der Begegnung":game.sport==="cricket"?"Matchsieger (Abrechnungsregeln prüfen)":"Spielsieger einschließlich möglicher Verlängerung";
+$("inspect").disabled=game.source!=="sportsapi"||!/^\d{1,18}$/.test(String(game.id||""));
+$("inspectStatus").textContent=game.source!=="sportsapi"?"Für BALLDONTLIE Free liegt keine automatisch prüfbare Tippquote vor.":"Die API-Quotensuche ist vorläufig diagnostisch; genaue Wettquoten müssen noch manuell bestätigt werden.";
+for(const id of ["market","pick","bookie","odds","prob","analysis"])$(id).addEventListener("input",clearPreview);
+$("evaluate").addEventListener("click",evaluate);$("inspect").addEventListener("click",inspect);$("simulate").addEventListener("click",simulate);
+}
+init();
+</script></body></html>
