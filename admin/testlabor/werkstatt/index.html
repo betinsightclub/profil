@@ -34,9 +34,15 @@ button.secondary{background:#123f59;color:#d6f4ff;border:1px solid #498aa6}butto
 <label class="full">Eigene BetInsight-Begründung <textarea id="analysis" maxlength="1200" placeholder="Welche Fakten und Statistiken sprechen für genau diesen Tipp?"></textarea></label>
 </div>
 <div class="actions">
-<button id="inspect" class="secondary" type="button">Automatische Quotensuche derzeit nicht verfügbar</button>
+<button id="inspect" class="secondary" type="button">Quoten &amp; Marktvergleich automatisch laden</button>
 <button id="evaluate" type="button">Bewerten und Vorschau anzeigen</button>
 </div><p id="inspectStatus" class="note" role="status"></p>
+<div id="marketInsights" class="box hidden">
+<strong>Marktvergleich – keine eigenständige Prognose</strong>
+<p id="marketDetails" class="note"></p>
+<p class="note">Die marktbasierte Gewinnwahrscheinlichkeit wird aus Buchmacherquoten ohne Wettmarge geschätzt.
+Sie ist kein unabhängig trainiertes Modell und beweist keinen profitablen Tipp.</p>
+</div>
 <div id="metrics" class="metrics hidden">
 <div class="metric"><span>Gewinnschwelle laut Quote</span><strong id="threshold">—</strong></div>
 <div class="metric"><span>Geschätzte Siegchance</span><strong id="probability">—</strong></div>
@@ -45,7 +51,7 @@ button.secondary{background:#123f59;color:#d6f4ff;border:1px solid #498aa6}butto
 </div>
 <div class="card hidden" id="preview"><span class="tag warn">NUR VORSCHAU · 1 TEST-UNIT</span><h2 style="margin-top:15px">2. So würde der Tipp in BetInsight aussehen</h2>
 <div class="box"><div id="previewTitle" class="teams"></div><p id="previewText" style="white-space:pre-line"></p></div>
-<p class="note">Die geschätzte Wahrscheinlichkeit stammt aus einer manuellen Eingabe und ist kein bestätigter Modellwert. Die Quote wurde noch nicht automatisch einer geprüften Buchmacher-Auswahl zugeordnet.</p>
+<p class="note">Die geschätzte Wahrscheinlichkeit stammt aus einer manuellen Eingabe und ist kein bestätigter Modellwert. Eine API-Quote wird nur nach eindeutiger Spiel- und Marktzuteilung übernommen; Verfügbarkeit beim Buchmacher zum Zeitpunkt der Wette bleibt zu prüfen.</p>
 <div class="actions"><button id="simulate" type="button">In die simulierte Test-Community übernehmen</button>
 <a href="/admin/testlabor/community/" style="align-self:center">Gespeicherte Vorschauen ansehen</a></div>
 <p id="saveStatus" role="status"></p></div>
@@ -55,7 +61,7 @@ button.secondary{background:#123f59;color:#d6f4ff;border:1px solid #498aa6}butto
 const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-testlab-workshop";
 const KEY="betinsight_admin_session_v1",FIXTURE="betinsight_testlab_current_fixture";
 const $=id=>document.getElementById(id);
-let token="",game=null,preview=false;
+let token="",game=null,preview=false,lastMarket=null;
 function session(){try{const s=JSON.parse(sessionStorage.getItem(KEY)||"null");return s&&s.token&&Date.now()<s.expiresMs?s:null}catch(_){return null}}
 async function sha(t){const d=new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t)));return Array.from(d,v=>v.toString(16).padStart(2,"0")).join("")}
 async function call(action,extra={}){const r=await fetch(API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action,session_hash:await sha(token),...extra}),cache:"no-store",credentials:"omit"});const data=await r.json();if(!r.ok||data.ok!==true)throw Error(String(data.error||"SERVICE_ERROR")+" (HTTP "+r.status+")");return data}
@@ -81,10 +87,44 @@ $("previewText").textContent=p.league+" · "+dateLabel(p.kickoff)+"\nWettmarkt: 
 "\nBuchmacher: "+p.bookmaker+" · Quote: "+fmt(p.odds,2)+"\nBegründung: "+p.analysis+
 "\nGeschätzte Gewinnchance: "+fmt(p.probability)+" % (manuelle Schätzung)\nTest-Freischaltung: 1 Unit (nur Simulation)";
 $("preview").classList.remove("hidden");preview=true}
-async function inspect(){if(!game||game.source!=="sportsapi")return;const btn=$("inspect");btn.disabled=true;$("inspectStatus").textContent="Prüfe Vor-Spiel-Quotendaten …";
-try{const result=await call("inspect_odds",{source:game.source,sport:game.sport,game_id:String(game.id),kickoff:game.kickoff});
-$("inspectStatus").textContent=result.found?"Anbieter liefert Quotendaten, aber noch keine eindeutig zugeordnete Mannschaft/Markt/Quote. Bitte beim Buchmacher bestätigen.":"Keine eindeutig zugeordneten Quotendaten ("+(result.provider_http_status||result.message||"unbekannt")+"). Bitte die Quote beim Buchmacher prüfen."}
-catch(e){$("inspectStatus").textContent="Quotenprüfung nicht erfolgreich: "+String(e.message||e)}finally{btn.disabled=false}}
+function applyOffer(){
+ if(!lastMarket?.found||!game)return;
+ const selected=$("pick").value;
+ const quote=selected===game.home?lastMarket.best_home:lastMarket.best_away;
+ if(!quote||!(quote.odds>1))return;
+ $("market").value=lastMarket.market;$("bookie").value=quote.bookmaker;$("odds").value=quote.odds;
+ const p=selected===game.home?lastMarket.market_home_probability:lastMarket.market_away_probability;
+ $("marketDetails").textContent="Auswahl: "+selected+" · Bestes verfügbares API-Angebot: "+fmt(quote.odds,2)+
+   " bei "+quote.bookmaker+" · Gewinnschwelle: "+fmt(100/quote.odds)+" % · "+
+   "Buchmacher-Marktvergleich: "+fmt(p)+" % ("+lastMarket.bookmaker_count+" Angebote).";
+ $("marketInsights").classList.remove("hidden");clearPreview();
+}
+async function inspect(){
+ if(!game||game.source!=="sportsapi")return;
+ const btn=$("inspect");btn.disabled=true;
+ $("inspectStatus").textContent="Suche passende V4-Begegnung und bestätigte Zwei-Wege-Quoten …";
+ try{
+   const result=await call("auto_market",{fixture:{source:game.source,sport:game.sport,gameId:String(game.id),
+      kickoff:game.kickoff,home:game.home,away:game.away}});
+   if(!result.found){
+     lastMarket=null;$("marketInsights").classList.add("hidden");
+     const errors={
+       NO_MATCH_ID_MAPPED:"Keine eindeutige Übereinstimmung dieses Spiels mit dem V4-Quotenfeed.",
+       AMBIGUOUS_MATCH:"Mehrere passende Begegnungen – automatische Zuordnung aus Sicherheitsgründen gestoppt.",
+       NO_VERIFIED_TWO_WAY_MARKET:"Kein eindeutig zugeordneter Zwei-Wege-Siegermarkt vorhanden.",
+       ODDS_DAILY_QUOTA_REACHED:"Unser kostenloses Testkontingent für V4-Quoten ist heute erreicht."};
+     $("inspectStatus").textContent=(errors[result.error]||"Keine bestätigten Pre-Match-Quoten verfügbar ("+(result.error||"unbekannt")+").")+
+       " Neue Anbieterabfragen: "+Number(result.provider_requests||0)+".";
+   }else{
+     lastMarket=result;
+     applyOffer();
+     $("inspectStatus").textContent="V4-Quoten erfolgreich zugeordnet. "+result.bookmaker_count+
+       " Buchmacher-Angebote geprüft · "+(result.from_cache?"Daten aus Cache, keine neue API-Abfrage.":"Neue API-Abfragen: "+Number(result.provider_requests||0)+".")+
+       " Eigene Wahrscheinlichkeit und Begründung bleiben für den Testtipp erforderlich.";
+   }
+ }catch(e){$("inspectStatus").textContent="Automatischer Abruf fehlgeschlagen: "+String(e.message||e)}
+ finally{btn.disabled=game?.source!=="sportsapi"}
+}
 async function simulate(){const p=payload(),error=validate(p);if(!preview||error){$("saveStatus").textContent=error||"Zuerst die aktuelle Vorschau erstellen.";return}
 const btn=$("simulate");btn.disabled=true;$("saveStatus").textContent="Speichere ausschließlich die interne Simulation …";
 try{const r=await call("simulate",{tip:p});if(r.simulated&&r.published===false){$("saveStatus").textContent="Gespeichert! In der geschützten Test-Community sichtbar; keine echte Veröffentlichung und keine Unit-Abbuchung.";preview=false}else throw Error("SIMULATION_NOT_CONFIRMED")}
@@ -100,9 +140,12 @@ $("match").textContent=game.home+" gegen "+game.away;
 $("kickoff").textContent=(game.league||"Liga") + " · "+dateLabel(game.kickoff);
 for(const team of [game.home,game.away]){const o=document.createElement("option");o.value=team;o.textContent=team;$("pick").append(o)}
 $("market").value=game.sport==="table-tennis"?"Sieger der Begegnung":game.sport==="cricket"?"Matchsieger (Abrechnungsregeln prüfen)":"Spielsieger einschließlich möglicher Verlängerung";
-$("inspect").disabled=true;
-$("inspectStatus").textContent="Die bisherige automatische Quotensuche lieferte HTTP 400. Weitere kostenpflichtige oder kontingentierte Probeabrufe sind ausgesetzt, bis wir den richtigen V4-Quotenendpunkt geprüft haben. Bitte deine Quote bis dahin manuell bestätigen.";
+$("inspect").disabled=game.source!=="sportsapi";
+$("inspectStatus").textContent=game.source==="sportsapi"
+ ?"Du kannst V4-Buchmacherquoten und einen Marktvergleich mit einem Klick abfragen. Die Markt-Einschätzung ist keine unabhängige Modellprognose."
+ :"BALLDONTLIE Free bietet für dieses Spiel keine automatische Quotenzuordnung; die Quote kann hier nur manuell geprüft werden.";
 for(const id of ["market","pick","bookie","odds","prob","analysis"])$(id).addEventListener("input",clearPreview);
+$("pick").addEventListener("change",()=>{if(lastMarket?.found)applyOffer()});
 $("evaluate").addEventListener("click",evaluate);$("inspect").addEventListener("click",inspect);$("simulate").addEventListener("click",simulate);
 }
 init();
