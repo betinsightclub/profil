@@ -17,7 +17,7 @@ select,input{font:inherit;background:#061e2e;color:#fff;border:1px solid #3b7790
 button{font:inherit;background:linear-gradient(120deg,#20caa8,#19a5da);border:0;color:#031921;border-radius:11px;min-height:44px;padding:10px 17px;font-weight:800;cursor:pointer}
 button.secondary{background:#153f5b;border:1px solid #34799e;color:#eaf8fd}
 button:disabled{opacity:.55;cursor:wait}
-.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px}
 .kpi{border:1px solid var(--line);background:#092738;border-radius:12px;padding:15px}.kpi strong{display:block;font-size:23px}.kpi small{color:var(--muted)}
 .tag{display:inline-block;font-size:11px;font-weight:850;letter-spacing:.03em;padding:4px 8px;border-radius:999px;border:1px solid #338092;background:rgba(19,111,141,.14);color:#c2eeff}
 .tag.warn{border-color:#957746;color:#f7df9e;background:rgba(154,117,51,.12)}.tag.good{border-color:#348f70;color:#8bf3c9}
@@ -35,7 +35,7 @@ button:disabled{opacity:.55;cursor:wait}
 .info{border:1px solid #377082;background:#0b3246;padding:13px 16px;border-radius:10px}
 .quota{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}.quota div{background:#082739;border:1px solid #2d576d;padding:12px;border-radius:11px}.quota strong{font-size:20px;display:block}.quota span{font-size:12px;color:#bcd9e2}
 .hidden{display:none!important}#message{min-height:24px;color:#d5eefa;margin:12px 0}
-@media(max-width:700px){main{padding:17px 12px 55px}.panel{padding:17px}.kpis{grid-template-columns:1fr 1fr}.kpi:last-child{grid-column:span 2}.grid{grid-template-columns:1fr}}
+@media(max-width:700px){main{padding:17px 12px 55px}.panel{padding:17px}.kpis{grid-template-columns:1fr 1fr}.kpi:last-child{grid-column:auto}.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -58,14 +58,17 @@ button:disabled{opacity:.55;cursor:wait}
     <option value="baseball">⚾ Baseball</option><option value="american-football">🏈 American Football</option>
    </select></div>
    <div class="control"><label for="day">Spieldatum (UTC)</label><input id="day" type="date"></div>
+   <button id="tomorrow" type="button" class="secondary">Morgen</button>
+   <button id="nextDay" type="button" class="secondary">+ 1 Tag</button>
    <button id="one" type="button">Sportart abrufen</button>
    <button id="multi" type="button" class="secondary">Alle 6 Sportarten abrufen</button>
   </div>
-  <p id="message" role="status" aria-live="polite">Wähle eine Sportart oder rufe alle sechs mit einem Klick ab.</p>
+  <p id="message" role="status" aria-live="polite">Standardmäßig ist morgen gewählt. Wähle eine Sportart oder rufe alle sechs mit einem Klick ab.</p>
   <div class="kpis">
-   <div class="kpi"><strong id="gamesCount">0</strong><small>Gefundene Spiele · aktuelle Abfrage</small></div>
+   <div class="kpi"><strong id="gamesCount">0</strong><small>Kommende Spiele · noch nicht begonnen</small></div>
    <div class="kpi"><strong id="tipsCount">0</strong><small>Vollständige Wett-Tipps</small></div>
    <div class="kpi"><strong id="providersCount">0</strong><small>Erfolgreiche Datenquellen</small></div>
+   <div class="kpi"><strong id="excludedCount">0</strong><small>Vergangene und laufende Spiele ausgeblendet</small></div>
   </div>
  </div>
  <div class="panel">
@@ -82,7 +85,7 @@ button:disabled{opacity:.55;cursor:wait}
   <p class="muted" style="font-size:12px">100 Abfragen sind die Anbieterobergrenze, nicht 100 Spiele. Die hier gezeigte Aufteilung ist unser Plan, keine vom Anbieter bestätigte Verbrauchsanzeige. Derzeit begrenzen wir im Testlabor die 75 Sport-Abfragen; Ergebnisabrufe und automatische Tagesläufe sind noch nicht aktiviert. BALLDONTLIE besitzt eigene Limits.</p>
  </div>
  <div id="errors" aria-live="polite"></div>
- <div class="section-head"><h2 id="sectionTitle">Spiele &amp; Testkandidaten</h2><span id="countLabel" class="muted">Noch keine Daten geladen</span></div>
+ <div class="section-head"><h2 id="sectionTitle">Kommende Begegnungen</h2><span id="countLabel" class="muted">Noch keine Daten geladen</span></div>
  <div class="filters" id="filters" aria-label="Sportfilter"></div>
  <div class="grid" id="matches">
    <div class="panel" style="margin:0;grid-column:1/-1">Nach dem Abruf erscheinen hier echte Begegnungen in einer BetInsight-Kartenansicht.</div>
@@ -136,11 +139,18 @@ function renderFilters(){
   btn.type="button";btn.addEventListener("click",()=>{activeFilter=s;renderFilters();renderCards()});el.append(btn);
  }
 }
+function isUpcoming(item){
+ const ts=Date.parse(String(item?.kickoff||""));
+ if(!Number.isFinite(ts)||ts<=Date.now()+300000)return false;
+ const status=String(item?.status||"").trim().toLowerCase();
+ if(["not started","not_started","ns","scheduled","upcoming","pending","fixture","tbd","unknown","unbekannt",""].includes(status))return true;
+ return false;
+}
 function renderCards(){
  const subset=records.filter(r=>activeFilter==="all"||r.sport===activeFilter);
  $("matches").replaceChildren();
  $("countLabel").textContent=subset.length+" angezeigte Spiele";
- if(!subset.length){const card=text("div","Für diesen Sport liegen bei der letzten Abfrage keine Begegnungen vor.","panel");card.style.gridColumn="1/-1";$("matches").append(card)}
+ if(!subset.length){const card=text("div","Für diesen Sport liegen bei der letzten Abfrage keine zukünftigen Begegnungen vor. Wähle einen späteren Tag und rufe erneut ab.","panel");card.style.gridColumn="1/-1";$("matches").append(card)}
  else for(const v of subset)$("matches").append(renderCard(v));
 }
 function reportErrors(items){
@@ -160,11 +170,16 @@ async function run(action){
  $("message").textContent="Die ausgewählten Sportarten werden abgefragt …";
  try{
   const data=await request(action,{sport:$("sport").value,date:$("day").value});
-  providers=data.sources||[];records=providers.flatMap(x=>Array.isArray(x.games)?x.games:[]);
+  providers=data.sources||[];
+  const received=providers.flatMap(x=>Array.isArray(x.games)?x.games:[]);
+  records=received.filter(isUpcoming).sort((a,b)=>Date.parse(a.kickoff)-Date.parse(b.kickoff));
+  const excluded=providers.reduce((sum,x)=>sum+Number(x.past_or_running_count||0),0)+(received.length-records.length);
+  $("excludedCount").textContent=String(excluded);
   $("gamesCount").textContent=String(records.length);
   $("tipsCount").textContent=String(records.filter(r=>r.pick&&r.odds&&r.market).length);
   $("providersCount").textContent=String(providers.filter(x=>x.ok).length);
-  $("message").textContent=records.length+" echte Begegnungen empfangen. Keine davon wird ohne konkrete Wettprognose und Quote als Tipp gewertet.";
+  $("message").textContent=records.length?records.length+" bevorstehende Begegnungen angezeigt; "+excluded+" vergangene/laufende ausgeschlossen. Ohne konkrete Wettprognose und Quote kein Tipp.":
+ "Keine zukünftigen Begegnungen für diesen Tag gefunden. Bitte mit + 1 Tag einen späteren Spieltag wählen. "+excluded+" vergangene/laufende Begegnungen wurden aussortiert.";
   activeFilter="all";renderFilters();renderCards();reportErrors(providers);
  }catch(e){$("message").textContent="Abruf fehlgeschlagen: "+String(e.message||e)}
  finally{buttons.forEach(b=>b.disabled=false)}
@@ -181,7 +196,15 @@ async function boot(){
   renderFilters();
  }catch(e){rawToken="";$("authMsg").textContent="Admin-Sitzung konnte serverseitig nicht bestätigt werden. Bitte erneut im Admin Center anmelden."}
 }
-$("day").value=new Date().toISOString().slice(0,10);
+function setUtcDate(offset){const d=new Date(Date.now()+offset*86400000);$("day").value=d.toISOString().slice(0,10)}
+setUtcDate(1);
+$("tomorrow").addEventListener("click",()=>{setUtcDate(1);$("message").textContent="Morgen ausgewählt. Jetzt Sportarten abrufen.";});
+$("nextDay").addEventListener("click",()=>{
+ const old=$("day").value||new Date().toISOString().slice(0,10);
+ const d=new Date(old+"T12:00:00Z");
+ if(Number.isFinite(d.getTime())){d.setUTCDate(d.getUTCDate()+1);$("day").value=d.toISOString().slice(0,10)}
+ $("message").textContent="Nächster Spieltag ausgewählt. Jetzt erneut abrufen.";
+});
 $("one").addEventListener("click",()=>run("sport"));
 $("multi").addEventListener("click",()=>run("multi"));
 boot();
