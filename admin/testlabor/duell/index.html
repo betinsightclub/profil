@@ -144,7 +144,13 @@ function renderEvent(e){
    try{await call("vote",{vote:{event_id:e.id,selection:select.value}});await reload()}
    catch(err){message.textContent="Nicht gespeichert: "+String(err.message||err);btn.disabled=false}
   });voteBox.append(btn);voteBox.append(message);wrap.append(voteBox);
-  wrap.append(txt("p","Das Systemvotum bleibt bis zu deiner Entscheidung verdeckt.","note"));
+  wrap.append(txt("p",e.system_hidden?
+   "Das Systemvotum bleibt bis zu deiner Entscheidung verdeckt.":
+   "Keine rechtzeitige Entscheidung von dir vorhanden. Die Abstimmungsfrist ist abgelaufen.","note"));
+  if(!e.system_hidden){
+   wrap.append(txt("p","Fixiertes Systemvotum: "+human(e.system_selection,e),"strong"));
+   wrap.append(txt("p",e.system_explanation,"small muted"));
+  }
  }else{
   const summary=document.createElement("div");summary.className="grid";
   const sys=document.createElement("div");sys.className="note";
