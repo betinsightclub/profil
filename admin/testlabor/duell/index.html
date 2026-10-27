@@ -61,7 +61,7 @@ label{display:flex;flex-direction:column;gap:5px;color:#b8d8e8;font-size:13px}
   <div class="metric"><small>Regeln für System-Votum</small><strong>5 %P Abstand</strong></div>
  </div>
  <p class="muted small">Systemfilter: mindestens 5 Buchmacher, Quote 1,40–2,50 und rechnerischer Marktabstand ≥ 5 Prozentpunkte; sonst „Auslassen“. Die Buchmacher-Markteinschätzung ist keine validierte, unabhängige KI-Sportprognose. Keine Verlustprogression, keine echten Einsätze oder Unit-Abbuchungen. Regeln bleiben während dieser Serie unverändert.</p>
- <p class="small muted">Die Ergebnisabrechnung erfolgt vorerst mit manuell bestätigtem Endstand und verlinktem Nachweis. Automatische Ergebnisse sind noch nicht angebunden.</p>
+ <p class="small muted">Ergebnisse können auf Knopfdruck aus der The-Odds-API-Scores-Schnittstelle übernommen werden (falls verfügbar, mit Credits-Limit); manuelle Bestätigung mit Beleg bleibt als Fallback erhalten.</p>
 </div>
 <div class="panel">
  <div class="overline">Nächsten Kandidaten anlegen</div>
@@ -72,7 +72,21 @@ label{display:flex;flex-direction:column;gap:5px;color:#b8d8e8;font-size:13px}
  <p class="small muted">Diese Aktion verwendet nur im Supabase-Cache bereits gespeicherte Quoten und verbraucht keine neuen The-Odds-API-Credits. Die Quoten werden danach für beide Vergleichsseiten eingefroren.</p>
  <p id="registerStatus" role="status"></p>
 </div>
-<div class="panel"><h2>Vergleich &amp; unveränderliche Entscheidungen</h2>
+<div class="panel">
+ <h2>Ergebnisse abgleichen</h2>
+ <p class="muted">Für bereits gestartete virtuelle Tipps: Die offiziellen Ergebnisdaten des Quotenanbieters anhand der Event-ID prüfen und beide virtuellen Konten aktualisieren. Der erste Abruf pro Liga kostet laut API in der Regel 2 Credits; weitere Klicks verwenden gespeicherte Daten. Keine Abfrage ohne deinen Klick.</p>
+ <div class="actions">
+  <label>Fußballliga<select id="scoresLeague">
+   <option value="soccer_italy_serie_a">🇮🇹 Serie A – Italien</option>
+   <option value="soccer_france_ligue_one">🇫🇷 Ligue 1 – Frankreich</option>
+   <option value="soccer_portugal_primeira_liga">🇵🇹 Primeira Liga – Portugal</option>
+   <option value="soccer_netherlands_eredivisie">🇳🇱 Eredivisie – Niederlande</option>
+  </select></label>
+  <button class="secondary" type="button" id="syncScores">Ergebnisse abgleichen (max. 2 Credits)</button>
+ </div>
+ <p class="small muted" id="scoresMsg">Nur fällige Spiele werden geprüft. Bei unbekanntem oder unvollständigem Endstand wird nichts abgerechnet; ein manueller Ergebnisnachweis bleibt möglich.</p>
+ </div>
+ <div class="panel"><h2>Vergleich &amp; unveränderliche Entscheidungen</h2>
  <div class="actions"><button class="secondary" id="refresh" type="button">Kontostände und Spiele aktualisieren</button>
  <span id="listCount" class="muted">0 registrierte Begegnungen</span></div>
  <p id="message" role="status"></p>
@@ -225,6 +239,18 @@ async function init(){
  catch(err){$("locked").querySelector("h1").textContent="Zugang nicht freigegeben";$("locked").append(txt("p",String(err.message||err)))}
 }
 $("registerBtn").addEventListener("click",register);
+$("syncScores").addEventListener("click",async()=>{
+ const btn=$("syncScores");btn.disabled=true;$("scoresMsg").textContent="Prüfe fällige virtuelle Begegnungen …";
+ try{
+  const d=await call("sync_scores",{query:{sport_key:$("scoresLeague").value}});
+  $("scoresMsg").textContent=d.checked+" fällige Spiele geprüft · "+d.settled+" automatisch abgerechnet · "+
+   Number(d.unmatched||0)+" noch offen · "+
+   (d.provider_requests?"Neue API-Abfrage: "+(d.credit_last??d.credits_estimated)+" Credits.":"Keine neue Anbieterabfrage.")+
+   " Nicht zuordenbare Ergebnisse werden nicht geschätzt.";
+  await reload();
+ }catch(e){$("scoresMsg").textContent="Ergebnisabgleich nicht durchgeführt: "+String(e.message||e)}
+ finally{btn.disabled=false}
+});
 $("refresh").addEventListener("click",()=>reload().catch(e=>showError("message",e)));
 init();
 </script></body></html>
