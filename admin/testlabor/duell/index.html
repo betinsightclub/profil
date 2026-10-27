@@ -50,6 +50,17 @@ label{display:flex;flex-direction:column;gap:5px;color:#b8d8e8;font-size:13px}
  </div>
 </div>
 <div class="panel">
+ <h2>Virtuelle Mitglieder-Vorschau &amp; mögliche Unit-Einnahmen</h2>
+ <p class="muted">Nur interne Vorschau: Die hier übernommenen Tipps sind nicht auf der echten Mitgliederseite veröffentlicht. Bruttoumsatz ist lediglich ein Rechenbeispiel, kein tatsächlicher Verkauf.</p>
+ <div class="actions">
+  <label>Annahme zahlende Mitglieder <select id="simMembers">
+   <option value="1">1</option><option value="10">10</option><option value="50">50</option></select></label>
+  <div><small class="muted">Hypothetische Brutto-Freischaltungen</small><div id="simRevenue" class="kpi">0,00 €</div></div>
+ </div>
+ <p id="simRevenueNote" class="small muted">1 virtuelle Unit entspricht 10 € je übernommenem Tipp und fiktiv zahlendem Mitglied.</p>
+ <div id="memberPreview"></div>
+</div>
+<div class="panel">
  <h2>Kontoverlauf</h2><svg id="chart" viewBox="0 0 900 145" role="img" aria-label="Virtuelles Kapital beider Testkonten"></svg>
  <p class="legend"><span style="color:#38dec0">━━</span> BetInsight-System &nbsp;&nbsp; <span style="color:#85adff">━━</span> Deine Entscheidungen</p>
  <p class="small muted" id="chartCaption">Noch keine abgerechneten virtuellen Tipps.</p>
@@ -204,6 +215,26 @@ function renderEvent(e){
  }else wrap.append(txt("p","Spiel noch nicht abgeschlossen. Ergebnisabrechnung erst nach Spielende.","small muted"));
  return wrap;
 }
+function renderMemberPreview(){
+ const accepted=data.events.filter(e=>e.user_vote&&e.user_vote.vote_selection!=="SKIP");
+ const people=Number($("simMembers").value||1);
+ $("simRevenue").textContent=money(accepted.length*10*people);
+ $("simRevenueNote").textContent=accepted.length+" übernommene Testtipps × "+people+
+  " hypothetische Käufer × 10 € = "+money(accepted.length*10*people)+
+  " theoretischer Bruttoumsatz (nur wenn jeder Käufer wirklich jede Unit bezahlt). Keine tatsächlichen Verkäufe; ohne Geschenk-Units, Kosten, Provisionen oder Steuern.";
+ const el=$("memberPreview");el.replaceChildren();
+ if(!accepted.length){el.append(txt("div","Noch keine übernommenen virtuellen Tipps.","empty"));return}
+ for(const e of accepted){
+  const card=txt("article","","event");card.append(txt("span","Virtueller Mitgliedertipp · NICHT ÖFFENTLICH","tag"));
+  card.append(txt("h3",e.home_team+" – "+e.away_team),txt("p",e.league+" · "+date(e.kickoff_at),"small muted"));
+  const choice=e.price_options.find(x=>x.code===e.user_vote.vote_selection);
+  card.append(pair("Tipp",choice?.selection||e.user_vote.vote_selection));
+  card.append(pair("API-Buchmacher und fixierte Quote",String(e.user_vote.vote_bookmaker||"—")+" · "+Number(e.user_vote.vote_price).toFixed(2)));
+  card.append(txt("p","1 fiktive Unit = 10 €. Marktdaten sind kein unabhängiges Prognosemodell; die einzelne Quote wurde für deutsche Konten nicht live bestätigt.","small muted"));
+  card.append(txt("p",e.result?"Ergebnis abgeschlossen: "+(e.result.home_score??"—")+":"+(e.result.away_score??"—"):"Ergebnis noch offen","small"));
+  el.append(card);
+ }
+}
 function showEvents(){
  const target=$("events");target.replaceChildren();
  $("listCount").textContent=data.events.length+" registrierte Begegnungen";
@@ -211,7 +242,7 @@ function showEvents(){
  else for(const e of data.events)target.append(renderEvent(e));
 }
 async function reload(){
- const d=await call("list");data=d;renderStats();showEvents();
+ const d=await call("list");data=d;renderStats();showEvents();renderMemberPreview();
  $("message").textContent="Letzte Aktualisierung: "+date(new Date().toISOString())+" · Keine neuen Quoten-API-Credits benötigt.";
 }
 function showSelection(){
@@ -252,5 +283,6 @@ $("syncScores").addEventListener("click",async()=>{
  finally{btn.disabled=false}
 });
 $("refresh").addEventListener("click",()=>reload().catch(e=>showError("message",e)));
+$("simMembers").addEventListener("change",()=>{if(data)renderMemberPreview()});
 init();
 </script></body></html>
