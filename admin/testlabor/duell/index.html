@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><title>BetInsight · Virtuelles Tippduell</title>
+<style>
+:root{color-scheme:dark;--green:#3de8bd;--muted:#b6d1dd;--line:#315e74}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top,#11445d,#061c2a 55%,#04131f);font:15px/1.55 system-ui,Arial,sans-serif;color:#f0fbff}
+main{max-width:1160px;margin:auto;padding:22px 18px 80px}header{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;align-items:center;padding:10px 0 22px;border-bottom:1px solid var(--line);margin-bottom:27px}
+.brand{font-size:18px;font-weight:900;letter-spacing:.03em}.brand span{color:var(--green)}a{color:#a3e6ff}
+h1{font-size:clamp(27px,4vw,39px);margin:4px 0 12px;line-height:1.2}h2{font-size:20px;margin:0 0 12px}h3{font-size:17px;margin:3px 0 6px}
+.overline{color:var(--green);font-weight:850;font-size:12px;text-transform:uppercase;letter-spacing:.09em}
+.muted{color:var(--muted)}.small{font-size:12px}.hidden{display:none!important}
+.panel,.match{background:linear-gradient(155deg,#123e57,#0a293d);border:1px solid var(--line);border-radius:17px;padding:23px;margin:15px 0;box-shadow:0 11px 32px #0003}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:16px}.grid>*{min-width:0}
+.kpi{font-size:32px;font-weight:900;line-height:1.18}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px}
+.metric{border:1px solid #2b637c;background:#082a3c;border-radius:12px;padding:12px}.metric strong{font-size:19px;display:block}.metric small{color:var(--muted)}
+.tag{display:inline-block;font-size:11px;border:1px solid #4f967d;color:#b2f4d7;border-radius:999px;padding:4px 10px;font-weight:800}
+.tag.warn{color:#fee5a1;border-color:#957744}
+.btn,button{font:inherit;border:0;border-radius:10px;padding:11px 16px;min-height:42px;background:linear-gradient(115deg,#29ddb4,#21adda);color:#062030;cursor:pointer;font-weight:850}
+button.secondary{background:#12465e;color:#e5f8ff;border:1px solid #3b7f9b}button:disabled{opacity:.54;cursor:wait}
+input,select{font:inherit;color:white;background:#062232;border:1px solid #4b86a0;border-radius:9px;padding:10px;min-height:42px;max-width:100%}
+label{display:flex;flex-direction:column;gap:5px;color:#b8d8e8;font-size:13px}
+.actions{display:flex;flex-wrap:wrap;align-items:end;gap:11px;margin:14px 0}
+.vote{display:flex;gap:12px;align-items:end;flex-wrap:wrap;background:#08283a;border:1px solid #397186;padding:13px;border-radius:12px;margin:13px 0}
+.vote label{flex:1;min-width:200px}
+.event{border:1px solid #306681;background:linear-gradient(160deg,#0d344a,#071f2d);padding:18px;border-radius:16px;margin:15px 0}
+.event-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.divider{border:0;border-top:1px solid #2b5d73;margin:14px 0}.strong{font-weight:800}
+.note{border:1px solid #3e7088;background:#08283a;border-radius:12px;padding:13px;margin:12px 0;color:#cae0e9}
+.win{color:#8df1bc}.lose{color:#ffaca8}.empty{border:1px dashed #507c90;padding:20px;border-radius:13px;color:#cee5ee}
+#message{min-height:26px}svg{width:100%;height:145px;overflow:visible}.legend{font-size:12px;color:#d5e7ef}
+@media(max-width:690px){main{padding:15px 12px 65px}.panel{padding:17px}.metrics{grid-template-columns:1fr 1fr}.kpi{font-size:26px}}
+</style></head><body><main>
+<header><div class="brand">BETINSIGHT <span>VIRTUELLES TIPPDUELL</span></div>
+<nav><a href="/admin/testlabor/">← Testlabor</a> · <a href="/admin/testlabor/community/">Test-Community</a></nav></header>
+<section id="locked" class="panel"><h1>Zugang prüfen …</h1><p>Dieser Vergleich ist ausschließlich für den BetInsight-Master-Admin zugänglich.</p></section>
+<section id="content" class="hidden">
+<div class="overline">100 % fiktive Wettkonten · keine echte Veröffentlichung</div>
+<h1>BetInsight-System gegen deine Entscheidung</h1>
+<p class="muted">Für jedes kommende Spiel wählen wir unabhängig: wetten oder auslassen. Das Systemvotum wird bereits beim Anlegen nach festen Regeln gespeichert, aber erst nach deiner verbindlichen Entscheidung eingeblendet.</p>
+<div class="grid">
+ <div class="panel"><span class="tag">Regelbasierter BetInsight-Marktfilter</span>
+ <h2 style="margin-top:12px">Systemkonto</h2><div id="systemBalance" class="kpi">1.000,00 €</div>
+ <div class="metrics"><div class="metric"><small>Gewinn/Verlust</small><strong id="systemProfit">0,00 €</strong></div>
+ <div class="metric"><small>ROI</small><strong id="systemRoi">—</strong></div><div class="metric"><small>Wetten</small><strong id="systemBets">0</strong></div></div>
+ </div>
+ <div class="panel"><span class="tag">Deine persönliche Auswahl</span><h2 style="margin-top:12px">Dein virtuelles Konto</h2>
+ <div id="userBalance" class="kpi">1.000,00 €</div>
+ <div class="metrics"><div class="metric"><small>Gewinn/Verlust</small><strong id="userProfit">0,00 €</strong></div>
+ <div class="metric"><small>ROI</small><strong id="userRoi">—</strong></div><div class="metric"><small>Wetten</small><strong id="userBets">0</strong></div></div>
+ </div>
+</div>
+<div class="panel">
+ <h2>Kontoverlauf</h2><svg id="chart" viewBox="0 0 900 145" role="img" aria-label="Virtuelles Kapital beider Testkonten"></svg>
+ <p class="legend"><span style="color:#38dec0">━━</span> BetInsight-System &nbsp;&nbsp; <span style="color:#85adff">━━</span> Deine Entscheidungen</p>
+ <p class="small muted" id="chartCaption">Noch keine abgerechneten virtuellen Tipps.</p>
+</div>
+<div class="panel"><h2>Feste Regeln · Version 1</h2>
+ <div class="metrics">
+  <div class="metric"><small>Startkapital je Seite</small><strong>1.000 €</strong></div>
+  <div class="metric"><small>Virtueller Einsatz je Tipp</small><strong>10 €</strong></div>
+  <div class="metric"><small>Regeln für System-Votum</small><strong>5 %P Abstand</strong></div>
+ </div>
+ <p class="muted small">Systemfilter: mindestens 5 Buchmacher, Quote 1,40–2,50 und rechnerischer Marktabstand ≥ 5 Prozentpunkte; sonst „Auslassen“. Die Buchmacher-Markteinschätzung ist keine validierte, unabhängige KI-Sportprognose. Keine Verlustprogression, keine echten Einsätze oder Unit-Abbuchungen. Regeln bleiben während dieser Serie unverändert.</p>
+ <p class="small muted">Die Ergebnisabrechnung erfolgt vorerst mit manuell bestätigtem Endstand und verlinktem Nachweis. Automatische Ergebnisse sind noch nicht angebunden.</p>
+</div>
+<div class="panel">
+ <div class="overline">Nächsten Kandidaten anlegen</div>
+ <h2>Spiel aus der Tipp-Werkstatt übernehmen</h2>
+ <p id="selectedInfo" class="muted">Gehe ins Testlabor und öffne dort eine zukünftige Begegnung. Lade ihre Quote und wähle „Ins virtuelle Duell“.</p>
+ <div class="actions"><label>Wettmarkt<select id="marketKind"><option value="H2H">Spielsieger / 1X2</option><option value="DOUBLE_CHANCE">Doppelte Chance · 1X / X2 / 12</option></select></label>
+ <button id="registerBtn" type="button" disabled>Begegnung mit System-Votum fixieren</button></div>
+ <p class="small muted">Diese Aktion verwendet nur im Supabase-Cache bereits gespeicherte Quoten und verbraucht keine neuen The-Odds-API-Credits. Die Quoten werden danach für beide Vergleichsseiten eingefroren.</p>
+ <p id="registerStatus" role="status"></p>
+</div>
+<div class="panel"><h2>Vergleich &amp; unveränderliche Entscheidungen</h2>
+ <div class="actions"><button class="secondary" id="refresh" type="button">Kontostände und Spiele aktualisieren</button>
+ <span id="listCount" class="muted">0 registrierte Begegnungen</span></div>
+ <p id="message" role="status"></p>
+ <div id="events"></div>
+</div>
+</section></main>
+<script>
+"use strict";
+const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-testlab-duel";
+const SESSION="betinsight_admin_session_v1",SELECTED="betinsight_testlab_duel_selected_v1";
+const $=id=>document.getElementById(id);let token="",selected=null,data=null;
+function session(){try{const s=JSON.parse(sessionStorage.getItem(SESSION)||"null");return s?.token&&Date.now()<Number(s.expiresMs||0)?s:null}catch(_){return null}}
+async function hashed(v){const d=new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(v)));return Array.from(d,x=>x.toString(16).padStart(2,"0")).join("")}
+async function call(action,payload={}){const r=await fetch(API,{method:"POST",headers:{"content-type":"application/json"},cache:"no-store",credentials:"omit",signal:AbortSignal.timeout(30000),
+ body:JSON.stringify({action,session_hash:await hashed(token),...payload})});
+ const d=await r.json();if(!r.ok||!d.ok)throw Error(d.error||"SERVICE_ERROR");return d}
+const money=n=>Number(n||0).toLocaleString("de-DE",{style:"currency",currency:"EUR"});
+const percent=v=>v==null?"—":Number(v).toLocaleString("de-DE",{maximumFractionDigits:1})+" %";
+function date(v){const d=new Date(v);return Number.isFinite(d.getTime())?new Intl.DateTimeFormat("de-DE",{dateStyle:"medium",timeStyle:"short",timeZone:"Europe/Berlin"}).format(d)+" (DE)":String(v||"")}
+function txt(tag,value,css){const n=document.createElement(tag);n.textContent=String(value??"");if(css)n.className=css;return n}
+function pair(label,value){const e=document.createElement("div");e.append(txt("small",label,"muted"),txt("div",value,"strong"));return e}
+function showError(id,e){$(id).textContent=String(e?.message||e)}
+function human(code,e){if(code==="SKIP")return "Auslassen";const found=e.price_options.find(x=>x.code===code);return found?.selection||code}
+function drawChart(a,b){
+ const svg=$("chart");svg.replaceChildren();
+ const A=a.line||[],B=b.line||[],max=Math.max(1000,...A.map(x=>x.y),...B.map(x=>x.y)),
+ min=Math.min(1000,...A.map(x=>x.y),...B.map(x=>x.y));const range=Math.max(80,max-min);
+ function path(series){return series.map((p,i)=>{
+  const x=24+(850*i/Math.max(1,series.length-1));const y=118-90*(p.y-min)/range;
+  return (i?"L":"M")+x.toFixed(1)+" "+y.toFixed(1)}).join(" ")}
+ function line(series,color){const p=document.createElementNS("http://www.w3.org/2000/svg","path");p.setAttribute("d",path(series));p.setAttribute("fill","none");p.setAttribute("stroke",color);p.setAttribute("stroke-width","3");p.setAttribute("stroke-linecap","round");svg.append(p)}
+ line(A,"#38dec0");line(B,"#85adff");$("chartCaption").textContent="System: "+(A.length-1)+" abgerechnete Entscheidungen · Du: "+(B.length-1)+" abgerechnete Entscheidungen.";
+}
+function renderStats(){
+ const s=data.summary.SYSTEM,u=data.summary.USER;
+ $("systemBalance").textContent=money(s.balance);$("userBalance").textContent=money(u.balance);
+ $("systemProfit").textContent=money(s.profit);$("userProfit").textContent=money(u.profit);
+ $("systemRoi").textContent=percent(s.roi);$("userRoi").textContent=percent(u.roi);
+ $("systemBets").textContent=s.settled+" / "+s.pending+" offen";
+ $("userBets").textContent=u.settled+" / "+u.pending+" offen";
+ drawChart(s,u);
+}
+function renderEvent(e){
+ const wrap=document.createElement("article");wrap.className="event";
+ const head=document.createElement("div");head.className="event-head";
+ head.append(txt("span",e.league+" · "+e.market_label,"tag"),
+   txt("span",date(e.kickoff_at),"muted"));wrap.append(head);
+ wrap.append(txt("h3",e.home_team+" – "+e.away_team));
+ wrap.append(txt("p","Quotenstand fixiert: "+date(e.quote_snapshot_at),"small muted"));
+ const options=document.createElement("div");options.className="metrics";
+ for(const item of e.price_options){const c=document.createElement("div");c.className="metric";
+  c.append(txt("small",item.selection),txt("strong",Number(item.odds).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})),
+  txt("small",item.bookmaker+" · Markt: "+(item.market_prob==null?"—":percent(item.market_prob))));
+  options.append(c)}
+ wrap.append(options);
+ const user=e.user_vote;
+ if(!user){
+  const voteBox=document.createElement("div");voteBox.className="vote";
+  const label=document.createElement("label");label.append(txt("span","Dein Votum (einmalig vor Spielbeginn)"));
+  const select=document.createElement("select");const choices=[["SKIP","Spiel auslassen"],...e.price_options.map(p=>[p.code,p.selection+" · "+Number(p.odds).toFixed(2)+" · "+p.bookmaker])];
+  for(const [value,title]of choices){const op=document.createElement("option");op.value=value;op.textContent=title;select.append(op)}
+  label.append(select);voteBox.append(label);
+  const btn=txt("button","Mein Votum verbindlich speichern");btn.type="button";
+  btn.disabled=Date.parse(e.kickoff_at)<=Date.now()+600000;
+  const message=txt("p","","small");
+  btn.addEventListener("click",async()=>{
+   if(!confirm("Diese Entscheidung wird vor Spielbeginn unwiderruflich gespeichert. Fortfahren?"))return;
+   btn.disabled=true;message.textContent="Speichern …";
+   try{await call("vote",{vote:{event_id:e.id,selection:select.value}});await reload()}
+   catch(err){message.textContent="Nicht gespeichert: "+String(err.message||err);btn.disabled=false}
+  });voteBox.append(btn);voteBox.append(message);wrap.append(voteBox);
+  wrap.append(txt("p",e.system_hidden?
+   "Das Systemvotum bleibt bis zu deiner Entscheidung verdeckt.":
+   "Keine rechtzeitige Entscheidung von dir vorhanden. Die Abstimmungsfrist ist abgelaufen.","note"));
+  if(!e.system_hidden){
+   wrap.append(txt("p","Fixiertes Systemvotum: "+human(e.system_selection,e),"strong"));
+   wrap.append(txt("p",e.system_explanation,"small muted"));
+  }
+ }else{
+  const summary=document.createElement("div");summary.className="grid";
+  const sys=document.createElement("div");sys.className="note";
+  sys.append(txt("strong","Systemvotum: "+human(e.system_selection,e)));
+  sys.append(txt("p",e.system_explanation,"small"));
+  if(e.system_selection!=="SKIP")sys.append(pair("Fixierte Systemquote",String(e.system_price)+" · "+e.system_bookmaker));
+  const usr=document.createElement("div");usr.className="note";
+  usr.append(txt("strong","Dein Votum: "+human(user.vote_selection,e)));
+  if(user.vote_selection!=="SKIP")usr.append(pair("Fixierte Quote",String(user.vote_price)+" · "+user.vote_bookmaker));
+  usr.append(txt("p","Unveränderlich gespeichert am "+date(user.locked_at),"small"));
+  summary.append(sys,usr);wrap.append(summary);
+ }
+ if(e.result){
+  wrap.append(txt("p","Abgerechnet (manuell bestätigt): "+e.result.outcome+
+   (e.result.home_score==null?"":" · "+e.result.home_score+":"+e.result.away_score),"win"));
+  const link=document.createElement("a");link.href=e.result.evidence;link.target="_blank";link.rel="noopener noreferrer";link.textContent="Ergebnisnachweis öffnen";wrap.append(link);
+ }else if(Date.now()>Date.parse(e.kickoff_at)+3600000){
+  const details=document.createElement("details");
+  details.append(txt("summary","Endergebnis mit Nachweis erfassen (nur manuell)"));
+  const box=document.createElement("div");box.className="actions";
+  const makeInput=(type,title)=>{const label=document.createElement("label");label.append(txt("span",title));const control=document.createElement("input");control.type=type;label.append(control);box.append(label);return control};
+  const home=makeInput("number","Heimtore/-punkte"),away=makeInput("number","Auswärtstore/-punkte");
+  for(const inp of [home,away]){inp.min="0";inp.max="999";inp.step="1"}
+  const label=document.createElement("label");label.append(txt("span","Ergebnis"));const outcome=document.createElement("select");
+  for(const [value,title]of [["HOME","Heimsieg"],["DRAW","Unentschieden"],["AWAY","Auswärtssieg"],["VOID","Ausgefallen / ungültig"]]){
+   if(value==="DRAW"&&e.sport!=="soccer")continue;
+   const op=document.createElement("option");op.value=value;op.textContent=title;outcome.append(op)}
+  label.append(outcome);box.append(label);
+  const proof=makeInput("url","Ergebnislink (https://)");proof.placeholder="https://...";
+  const save=txt("button","Ergebnis endgültig bestätigen");const msg=txt("p","","small");
+  save.addEventListener("click",async()=>{
+   if(!confirm("Endergebnis und virtuellen Gewinn/Verlust endgültig abrechnen?"))return;
+   save.disabled=true;msg.textContent="Speichern …";
+   try{await call("settle",{settlement:{event_id:e.id,outcome:outcome.value,home_score:home.value,away_score:away.value,evidence:proof.value}});await reload()}
+   catch(err){msg.textContent="Nicht abgerechnet: "+String(err.message||err);save.disabled=false}
+  });box.append(save,msg);details.append(box);wrap.append(details);
+ }else wrap.append(txt("p","Spiel noch nicht abgeschlossen. Ergebnisabrechnung erst nach Spielende.","small muted"));
+ return wrap;
+}
+function showEvents(){
+ const target=$("events");target.replaceChildren();
+ $("listCount").textContent=data.events.length+" registrierte Begegnungen";
+ if(!data.events.length)target.append(txt("div","Noch keine Begegnungen im virtuellen Vergleich. Bitte zuerst ein Spiel aus der Tipp-Werkstatt auswählen.","empty"));
+ else for(const e of data.events)target.append(renderEvent(e));
+}
+async function reload(){
+ const d=await call("list");data=d;renderStats();showEvents();
+ $("message").textContent="Letzte Aktualisierung: "+date(new Date().toISOString())+" · Keine neuen Quoten-API-Credits benötigt.";
+}
+function showSelection(){
+ let s=null;try{s=JSON.parse(sessionStorage.getItem(SELECTED)||"null")}catch(_){}
+ if(!s||!s.fixture||!s.fixture.home||!s.fixture.away){$("registerBtn").disabled=true;return}
+ selected=s;
+ $("selectedInfo").textContent=s.fixture.home+" gegen "+s.fixture.away+" · "+s.fixture.league+
+  " · "+date(s.fixture.kickoff)+" · Quoten müssen vorher in der Werkstatt geladen sein.";
+ $("marketKind").value=s.market_code==="DOUBLE_CHANCE"?"DOUBLE_CHANCE":"H2H";
+ $("registerBtn").disabled=false;
+}
+async function register(){
+ if(!selected||!selected.fixture)return;
+ const button=$("registerBtn");button.disabled=true;$("registerStatus").textContent="Quotensnapshot wird kontrolliert …";
+ try{
+  const kind=$("marketKind").value;const r=await call("register",{fixture:{...selected.fixture,market_code:kind}});
+  $("registerStatus").textContent=(r.existing?"Diese Begegnung ist bereits registriert.":"Begegnung und Systemvotum vor Spielbeginn fixiert.")+" Deine Entscheidung kannst du unten abgeben.";
+  await reload();document.getElementById("events").scrollIntoView({behavior:"smooth"});
+ }catch(err){showError("registerStatus",err)}finally{button.disabled=false}
+}
+async function init(){
+ const s=session();if(!s){$("locked").querySelector("h1").textContent="Bitte im Admin Center anmelden.";return}
+ token=s.token;
+ try{await reload();$("locked").classList.add("hidden");$("content").classList.remove("hidden");showSelection()}
+ catch(err){$("locked").querySelector("h1").textContent="Zugang nicht freigegeben";$("locked").append(txt("p",String(err.message||err)))}
+}
+$("registerBtn").addEventListener("click",register);
+$("refresh").addEventListener("click",()=>reload().catch(e=>showError("message",e)));
+init();
+</script></body></html>
