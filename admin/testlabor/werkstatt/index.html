@@ -20,8 +20,8 @@ button.secondary{background:#123f59;color:#d6f4ff;border:1px solid #498aa6}butto
 <main><header><div class="brand">BETINSIGHT <span>TIPP-WERKSTATT</span></div><nav><a href="/admin/testlabor/">← Testlabor</a> · <a href="/admin/testlabor/community/">Test-Community</a></nav></header>
 <section id="locked" class="card"><h1>Zugang wird geprüft …</h1><p>Die Tipp-Werkstatt ist ausschließlich mit gültiger Admin-Sitzung erreichbar.</p></section>
 <div id="workspace" class="hidden">
-<div class="eyebrow">Internes Versuchslabor · Keine echte Veröffentlichung</div><p class="note" style="margin-top:4px">Version 0.5 · Gezielter SportsAPI-V4-Quotencheck</p><h1>Tipp bewerten und Vorschau erstellen</h1>
-<p class="muted">Wir erstellen einen konkreten Tipp für ein bevorstehendes Spiel. Die Sport-API liefert Spielpläne, aber wir haben für dieses Spiel noch keinen geprüften Quoten- und Prognose-Endpunkt. Deshalb werden im Testschritt ausschließlich von dir überprüfte Quoten und eigene Wahrscheinlichkeitsschätzungen verwendet. Wir erfinden keine Zahlen.</p>
+<div class="eyebrow">Internes Versuchslabor · Keine echte Veröffentlichung</div><p class="note" style="margin-top:4px">Version 0.6 · The Odds API · EU-Quoten</p><h1>Tipp bewerten und Vorschau erstellen</h1>
+<p class="muted">Wir erstellen einen konkreten Tipp für ein bevorstehendes Spiel. SportsAPI Pro liefert Spielpläne, The Odds API liefert für unterstützte Ligen Buchmacherquoten. Eine unabhängige Modellprognose liegt noch nicht vor. Deshalb werden im Testschritt ausschließlich von dir überprüfte Quoten und eigene Wahrscheinlichkeitsschätzungen verwendet. Wir erfinden keine Zahlen.</p>
 <div class="card"><span class="tag">Spiel aus dem Testlabor</span><div id="match" class="teams"></div><p id="kickoff" class="muted"></p></div>
 <div class="card"><h2>1. Wettmarkt und Bewertung</h2>
 <div class="fields">
@@ -34,13 +34,13 @@ button.secondary{background:#123f59;color:#d6f4ff;border:1px solid #498aa6}butto
 <label class="full">Eigene BetInsight-Begründung <textarea id="analysis" maxlength="1200" placeholder="Welche Fakten und Statistiken sprechen für genau diesen Tipp?"></textarea></label>
 </div>
 <div class="actions">
-<button id="inspect" class="secondary" type="button">Quoten &amp; Marktvergleich automatisch laden</button>
+<button id="inspect" class="secondary" type="button">Quoten von The Odds API laden</button>
 <button id="evaluate" type="button">Bewerten und Vorschau anzeigen</button>
 </div><p id="inspectStatus" class="note" role="status"></p>
 <div id="marketInsights" class="box hidden">
 <strong>Marktvergleich – keine eigenständige Prognose</strong>
 <p id="marketDetails" class="note"></p>
-<p class="note">Die marktbasierte Gewinnwahrscheinlichkeit wird aus Buchmacherquoten ohne Wettmarge geschätzt.
+<p class="note">Die marktbasierte Einschätzung wird aus Buchmacherquoten ohne Wettmarge berechnet.
 Sie ist kein unabhängig trainiertes Modell und beweist keinen profitablen Tipp.</p>
 </div>
 <div id="metrics" class="metrics hidden">
@@ -96,38 +96,42 @@ function applyOffer(){
  const p=selected===game.home?lastMarket.market_home_probability:lastMarket.market_away_probability;
  $("marketDetails").textContent="Auswahl: "+selected+" · Bestes verfügbares API-Angebot: "+fmt(quote.odds,2)+
    " bei "+quote.bookmaker+" · Gewinnschwelle: "+fmt(100/quote.odds)+" % · "+
-   "Buchmacher-Marktvergleich: "+fmt(p)+" % ("+lastMarket.bookmaker_count+" Angebote).";
+   "Margebereinigter Buchmacher-Konsens: "+fmt(p)+" % ("+lastMarket.bookmaker_count+" Angebote).";
  $("marketInsights").classList.remove("hidden");clearPreview();
 }
 async function inspect(){
- if(!game||game.source!=="sportsapi")return;
+ if(!game)return;
  const btn=$("inspect");btn.disabled=true;
- $("inspectStatus").textContent="Suche passende V4-Begegnung und bestätigte Zwei-Wege-Quoten …";
+ $("inspectStatus").textContent="Prüfe die passende Liga und lade EU-Buchmacherquoten mit h2h-Markt …";
  try{
-   const result=await call("auto_market",{fixture:{source:game.source,sport:game.sport,gameId:String(game.id),
-      kickoff:game.kickoff,home:game.home,away:game.away}});
+   const result=await call("odds_lookup",{fixture:{source:game.source,sport:game.sport,
+      league:game.league,gameId:String(game.id),kickoff:game.kickoff,home:game.home,away:game.away}});
    if(!result.found){
      lastMarket=null;$("marketInsights").classList.add("hidden");
      const errors={
-       NO_MATCH_ID_MAPPED:"Keine eindeutige Übereinstimmung dieses Spiels mit dem V4-Quotenfeed.",
-       MATCH_NOT_ON_FIRST_PAGE:"Die passende Begegnung liegt nicht auf der ersten Datenseite; zusätzliche API-Suchabfragen werden vermieden.",
-       V4_PROVIDER_PAUSED:"Der Quotendienst hat einen vorübergehenden Serverfehler gemeldet. Für diese Sportart pausieren neue Abrufe automatisch für 30 Minuten.",
-       V4_HTTP_401:"Der Anbieter lehnt die V4-Anmeldung ab (401).",
-       V4_HTTP_403:"Der Anbieter lehnt den V4-Zugriff ab (403).",
-       AMBIGUOUS_MATCH:"Mehrere passende Begegnungen – automatische Zuordnung aus Sicherheitsgründen gestoppt.",
-       NO_VERIFIED_TWO_WAY_MARKET:"Kein eindeutig zugeordneter Zwei-Wege-Siegermarkt vorhanden.",
-       ODDS_DAILY_QUOTA_REACHED:"Unser kostenloses Testkontingent für V4-Quoten ist heute erreicht."};
-     $("inspectStatus").textContent=(errors[result.error]||"Keine bestätigten Pre-Match-Quoten verfügbar ("+(result.error||"unbekannt")+").")+
-       " Neue Anbieterabfragen: "+Number(result.provider_requests||0)+".";
+       ODDS_SECRET_NOT_CONFIGURED:"Der API-Schlüssel ist in Supabase nicht als THE_ODDS_API_KEY verfügbar.",
+       LEAGUE_NOT_SUPPORTED_YET:"Für diese Liga ist noch keine bestätigte The-Odds-API-Zuordnung eingerichtet – dafür wurde kein API-Credit verbraucht.",
+       NO_ODDS_MATCH_FOR_GAME:"Noch keine eindeutigen passenden Buchmacherquoten für diese Begegnung gefunden.",
+       AMBIGUOUS_ODDS_EVENT:"Mehrdeutige Spielzuordnung – aus Sicherheitsgründen keine Quote übernommen.",
+       ODDS_INVALID_KEY:"The Odds API hat den gespeicherten Schlüssel zurückgewiesen. Bitte Secret prüfen.",
+       ODDS_ACCESS_DENIED:"The Odds API erlaubt für diese Liga oder das Konto keinen Zugriff.",
+       ODDS_LEAGUE_UNAVAILABLE:"Diese Liga wird vom Anbieter derzeit nicht angeboten.",
+       LAB_DAILY_CREDIT_LIMIT:"Unser internes Tageslimit von 12 Abfragen ist erreicht. Weitere Anfragen werden verhindert.",
+       ODDS_RATE_LIMIT:"Der Anbieter hat die Rate begrenzt.",
+       ODDS_PROVIDER_ERROR:"Der Quotenanbieter meldet einen Serverfehler; die Antwort wird kurz zwischengespeichert.",
+       ODDS_REQUEST_FAILED:"Die Anbieterabfrage ist gescheitert und wurde kurz zwischengespeichert."};
+     $("inspectStatus").textContent=(errors[result.error]||"Keine bestätigte Quote ("+(result.error||"unbekannt")+").")+
+       " Neue Anbieterabrufe: "+Number(result.provider_requests||0)+(result.from_cache?" · Aus Cache.":".")+
+       (result.credit_remaining!=null?" Verbleibende API-Credits: "+result.credit_remaining+".":"");
    }else{
-     lastMarket=result;
-     applyOffer();
-     $("inspectStatus").textContent="V4-Quoten erfolgreich zugeordnet. "+result.bookmaker_count+
-       " Buchmacher-Angebote geprüft · "+(result.from_cache?"Daten aus Cache, keine neue API-Abfrage.":"Neue API-Abfragen: "+Number(result.provider_requests||0)+".")+
-       " Eigene Wahrscheinlichkeit und Begründung bleiben für den Testtipp erforderlich.";
+     lastMarket=result;applyOffer();
+     $("inspectStatus").textContent="The Odds API: "+result.bookmaker_count+
+       " gültige Zwei-Wege-Buchmacher-Angebote. "+(result.from_cache?"Aus Cache, kein neuer Anbieterabruf.":"Neue Anbieterabrufe: "+Number(result.provider_requests||0)+".")+
+       (result.credit_remaining!=null?" Aktuell gemeldete Rest-Credits: "+result.credit_remaining+".":"")+
+       " Die Gewinnwahrscheinlichkeit musst du unabhängig begründen; der Marktvergleich ist keine Modellprognose.";
    }
- }catch(e){$("inspectStatus").textContent="Automatischer Abruf fehlgeschlagen: "+String(e.message||e)}
- finally{btn.disabled=game?.source!=="sportsapi"}
+ }catch(e){$("inspectStatus").textContent="Quotenabruf fehlgeschlagen: "+String(e.message||e)}
+ finally{btn.disabled=false}
 }
 async function simulate(){const p=payload(),error=validate(p);if(!preview||error){$("saveStatus").textContent=error||"Zuerst die aktuelle Vorschau erstellen.";return}
 const btn=$("simulate");btn.disabled=true;$("saveStatus").textContent="Speichere ausschließlich die interne Simulation …";
@@ -144,10 +148,8 @@ $("match").textContent=game.home+" gegen "+game.away;
 $("kickoff").textContent=(game.league||"Liga") + " · "+dateLabel(game.kickoff);
 for(const team of [game.home,game.away]){const o=document.createElement("option");o.value=team;o.textContent=team;$("pick").append(o)}
 $("market").value=game.sport==="table-tennis"?"Sieger der Begegnung":game.sport==="cricket"?"Matchsieger (Abrechnungsregeln prüfen)":"Spielsieger einschließlich möglicher Verlängerung";
-$("inspect").disabled=game.source!=="sportsapi";
-$("inspectStatus").textContent=game.source==="sportsapi"
- ?"Version 0.5: Gezielte V4-Sportsuche über den dokumentierten produktiven Host. Bei Serverfehlern werden zusätzliche Anbieterabrufe 30 Minuten pausiert. Der Marktvergleich ist keine unabhängige Modellprognose."
- :"BALLDONTLIE Free bietet für dieses Spiel keine automatische Quotenzuordnung; die Quote kann hier nur manuell geprüft werden.";
+$("inspect").disabled=false;
+$("inspectStatus").textContent="Version 0.6: The Odds API · Europäische Buchmacher · h2h-Spielsieger · Maximal 12 neue Liga-Abfragen täglich im Testlabor. Die erste Anfrage je Liga wird 25 Minuten zwischengespeichert. Nicht alle Sportarten und Ligen sind unterstützt.";
 for(const id of ["market","pick","bookie","odds","prob","analysis"])$(id).addEventListener("input",clearPreview);
 $("pick").addEventListener("change",()=>{if(lastMarket?.found)applyOffer()});
 $("evaluate").addEventListener("click",evaluate);$("inspect").addEventListener("click",inspect);$("simulate").addEventListener("click",simulate);
