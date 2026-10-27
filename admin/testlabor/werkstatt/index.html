@@ -20,7 +20,7 @@ button.secondary{background:#123f59;color:#d6f4ff;border:1px solid #498aa6}butto
 <main><header><div class="brand">BETINSIGHT <span>TIPP-WERKSTATT</span></div><nav><a href="/admin/testlabor/">← Testlabor</a> · <a href="/admin/testlabor/community/">Test-Community</a></nav></header>
 <section id="locked" class="card"><h1>Zugang wird geprüft …</h1><p>Die Tipp-Werkstatt ist ausschließlich mit gültiger Admin-Sitzung erreichbar.</p></section>
 <div id="workspace" class="hidden">
-<div class="eyebrow">Internes Versuchslabor · Keine echte Veröffentlichung</div><p class="note" style="margin-top:4px">Version 0.6 · The Odds API · EU-Quoten</p><h1>Tipp bewerten und Vorschau erstellen</h1>
+<div class="eyebrow">Internes Versuchslabor · Keine echte Veröffentlichung</div><p class="note" style="margin-top:4px">Version 0.7 · The Odds API · Neue Fußballligen</p><h1>Tipp bewerten und Vorschau erstellen</h1>
 <p class="muted">Wir erstellen einen konkreten Tipp für ein bevorstehendes Spiel. SportsAPI Pro liefert Spielpläne, The Odds API liefert für unterstützte Ligen Buchmacherquoten. Eine unabhängige Modellprognose liegt noch nicht vor. Deshalb werden im Testschritt ausschließlich von dir überprüfte Quoten und eigene Wahrscheinlichkeitsschätzungen verwendet. Wir erfinden keine Zahlen.</p>
 <div class="card"><span class="tag">Spiel aus dem Testlabor</span><div id="match" class="teams"></div><p id="kickoff" class="muted"></p></div>
 <div class="card"><h2>1. Wettmarkt und Bewertung</h2>
@@ -70,10 +70,10 @@ function dateLabel(s){const d=new Date(s);return isFinite(d.getTime())?new Intl.
 function payload(){return {source:game.source,sport:game.sport,gameId:String(game.id||""),league:game.league,home:game.home,away:game.away,kickoff:game.kickoff,
 market:$("market").value.trim(),selection:$("pick").value,bookmaker:$("bookie").value.trim(),
 odds:Number($("odds").value),probability:Number($("prob").value),analysis:$("analysis").value.trim()}}
-function validate(p){if(!p||!/^\d{1,18}$/.test(p.gameId))return "Eine gültige Spiel-ID fehlt.";
+function validate(p){if(!p||!(p.source==="theoddsapi"?/^[0-9a-f]{32}$/i.test(p.gameId):/^\d{1,18}$/.test(p.gameId)))return "Eine gültige Spiel-ID fehlt.";
 if(Date.parse(p.kickoff)<=Date.now()+600000)return "Das Spiel beginnt zu bald oder hat bereits begonnen.";
 if(p.market.length<2||p.bookmaker.length<2||p.analysis.length<2)return "Bitte Wettmarkt, Buchmacher und Begründung eingeben.";
-if(![p.home,p.away].includes(p.selection))return "Bitte die Tippauswahl kontrollieren.";
+if(![p.home,p.away,...(p.sport==="soccer"?["Unentschieden"]:[])].includes(p.selection))return "Bitte die Tippauswahl kontrollieren.";
 if(!(p.odds>1.01&&p.odds<100&&p.probability>0&&p.probability<100))return "Quote und geschätzte Gewinnchance müssen gültig sein.";
 return ""}
 function clearPreview(){preview=false;$("preview").classList.add("hidden");$("metrics").classList.add("hidden");$("evaluateStatus").textContent="";$("saveStatus").textContent=""}
@@ -90,10 +90,10 @@ $("preview").classList.remove("hidden");preview=true}
 function applyOffer(){
  if(!lastMarket?.found||!game)return;
  const selected=$("pick").value;
- const quote=selected===game.home?lastMarket.best_home:lastMarket.best_away;
+ const quote=selected===game.home?lastMarket.best_home:selected===game.away?lastMarket.best_away:lastMarket.best_draw;
  if(!quote||!(quote.odds>1))return;
  $("market").value=lastMarket.market;$("bookie").value=quote.bookmaker;$("odds").value=quote.odds;
- const p=selected===game.home?lastMarket.market_home_probability:lastMarket.market_away_probability;
+ const p=selected===game.home?lastMarket.market_home_probability:selected===game.away?lastMarket.market_away_probability:lastMarket.market_draw_probability;
  $("marketDetails").textContent="Auswahl: "+selected+" · Bestes verfügbares API-Angebot: "+fmt(quote.odds,2)+
    " bei "+quote.bookmaker+" · Gewinnschwelle: "+fmt(100/quote.odds)+" % · "+
    "Margebereinigter Buchmacher-Konsens: "+fmt(p)+" % ("+lastMarket.bookmaker_count+" Angebote).";
@@ -146,10 +146,10 @@ $("locked").append(document.createTextNode(" Bitte im Testlabor bei einer kommen
 $("locked").classList.add("hidden");$("workspace").classList.remove("hidden");
 $("match").textContent=game.home+" gegen "+game.away;
 $("kickoff").textContent=(game.league||"Liga") + " · "+dateLabel(game.kickoff);
-for(const team of [game.home,game.away]){const o=document.createElement("option");o.value=team;o.textContent=team;$("pick").append(o)}
-$("market").value=game.sport==="table-tennis"?"Sieger der Begegnung":game.sport==="cricket"?"Matchsieger (Abrechnungsregeln prüfen)":"Spielsieger einschließlich möglicher Verlängerung";
+for(const team of [game.home,game.away,...(game.sport==="soccer"?["Unentschieden"]:[])]){const o=document.createElement("option");o.value=team;o.textContent=team;$("pick").append(o)}
+$("market").value=game.sport==="soccer"?"Spielausgang 1X2 · reguläre Spielzeit":game.sport==="table-tennis"?"Sieger der Begegnung":game.sport==="cricket"?"Matchsieger (Abrechnungsregeln prüfen)":"Spielsieger einschließlich möglicher Verlängerung";
 $("inspect").disabled=false;
-$("inspectStatus").textContent="Version 0.6: The Odds API · Europäische Buchmacher · h2h-Spielsieger · Maximal 12 neue Liga-Abfragen täglich im Testlabor. Die erste Anfrage je Liga wird 25 Minuten zwischengespeichert. Nicht alle Sportarten und Ligen sind unterstützt.";
+$("inspectStatus").textContent="Version 0.7: The Odds API · EU-Quoten. Fußball: echter 1X2-Markt einschließlich Unentschieden; Doppelte Chance wird noch nicht abgerufen. Maximal 12 neue Liga-Abfragen täglich; erfolgreiche Daten 25 Minuten im Cache.";
 for(const id of ["market","pick","bookie","odds","prob","analysis"])$(id).addEventListener("input",clearPreview);
 $("pick").addEventListener("change",()=>{if(lastMarket?.found)applyOffer()});
 $("evaluate").addEventListener("click",evaluate);$("inspect").addEventListener("click",inspect);$("simulate").addEventListener("click",simulate);
