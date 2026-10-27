@@ -48,7 +48,27 @@ button:disabled{opacity:.55;cursor:wait}
 </section>
 <section id="screen" class="hidden">
  <div class="overline">Nur interne Auswertung · keine Kundenfreigabe</div><p><a href="/admin/testlabor/duell/" style="color:#7af1c9;font-weight:800">▸ Virtuelles Tippduell · Du gegen BetInsight-System</a> &nbsp;·&nbsp; <a href="/admin/testlabor/community/" style="color:#7af1c9;font-weight:800">Simulierte 1-Unit-Tipps</a></p><h1>Sportarten-Testlabor</h1>
- <p class="muted">Zwei Datenanbieter, sechs Sportarten und ein gemeinsames internes Abfragebudget. Spielpläne sind noch keine Wetttipps: Empfehlungen werden erst mit tatsächlicher Auswahl, Wettmarkt und überprüfter Buchmacherquote übernommen.</p>
+ <p class="muted">Quoten-Scout für neue Fußballligen: Die Daten werden sofort nach dem Abruf bewertet und können mit einem Klick virtuell übernommen oder ausgelassen werden. Weitere sechs Sportarten bleiben darunter verfügbar.</p>
+ <div class="panel" id="soccerPanel">
+  <div class="overline">Zusätzlicher Quotenbereich · unabhängig von unseren bisherigen Fußball-Tipps</div>
+  <h2>⚽ Neue Fußballligen – The Odds API (kostenlos)</h2>
+  <p class="muted">Nur neue Wettbewerbe: Italien, Frankreich, Portugal und Niederlande. Bereits von BetInsight betreute Fußballligen bleiben ausgeschlossen. Je Liga-Abfrage verwenden wir den 1X2-Markt (EU), normalerweise 1 Credit. Es wird nichts automatisch veröffentlicht.</p>
+  <div class="controls">
+    <div class="control"><label for="soccerLeague">Neue Fußballliga</label>
+    <select id="soccerLeague">
+      <option value="soccer_italy_serie_a">🇮🇹 Serie A · Italien</option>
+      <option value="soccer_france_ligue_one">🇫🇷 Ligue 1 · Frankreich</option>
+      <option value="soccer_portugal_primeira_liga">🇵🇹 Primeira Liga · Portugal</option>
+      <option value="soccer_netherlands_eredivisie">🇳🇱 Eredivisie · Niederlande</option>
+    </select></div>
+    <button type="button" id="loadSoccer">Liga abrufen (max. 1 Credit)</button>
+  </div>
+  <p id="soccerMsg" class="muted" role="status">Bitte eine neue Liga auswählen. Kein automatischer Abruf.</p>
+  <div id="scoutOverview" class="note" role="status">Nach dem Liga-Abruf siehst du die Buchmacherquoten, den Marktvergleich und die virtuellen Übernahme-Buttons direkt auf jeder Karte. Systemvotum und deine Entscheidung bleiben getrennt.</div>
+  <div id="soccerFixtures" class="grid"></div>
+  <p class="muted" style="font-size:12px">Diese Karten zeigen API-Quoten von „Winamax (DE)“. Die Marke winamax.de steht auf der GGL-Whitelist (02.10.2026), aber die konkrete Quote wurde nicht live auf einem deutschen Konto bestätigt. Die angezeigte Wahrscheinlichkeit ist nur ein aus anderen Buchmacherquoten berechneter Marktwert – keine eigenständige BetInsight-Prognose. Ein Klick auf „Virtuell übernehmen“ speichert 1 fiktive Unit zu 10 € im privaten Vergleich, weder echtes Geld noch echte Units oder öffentlich sichtbare Tipps. Doppelte Chance bleibt ein gesonderter, kostenpflichtiger Einzelspielmarkt.</p>
+ </div>
+ 
  <div class="panel">
   <div><span class="tag good">Admin geschützt</span> <span class="tag">SportsAPI Pro</span> <span class="tag">BALLDONTLIE · NBA</span></div>
   <div class="controls">
@@ -90,24 +110,6 @@ button:disabled{opacity:.55;cursor:wait}
  <div class="grid" id="matches">
    <div class="panel" style="margin:0;grid-column:1/-1">Nach dem Abruf erscheinen hier echte Begegnungen in einer BetInsight-Kartenansicht.</div>
  </div>
- <div class="panel" id="soccerPanel">
-  <div class="overline">Zusätzlicher Quotenbereich · unabhängig von unseren bisherigen Fußball-Tipps</div>
-  <h2>⚽ Neue Fußballligen – The Odds API (kostenlos)</h2>
-  <p class="muted">Nur neue Wettbewerbe: Italien, Frankreich, Portugal und Niederlande. Bereits von BetInsight betreute Fußballligen bleiben ausgeschlossen. Je Liga-Abfrage verwenden wir den 1X2-Markt (EU), normalerweise 1 Credit. Es wird nichts automatisch veröffentlicht.</p>
-  <div class="controls">
-    <div class="control"><label for="soccerLeague">Neue Fußballliga</label>
-    <select id="soccerLeague">
-      <option value="soccer_italy_serie_a">🇮🇹 Serie A · Italien</option>
-      <option value="soccer_france_ligue_one">🇫🇷 Ligue 1 · Frankreich</option>
-      <option value="soccer_portugal_primeira_liga">🇵🇹 Primeira Liga · Portugal</option>
-      <option value="soccer_netherlands_eredivisie">🇳🇱 Eredivisie · Niederlande</option>
-    </select></div>
-    <button type="button" id="loadSoccer">Liga abrufen (max. 1 Credit)</button>
-  </div>
-  <p id="soccerMsg" class="muted" role="status">Bitte eine neue Liga auswählen. Kein automatischer Abruf.</p>
-  <div id="soccerFixtures" class="grid"></div>
-  <p class="muted" style="font-size:12px">Doppelte Chance (1X, X2, 12) ist ein zusätzlicher, einzelspielbezogener Markt und wird in dieser ersten Ansicht noch nicht abgerufen. Die Quoten für 1X2 enthalten bei Fußball auch das Unentschieden.</p>
- </div>
  <div class="panel"><h2>Was kommt als Nächstes?</h2>
  <p>Diese Ansicht prüft echte Sportdaten. Der nächste Ausbau ergänzt Modellprognosen und Quoten, speichert daraus ausgewählte Testtipps <strong>vor Spielbeginn</strong> unveränderlich und führt eine separate Historie mit Gewinnen, Verlusten und Rendite. Bis dahin werden keine bloßen Spielpläne als gewonnene Tipps gezählt.</p>
  </div>
@@ -118,6 +120,7 @@ button:disabled{opacity:.55;cursor:wait}
 const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-testlab-providers";
 const SESSION_KEY="betinsight_admin_session_v1";
 const WORKSHOP_API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-testlab-workshop";
+const DUEL_API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-testlab-duel";
 const SOCCER_SAVED="betinsight_testlab_soccer_v1";
 const SOCCER_KEYS=["soccer_italy_serie_a","soccer_france_ligue_one","soccer_portugal_primeira_liga","soccer_netherlands_eredivisie"];
 const CODES=["basketball","hockey","cricket","table-tennis","baseball","american-football"];
@@ -261,6 +264,95 @@ async function soccerRequest(key){
  if(!response.ok||result.ok!==true)throw Error(String(result.error||"SOCCER_REQUEST_FAILED"));
  return result;
 }
+
+async function duelCall(action,extra={}){
+ const r=await fetch(DUEL_API,{method:"POST",headers:{"content-type":"application/json"},
+  cache:"no-store",credentials:"omit",signal:AbortSignal.timeout(25000),
+  body:JSON.stringify({action,session_hash:await hash(rawToken),...extra})});
+ const d=await r.json();if(!r.ok||d.ok!==true)throw Error(String(d.error||"DUEL_REQUEST_FAILED"));
+ return d;
+}
+const deFmt=(x,places=1)=>Number(x).toLocaleString("de-DE",{minimumFractionDigits:places,maximumFractionDigits:places});
+function euro(x){return Number(x).toLocaleString("de-DE",{style:"currency",currency:"EUR"})}
+function makeScoutCard(item,leagueKey){
+ const card=text("article","","match");
+ const above=text("div","","matchtop");
+ const tag=text("span",item.league||"Liga");const state=text("span",item.eligible_by_rule?"Systemfilter: Kandidat":"Systemfilter: Auslassen",item.eligible_by_rule?"tag good":"tag warn");
+ above.append(tag,state);card.append(above);
+ const teams=text("div","","versus");
+ teams.append(text("div",item.home),text("span","gegen","vs"),text("div",item.away));
+ card.append(teams);
+ card.append(text("p","Anpfiff: "+timeLabel(item.kickoff)+" · "+item.bookmaker_count+" Quotenanbieter verglichen","muted"));
+ if(!item.has_de_bookmaker){
+  card.append(text("p","Keine explizit als Deutschland gekennzeichnete Quote gefunden. Keine virtuelle Übernahme möglich.","no-tip"));
+  return card;
+ }
+ card.append(text("div","DE-Markenabgleich: Winamax (DE) · konkrete Quote nicht live auf winamax.de bestätigt","no-tip"));
+ const options=item.options||[];
+ const select=document.createElement("select");select.style.width="100%";select.setAttribute("aria-label","Auswahl für virtuelle Übernahme");
+ for(const o of options){
+  const opt=document.createElement("option");opt.value=o.code;
+  opt.textContent=(o.code==="HOME"?"1 · "+item.home:o.code==="DRAW"?"X · Remis":"2 · "+item.away)+
+    " | "+deFmt(o.odds,2)+" | Markt "+(o.market_prob==null?"unbekannt":deFmt(o.market_prob)+" %");
+  select.append(opt);
+ }
+ const pref=options.find(x=>x.code===item.preferred_code);
+ if(pref)select.value=pref.code;
+ const info=text("div","","note");info.style.margin="12px 0";
+ const label=text("strong","");const breakdown=text("p","","small");const details=text("p","","small muted");
+ info.append(label,breakdown,details);card.append(info);
+ const update=()=>{
+  const o=options.find(x=>x.code===select.value);if(!o)return;
+  label.textContent="Winamax (DE) · Quote "+deFmt(o.odds,2)+" · "+(o.market_prob==null?"Marktchance unbekannt":deFmt(o.market_prob)+" % Marktchance");
+  breakdown.textContent="Gewinnschwelle "+deFmt(o.break_even)+" % · Markt-Abstand "+
+    (o.difference_pp==null?"—":(o.difference_pp>=0?"+":"")+deFmt(o.difference_pp)+" Prozentpunkte")+
+    " · bei 10 € virtuell: +"+euro(o.example_profit_if_win)+" Gewinn oder −10 € Verlust";
+  details.textContent="Marktbasiert, keine KI-Prognose. DE-Anbieterkennzeichnung ist keine live verifizierte Wettverfügbarkeit.";
+ };
+ select.addEventListener("change",update);update();card.append(select);
+ const acts=text("div","","actions");
+ acts.style.display="flex";acts.style.flexWrap="wrap";acts.style.gap="7px";
+ const accept=text("button",item.eligible_by_rule?"1 virtuelle Unit übernehmen":"Trotz Filterwarnung virtuell übernehmen");
+ const skip=text("button","Auslassen","secondary");
+ for(const b of [accept,skip]){b.type="button";b.style.flex="1 1 120px"}
+ const msg=text("p",item.already_recorded?"Dieses Spiel wurde bereits für das virtuelle Duell registriert.":"","small muted");
+ accept.disabled=item.already_recorded;skip.disabled=item.already_recorded;
+ async function doVote(code){
+  if(!confirm(code==="SKIP"?"Dieses Spiel endgültig als AUSGELASSEN speichern?":
+      "1 virtuelle Test-Unit (10 €) auf diese Auswahl übernehmen? Dies ist unwiderruflich, ohne Echtgeld und ohne Mitgliederfreigabe."))return;
+  accept.disabled=true;skip.disabled=true;msg.textContent="Virtuelle Entscheidung wird eingefroren …";
+  try{
+   const r=await duelCall("quick_accept",{choice:{sport_key:leagueKey,gameId:item.id,selection:code}});
+   item.already_recorded=true;msg.textContent=code==="SKIP"?
+     "Ausgelassen und gespeichert.":"1 virtuelle Unit (10 €) gespeichert – keine echte Abbuchung.";
+   const link=document.createElement("a");link.href="/admin/testlabor/duell/";
+   link.textContent="→ Vergleich und virtuelles Testkonto ansehen";msg.append(" ",link);
+  }catch(e){msg.textContent="Nicht übernommen: "+String(e.message||e)+
+    ". Prüfe ggf. den Duell-Bereich, bevor du erneut speicherst.";
+    accept.disabled=false;skip.disabled=false}
+ }
+ accept.addEventListener("click",()=>doVote(select.value));
+ skip.addEventListener("click",()=>doVote("SKIP"));
+ acts.append(accept,skip);card.append(acts,msg);return card;
+}
+async function showScout(key,status){
+ try{
+  const r=await duelCall("scan",{query:{sport_key:key}});
+  if($("soccerLeague").value!==key)return;
+  const target=$("soccerFixtures");target.replaceChildren();
+  $("scoutOverview").textContent=r.scanned+" kommende Begegnungen analysiert · "+
+    r.de_price_offers+" mit Winamax-(DE)-Quote · "+
+    r.strict_candidates+" erfüllen das System-Regelwerk. "+
+    "Systemwahl und deine Auswahl werden getrennt ausgewertet. Kein weiterer API-Credit für diese Analyse.";
+  $("soccerMsg").textContent=status+" · "+r.scanned+" Spiele ausgewertet, zuerst nach Marktabstand sortiert";
+  if(!r.items?.length)target.append(text("div","Keine zukünftigen Spiele mit vollständigen Markt-Quoten vorhanden.","info"));
+  else for(const item of r.items)target.append(makeScoutCard(item,key));
+ }catch(e){
+  $("scoutOverview").textContent="Die Quoten-Auswertung ist nur im Master-Admin-Konto sichtbar: "+String(e.message||e)+
+    ". Vorhandene Begegnungen bleiben weiterhin aufrufbar.";
+ }
+}
+
 function soccerDisplay(key,games,status){
  const target=$("soccerFixtures");target.replaceChildren();
  $("soccerLeague").value=key;
@@ -276,6 +368,7 @@ function restoreSoccer(){
   const x=JSON.parse(sessionStorage.getItem(SOCCER_SAVED)||"null");
   if(!x||!SOCCER_KEYS.includes(x.key)||!Array.isArray(x.games))return;
   soccerDisplay(x.key,x.games,"Gespeicherte Ansicht ohne neue Anbieteranfrage");
+  showScout(x.key,"Analyse gespeicherter Quoten ohne Anbieterabruf");
  }catch(_){}
 }
 async function loadSoccer(){
@@ -290,7 +383,9 @@ async function loadSoccer(){
     $("soccerMsg").textContent="Keine Daten verfügbar: "+(res.error||"Liga nicht verfügbar")+" · "+info;
     $("soccerFixtures").replaceChildren();return;
   }
-  soccerDisplay(key,games,info+(res.credit_remaining!=null?" · API-Rest-Credits: "+res.credit_remaining:""));
+  const status=info+(res.credit_remaining!=null?" · API-Rest-Credits: "+res.credit_remaining:"");
+  soccerDisplay(key,games,status);
+  await showScout(key,status);
   try{sessionStorage.setItem(SOCCER_SAVED,JSON.stringify({key,games}))}catch(_){}
  }catch(e){$("soccerMsg").textContent="Liga-Abruf fehlgeschlagen: "+String(e.message||e)}
  finally{$("loadSoccer").disabled=false}
