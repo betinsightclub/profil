@@ -34,7 +34,8 @@ button.secondary{background:#123f59;color:#d6f4ff;border:1px solid #498aa6}butto
 <label class="full">Eigene BetInsight-Begründung <textarea id="analysis" maxlength="1200" placeholder="Welche Fakten und Statistiken sprechen für genau diesen Tipp?"></textarea></label>
 </div>
 <div class="actions">
-<button id="inspect" class="secondary" type="button">Quoten von The Odds API laden</button>
+<button id="inspect" class="secondary" type="button">1X2-Quoten von The Odds API laden</button>
+<button id="doubleChance" class="secondary hidden" type="button">Doppelte Chance: 1X / X2 / 12 (max. 1 Credit)</button>
 <button id="evaluate" type="button">Bewerten und Vorschau anzeigen</button>
 </div><p id="inspectStatus" class="note" role="status"></p>
 <div id="marketInsights" class="box hidden">
@@ -73,7 +74,7 @@ odds:Number($("odds").value),probability:Number($("prob").value),analysis:$("ana
 function validate(p){if(!p||!(p.source==="theoddsapi"?/^[0-9a-f]{32}$/i.test(p.gameId):/^\d{1,18}$/.test(p.gameId)))return "Eine gültige Spiel-ID fehlt.";
 if(Date.parse(p.kickoff)<=Date.now()+600000)return "Das Spiel beginnt zu bald oder hat bereits begonnen.";
 if(p.market.length<2||p.bookmaker.length<2||p.analysis.length<2)return "Bitte Wettmarkt, Buchmacher und Begründung eingeben.";
-if(![p.home,p.away,...(p.sport==="soccer"?["Unentschieden"]:[])].includes(p.selection))return "Bitte die Tippauswahl kontrollieren.";
+if(![p.home,p.away,...(p.sport==="soccer"?["Unentschieden","1X","X2","12"]:[])].includes(p.selection))return "Bitte die Tippauswahl kontrollieren.";
 if(!(p.odds>1.01&&p.odds<100&&p.probability>0&&p.probability<100))return "Quote und geschätzte Gewinnchance müssen gültig sein.";
 return ""}
 function clearPreview(){preview=false;$("preview").classList.add("hidden");$("metrics").classList.add("hidden");$("evaluateStatus").textContent="";$("saveStatus").textContent=""}
@@ -87,13 +88,25 @@ $("previewText").textContent=p.league+" · "+dateLabel(p.kickoff)+"\nWettmarkt: 
 "\nBuchmacher: "+p.bookmaker+" · Quote: "+fmt(p.odds,2)+"\nBegründung: "+p.analysis+
 "\nGeschätzte Gewinnchance: "+fmt(p.probability)+" % (manuelle Schätzung)\nTest-Freischaltung: 1 Unit (nur Simulation)";
 $("preview").classList.remove("hidden");preview=true}
+function setupChoices(mode){
+ const field=$("pick");field.replaceChildren();
+ const dc=mode==="double_chance";
+ const options=dc?[
+  ["1X","1X · "+game.home+" oder Unentschieden"],
+  ["X2","X2 · "+game.away+" oder Unentschieden"],
+  ["12","12 · "+game.home+" oder "+game.away]
+ ]:[...[game.home,game.away,...(game.sport==="soccer"?["Unentschieden"]:[])].map(n=>[n,n])];
+ for(const [val,label] of options){const o=document.createElement("option");o.value=val;o.textContent=label;field.append(o)}
+}
 function applyOffer(){
  if(!lastMarket?.found||!game)return;
- const selected=$("pick").value;
- const quote=selected===game.home?lastMarket.best_home:selected===game.away?lastMarket.best_away:lastMarket.best_draw;
+ const selected=$("pick").value,dc=lastMarket.market_type==="double_chance";
+ const quote=dc?(selected==="1X"?lastMarket.best_home:selected==="X2"?lastMarket.best_away:lastMarket.best_draw):
+   (selected===game.home?lastMarket.best_home:selected===game.away?lastMarket.best_away:lastMarket.best_draw);
  if(!quote||!(quote.odds>1))return;
  $("market").value=lastMarket.market;$("bookie").value=quote.bookmaker;$("odds").value=quote.odds;
- const p=selected===game.home?lastMarket.market_home_probability:selected===game.away?lastMarket.market_away_probability:lastMarket.market_draw_probability;
+ const p=dc?(selected==="1X"?lastMarket.market_home_probability:selected==="X2"?lastMarket.market_away_probability:lastMarket.market_draw_probability):
+  (selected===game.home?lastMarket.market_home_probability:selected===game.away?lastMarket.market_away_probability:lastMarket.market_draw_probability);
  $("marketDetails").textContent="Auswahl: "+selected+" · Bestes verfügbares API-Angebot: "+fmt(quote.odds,2)+
    " bei "+quote.bookmaker+" · Gewinnschwelle: "+fmt(100/quote.odds)+" % · "+
    "Margebereinigter Buchmacher-Konsens: "+fmt(p)+" % ("+lastMarket.bookmaker_count+" Angebote).";
@@ -124,13 +137,43 @@ async function inspect(){
        " Neue Anbieterabrufe: "+Number(result.provider_requests||0)+(result.from_cache?" · Aus Cache.":".")+
        (result.credit_remaining!=null?" Verbleibende API-Credits: "+result.credit_remaining+".":"");
    }else{
-     lastMarket=result;applyOffer();
+     lastMarket=result;setupChoices("h2h");applyOffer();
      $("inspectStatus").textContent="The Odds API: "+result.bookmaker_count+
        " gültige Zwei-Wege-Buchmacher-Angebote. "+(result.from_cache?"Aus Cache, kein neuer Anbieterabruf.":"Neue Anbieterabrufe: "+Number(result.provider_requests||0)+".")+
        (result.credit_remaining!=null?" Aktuell gemeldete Rest-Credits: "+result.credit_remaining+".":"")+
        " Die Gewinnwahrscheinlichkeit musst du unabhängig begründen; der Marktvergleich ist keine Modellprognose.";
    }
  }catch(e){$("inspectStatus").textContent="Quotenabruf fehlgeschlagen: "+String(e.message||e)}
+ finally{btn.disabled=false}
+}
+
+async function inspectDoubleChance(){
+ if(!game||game.sport!=="soccer"||game.source!=="theoddsapi")return;
+ const btn=$("doubleChance");btn.disabled=true;
+ $("inspectStatus").textContent="Lade für dieses eine Spiel ausschließlich den zusätzlichen Markt Doppelte Chance …";
+ try{
+  const result=await call("double_chance",{fixture:{source:game.source,sport:game.sport,league:game.league,
+    gameId:String(game.id),kickoff:game.kickoff,home:game.home,away:game.away}});
+  if(!result.found){
+    const errors={
+      LEAGUE_CACHE_EXPIRED:"Die Liga-Daten müssen zuerst im Testlabor erneut geladen werden – keine zusätzliche Anfrage ausgeführt.",
+      ODDS_EVENT_NOT_VERIFIED:"Die Begegnung konnte nicht eindeutig bestätigt werden, keine zusätzliche Anfrage ausgeführt.",
+      DOUBLE_CHANCE_DAILY_LIMIT:"Das Tageslimit für Doppelte-Chance-Einzelabfragen (3) ist erreicht.",
+      NO_DOUBLE_CHANCE_BOOKMAKERS:"Bei den europäischen Buchmachern wurden keine vollständig zugeordneten 1X/X2/12-Quoten gefunden.",
+      DOUBLE_CHANCE_NOT_AVAILABLE:"Der Anbieter führt diesen Zusatzmarkt für das Spiel nicht.",
+      ODDS_RATE_LIMIT:"Quotenanbieter hat die Abfragen begrenzt.",
+      ODDS_PROVIDER_ERROR:"Anbieterserver momentan nicht verfügbar.",
+      DOUBLE_CHANCE_RESPONSE_FAILED:"Die Antwort konnte nicht sicher zugeordnet werden."};
+    $("inspectStatus").textContent=(errors[result.error]||"Doppelte Chance nicht verfügbar ("+(result.error||"unbekannt")+").")+
+      " · Neue Anbieterabfragen: "+Number(result.provider_requests||0);
+    return;
+  }
+  lastMarket=result;setupChoices("double_chance");applyOffer();
+  $("inspectStatus").textContent="Doppelte Chance: "+result.bookmaker_count+
+    " vollständig zugeordnete Buchmacher-Angebote. "+(result.from_cache?"Aus Cache, 0 Credits für diese Aktion.":
+    "Neue Anbieterabfragen: "+Number(result.provider_requests||0)+".")+
+    " Die Markt-Einschätzung ist keine unabhängige BetInsight-Prognose.";
+ }catch(e){$("inspectStatus").textContent="Doppelte-Chance-Abfrage fehlgeschlagen: "+String(e.message||e)}
  finally{btn.disabled=false}
 }
 async function simulate(){const p=payload(),error=validate(p);if(!preview||error){$("saveStatus").textContent=error||"Zuerst die aktuelle Vorschau erstellen.";return}
@@ -146,13 +189,14 @@ $("locked").append(document.createTextNode(" Bitte im Testlabor bei einer kommen
 $("locked").classList.add("hidden");$("workspace").classList.remove("hidden");
 $("match").textContent=game.home+" gegen "+game.away;
 $("kickoff").textContent=(game.league||"Liga") + " · "+dateLabel(game.kickoff);
-for(const team of [game.home,game.away,...(game.sport==="soccer"?["Unentschieden"]:[])]){const o=document.createElement("option");o.value=team;o.textContent=team;$("pick").append(o)}
+setupChoices("h2h");
 $("market").value=game.sport==="soccer"?"Spielausgang 1X2 · reguläre Spielzeit":game.sport==="table-tennis"?"Sieger der Begegnung":game.sport==="cricket"?"Matchsieger (Abrechnungsregeln prüfen)":"Spielsieger einschließlich möglicher Verlängerung";
-$("inspect").disabled=false;
-$("inspectStatus").textContent="Version 0.7: The Odds API · EU-Quoten. Fußball: echter 1X2-Markt einschließlich Unentschieden; Doppelte Chance wird noch nicht abgerufen. Maximal 12 neue Liga-Abfragen täglich; erfolgreiche Daten 25 Minuten im Cache.";
+$("inspect").disabled=false;$("doubleChance").classList.toggle("hidden",game.sport!=="soccer"||game.source!=="theoddsapi");
+$("inspectStatus").textContent="Version 0.7: The Odds API · EU-Quoten. Fußball: echter 1X2-Markt einschließlich Unentschieden; Doppelte Chance kann für ausgewählte Spiele zusätzlich geladen werden. Maximal 12 neue Liga-Abfragen täglich; erfolgreiche Daten 25 Minuten im Cache.";
 for(const id of ["market","pick","bookie","odds","prob","analysis"])$(id).addEventListener("input",clearPreview);
 $("pick").addEventListener("change",()=>{if(lastMarket?.found)applyOffer()});
-$("evaluate").addEventListener("click",evaluate);$("inspect").addEventListener("click",inspect);$("simulate").addEventListener("click",simulate);
+$("evaluate").addEventListener("click",evaluate);$("inspect").addEventListener("click",inspect);
+$("doubleChance").addEventListener("click",inspectDoubleChance);$("simulate").addEventListener("click",simulate);
 }
 init();
 </script></body></html>
