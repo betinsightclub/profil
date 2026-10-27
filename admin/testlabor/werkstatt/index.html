@@ -36,6 +36,7 @@ button.secondary{background:#123f59;color:#d6f4ff;border:1px solid #498aa6}butto
 <div class="actions">
 <button id="inspect" class="secondary" type="button">1X2-Quoten von The Odds API laden</button>
 <button id="doubleChance" class="secondary hidden" type="button">Doppelte Chance: 1X / X2 / 12 (max. 1 Credit)</button>
+<button id="duelBtn" class="secondary hidden" type="button">Ins virtuelle Duell übernehmen · 0 API-Credits</button>
 <button id="evaluate" type="button">Bewerten und Vorschau anzeigen</button>
 </div><p id="inspectStatus" class="note" role="status"></p>
 <div id="marketInsights" class="box hidden">
@@ -62,7 +63,7 @@ Sie ist kein unabhängig trainiertes Modell und beweist keinen profitablen Tipp.
 const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-testlab-workshop";
 const KEY="betinsight_admin_session_v1",FIXTURE="betinsight_testlab_current_fixture";
 const $=id=>document.getElementById(id);
-let token="",game=null,preview=false,lastMarket=null;
+let token="",game=null,preview=false,lastMarket=null,lastLeagueKey="";
 function session(){try{const s=JSON.parse(sessionStorage.getItem(KEY)||"null");return s&&s.token&&Date.now()<s.expiresMs?s:null}catch(_){return null}}
 async function sha(t){const d=new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t)));return Array.from(d,v=>v.toString(16).padStart(2,"0")).join("")}
 async function call(action,extra={}){const r=await fetch(API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action,session_hash:await sha(token),...extra}),cache:"no-store",credentials:"omit",signal:AbortSignal.timeout(35000)});const data=await r.json();if(!r.ok||data.ok!==true)throw Error(String(data.error||"SERVICE_ERROR")+" (HTTP "+r.status+")");return data}
@@ -115,7 +116,7 @@ function applyOffer(){
 async function inspect(){
  if(!game)return;
  const btn=$("inspect");btn.disabled=true;
- $("inspectStatus").textContent="Prüfe die passende Liga und lade EU-Buchmacherquoten mit h2h-Markt …";
+ $("duelBtn").classList.add("hidden");$("inspectStatus").textContent="Prüfe die passende Liga und lade EU-Buchmacherquoten mit h2h-Markt …";
  try{
    const result=await call("odds_lookup",{fixture:{source:game.source,sport:game.sport,
       league:game.league,gameId:String(game.id),kickoff:game.kickoff,home:game.home,away:game.away}});
@@ -137,7 +138,7 @@ async function inspect(){
        " Neue Anbieterabrufe: "+Number(result.provider_requests||0)+(result.from_cache?" · Aus Cache.":".")+
        (result.credit_remaining!=null?" Verbleibende API-Credits: "+result.credit_remaining+".":"");
    }else{
-     lastMarket=result;setupChoices("h2h");applyOffer();
+     lastMarket=result;lastLeagueKey=result.league_key||lastLeagueKey;setupChoices("h2h");applyOffer();$("duelBtn").classList.remove("hidden");
      $("inspectStatus").textContent="The Odds API: "+result.bookmaker_count+
        " gültige Zwei-Wege-Buchmacher-Angebote. "+(result.from_cache?"Aus Cache, kein neuer Anbieterabruf.":"Neue Anbieterabrufe: "+Number(result.provider_requests||0)+".")+
        (result.credit_remaining!=null?" Aktuell gemeldete Rest-Credits: "+result.credit_remaining+".":"")+
@@ -168,13 +169,50 @@ async function inspectDoubleChance(){
       " · Neue Anbieterabfragen: "+Number(result.provider_requests||0);
     return;
   }
-  lastMarket=result;setupChoices("double_chance");applyOffer();
+  lastMarket=result;setupChoices("double_chance");applyOffer();$("duelBtn").classList.remove("hidden");
   $("inspectStatus").textContent="Doppelte Chance: "+result.bookmaker_count+
     " vollständig zugeordnete Buchmacher-Angebote. "+(result.from_cache?"Aus Cache, 0 Credits für diese Aktion.":
     "Neue Anbieterabfragen: "+Number(result.provider_requests||0)+".")+
     " Die Markt-Einschätzung ist keine unabhängige BetInsight-Prognose.";
  }catch(e){$("inspectStatus").textContent="Doppelte-Chance-Abfrage fehlgeschlagen: "+String(e.message||e)}
  finally{btn.disabled=false}
+}
+
+function leagueForDuel(){
+ if(lastLeagueKey)return lastLeagueKey;
+ if(!game)return "";
+ const l=String(game.league||"").normalize("NFKD").toLowerCase();
+ if(game.sport==="soccer"){
+  if(l.includes("serie a")&&l.includes("italien"))return "soccer_italy_serie_a";
+  if(l.includes("ligue 1")&&l.includes("frankreich"))return "soccer_france_ligue_one";
+  if(l.includes("primeira")&&l.includes("portugal"))return "soccer_portugal_primeira_liga";
+  if(l.includes("eredivisie")&&l.includes("niederlande"))return "soccer_netherlands_eredivisie";
+  return "";
+ }
+ if(game.sport==="basketball"){
+  if(/\bnba\b/.test(l))return "basketball_nba";
+  if(l.includes("euroleague"))return "basketball_euroleague";
+  if(l.includes("wnba"))return "basketball_wnba";
+ }
+ if(game.sport==="hockey"&&l.includes("nhl"))return "icehockey_nhl";
+ if(game.sport==="baseball"){
+  if(l.includes("kbo"))return "baseball_kbo";
+  if(l.includes("mlb"))return "baseball_mlb";
+  if(l.includes("npb"))return "baseball_npb";
+ }
+ if(game.sport==="american-football"&&l.includes("nfl"))return "americanfootball_nfl";
+ return "";
+}
+function openVirtualDuel(){
+ if(!game||!lastMarket?.found)return;
+ const key=leagueForDuel();
+ if(!key){$("inspectStatus").textContent="Diese Liga ist noch nicht für den virtuellen Vergleich hinterlegt.";return}
+ const market_code=lastMarket.market_type==="double_chance"?"DOUBLE_CHANCE":"H2H";
+ sessionStorage.setItem("betinsight_testlab_duel_selected_v1",JSON.stringify({
+   market_code,fixture:{source:game.source,sport:game.sport,sport_key:key,
+    gameId:String(game.id),home:game.home,away:game.away,kickoff:game.kickoff,league:game.league}
+ }));
+ location.href="/admin/testlabor/duell/";
 }
 async function simulate(){const p=payload(),error=validate(p);if(!preview||error){$("saveStatus").textContent=error||"Zuerst die aktuelle Vorschau erstellen.";return}
 const btn=$("simulate");btn.disabled=true;$("saveStatus").textContent="Speichere ausschließlich die interne Simulation …";
@@ -196,7 +234,8 @@ $("inspectStatus").textContent="Version 0.7: The Odds API · EU-Quoten. Fußball
 for(const id of ["market","pick","bookie","odds","prob","analysis"])$(id).addEventListener("input",clearPreview);
 $("pick").addEventListener("change",()=>{if(lastMarket?.found)applyOffer()});
 $("evaluate").addEventListener("click",evaluate);$("inspect").addEventListener("click",inspect);
-$("doubleChance").addEventListener("click",inspectDoubleChance);$("simulate").addEventListener("click",simulate);
+$("doubleChance").addEventListener("click",inspectDoubleChance);
+$("duelBtn").addEventListener("click",openVirtualDuel);$("simulate").addEventListener("click",simulate);
 }
 init();
 </script></body></html>
