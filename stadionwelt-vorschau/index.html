@@ -124,7 +124,7 @@ function translate(){renderSizeLegend();syncModeControls();updateSatellitePanel(
 function loadLang(){try{sessionStorage.removeItem("betinsight_stadium_mapbox_token")}catch{}let v=localStorage.getItem("betinsight_language")||navigator.language.slice(0,2);v=String(v).toLowerCase();if(v.startsWith("zh"))v="zh";if(!D[v])v="en";lang=v;translate()}
 async function hash(v){const b=new TextEncoder().encode(v),bytes=await crypto.subtle.digest("SHA-256",b);return Array.from(new Uint8Array(bytes)).map(x=>x.toString(16).padStart(2,"0")).join("")}
 async function session(){let v;try{v=JSON.parse(sessionStorage.getItem("betinsight_admin_session_v1")||"null")}catch{}if(v&&v.token&&v.adminId==="ADM-001"&&Number(v.expiresMs)>Date.now())adminHash=await hash(v.token);memberToken=localStorage.getItem("betinsight_dashboard_token")||localStorage.getItem("betinsight_profile_token")||""}
-async function call(action,params={}){const resp=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,admin_hash:adminHash,member_token:memberToken,...params})});let d;try{d=await resp.json()}catch{throw Error("NETWORK_ERROR")};if(!resp.ok||!d.ok)throw Error(d.error||"SERVER_ERROR");return d}
+async function call(action,params={}){const resp=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,admin_hash:adminHash,member_token:memberToken,...params})});let d;try{d=await resp.json()}catch{throw Error("NETWORK_ERROR")};if(!resp.ok||!d.ok)throw Error(d.error||"SERVER_ERROR");if(action==="list")saveCatalogCache(d);return d}
 let bootPromise=null,reviewLoadPromise=null,reviewLoaded=false,globeLibraryFailed=false;
 function initGlobeWhenReady(){
  if(!ready||globe||!$("lock").classList.contains("hide"))return;
@@ -143,13 +143,42 @@ async function loadReviewOnDemand(){
  .finally(()=>{reviewLoadPromise=null});
  return reviewLoadPromise;
 }
+const STADIUM_CATALOG_CACHE_KEY="betinsight_stadium_private_catalog_v1";
+const STADIUM_CATALOG_CACHE_TTL=5*60*1000;
+function readCatalogCache(){
+ if(!adminHash)return null;
+ try{
+  const entry=JSON.parse(sessionStorage.getItem(STADIUM_CATALOG_CACHE_KEY)||"null");
+  if(entry?.session_hash!==adminHash||!Number.isFinite(entry?.saved_at)
+   ||Date.now()-entry.saved_at>STADIUM_CATALOG_CACHE_TTL
+   ||Date.now()<entry.saved_at||!Array.isArray(entry?.data?.stadiums))return null;
+  return entry.data;
+ }catch{return null}
+}
+function saveCatalogCache(data){
+ // Cache only after an authenticated private preview read. Never cache visits or member photos.
+ if(!adminHash||data?.admin!==true||data?.preview!==true||!Array.isArray(data.stadiums))return;
+ try{sessionStorage.setItem(STADIUM_CATALOG_CACHE_KEY,JSON.stringify({session_hash:adminHash,saved_at:Date.now(),data}))}catch{}
+}
+async function getCatalog(){
+ const cached=readCatalogCache();
+ if(cached){
+  // The local admin token's expiry is not enough: check against the live server first.
+  const access=await call("ping");
+  if(access.admin!==true||access.preview!==true)throw Error("PRIVATE_PREVIEW_LOGIN_REQUIRED");
+  return cached;
+ }
+ const result=await call("list");
+ saveCatalogCache(result);
+ return result;
+}
 async function boot(){
  if(bootPromise)return bootPromise;
  bootPromise=(async()=>{
   try{
    await session();
    if(!adminHash){$("lockMessage").textContent=t("loginInfo");return}
-   const d=await call("list");
+   const d=await getCatalog();
    all=d.stadiums||[];clubs=d.clubs||[];fixtures=d.fixtures||[];
    tips=d.tipResults||[];tipLinks=d.tipLinks||[];
    ready=true;$("lock").classList.add("hide");
