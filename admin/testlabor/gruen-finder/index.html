@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+<title>BetInsight · Grün-Finder · 12 Sportligen</title>
+<style>
+:root{color-scheme:dark;--bg:#061b29;--panel:#103449;--line:#31627a;--muted:#bdd5df;--green:#3bdfb5}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#133b54,#061b29 65%,#03121d);color:#f0fbff;font:15px/1.55 system-ui,Arial,sans-serif}
+main{max-width:1160px;margin:0 auto;padding:22px 18px 72px}header{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:19px;margin-bottom:24px}
+.brand{font-size:19px;font-weight:900}.brand span,.overline{color:var(--green)}a{color:#a6e7ff}
+h1{font-size:clamp(27px,4vw,40px);line-height:1.14;margin:7px 0 12px}h2{font-size:21px;margin:0 0 13px}.overline{font-size:12px;font-weight:850;letter-spacing:.09em;text-transform:uppercase}
+.panel,.match{border:1px solid var(--line);border-radius:17px;background:linear-gradient(160deg,#113d54,#092637);padding:22px;margin:17px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(285px,1fr));gap:12px}.match{margin:0;min-height:0}.match h3{font-size:19px;margin:12px 0}
+.controls{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin:18px 0}
+.control{display:flex;flex-direction:column;gap:5px}.control label{font-size:12px;font-weight:800}
+button{font:inherit;cursor:pointer;background:linear-gradient(120deg,#25d6b0,#25a3d7);border:0;color:#031e2b;padding:11px 16px;border-radius:11px;font-weight:850;min-height:45px}
+button.secondary{background:#133d53;border:1px solid #4585a0;color:#e9f8fc}button:disabled{opacity:.6;cursor:wait}
+select{font:inherit;background:#092638;color:white;border:1px solid #52839b;padding:12px;border-radius:10px}
+.info{border:1px solid #346880;background:#0b2d42;padding:15px;border-radius:12px}.small{font-size:12px}.muted{color:var(--muted)}.tag{display:inline-block;font-size:11px;border:1px solid #488977;border-radius:30px;padding:4px 8px;font-weight:800;color:#91eeca}.hidden{display:none!important}
+.green-league-row{padding:11px;border:1px solid #315d73;border-radius:10px;background:#092b3d;margin:7px 0}
+#greenFinderResults{margin-top:17px}
+</style>
+</head>
+<body>
+<main>
+<header><div class="brand">BETINSIGHT<span>.CLUB</span> · GRÜN-FINDER</div><nav><a href="/admin/testlabor/">← Testlabor</a> · <a href="/admin/testlabor/duell/">Virtuelles Tippduell</a></nav></header>
+<div class="overline">Internes Analysewerkzeug · keine echte Wettabgabe</div>
+<h1>🟢 Grüne Ampeln über 12 Ligen suchen</h1>
+<p class="muted">Vergleiche gespeicherte Quoten aus vier Fußballligen, Basketball, Eishockey, Baseball und American Football. Jede Suche aus dem Cache benötigt <strong>0 neue Quoten-API-Credits</strong>. Abgelaufene Quoten erscheinen nicht als aktuelle Empfehlungen.</p>
+<section id="locked" class="panel"><h2>Zugang wird geprüft …</h2><p id="authStatus">Bitte dieselbe Browser-Registerkarte verwenden, in der du im BetInsight Admin Center angemeldet bist.</p></section>
+<div id="workspace" class="hidden">
+<section id="greenFinderPanel" class="panel">
+ <div class="overline">Gesamtsuche – 4 Fußballligen + 8 weitere Ligen</div>
+ <h2>🔎 Grün-Finder</h2>
+ <div class="controls">
+  <button id="greenScanCached" type="button">🟢 Grüne Ampeln suchen · 0 Credits</button>
+  <div class="control"><label for="greenRefreshLimit">Optional: neue Liga-Abfragen</label>
+   <select id="greenRefreshLimit"><option value="1">Max. 1 Credit</option><option value="2">Max. 2 Credits</option><option value="3">Max. 3 Credits</option></select></div>
+  <button id="greenRefresh" class="secondary" type="button">Neue Quoten nach Bestätigung abrufen</button>
+ </div>
+ <p class="small muted">Der zweite Button kann API-Credits kosten. Er aktualisiert höchstens drei nicht mehr aktuelle Ligen pro Klick, erst nach Bestätigung. Kein Hintergrundabruf und keine automatische Wiederholung.</p>
+ <p id="greenFinderStatus" role="status" class="muted">Noch nicht gesucht. Es erfolgt kein automatischer Anbieterabruf.</p>
+ <div id="greenFinderSummary" class="info">Grün gilt nur für die bisherige strenge Preisregel: mindestens fünf Angebote, DE-Quote zwischen 1,40 und 2,50 und mindestens +5 Prozentpunkte Marktpreisabstand. Keine unabhängige Gewinnprognose.</div>
+ <div id="greenFinderResults" class="grid"></div>
+ <details style="margin-top:16px"><summary style="cursor:pointer;font-weight:850;color:#a4ebd9">Status aller 12 Ligen und Aktualität anzeigen</summary><div id="greenFinderLeagues" style="margin-top:11px"></div></details>
+ <p class="small muted">Tischtennis und Cricket werden ohne überprüfbare DE-Angebote nicht künstlich bewertet. Keine Garantie, dass ein grünes Angebot tatsächlich bei einem deutschen Wettkonto verfügbar ist. Nur virtuelle interne Tests.</p>
+</section>
+<section id="soccerPanel" class="panel hidden"><h2>⚽ Details zum Fußballmarkt</h2><select id="soccerLeague"><option>Fußball</option></select><div id="soccerDetails" class="grid" style="margin-top:14px"></div></section>
+<section id="additionalOddsScout" class="panel hidden"><h2>Details zu weiteren Sportligen</h2><select id="otherOddsLeague"><option>Andere Sportarten</option></select><div id="otherOddsDetails" class="grid" style="margin-top:14px"></div><p id="otherOddsStatus" class="small muted"></p></section>
+</div>
+</main>
+<script>
+"use strict";
+const SESSION_KEY="betinsight_admin_session_v1";
+const WORKSHOP_API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-testlab-workshop";
+const DUEL_API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-testlab-duel";
+const SOCCER_KEYS=["soccer_italy_serie_a","soccer_france_ligue_one","soccer_portugal_primeira_liga","soccer_netherlands_eredivisie"];
+let rawToken="";
+const $=id=>document.getElementById(id);
+function session(){try{const s=JSON.parse(sessionStorage.getItem(SESSION_KEY)||"null");return s?.token&&Date.now()<Number(s.expiresMs||0)?s:null}catch{return null}}
+async function hash(x){const d=new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(x)));return Array.from(d,x=>x.toString(16).padStart(2,"0")).join("")}
+function timeLabel(v){if(!v)return "k. A.";const d=new Date(v);if(!Number.isFinite(d.getTime()))return "k. A.";return new Intl.DateTimeFormat("de-DE",{dateStyle:"medium",timeStyle:"short",timeZone:"Europe/Berlin"}).format(d)+" (DE)"}
+async function duelCall(action,extra={}){
+ const r=await fetch(DUEL_API,{method:"POST",headers:{"content-type":"application/json"},cache:"no-store",credentials:"omit",signal:AbortSignal.timeout(25000),body:JSON.stringify({action,session_hash:await hash(rawToken),...extra})});
+ const d=await r.json();if(!r.ok||d.ok!==true)throw Error(String(d.error||"ABFRAGE_FEHLGESCHLAGEN"));return d;
+}
+async function oddsRequest(action,key){
+ const r=await fetch(WORKSHOP_API,{method:"POST",headers:{"content-type":"application/json"},cache:"no-store",credentials:"omit",signal:AbortSignal.timeout(35000),body:JSON.stringify({action,session_hash:await hash(rawToken),league_key:key})});
+ const d=await r.json();if(!r.ok||d.ok!==true)throw Error(String(d.error||"ODDS_REQUEST_FAILED"));return d;
+}
+function soccerRequest(key){return oddsRequest("soccer_fixtures",key)}
+function otherOddsRequest(key){return oddsRequest("sports_odds_fixtures",key)}
+async function details(key,id,section){
+ const r=await duelCall("scan",{query:{sport_key:key}});
+ const target=$(id),box=$(section);target.replaceChildren();box.classList.remove("hidden");
+ const opts=(r.items||[]).filter(x=>x.eligible_by_rule);
+ for(const x of opts.slice(0,20)){
+   const card=document.createElement("article");card.className="match";
+   const h=document.createElement("h3");h.textContent=x.home+" – "+x.away;card.append(h);
+   const p=document.createElement("p");p.textContent=x.league+" · "+timeLabel(x.kickoff);card.append(p);
+   const o=document.createElement("p");o.textContent=(x.options||[]).map(y=>y.selection+": "+y.odds+" ("+y.bookmaker+")").join(" · ");card.append(o);target.append(card);
+ }
+ if(!opts.length){const el=document.createElement("div");el.textContent="Keine grüne Auswahl mehr im gültigen Quoten-Cache. Möglicherweise sind die Quoten abgelaufen.";target.append(el)}
+ box.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function showScout(key){return details(key,"soccerDetails","soccerPanel")}
+function showOtherOdds(key){return details(key,"otherOddsDetails","additionalOddsScout")}
+(async()=>{const s=session();if(!s){$("authStatus").textContent="Bitte das Testlabor zuerst im selben Tab über das BetInsight Admin Center öffnen. Ohne gültige Session ist kein Datenabruf möglich.";return}
+ rawToken=s.token;
+ try{await duelCall("list");$("locked").classList.add("hidden");$("workspace").classList.remove("hidden")}
+ catch(e){$("authStatus").textContent="Master-Admin-Sitzung nicht bestätigt: "+String(e.message||e)}
+})();
+</script>
+<script src="/admin/testlabor/green-scanner-v1.js?v=1" defer></script>
+</body>
+</html>
