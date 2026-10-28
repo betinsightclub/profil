@@ -43,6 +43,11 @@ button:disabled{opacity:.55;cursor:wait}
 .traffic-choice.green{border-color:#319a77!important;background:#163f39!important}
 .traffic-choice.chosen{outline:2px solid #e6faff;outline-offset:2px}
 .traffic-help{font-size:12px;color:#bbd4df;line-height:1.5;margin:7px 0 13px}
+.match .traffic-choices{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:7px}
+.traffic-choice.pending{background:#153445!important;border:1px dashed #5b798b!important;opacity:.85;cursor:default;color:#c7d4dd!important}
+.traffic-inline-note{font-size:12px;color:#bdd3df;line-height:1.35;margin:6px 0}
+.match .traffic-choice{min-height:58px;padding:5px 7px!important}
+.match .traffic-choice small{font-size:11px}
 .hidden{display:none!important}#message{min-height:24px;color:#d5eefa;margin:12px 0}
 @media(max-width:700px){main{padding:17px 12px 55px}.panel{padding:17px}.kpis{grid-template-columns:1fr 1fr}.kpi:last-child{grid-column:auto}.grid{grid-template-columns:1fr}}
 </style>
@@ -163,6 +168,7 @@ const CODES=["basketball","hockey","cricket","table-tennis","baseball","american
 const LABELS={"basketball":"🏀 Basketball","hockey":"🏒 Eishockey","cricket":"🏏 Cricket","table-tennis":"🏓 Tischtennis","baseball":"⚾ Baseball","american-football":"🏈 American Football","soccer":"⚽ Fußball"};
 const $=id=>document.getElementById(id);
 let rawToken="",records=[],activeFilter="all",providers=[],lastFetchedDate="";
+const verifiedOtherScans=new Map();
 const SAVED_VIEW="betinsight_testlab_saved_view_v2";
 function persistView(){
   if(!rawToken)return;
@@ -213,6 +219,78 @@ async function request(action,extra={}){
 function text(tag,content,css=""){const n=document.createElement(tag);n.textContent=String(content??"");if(css)n.className=css;return n}
 function timeLabel(v){if(!v)return "Nicht angegeben";const d=new Date(v);if(isNaN(d.getTime()))return String(v);return new Intl.DateTimeFormat("de-DE",{dateStyle:"medium",timeStyle:"short",timeZone:"Europe/Berlin"}).format(d)+" (DE)"}
 function addMeta(container,title,value){const d=document.createElement("div");d.append(text("small",title),text("strong",value));container.append(d)}
+
+function scheduledOddsLeague(item){
+ const sport=String(item?.sport||""),league=String(item?.league||"")
+   .normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+ if(sport==="basketball"){
+  if(/\bnba\b/.test(league))return "basketball_nba";
+  if(/\beuroleague\b/.test(league))return "basketball_euroleague";
+  if(/\bwnba\b/.test(league))return "basketball_wnba";
+ }
+ if(sport==="hockey"&&/\bnhl\b/.test(league))return "icehockey_nhl";
+ if(sport==="baseball"){
+  if(/\bmlb\b/.test(league))return "baseball_mlb";
+  if(/\bkbo\b/.test(league))return "baseball_kbo";
+  if(/\bnpb\b/.test(league))return "baseball_npb";
+ }
+ if(sport==="american-football"&&/\bnfl\b/.test(league))return "americanfootball_nfl";
+ return "";
+}
+function fixtureNormalizedName(name){
+ return String(name||"").normalize("NFKD").replace(/[\u0300-\u036f]/g,"")
+ .toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+}
+function verifiedOtherFixture(item,key){
+ const matches=(verifiedOtherScans.get(key)||[]).filter(e=>
+  fixtureNormalizedName(e.home)===fixtureNormalizedName(item.home)&&
+  fixtureNormalizedName(e.away)===fixtureNormalizedName(item.away)&&
+  Math.abs(Date.parse(e.kickoff)-Date.parse(item.kickoff))<=10*60000
+ );
+ return matches.length===1?matches[0]:null;
+}
+function renderFixtureOddsStatus(item,card){
+ const key=scheduledOddsLeague(item);
+ const rated=key?verifiedOtherFixture(item,key):null;
+ const options=rated?.has_de_bookmaker&&Array.isArray(rated.options)
+   ?rated.options.filter(o=>["HOME","AWAY"].includes(o.code)):[];
+ const heading=text("div",options.length===2?"Ampel · verifizierter Quoten-Snapshot":"Ampel · noch nicht bewertbar","lights-heading");
+ card.append(heading);
+ const lights=text("div","","traffic-choices");
+ const checks=options.length===2?options:[{code:"HOME"},{code:"AWAY"}];
+ for(const o of checks){
+  const valid=options.length===2&&Number.isFinite(Number(o.difference_pp));
+  const gap=Number(o.difference_pp),bookCount=Number(rated?.bookmaker_count||0);
+  const signal=!valid?"pending":gap>=5&&o.odds>=1.4&&o.odds<=2.5&&bookCount>=5?"green":
+    gap<=-2?"red":"yellow";
+  const label=o.code==="HOME"?"Heimsieg":"Auswärtssieg";
+  const icon=signal==="pending"?"⚪":signal==="red"?"🔴":signal==="yellow"?"🟡":"🟢";
+  const btn=text("div","","traffic-choice "+signal);
+  btn.append(text("span",icon),text("b",label));
+  if(valid)btn.append(text("small","Quote "+Number(o.odds).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})));
+  else btn.append(text("small","Keine geprüfte Quote"));
+  lights.append(btn);
+ }
+ card.append(lights);
+ const explanation=options.length===2?
+   "Bewertung nur des Quotenpreises; keine unabhängige Gewinnprognose. Für die virtuelle Übernahme bitte oben den Quoten-Scout verwenden.":
+   key?"Noch keine eindeutig passende, aus dem Quoten-Scout geladene DE-Quote. Bei Bedarf oben die Liga prüfen.":
+   "Für diese Liga ist noch keine verifizierte DE-Quotenquelle angebunden; eine Farbe wäre irreführend.";
+ card.append(text("p",explanation,"traffic-inline-note"));
+ if(key){
+  const button=text("button","Zur passenden Quoten-Ampel ↑","secondary");
+  button.type="button";button.style.width="100%";button.style.marginTop="7px";
+  button.addEventListener("click",()=>{
+   $("otherOddsLeague").value=key;
+   $("additionalOddsScout").scrollIntoView({behavior:"smooth",block:"start"});
+   $("otherOddsStatus").textContent=verifiedOtherScans.has(key)?
+     "Die bisherigen geprüften Ergebnisse dieser Liga stehen unten. Ein neuer Abruf ist nicht erforderlich.":
+     "Liga vorausgewählt. Klicke auf „Liga-Quoten prüfen“, um echte 2-Wege-Quoten zu laden (ggf. 1 API-Credit).";
+  });
+  card.append(button);
+ }
+}
+
 function renderCard(item){
  const card=document.createElement("article");card.className="match";
  const top=text("div","","matchtop");
@@ -228,6 +306,7 @@ function renderCard(item){
  addMeta(meta,"Wettmarkt",item.market||"Noch offen");
  addMeta(meta,"Quote",item.odds?String(item.odds).replace(".",","):"Noch nicht verfügbar");
  card.append(meta);
+ renderFixtureOddsStatus(item,card);
  const tip=text("div",item.pick?"Prognose: "+item.pick:"Noch kein geprüfter Wett-Tipp · Nur Spielansetzung","no-tip");card.append(tip);
  const btn=text("button","Tipp prüfen · Vorschau","secondary");btn.type="button";
  btn.style.width="100%";btn.style.marginTop="12px";
@@ -481,6 +560,8 @@ async function showOtherOdds(key,status){
   }else{
     for(const item of res.items)target.append(makeScoutCard(item,key));
   }
+  verifiedOtherScans.set(key,Array.isArray(res.items)?res.items:[]);
+  renderCards();
  }catch(e){
   $("otherOddsStatus").textContent="Ampel-Auswertung momentan nicht verfügbar: "+String(e.message||e);
  }
