@@ -19,6 +19,19 @@ a{color:var(--aqua)}.shell{min-height:100vh}.header{height:76px;border-bottom:1p
 @media(max-width:1270px){.workspace{grid-template-columns:280px minmax(350px,1fr) 300px}.main{padding:12px}.header{padding:0 13px}}
 @media(max-width:1000px){.workspace{grid-template-columns:minmax(240px,1fr) minmax(330px,1.5fr);height:auto;max-height:none}.stage{min-height:560px}.right{grid-column:1/-1;max-height:600px}.left{height:600px}.intro{flex-wrap:wrap}.header{height:auto;min-height:70px;padding:10px 14px}}
 @media(max-width:650px){.workspace{display:flex;flex-direction:column}.stage{min-height:470px;order:1}.left{height:440px;order:2}.right{height:600px;order:3}.main{padding:10px}.brand h1{font-size:16px}.brand small{font-size:10px}.actions{gap:5px}.tag{display:none}.btn{padding:8px 9px;font-size:11px}.intro h2{font-size:23px}.stat{padding:8px 10px;min-width:80px}.stat strong{font-size:17px}.globe-placeholder{inset:15% 5%}.formgrid{grid-template-columns:1fr}.field.full{grid-column:1}.detail{padding:14px}}
+
+.stadium-hover-popup{pointer-events:none}
+.stadium-hover-popup .maplibregl-popup-content,.stadium-choice-popup .maplibregl-popup-content{background:#0b2839;color:#f2fbff;border:1px solid #48a9ae;border-radius:12px;box-shadow:0 8px 25px #0009;padding:11px 13px;font:13px/1.45 system-ui,sans-serif}
+.stadium-hover-popup .maplibregl-popup-tip,.stadium-choice-popup .maplibregl-popup-tip{border-top-color:#0b2839}
+.stadium-map-tip{display:flex;flex-direction:column;gap:6px;min-width:165px;max-width:285px}
+.stadium-map-tip strong{font-size:12px;color:#a7f4eb;font-weight:800}
+.stadium-map-tip-entry{display:flex;align-items:flex-start;gap:9px;text-align:left}
+.stadium-map-tip-dot{display:block;flex:0 0 10px;width:10px;height:10px;border:1px solid #ffffffb0;border-radius:50%;margin-top:4px}
+.stadium-map-tip-name{display:block;font-size:13px;font-weight:800;color:#f5fdff;overflow-wrap:anywhere}
+.stadium-map-tip-meta{display:block;font-size:11px;color:#b4ccd7}
+.stadium-map-tip-choice{width:100%;background:#173b4d;border:1px solid #35677a;border-radius:7px;padding:7px;cursor:pointer;color:#fff}
+.stadium-map-tip-choice:hover,.stadium-map-tip-choice:focus-visible{background:#245b70;border-color:#62d9d0;outline:none}
+.stadium-choice-popup .maplibregl-popup-close-button{color:#e9f7fc;font-size:20px;padding:2px 7px}
 </style></head>
 <body><div class="shell">
 <header class="header"><div class="brand"><img src="https://betinsight.club/assets/betinsight-logo.png" alt="BetInsight"><div><h1>Football World</h1><small>BETINSIGHT · STADIUM EXPLORER</small></div></div>
@@ -74,6 +87,14 @@ Object.assign(D.it,{"colorScaleTitle":"Colori = capienza","globeHint":"Sei color
 Object.assign(D.fr,{"colorScaleTitle":"Couleurs = capacité","globeHint":"Six couleurs indiquent la taille des stades. 🚩 indique vos visites.","unknownSize":"Capacité inconnue","showAllMarkers":"Afficher tous les stades","sizeGroups":["Moins de 5 000","5 000–9 999","10 000–19 999","20 000–39 999","40 000–59 999","60 000 et plus"]});
 Object.assign(D.nl,{"colorScaleTitle":"Kleuren = capaciteit","globeHint":"Zes kleuren tonen stadiongroottes. 🚩 toont je bezochte stadions.","unknownSize":"Capaciteit onbekend","showAllMarkers":"Alle stadions tonen","sizeGroups":["Tot 4.999","5.000–9.999","10.000–19.999","20.000–39.999","40.000–59.999","Vanaf 60.000"]});
 Object.assign(D.zh,{"colorScaleTitle":"颜色表示球场容量","globeHint":"六种颜色表示球场容量，🚩标注您去过的球场。","unknownSize":"容量未知","showAllMarkers":"显示全部球场","sizeGroups":["少于5,000","5,000–9,999","10,000–19,999","20,000–39,999","40,000–59,999","60,000以上"]});
+Object.assign(D.de,{"mapHoverMultiple":"Mehrere Stadien an dieser Stelle","mapHoverPick":"Stadion auswählen"});
+Object.assign(D.en,{"mapHoverMultiple":"Multiple stadiums at this location","mapHoverPick":"Choose stadium"});
+Object.assign(D.es,{"mapHoverMultiple":"Varios estadios en este lugar","mapHoverPick":"Elegir estadio"});
+Object.assign(D.pt,{"mapHoverMultiple":"Vários estádios neste local","mapHoverPick":"Escolher estádio"});
+Object.assign(D.it,{"mapHoverMultiple":"Più stadi in questo punto","mapHoverPick":"Scegli lo stadio"});
+Object.assign(D.fr,{"mapHoverMultiple":"Plusieurs stades à cet endroit","mapHoverPick":"Choisir un stade"});
+Object.assign(D.nl,{"mapHoverMultiple":"Meerdere stadions op deze plek","mapHoverPick":"Kies stadion"});
+Object.assign(D.zh,{"mapHoverMultiple":"此处有多个体育场","mapHoverPick":"选择体育场"});
 let lang="de";let all=[],filtered=[],clubs=[],fixtures=[],tips=[],tipLinks=[],globe=null,selected=null,page=0,tab="details",pickMode=false,rotating=false,mapMode="globe",streetMap=null,streetMarker=null,photoCache=new Map(),photoRequest=0,adminHash="",memberToken="",visits=[],visitPhotos=[],reviewQueue=[],reviewMedia=[],reviewProofs=[],streetVisitFlagMarkers=[],globeVisitSignature="",showAllGlobePoints=true,ready=false;
 // Six capacity bands. Unknown capacities are neutral, never guessed.
 const STADIUM_SIZE_COLORS=["#64b7ff","#36dbd2","#8fe77d","#f7d469","#ff9859","#c69bff"];
@@ -154,9 +175,84 @@ function ensureStreet(){
   streetMap.addLayer({id:"nums",type:"symbol",source:"stads",filter:["has","point_count"],layout:{"text-field":["get","point_count_abbreviated"],"text-size":13},"paint":{"text-color":"#fff"}});
   streetMap.addLayer({id:"dots",type:"circle",source:"stads",filter:["!",["has","point_count"]],paint:{"circle-color":["get","color"],"circle-radius":["step",["get","band"],5,-1,5,0,6,1,6.5,2,7,3,7.5,4,8,5,9],"circle-stroke-color":"#123142","circle-stroke-width":1.6}});
   streetMap.on("click","clst",e=>{if(pickMode)return;const f=e.features?.[0];if(f)streetMap.getSource("stads").getClusterExpansionZoom(f.properties.cluster_id).then(z=>streetMap.easeTo({center:f.geometry.coordinates,zoom:z+.5}))});
-  streetMap.on("click","dots",e=>{if(pickMode)return;const id=e.features?.[0]?.properties?.id;if(id)selectStadium(Number(id))});
-  streetMap.on("mouseenter","dots",()=>streetMap.getCanvas().style.cursor="pointer");
-  streetMap.on("mouseleave","dots",()=>streetMap.getCanvas().style.cursor="");
+  // Each visible circle can represent one stadium; two close circles can overlap.
+  // Display all stadiums under the mouse and let users choose if a click hits more than one.
+  let hoverPopup=null,choicePopup=null,lastHoverIds="";
+  function findStadiumsAt(point,features=[]){
+   const hits=streetMap.queryRenderedFeatures(point,{layers:["dots"]});
+   const featuresHere=hits?.length?hits:features;
+   const seen=new Set(),list=[];
+   for(const item of featuresHere||[]){
+    const id=Number(item.properties?.id);
+    if(!Number.isFinite(id)||seen.has(id))continue;
+    seen.add(id);
+    const found=all.find(s=>Number(s.id)===id);
+    if(found)list.push(found);
+   }
+   return list.sort((a,b)=>String(a.name).localeCompare(String(b.name),lang));
+  }
+  function stadiumPopupDOM(stadiums,interactive=false){
+   const root=document.createElement("div");root.className="stadium-map-tip";
+   if(stadiums.length>1){
+    const heading=document.createElement("strong");
+    heading.textContent=t(interactive?"mapHoverPick":"mapHoverMultiple");
+    root.appendChild(heading);
+   }
+   for(const stadium of stadiums){
+    const line=document.createElement(interactive?"button":"div");
+    line.className=interactive?"stadium-map-tip-entry stadium-map-tip-choice":"stadium-map-tip-entry";
+    if(interactive){
+     line.type="button";
+     line.addEventListener("click",event=>{
+      event.preventDefault();event.stopPropagation();
+      if(choicePopup){choicePopup.remove();choicePopup=null}
+      selectStadium(Number(stadium.id));
+     });
+    }
+    const color=document.createElement("span");color.className="stadium-map-tip-dot";
+    color.style.backgroundColor=stadiumColor(stadium.capacity);
+    color.setAttribute("aria-hidden","true");
+    const textBox=document.createElement("span");
+    const name=document.createElement("span");name.className="stadium-map-tip-name";name.textContent=String(stadium.name);
+    const meta=document.createElement("span");meta.className="stadium-map-tip-meta";
+    const place=[stadium.city,stadium.country].filter(Boolean).join(", ");
+    meta.textContent=place+" · "+(stadium.capacity==null?t("unknownSize"):fmt(stadium.capacity)+" "+t("capacity"));
+    textBox.appendChild(name);textBox.appendChild(meta);
+    line.appendChild(color);line.appendChild(textBox);root.appendChild(line);
+   }
+   return root;
+  }
+  streetMap.on("mousemove","dots",event=>{
+   if(pickMode||choicePopup)return;
+   const stadiums=findStadiumsAt(event.point,event.features);
+   if(!stadiums.length)return;
+   streetMap.getCanvas().style.cursor="pointer";
+   if(!hoverPopup)hoverPopup=new window.maplibregl.Popup({closeButton:false,closeOnClick:false,offset:15,maxWidth:"320px",className:"stadium-hover-popup"});
+   const ids=stadiums.map(s=>s.id).join(",");
+   if(ids!==lastHoverIds){hoverPopup.setDOMContent(stadiumPopupDOM(stadiums));lastHoverIds=ids}
+   hoverPopup.setLngLat(event.lngLat).addTo(streetMap);
+  });
+  streetMap.on("mouseleave","dots",()=>{
+   streetMap.getCanvas().style.cursor="";
+   if(hoverPopup){hoverPopup.remove();hoverPopup=null}
+   lastHoverIds="";
+  });
+  streetMap.on("click","dots",event=>{
+   if(pickMode)return;
+   const stadiums=findStadiumsAt(event.point,event.features);
+   if(hoverPopup){hoverPopup.remove();hoverPopup=null}lastHoverIds="";
+   if(!stadiums.length)return;
+   if(choicePopup){choicePopup.remove();choicePopup=null}
+   if(stadiums.length===1){selectStadium(Number(stadiums[0].id));return}
+   const popup=new window.maplibregl.Popup({closeButton:true,closeOnClick:false,offset:15,maxWidth:"320px",className:"stadium-choice-popup"});
+   choicePopup=popup;
+   popup.setLngLat(event.lngLat).setDOMContent(stadiumPopupDOM(stadiums,true)).addTo(streetMap);
+   popup.on("close",()=>{if(choicePopup===popup)choicePopup=null});
+  });
+  streetMap.on("click",event=>{
+   if(!choicePopup||pickMode)return;
+   if(!findStadiumsAt(event.point).length){choicePopup.remove();choicePopup=null}
+  });
   streetMap.on("click",e=>{if(!pickMode)return;const a=$("latitude"),b=$("longitude");if(a&&b){a.value=e.lngLat.lat.toFixed(6);b.value=e.lngLat.lng.toFixed(6);pickMode=false;toast("✓ "+a.value+", "+b.value)}});
   streetMap.resize();
   renderStreetVisitFlags();
