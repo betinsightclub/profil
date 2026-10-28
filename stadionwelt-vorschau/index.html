@@ -60,7 +60,7 @@ Object.assign(D.de,{satActivate:"Hochauflösende Satellitenbilder aktivieren",sa
 const $=id=>document.getElementById(id), t=k=>(D[lang]&&D[lang][k])||D.en[k]||k, esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=n=>n==null?"–":Number(n).toLocaleString(lang==="de"?"de-DE":"en-US");
 const toast=(s)=>{const e=$("toast");e.textContent=s;e.classList.remove("hide");setTimeout(()=>e.classList.add("hide"),4500)};
-function translate(){syncModeControls();if(mapMode==="satellite"){$("globeHint").textContent=t("satLimit");$("mapBtn").textContent="🌐 "+t("globeView")}else if(mapMode==="map"){$("mapBtn").textContent="🌐 "+t("globeView");$("globeHint").textContent=t("mapHint")}else{$("mapBtn").textContent="🗺️ "+t("mapView");$("globeHint").textContent=t("globeHint")}document.documentElement.lang=lang==="zh"?"zh-Hant-TW":lang;document.querySelectorAll("[data-i]").forEach(e=>e.textContent=t(e.dataset.i));document.querySelectorAll("[data-ph]").forEach(e=>e.placeholder=t(e.dataset.ph));$("language").value=lang;if(ready){applyFilters();renderRight()} }
+function translate(){syncModeControls();updateSatellitePanel();if(mapMode==="satellite"){$("globeHint").textContent=t("satLimit");$("mapBtn").textContent="🌐 "+t("globeView")}else if(mapMode==="map"){$("mapBtn").textContent="🌐 "+t("globeView");$("globeHint").textContent=t("mapHint")}else{$("mapBtn").textContent="🗺️ "+t("mapView");$("globeHint").textContent=t("globeHint")}document.documentElement.lang=lang==="zh"?"zh-Hant-TW":lang;document.querySelectorAll("[data-i]").forEach(e=>e.textContent=t(e.dataset.i));document.querySelectorAll("[data-ph]").forEach(e=>e.placeholder=t(e.dataset.ph));$("language").value=lang;if(ready){applyFilters();renderRight()} }
 function loadLang(){let v=localStorage.getItem("betinsight_language")||navigator.language.slice(0,2);v=String(v).toLowerCase();if(v.startsWith("zh"))v="zh";if(!D[v])v="en";lang=v;translate()}
 async function hash(v){const b=new TextEncoder().encode(v),bytes=await crypto.subtle.digest("SHA-256",b);return Array.from(new Uint8Array(bytes)).map(x=>x.toString(16).padStart(2,"0")).join("")}
 async function session(){let v;try{v=JSON.parse(sessionStorage.getItem("betinsight_admin_session_v1")||"null")}catch{}if(v&&v.token&&v.adminId==="ADM-001"&&Number(v.expiresMs)>Date.now())adminHash=await hash(v.token);memberToken=localStorage.getItem("betinsight_dashboard_token")||localStorage.getItem("betinsight_profile_token")||""}
@@ -90,14 +90,27 @@ function ensureStreet(){
   streetMap.on("mouseleave","dots",()=>streetMap.getCanvas().style.cursor="");
   streetMap.on("click",e=>{if(!pickMode)return;const a=$("latitude"),b=$("longitude");if(a&&b){a.value=e.lngLat.lat.toFixed(6);b.value=e.lngLat.lng.toFixed(6);pickMode=false;toast("✓ "+a.value+", "+b.value)}});
   streetMap.resize();
-  applySatelliteLayer();
+  applySatelliteLayer();updateSatellitePanel();
  });
  streetMap.on("error",e=>console.info("Map tiles",e?.error?.message||""));
 }
 function syncModeControls(){for(const [id,mode] of [["globeModeBtn","globe"],["mapModeBtn","map"],["satModeBtn","satellite"]]){const b=$(id);if(!b)continue;const on=mapMode===mode;b.classList.toggle("active",on);b.setAttribute("aria-pressed",String(on))}}
 function googleSatUrl(){const p=streetMap&&mapMode!=="globe"?streetMap.getCenter():selected?{lat:+selected.latitude,lng:+selected.longitude}:globe?.pointOfView()||{lat:20,lng:0};return "https://www.google.com/maps/@"+Number(p.lat).toFixed(6)+","+Number(p.lng).toFixed(6)+",18z/data=!3m1!1e3"}
+function validMapboxToken(s){return typeof s==="string"&&/^pk[.][A-Za-z0-9_-]+[.][A-Za-z0-9_-]+$/.test(s)}
+function mapboxToken(){try{const token=sessionStorage.getItem("betinsight_stadium_mapbox_token")||"";return validMapboxToken(token)?token:""}catch{return ""}}
 function applySatelliteLayer(){
- if(streetMap?.getLayer("eox-satellite"))streetMap.setLayoutProperty("eox-satellite","visibility",mapMode==="satellite"?"visible":"none");
+ if(!streetMap||!streetMap.isStyleLoaded())return;
+ const token=mapboxToken();
+ if(token&&!streetMap.getSource("mapbox-highres")){
+  streetMap.addSource("mapbox-highres",{type:"raster",tiles:["https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}@2x.jpg90?access_token="+encodeURIComponent(token)],tileSize:256,maxzoom:20,attribution:'© <a href="https://www.mapbox.com/about/maps/" target="_blank" rel="noopener noreferrer">Mapbox</a> · © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>'});
+  streetMap.addLayer({id:"mapbox-highres",type:"raster",source:"mapbox-highres",layout:{visibility:"none"}},streetMap.getLayer("clst")?"clst":undefined);
+ }
+ if(streetMap.getLayer("mapbox-highres"))streetMap.setLayoutProperty("mapbox-highres","visibility",mapMode==="satellite"?"visible":"none");
+}
+function updateSatellitePanel(){
+ const active=mapMode==="satellite",ready=!!mapboxToken();
+ $("satSetup").classList.toggle("hide",!active||ready);
+ $("satCredit").classList.toggle("hide",!active||!ready);
 }
 function updateSatLink(){const a=$("satExternal");if(!a)return;a.href=googleSatUrl();a.classList.toggle("hide",mapMode!=="satellite")}
 function showMap(zoom=14.2,desiredMode="map"){
@@ -105,22 +118,22 @@ function showMap(zoom=14.2,desiredMode="map"){
  mapRequested=false;mapMode=desiredMode;syncModeControls();
  $("globe").classList.add("hide");$("detailMap").classList.remove("hide");
  $("spinBtn").classList.add("hide");$("mapBtn").textContent="🌐 "+t("globeView");$("globeHint").textContent=mapMode==="satellite"?t("satLimit"):t("mapHint");
- $("satCredit").classList.toggle("hide",mapMode!=="satellite");
+ updateSatellitePanel();
  if(globe)globe.controls().autoRotate=false;
  ensureStreet();
  if(!streetMap){toast("Map is not available");return}
- streetMap.resize();applySatelliteLayer();updateSatLink();
+ streetMap.resize();applySatelliteLayer();updateSatellitePanel();updateSatLink();
  const p=selected?{lat:+selected.latitude,lng:+selected.longitude}:globe?.pointOfView()||{lat:20,lng:0};
- streetMap.flyTo({center:[p.lng,p.lat],zoom:mapMode==="satellite"?Math.min(zoom,13.4):zoom,duration:700});
+ streetMap.flyTo({center:[p.lng,p.lat],zoom:mapMode==="satellite"?Math.max(17,zoom):zoom,duration:700});
 }
-function showSatellite(){showMap(13.2,"satellite")}
+function showSatellite(){showMap(17.5,"satellite")}
 function showGlobe(){
- mapMode="globe";mapRequested=false;syncModeControls();$("satCredit").classList.add("hide");updateSatLink();
+ mapMode="globe";mapRequested=false;syncModeControls();$("satCredit").classList.add("hide");$("satSetup").classList.add("hide");updateSatLink();
  $("globe").classList.remove("hide");$("detailMap").classList.add("hide");$("spinBtn").classList.remove("hide");
  $("mapBtn").textContent="🗺️ "+t("mapView");$("globeHint").textContent=t("globeHint");
  if(globe){const rect=$("globe");globe.width(rect.clientWidth).height(rect.clientHeight);const p=selected?{lat:+selected.latitude,lng:+selected.longitude,altitude:1.65}:{lat:21,lng:9,altitude:2.5};globe.pointOfView(p,0);globe.controls().autoRotate=rotating}
 }
-window.addEventListener("maplibre-ready",()=>{if(mapRequested)showMap(pendingMapMode==="satellite"?13.2:14.2,pendingMapMode||"map")});
+window.addEventListener("maplibre-ready",()=>{if(mapRequested)showMap(pendingMapMode==="satellite"?17.5:14.2,pendingMapMode||"map")});
 
 const CURATED_PHOTOS={"azteca":{"file":"Estadio Azteca, Mexico City, Mexico.jpg","artist":"ProtoplasmaKid","license":"CC BY 4.0","src":"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Estadio_Azteca%2C_Mexico_City%2C_Mexico.jpg/640px-Estadio_Azteca%2C_Mexico_City%2C_Mexico.jpg"},"camp nou":{"file":"Camp Nou in 2021.02.jpg","artist":"CAPTAIN RAJU","license":"CC BY-SA 4.0","src":"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Camp_Nou_in_2021.02.jpg/640px-Camp_Nou_in_2021.02.jpg"},"wembley stadium":{"file":"Wembley Association Football Stadium.jpg","artist":"Harvey Milligan","license":"CC0 1.0","src":"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Wembley_Association_Football_Stadium.jpg/640px-Wembley_Association_Football_Stadium.jpg"},"allianz arena":{"file":"AllianzArena.jpg","artist":"Tiago Fioreze","license":"CC BY-SA 3.0","src":"https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/AllianzArena.jpg/640px-AllianzArena.jpg"},"signal iduna park":{"file":"Signal iduna park.jpg","artist":"yasmapaz & ace_heart","license":"CC BY-SA 2.0","src":"https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Signal_iduna_park.jpg/640px-Signal_iduna_park.jpg"},"via del mare":{"file":"Stadio Via del Mare - Lecce.jpg","artist":"ParisTaras","license":"CC BY-SA 4.0","src":"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Stadio_Via_del_Mare_-_Lecce.jpg/640px-Stadio_Via_del_Mare_-_Lecce.jpg"},"santiago bernabéu":{"file":"Estadio Santiago Bernabéu - Real Madrid-Real Sociedad.jpg","artist":"Badefa","license":"CC0 1.0","src":"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Estadio_Santiago_Bernab%C3%A9u_-_Real_Madrid-Real_Sociedad.jpg/640px-Estadio_Santiago_Bernab%C3%A9u_-_Real_Madrid-Real_Sociedad.jpg"},"anfield":{"file":"Anfield Stadium.jpg","artist":"Vojta.zurek","license":"CC BY-SA 4.0","src":"https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Anfield_Stadium.jpg/640px-Anfield_Stadium.jpg"},"maracanã":{"file":"Maracanã.jpg","artist":"PauloColacino","license":"CC BY-SA 2.0","src":"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Maracan%C3%A3.jpg/640px-Maracan%C3%A3.jpg"},"old trafford":{"file":"Stretford End, Old Trafford.jpg","artist":"HonorTheKing","license":"CC BY-SA 4.0","src":"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Stretford_End%2C_Old_Trafford.jpg/640px-Stretford_End%2C_Old_Trafford.jpg"},"estádio da luz":{"file":"Estadio da luz.jpg","artist":"Gubi104","license":"CC BY-SA 3.0","src":"https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Estadio_da_luz.jpg/640px-Estadio_da_luz.jpg"},"international stadium|cairo":{"file":"Cairo International Stadium.jpg","artist":"Realman208","license":"CC BY-SA 3.0","src":"https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Cairo_International_Stadium.jpg/640px-Cairo_International_Stadium.jpg"},"giuseppe meazza":{"file":"San Siro Stadio in 2025 01.jpg","artist":"Nabbegat","license":"CC BY-SA","src":"https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/San_Siro_Stadio_in_2025_01.jpg/640px-San_Siro_Stadio_in_2025_01.jpg"},"borg el arab stadium":{"file":"Borg El Arab Stadium.jpg","artist":"Abdelrhman 1990","license":"CC BY-SA 4.0","src":"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Borg_El_Arab_Stadium.jpg/640px-Borg_El_Arab_Stadium.jpg"},"stade de france":{"file":"Stade de france.jpg","artist":"MargauxMei","license":"CC BY-SA 4.0","src":"https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Stade_de_france.jpg/640px-Stade_de_france.jpg"},"utama gelora bung karno":{"file":"GeloraBungKarno.jpg","artist":"Davidelit","license":"Public domain","src":"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/GeloraBungKarno.jpg/640px-GeloraBungKarno.jpg"},"rose bowl":{"file":"Rose Bowl football stadium.jpg","artist":"Sydney.lorraine5","license":"CC BY-SA 4.0","src":"https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Rose_Bowl_football_stadium.jpg/640px-Rose_Bowl_football_stadium.jpg"},"azadi sports stadium":{"file":"Azadi stadium.jpg","artist":"Hamed Malekpour / Tasnim News Agency","license":"CC BY 4.0","src":"https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Azadi_stadium.jpg/640px-Azadi_stadium.jpg"}};
 function photoSeedFor(s){
@@ -161,7 +174,7 @@ function selectStadium(id){
  selected=all.find(x=>Number(x.id)===Number(id));if(!selected)return;
  tab="details";renderList();renderRight();
  if(same)return; // repeated list clicks must not zoom or change map modes
- if(mapMode==="map"||mapMode==="satellite"){if(streetMap)streetMap.flyTo({center:[+selected.longitude,+selected.latitude],zoom:mapMode==="satellite"?13.2:14.2,duration:650});updateSatLink();return}
+ if(mapMode==="map"||mapMode==="satellite"){if(streetMap)streetMap.flyTo({center:[+selected.longitude,+selected.latitude],zoom:mapMode==="satellite"?17.5:14.2,duration:650});updateSatLink();return}
  if(globe)globe.pointOfView({lat:+selected.latitude,lng:+selected.longitude,altitude:1.65},950);
 }
 function renderRight(force){if(force)tab=force;document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.dataset.tab===tab));let el=$("rightBody");if(tab==="details")el.innerHTML=detailHTML();else if(tab==="suggest")el.innerHTML=formHTML();else if(tab==="review")el.innerHTML=queueHTML()+proofQueueHTML();else el.innerHTML=passHTML();attachRight();if(tab==="details")drawPhotos();wirePhotoFallbacks(el)}
@@ -187,5 +200,13 @@ async function saveVisit(ev){ev.preventDefault();if(!selected)return;try{
  for(const photo of photos){const fd=new FormData();fd.append("action","visit_upload");fd.append("admin_hash",adminHash);fd.append("member_token",memberToken);fd.append("visit_id",created.visit.id);fd.append("file",photo);try{const u=await fetch(API,{method:"POST",body:fd});if(!u.ok)errors++}catch{errors++}}
  await fetchVisits();renderRight("passport");toast(t("saved")+(errors?" · "+errors+" photo(s) failed":""));
  }catch(e){toast(t("error")+": "+e.message)}}
-document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>renderRight(b.dataset.tab)));$("newBtn").addEventListener("click",()=>renderRight("suggest"));$("language").addEventListener("change",e=>{lang=e.target.value;localStorage.setItem("betinsight_language",lang);translate();fillCountries()});["search","country","capacity","sort"].forEach(id=>$(id).addEventListener(id==="search"?"input":"change",applyFilters));$("prev").addEventListener("click",()=>{page=Math.max(0,page-1);renderList()});$("next").addEventListener("click",()=>{page++;renderList()});$("resetBtn").addEventListener("click",()=>(showGlobe(),globe?.pointOfView({lat:21,lng:9,altitude:2.5},1000)));$("globeModeBtn").addEventListener("click",showGlobe);$("mapModeBtn").addEventListener("click",()=>showMap());$("satModeBtn").addEventListener("click",showSatellite);$("mapBtn").addEventListener("click",()=>{if(mapMode==="map")showGlobe();else showMap()});$("spinBtn").addEventListener("click",()=>{rotating=!rotating;if(globe)globe.controls().autoRotate=rotating;$("spinBtn").innerHTML=(rotating?"⏸ ":"▶ ")+esc(t(rotating?"pause":"play"))});$("retry").addEventListener("click",boot);loadLang();boot();
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>renderRight(b.dataset.tab)));$("newBtn").addEventListener("click",()=>renderRight("suggest"));$("language").addEventListener("change",e=>{lang=e.target.value;localStorage.setItem("betinsight_language",lang);translate();fillCountries()});["search","country","capacity","sort"].forEach(id=>$(id).addEventListener(id==="search"?"input":"change",applyFilters));$("prev").addEventListener("click",()=>{page=Math.max(0,page-1);renderList()});$("next").addEventListener("click",()=>{page++;renderList()});$("resetBtn").addEventListener("click",()=>(showGlobe(),globe?.pointOfView({lat:21,lng:9,altitude:2.5},1000)));$("globeModeBtn").addEventListener("click",showGlobe);$("mapModeBtn").addEventListener("click",()=>showMap());$("satModeBtn").addEventListener("click",showSatellite);
+$("satSaveToken").addEventListener("click",()=>{
+ const token=String($("satToken").value||"").trim();
+ if(!validMapboxToken(token)){toast("Bitte einen gültigen öffentlichen Mapbox-Token (pk.…) eingeben.");return}
+ try{sessionStorage.setItem("betinsight_stadium_mapbox_token",token)}catch{toast("Browser-Sitzungsspeicher ist nicht verfügbar.");return}
+ if(streetMap?.getLayer("mapbox-highres"))streetMap.removeLayer("mapbox-highres");
+ if(streetMap?.getSource("mapbox-highres"))streetMap.removeSource("mapbox-highres");
+ applySatelliteLayer();updateSatellitePanel();toast(t("satellite")+" ✓");
+});$("mapBtn").addEventListener("click",()=>{if(mapMode==="map")showGlobe();else showMap()});$("spinBtn").addEventListener("click",()=>{rotating=!rotating;if(globe)globe.controls().autoRotate=rotating;$("spinBtn").innerHTML=(rotating?"⏸ ":"▶ ")+esc(t(rotating?"pause":"play"))});$("retry").addEventListener("click",boot);loadLang();boot();
 </script></body></html>
