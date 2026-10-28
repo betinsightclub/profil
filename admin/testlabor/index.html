@@ -244,9 +244,15 @@ function fixtureNormalizedName(name){
 function verifiedOtherFixture(item,key){
  const saved=verifiedOtherScans.get(key);
  if(!saved||Date.parse(saved.expires_at)<=Date.now())return null;
+ // Only confirmed aliases, never broad fuzzy matching between different teams.
+ const team=(name)=>{
+  const n=fixtureNormalizedName(name);
+  if(key==="basketball_euroleague"&&(n==="bc dubai"||n==="dubai basketball"))return "dubai basketball";
+  return n;
+ };
  const matches=(saved.items||[]).filter(e=>
-  fixtureNormalizedName(e.home)===fixtureNormalizedName(item.home)&&
-  fixtureNormalizedName(e.away)===fixtureNormalizedName(item.away)&&
+  team(e.home)===team(item.home)&&
+  team(e.away)===team(item.away)&&
   Math.abs(Date.parse(e.kickoff)-Date.parse(item.kickoff))<=10*60000
  );
  return matches.length===1?matches[0]:null;
