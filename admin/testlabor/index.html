@@ -34,6 +34,15 @@ button:disabled{opacity:.55;cursor:wait}
 .error{border-left:4px solid #fdad9e;background:rgba(124,36,55,.17);padding:13px 16px;margin:10px 0;border-radius:9px}
 .info{border:1px solid #377082;background:#0b3246;padding:13px 16px;border-radius:10px}
 .quota{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}.quota div{background:#082739;border:1px solid #2d576d;padding:12px;border-radius:11px}.quota strong{font-size:20px;display:block}.quota span{font-size:12px;color:#bcd9e2}
+.lights-heading{margin:13px 0 7px;font-size:13px;font-weight:850;color:#e2f5ff}
+.traffic-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:8px 0 11px}
+.traffic-choice{background:#08283b!important;color:#eaf8ff!important;display:flex;flex-direction:column;justify-content:center;gap:5px;min-height:83px;padding:9px 5px!important;border:2px solid #396e85!important;border-radius:11px!important;line-height:1.3;text-align:center}
+.traffic-choice b{font-size:15px}.traffic-choice small{font-weight:550;font-size:11px;color:#bed2df}
+.traffic-choice.red{border-color:#c25b63!important;background:#432b37!important}
+.traffic-choice.yellow{border-color:#d1a442!important;background:#453924!important}
+.traffic-choice.green{border-color:#319a77!important;background:#163f39!important}
+.traffic-choice.chosen{outline:2px solid #e6faff;outline-offset:2px}
+.traffic-help{font-size:12px;color:#bbd4df;line-height:1.5;margin:7px 0 13px}
 .hidden{display:none!important}#message{min-height:24px;color:#d5eefa;margin:12px 0}
 @media(max-width:700px){main{padding:17px 12px 55px}.panel{padding:17px}.kpis{grid-template-columns:1fr 1fr}.kpi:last-child{grid-column:auto}.grid{grid-template-columns:1fr}}
 </style>
@@ -64,6 +73,7 @@ button:disabled{opacity:.55;cursor:wait}
     <button type="button" id="loadSoccer">Liga abrufen (max. 1 Credit)</button>
   </div>
   <p id="soccerMsg" class="muted" role="status">Bitte eine neue Liga auswählen. Kein automatischer Abruf.</p>
+  <p class="traffic-help"><strong>Neue Ampel je Spiel:</strong> 🔴 Rot = deutlich unter der rechnerischen Gewinnschwelle (ab −2 Prozentpunkten), 🟡 Gelb = nahezu fair oder für den strengen Filter ungeeignet, 🟢 Grün = mindestens +5 Prozentpunkte rechnerischer Markt-Abstand, Quote 1,40–2,50 und mindestens 5 Anbieter. Die Farben bewerten ausschließlich den <strong>Quotenpreis</strong>, nicht die Mannschaftsform oder eine unabhängig bestätigte Gewinnchance. Grün ist kein sicherer Gewinntipp.</p>
   <div id="scoutOverview" class="note" role="status">Nach dem Liga-Abruf siehst du die Buchmacherquoten, den Marktvergleich und die virtuellen Übernahme-Buttons direkt auf jeder Karte. Systemvotum und deine Entscheidung bleiben getrennt.</div>
   <div id="soccerFixtures" class="grid"></div>
   <p class="muted" style="font-size:12px">Diese Karten zeigen API-Quoten von „Winamax (DE)“. Die Marke winamax.de steht auf der GGL-Whitelist (02.10.2026), aber die konkrete Quote wurde nicht live auf einem deutschen Konto bestätigt. Die angezeigte Wahrscheinlichkeit ist nur ein aus anderen Buchmacherquoten berechneter Marktwert – keine eigenständige BetInsight-Prognose. Ein Klick auf „Virtuell übernehmen“ speichert 1 fiktive Unit zu 10 € im privaten Vergleich, weder echtes Geld noch echte Units oder öffentlich sichtbare Tipps. Doppelte Chance bleibt ein gesonderter, kostenpflichtiger Einzelspielmarkt.</p>
@@ -298,16 +308,42 @@ function makeScoutCard(item,leagueKey){
  }
  const pref=options.find(x=>x.code===item.preferred_code);
  if(pref)select.value=pref.code;
+ const lightClass=o=>{
+  const gap=Number(o.difference_pp),bookCount=Number(item.bookmaker_count);
+  if(o.difference_pp==null||!Number.isFinite(gap)||!Number.isFinite(o.odds))return "red";
+  if(gap>=5&&o.odds>=1.4&&o.odds<=2.5&&bookCount>=5)return "green";
+  return gap<=-2?"red":"yellow";
+ };
+ const headline=text("div","Ampel für 1 – X – 2 · Markt-Preischeck","lights-heading");
+ const traffic=text("div","","traffic-choices");
+ const lightButtons=new Map();
+ for(const o of options){
+   const signal=lightClass(o);
+   const name=o.code==="HOME"?"1 · Heim":o.code==="DRAW"?"X · Remis":"2 · Gast";
+   const btn=text("button","","traffic-choice "+signal);
+   btn.type="button";btn.setAttribute("aria-label",name+" · "+(signal==="red"?"Rot":signal==="yellow"?"Gelb":"Grün"));
+   const sign=text("span",signal==="red"?"🔴":signal==="yellow"?"🟡":"🟢");
+   const desc=text("b",name);const price=text("small","Quote "+deFmt(o.odds,2));
+   btn.append(sign,desc,price);
+   btn.addEventListener("click",()=>{select.value=o.code;select.dispatchEvent(new Event("change"))});
+   traffic.append(btn);lightButtons.set(o.code,btn);
+ }
+ card.append(headline,traffic);
  const info=text("div","","note");info.style.margin="12px 0";
  const label=text("strong","");const breakdown=text("p","","small");const details=text("p","","small muted");
  info.append(label,breakdown,details);card.append(info);
  const update=()=>{
   const o=options.find(x=>x.code===select.value);if(!o)return;
+  for(const [key,btn] of lightButtons) {
+   btn.classList.toggle("chosen",key===select.value);
+   btn.setAttribute("aria-pressed",String(key===select.value));
+  }
   label.textContent="Winamax (DE) · Quote "+deFmt(o.odds,2)+" · "+(o.market_prob==null?"Marktchance unbekannt":deFmt(o.market_prob)+" % Marktchance");
   breakdown.textContent="Gewinnschwelle "+deFmt(o.break_even)+" % · Markt-Abstand "+
     (o.difference_pp==null?"—":(o.difference_pp>=0?"+":"")+deFmt(o.difference_pp)+" Prozentpunkte")+
     " · bei 10 € virtuell: +"+euro(o.example_profit_if_win)+" Gewinn oder −10 € Verlust";
-  details.textContent="Marktbasiert, keine KI-Prognose. DE-Anbieterkennzeichnung ist keine live verifizierte Wettverfügbarkeit.";
+  details.textContent="Ampel: "+(lightClass(o)==="green"?"🟢 rechnerisch günstiger Quotenpreis; weitere Prüfung nötig":lightClass(o)==="yellow"?"🟡 kein gesicherter Preisvorteil; nur virtuelles Experiment":"🔴 deutlich unattraktiver Quotenpreis")+
+   " · Marktwert ist keine unabhängige KI-Prognose. DE-Quote ist nicht live bestätigt.";
  };
  select.addEventListener("change",update);update();card.append(select);
  const acts=text("div","","actions");
