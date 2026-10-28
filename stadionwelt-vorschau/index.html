@@ -102,7 +102,7 @@ function applySatelliteLayer(){
  if(!streetMap||!streetMap.isStyleLoaded())return;
  const token=mapboxToken();
  if(token&&!streetMap.getSource("mapbox-highres")){
-  streetMap.addSource("mapbox-highres",{type:"raster",tiles:["https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}@2x.jpg90?access_token="+encodeURIComponent(token)],tileSize:256,maxzoom:20,attribution:'© <a href="https://www.mapbox.com/about/maps/" target="_blank" rel="noopener noreferrer">Mapbox</a> · © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>'});
+  streetMap.addSource("mapbox-highres",{type:"raster",tiles:["https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/512/{z}/{x}/{y}?access_token="+encodeURIComponent(token)],tileSize:512,maxzoom:20,attribution:'© <a href="https://www.mapbox.com/about/maps/" target="_blank" rel="noopener noreferrer">Mapbox</a> · © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>'});
   streetMap.addLayer({id:"mapbox-highres",type:"raster",source:"mapbox-highres",layout:{visibility:"none"}},streetMap.getLayer("clst")?"clst":undefined);
  }
  if(streetMap.getLayer("mapbox-highres"))streetMap.setLayoutProperty("mapbox-highres","visibility",mapMode==="satellite"?"visible":"none");
@@ -206,8 +206,8 @@ $("satSaveToken").addEventListener("click",async()=>{
  if(!validMapboxToken(token)){toast("Bitte einen gültigen öffentlichen Mapbox-Token (pk.…) eingeben.");return}
  const button=$("satSaveToken");button.disabled=true;
  try{
-  const test=await fetch("https://api.mapbox.com/v4/mapbox.satellite/1/1/0.jpg90?access_token="+encodeURIComponent(token),{method:"GET"});
-  if(!test.ok){toast("Mapbox-Zugriff fehlgeschlagen ("+test.status+"). Token und Domain-Freigabe prüfen.");return}
+  const test=await fetch("https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/512/1/1/0?access_token="+encodeURIComponent(token),{method:"GET"});
+  if(!test.ok){let reason="";try{const message=await test.json();reason=String(message?.message||"").slice(0,120)}catch{}const notice=test.status===429?"Mapbox begrenzt deinen kostenlosen Testzugang (429). Prüfe die Nutzungsanzeige im Mapbox-Konto.":test.status===401?"Mapbox meldet einen ungültigen Token (401).":test.status===403?"Mapbox verweigert den Zugriff (403) – bitte Token-Berechtigung prüfen.":"Mapbox antwortet mit HTTP "+test.status+".";toast(notice+(reason?" · "+reason:""));return}
   sessionStorage.setItem("betinsight_stadium_mapbox_token",token);
   if(streetMap?.getLayer("mapbox-highres"))streetMap.removeLayer("mapbox-highres");
   if(streetMap?.getSource("mapbox-highres"))streetMap.removeSource("mapbox-highres");
