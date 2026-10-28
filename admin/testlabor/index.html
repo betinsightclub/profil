@@ -242,7 +242,9 @@ function fixtureNormalizedName(name){
  .toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
 }
 function verifiedOtherFixture(item,key){
- const matches=(verifiedOtherScans.get(key)||[]).filter(e=>
+ const saved=verifiedOtherScans.get(key);
+ if(!saved||Date.parse(saved.expires_at)<=Date.now())return null;
+ const matches=(saved.items||[]).filter(e=>
   fixtureNormalizedName(e.home)===fixtureNormalizedName(item.home)&&
   fixtureNormalizedName(e.away)===fixtureNormalizedName(item.away)&&
   Math.abs(Date.parse(e.kickoff)-Date.parse(item.kickoff))<=10*60000
@@ -259,7 +261,8 @@ function renderFixtureOddsStatus(item,card){
  const lights=text("div","","traffic-choices");
  const checks=options.length===2?options:[{code:"HOME"},{code:"AWAY"}];
  for(const o of checks){
-  const valid=options.length===2&&Number.isFinite(Number(o.difference_pp));
+  const valid=options.length===2&&o.difference_pp!=null&&
+   Number.isFinite(Number(o.difference_pp))&&Number.isFinite(Number(o.odds));
   const gap=Number(o.difference_pp),bookCount=Number(rated?.bookmaker_count||0);
   const signal=!valid?"pending":gap>=5&&o.odds>=1.4&&o.odds<=2.5&&bookCount>=5?"green":
     gap<=-2?"red":"yellow";
@@ -283,7 +286,7 @@ function renderFixtureOddsStatus(item,card){
   button.addEventListener("click",()=>{
    $("otherOddsLeague").value=key;
    $("additionalOddsScout").scrollIntoView({behavior:"smooth",block:"start"});
-   $("otherOddsStatus").textContent=verifiedOtherScans.has(key)?
+   $("otherOddsStatus").textContent=verifiedOtherFixture(item,key)?
      "Die bisherigen geprüften Ergebnisse dieser Liga stehen unten. Ein neuer Abruf ist nicht erforderlich.":
      "Liga vorausgewählt. Klicke auf „Liga-Quoten prüfen“, um echte 2-Wege-Quoten zu laden (ggf. 1 API-Credit).";
   });
@@ -560,7 +563,7 @@ async function showOtherOdds(key,status){
   }else{
     for(const item of res.items)target.append(makeScoutCard(item,key));
   }
-  verifiedOtherScans.set(key,Array.isArray(res.items)?res.items:[]);
+  verifiedOtherScans.set(key,{items:Array.isArray(res.items)?res.items:[],expires_at:res.cache_expires_at});
   renderCards();
  }catch(e){
   $("otherOddsStatus").textContent="Ampel-Auswertung momentan nicht verfügbar: "+String(e.message||e);
