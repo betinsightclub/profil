@@ -49,6 +49,12 @@ label{display:flex;flex-direction:column;gap:5px;color:#b8d8e8;font-size:13px}
  <div class="metric"><small>ROI</small><strong id="userRoi">—</strong></div><div class="metric"><small>Wetten</small><strong id="userBets">0</strong></div></div>
  </div>
 </div>
+<div class="panel" id="entscheidungen"><h2>Deine Tipps · offen und abgeschlossen</h2>
+ <div class="actions"><button class="secondary" id="refresh" type="button">Kontostände und Spiele aktualisieren</button>
+ <span id="listCount" class="muted">0 registrierte Begegnungen</span></div>
+ <p id="message" role="status"></p>
+ <div id="events"></div>
+</div>
 <div class="panel">
  <h2>Kontoverlauf · virtuelle Gewinne und Verluste</h2><svg id="chart" viewBox="0 0 900 145" role="img" aria-label="Virtuelles Kapital beider Testkonten"></svg>
  <p class="legend"><span style="color:#38dec0">━━</span> BetInsight-System &nbsp;&nbsp; <span style="color:#85adff">━━</span> Deine Entscheidungen</p>
@@ -86,13 +92,7 @@ label{display:flex;flex-direction:column;gap:5px;color:#b8d8e8;font-size:13px}
  </div>
  <p class="small muted" id="scoresMsg">Nur fällige Spiele werden geprüft. Bei unbekanntem oder unvollständigem Endstand wird nichts abgerechnet; ein manueller Ergebnisnachweis bleibt möglich.</p>
  </div>
- <div class="panel" id="entscheidungen"><h2>Deine Tipps · offen und abgeschlossen</h2>
- <div class="actions"><button class="secondary" id="refresh" type="button">Kontostände und Spiele aktualisieren</button>
- <span id="listCount" class="muted">0 registrierte Begegnungen</span></div>
- <p id="message" role="status"></p>
- <div id="events"></div>
-</div>
-<details class="panel" id="hypothetische-freischaltungen"><summary style="font-size:18px;font-weight:800;cursor:pointer">Optional: hypothetische Mitglieder-Umsätze</summary><div style="padding-top:15px">
+ <details class="panel" id="hypothetische-freischaltungen"><summary style="font-size:18px;font-weight:800;cursor:pointer">Optional: hypothetische Mitglieder-Umsätze</summary><div style="padding-top:15px">
  <h2>Mitglieder-Vorschau · NICHT ONLINE</h2>
  <p class="muted">Alle per grüner Preisampel übernommenen Tipps landen automatisch hier. Einsatz-Units (je 10 € fiktiver Einsatz) sind NICHT dasselbe wie die 1 Unit einer möglichen späteren Mitglieder-Freischaltung. Niemand kann diese Tipps öffentlich kaufen oder sehen. Umsatz ist nur ein Rechenbeispiel.</p>
  <div class="actions">
