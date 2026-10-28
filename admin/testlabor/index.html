@@ -78,7 +78,7 @@ button:disabled{opacity:.55;cursor:wait}
     <button type="button" id="loadSoccer">Liga abrufen (max. 1 Credit)</button>
   </div>
   <p id="soccerMsg" class="muted" role="status">Bitte eine neue Liga auswählen. Kein automatischer Abruf.</p>
-  <p class="traffic-help"><strong>Neue Ampel je Spiel:</strong> 🔴 Rot = deutlich unter der rechnerischen Gewinnschwelle (ab −2 Prozentpunkten), 🟡 Gelb = nahezu fair oder für den strengen Filter ungeeignet, 🟢 Grün = mindestens +5 Prozentpunkte rechnerischer Markt-Abstand, Quote 1,40–2,50 und mindestens 5 Anbieter. Die Farben bewerten ausschließlich den <strong>Quotenpreis</strong>, nicht die Mannschaftsform oder eine unabhängig bestätigte Gewinnchance. Grün ist kein sicherer Gewinntipp.</p>
+  <p class="traffic-help"><strong>Einzige Ampel:</strong> Grün = beim deutschen Anbieter rechnerisch mindestens +5 Prozentpunkte Preisabstand, Quote 1,40–2,50 und mindestens 5 Quotenanbieter. Gelb/Rot sind nicht anklickbar. Wenn Grün erscheint, wird die virtuelle Einsatzhöhe 1–3 Units à 10 € direkt darunter angezeigt. Nur fiktive Tests, keine echte Mitgliederfreigabe oder unabhängige KI-Prognose.</p>
   <div id="scoutOverview" class="note" role="status">Nach dem Liga-Abruf siehst du die Buchmacherquoten, den Marktvergleich und die virtuellen Übernahme-Buttons direkt auf jeder Karte. Systemvotum und deine Entscheidung bleiben getrennt.</div>
   <div id="soccerFixtures" class="grid"></div>
   <p class="muted" style="font-size:12px">Diese Karten zeigen API-Quoten von „Winamax (DE)“. Die Marke winamax.de steht auf der GGL-Whitelist (02.10.2026), aber die konkrete Quote wurde nicht live auf einem deutschen Konto bestätigt. Die angezeigte Wahrscheinlichkeit ist nur ein aus anderen Buchmacherquoten berechneter Marktwert – keine eigenständige BetInsight-Prognose. Ein Klick auf „Virtuell übernehmen“ speichert 1 fiktive Unit zu 10 € im privaten Vergleich, weder echtes Geld noch echte Units oder öffentlich sichtbare Tipps. Doppelte Chance bleibt ein gesonderter, kostenpflichtiger Einzelspielmarkt.</p>
@@ -420,94 +420,89 @@ function renderLikelihoodStrip(card,item){
 
 function makeScoutCard(item,leagueKey){
  const card=text("article","","match");
- const above=text("div","","matchtop");
- const tag=text("span",item.league||"Liga");const state=text("span",item.eligible_by_rule?"Systemfilter: Kandidat":"Systemfilter: Auslassen",item.eligible_by_rule?"tag good":"tag warn");
- above.append(tag,state);card.append(above);
+ const top=text("div","","matchtop");
+ top.append(text("span",item.league||"Liga"),
+   text("span",item.eligible_by_rule?"🟢 Grüne Preis-Chance":"Kein grünes Preisangebot",
+     item.eligible_by_rule?"tag good":"tag warn"));
+ card.append(top);
  const teams=text("div","","versus");
  teams.append(text("div",item.home),text("span","gegen","vs"),text("div",item.away));
  card.append(teams);
- card.append(text("p","Anpfiff: "+timeLabel(item.kickoff)+" · "+item.bookmaker_count+" Quotenanbieter verglichen","muted"));
- renderLikelihoodStrip(card,item);
- if(!item.has_de_bookmaker){
-  card.append(text("p","Keine explizit als Deutschland gekennzeichnete Quote gefunden. Keine virtuelle Übernahme möglich.","no-tip"));
-  return card;
- }
- card.append(text("div","DE-Markenabgleich: Winamax (DE) · konkrete Quote nicht live auf winamax.de bestätigt","no-tip"));
+ card.append(text("p","Anpfiff: "+timeLabel(item.kickoff)+" · "+
+   item.bookmaker_count+" Quotenanbieter verglichen","muted"));
+ card.append(text("p","Winamax (DE): API-Preise. Konkrete Verfügbarkeit für deutsche Konten nicht live bestätigt.","no-tip"));
  const options=item.options||[];
- const select=document.createElement("select");select.style.width="100%";select.setAttribute("aria-label","Auswahl für virtuelle Übernahme");
- for(const o of options){
-  const opt=document.createElement("option");opt.value=o.code;
-  opt.textContent=(o.code==="HOME"?"1 · "+item.home:o.code==="DRAW"?"X · Remis":"2 · "+item.away)+
-    " | "+deFmt(o.odds,2)+" | Markt "+(o.market_prob==null?"unbekannt":deFmt(o.market_prob)+" %");
-  select.append(opt);
+ if(!options.length){
+   card.append(text("div","Noch keine für Deutschland gekennzeichnete Quote – keine virtuelle Freischaltung möglich.","info"));
+   return card;
  }
- const pref=options.find(x=>x.code===item.preferred_code);
- if(pref)select.value=pref.code;
- const lightClass=o=>{
-  const gap=Number(o.difference_pp),bookCount=Number(item.bookmaker_count);
-  if(o.difference_pp==null||!Number.isFinite(gap)||!Number.isFinite(o.odds))return "red";
-  if(gap>=5&&o.odds>=1.4&&o.odds<=2.5&&bookCount>=5)return "green";
-  return gap<=-2?"red":"yellow";
+ const isGreen=o=>Number(item.bookmaker_count)>=5&&o.reference_books>=4&&
+   Number.isFinite(o.market_prob)&&o.odds>=1.4&&o.odds<=2.5&&o.market_prob-100/o.odds>=5;
+ const signal=o=>{
+  if(isGreen(o))return "green";
+  return o.market_prob==null||o.market_prob-100/o.odds<=-2?"red":"yellow";
  };
- const soccer=item.sport==="soccer";
- const headline=text("div",soccer?"Preis-Ampel für 1 – X – 2 · DE-Quoten":"Preis-Ampel für beide Sieger · DE-Quoten","lights-heading");
+ const stakeSuggestion=o=>{
+  const gap=o.market_prob-100/o.odds,books=Number(item.bookmaker_count);
+  return gap>=10&&books>=10?3:gap>=7.5&&books>=7?2:1;
+ };
+ card.append(text("div","Preis-Ampel · 1 / X / 2","lights-heading"));
+ card.append(text("p","Nur 🟢 ist für die virtuelle Übernahme anklickbar. 🔴 und 🟡 bleiben Beobachtung – keine Tippfreigabe.","traffic-inline-note"));
  const traffic=text("div","","traffic-choices");
- if(!soccer)traffic.style.gridTemplateColumns="repeat(2,minmax(0,1fr))";
- const lightButtons=new Map();
+ if(item.sport!=="soccer")traffic.style.gridTemplateColumns="repeat(2,minmax(0,1fr))";
+ const msg=text("p",item.already_recorded?"Für diese Begegnung ist bereits eine virtuelle Entscheidung gespeichert.":"", "small muted");
+ const tiles=[];
  for(const o of options){
-   const signal=lightClass(o);
-   const name=o.code==="HOME"?"1 · Heim":o.code==="DRAW"?"X · Remis":"2 · Gast";
-   const btn=text("button","","traffic-choice "+signal);
-   btn.type="button";btn.setAttribute("aria-label",name+" · "+(signal==="red"?"Rot":signal==="yellow"?"Gelb":"Grün"));
-   const sign=text("span",signal==="red"?"🔴":signal==="yellow"?"🟡":"🟢");
-   const desc=text("b",name);const price=text("small","Quote "+deFmt(o.odds,2));
-   btn.append(sign,desc,price);
-   btn.addEventListener("click",()=>{select.value=o.code;select.dispatchEvent(new Event("change"))});
-   traffic.append(btn);lightButtons.set(o.code,btn);
+   const status=signal(o),label=o.code==="HOME"?"1 · "+item.home:o.code==="DRAW"?"X · Remis":"2 · "+item.away;
+   const green=status==="green"&&!item.already_recorded;
+   const el=text(green?"button":"div","","traffic-choice "+status);
+   const units=isGreen(o)?stakeSuggestion(o):0;
+   el.append(text("span",status==="green"?"🟢":status==="yellow"?"🟡":"🔴"),
+     text("b",label),text("small","Winamax DE: "+deFmt(o.odds,2)+" · Markt "+(o.market_prob==null?"—":deFmt(o.market_prob)+" %")),
+     text("small",o.market_prob==null?"Ohne Einschätzung":
+       "Schwelle "+deFmt(100/o.odds)+" % · Abstand "+(o.market_prob-100/o.odds>=0?"+":"")+deFmt(o.market_prob-100/o.odds)+" Pp."));
+   if(isGreen(o)){
+     el.append(text("strong",units+" virtuelle Einsatz-Unit"+(units===1?"":"s")+" · "+(units*10)+" €"));
+     el.append(text("small",item.already_recorded?"Bereits gespeichert":"Hier klicken → hypothetisch freischalten"));
+   }else el.append(text("small",status==="yellow"?"Kein bestätigter Preisvorteil":"Ungünstiger Quotenpreis"));
+   if(green){
+     el.type="button";
+     el.setAttribute("aria-label",label+" · grün · "+units+" virtuelle Units freischalten");
+     el.addEventListener("click",async()=>{
+       if(!confirm("Nur virtuell: "+label+" · Quote "+deFmt(o.odds,2)+" · "+units+
+          " Einsatz-Units ("+(units*10)+" €) für die hypothetische Mitglieder-Vorschau verbindlich speichern? "+
+          "Keine echten Units, keine öffentliche Veröffentlichung."))return;
+       for(const t of tiles)if(t.tagName==="BUTTON")t.disabled=true;
+       msg.textContent="Virtueller Tipp wird gespeichert …";
+       try{
+        const result=await duelCall("quick_accept",{choice:{
+          sport_key:leagueKey,gameId:item.id,selection:o.code,stake_units:units}});
+        item.already_recorded=true;
+        msg.textContent=result.virtual_units+" virtuelle Einsatz-Units ("+euro(result.virtual_stake)+
+          ") gespeichert – nicht öffentlich.";
+        const link=document.createElement("a");link.href="/admin/testlabor/duell/#hypothetische-freischaltungen";
+        link.textContent="→ Hypothetische Mitglieder-Freischaltung ansehen";
+        msg.append(" ",link);
+        el.append(text("small","✓ In der privaten Vorschau gespeichert"));
+       }catch(err){
+        msg.textContent="Nicht freigeschaltet: "+String(err.message||err)+
+          ". Kein Echtgeld und keine öffentliche Änderung.";
+        for(const t of tiles)if(t.tagName==="BUTTON")t.disabled=false;
+       }
+     });
+   }
+   traffic.append(el);tiles.push(el);
  }
- card.append(headline,traffic);
- const info=text("div","","note");info.style.margin="12px 0";
- const label=text("strong","");const breakdown=text("p","","small");const details=text("p","","small muted");
- info.append(label,breakdown,details);card.append(info);
- const update=()=>{
-  const o=options.find(x=>x.code===select.value);if(!o)return;
-  for(const [key,btn] of lightButtons) {
-   btn.classList.toggle("chosen",key===select.value);
-   btn.setAttribute("aria-pressed",String(key===select.value));
-  }
-  label.textContent="Winamax (DE) · Quote "+deFmt(o.odds,2)+" · "+(o.market_prob==null?"Marktchance unbekannt":deFmt(o.market_prob)+" % Marktchance");
-  breakdown.textContent="Gewinnschwelle "+deFmt(o.break_even)+" % · Markt-Abstand "+
-    (o.difference_pp==null?"—":(o.difference_pp>=0?"+":"")+deFmt(o.difference_pp)+" Prozentpunkte")+
-    " · bei 10 € virtuell: +"+euro(o.example_profit_if_win)+" Gewinn oder −10 € Verlust";
-  details.textContent="Ampel: "+(lightClass(o)==="green"?"🟢 rechnerisch günstiger Quotenpreis; weitere Prüfung nötig":lightClass(o)==="yellow"?"🟡 kein gesicherter Preisvorteil; nur virtuelles Experiment":"🔴 deutlich unattraktiver Quotenpreis")+
-   " · Marktwert ist keine unabhängige KI-Prognose. DE-Quote ist nicht live bestätigt.";
- };
- select.addEventListener("change",update);update();card.append(select);
- const acts=text("div","","actions");
- acts.style.display="flex";acts.style.flexWrap="wrap";acts.style.gap="7px";
- const accept=text("button",item.eligible_by_rule?"1 virtuelle Unit übernehmen":"Trotz Filterwarnung virtuell übernehmen");
- const skip=text("button","Auslassen","secondary");
- for(const b of [accept,skip]){b.type="button";b.style.flex="1 1 120px"}
- const msg=text("p",item.already_recorded?"Dieses Spiel wurde bereits für das virtuelle Duell registriert.":"","small muted");
- accept.disabled=item.already_recorded;skip.disabled=item.already_recorded;
- async function doVote(code){
-  if(!confirm(code==="SKIP"?"Dieses Spiel endgültig als AUSGELASSEN speichern?":
-      "1 virtuelle Test-Unit (10 €) auf diese Auswahl übernehmen? Dies ist unwiderruflich, ohne Echtgeld und ohne Mitgliederfreigabe."))return;
-  accept.disabled=true;skip.disabled=true;msg.textContent="Virtuelle Entscheidung wird eingefroren …";
-  try{
-   const r=await duelCall("quick_accept",{choice:{sport_key:leagueKey,gameId:item.id,selection:code}});
-   item.already_recorded=true;msg.textContent=code==="SKIP"?
-     "Ausgelassen und gespeichert.":"1 virtuelle Unit (10 €) gespeichert – keine echte Abbuchung.";
-   const link=document.createElement("a");link.href="/admin/testlabor/duell/";
-   link.textContent="→ Vergleich und virtuelles Testkonto ansehen";msg.append(" ",link);
-  }catch(e){msg.textContent="Nicht übernommen: "+String(e.message||e)+
-    ". Prüfe ggf. den Duell-Bereich, bevor du erneut speicherst.";
-    accept.disabled=false;skip.disabled=false}
- }
- accept.addEventListener("click",()=>doVote(select.value));
- skip.addEventListener("click",()=>doVote("SKIP"));
- acts.append(accept,skip);card.append(acts,msg);return card;
+ card.append(traffic);
+ if(!options.some(isGreen))card.append(text("p","Hier aktuell kein grüner Preisvorteil. Bitte keine Wette nur wegen einer hohen Markt-Gewinnchance übernehmen.","no-tip"));
+ card.append(msg);
+ const link=document.createElement("a");
+ link.href="/admin/testlabor/duell/#hypothetische-freischaltungen";
+ link.textContent="Hypothetische Freischaltungen und virtuelles Testkonto ansehen";
+ card.append(link);
+ return card;
 }
+
 async function showScout(key,status){
  try{
   const r=await duelCall("scan",{query:{sport_key:key}});
