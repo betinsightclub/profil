@@ -44,6 +44,14 @@ button:disabled{opacity:.55;cursor:wait}
 .traffic-choice.chosen{outline:2px solid #e6faff;outline-offset:2px}
 .traffic-help{font-size:12px;color:#bbd4df;line-height:1.5;margin:7px 0 13px}
 .match .traffic-choices{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:7px}
+.match .traffic-choices.soccer{grid-template-columns:repeat(3,minmax(0,1fr))}
+.green-confirm{background:#092b3c;border:2px solid #39b18d;padding:14px;border-radius:12px;margin:12px 0}
+.green-confirm strong{display:block;color:#c5ffe4;font-size:17px;margin:5px 0}
+.green-confirm button{width:100%;margin-top:9px}
+.green-confirm .small{color:#bbd7df}
+.traffic-choice:not(button){cursor:default}
+.traffic-choice.green:not(:disabled){cursor:pointer}
+@media(max-width:600px){.match .traffic-choices.soccer{gap:5px}.match .traffic-choice{padding:6px 3px!important}.traffic-choice b{font-size:12px}}
 .traffic-choice.pending{background:#153445!important;border:1px dashed #5b798b!important;opacity:.85;cursor:default;color:#c7d4dd!important}
 .traffic-inline-note{font-size:12px;color:#bdd3df;line-height:1.35;margin:6px 0}
 .match .traffic-choice{min-height:58px;padding:5px 7px!important}
@@ -87,7 +95,7 @@ button:disabled{opacity:.55;cursor:wait}
  <div class="panel" id="additionalOddsScout">
  <div class="overline">Quoten-Scout für weitere Sportarten · The Odds API</div>
  <h2>🏀 🏒 ⚾ 🏈 Weitere Sportarten mit Ampel</h2>
- <p class="muted">Ein Klick prüft alle acht unterstützten Ligen, oder du wählst eine einzelne. Die Favoriten-Ampel zeigt, wem der Buchmachermarkt die größere Siegchance gibt. Die getrennte Preis-Ampel vergleicht das konkrete DE-Angebot mit der rechnerischen Gewinnschwelle. Die erste Abfrage einer Liga kann einen API-Credit kosten; Cache-Treffer kosten keinen weiteren. Kein Echtgeld und keine öffentliche Tippfreigabe.</p>
+ <p class="muted">Eine Liga auswählen und Quoten prüfen. Danach erscheint für jedes Spiel <strong>nur eine Preisampel</strong>. Wenn eine Auswahl 🟢 ist, anklicken, die vorgeschlagenen 1–3 virtuellen Units ansehen und mit einem Knopf speichern. Ein Ligaabruf kann bis zu 1 Credit kosten; keine Echtgeldwette oder öffentliche Veröffentlichung.</p>
  <div class="controls">
   <div class="control"><label for="otherOddsLeague">Sportart und Liga</label>
    <select id="otherOddsLeague">
@@ -104,7 +112,7 @@ button:disabled{opacity:.55;cursor:wait}
   <button id="loadAllOtherOdds" class="secondary" type="button">Alle 8 Ligen vergleichen (max. 8 Credits)</button>
  </div>
  <p id="otherOddsStatus" class="muted" role="status">Noch keine Quoten geladen. Die Spielpläne unten enthalten keine geprüften Buchmacherquoten.</p>
- <div id="otherOddsOverview" class="info">Zwei getrennte Bewertungen: <strong>Favoriten-Ampel</strong> (🟢 hohe marktbasierte Siegerwahrscheinlichkeit, 🟡 offen, 🔴 Außenseiter) und <strong>Preis-Ampel</strong> (ob die DE-Quote im Vergleich rechnerisch attraktiv ist). 🟢 Favorit ist ausdrücklich keine Wett-Empfehlung. Keine belastbaren Quoten = ⚪ keine Einstufung.</div>
+ <div id="otherOddsOverview" class="info">Die Ampel bewertet den <strong>Quotenpreis</strong>, nicht die reine Favoritenchance. 🟢 bedeutet einen rechnerischen Abstand von mindestens fünf Prozentpunkten, bei 5+ Anbietern und Quote 1,40–2,50. Nur solche grünen Auswahlfelder sind für einen virtuellen Test anklickbar. Kein Angebot = ⚪.</div>
  <div id="otherOddsFixtures" class="grid" style="margin-top:15px"></div>
  <p class="small muted">Je nach Sport wird der Sieg einschließlich Verlängerung abgerechnet; genaue Wettregeln prüfen. Cricket und Tischtennis behalten zunächst nur den Spielplan, solange keine passende Deutschland-Quote nachgewiesen ist. Automatischer Ergebnisabgleich für Nicht-Fußball steht noch aus.</p>
  </div>
@@ -259,37 +267,20 @@ function verifiedOtherFixture(item,key){
  return matches.length===1?matches[0]:null;
 }
 function renderFixtureOddsStatus(item,card){
- const key=scheduledOddsLeague(item),rated=key?verifiedOtherFixture(item,key):null;
- const available=Array.isArray(rated?.likelihood)&&rated.likelihood.length>=2;
- const deOptions=rated?.has_de_bookmaker&&Array.isArray(rated.options)?rated.options:[];
- const market=new Map((rated?.likelihood||[]).map(o=>[o.code,o.probability]));
- card.append(text("div",available?"Siegerwahrscheinlichkeit laut Quotenmarkt":"Marktchance · noch nicht bewertbar","lights-heading"));
- const lights=text("div","","traffic-choices");
- for(const [code,label] of [["HOME","Heimsieg"],["AWAY","Auswärtssieg"]]){
-  const p=market.get(code),status=probabilitySignal(p,false);
-  const o=deOptions.find(x=>x.code===code);
-  const chip=text("div","","traffic-choice "+status);
-  chip.append(text("span",signalIcon(status)),text("b",label),
-   text("small",p==null?"Keine geprüfte Marktchance":Number(p).toLocaleString("de-DE",{maximumFractionDigits:1})+" % laut Markt"));
-  if(o)chip.append(text("small","DE-Quote "+Number(o.odds).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})));
-  lights.append(chip);
- }
- card.append(lights);
- const explanation=available?
-  "Farben zeigen NUR die relative Marktwahrscheinlichkeit: Grün heißt Favorit, nicht profitable Wette. Ein Preisvorteil muss separat geprüft werden.":
-  key?"Für dieses Spiel liegen noch keine zugeordneten, frischen Quoten vor. Der Scout kann die Liga mit einem Klick abrufen.":
-  "Diese Liga hat noch keine unterstützte Quotenquelle. Eine Rot-/Grün-Einstufung wäre erfunden.";
- card.append(text("p",explanation,"traffic-inline-note"));
+ const key=scheduledOddsLeague(item);
+ card.append(text("div","⚪ Noch keine geprüfte Preisampel","lights-heading"));
+ card.append(text("p",key?
+   "Hier stehen nur Spielpläne. Für Quote und eine echte Preisampel die Liga einmal im Quoten-Scout laden.":
+   "Für diese Liga fehlen bestätigte Buchmacherquoten; eine Grün-/Rot-Einstufung wäre geraten.","traffic-inline-note"));
  if(key){
-  const button=text("button","Liga im Quoten-Scout ansehen ↑","secondary");
-  button.type="button";button.style.width="100%";button.style.marginTop="7px";
+  const button=text("button","Zur Quotenprüfung dieser Liga ↑","secondary");
+  button.type="button";button.style.width="100%";
   button.addEventListener("click",()=>{
-   $("otherOddsLeague").value=key;
-   $("additionalOddsScout").scrollIntoView({behavior:"smooth",block:"start"});
-   $("otherOddsStatus").textContent=verifiedOtherFixture(item,key)?
-     "Die vorhandenen Marktchancen der Liga stehen im Scout. Kein erneuter API-Abruf notwendig.":
-     "Liga ausgewählt. Über „Diese Liga prüfen“ aktuelle Quoten anfordern (maximal 1 Credit).";
-  });card.append(button);
+    $("otherOddsLeague").value=key;
+    $("additionalOddsScout").scrollIntoView({behavior:"smooth",block:"start"});
+    $("otherOddsStatus").textContent="Liga ausgewählt. Erst nach der Quotenprüfung erscheinen verlässliche Preisampeln.";
+  });
+  card.append(button);
  }
 }
 
@@ -339,7 +330,12 @@ function renderCards(){
  $("matches").replaceChildren();
  $("countLabel").textContent=subset.length+" angezeigte Spiele";
  if(!subset.length){const card=text("div","Für diesen Sport liegen bei der letzten Abfrage keine zukünftigen Begegnungen vor. Wähle einen späteren Tag und rufe erneut ab.","panel");card.style.gridColumn="1/-1";$("matches").append(card)}
- else for(const v of subset)$("matches").append(renderCard(v));
+ else for(const v of subset){
+  const key=scheduledOddsLeague(v);
+  const verified=key?verifiedOtherFixture(v,key):null;
+  // A verified bookmaker card is interactive; mere schedules never receive a green favorite signal.
+  $("matches").append(verified?makeScoutCard(verified,key):renderCard(v));
+ }
 }
 function reportErrors(items){
  const errors=$("errors");errors.replaceChildren();
@@ -420,86 +416,95 @@ function renderLikelihoodStrip(card,item){
 
 function makeScoutCard(item,leagueKey){
  const card=text("article","","match");
- const top=text("div","","matchtop");
- top.append(text("span",item.league||"Liga"),
-   text("span",item.eligible_by_rule?"🟢 Grüne Preis-Chance":"Kein grünes Preisangebot",
-     item.eligible_by_rule?"tag good":"tag warn"));
- card.append(top);
+ const head=text("div","","matchtop");
+ head.append(text("span",item.league||"Liga"),
+  text("span",item.eligible_by_rule?"🟢 Preisvorteil gefunden":"Zurzeit kein grüner Preisvorteil",
+  item.eligible_by_rule?"tag good":"tag warn"));
+ card.append(head);
  const teams=text("div","","versus");
  teams.append(text("div",item.home),text("span","gegen","vs"),text("div",item.away));
  card.append(teams);
- card.append(text("p","Anpfiff: "+timeLabel(item.kickoff)+" · "+
-   item.bookmaker_count+" Quotenanbieter verglichen","muted"));
- card.append(text("p","Winamax (DE): API-Preise. Konkrete Verfügbarkeit für deutsche Konten nicht live bestätigt.","no-tip"));
- const options=item.options||[];
+ card.append(text("p","Anpfiff: "+timeLabel(item.kickoff)+" · "+item.bookmaker_count+" Quotenanbieter","muted"));
+ const options=Array.isArray(item.options)?item.options:[];
  if(!options.length){
-   card.append(text("div","Noch keine für Deutschland gekennzeichnete Quote – keine virtuelle Freischaltung möglich.","info"));
-   return card;
+  card.append(text("p","⚪ Keine geprüfte, für Deutschland gekennzeichnete Buchmacherquote. Kein Tipp möglich.","no-tip"));
+  return card;
  }
- const isGreen=o=>Number(item.bookmaker_count)>=5&&o.reference_books>=4&&
-   Number.isFinite(o.market_prob)&&o.odds>=1.4&&o.odds<=2.5&&o.market_prob-100/o.odds>=5;
- const signal=o=>{
-  if(isGreen(o))return "green";
-  return o.market_prob==null||o.market_prob-100/o.odds<=-2?"red":"yellow";
- };
- const stakeSuggestion=o=>{
+ card.append(text("p","Buchmacher: Winamax (DE) · API-Preise, in Deutschland nicht live bestätigt.","traffic-inline-note"));
+ const priceGreen=o=>Number(item.bookmaker_count)>=5&&Number(o.reference_books)>=4&&
+   Number.isFinite(o.market_prob)&&Number(o.odds)>=1.4&&Number(o.odds)<=2.5&&
+   o.market_prob-100/o.odds>=5;
+ const signal=o=>priceGreen(o)?"green":
+   (o.market_prob==null||o.market_prob-100/o.odds<=-2?"red":"yellow");
+ const suggest=o=>{
   const gap=o.market_prob-100/o.odds,books=Number(item.bookmaker_count);
   return gap>=10&&books>=10?3:gap>=7.5&&books>=7?2:1;
  };
- card.append(text("div","Preis-Ampel · 1 / X / 2","lights-heading"));
- card.append(text("p","Nur 🟢 ist für die virtuelle Übernahme anklickbar. 🔴 und 🟡 bleiben Beobachtung – keine Tippfreigabe.","traffic-inline-note"));
- const traffic=text("div","","traffic-choices");
- if(item.sport!=="soccer")traffic.style.gridTemplateColumns="repeat(2,minmax(0,1fr))";
- const msg=text("p",item.already_recorded?"Für diese Begegnung ist bereits eine virtuelle Entscheidung gespeichert.":"", "small muted");
- const tiles=[];
- for(const o of options){
-   const status=signal(o),label=o.code==="HOME"?"1 · "+item.home:o.code==="DRAW"?"X · Remis":"2 · "+item.away;
-   const green=status==="green"&&!item.already_recorded;
-   const el=text(green?"button":"div","","traffic-choice "+status);
-   const units=isGreen(o)?stakeSuggestion(o):0;
-   el.append(text("span",status==="green"?"🟢":status==="yellow"?"🟡":"🔴"),
-     text("b",label),text("small","Winamax DE: "+deFmt(o.odds,2)+" · Markt "+(o.market_prob==null?"—":deFmt(o.market_prob)+" %")),
-     text("small",o.market_prob==null?"Ohne Einschätzung":
-       "Schwelle "+deFmt(100/o.odds)+" % · Abstand "+(o.market_prob-100/o.odds>=0?"+":"")+deFmt(o.market_prob-100/o.odds)+" Pp."));
-   if(isGreen(o)){
-     el.append(text("strong",units+" virtuelle Einsatz-Unit"+(units===1?"":"s")+" · "+(units*10)+" €"));
-     el.append(text("small",item.already_recorded?"Bereits gespeichert":"Hier klicken → hypothetisch freischalten"));
-   }else el.append(text("small",status==="yellow"?"Kein bestätigter Preisvorteil":"Ungünstiger Quotenpreis"));
-   if(green){
-     el.type="button";
-     el.setAttribute("aria-label",label+" · grün · "+units+" virtuelle Units freischalten");
-     el.addEventListener("click",async()=>{
-       if(!confirm("Nur virtuell: "+label+" · Quote "+deFmt(o.odds,2)+" · "+units+
-          " Einsatz-Units ("+(units*10)+" €) für die hypothetische Mitglieder-Vorschau verbindlich speichern? "+
-          "Keine echten Units, keine öffentliche Veröffentlichung."))return;
-       for(const t of tiles)if(t.tagName==="BUTTON")t.disabled=true;
-       msg.textContent="Virtueller Tipp wird gespeichert …";
-       try{
-        const result=await duelCall("quick_accept",{choice:{
-          sport_key:leagueKey,gameId:item.id,selection:o.code,stake_units:units}});
-        item.already_recorded=true;
-        msg.textContent=result.virtual_units+" virtuelle Einsatz-Units ("+euro(result.virtual_stake)+
-          ") gespeichert – nicht öffentlich.";
-        const link=document.createElement("a");link.href="/admin/testlabor/duell/#hypothetische-freischaltungen";
-        link.textContent="→ Hypothetische Mitglieder-Freischaltung ansehen";
-        msg.append(" ",link);
-        el.append(text("small","✓ In der privaten Vorschau gespeichert"));
-       }catch(err){
-        msg.textContent="Nicht freigeschaltet: "+String(err.message||err)+
-          ". Kein Echtgeld und keine öffentliche Änderung.";
-        for(const t of tiles)if(t.tagName==="BUTTON")t.disabled=false;
-       }
-     });
+ card.append(text("div","Preisampel · "+(item.sport==="soccer"?"1 / X / 2":"Heim / Auswärts"),"lights-heading"));
+ const traffic=text("div","","traffic-choices"+(item.sport==="soccer"?" soccer":""));
+ const form=text("div","","green-confirm hidden");
+ const msg=text("p",item.already_recorded?"✓ Entscheidung bereits im virtuellen Testkonto gespeichert.":"", "small muted");
+ const buttons=[];
+ function openGreen(o,label){
+  if(item.already_recorded)return;
+  const units=suggest(o),amount=units*10,gap=o.market_prob-100/o.odds;
+  form.replaceChildren();
+  form.append(text("div","🟢 Gewählt: "+label+" · Quote "+deFmt(o.odds,2)),
+   text("strong","Virtueller Test-Einsatz: "+units+" Unit"+(units===1?"":"s")+" = "+euro(amount)),
+   text("p","Teststufe aus Marktabstand +"+deFmt(gap,1)+" Prozentpunkte. "+
+      "1 Unit = 10 €; 2 = 20 €; 3 = 30 €. Dies ist kein unabhängig validiertes Einsatzmodell.","small"));
+  const submit=text("button","Jetzt "+units+" virtuelle Unit"+(units===1?"":"s")+" speichern");
+  submit.type="button";
+  submit.addEventListener("click",async()=>{
+   if(item.already_recorded)return;
+   submit.disabled=true;buttons.forEach(b=>b.disabled=true);
+   msg.textContent="Speichere die virtuelle Entscheidung …";
+   try{
+    const result=await duelCall("quick_accept",{choice:{
+      sport_key:leagueKey,gameId:item.id,selection:o.code,stake_units:units}});
+    item.already_recorded=true;form.replaceChildren();
+    form.append(text("strong","✓ "+result.virtual_units+" virtuelle Units ("+euro(result.virtual_stake)+") gespeichert."));
+    const link=document.createElement("a");
+    link.href="/admin/testlabor/duell/#entscheidungen";link.textContent="Zum virtuellen Testkonto und Vergleich";
+    form.append(link);
+    msg.textContent="Kein Echtgeld, keine öffentlichen Mitgliedertipps und keine echten Units verbraucht.";
+   }catch(err){
+    msg.textContent="Nicht gespeichert: "+String(err?.message||err)+". Bitte zuerst Cache und Spielbeginn prüfen.";
+    submit.disabled=false;buttons.forEach(b=>b.disabled=false);
    }
-   traffic.append(el);tiles.push(el);
+  });
+  form.append(submit);
+  form.classList.remove("hidden");
  }
- card.append(traffic);
- if(!options.some(isGreen))card.append(text("p","Hier aktuell kein grüner Preisvorteil. Bitte keine Wette nur wegen einer hohen Markt-Gewinnchance übernehmen.","no-tip"));
- card.append(msg);
- const link=document.createElement("a");
- link.href="/admin/testlabor/duell/#hypothetische-freischaltungen";
- link.textContent="Hypothetische Freischaltungen und virtuelles Testkonto ansehen";
- card.append(link);
+ for(const o of options){
+  const state=signal(o),isGreen=state==="green";
+  const label=o.code==="HOME"?(item.sport==="soccer"?"1 · ":"")+item.home:
+    o.code==="DRAW"?"X · Remis":(item.sport==="soccer"?"2 · ":"")+item.away;
+  const tile=text(isGreen&&!item.already_recorded?"button":"div","","traffic-choice "+state);
+  tile.append(text("span",state==="green"?"🟢":state==="yellow"?"🟡":"🔴"),
+    text("b",label),
+    text("small","Quote "+deFmt(o.odds,2)),
+    text("small","Markt "+(o.market_prob==null?"—":deFmt(o.market_prob,1)+" %")));
+  if(isGreen){
+   tile.append(text("small",item.already_recorded?"Bereits erfasst":"Antippen → Units ansehen"));
+   if(!item.already_recorded){
+    tile.type="button";
+    tile.addEventListener("click",()=>{
+     buttons.forEach(b=>b.classList.remove("chosen"));
+     tile.classList.add("chosen");openGreen(o,label);
+    });
+    buttons.push(tile);
+   }
+  }else tile.append(text("small",state==="red"?"Unattraktiver Preis":"Kein gesicherter Vorteil"));
+  traffic.append(tile);
+ }
+ card.append(traffic,form,msg);
+ if(!options.some(priceGreen)){
+  card.append(text("p","Keine grüne Auswahl. Nicht allein wegen einer hohen Quote oder Marktchance wetten. "+
+   "🟡 beobachten · 🔴 auslassen.","traffic-inline-note"));
+ }
+ card.append(text("p","Grün bewertet nur einen rechnerischen Preisabstand gegenüber anderen Buchmachern. "+
+  "Es gibt noch keine unabhängig geprüfte BetInsight-Sportprognose.","traffic-inline-note"));
  return card;
 }
 
@@ -580,7 +585,7 @@ function renderOtherCollection(keys,status){
  const withDE=all.filter(x=>x.item.has_de_bookmaker).length,strict=all.filter(x=>x.item.eligible_by_rule).length;
  $("otherOddsOverview").textContent=all.length+" Spiele mit Marktdaten aus "+keys.filter(k=>verifiedOtherScans.has(k)).length+
   " Ligen · "+withDE+" mit DE-gekennzeichneter Quote · "+strict+
-  " unter unserem strengen Preisfilter interessant. Grün bei der Favoriten-Ampel bedeutet NICHT grün bei der Preis-Ampel.";
+  " mit grünem Preisabstand nach unserem strengen Filter. Bei Gelb oder Rot gibt es keine automatische Tippfreigabe.";
  $("otherOddsStatus").textContent=status+" · bis zu 60 Spiele nach Markt-Favoritenchance sortiert";
  if(!all.length)target.append(text("div","Keine kommenden Spiele mit verlässlichen Quoten gefunden. Kein Ergebnis wird erfunden.","info"));
  else for(const {item,key} of all.slice(0,60))target.append(makeScoutCard(item,key));
