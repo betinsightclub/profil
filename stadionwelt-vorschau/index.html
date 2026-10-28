@@ -81,8 +81,29 @@ function hasVisited(id){return visitedIds().has(Number(id))}
 function applyFilters(){if(!ready)return;const q=$("search").value.toLocaleLowerCase(),country=$("country").value,min=Number($("capacity").value||0),sort=$("sort").value;filtered=all.filter(s=>(!country||s.country===country)&&(!min||(s.capacity||0)>=min)&&(!q||[s.name,s.city,s.country,...clubMap(s.id)].join(" ").toLocaleLowerCase().includes(q)));const c=(a,b)=>String(a||"").localeCompare(String(b||""),lang,{sensitivity:"base"});filtered.sort((a,b)=>sort==="name"?c(a.name,b.name):sort==="country"?c(a.country,b.country)||c(a.name,b.name):sort==="city"?c(a.city,b.city)||c(a.name,b.name):(Number(b.capacity||0)-Number(a.capacity||0))||c(a.name,b.name));page=0;renderList();renderDots();renderStreetDots();}
 function renderList(){const chunk=filtered.slice(page*55,(page+1)*55);$("listStatus").textContent=fmt(filtered.length)+" "+t("allFound");$("pages").textContent=fmt(page+1)+" / "+fmt(Math.max(1,Math.ceil(filtered.length/55)));$("prev").disabled=page<=0;$("next").disabled=(page+1)*55>=filtered.length;$("stadiumList").innerHTML=chunk.length?chunk.map(s=>"<button class='stadium-row "+(selected?.id===s.id?"active":"")+"' data-id='"+s.id+"'><span class='pin "+(hasVisited(s.id)?"pin-visit":"")+"'>"+(hasVisited(s.id)?"🚩":photoSeedFor(s)?"<img src='"+esc(photoSeedFor(s).src)+"' data-fallback-src='"+esc(photoSeedFor(s).fallbackSrc)+"' alt='' loading='lazy'>":"🏟")+"</span><span style='min-width:0;flex:1'><span class='sname'>"+esc(s.name)+"</span><span class='smeta'>"+esc(s.city||"")+" · "+esc(s.country)+"</span>"+(hasVisited(s.id)?"<span class='mini visit-flag-label'>🚩 "+esc(t("visitedFlag"))+"</span>":"")+"</span><span class='scap'>"+fmt(s.capacity)+"</span></button>").join(""):"<div class='empty'>"+esc(t("notAvailable"))+"</div>";$("stadiumList").querySelectorAll(".stadium-row").forEach(b=>b.addEventListener("click",()=>selectStadium(Number(b.dataset.id))));wirePhotoFallbacks($("stadiumList"))}
 
-function makeGeo(){return {type:"FeatureCollection",features:filtered.map(s=>({type:"Feature",geometry:{type:"Point",coordinates:[Number(s.longitude),Number(s.latitude)]},properties:{id:Number(s.id)}}))}}
-function renderStreetDots(){if(streetMap?.getSource("stads"))streetMap.getSource("stads").setData(makeGeo())}
+function makeGeo(){const flags=visitedIds();return {type:"FeatureCollection",features:filtered.map(s=>({type:"Feature",geometry:{type:"Point",coordinates:[Number(s.longitude),Number(s.latitude)]},properties:{id:Number(s.id),visited:flags.has(Number(s.id))}}))}}
+function renderStreetDots(){if(streetMap?.getSource("stads"))streetMap.getSource("stads").setData(makeGeo());renderStreetVisitFlags()}
+function makeFlagButton(stadium,isStreet=false){
+ const button=document.createElement("button");button.type="button";button.className=isStreet?"visited-flag street-flag":"visited-flag";button.textContent="🚩";
+ button.title=t("visitedFlag")+" · "+stadium.name;button.setAttribute("aria-label",button.title);
+ button.addEventListener("click",e=>{e.stopPropagation();selectStadium(Number(stadium.id))});
+ return button;
+}
+function renderGlobeVisitFlags(){
+ if(!globe||typeof globe.htmlElementsData!=="function")return;
+ const marked=visitedIds();const sites=all.filter(s=>marked.has(Number(s.id))).map(s=>({id:s.id,name:s.name,lat:Number(s.latitude),lng:Number(s.longitude)}));
+ globe.htmlElementsData(sites);
+ if($("visitFlagCount"))$("visitFlagCount").textContent=fmt(sites.length);
+}
+function renderStreetVisitFlags(){
+ if(!streetMap||!window.maplibregl||!streetMap.getSource("stads"))return;
+ streetVisitFlagMarkers.forEach(marker=>marker.remove());streetVisitFlagMarkers=[];
+ const marked=visitedIds();
+ all.filter(s=>marked.has(Number(s.id))).forEach(s=>{
+  const marker=new window.maplibregl.Marker({element:makeFlagButton(s,true),anchor:"bottom"}).setLngLat([Number(s.longitude),Number(s.latitude)]).addTo(streetMap);
+  streetVisitFlagMarkers.push(marker);
+ });
+}
 let mapRequested=false,pendingMapMode="map";
 function ensureStreet(){
  if(streetMap||!window.maplibregl)return;
@@ -102,6 +123,7 @@ function ensureStreet(){
   streetMap.on("mouseleave","dots",()=>streetMap.getCanvas().style.cursor="");
   streetMap.on("click",e=>{if(!pickMode)return;const a=$("latitude"),b=$("longitude");if(a&&b){a.value=e.lngLat.lat.toFixed(6);b.value=e.lngLat.lng.toFixed(6);pickMode=false;toast("✓ "+a.value+", "+b.value)}});
   streetMap.resize();
+  renderStreetVisitFlags();
   applySatelliteLayer();updateSatellitePanel();
  });
  streetMap.on("error",e=>console.info("Map tiles",e?.error?.message||""));
@@ -169,13 +191,21 @@ async function loadPhotos(id,name){
  }catch(e){console.info("Commons search unavailable",e.message)}
  photoCache.set(id,{loading:false,photos});if(Number(selected?.id)===id&&tab==="details")drawPhotos();
 }
-function initGlobe(){const holder=$("globe");if(typeof Globe==="undefined"){ $("emptyglobe").style.display="flex";$("globeError").textContent="3D library unavailable. Stadium list still works.";return;}try{const w=holder.clientWidth,h=holder.clientHeight;globe=Globe({animateIn:true,waitForGlobeReady:false})(holder).globeImageUrl("https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg").backgroundColor("rgba(0,0,0,0)").showAtmosphere(true).atmosphereColor("#5dcbd1").atmosphereAltitude(0.15).pointLat("lat").pointLng("lng").pointRadius(x=>x.id===selected?.id?.3:.12).pointAltitude(x=>x.id===selected?.id?.045:.01).pointColor(x=>x.id===selected?.id?"#fff27b":"#58e5aa").pointLabel(x=>esc(x.name)+" · "+esc(x.city||"")+" · "+esc(x.country)).onPointClick(x=>selectStadium(x.id)).onGlobeClick(p=>{if(pickMode){$("latitude").value=p.lat.toFixed(6);$("longitude").value=p.lng.toFixed(6);pickMode=false;toast("✓ "+p.lat.toFixed(5)+", "+p.lng.toFixed(5))}});
+function initGlobe(){const holder=$("globe");if(typeof Globe==="undefined"){ $("emptyglobe").style.display="flex";$("globeError").textContent="3D library unavailable. Stadium list still works.";return;}try{const w=holder.clientWidth,h=holder.clientHeight;globe=Globe({animateIn:true,waitForGlobeReady:false})(holder).globeImageUrl("https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg").backgroundColor("rgba(0,0,0,0)").showAtmosphere(true).atmosphereColor("#5dcbd1").atmosphereAltitude(0.15).pointLat("lat").pointLng("lng").pointRadius(x=>x.id===selected?.id?.13:.055).pointAltitude(0).pointResolution(7).pointsTransitionDuration(0).pointColor(x=>x.id===selected?.id?"#fff6ab":"#bdcfdb").htmlLat("lat").htmlLng("lng").htmlAltitude(0.035).htmlElement(s=>makeFlagButton(s)).pointLabel(x=>esc(x.name)+" · "+esc(x.city||"")+" · "+esc(x.country)).onPointClick(x=>selectStadium(x.id)).onGlobeClick(p=>{if(pickMode){$("latitude").value=p.lat.toFixed(6);$("longitude").value=p.lng.toFixed(6);pickMode=false;toast("✓ "+p.lat.toFixed(5)+", "+p.lng.toFixed(5))}});
 globe.width(w).height(h).pointOfView({lat:21,lng:9,altitude:2.5},2000);globe.controls().autoRotate=true;globe.controls().autoRotateSpeed=.35;globe.controls().enableDamping=true;globe.controls().minDistance=118;new ResizeObserver(()=>{if(globe&&holder.clientWidth&&holder.clientHeight)globe.width(holder.clientWidth).height(holder.clientHeight)}).observe(holder);renderDots();}catch(e){$("emptyglobe").style.display="flex";$("globeError").textContent=String(e)}}
-function renderDots(){if(!globe)return;const arr=filtered.map(x=>({id:x.id,name:x.name,city:x.city,country:x.country,lat:Number(x.latitude),lng:Number(x.longitude)}));globe.pointsData(arr);$("globeCount").textContent=fmt(arr.length)+" ●"}
+function renderDots(){
+ if(!globe)return;
+ const visited=visitedIds();
+ const globeLocations=filtered.filter(s=>showAllGlobePoints||Number(s.capacity||0)>=40000||Number(s.id)===Number(selected?.id));
+ const arr=globeLocations.map(s=>({id:s.id,name:s.name,city:s.city,country:s.country,lat:Number(s.latitude),lng:Number(s.longitude)}));
+ globe.pointsData(arr);
+ renderGlobeVisitFlags();
+ $("globeCount").textContent=fmt(arr.length)+" ●";
+}
 function selectStadium(id){
  const same=Number(selected?.id)===Number(id);
  selected=all.find(x=>Number(x.id)===Number(id));if(!selected)return;
- tab="details";renderList();renderRight();
+ tab="details";renderList();renderRight();renderDots();
  if(same)return; // repeated list clicks must not zoom or change map modes
  if(mapMode==="map"||mapMode==="satellite"){if(streetMap)streetMap.flyTo({center:[+selected.longitude,+selected.latitude],zoom:mapMode==="satellite"?12:14.2,duration:650});updateSatLink();return}
  if(globe)globe.pointOfView({lat:+selected.latitude,lng:+selected.longitude,altitude:1.65},950);
@@ -191,7 +221,13 @@ async function submitNew(ev){ev.preventDefault();const f=ev.currentTarget,b=$("s
 async function fetchQueue(){try{const d=await call("queue");reviewQueue=d.queue||[];reviewMedia=d.media||[];$("pendingCount").textContent=fmt(reviewQueue.filter(x=>x.status==="pending").length)}catch{$("pendingCount").textContent="–"}}
 async function fetchProofQueue(){try{const d=await call("proof_queue");reviewProofs=d.media||[];const n=reviewQueue.filter(x=>x.status==="pending").length+reviewProofs.length;$("pendingCount").textContent=fmt(n)}catch{reviewProofs=[]}}
 async function reviewProof(id,decision){if(!confirm(t(decision==="accepted"?"approve":"reject")))return;try{await call("proof_review",{id,decision});await Promise.all([fetchProofQueue(),fetchVisits()]);renderRight("review");toast(t(decision==="accepted"?"approved":"rejected"))}catch(e){toast(t("error")+": "+e.message)}}
-async function fetchVisits(){if(!memberToken)return;try{const d=await call("visits");visits=d.visits||[];visitPhotos=d.photos||[]}catch{}}
+async function fetchVisits(){
+ if(!memberToken){visits=[];visitPhotos=[];return}
+ try{
+  const d=await call("visits");visits=d.visits||[];visitPhotos=d.photos||[];
+  if(ready){renderList();renderDots();renderStreetDots()}
+ }catch(e){console.info("Visits unavailable for current trainer session",e?.message||e)}
+}
 async function review(id,decision){const note=prompt(t("note"),"")||"";if(!confirm(t(decision)))return;try{await call("review",{id,decision,note});await Promise.all([fetchQueue(),fetchProofQueue()]);const d=await call("list");all=d.stadiums||[];clubs=d.clubs||[];fixtures=d.fixtures||[];tips=d.tipResults||[];tipLinks=d.tipLinks||[];$("total").textContent=fmt(all.length);fillCountries();applyFilters();renderRight("review");toast(t(decision))}catch(e){toast(t("error")+": "+e.message)}}
 async function saveExistingNote(ev){ev.preventDefault();const form=ev.currentTarget;const id=form.dataset.visitNote;const note=String(new FormData(form).get("private_note")||"").slice(0,2000);try{await call("visit_update",{visit_id:id,private_note:note});await fetchVisits();renderRight("passport");toast(t("saved"))}catch(e){toast(t("error")+": "+e.message)}}
 async function saveVisit(ev){ev.preventDefault();if(!selected)return;try{
@@ -203,6 +239,6 @@ async function saveVisit(ev){ev.preventDefault();if(!selected)return;try{
  for(const photo of photos){const fd=new FormData();fd.append("action","visit_upload");fd.append("admin_hash",adminHash);fd.append("member_token",memberToken);fd.append("visit_id",created.visit.id);fd.append("file",photo);try{const u=await fetch(API,{method:"POST",body:fd});if(!u.ok)errors++}catch{errors++}}
  await fetchVisits();renderRight("passport");toast(t("saved")+(errors?" · "+errors+" photo(s) failed":""));
  }catch(e){toast(t("error")+": "+e.message)}}
-document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>renderRight(b.dataset.tab)));$("newBtn").addEventListener("click",()=>renderRight("suggest"));$("language").addEventListener("change",e=>{lang=e.target.value;localStorage.setItem("betinsight_language",lang);translate();fillCountries()});["search","country","capacity","sort"].forEach(id=>$(id).addEventListener(id==="search"?"input":"change",applyFilters));$("prev").addEventListener("click",()=>{page=Math.max(0,page-1);renderList()});$("next").addEventListener("click",()=>{page++;renderList()});$("resetBtn").addEventListener("click",()=>(showGlobe(),globe?.pointOfView({lat:21,lng:9,altitude:2.5},1000)));$("globeModeBtn").addEventListener("click",showGlobe);$("mapModeBtn").addEventListener("click",()=>showMap());$("satModeBtn").addEventListener("click",showSatellite);
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>renderRight(b.dataset.tab)));$("newBtn").addEventListener("click",()=>renderRight("suggest"));$("language").addEventListener("change",e=>{lang=e.target.value;localStorage.setItem("betinsight_language",lang);translate();fillCountries()});["search","country","capacity","sort"].forEach(id=>$(id).addEventListener(id==="search"?"input":"change",applyFilters));$("prev").addEventListener("click",()=>{page=Math.max(0,page-1);renderList()});$("next").addEventListener("click",()=>{page++;renderList()});$("allGlobePoints").addEventListener("change",e=>{showAllGlobePoints=e.target.checked;renderDots()});$("resetBtn").addEventListener("click",()=>(showGlobe(),globe?.pointOfView({lat:21,lng:9,altitude:2.5},1000)));$("globeModeBtn").addEventListener("click",showGlobe);$("mapModeBtn").addEventListener("click",()=>showMap());$("satModeBtn").addEventListener("click",showSatellite);
 $("mapBtn").addEventListener("click",()=>{if(mapMode==="map")showGlobe();else showMap()});$("spinBtn").addEventListener("click",()=>{rotating=!rotating;if(globe)globe.controls().autoRotate=rotating;$("spinBtn").innerHTML=(rotating?"⏸ ":"▶ ")+esc(t(rotating?"pause":"play"))});$("retry").addEventListener("click",boot);loadLang();boot();
 </script></body></html>
