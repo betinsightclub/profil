@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="theme-color" content="#071526">
 <title>BetInsight Football World · Private Vorschau</title>
-<link rel="icon" href="https://betinsight.club/favicon.ico"><link rel="stylesheet" href="https://unpkg.com/maplibre-gl@6.11.2/dist/maplibre-gl.css">
+<link rel="icon" href="https://betinsight.club/favicon.ico">
 <style>
 :root{color-scheme:dark;--bg:#061422;--bg2:#0b2032;--panel:#11293b;--card:#153448;--line:#25475a;--text:#f4f9fb;--muted:#a0b5bf;--aqua:#45dbce;--lime:#b5ee7d;--danger:#f38b84;--shadow:0 18px 50px #0006}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
@@ -48,7 +48,7 @@ a{color:var(--aqua)}.shell{min-height:100vh}.header{height:76px;border-bottom:1p
 <footer class="foot"><span>© BetInsight · Football World · Closed Preview</span><span data-i="qa">Stadiondaten sind Rohimporte und können unvollständig sein. Keine öffentlichen Veröffentlichungen.</span><span>3D Globe: globe.gl · Earth imagery: NASA/three-globe · Stadionquelle: WorldSoccerStadiums</span></footer>
 </main></div>
 <div class="lock" id="lock"><div class="lockcard"><img src="https://betinsight.club/assets/betinsight-logo.png" alt="BetInsight"><h2 data-i="restricted">Geschützte Entwickler-Vorschau</h2><p id="lockMessage" data-i="loginInfo">Öffne unten das BetInsight Admin Center, melde dich dort an und klicke anschließend auf „🌍 Stadionwelt (Test)“. Wichtig: im selben Browser-Tab bleiben.</p><a class="btn primary" href="/admin/" id="adminLink" data-i="goAdmin">Zum Backoffice-Login</a><button class="btn" id="retry" data-i="retry">Zugang erneut prüfen</button></div></div><div class="toast hide" id="toast"></div>
-<script src="https://unpkg.com/globe.gl@2.45.0/dist/globe.gl.min.js"></script><script type="module">import * as maplibregl from "https://unpkg.com/maplibre-gl@6.11.2/dist/maplibre-gl.mjs";window.maplibregl=maplibregl;window.dispatchEvent(new Event("maplibre-ready"));</script>
+<script async src="https://unpkg.com/globe.gl@2.45.0/dist/globe.gl.min.js" onload="window.dispatchEvent(new Event('stadium-globe-ready'))" onerror="window.dispatchEvent(new Event('stadium-globe-error'))"></script>
 <script>
 "use strict";
 const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/stadium-world-preview";
@@ -125,7 +125,49 @@ function loadLang(){try{sessionStorage.removeItem("betinsight_stadium_mapbox_tok
 async function hash(v){const b=new TextEncoder().encode(v),bytes=await crypto.subtle.digest("SHA-256",b);return Array.from(new Uint8Array(bytes)).map(x=>x.toString(16).padStart(2,"0")).join("")}
 async function session(){let v;try{v=JSON.parse(sessionStorage.getItem("betinsight_admin_session_v1")||"null")}catch{}if(v&&v.token&&v.adminId==="ADM-001"&&Number(v.expiresMs)>Date.now())adminHash=await hash(v.token);memberToken=localStorage.getItem("betinsight_dashboard_token")||localStorage.getItem("betinsight_profile_token")||""}
 async function call(action,params={}){const resp=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,admin_hash:adminHash,member_token:memberToken,...params})});let d;try{d=await resp.json()}catch{throw Error("NETWORK_ERROR")};if(!resp.ok||!d.ok)throw Error(d.error||"SERVER_ERROR");return d}
-async function boot(){try{await session();if(!adminHash){$("lockMessage").textContent=t("loginInfo");return}const d=await call("list");all=d.stadiums||[];clubs=d.clubs||[];fixtures=d.fixtures||[];tips=d.tipResults||[];tipLinks=d.tipLinks||[];ready=true;$("lock").classList.add("hide");$("total").textContent=fmt(all.length);$("countryCount").textContent=fmt(new Set(all.map(x=>x.country)).size);await Promise.allSettled([fetchQueue(),fetchVisits(),fetchProofQueue()]);fillCountries();initGlobe();applyFilters();renderRight()}catch(e){$("lockMessage").textContent=t("loginInfo")+" ("+String(e.message)+")";$("lock").classList.remove("hide")}}
+let bootPromise=null,reviewLoadPromise=null,reviewLoaded=false,globeLibraryFailed=false;
+function initGlobeWhenReady(){
+ if(!ready||globe||!$("lock").classList.contains("hide"))return;
+ if(typeof Globe==="undefined"){
+  if(globeLibraryFailed){$("emptyglobe").style.display="flex";$("globeError").textContent="3D-Bibliothek konnte nicht geladen werden. Die Stadionliste bleibt nutzbar."}
+  return;
+ }
+ initGlobe();renderDots();
+}
+window.addEventListener("stadium-globe-ready",initGlobeWhenReady);
+window.addEventListener("stadium-globe-error",()=>{globeLibraryFailed=true;initGlobeWhenReady()});
+async function loadReviewOnDemand(){
+ if(reviewLoaded||reviewLoadPromise)return reviewLoadPromise;
+ reviewLoadPromise=Promise.allSettled([fetchQueue(),fetchProofQueue()])
+ .then(()=>{reviewLoaded=true;if(tab==="review")renderRight()})
+ .finally(()=>{reviewLoadPromise=null});
+ return reviewLoadPromise;
+}
+async function boot(){
+ if(bootPromise)return bootPromise;
+ bootPromise=(async()=>{
+  try{
+   await session();
+   if(!adminHash){$("lockMessage").textContent=t("loginInfo");return}
+   const d=await call("list");
+   all=d.stadiums||[];clubs=d.clubs||[];fixtures=d.fixtures||[];
+   tips=d.tipResults||[];tipLinks=d.tipLinks||[];
+   ready=true;$("lock").classList.add("hide");
+   $("total").textContent=fmt(all.length);
+   $("countryCount").textContent=fmt(new Set(all.map(x=>x.country)).size);
+   fillCountries();
+   applyFilters();renderRight();
+   initGlobeWhenReady();
+   // Private visits may take a further gateway round trip; do not block the globe.
+   void fetchVisits().then(()=>{if(tab==="passport")renderRight()});
+   // Administrative media queues are only needed when the review tab is opened.
+  }catch(e){
+   $("lockMessage").textContent=t("loginInfo")+" ("+String(e.message)+")";
+   $("lock").classList.remove("hide");
+  }
+ })();
+ try{return await bootPromise}finally{bootPromise=null}
+}
 function fillCountries(){const countries=[...new Set(all.map(x=>x.country).filter(Boolean))].sort((a,b)=>a.localeCompare(b,lang));const current=$("country").value;$("country").innerHTML="<option value=''>"+esc(t("allCountries"))+"</option>"+countries.map(x=>"<option value='"+esc(x)+"'>"+esc(x)+"</option>").join("");$("country").value=current}
 function clubMap(id){return clubs.filter(x=>Number(x.stadium_id)===Number(id)).map(x=>x.club?.name).filter(Boolean)}
 function visitedIds(){return new Set(visits.map(v=>Number(v.stadium_id)).filter(Number.isFinite))}
@@ -161,7 +203,18 @@ function renderStreetVisitFlags(){
   streetVisitFlagMarkers.push(marker);
  });
 }
-let mapRequested=false,pendingMapMode="map";
+let mapRequested=false,pendingMapMode="map",streetAssetsPromise=null;
+function loadStreetAssets(){
+ if(window.maplibregl)return Promise.resolve(true);
+ if(streetAssetsPromise)return streetAssetsPromise;
+ const css=document.createElement("link");
+ css.rel="stylesheet";css.href="https://unpkg.com/maplibre-gl@6.11.2/dist/maplibre-gl.css";
+ document.head.appendChild(css);
+ streetAssetsPromise=import("https://unpkg.com/maplibre-gl@6.11.2/dist/maplibre-gl.mjs")
+  .then(module=>{window.maplibregl=module;window.dispatchEvent(new Event("maplibre-ready"));return true})
+  .catch(error=>{console.error("MapLibre could not load",error);streetAssetsPromise=null;mapRequested=false;toast("Straßenkarte momentan nicht verfügbar.");return false});
+ return streetAssetsPromise;
+}
 function ensureStreet(){
  if(streetMap||!window.maplibregl)return;
  const p=selected?{lat:+selected.latitude,lng:+selected.longitude}:globe?.pointOfView()||{lat:20,lng:0};
@@ -270,7 +323,7 @@ function updateSatellitePanel(){
 }
 function updateSatLink(){const a=$("satExternal");if(!a)return;a.href=googleSatUrl();a.classList.toggle("hide",mapMode!=="satellite")}
 function showMap(zoom=14.2,desiredMode="map"){
- if(!window.maplibregl){mapRequested=true;pendingMapMode=desiredMode;toast("🗺 "+t(desiredMode==="satellite"?"satellite":"mapView")+" …");return}
+ if(!window.maplibregl){mapRequested=true;pendingMapMode=desiredMode;void loadStreetAssets();return}
  mapRequested=false;mapMode=desiredMode;syncModeControls();
  $("globe").classList.add("hide");$("detailMap").classList.remove("hide");
  $("mapBtn").textContent="🌐 "+t("globeView");$("globeHint").textContent=mapMode==="satellite"?t("satLimit"):t("mapHint");
@@ -373,6 +426,6 @@ async function saveVisit(ev){ev.preventDefault();if(!selected)return;try{
  for(const photo of photos){const fd=new FormData();fd.append("action","visit_upload");fd.append("admin_hash",adminHash);fd.append("member_token",memberToken);fd.append("visit_id",created.visit.id);fd.append("file",photo);try{const u=await fetch(API,{method:"POST",body:fd});if(!u.ok)errors++}catch{errors++}}
  await fetchVisits();renderRight("passport");toast(t("saved")+(errors?" · "+errors+" photo(s) failed":""));
  }catch(e){toast(t("error")+": "+e.message)}}
-document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>renderRight(b.dataset.tab)));$("newBtn").addEventListener("click",()=>renderRight("suggest"));$("language").addEventListener("change",e=>{lang=e.target.value;localStorage.setItem("betinsight_language",lang);translate();fillCountries()});["search","country","capacity","sort"].forEach(id=>$(id).addEventListener(id==="search"?"input":"change",applyFilters));$("prev").addEventListener("click",()=>{page=Math.max(0,page-1);renderList()});$("next").addEventListener("click",()=>{page++;renderList()});$("allGlobePoints").addEventListener("change",e=>{showAllGlobePoints=e.target.checked;renderDots()});$("resetBtn").addEventListener("click",()=>(showGlobe(),globe?.pointOfView({lat:21,lng:9,altitude:2.5},1000)));$("globeModeBtn").addEventListener("click",showGlobe);$("mapModeBtn").addEventListener("click",()=>showMap());$("satModeBtn").addEventListener("click",showSatellite);
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{renderRight(b.dataset.tab);if(b.dataset.tab==="review")void loadReviewOnDemand()}));$("newBtn").addEventListener("click",()=>renderRight("suggest"));$("language").addEventListener("change",e=>{lang=e.target.value;localStorage.setItem("betinsight_language",lang);translate();fillCountries()});["search","country","capacity","sort"].forEach(id=>$(id).addEventListener(id==="search"?"input":"change",applyFilters));$("prev").addEventListener("click",()=>{page=Math.max(0,page-1);renderList()});$("next").addEventListener("click",()=>{page++;renderList()});$("allGlobePoints").addEventListener("change",e=>{showAllGlobePoints=e.target.checked;renderDots()});$("resetBtn").addEventListener("click",()=>(showGlobe(),globe?.pointOfView({lat:21,lng:9,altitude:2.5},1000)));$("globeModeBtn").addEventListener("click",showGlobe);$("mapModeBtn").addEventListener("click",()=>showMap());$("satModeBtn").addEventListener("click",showSatellite);
 $("mapBtn").addEventListener("click",()=>{if(mapMode==="map")showGlobe();else showMap()});$("retry").addEventListener("click",boot);loadLang();boot();
 </script></body></html>
