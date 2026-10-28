@@ -79,6 +79,29 @@ button:disabled{opacity:.55;cursor:wait}
   <p class="muted" style="font-size:12px">Diese Karten zeigen API-Quoten von „Winamax (DE)“. Die Marke winamax.de steht auf der GGL-Whitelist (02.10.2026), aber die konkrete Quote wurde nicht live auf einem deutschen Konto bestätigt. Die angezeigte Wahrscheinlichkeit ist nur ein aus anderen Buchmacherquoten berechneter Marktwert – keine eigenständige BetInsight-Prognose. Ein Klick auf „Virtuell übernehmen“ speichert 1 fiktive Unit zu 10 € im privaten Vergleich, weder echtes Geld noch echte Units oder öffentlich sichtbare Tipps. Doppelte Chance bleibt ein gesonderter, kostenpflichtiger Einzelspielmarkt.</p>
  </div>
  
+ <div class="panel" id="additionalOddsScout">
+ <div class="overline">Quoten-Scout für weitere Sportarten · The Odds API</div>
+ <h2>🏀 🏒 ⚾ 🏈 Weitere Sportarten mit Ampel</h2>
+ <p class="muted">Wähle eine Liga. Wir laden nur auf deinen Klick verfügbare 2-Wege-Siegerquoten. Zwei Ampeln beurteilen die Quoten von Heim- und Auswärtsmannschaft. Als Deutschland-gekennzeichneten Anbieter prüfen wir zunächst Winamax (DE). Kein Echtgeld und keine öffentliche Tippfreigabe.</p>
+ <div class="controls">
+  <div class="control"><label for="otherOddsLeague">Sportart und Liga</label>
+   <select id="otherOddsLeague">
+    <option value="basketball_nba">🏀 Basketball · NBA</option>
+    <option value="basketball_euroleague">🏀 Basketball · EuroLeague</option>
+    <option value="basketball_wnba">🏀 Basketball · WNBA</option>
+    <option value="icehockey_nhl">🏒 Eishockey · NHL</option>
+    <option value="baseball_mlb">⚾ Baseball · MLB</option>
+    <option value="baseball_kbo">⚾ Baseball · KBO</option>
+    <option value="baseball_npb">⚾ Baseball · NPB</option>
+    <option value="americanfootball_nfl">🏈 American Football · NFL</option>
+   </select></div>
+  <button id="loadOtherOdds" type="button">Liga-Quoten prüfen (max. 1 Credit)</button>
+ </div>
+ <p id="otherOddsStatus" class="muted" role="status">Noch keine Quoten geladen. Die Spielpläne unten enthalten keine geprüften Buchmacherquoten.</p>
+ <div id="otherOddsOverview" class="info">🔴 = deutlich ungünstiger Preis · 🟡 = kein gesicherter Vorteil · 🟢 = rechnerisch interessanter Marktpreis. Noch keine unabhängig berechnete Spielprognose. Keine Quote bedeutet keine Ampel.</div>
+ <div id="otherOddsFixtures" class="grid" style="margin-top:15px"></div>
+ <p class="small muted">Je nach Sport wird der Sieg einschließlich Verlängerung abgerechnet; genaue Wettregeln prüfen. Cricket und Tischtennis behalten zunächst nur den Spielplan, solange keine passende Deutschland-Quote nachgewiesen ist. Automatischer Ergebnisabgleich für Nicht-Fußball steht noch aus.</p>
+ </div>
  <div class="panel">
   <div><span class="tag good">Admin geschützt</span> <span class="tag">SportsAPI Pro</span> <span class="tag">BALLDONTLIE · NBA</span></div>
   <div class="controls">
@@ -132,6 +155,8 @@ const SESSION_KEY="betinsight_admin_session_v1";
 const WORKSHOP_API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-testlab-workshop";
 const DUEL_API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-testlab-duel";
 const SOCCER_SAVED="betinsight_testlab_soccer_v1";
+const OTHER_ODDS_SAVED="betinsight_testlab_other_odds_v1";
+const OTHER_ODDS_KEYS=["basketball_nba","basketball_euroleague","basketball_wnba","icehockey_nhl","baseball_mlb","baseball_kbo","baseball_npb","americanfootball_nfl"];
 const SOCCER_KEYS=["soccer_italy_serie_a","soccer_france_ligue_one","soccer_portugal_primeira_liga","soccer_netherlands_eredivisie"];
 const CODES=["basketball","hockey","cricket","table-tennis","baseball","american-football"];
 const LABELS={"basketball":"🏀 Basketball","hockey":"🏒 Eishockey","cricket":"🏏 Cricket","table-tennis":"🏓 Tischtennis","baseball":"⚾ Baseball","american-football":"🏈 American Football","soccer":"⚽ Fußball"};
@@ -314,8 +339,10 @@ function makeScoutCard(item,leagueKey){
   if(gap>=5&&o.odds>=1.4&&o.odds<=2.5&&bookCount>=5)return "green";
   return gap<=-2?"red":"yellow";
  };
- const headline=text("div","Ampel für 1 – X – 2 · Markt-Preischeck","lights-heading");
+ const soccer=item.sport==="soccer";
+ const headline=text("div",soccer?"Ampel für 1 – X – 2 · Markt-Preischeck":"Ampel für beide Sieger · Markt-Preischeck","lights-heading");
  const traffic=text("div","","traffic-choices");
+ if(!soccer)traffic.style.gridTemplateColumns="repeat(2,minmax(0,1fr))";
  const lightButtons=new Map();
  for(const o of options){
    const signal=lightClass(o);
@@ -426,6 +453,63 @@ async function loadSoccer(){
  }catch(e){$("soccerMsg").textContent="Liga-Abruf fehlgeschlagen: "+String(e.message||e)}
  finally{$("loadSoccer").disabled=false}
 }
+
+async function otherOddsRequest(key){
+ const response=await fetch(WORKSHOP_API,{
+   method:"POST",cache:"no-store",credentials:"omit",
+   headers:{"content-type":"application/json"},
+   signal:AbortSignal.timeout(35000),
+   body:JSON.stringify({action:"sports_odds_fixtures",session_hash:await hash(rawToken),league_key:key})
+ });
+ const result=await response.json();
+ if(!response.ok||result.ok!==true)throw Error(String(result.error||"SPORT_ODDS_REQUEST_FAILED"));
+ return result;
+}
+async function showOtherOdds(key,status){
+ try{
+  const res=await duelCall("scan",{query:{sport_key:key}});
+  if($("otherOddsLeague").value!==key)return;
+  const target=$("otherOddsFixtures");target.replaceChildren();
+  $("otherOddsOverview").textContent=res.scanned+" anstehende Spiele analysiert · "+
+    res.de_price_offers+" mit Winamax-(DE)-Zwei-Wege-Quoten · "+
+    res.strict_candidates+" nach strengem Preisfilter auffällig. "+
+    "Grün ist keine unabhängig modellierte Gewinnerwartung und kein automatischer Wetttipp.";
+  $("otherOddsStatus").textContent=status+" · "+res.scanned+" Spiele ausgewertet (keine weitere Quotenabfrage)";
+  if(!res.items?.length){
+    target.append(text("div","Keine geeigneten kommenden Spiele mit vollständigen Zwei-Wege-Siegquoten vorhanden.","info"));
+  }else{
+    for(const item of res.items)target.append(makeScoutCard(item,key));
+  }
+ }catch(e){
+  $("otherOddsStatus").textContent="Ampel-Auswertung momentan nicht verfügbar: "+String(e.message||e);
+ }
+}
+async function loadOtherOdds(){
+ const key=$("otherOddsLeague").value;
+ if(!OTHER_ODDS_KEYS.includes(key)||!rawToken)return;
+ const btn=$("loadOtherOdds");btn.disabled=true;
+ $("otherOddsStatus").textContent="Prüfe vorhandenen Cache und lade gegebenenfalls die Liga-Quoten …";
+ try{
+  const result=await otherOddsRequest(key);
+  const base=(result.from_cache?"Aus Cache ohne neuen Credit":"Neue Anbieterabfragen: "+Number(result.provider_requests||0))+
+    (result.credit_remaining==null?"":" · API-Rest-Credits: "+result.credit_remaining);
+  await showOtherOdds(key,base);
+  try{sessionStorage.setItem(OTHER_ODDS_SAVED,JSON.stringify({key}))}catch(_){}
+ }catch(e){
+  $("otherOddsOverview").textContent="Kein aktueller Quotenmarkt für diese Liga bestätigt. Es gibt hier keine Ampel oder Tippempfehlung.";
+  $("otherOddsFixtures").replaceChildren();
+  $("otherOddsStatus").textContent="Quotenabruf fehlgeschlagen oder Liga nicht verfügbar: "+String(e.message||e);
+ }finally{btn.disabled=false}
+}
+function restoreOtherOdds(){
+ try{
+  const item=JSON.parse(sessionStorage.getItem(OTHER_ODDS_SAVED)||"null");
+  if(!item||!OTHER_ODDS_KEYS.includes(item.key))return;
+  $("otherOddsLeague").value=item.key;
+  showOtherOdds(item.key,"Versuche, gespeicherte Quoten ohne neuen Credit wiederherzustellen");
+ }catch(_){}
+}
+
 async function boot(){
  const s=readSession();
  if(!s){$("authMsg").textContent="Keine gültige Admin-Sitzung. Bitte im selben Tab über das Admin Center anmelden.";return}
@@ -435,7 +519,7 @@ async function boot(){
   $("auth").classList.add("hidden");$("screen").classList.remove("hidden");
   const sOk=d.providers?.sportsapi_pro?.configured, bOk=d.providers?.balldontlie?.configured;
   $("message").textContent="Zugang bestätigt. SportsAPI Pro: "+(sOk?"Schlüssel hinterlegt":"Schlüssel fehlt")+" · BALLDONTLIE: "+(bOk?"Schlüssel hinterlegt":"Schlüssel fehlt")+". Jetzt Sportarten abrufen.";
-  if(!restoreView())renderFilters();restoreSoccer();
+  if(!restoreView())renderFilters();restoreSoccer();restoreOtherOdds();
  }catch(e){rawToken="";$("authMsg").textContent="Admin-Sitzung konnte serverseitig nicht bestätigt werden. Bitte erneut im Admin Center anmelden."}
 }
 function setUtcDate(offset){const d=new Date(Date.now()+offset*86400000);$("day").value=d.toISOString().slice(0,10)}
@@ -452,6 +536,7 @@ $("sport").addEventListener("change",persistView);
 $("one").addEventListener("click",()=>run("sport"));
 $("multi").addEventListener("click",()=>run("multi"));
 $("loadSoccer").addEventListener("click",loadSoccer);
+$("loadOtherOdds").addEventListener("click",loadOtherOdds);
 boot();
 </script>
 </body>
