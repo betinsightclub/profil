@@ -80,6 +80,7 @@ input[type=checkbox]{width:auto;accent-color:#2ed9ab}
 <div class="panel">
 <h2>Wichtige Regeln für die LucMedia-Buchhaltung</h2>
 <p><strong>1. Verkäufe:</strong> Den ursprünglichen Paketpreis (z. B. 49,00 €) als Bruttoumsatz erfassen. Eine Plisio-Gebühr darf den Bruttoumsatz nicht einfach reduzieren.</p>
+<p class="note"><strong>Nicht doppelt zählen:</strong> EUR-Bruttoumsatz und USDT-Brutto-Gegenwert können denselben Kundenkauf beschreiben. Die beiden BRL-Anzeigen sind unterschiedliche Sichtweisen auf eine Zahlung und dürfen nicht einfach addiert werden.</p>
 <p><strong>2. Kryptoguthaben:</strong> Bei USDT den Betrag vor Gebühren und die tatsächlich vom Anbieter abgezogene USDT-Gebühr separat erfassen. Es kann weitere Netzwerkgebühren in einer anderen Kryptowährung geben.</p>
 <p><strong>3. Kursdatum:</strong> Der tatsächliche Zahlungszeitpunkt kann vom Erstellungsdatum der Plisio-Rechnung abweichen. PTAX wird nicht an Wochenenden und bestimmten Feiertagen veröffentlicht. Der verwendete Kurstag wird angezeigt.</p>
 <p><strong>4. Steuerlicher Hinweis:</strong> Dies ist ein Umrechnungs- und Dokumentationswerkzeug, kein verbindlicher Steuerbescheid. Domênica muss die sachgerechte Methode (z. B. BRL-Umrechnung von Umsätzen und Bewertung von Krypto-Beständen) festlegen.</p>
@@ -116,7 +117,7 @@ async function tetherRate(date){
 function showBlank(){['grossBrl','netBrl','coinGrossBrl','feeBrl','eRate','uRate','requested','netUsdt'].forEach(id=>setText(id,'—'));}
 async function run(){
  const date=$('date').value;
- const euro=parse($('eur').value),usdt=parse($('usdt').value),fee=parse($('fee').value)||0,manual=parse($('manualRate').value);
+ const euro=parse($('eur').value),usdt=parse($('usdt').value),feeEntered=parse($('fee').value),fee=feeEntered===null?0:feeEntered,manual=parse($('manualRate').value);
  if(!safeDate(date)){msg('Bitte ein gültiges Datum auswählen.',true);return;}
  if(date>new Date().toISOString().slice(0,10)){msg('Für zukünftige Tage gibt es keinen historischen Kurs.',true);return;}
  if([euro,usdt,fee,manual].some(v=>Number.isNaN(v))){msg('Bitte nur positive Zahlen eingeben (Komma oder Punkt möglich).',true);return;}
