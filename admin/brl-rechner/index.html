@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+<meta name="theme-color" content="#061d2a">
+<link rel="icon" href="/favicon.ico">
+<title>BetInsight · Historischer BRL-Rechner</title>
+<style>
+:root{color-scheme:dark;--bg:#061924;--card:#103247;--surface:#0a2839;--line:#2d566d;--text:#f0f9fd;--muted:#b6cfda;--cyan:#22b8f7;--mint:#2ed9ab;--warn:#ffd77d;--red:#ffa6a6}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#0b3d55 0,#061b29 45%,#03121c 100%);color:var(--text);font:15px/1.55 system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+main{max-width:1080px;margin:auto;padding:26px 19px 60px}header{display:flex;gap:22px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:26px}
+a{color:#9ddfff}.brand{font-weight:900;letter-spacing:.035em}.brand span{color:var(--mint)}
+.tag{display:inline-flex;border:1px solid #327b8b;border-radius:100px;padding:5px 10px;color:var(--mint);font-size:12px;font-weight:800}
+h1{font-size:clamp(29px,4vw,43px);letter-spacing:-.04em;line-height:1.15;margin:8px 0}
+h2{font-size:20px;margin:0 0 14px}.muted{color:var(--muted)}.tiny{font-size:12px}.intro{max-width:850px}
+.panel{background:linear-gradient(180deg,#11394f,#0a2637);border:1px solid var(--line);border-radius:18px;padding:22px;margin:20px 0;box-shadow:0 12px 35px #0003}
+.fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}.field{display:flex;flex-direction:column;gap:6px}
+.field label{color:#dbedf4;font-size:14px;font-weight:750}.field small{color:var(--muted);font-size:12px}
+input{background:#061f2e;border:1px solid #46728a;border-radius:10px;color:#fff;padding:13px;font:inherit;width:100%;outline:none}
+input:focus{border-color:var(--cyan);box-shadow:0 0 0 2px #1599ef33}
+.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px}
+button{cursor:pointer;border:0;border-radius:10px;padding:12px 17px;color:#01131d;background:var(--mint);font-weight:850;font:inherit}
+button.secondary{color:#eaf6fa;background:#19485f;border:1px solid #36758d}button:disabled{cursor:wait;opacity:.6}
+.note{background:#102d3f;border-left:3px solid var(--warn);padding:13px 16px;border-radius:7px;margin:15px 0;color:#f5e6c8}
+.success{border-left-color:var(--mint);color:#d5f9eb}.error{border-left-color:var(--red);color:#ffe1e1}
+.results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.metric{border:1px solid #315b70;border-radius:13px;padding:17px;background:#092535}
+.metric .caption{font-size:13px;color:var(--muted)}.metric .value{font-size:clamp(23px,3vw,32px);font-weight:900;margin:5px 0;letter-spacing:-.02em}
+.metric.primary{border-color:#21a898;background:#103e46}.metric.primary .value{color:#a8ffdf}
+.details{width:100%;border-collapse:collapse;margin:15px 0}td,th{text-align:left;padding:10px;border-bottom:1px solid #31556a;vertical-align:top}
+td:last-child{font-variant-numeric:tabular-nums}th{color:var(--muted);font-size:12px}
+#locked,#work{display:none}#locked{margin-top:30px}#status{min-height:24px;margin-top:12px}
+input[type=checkbox]{width:auto;accent-color:#2ed9ab}
+.option{display:flex;gap:10px;align-items:flex-start;color:var(--muted);font-size:13px;margin-top:13px}
+@media(max-width:760px){.fields,.results{grid-template-columns:1fr}.panel{padding:17px}.details{font-size:13px}}
+@media print{body{background:white;color:black}header,.actions,.option,#status{display:none!important}.panel,.metric{background:white!important;color:black!important;box-shadow:none}.muted,.caption{color:#444!important}}
+</style>
+</head>
+<body>
+<main>
+<header><div class="brand">BET<span>INSIGHT</span> <span class="tag">MASTER · INTERN</span></div><a href="/admin/">← Zurück zum Admin-Center</a></header>
+<section id="locked" class="panel"><h2>Zugriff geschützt</h2><p id="lockText">Deine Admin-Sitzung wird überprüft.</p><p><a href="/admin/">Zum Admin-Login</a></p></section>
+<section id="work">
+<div class="tag">LUCMEDIA LTDA · BUCHHALTUNGSHILFE</div>
+<h1>Historischer BRL-Rechner</h1>
+<p class="muted intro">Ermittle den brasilianischen Real-Gegenwert eines Euro-Verkaufspreises oder eines USDT-Betrags für ein bestimmtes Datum. Bruttoumsatz und tatsächlich gutgeschriebenes Kryptoguthaben werden bewusst getrennt berechnet.</p>
+<div class="panel">
+<h2>1. Datum & Beträge</h2>
+<div class="fields">
+<div class="field"><label for="date">Zahlungs-/Bewertungstag</label><input id="date" type="date" value="2026-10-16" required><small>Maßgebliches Datum mit Domênica abstimmen.</small></div>
+<div class="field"><label for="eur">Original-Verkaufspreis (€)</label><input id="eur" inputmode="decimal" type="text" value="49,00" placeholder="z. B. 49,00"><small>Brutto vor Plisio-Gebühren; optional.</small></div>
+<div class="field"><label for="usdt">USDT-Betrag vor Gebühren</label><input id="usdt" inputmode="decimal" type="text" value="55,414251" placeholder="z. B. 55,414251"><small>Plisio-Kryptobetrag brutto; optional.</small></div>
+<div class="field"><label for="fee">Plisio-Gebühr in USDT</label><input id="fee" inputmode="decimal" type="text" value="0,50" placeholder="z. B. 0,50"><small>Nur abziehen, wenn USDT-Gebühr.</small></div>
+<div class="field"><label for="manualRate">Eigener USDT/BRL-Kurs (optional)</label><input id="manualRate" inputmode="decimal" type="text" placeholder="z. B. 5,3800"><small>Übersteuert den automatisch geladenen Kurs.</small></div>
+<div class="field"><label for="reference">Eigene Kursquelle (bei manuellem Kurs)</label><input id="reference" type="text" maxlength="100" placeholder="z. B. Börsenabrechnung"><small>Für eine prüfbare Dokumentation.</small></div>
+</div>
+<label class="option"><input id="estimate" type="checkbox"> Falls der echte historische USDT-Kurs nicht verfügbar ist, ausdrücklich eine <strong>USD≈USDT-Näherung</strong> anzeigen. Diese ist kein belegter USDT-Kurs.</label>
+<div class="actions"><button id="calculate" type="button">Historische Kurse abrufen & berechnen</button><button class="secondary" id="example" type="button">Beispiel 16.10. laden</button><button class="secondary" id="clear" type="button">Felder leeren</button></div>
+<div id="status" aria-live="polite"></div>
+</div>
+<section id="output" hidden>
+<div class="panel">
+<h2>2. Berechnung in brasilianischen Real</h2>
+<div class="results">
+<div class="metric primary"><div class="caption">Brutto-Umsatz aus ursprünglichem EUR-Preis</div><div id="grossBrl" class="value">—</div><div class="tiny">Euro-Verkaufspreis × EUR/BRL-Referenzkurs</div></div>
+<div class="metric"><div class="caption">Tatsächlich erhaltene USDT nach Plisio</div><div id="netBrl" class="value">—</div><div id="netUsdt" class="tiny">—</div></div>
+<div class="metric"><div class="caption">USDT vor Plisio-Gebühr (BRL)</div><div id="coinGrossBrl" class="value">—</div></div>
+<div class="metric"><div class="caption">Plisio-Gebühr (BRL)</div><div id="feeBrl" class="value">—</div></div>
+</div>
+<table class="details"><thead><tr><th>Historischer Kurs</th><th>Wert und Herkunft</th></tr></thead><tbody>
+<tr><td>EUR → BRL</td><td id="eRate">—</td></tr>
+<tr><td>USDT → BRL</td><td id="uRate">—</td></tr>
+<tr><td>Ausgewähltes Datum</td><td id="requested">—</td></tr>
+</tbody></table>
+<div id="warning" class="note">Marktkurse dienen der Übersicht. Die steuerliche Umrechnungsmethode muss die Buchhaltung bestätigen.</div>
+<div class="actions"><button class="secondary" id="csv" type="button">Ergebnis als CSV speichern</button><button class="secondary" type="button" onclick="window.print()">Drucken / PDF speichern</button></div>
+</div>
+</section>
+<div class="panel">
+<h2>Wichtige Regeln für die LucMedia-Buchhaltung</h2>
+<p><strong>1. Verkäufe:</strong> Den ursprünglichen Paketpreis (z. B. 49,00 €) als Bruttoumsatz erfassen. Eine Plisio-Gebühr darf den Bruttoumsatz nicht einfach reduzieren.</p>
+<p><strong>2. Kryptoguthaben:</strong> Bei USDT den Betrag vor Gebühren und die tatsächlich vom Anbieter abgezogene USDT-Gebühr separat erfassen. Es kann weitere Netzwerkgebühren in einer anderen Kryptowährung geben.</p>
+<p><strong>3. Kursdatum:</strong> Der tatsächliche Zahlungszeitpunkt kann vom Erstellungsdatum der Plisio-Rechnung abweichen. PTAX wird nicht an Wochenenden und bestimmten Feiertagen veröffentlicht. Der verwendete Kurstag wird angezeigt.</p>
+<p><strong>4. Steuerlicher Hinweis:</strong> Dies ist ein Umrechnungs- und Dokumentationswerkzeug, kein verbindlicher Steuerbescheid. Domênica muss die sachgerechte Methode (z. B. BRL-Umrechnung von Umsätzen und Bewertung von Krypto-Beständen) festlegen.</p>
+<p class="muted tiny">Quellen: Banco Central do Brasil PTAX über Frankfurter (offizielle Tagesreferenz); für USDT CoinGecko-Historie, sofern abrufbar. Auf dieser Seite werden keine Plisio-Daten übertragen oder verändert. Deine eingegebenen Beträge bleiben im Browser; der Abruf externer Kurse übermittelt nur das gewünschte Datum.</p>
+</div>
+</section>
+</main>
+<script>
+'use strict';
+const AUTH='https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-auth';
+const KEY='betinsight_admin_session_v1';
+const $=id=>document.getElementById(id);
+const brl=n=>Number.isFinite(n)?new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(n):'—';
+const num=n=>new Intl.NumberFormat('de-DE',{maximumFractionDigits:8}).format(n);
+let latest=null;
+function parse(s){s=String(s||'').trim().replace(/\s/g,'');if(!s)return null;if(s.includes(',')&&s.includes('.'))s=s.lastIndexOf(',')>s.lastIndexOf('.')?s.replace(/\./g,'').replace(',','.'):s.replace(/,/g,'');else s=s.replace(',','.');const n=Number(s);return Number.isFinite(n)&&n>=0?n:NaN;}
+function msg(t,bad=false){$('status').textContent=t;$('status').style.color=bad?'#ffb0b0':'#b7e0ed';}
+function setText(id,s){$(id).textContent=s;}
+function safeDate(d){return /^\d{4}-\d{2}-\d{2}$/.test(d)&&!Number.isNaN(Date.parse(d+'T12:00:00Z'))&&new Date(d+'T12:00:00Z').toISOString().slice(0,10)===d;}
+async function jsonFetch(url){const r=await fetch(url,{cache:'no-store',headers:{accept:'application/json'}});if(!r.ok)throw Error('HTTP '+r.status);return await r.json();}
+async function fxRate(base,date){
+ const stem='https://api.frankfurter.dev/v2/rate/'+base+'/brl?date='+date;
+ try {const r=await jsonFetch(stem+'&providers=bcb');if(!(Number(r.rate)>0))throw Error('missing');return {rate:Number(r.rate),date:r.date,source:'BCB PTAX über Frankfurter'};}
+ catch(e){const r=await jsonFetch(stem);if(!(Number(r.rate)>0))throw Error('Kein '+base+'-Kurs für den Tag');return {rate:Number(r.rate),date:r.date,source:'Frankfurter, offizielle Quellen (BCB nicht exklusiv)'};}
+}
+async function tetherRate(date){
+ const parts=date.split('-');
+ const q='https://api.coingecko.com/api/v3/coins/tether/history?date='+parts[2]+'-'+parts[1]+'-'+parts[0]+'&localization=false';
+ const p=await jsonFetch(q);
+ const rate=Number(p&&p.market_data&&p.market_data.current_price&&p.market_data.current_price.brl);
+ if(!(rate>0))throw Error('Kein historischer CoinGecko-Kurs vorhanden');
+ return {rate:rate,date:date,source:'CoinGecko: Tether (USDT/BRL), historische Tagesmomentaufnahme',estimated:false};
+}
+function showBlank(){['grossBrl','netBrl','coinGrossBrl','feeBrl','eRate','uRate','requested','netUsdt'].forEach(id=>setText(id,'—'));}
+async function run(){
+ const date=$('date').value;
+ const euro=parse($('eur').value),usdt=parse($('usdt').value),fee=parse($('fee').value)||0,manual=parse($('manualRate').value);
+ if(!safeDate(date)){msg('Bitte ein gültiges Datum auswählen.',true);return;}
+ if(date>new Date().toISOString().slice(0,10)){msg('Für zukünftige Tage gibt es keinen historischen Kurs.',true);return;}
+ if([euro,usdt,fee,manual].some(v=>Number.isNaN(v))){msg('Bitte nur positive Zahlen eingeben (Komma oder Punkt möglich).',true);return;}
+ if(euro===null&&usdt===null){msg('Mindestens einen EUR- oder USDT-Betrag eintragen.',true);return;}
+ if(usdt!==null&&fee>usdt){msg('Die USDT-Gebühr darf nicht größer als der USDT-Bruttobetrag sein.',true);return;}
+ if(manual!==null&&manual<=0){msg('Der manuelle USDT/BRL-Kurs muss größer als null sein.',true);return;}
+ $('calculate').disabled=true;msg('Historische Referenzkurse werden geladen …');
+ $('output').hidden=true;showBlank();
+ let e=null,u=null,errs=[];
+ try {
+  if(euro!==null){try{e=await fxRate('eur',date)}catch(err){errs.push('EUR/BRL: '+err.message);}}
+  if(usdt!==null){
+   if(manual!==null){u={rate:manual,date:date,source:($('reference').value.trim()||'Manuell eingetragener Wert – ohne Quellenbeleg'),estimated:false,manual:true};}
+   else{
+    try{u=await tetherRate(date);}
+    catch(err){
+      if($('estimate').checked){try{const dollar=await fxRate('usd',date);u={...dollar,estimated:true,source:'USDT≈USD – unverbindliche Näherung; '+dollar.source};}catch(e){errs.push('USDT/BRL: '+e.message);}}
+      else errs.push('USDT/BRL: '+err.message+'; eigenen Kurs eintragen oder USD-Näherung ausdrücklich aktivieren.');
+    }
+   }
+  }
+  const gross=e&&euro!==null?euro*e.rate:null;
+  const coinGross=u&&usdt!==null?usdt*u.rate:null;
+  const feeB=u&&usdt!==null?fee*u.rate:null;
+  const net=coinGross===null?null:coinGross-feeB;
+  setText('grossBrl',gross===null?'Kurs fehlt':brl(gross));
+  setText('coinGrossBrl',coinGross===null?'Kurs fehlt':brl(coinGross));
+  setText('feeBrl',feeB===null?'Kurs fehlt':brl(feeB));
+  setText('netBrl',net===null?'Kurs fehlt':brl(net));
+  setText('netUsdt',usdt===null?'Keine USDT eingegeben':num(usdt-fee)+' USDT nach '+num(fee)+' USDT Gebühr');
+  setText('eRate',e?'1 EUR = '+num(e.rate)+' BRL | Kursdatum: '+e.date+' | '+e.source:'Nicht verfügbar / kein EUR-Betrag');
+  setText('uRate',u?'1 USDT = '+num(u.rate)+' BRL | Kursdatum: '+u.date+' | '+u.source:'Nicht verfügbar / kein USDT-Betrag');
+  setText('requested',date.split('-').reverse().join('.'));
+  setText('warning',u&&u.estimated?'ACHTUNG: Der USDT-Wert wurde nur mit USD≈USDT geschätzt und ist kein historisch belegter Tether-Kurs. Nicht als exakten Krypto-Steuerwert verwenden.':'Referenzkurse dienen zur Orientierung; die verbindliche steuerliche Bewertung und der maßgebliche Stichtag sind mit Domênica abzustimmen.');
+  $('output').hidden=false;
+  latest={date:date,eur: euro,eurRate:e&&e.rate,eurRateDate:e&&e.date,eurSource:e&&e.source,grossBrl:gross,usdtGross:usdt,feeUsdt:fee,usdtNet:usdt===null?null:usdt-fee,usdtRate:u&&u.rate,usdtRateDate:u&&u.date,usdtSource:u&&u.source,usdtEstimated:u&&u.estimated,cryptoGrossBrl:coinGross,feeBrl:feeB,cryptoNetBrl:net};
+  msg(errs.length?'Teilweise berechnet. '+errs.join(' | '):'Berechnung abgeschlossen. Kursquelle und Kursdatum stehen im Ergebnis.',errs.length>0);
+ }catch(err){msg('Abruf fehlgeschlagen: '+err.message,true)}
+ finally{$('calculate').disabled=false;}
+}
+function csvField(v){if(v===null||v===undefined)return '';const str=String(v).replace(/"/g,'""');return '"'+str+'"';}
+function saveCsv(){if(!latest)return;const keys=Object.keys(latest);const csv='\ufeff'+keys.map(csvField).join(';')+'\r\n'+keys.map(k=>csvField(latest[k])).join(';')+'\r\n';const a=document.createElement('a');const b=new Blob([csv],{type:'text/csv;charset=utf-8;'});a.href=URL.createObjectURL(b);a.download='BetInsight-BRL-'+latest.date+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+$('calculate').addEventListener('click',run);
+$('csv').addEventListener('click',saveCsv);
+$('example').addEventListener('click',()=>{$('date').value='2026-10-16';$('eur').value='49,00';$('usdt').value='55,414251';$('fee').value='0,50';$('manualRate').value='';$('reference').value='';$('estimate').checked=false;msg('Beispieldaten geladen. Klicke auf Berechnen.');});
+$('clear').addEventListener('click',()=>{['eur','usdt','fee','manualRate','reference'].forEach(id=>$(id).value='');$('estimate').checked=false;$('output').hidden=true;latest=null;msg('Felder geleert.');});
+async function init(){
+ $('locked').style.display='block';$('work').style.display='none';
+ try{
+  const s=JSON.parse(sessionStorage.getItem(KEY)||'null');
+  if(!s||!s.token||Date.now()>=Number(s.expiresMs||0))throw Error('Bitte im Admin-Center anmelden.');
+  const buffer=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(String(s.token)));
+  const hash=Array.from(new Uint8Array(buffer)).map(x=>x.toString(16).padStart(2,'0')).join('');
+  const r=await fetch(AUTH,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'verify',session_hash:hash}),cache:'no-store',credentials:'omit'});
+  const v=await r.json();
+  if(!r.ok||v.ok!==true)throw Error('Die Admin-Sitzung konnte nicht bestätigt werden.');
+  if(String(v.admin_id)!=='ADM-001')throw Error('Nur der Hauptadministrator ADM-001 kann diesen Bereich öffnen.');
+  $('locked').style.display='none';$('work').style.display='block';
+ }catch(err){setText('lockText',err.message||'Zugriff nicht möglich.');}
+}
+init();
+</script>
+</body>
+</html>
