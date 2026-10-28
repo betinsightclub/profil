@@ -50,8 +50,8 @@ label{display:flex;flex-direction:column;gap:5px;color:#b8d8e8;font-size:13px}
  </div>
 </div>
 <div class="panel">
- <h2>Virtuelle Mitglieder-Vorschau &amp; mögliche Unit-Einnahmen</h2>
- <p class="muted">Nur interne Vorschau: Die hier übernommenen Tipps sind nicht auf der echten Mitgliederseite veröffentlicht. Bruttoumsatz ist lediglich ein Rechenbeispiel, kein tatsächlicher Verkauf.</p>
+ <h2 id="hypothetische-freischaltungen">Hypothetische Mitglieder-Freischaltungen · NICHT ONLINE</h2>
+ <p class="muted">Alle per grüner Preisampel übernommenen Tipps landen automatisch hier. Einsatz-Units (je 10 € fiktiver Einsatz) sind NICHT dasselbe wie die 1 Unit einer möglichen späteren Mitglieder-Freischaltung. Niemand kann diese Tipps öffentlich kaufen oder sehen. Umsatz ist nur ein Rechenbeispiel.</p>
  <div class="actions">
   <label>Annahme zahlende Mitglieder <select id="simMembers">
    <option value="1">1</option><option value="10">10</option><option value="50">50</option></select></label>
@@ -61,7 +61,7 @@ label{display:flex;flex-direction:column;gap:5px;color:#b8d8e8;font-size:13px}
  <div id="memberPreview"></div>
 </div>
 <div class="panel">
- <h2>Kontoverlauf</h2><svg id="chart" viewBox="0 0 900 145" role="img" aria-label="Virtuelles Kapital beider Testkonten"></svg>
+ <h2>Kontoverlauf · virtuelle Gewinne und Verluste</h2><svg id="chart" viewBox="0 0 900 145" role="img" aria-label="Virtuelles Kapital beider Testkonten"></svg>
  <p class="legend"><span style="color:#38dec0">━━</span> BetInsight-System &nbsp;&nbsp; <span style="color:#85adff">━━</span> Deine Entscheidungen</p>
  <p class="small muted" id="chartCaption">Noch keine abgerechneten virtuellen Tipps.</p>
 </div>
@@ -160,13 +160,17 @@ function renderEvent(e){
   const select=document.createElement("select");const choices=[["SKIP","Spiel auslassen"],...e.price_options.map(p=>[p.code,p.selection+" · "+Number(p.odds).toFixed(2)+" · "+p.bookmaker])];
   for(const [value,title]of choices){const op=document.createElement("option");op.value=value;op.textContent=title;select.append(op)}
   label.append(select);voteBox.append(label);
+  const unitsLabel=document.createElement("label");unitsLabel.append(txt("span","Virtueller Einsatz (1–3 Units à 10 €)"));
+  const stakeSelect=document.createElement("select");
+  for(let n=1;n<=3;n++){const o=document.createElement("option");o.value=String(n);o.textContent=n+" Unit"+(n===1?"":"s")+" · "+money(n*10);stakeSelect.append(o)}
+  unitsLabel.append(stakeSelect);voteBox.append(unitsLabel);
   const btn=txt("button","Mein Votum verbindlich speichern");btn.type="button";
   btn.disabled=Date.parse(e.kickoff_at)<=Date.now()+600000;
   const message=txt("p","","small");
   btn.addEventListener("click",async()=>{
    if(!confirm("Diese Entscheidung wird vor Spielbeginn unwiderruflich gespeichert. Fortfahren?"))return;
    btn.disabled=true;message.textContent="Speichern …";
-   try{await call("vote",{vote:{event_id:e.id,selection:select.value}});await reload()}
+   try{await call("vote",{vote:{event_id:e.id,selection:select.value,stake_units:Number(stakeSelect.value)}});await reload()}
    catch(err){message.textContent="Nicht gespeichert: "+String(err.message||err);btn.disabled=false}
   });voteBox.append(btn);voteBox.append(message);wrap.append(voteBox);
   wrap.append(txt("p",e.system_hidden?
@@ -185,6 +189,7 @@ function renderEvent(e){
   const usr=document.createElement("div");usr.className="note";
   usr.append(txt("strong","Dein Votum: "+human(user.vote_selection,e)));
   if(user.vote_selection!=="SKIP")usr.append(pair("Fixierte Quote",String(user.vote_price)+" · "+user.vote_bookmaker));
+  usr.append(txt("p","Virtueller Einsatz: "+Number(user.stake_units||1)+" Unit(s) à 10 € · "+money(Number(user.stake_units||1)*10),"small"));
   usr.append(txt("p","Unveränderlich gespeichert am "+date(user.locked_at),"small"));
   summary.append(sys,usr);wrap.append(summary);
  }
@@ -230,7 +235,11 @@ function renderMemberPreview(){
   const choice=e.price_options.find(x=>x.code===e.user_vote.vote_selection);
   card.append(pair("Tipp",choice?.selection||e.user_vote.vote_selection));
   card.append(pair("API-Buchmacher und fixierte Quote",String(e.user_vote.vote_bookmaker||"—")+" · "+Number(e.user_vote.vote_price).toFixed(2)));
-  card.append(txt("p","1 fiktive Unit = 10 €. Marktdaten sind kein unabhängiges Prognosemodell; die einzelne Quote wurde für deutsche Konten nicht live bestätigt.","small muted"));
+  const units=Number(e.user_vote.stake_units||1);
+  card.append(pair("Virtueller Einsatz",units+" Einsatz-Unit"+(units===1?"":"s")+" · "+money(units*10)));
+  card.append(pair("Theoretischer Gewinn bei Treffer",money(units*10*(Number(e.user_vote.vote_price)-1))));
+  card.append(pair("Theoretischer Verlust bei Fehlschlag","−"+money(units*10)));
+  card.append(txt("p","Nur fiktiver Wett-Einsatz: "+units+" × 10 €. Eventuelle Mitglieder-Freischalt-Units bleiben ein getrenntes Produkt. Kein öffentlicher Tipp, kein echter Umsatz, keine bestätigte Wettverfügbarkeit in Deutschland.","small muted"));
   card.append(txt("p",e.result?"Ergebnis abgeschlossen: "+(e.result.home_score??"—")+":"+(e.result.away_score??"—"):"Ergebnis noch offen","small"));
   el.append(card);
  }
