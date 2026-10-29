@@ -5474,6 +5474,32 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       if (hint) hint.textContent = "Wirksam ab " + formatCostDate(effective) + ". Der laufende Monat bleibt bei " + formatNumber(currentRate, 2) + " %.";
     }
 
+    async function refreshPlannedCostRate() {
+      const current=getCurrentAdmin();
+      if(!current.session || current.admin?.role!=="owner")return;
+      try {
+        const sessionHash=await sha256Hex(current.session.token);
+        const response=await fetch(COST_RATE_API_URL+"?route=cost-rate-read",{
+          method:"POST",headers:{"Content-Type":"application/json"},cache:"no-store",
+          credentials:"omit",body:JSON.stringify({action:"read_next_cost_pct",session_hash:sessionHash})
+        });
+        if(!response.ok)return;
+        const data=parseWebhookJsonSafe(await response.text());
+        if(!data?.ok||!data.planned||!Number.isFinite(Number(data.cost_pct)))return;
+        const plan=document.getElementById("sharedCostPlan");
+        const rate=Number(data.cost_pct);
+        if(plan) {
+          const currentRateText=plan.textContent.match(/Aktueller Satz:\\s*([0-9.,]+\\s*%)/)?.[1]||"2,50 %";
+          plan.innerHTML="<strong>Aktueller Satz:</strong> "+escapeHtml(currentRateText)+
+            " · <strong>ab "+escapeHtml(formatCostDate(data.effective_from))+
+            " geplant:</strong> "+escapeHtml(formatNumber(rate,2)+" %")+
+            " · Änderungen gelten nicht rückwirkend.";
+        }
+        const input=document.getElementById("nextCostPctInput");
+        if(input && document.activeElement!==input)input.value=rate.toFixed(2);
+      }catch(err){console.warn("Kostensatzanzeige konnte nicht aktualisiert werden",err);}
+    }
+
     async function saveNextCostRate() {
       const current = getCurrentAdmin();
       const button = document.getElementById("saveNextCostPctButton");
@@ -5602,6 +5628,7 @@ Hinweis: Master-Steuerung mit 40/60-Chargenmodell, 10/10/10-Tippgebermodell, pro
       masterTabButton.classList.toggle("hidden", !isMaster);
       const costsSummary = parseJsonValue(data.costs_summary, {});
       renderSharedCosts(costsSummary, isMaster);
+      if(isMaster) void refreshPlannedCostRate();
 
       document.getElementById("availableBalance").innerHTML = '<span class="privacy-sensitive">' +
         escapeHtml(String(data.available_balance || "0,00")) + '</span>';
