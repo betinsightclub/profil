@@ -122,7 +122,7 @@ h2{font-size:clamp(21px,2.7vw,26px);margin:0 0 6px;letter-spacing:-.015em}
 .roi-dialog-close:hover{background:#17678b}
 .roi-extra-note{color:#ffe5ac!important}
 .alert{padding:20px;border:1px solid #295f70;background:#0b3445;border-radius:14px;color:#bad5e4;line-height:1.55}
-.notice{padding:14px 17px;background:#4a391b;border:1px solid #a27d38;color:#ffdb96;border-radius:12px;font-size:12px;line-height:1.5;margin-bottom:16px}
+.unlock-success{padding:15px 18px;background:linear-gradient(110deg,#0b4454,#0a3444);border:1px solid #259caa;color:#defcf8;border-radius:12px;font-size:13px;font-weight:700;line-height:1.55;margin-bottom:18px}.unlock-success[hidden]{display:none}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
 .filter-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:18px 0}
 .filter-row button{padding:9px 13px;background:#0e384a;border:1px solid #2b5f73;border-radius:10px;color:#baddea;font-size:12px;font-weight:800}
@@ -176,8 +176,8 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
   </section>
 
   <section class="area" id="area-meine">
-    <div class="section-top"><div><h2>Meine freigeschalteten Tipps</h2><p class="lead">Nach erfolgreicher Freischaltung hier verfügbar – auch dann, wenn das Spiel bereits vorbei ist.</p></div></div>
-    <div class="notice">🔐 In dieser Vorschau werden persönliche Tipps nur nach gültigem Mitgliederzugang geladen. Fremde Freischaltungen bleiben privat. Das öffentliche Ergebnisarchiv ist separat zugänglich.</div>
+    <div class="section-top"><div><h2>Meine freigeschalteten Tipps</h2><p class="lead">Hier kannst du deine freigeschalteten Tipps direkt ansehen – auch wenn das Spiel bereits vorbei ist.</p></div></div>
+    <div id="unlockNotice" class="unlock-success" role="status" aria-live="polite" hidden></div>
     <div class="tips-stack" id="myFeed"><div class="alert">Persönliche Freischaltungen werden geprüft …</div></div>
   </section>
 
@@ -284,7 +284,7 @@ async function unlockTip(tip,button,feedback){
   if(data.status==="not_enough_units"){feedback.textContent="Nicht genug Units. Verfügbar: "+str(data.units)+" · Benötigt: "+str(data.required);return}
   if(data.status==="units_source_missing"){feedback.textContent="Die Herkunft deiner Units konnte nicht eindeutig zugeordnet werden. Bitte kontaktiere den Support.";return}
   if(data.status!=="success"&&data.status!=="already_unlocked")throw Error("Keine bestätigte Freischaltung");
-  state.unlockMessage=data.status==="already_unlocked"?"Dieser Tipp war bereits freigeschaltet.":"Dein Tipp wurde erfolgreich freigeschaltet!";
+  state.unlockMessage=data.status==="already_unlocked"?"✓ Dieser Tipp war bereits freigeschaltet. Du kannst ihn hier unter „Meine freigeschalteten Tipps“ ansehen.":"✓ Dein Tipp wurde erfolgreich freigeschaltet! Du findest ihn jetzt unter „Meine freigeschalteten Tipps“ und kannst ihn direkt ansehen.";
   var info=Object.assign({},tip,{spiel:str(data.spiel),tipp:str(data.tipp),quote:data.quote,ersteller:str(data.ersteller||tip.tippgeber),markt:str(data.markt),analyse:str(data.analyse||data.analyse_text),liga:str(data.liga||tip.liga),anpfiff:str(data.anpfiff||tip.anpfiff),datum:new Date().toISOString()});
   state.unlocked=[info].concat(state.unlocked.filter(function(x){return str(x.tipp_id)!==tipId}));
   state.hasAccess=true;
@@ -345,7 +345,7 @@ if(who==="Schulung")node.appendChild(trainingDemoCard());
 if(!state.tipsLoaded){if(who!=="Schulung")empty(node,"Neue Tipps konnten derzeit nicht geladen werden.");return}
 var ended=new Set(state.results.filter(function(r){return !!status(r.ergebnis_status)}).map(function(r){return str(r.tipp_id)}));
 var rows=state.tips.filter(function(r){return !expired(r)&&!ended.has(str(r.tipp_id))&&belongs(r,who)}).sort(function(a,b){return time(a.spiel_datum)-time(b.spiel_datum)});if(!rows.length){if(who!=="Schulung")empty(node,"In dieser Kategorie sind derzeit keine neuen, freischaltbaren Tipps vorhanden.");return}rows.forEach(function(r){node.appendChild(newCard(r))})}
-function drawMine(){var node=$("myFeed");node.replaceChildren();if(state.unlockMessage)node.appendChild(ele("div","notice",state.unlockMessage));if(state.privateError)node.appendChild(ele("div","alert",state.privateError));if(!state.hasAccess){node.appendChild(ele("div","private-state","Kein bestätigter Mitgliederzugang erkannt. Öffne die Seite über dein angemeldetes Profil, um deine eigenen freigeschalteten Tipps zu sehen."));var a=ele("a","small-button","Zum Profil →");a.href="../";node.appendChild(a);return}
+function drawMine(){var node=$("myFeed");node.replaceChildren();var confirmation=$("unlockNotice");confirmation.textContent=state.unlockMessage;confirmation.hidden=!state.unlockMessage;if(state.privateError)node.appendChild(ele("div","alert",state.privateError));if(!state.hasAccess){node.appendChild(ele("div","private-state","Kein bestätigter Mitgliederzugang erkannt. Öffne die Seite über dein angemeldetes Profil, um deine eigenen freigeschalteten Tipps zu sehen."));var a=ele("a","small-button","Zum Profil →");a.href="../";node.appendChild(a);return}
 if(!state.unlocked.length){empty(node,"Du hast noch keine persönlich freigeschalteten Tipps oder sie konnten nicht geladen werden.");return}var resultMap=new Map(state.results.map(function(r){return[str(r.tipp_id),r]}));state.unlocked.slice().sort(function(a,b){return time(b.datum)-time(a.datum)}).forEach(function(r){var rr=resultMap.get(str(r.tipp_id))||{};node.appendChild(resultCard(Object.assign({},r,{ergebnis_status:rr.ergebnis_status||r.ergebnis_status_bestaetigt,bestaetigt_am:rr.bestaetigt_am||r.ergebnis_bestaetigt_am,endergebnis:rr.endergebnis||""}),true))})}
 function drawArchive(){var node=$("archiveFeed");node.replaceChildren();if(!state.resultsLoaded){empty(node,"Bestätigte Ergebnisse konnten noch nicht geladen werden.");$("archiveCount").textContent="";return}
 var data=latest(state.results.filter(function(r){return !!status(r.ergebnis_status)&&(state.archive==="Alle"||belongs(r,state.archive))}));$("archiveCount").textContent=data.length+" bestätigte Ergebnisse sichtbar · Neueste Bewertung zuerst";if(!data.length){empty(node,"Für diesen Filter sind keine bestätigten Ergebnisse vorhanden.");return}data.forEach(function(r){node.appendChild(resultCard(r,false))})}
