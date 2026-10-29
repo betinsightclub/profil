@@ -154,14 +154,35 @@ async function loadReviewOnDemand(){
 const STADIUM_CATALOG_CACHE_KEY="betinsight_stadium_public_catalog_v1";
 const STADIUM_CATALOG_CACHE_TTL=5*60*1000;
 async function getCatalog(){
+ let stale=null;
  try{
   const c=JSON.parse(sessionStorage.getItem(STADIUM_CATALOG_CACHE_KEY)||"null");
-  if(Array.isArray(c?.data?.stadiums)&&Number.isFinite(c.time)&&c.time<=Date.now()&&Date.now()-c.time<STADIUM_CATALOG_CACHE_TTL)return c.data;
+  if(Array.isArray(c?.data?.stadiums)&&Number.isFinite(c.time)&&c.time<=Date.now()){
+   stale=c.data;
+   if(Date.now()-c.time<STADIUM_CATALOG_CACHE_TTL)return stale;
+  }
  }catch{}
- const result=await call("public_catalog");
- if(result.public!==true||!Array.isArray(result.stadiums))throw Error("PUBLIC_CATALOG_INVALID");
- try{sessionStorage.setItem(STADIUM_CATALOG_CACHE_KEY,JSON.stringify({time:Date.now(),data:result}))}catch{}
- return result;
+ try{
+  const result=await call("public_catalog");
+  if(result.public!==true||!Array.isArray(result.stadiums))throw Error("PUBLIC_CATALOG_INVALID");
+  try{sessionStorage.setItem(STADIUM_CATALOG_CACHE_KEY,JSON.stringify({time:Date.now(),data:result}))}catch{}
+  return result;
+ }catch(apiError){
+  // Read-only public backup: avoid blocking the globe if the live catalog endpoint fails.
+  try{
+   const response=await fetch("./catalog-public.json",{cache:"no-cache"});
+   if(!response.ok)throw Error("CATALOG_FALLBACK_HTTP_"+response.status);
+   const backup=await response.json();
+   if(backup.public!==true||!Array.isArray(backup.stadiums)||backup.stadiums.length===0)throw Error("CATALOG_FALLBACK_INVALID");
+   const result={ok:true,public:true,import_unverified:true,stadiums:backup.stadiums,clubs:[],fixtures:[],tipLinks:[],tipResults:[],admin:false,preview:false};
+   try{sessionStorage.setItem(STADIUM_CATALOG_CACHE_KEY,JSON.stringify({time:Date.now(),data:result}))}catch{}
+   console.warn("Public Stadium World: using read-only catalog backup",String(apiError));
+   return result;
+  }catch(fallbackError){
+   if(stale){console.warn("Public Stadium World: using cached catalog",String(apiError),String(fallbackError));return stale;}
+   throw apiError;
+  }
+ }
 }
 async function boot(){
  if(bootPromise)return bootPromise;
