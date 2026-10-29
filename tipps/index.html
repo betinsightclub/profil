@@ -295,7 +295,23 @@ async function unlockTip(tip,button,feedback){
  }catch(error){feedback.textContent="Freischaltung konnte nicht bestätigt werden. Bitte versuche es erneut oder kontaktiere den Support.";console.warn("BetInsight tip unlock error",String(error).slice(0,100))}
  finally{button.disabled=false;button.textContent="🔓 Tipp freischalten"}
 }
-function expired(r){if(typeof r.expired==="boolean")return r.expired;if(r.expired===true||r.expired==="true"||r.expired===1)return true;var d=str(r.spiel_datum),hm=str(r.anpfiff);var match=d.match(/^(\d{4})-(\d{2})-(\d{2})/);var day=match?match[3]+"."+match[2]+"."+match[1]:d;var v=time(day+" "+(hm||"00:00"));return v>0&&v<=Date.now()}
+function expired(r){
+  const flag=str(r.expired).toLowerCase();
+  if(flag==="true"||flag==="1")return true;
+  const raw=str(r.spiel_datum),tm=str(r.anpfiff);
+  const d=raw.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})/);
+  const iso=raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  const year=d?Number(d[3]):iso?Number(iso[1]):0;
+  const month=d?Number(d[2]):iso?Number(iso[2]):0;
+  const day=d?Number(d[1]):iso?Number(iso[3]):0;
+  if(!year||!month||!day)return false;
+  const k=tm.match(/(\d{1,2}):(\d{2})/),hh=k?Number(k[1]):0,mm=k?Number(k[2]):0;
+  const target=year*1e8+month*1e6+day*1e4+hh*100+mm;
+  const parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Berlin",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date());
+  const now={};parts.forEach(function(p){now[p.type]=p.value});
+  const stamp=Number(now.year)*1e8+Number(now.month)*1e6+Number(now.day)*1e4+Number(now.hour)*100+Number(now.minute);
+  return target<=stamp;
+}
 function trainingDemoCard(){
   var c=ele("article","tip demo-card");
   c.dataset.demoTip="BETINSIGHT-WEBINAR-DEMO";
