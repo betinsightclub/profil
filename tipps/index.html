@@ -101,7 +101,7 @@ h2{font-size:clamp(21px,2.7vw,26px);margin:0 0 6px;letter-spacing:-.015em}
 .tip{min-width:0;background:linear-gradient(135deg,#0e3848,#062431);padding:18px;border:1px solid #28627b;border-radius:15px;display:flex;flex-direction:column;gap:10px}
 .tip .meta{color:#a9cad8;font-size:11px;display:flex;gap:6px;justify-content:space-between;align-items:center;flex-wrap:wrap}
 .tip h3{font-size:17px;margin:0;font-weight:850;line-height:1.4}
-.tip p{margin:0;color:#bddeec;font-size:12px;line-height:1.5}
+.tip p{margin:0;color:#bddeec;font-size:12px;line-height:1.5}.full-analysis{white-space:pre-wrap;overflow-wrap:anywhere}
 .pill{font-size:10px;font-weight:900;border:1px solid #2c86a8;border-radius:99px;padding:5px 9px;display:inline-block;background:#0d516f;color:#ceeffe}
 .pill.won{border-color:#2b987d;background:#115143;color:#a5ffdc}
 .pill.lost{border-color:#a75060;background:#542934;color:#ffd4d9}
@@ -244,7 +244,14 @@ var t=$("streak");t.replaceChildren();var display=s.rows.slice(0,10);display.for
 function resultCard(r,personal){var s=status(r.ergebnis_status),c=ele("article","tip"),top=ele("div","meta"),tag=ele("span","pill"+(s?" "+s:""),s==="won"?"✓ GEWONNEN":s==="lost"?"✕ VERLOREN":s==="void"?"↔ ANNULLIERT":personal?"🔓 FREIGESCHALTET":"AUSWERTUNG OFFEN");top.appendChild(tag);top.appendChild(ele("span","",shortDate(r.bestaetigt_am||r.datum||r.spiel_datum)));c.appendChild(top);
 c.appendChild(ele("h3","",str(r.spiel)||"Spiel / Tipp "+str(r.tipp_id)));
 var m=ele("p","","Tippgeber: "+str(r.tippgeber||r.ersteller||"BetInsight")+" · "+str(r.sportart||r.liga||"Sportanalyse"));c.appendChild(m);
-if(personal){c.appendChild(ele("p","","Auswahl: "+str(r.tipp||"–")));if(r.analyse)c.appendChild(ele("p","",str(r.analyse).slice(0,260)))}
+if(personal){
+ c.appendChild(ele("p","","Markt: "+str(r.markt||"–")));
+ c.appendChild(ele("p","","Auswahl: "+str(r.tipp||"–")));
+ if(r.analyse)c.appendChild(ele("p","full-analysis","Analyse: "+str(r.analyse)));
+ var details=ele("a","small-button","Vollständige Anbieter- und Quotenansicht →");
+ details.href=liveUrl();
+ c.appendChild(details);
+}
 else if(r.tipp)c.appendChild(ele("p","","Tipp: "+str(r.tipp)));
 var b=ele("div","card-bottom");b.appendChild(ele("span","meta",numeric(r.quote)>1?"Quote: "+str(r.quote):"Quote: –"));b.appendChild(ele("span","meta",str(r.endergebnis)?("Endstand: "+str(r.endergebnis)):(personal?"Persönlicher Zugang":"Bestätigter Tipp")));c.appendChild(b);return c}
 function newCard(r){
@@ -288,7 +295,7 @@ async function unlockTip(tip,button,feedback){
  }catch(error){feedback.textContent="Freischaltung konnte nicht bestätigt werden. Bitte versuche es erneut oder kontaktiere den Support.";console.warn("BetInsight tip unlock error",String(error).slice(0,100))}
  finally{button.disabled=false;button.textContent="🔓 Tipp freischalten"}
 }
-function expired(r){if(r.expired===true||r.expired==="true"||r.expired===1)return true;var d=str(r.spiel_datum),hm=str(r.anpfiff);var match=d.match(/^(\d{4})-(\d{2})-(\d{2})/);var day=match?match[3]+"."+match[2]+"."+match[1]:d;var v=time(day+" "+(hm||"00:00"));return v>0&&v<=Date.now()}
+function expired(r){if(typeof r.expired==="boolean")return r.expired;if(r.expired===true||r.expired==="true"||r.expired===1)return true;var d=str(r.spiel_datum),hm=str(r.anpfiff);var match=d.match(/^(\d{4})-(\d{2})-(\d{2})/);var day=match?match[3]+"."+match[2]+"."+match[1]:d;var v=time(day+" "+(hm||"00:00"));return v>0&&v<=Date.now()}
 function trainingDemoCard(){
   var c=ele("article","tip demo-card");
   c.dataset.demoTip="BETINSIGHT-WEBINAR-DEMO";
@@ -322,7 +329,7 @@ if(who==="Schulung")node.appendChild(trainingDemoCard());
 if(!state.tipsLoaded){if(who!=="Schulung")empty(node,"Neue Tipps konnten derzeit nicht geladen werden.");return}
 var ended=new Set(state.results.filter(function(r){return !!status(r.ergebnis_status)}).map(function(r){return str(r.tipp_id)}));
 var rows=state.tips.filter(function(r){return !expired(r)&&!ended.has(str(r.tipp_id))&&belongs(r,who)}).sort(function(a,b){return time(a.spiel_datum)-time(b.spiel_datum)});if(!rows.length){if(who!=="Schulung")empty(node,"In dieser Kategorie sind derzeit keine neuen, freischaltbaren Tipps vorhanden.");return}rows.forEach(function(r){node.appendChild(newCard(r))})}
-function drawMine(){var node=$("myFeed");node.replaceChildren();if(state.unlockMessage)node.appendChild(ele("div","notice",state.unlockMessage));if(state.privateError)node.appendChild(ele("div","alert",state.privateError));if(!state.hasAccess){node.appendChild(ele("div","private-state","Kein bestätigter Mitgliederzugang erkannt. Öffne die Vorschau über dein angemeldetes Profil, um deine eigenen freigeschalteten Tipps zu sehen."));var a=ele("a","small-button","Zum Profil →");a.href="../";node.appendChild(a);return}
+function drawMine(){var node=$("myFeed");node.replaceChildren();if(state.unlockMessage)node.appendChild(ele("div","notice",state.unlockMessage));if(state.privateError)node.appendChild(ele("div","alert",state.privateError));if(!state.hasAccess){node.appendChild(ele("div","private-state","Kein bestätigter Mitgliederzugang erkannt. Öffne die Seite über dein angemeldetes Profil, um deine eigenen freigeschalteten Tipps zu sehen."));var a=ele("a","small-button","Zum Profil →");a.href="../";node.appendChild(a);return}
 if(!state.unlocked.length){empty(node,"Du hast noch keine persönlich freigeschalteten Tipps oder sie konnten nicht geladen werden.");return}var resultMap=new Map(state.results.map(function(r){return[str(r.tipp_id),r]}));state.unlocked.slice().sort(function(a,b){return time(b.datum)-time(a.datum)}).forEach(function(r){var rr=resultMap.get(str(r.tipp_id))||{};node.appendChild(resultCard(Object.assign({},r,{ergebnis_status:rr.ergebnis_status||r.ergebnis_status_bestaetigt,bestaetigt_am:rr.bestaetigt_am||r.ergebnis_bestaetigt_am,endergebnis:rr.endergebnis||""}),true))})}
 function drawArchive(){var node=$("archiveFeed");node.replaceChildren();if(!state.resultsLoaded){empty(node,"Bestätigte Ergebnisse konnten noch nicht geladen werden.");$("archiveCount").textContent="";return}
 var data=latest(state.results.filter(function(r){return !!status(r.ergebnis_status)&&(state.archive==="Alle"||belongs(r,state.archive))}));$("archiveCount").textContent=data.length+" bestätigte Ergebnisse sichtbar · Neueste Bewertung zuerst";if(!data.length){empty(node,"Für diesen Filter sind keine bestätigten Ergebnisse vorhanden.");return}data.forEach(function(r){node.appendChild(resultCard(r,false))})}
