@@ -210,7 +210,7 @@
       case "time-clash": navigateProtected("time-clash"); break;
       case "time-clash-team": navigateProtected("time-clash/mein-team"); break;
       case "my-public-profile": navigateAnyProtected("trainer"); break;
-      case "my-stadium-passport": navigateAnyProtected("stadionwelt"); break;
+      case "my-stadium-passport": navigateAnyProtected("stadionwelt",{hash:"passport"}); break;
       case "time-clash-ranking": navigateProtected("time-clash/rangliste"); break;
       case "community": session().navigateLocal("trainer-feed"); break;
       case "time-clash-credits": navigateProtected("clash-token-tausch"); break;
