@@ -46,7 +46,8 @@
     {id:"dashboard",key:"nav.dashboard",fallback:"Dashboard",icon:icons.dashboard},
     {id:"free-units-group",key:"nav.freeUnits",fallback:"Free Units",icon:icons.daily,children:[
       {id:"daily",key:"nav.daily",fallback:"Daily Bonus"},
-      {id:"fan-challenge",key:"nav.fanChallenge",fallback:"Fan Challenge"}
+      {id:"fan-challenge",key:"nav.fanChallenge",fallback:"Fan Challenge"},
+      {id:"stadion-quiz",key:"nav.stadionQuiz",fallback:"Stadionfragen"}
     ]},
     {id:"tips-group",key:"nav.tips",fallback:"Tipps",icon:icons.tips,children:[
       {id:"tipps",key:"nav.newTips",fallback:"Neue Tipps"},
@@ -212,6 +213,7 @@
       case "dashboard": navigateProtected(""); break;
       case "daily": navigateProtected("daily"); break;
       case "fan-challenge": navigateProtected("fan-challenge"); break;
+      case "stadion-quiz": navigateProtected("stadion-quiz"); break;
       case "tipps": navigateNewTips(); break;
       case "freigeschaltet": navigateProtected("freigeschaltet"); break;
       case "time-clash": navigateProtected("time-clash"); break;
@@ -272,12 +274,12 @@
     if (first === "trainer-feed") return "community";
     if (first === "trainer") return "my-public-profile";
     if (first === "clash-token-tausch") return "time-clash-credits";
-    const known = ["daily","fan-challenge","tipps","freigeschaltet","wechselboerse","verkaufen","meine-verkaufsangebote","wallet","anbieter","ressourcen","marketing-center","hilfe","support"];
+    const known = ["daily","fan-challenge","stadion-quiz","tipps","freigeschaltet","wechselboerse","verkaufen","meine-verkaufsangebote","wallet","anbieter","ressourcen","marketing-center","hilfe","support"];
     return known.includes(first) ? first : "dashboard";
   }
 
   function groupForRoute(id) {
-    if (["daily","fan-challenge"].includes(id)) return "free-units-group";
+    if (["daily","fan-challenge","stadion-quiz"].includes(id)) return "free-units-group";
     if (["tipps","freigeschaltet"].includes(id)) return "tips-group";
     if (["time-clash","time-clash-team","time-clash-ranking","time-clash-credits"].includes(id)) return "time-clash-group";
     if (["wechselboerse","angebote","verkaufen","meine-verkaufsangebote"].includes(id)) return "exchange-group";
