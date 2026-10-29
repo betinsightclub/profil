@@ -174,6 +174,13 @@
     session().navigateLocal(segment, options);
   }
 
+  function navigateNewTips() {
+    if (!requireAnyAccess()) return;
+    // Versioned route forces fresh HTML instead of a previously cached tip-list view.
+    // No member token or account identifier is placed in the URL.
+    window.location.assign(session().appPath("tipps") + "?ui=tipcenter-20261029");
+  }
+
   function navigateProfileHash(hash) {
     if (!requireAnyAccess()) return;
     const root = session().appPath();
@@ -205,7 +212,7 @@
       case "dashboard": navigateProtected(""); break;
       case "daily": navigateProtected("daily"); break;
       case "fan-challenge": navigateProtected("fan-challenge"); break;
-      case "tipps": navigateAnyProtected("tipps"); break;
+      case "tipps": navigateNewTips(); break;
       case "freigeschaltet": navigateProtected("freigeschaltet"); break;
       case "time-clash": navigateProtected("time-clash"); break;
       case "time-clash-team": navigateProtected("time-clash/mein-team"); break;
