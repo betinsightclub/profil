@@ -197,6 +197,8 @@ async function boot(){
    $("countryCount").textContent=fmt(new Set(all.map(x=>x.country)).size);
    fillCountries();
    applyFilters();renderRight();
+   const deepId=Number(new URLSearchParams(location.search).get("stadium"));
+   if(Number.isSafeInteger(deepId)&&deepId>0&&all.some(s=>Number(s.id)===deepId))selectStadium(deepId);
    initGlobeWhenReady();
    // Private visits may take a further gateway round trip; do not block the globe.
    void fetchVisits().then(()=>{if(tab==="passport")renderRight()});
@@ -421,7 +423,7 @@ function initGlobe(){const holder=$("globe");if(typeof Globe==="undefined"){ $("
 .htmlElement(s=>makeFlagButton(s))
 .htmlTransitionDuration(0)
 .htmlElementVisibilityModifier((element,isVisible)=>{element.style.display=isVisible?"":"none";element.style.pointerEvents=isVisible?"auto":"none"}).pointLabel(x=>esc(x.name)+" · "+esc(x.city||"")+" · "+esc(x.country)+" · "+(x.capacity==null?esc(t("unknownSize")):fmt(x.capacity)+" "+esc(t("capacity")))).onPointClick(x=>selectStadium(x.id)).onGlobeClick(p=>{if(pickMode){$("latitude").value=p.lat.toFixed(6);$("longitude").value=p.lng.toFixed(6);pickMode=false;toast("✓ "+p.lat.toFixed(5)+", "+p.lng.toFixed(5))}});
-globe.width(w).height(h).pointOfView({lat:21,lng:9,altitude:2.5},0);globe.controls().autoRotate=false;globe.controls().autoRotateSpeed=0;globe.controls().enableDamping=true;globe.controls().minDistance=118;new ResizeObserver(()=>{if(globe&&holder.clientWidth&&holder.clientHeight)globe.width(holder.clientWidth).height(holder.clientHeight)}).observe(holder);renderDots();}catch(e){$("emptyglobe").style.display="flex";$("globeError").textContent=String(e)}}
+globe.width(w).height(h).pointOfView(selected?{lat:+selected.latitude,lng:+selected.longitude,altitude:1.65}:{lat:21,lng:9,altitude:2.5},0);globe.controls().autoRotate=false;globe.controls().autoRotateSpeed=0;globe.controls().enableDamping=true;globe.controls().minDistance=118;new ResizeObserver(()=>{if(globe&&holder.clientWidth&&holder.clientHeight)globe.width(holder.clientWidth).height(holder.clientHeight)}).observe(holder);renderDots();}catch(e){$("emptyglobe").style.display="flex";$("globeError").textContent=String(e)}}
 function renderDots(){
  if(!globe)return;
  const globeLocations=filtered.filter(s=>showAllGlobePoints||Number(s.capacity||0)>=40000||Number(s.id)===Number(selected?.id));
