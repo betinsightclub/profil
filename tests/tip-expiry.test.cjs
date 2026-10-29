@@ -66,15 +66,21 @@ test('valid future tip still reaches the existing unlock flow', async () => {
   const f = fixture(); f.create(); await flush(); await f.unlock();
   assert.equal(f.unlocks, 1);
 });
-test('main list excludes expired tips even if the helper or results service fails', async () => {
-  const nodes = new Map();
-  const node = id => { if (!nodes.has(id)) nodes.set(id, { style: {}, innerHTML: '', addEventListener() {} }); return nodes.get(id); };
-  const tips = [true, 'true', ' TRUE ', 1, '1'].map((expired, i) => ({ tipp_id: 'expired' + i, expired }));
-  tips.push({ tipp_id: 'future', expired: false });
-  const context = vm.createContext({ console, document: { getElementById: node, addEventListener() {} }, window: { addEventListener() {} },
-    fetch: async url => ({ ok: url.includes('tips-list'), text: async () => url.includes('tips-list') ? JSON.stringify(tips) : 'unavailable' }) });
-  for (const match of html.matchAll(/<script>([\s\S]*?)<\/script>/g)) vm.runInContext(match[1], context);
-  vm.runInContext('renderNextOpenTipps=()=>{};renderResults=()=>{};appendDemoCard=()=>{};', context);
-  await vm.runInContext('loadPage()', context);
-  assert.equal(vm.runInContext('JSON.stringify(loadedOpenTipps.map(t=>t.tipp_id))', context), '["future"]');
+test('live Tip Center filters every expired flag and past Berlin kickoff before displaying available tips', async () => {
+  const start=html.indexOf('function expired(r){');
+  const end=html.indexOf('\\nfunction trainingDemoCard()',start);
+  assert.ok(start>=0 && end>start,'new Tip Center expiry guard present');
+  const code=html.slice(start,end);
+  const expired=vm.runInNewContext(
+    '(function(){const str=v=>String(v??"" ).trim();'+code+';return expired;})()',
+    {Date, Intl, Number, String, Object}
+  );
+  for(const flag of [true,'true',' TRUE ',1,'1']){
+    assert.equal(expired({expired:flag,spiel_datum:'01.01.2099',anpfiff:'20:00'}),true,'must hide '+String(flag));
+  }
+  assert.equal(expired({expired:false,spiel_datum:'01.01.2099',anpfiff:'20:00'}),false);
+  assert.equal(expired({expired:false,spiel_datum:'01.01.2026',anpfiff:'20:00'}),true,'stale false API flag must not expose old kickoff');
+  assert.equal(expired({expired:'0',spiel_datum:'2026-01-01',anpfiff:'20:00'}),true,'ISO dates need Berlin expiry');
+  assert.match(html,/state\\.tips\\.filter\\(function\\(r\\)\\{return !expired\\(r\\) &&?|state\\.tips\\.filter\\(function\\(r\\)\\{return !expired\\(r\\)/,'new tip cards must filter expired results');
+  assert.match(html,/betinsight-member-gateway\\?route=tip-unlock/,'live unlock must remain on the secured production gateway');
 });
