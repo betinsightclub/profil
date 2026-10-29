@@ -55,10 +55,10 @@ h2{font-size:clamp(21px,2.7vw,26px);margin:0 0 6px;letter-spacing:-.015em}
 .pro-name{font-size:17px;font-weight:900}
 .pro-sub{font-size:11px;color:#aacddb;line-height:1.4;flex:1}
 .pro-stat{font-size:12px;font-weight:800;color:#91f0d6;display:block}
-.mini-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;width:100%;margin-top:4px}
-.mini-stat{min-width:0;border-radius:9px;border:1px solid #28647b;background:#031e2b88;padding:8px 4px}
+.mini-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;margin-top:4px}
+.mini-stat{min-width:0;border-radius:9px;border:1px solid #28647b;background:#031e2b88;padding:10px 9px}
 .mini-stat-label{display:block;color:#abcbd9;font-size:9px;letter-spacing:0;font-weight:800;line-height:1.25;white-space:nowrap}
-.mini-stat-value{display:block;color:#e9ffff;font-size:17px;font-weight:950;margin-top:5px;letter-spacing:-.05em;white-space:nowrap}
+.mini-stat-value{display:block;color:#e9ffff;font-size:21px;font-weight:950;margin-top:5px;letter-spacing:-.03em;white-space:nowrap}
 .demo-card{border-color:#a9864a;background:linear-gradient(145deg,#293544,#092535)}
 .demo-badge{background:#674724;color:#ffe4ae;border:1px solid #bd954e;border-radius:999px;padding:6px 12px;font-size:11px;font-weight:900;display:inline-block}
 .demo-list{background:#071f2b;border:1px solid #365567;border-radius:11px;padding:7px 13px}
@@ -132,7 +132,7 @@ h2{font-size:clamp(21px,2.7vw,26px);margin:0 0 6px;letter-spacing:-.015em}
 .private-state a{color:#67d0ff}
 footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top:40px}
 @media(max-width:900px){.provider-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.perf-bottom{grid-template-columns:1fr}}
-@media(max-width:600px){main{padding:20px 13px 55px}.hero{padding:27px 19px}.nav-tabs{gap:7px}.navtab{padding:12px 9px;display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-height:102px;font-size:12px}.navtab .tab-icon{font-size:20px}.navtab .tab-desc{font-size:10px;margin-top:3px}.provider-grid{gap:9px}.provider{min-height:162px;padding:13px 12px}.pro-name{font-size:16px}.performance{padding:16px}.perf-top{align-items:stretch}.windows{width:100%}.winbtn{flex:1}.tips-stack{grid-template-columns:1fr}.kpi{padding:13px}.kpi-value{font-size:24px}.mini-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.mini-stat:last-child{grid-column:1/-1}.mini-stat-value{font-size:18px}}
+@media(max-width:600px){main{padding:20px 13px 55px}.hero{padding:27px 19px}.nav-tabs{gap:7px}.navtab{padding:12px 9px;display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-height:102px;font-size:12px}.navtab .tab-icon{font-size:20px}.navtab .tab-desc{font-size:10px;margin-top:3px}.provider-grid{gap:9px}.provider{min-height:162px;padding:13px 12px}.pro-name{font-size:16px}.performance{padding:16px}.perf-top{align-items:stretch}.windows{width:100%}.winbtn{flex:1}.tips-stack{grid-template-columns:1fr}.kpi{padding:13px}.kpi-value{font-size:24px}.mini-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.mini-stat-value{font-size:19px}}
 </style>
 </head>
 <body>
@@ -152,8 +152,8 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
   <section class="area active" id="area-neu">
     <div class="section-top"><div><h2>Wähle deinen Tippgeber</h2><p class="lead">Jede Kategorie zeigt ausschließlich die zugehörigen neuen Tipps.</p></div></div>
     <div class="provider-grid">
-      <button type="button" class="provider selected" data-provider="Martin" aria-pressed="true"><span class="pro-top"><span class="pro-icon">⚽</span><span class="pill">TIPPGEBER</span></span><span class="pro-name">Martin</span><span class="pro-sub">Fußballanalysen und individuelle Tipps</span><span class="pro-stat" id="martinMini">Letzte 5 / 10 / Gesamt werden geladen …</span></button>
-      <button type="button" class="provider" data-provider="Frank" aria-pressed="false"><span class="pro-top"><span class="pro-icon">📈</span><span class="pill">TIPPGEBER</span></span><span class="pro-name">Frank</span><span class="pro-sub">Analysen und aktuelle Sporttipps</span><span class="pro-stat" id="frankMini">Letzte 5 / 10 / Gesamt werden geladen …</span></button>
+      <button type="button" class="provider selected" data-provider="Martin" aria-pressed="true"><span class="pro-top"><span class="pro-icon">⚽</span><span class="pill">TIPPGEBER</span></span><span class="pro-name">Martin</span><span class="pro-sub">Fußballanalysen und individuelle Tipps</span><span class="pro-stat" id="martinMini">Letzte 10 und Gesamt werden geladen …</span></button>
+      <button type="button" class="provider" data-provider="Frank" aria-pressed="false"><span class="pro-top"><span class="pro-icon">📈</span><span class="pill">TIPPGEBER</span></span><span class="pro-name">Frank</span><span class="pro-sub">Analysen und aktuelle Sporttipps</span><span class="pro-stat" id="frankMini">Letzte 10 und Gesamt werden geladen …</span></button>
       <button type="button" class="provider" data-provider="Schulung" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🎓</span><span class="pill">LERNBEREICH</span></span><span class="pro-name">Schulungstipps</span><span class="pro-sub">Schulungsbeispiele und Demonstrationen</span><span class="pro-stat">Nur Schulungstipps ansehen</span></button>
       <button type="button" class="provider" disabled aria-disabled="true"><span class="pro-top"><span class="pro-icon">📋</span><span class="pill">IN VORBEREITUNG</span></span><span class="pro-name">Weitere Tipps</span><span class="pro-sub">Externe Analysen, Testtipps und zusätzliche Sportprognosen</span><span class="disabled-label">Demnächst verfügbar</span></button>
     </div>
@@ -222,11 +222,11 @@ function stats(who,period){var all=decided(who),use=period==="5"?all.slice(0,5):
 function mini(){["Martin","Frank"].forEach(function(w){
  var el=$(w.toLowerCase()+"Mini");el.replaceChildren();
  if(!state.performanceLoaded){el.textContent="Performance derzeit nicht verfügbar";return}
- var five=stats(w,"5"),a=stats(w,"10"),b=stats(w,"all");
+ var a=stats(w,"10"),b=stats(w,"all");
  var container=ele("span","mini-stats");
- [["LETZTE 5",five.hit],["LETZTE 10",a.hit],["GESAMT · "+b.rows.length,b.hit]].forEach(function(p){
+ [["LETZTE 10",a.hit],["GESAMT",b.hit]].forEach(function(p){
    var item=ele("span","mini-stat");
-   item.appendChild(ele("span","mini-stat-label",p[0]+(p[0].includes("GESAMT")?" TIPPS":" TIPPS")));
+   item.appendChild(ele("span","mini-stat-label",p[0]));
    item.appendChild(ele("span","mini-stat-value",p[1]===null?"–":percent(p[1])));
    container.appendChild(item);
  });
