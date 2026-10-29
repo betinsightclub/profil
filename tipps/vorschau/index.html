@@ -55,10 +55,10 @@ h2{font-size:clamp(21px,2.7vw,26px);margin:0 0 6px;letter-spacing:-.015em}
 .pro-name{font-size:17px;font-weight:900}
 .pro-sub{font-size:11px;color:#aacddb;line-height:1.4;flex:1}
 .pro-stat{font-size:12px;font-weight:800;color:#91f0d6;display:block}
-.mini-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:100%;margin-top:4px}
-.mini-stat{min-width:0;border-radius:9px;border:1px solid #28647b;background:#031e2b88;padding:9px 6px}
-.mini-stat-label{display:block;color:#abcbd9;font-size:9px;letter-spacing:.025em;font-weight:800;line-height:1.2}
-.mini-stat-value{display:block;color:#e9ffff;font-size:19px;font-weight:950;margin-top:5px;letter-spacing:-.03em}
+.mini-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;width:100%;margin-top:4px}
+.mini-stat{min-width:0;border-radius:9px;border:1px solid #28647b;background:#031e2b88;padding:8px 4px}
+.mini-stat-label{display:block;color:#abcbd9;font-size:9px;letter-spacing:0;font-weight:800;line-height:1.25;white-space:nowrap}
+.mini-stat-value{display:block;color:#e9ffff;font-size:17px;font-weight:950;margin-top:5px;letter-spacing:-.05em;white-space:nowrap}
 .demo-card{border-color:#a9864a;background:linear-gradient(145deg,#293544,#092535)}
 .demo-badge{background:#674724;color:#ffe4ae;border:1px solid #bd954e;border-radius:999px;padding:6px 12px;font-size:11px;font-weight:900;display:inline-block}
 .demo-list{background:#071f2b;border:1px solid #365567;border-radius:11px;padding:7px 13px}
@@ -110,6 +110,17 @@ h2{font-size:clamp(21px,2.7vw,26px);margin:0 0 6px;letter-spacing:-.015em}
 .small-button{border:1px solid #2795cb;border-radius:10px;background:#096a96;color:white;font-size:11px;font-weight:800;padding:11px 13px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
 .small-button:hover{background:#1084b7}
 .note{font-size:11px;color:#93b3bf;line-height:1.6;margin-top:14px}
+.roi-help-row{display:flex;justify-content:flex-start;margin-top:12px}
+.roi-help-trigger{width:26px;height:26px;display:inline-grid;place-items:center;border:1.5px solid #87cde7;background:#0d3549;border-radius:50%;color:#e7faff;font-size:16px;line-height:1;font-weight:900;padding:0;cursor:pointer}
+.roi-help-trigger:hover,.roi-help-trigger:focus-visible{background:#156485;border-color:#b2e9fc;outline-offset:3px}
+.roi-dialog{position:fixed;width:min(510px,calc(100vw - 36px));max-height:min(85vh,650px);overflow:auto;border:1px solid #43a4c8;border-radius:17px;background:linear-gradient(145deg,#0e3b50,#072330);color:#e6f7ff;padding:26px;box-shadow:0 24px 75px #0009;font-family:inherit;line-height:1.55}
+.roi-dialog::backdrop{background:rgba(0,9,17,.77)}
+.roi-dialog h2{font-size:23px;margin:0 38px 14px 0}
+.roi-dialog p{font-size:14px;color:#cae4f0;margin:0 0 12px}
+.roi-dialog p:last-child{margin-bottom:0}
+.roi-dialog-close{position:absolute;right:17px;top:17px;width:33px;height:33px;display:grid;place-items:center;border:1px solid #4e93b0;border-radius:10px;background:#0a3044;color:#fff;font-size:20px;cursor:pointer}
+.roi-dialog-close:hover{background:#17678b}
+.roi-extra-note{color:#ffe5ac!important}
 .alert{padding:20px;border:1px solid #295f70;background:#0b3445;border-radius:14px;color:#bad5e4;line-height:1.55}
 .notice{padding:14px 17px;background:#4a391b;border:1px solid #a27d38;color:#ffdb96;border-radius:12px;font-size:12px;line-height:1.5;margin-bottom:16px}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
@@ -121,7 +132,7 @@ h2{font-size:clamp(21px,2.7vw,26px);margin:0 0 6px;letter-spacing:-.015em}
 .private-state a{color:#67d0ff}
 footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top:40px}
 @media(max-width:900px){.provider-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.perf-bottom{grid-template-columns:1fr}}
-@media(max-width:600px){main{padding:20px 13px 55px}.hero{padding:27px 19px}.nav-tabs{gap:7px}.navtab{padding:12px 9px;display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-height:102px;font-size:12px}.navtab .tab-icon{font-size:20px}.navtab .tab-desc{font-size:10px;margin-top:3px}.provider-grid{gap:9px}.provider{min-height:162px;padding:13px 12px}.pro-name{font-size:16px}.performance{padding:16px}.perf-top{align-items:stretch}.windows{width:100%}.winbtn{flex:1}.tips-stack{grid-template-columns:1fr}.kpi{padding:13px}.kpi-value{font-size:24px}}
+@media(max-width:600px){main{padding:20px 13px 55px}.hero{padding:27px 19px}.nav-tabs{gap:7px}.navtab{padding:12px 9px;display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-height:102px;font-size:12px}.navtab .tab-icon{font-size:20px}.navtab .tab-desc{font-size:10px;margin-top:3px}.provider-grid{gap:9px}.provider{min-height:162px;padding:13px 12px}.pro-name{font-size:16px}.performance{padding:16px}.perf-top{align-items:stretch}.windows{width:100%}.winbtn{flex:1}.tips-stack{grid-template-columns:1fr}.kpi{padding:13px}.kpi-value{font-size:24px}.mini-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.mini-stat:last-child{grid-column:1/-1}.mini-stat-value{font-size:18px}}
 </style>
 </head>
 <body>
@@ -141,8 +152,8 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
   <section class="area active" id="area-neu">
     <div class="section-top"><div><h2>Wähle deinen Tippgeber</h2><p class="lead">Jede Kategorie zeigt ausschließlich die zugehörigen neuen Tipps.</p></div></div>
     <div class="provider-grid">
-      <button type="button" class="provider selected" data-provider="Martin" aria-pressed="true"><span class="pro-top"><span class="pro-icon">⚽</span><span class="pill">TIPPGEBER</span></span><span class="pro-name">Martin</span><span class="pro-sub">Fußballanalysen und individuelle Tipps</span><span class="pro-stat" id="martinMini">Letzte 10 / Gesamt wird geladen …</span></button>
-      <button type="button" class="provider" data-provider="Frank" aria-pressed="false"><span class="pro-top"><span class="pro-icon">📈</span><span class="pill">TIPPGEBER</span></span><span class="pro-name">Frank</span><span class="pro-sub">Analysen und aktuelle Sporttipps</span><span class="pro-stat" id="frankMini">Letzte 10 / Gesamt wird geladen …</span></button>
+      <button type="button" class="provider selected" data-provider="Martin" aria-pressed="true"><span class="pro-top"><span class="pro-icon">⚽</span><span class="pill">TIPPGEBER</span></span><span class="pro-name">Martin</span><span class="pro-sub">Fußballanalysen und individuelle Tipps</span><span class="pro-stat" id="martinMini">Letzte 5 / 10 / Gesamt werden geladen …</span></button>
+      <button type="button" class="provider" data-provider="Frank" aria-pressed="false"><span class="pro-top"><span class="pro-icon">📈</span><span class="pill">TIPPGEBER</span></span><span class="pro-name">Frank</span><span class="pro-sub">Analysen und aktuelle Sporttipps</span><span class="pro-stat" id="frankMini">Letzte 5 / 10 / Gesamt werden geladen …</span></button>
       <button type="button" class="provider" data-provider="Schulung" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🎓</span><span class="pill">LERNBEREICH</span></span><span class="pro-name">Schulungstipps</span><span class="pro-sub">Schulungsbeispiele und Demonstrationen</span><span class="pro-stat">Nur Schulungstipps ansehen</span></button>
       <button type="button" class="provider" disabled aria-disabled="true"><span class="pro-top"><span class="pro-icon">📋</span><span class="pill">IN VORBEREITUNG</span></span><span class="pro-name">Weitere Tipps</span><span class="pro-sub">Externe Analysen, Testtipps und zusätzliche Sportprognosen</span><span class="disabled-label">Demnächst verfügbar</span></button>
     </div>
@@ -156,7 +167,7 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
       </div>
       <div class="perf-bottom">
         <div><p class="mini-label" id="trackTitle">Die letzten bewerteten Tipps</p><div class="streak" id="streak"></div><p class="legend">G = gewonnen · V = verloren · Neueste Bewertung zuerst</p></div>
-        <div><p class="mini-label">Gewinn-/Verlustverteilung</p><div class="meter"><div class="meter-fill" id="meterFill"></div></div><div class="wl-line"><span id="winLine">Gewonnen: –</span><span id="lossLine">Verloren: –</span></div><p class="note" id="roiHelp">ROI wird aus bestätigten Quoten berechnet. Ein fehlender Quotenwert wird nicht geschätzt.</p></div>
+        <div><p class="mini-label">Gewinn-/Verlustverteilung</p><div class="meter"><div class="meter-fill" id="meterFill"></div></div><div class="wl-line"><span id="winLine">Gewonnen: –</span><span id="lossLine">Verloren: –</span></div><div class="roi-help-row"><button type="button" id="roiHelpTrigger" class="roi-help-trigger" aria-label="Wie wird der ROI berechnet?" aria-haspopup="dialog" aria-controls="roiExplain" title="Wie wird der ROI berechnet?">?</button></div></div>
       </div>
     </section>
     <div class="section-top"><div><h2 id="feedTitle">Neue Tipps von Martin</h2><p class="lead">Nur noch nicht angepfiffene Tipps. Begegnung, Markt und Auswahl bleiben vor der Freischaltung geschützt.</p></div></div>
@@ -177,6 +188,14 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
   </section>
   <footer>BetInsight.club · Geschützter Testentwurf der Benutzeroberfläche · Keine Änderungen an Konten, Units oder Freischaltungen</footer>
 </main>
+<dialog id="roiExplain" class="roi-dialog" aria-labelledby="roiDialogTitle">
+  <button type="button" class="roi-dialog-close" id="roiHelpClose" aria-label="Erklärung schließen">×</button>
+  <h2 id="roiDialogTitle">Wie wird der ROI berechnet?</h2>
+  <p>Zur fairen Vergleichbarkeit wird jeder Tipp mit dem gleichen rechnerischen Einsatz bewertet. Bei einem gewonnenen Tipp zählt der Gewinn entsprechend der tatsächlichen Quote, bei einem verlorenen Tipp der vollständige Einsatz als Verlust.</p>
+  <p>Aus allen Gewinnen und Verlusten berechnen wir die prozentuale Rendite (ROI). Kosten für die Freischaltung von Tipps sind darin nicht enthalten.</p>
+  <p>Die Werte zeigen vergangene Ergebnisse und stellen keine Empfehlung für zukünftige Wetteinsätze dar.</p>
+  <p class="roi-extra-note" id="roiExtraNote" hidden>Für mindestens einen Tipp fehlt eine gültige Quote. Deshalb wird aktuell kein vollständiger ROI angezeigt.</p>
+</dialog>
 <script>
 (function(){
 "use strict";
@@ -199,15 +218,15 @@ function liveUrl(){var s=window.BetInsightSession;return s?.appPath?.("tipps")||
 function token(){var s=window.BetInsightSession;if(!s)return"";return s.getDashboardUuid?.()||s.getProfileToken?.()||""}
 function latest(rows){var map=new Map();rows.slice().sort(sortNew).forEach(function(r){var id=str(r.tipp_id||r.ergebnis_id);if(id&&!map.has(id))map.set(id,r)});return Array.from(map.values()).sort(sortNew)}
 function decided(who){return latest(state.performanceResults.filter(function(r){return belongs(r,who)&&["won","lost"].includes(status(r.ergebnis_status))}))}
-function stats(who,period){var all=decided(who),use=period==="10"?all.slice(0,10):all;var w=use.filter(function(r){return status(r.ergebnis_status)==="won"}).length,l=use.length-w;var missing=use.some(function(r){return !(numeric(r.quote)>1)}),profit=use.reduce(function(acc,r){var q=numeric(r.quote);return acc+(status(r.ergebnis_status)==="won"?(Number.isFinite(q)?q-1:0):-1)},0);return{rows:use,w:w,l:l,total:all.length,hit:use.length?w/use.length*100:null,roi:use.length&&!missing?profit/use.length*100:null,missing:missing}}
+function stats(who,period){var all=decided(who),use=period==="5"?all.slice(0,5):period==="10"?all.slice(0,10):all;var w=use.filter(function(r){return status(r.ergebnis_status)==="won"}).length,l=use.length-w;var missing=use.some(function(r){return !(numeric(r.quote)>1)}),profit=use.reduce(function(acc,r){var q=numeric(r.quote);return acc+(status(r.ergebnis_status)==="won"?(Number.isFinite(q)?q-1:0):-1)},0);return{rows:use,w:w,l:l,total:all.length,hit:use.length?w/use.length*100:null,roi:use.length&&!missing?profit/use.length*100:null,missing:missing}}
 function mini(){["Martin","Frank"].forEach(function(w){
  var el=$(w.toLowerCase()+"Mini");el.replaceChildren();
  if(!state.performanceLoaded){el.textContent="Performance derzeit nicht verfügbar";return}
- var a=stats(w,"10"),b=stats(w,"all");
+ var five=stats(w,"5"),a=stats(w,"10"),b=stats(w,"all");
  var container=ele("span","mini-stats");
- [["LETZTE "+Math.min(10,a.rows.length),a.hit],["GESAMT · "+b.rows.length,b.hit]].forEach(function(p){
+ [["LETZTE 5",five.hit],["LETZTE 10",a.hit],["GESAMT · "+b.rows.length,b.hit]].forEach(function(p){
    var item=ele("span","mini-stat");
-   item.appendChild(ele("span","mini-stat-label",p[0]+" TIPPS"));
+   item.appendChild(ele("span","mini-stat-label",p[0]+(p[0].includes("GESAMT")?" TIPPS":" TIPPS")));
    item.appendChild(ele("span","mini-stat-value",p[1]===null?"–":percent(p[1])));
    container.appendChild(item);
  });
@@ -219,7 +238,7 @@ $("roi").textContent=s.roi===null?"–":(s.roi>0?"+":"")+percent(s.roi);$("roi")
 $("wins").textContent=String(s.w);$("losses").textContent=String(s.l);$("meterFill").style.width=(s.hit||0)+"%";
 $("winLine").textContent="Gewonnen: "+s.w;$("lossLine").textContent="Verloren: "+s.l;
 $("trackTitle").textContent=state.period==="10"?"Die "+len+" zuletzt bewerteten Tipps":"Die letzten bis zu 10 von "+len+" Bewertungen";
-$("roiHelp").textContent=s.missing?"Für mindestens einen Tipp fehlt eine gültige Quote. Daher keine vollständige ROI-Anzeige.":"ROI: 1 Einsatz-Unit je Tipp; Gewinn = Quote minus 1, Verlust = −1. Keine Wetteinsatzempfehlung.";
+$("roiExtraNote").hidden=!s.missing;
 var t=$("streak");t.replaceChildren();var display=s.rows.slice(0,10);display.forEach(function(r){var cls=status(r.ergebnis_status),n=ele("span",cls,cls==="won"?"G":"V");n.title=shortDate(r.bestaetigt_am||r.spiel_datum)+" · "+str(r.spiel||r.tipp_id);t.appendChild(n)});if(!display.length)t.appendChild(ele("span","muted","–"));
 }
 function resultCard(r,personal){var s=status(r.ergebnis_status),c=ele("article","tip"),top=ele("div","meta"),tag=ele("span","pill"+(s?" "+s:""),s==="won"?"✓ GEWONNEN":s==="lost"?"✕ VERLOREN":s==="void"?"↔ ANNULLIERT":personal?"🔓 FREIGESCHALTET":"AUSWERTUNG OFFEN");top.appendChild(tag);top.appendChild(ele("span","",shortDate(r.bestaetigt_am||r.datum||r.spiel_datum)));c.appendChild(top);
@@ -298,6 +317,9 @@ var ok=out[0].status==="fulfilled"&&out[1].status==="fulfilled";
 $("dataInfo").textContent=ok?"Live-Daten · "+state.results.length+" veröffentlichte Ergebnisse · aktualisiert "+new Date().toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"}):"Teilweise nicht erreichbar · "+(state.resultsLoaded?"Letzter Datenstand wird gezeigt":"Bitte später erneut laden");
 state.loading=false;$("reload").disabled=false;rerender();
 }
+$("roiHelpTrigger").addEventListener("click",function(){$("roiExplain").showModal()});
+$("roiHelpClose").addEventListener("click",function(){$("roiExplain").close()});
+$("roiExplain").addEventListener("click",function(event){if(event.target===$("roiExplain"))$("roiExplain").close()});
 $("reload").addEventListener("click",load);window.addEventListener("focus",function(){if(!document.hidden)load()});document.addEventListener("visibilitychange",function(){if(!document.hidden)load()});
 setInterval(function(){if(!document.hidden)load()},30000);
 rerender();load();
