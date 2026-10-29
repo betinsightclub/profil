@@ -55,6 +55,19 @@ h2{font-size:clamp(21px,2.7vw,26px);margin:0 0 6px;letter-spacing:-.015em}
 .pro-name{font-size:17px;font-weight:900}
 .pro-sub{font-size:11px;color:#aacddb;line-height:1.4;flex:1}
 .pro-stat{font-size:12px;font-weight:800;color:#91f0d6;display:block}
+.mini-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:100%;margin-top:4px}
+.mini-stat{min-width:0;border-radius:9px;border:1px solid #28647b;background:#031e2b88;padding:9px 6px}
+.mini-stat-label{display:block;color:#abcbd9;font-size:9px;letter-spacing:.025em;font-weight:800;line-height:1.2}
+.mini-stat-value{display:block;color:#e9ffff;font-size:19px;font-weight:950;margin-top:5px;letter-spacing:-.03em}
+.demo-card{border-color:#a9864a;background:linear-gradient(145deg,#293544,#092535)}
+.demo-badge{background:#674724;color:#ffe4ae;border:1px solid #bd954e;border-radius:999px;padding:6px 12px;font-size:11px;font-weight:900;display:inline-block}
+.demo-list{background:#071f2b;border:1px solid #365567;border-radius:11px;padding:7px 13px}
+.demo-row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;border-bottom:1px solid #284454;padding:9px 0;color:#d3e7f1;font-size:12px}
+.demo-row:last-child{border-bottom:0}
+.demo-row strong{color:#fff}
+.demo-info{font-size:12px;color:#ffdfa3;line-height:1.55}
+.demo-action{border:1px solid #36b3e9;border-radius:11px;background:#0e7dad;color:#fff;padding:12px 15px;font-size:13px;font-weight:900}
+.demo-feedback{font-size:12px;font-weight:800;color:#f9d9a6;line-height:1.5}
 .pro-stat .percent{font-size:21px;color:#fff;margin-right:5px}
 .disabled-label{color:#b8ccda;font-size:12px;font-weight:800}
 .performance{border:1px solid #255f74;border-radius:22px;background:linear-gradient(135deg,#0a374c,#071f2d);padding:25px;margin-bottom:23px;box-shadow:0 16px 40px #0004}
@@ -128,8 +141,8 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
   <section class="area active" id="area-neu">
     <div class="section-top"><div><h2>Wähle deinen Tippgeber</h2><p class="lead">Jede Kategorie zeigt ausschließlich die zugehörigen neuen Tipps.</p></div></div>
     <div class="provider-grid">
-      <button type="button" class="provider selected" data-provider="Martin" aria-pressed="true"><span class="pro-top"><span class="pro-icon">⚽</span><span class="pill">TIPPGEBER</span></span><span class="pro-name">Martin</span><span class="pro-sub">Fußballanalysen und individuelle Tipps</span><span class="pro-stat" id="martinMini">Performance wird geladen …</span></button>
-      <button type="button" class="provider" data-provider="Frank" aria-pressed="false"><span class="pro-top"><span class="pro-icon">📈</span><span class="pill">TIPPGEBER</span></span><span class="pro-name">Frank</span><span class="pro-sub">Analysen und aktuelle Sporttipps</span><span class="pro-stat" id="frankMini">Performance wird geladen …</span></button>
+      <button type="button" class="provider selected" data-provider="Martin" aria-pressed="true"><span class="pro-top"><span class="pro-icon">⚽</span><span class="pill">TIPPGEBER</span></span><span class="pro-name">Martin</span><span class="pro-sub">Fußballanalysen und individuelle Tipps</span><span class="pro-stat" id="martinMini">Letzte 10 / Gesamt wird geladen …</span></button>
+      <button type="button" class="provider" data-provider="Frank" aria-pressed="false"><span class="pro-top"><span class="pro-icon">📈</span><span class="pill">TIPPGEBER</span></span><span class="pro-name">Frank</span><span class="pro-sub">Analysen und aktuelle Sporttipps</span><span class="pro-stat" id="frankMini">Letzte 10 / Gesamt wird geladen …</span></button>
       <button type="button" class="provider" data-provider="Schulung" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🎓</span><span class="pill">LERNBEREICH</span></span><span class="pro-name">Schulungstipps</span><span class="pro-sub">Schulungsbeispiele und Demonstrationen</span><span class="pro-stat">Nur Schulungstipps ansehen</span></button>
       <button type="button" class="provider" disabled aria-disabled="true"><span class="pro-top"><span class="pro-icon">📋</span><span class="pill">IN VORBEREITUNG</span></span><span class="pro-name">Weitere Tipps</span><span class="pro-sub">Externe Analysen, Testtipps und zusätzliche Sportprognosen</span><span class="disabled-label">Demnächst verfügbar</span></button>
     </div>
@@ -168,7 +181,7 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
 (function(){
 "use strict";
 var ROOT="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-tips-api?action=";
-var state={area:"neu",provider:"Martin",period:"10",archive:"Alle",results:[],tips:[],unlocked:[],hasAccess:false,resultsLoaded:false,tipsLoaded:false,loading:false};
+var state={area:"neu",provider:"Martin",period:"10",archive:"Alle",results:[],performanceResults:[],tips:[],unlocked:[],hasAccess:false,resultsLoaded:false,performanceLoaded:false,tipsLoaded:false,loading:false};
 var $=function(id){return document.getElementById(id)};
 var numeric=function(v){var n=Number(String(v==null?"":v).replace(",","."));return Number.isFinite(n)?n:NaN};
 var str=function(v){return String(v==null?"":v).trim()};
@@ -185,10 +198,22 @@ function percent(n){return new Intl.NumberFormat("de-DE",{minimumFractionDigits:
 function liveUrl(){var s=window.BetInsightSession;return s?.appPath?.("tipps")||"../"}
 function token(){var s=window.BetInsightSession;if(!s)return"";return s.getDashboardUuid?.()||s.getProfileToken?.()||""}
 function latest(rows){var map=new Map();rows.slice().sort(sortNew).forEach(function(r){var id=str(r.tipp_id||r.ergebnis_id);if(id&&!map.has(id))map.set(id,r)});return Array.from(map.values()).sort(sortNew)}
-function decided(who){return latest(state.results.filter(function(r){return belongs(r,who)&&["won","lost"].includes(status(r.ergebnis_status))}))}
+function decided(who){return latest(state.performanceResults.filter(function(r){return belongs(r,who)&&["won","lost"].includes(status(r.ergebnis_status))}))}
 function stats(who,period){var all=decided(who),use=period==="10"?all.slice(0,10):all;var w=use.filter(function(r){return status(r.ergebnis_status)==="won"}).length,l=use.length-w;var missing=use.some(function(r){return !(numeric(r.quote)>1)}),profit=use.reduce(function(acc,r){var q=numeric(r.quote);return acc+(status(r.ergebnis_status)==="won"?(Number.isFinite(q)?q-1:0):-1)},0);return{rows:use,w:w,l:l,total:all.length,hit:use.length?w/use.length*100:null,roi:use.length&&!missing?profit/use.length*100:null,missing:missing}}
-function mini(){["Martin","Frank"].forEach(function(w){var s=stats(w,"10"),id=w.toLowerCase()+"Mini";$(id).textContent=s.hit===null?"Noch keine bewerteten Tipps":percent(s.hit)+" · letzte "+s.rows.length+" Tipps"})}
-function performance(){var who=state.provider;var box=$("performance");if(who==="Schulung"){box.hidden=true;return}box.hidden=false;$("perfName").textContent=who;$("avatar").textContent=who[0];var s=stats(who,state.period),len=s.rows.length;
+function mini(){["Martin","Frank"].forEach(function(w){
+ var el=$(w.toLowerCase()+"Mini");el.replaceChildren();
+ if(!state.performanceLoaded){el.textContent="Performance derzeit nicht verfügbar";return}
+ var a=stats(w,"10"),b=stats(w,"all");
+ var container=ele("span","mini-stats");
+ [["LETZTE "+Math.min(10,a.rows.length),a.hit],["GESAMT · "+b.rows.length,b.hit]].forEach(function(p){
+   var item=ele("span","mini-stat");
+   item.appendChild(ele("span","mini-stat-label",p[0]+" TIPPS"));
+   item.appendChild(ele("span","mini-stat-value",p[1]===null?"–":percent(p[1])));
+   container.appendChild(item);
+ });
+ el.appendChild(container);
+})}
+function performance(){var who=state.provider;var box=$("performance");if(who==="Schulung"){box.hidden=true;return}box.hidden=false;if(!state.performanceLoaded){$("perfName").textContent=who;$("hit").textContent="–";$("roi").textContent="–";$("wins").textContent="–";$("losses").textContent="–";$("hitSub").textContent="Performance-Daten werden geladen";$("streak").replaceChildren();return}$("perfName").textContent=who;$("avatar").textContent=who[0];var s=stats(who,state.period),len=s.rows.length;
 $("hit").textContent=s.hit===null?"–":percent(s.hit);$("hitSub").textContent=s.w+" gewonnen · "+s.l+" verloren · "+len+" ausgewertet";
 $("roi").textContent=s.roi===null?"–":(s.roi>0?"+":"")+percent(s.roi);$("roi").className="kpi-value "+(s.roi===null?"neutral":s.roi>=0?"green":"red");
 $("wins").textContent=String(s.w);$("losses").textContent=String(s.l);$("meterFill").style.width=(s.hit||0)+"%";
@@ -208,11 +233,39 @@ c.appendChild(ele("h3","","Neue Sportanalyse"));c.appendChild(ele("p","",str(r.t
 c.appendChild(ele("p","","Begegnung, Tippauswahl und konkrete Quote siehst du nach deiner Freischaltung."));
 var bottom=ele("div","card-bottom");bottom.appendChild(ele("span","pill",str(r.preis_units)+" Units"));var a=ele("a","small-button","Zur Tippfreischaltung →");a.href=liveUrl();bottom.appendChild(a);c.appendChild(bottom);return c}
 function expired(r){if(r.expired===true||r.expired==="true"||r.expired===1)return true;var d=str(r.spiel_datum),hm=str(r.anpfiff);var match=d.match(/^(\d{4})-(\d{2})-(\d{2})/);var day=match?match[3]+"."+match[2]+"."+match[1]:d;var v=time(day+" "+(hm||"00:00"));return v>0&&v<=Date.now()}
+function trainingDemoCard(){
+  var c=ele("article","tip demo-card");
+  c.dataset.demoTip="BETINSIGHT-WEBINAR-DEMO";
+  var top=ele("div","meta");top.appendChild(ele("span","demo-badge","🧪 DEMO · KEIN ECHTER TIPP"));top.appendChild(ele("span","","WEBINAR / SCHULUNG"));c.appendChild(top);
+  c.appendChild(ele("h3","","Beispiel: So funktioniert eine Tippfreischaltung"));
+  var rows=[
+    ["⚽ Sport","Fußball"],
+    ["🏟️ Liga","Bundesliga (Beispiel)"],
+    ["👤 Tippgeber","Beispiel-Tippgeber"],
+    ["📅 Datum","Beispieldatum"],
+    ["🕒 Anpfiff","–:–"],
+    ["📊 Quote","1,60–2,00 (Beispiel)"],
+    ["🎯 Markt","Nach Freischaltung sichtbar"],
+    ["⚔️ Begegnung","██████████ – ██████████"]
+  ];
+  var list=ele("div","demo-list");
+  rows.forEach(function(kv){var line=ele("div","demo-row");line.appendChild(ele("span","",kv[0]));line.appendChild(ele("strong","",kv[1]));list.appendChild(line)});
+  c.appendChild(list);
+  c.appendChild(ele("p","demo-info","Preis: 3 Units · reine Demonstration · keine echte Abbuchung"));
+  var button=ele("button","demo-action","🔓 Tipp für 3 Units freischalten (Demo)");
+  button.type="button";c.appendChild(button);
+  var feedback=ele("div","demo-feedback");
+  feedback.setAttribute("aria-live","polite");
+  button.addEventListener("click",function(){feedback.textContent="🧪 DEMO: Keine Freischaltung durchgeführt. Es wurden keine Units abgebucht."});
+  c.appendChild(feedback);
+  return c;
+}
 function drawNew(){var who=state.provider;var head=who==="Schulung"?"Neue Schulungstipps":"Neue Tipps von "+who;$("feedTitle").textContent=head;
 var node=$("newFeed");node.replaceChildren();
-if(!state.tipsLoaded){empty(node,"Neue Tipps konnten derzeit nicht geladen werden.");return}
+if(who==="Schulung")node.appendChild(trainingDemoCard());
+if(!state.tipsLoaded){if(who!=="Schulung")empty(node,"Neue Tipps konnten derzeit nicht geladen werden.");return}
 var ended=new Set(state.results.filter(function(r){return !!status(r.ergebnis_status)}).map(function(r){return str(r.tipp_id)}));
-var rows=state.tips.filter(function(r){return !expired(r)&&!ended.has(str(r.tipp_id))&&belongs(r,who)}).sort(function(a,b){return time(a.spiel_datum)-time(b.spiel_datum)});if(!rows.length){empty(node,"In dieser Kategorie sind derzeit keine neuen, freischaltbaren Tipps vorhanden.");return}rows.forEach(function(r){node.appendChild(newCard(r))})}
+var rows=state.tips.filter(function(r){return !expired(r)&&!ended.has(str(r.tipp_id))&&belongs(r,who)}).sort(function(a,b){return time(a.spiel_datum)-time(b.spiel_datum)});if(!rows.length){if(who!=="Schulung")empty(node,"In dieser Kategorie sind derzeit keine neuen, freischaltbaren Tipps vorhanden.");return}rows.forEach(function(r){node.appendChild(newCard(r))})}
 function drawMine(){var node=$("myFeed");node.replaceChildren();if(!state.hasAccess){node.appendChild(ele("div","private-state","Kein bestätigter Mitgliederzugang erkannt. Öffne die Vorschau über dein angemeldetes Profil, um deine eigenen freigeschalteten Tipps zu sehen."));var a=ele("a","small-button","Zum Profil →");a.href="../../";node.appendChild(a);return}
 if(!state.unlocked.length){empty(node,"Du hast noch keine persönlich freigeschalteten Tipps oder sie konnten nicht geladen werden.");return}var resultMap=new Map(state.results.map(function(r){return[str(r.tipp_id),r]}));state.unlocked.slice().sort(function(a,b){return time(b.datum)-time(a.datum)}).forEach(function(r){var rr=resultMap.get(str(r.tipp_id))||{};node.appendChild(resultCard(Object.assign({},r,{ergebnis_status:rr.ergebnis_status||r.ergebnis_status_bestaetigt,bestaetigt_am:rr.bestaetigt_am||r.ergebnis_bestaetigt_am,endergebnis:rr.endergebnis||""}),true))})}
 function drawArchive(){var node=$("archiveFeed");node.replaceChildren();if(!state.resultsLoaded){empty(node,"Bestätigte Ergebnisse konnten noch nicht geladen werden.");$("archiveCount").textContent="";return}
@@ -224,10 +277,21 @@ document.querySelectorAll(".provider:not([disabled])").forEach(function(b){b.add
 document.querySelectorAll(".winbtn").forEach(function(b){b.addEventListener("click",function(){state.period=b.dataset.window;document.querySelectorAll(".winbtn").forEach(function(n){var yes=n===b;n.classList.toggle("selected",yes);n.setAttribute("aria-pressed",yes?"true":"false")});performance()})});
 document.querySelectorAll("[data-archive]").forEach(function(b){b.addEventListener("click",function(){state.archive=b.dataset.archive;document.querySelectorAll("[data-archive]").forEach(function(n){n.classList.toggle("selected",n===b)});drawArchive()})});
 async function request(action,access){var url=ROOT+action+"&t="+Date.now();if(access)url+="&token="+encodeURIComponent(access);var res=await fetch(url,{cache:"no-store"});if(!res.ok)throw new Error("HTTP "+res.status);var json=await res.json();if(!Array.isArray(json))throw new Error("UNEXPECTED_RESPONSE");return json}
+async function requestCompleteResults(){
+ var url="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-tip-performance?t="+Date.now();
+ var response=await fetch(url,{cache:"no-store"});
+ if(!response.ok)throw new Error("HTTP "+response.status);
+ var data=await response.json();
+ if(!data.ok||!Array.isArray(data.results)||!Array.isArray(data.records))throw new Error("UNEXPECTED_RESULTS");
+ return data;
+}
 async function load(){if(state.loading)return;state.loading=true;$("reload").disabled=true;$("dataInfo").textContent="Aktuelle Tipps und Ergebnisse werden abgefragt …";
 var t=token();state.hasAccess=!!t;
-var req=[request("results"),request("list")];if(t)req.push(request("unlocked",t));
-var out=await Promise.allSettled(req);if(out[0].status==="fulfilled"){state.results=out[0].value;state.resultsLoaded=true}else if(!state.resultsLoaded)state.results=[];
+var req=[requestCompleteResults(),request("list")];if(t)req.push(request("unlocked",t));
+var out=await Promise.allSettled(req);if(out[0].status==="fulfilled"){
+ state.results=out[0].value.results;state.resultsLoaded=true;
+ state.performanceResults=out[0].value.records;state.performanceLoaded=true;
+}else if(!state.resultsLoaded){state.results=[];state.performanceResults=[];state.performanceLoaded=false}
 if(out[1].status==="fulfilled"){state.tips=out[1].value;state.tipsLoaded=true}
 if(t&&out[2]?.status==="fulfilled")state.unlocked=out[2].value;
 var ok=out[0].status==="fulfilled"&&out[1].status==="fulfilled";
@@ -235,7 +299,7 @@ $("dataInfo").textContent=ok?"Live-Daten · "+state.results.length+" veröffentl
 state.loading=false;$("reload").disabled=false;rerender();
 }
 $("reload").addEventListener("click",load);window.addEventListener("focus",function(){if(!document.hidden)load()});document.addEventListener("visibilitychange",function(){if(!document.hidden)load()});
-setInterval(function(){if(!document.hidden)load()},60000);
+setInterval(function(){if(!document.hidden)load()},30000);
 rerender();load();
 })();
 </script>
