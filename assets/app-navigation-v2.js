@@ -59,6 +59,7 @@
       {id:"time-clash-credits",key:"nav.timeClashCredits",fallback:"ClashToken aufladen",fallbackEn:"Top up ClashToken"}
     ]},
     {id:"my-public-profile",key:"nav.myPublicProfile",fallback:"Mein Profil",fallbackEn:"My Profile",icon:icons.profile},
+    {id:"my-stadium-passport",key:"nav.myStadiumPassport",fallback:"🚩 Mein Stadionpass",fallbackEn:"🚩 My Stadium Passport",icon:icons.profile},
     {id:"community",key:"nav.community",fallback:"Community",fallbackEn:"Community",icon:icons.community},
     {id:"kaufen",key:"nav.buyPackages",fallback:"Units-Pakete kaufen",icon:icons.buy},
     {id:"exchange-group",key:"nav.exchange",fallback:"Unit-Wechselstube",icon:icons.exchange,children:[
@@ -122,6 +123,11 @@
   const t = (key, fallback) => i18n()?.t(key, {}, fallback) || fallback;
   const isMobile = () => window.matchMedia(`(max-width:${MOBILE_BREAKPOINT}px)`).matches;
   const localizedFallback = item => {
+    if(item?.id==="my-stadium-passport"){
+      const lang=String(i18n()?.getLanguage?.()||localStorage.getItem("betinsight_language")||"de").toLowerCase();
+      const prefix=lang.startsWith("zh")?"zh":lang.slice(0,2);
+      return ({de:"🚩 Mein Stadionpass",en:"🚩 My Stadium Passport",es:"🚩 Mi pasaporte de estadios",pt:"🚩 Meu passaporte de estádios",it:"🚩 Il mio passaporto degli stadi",fr:"🚩 Mon passeport des stades",nl:"🚩 Mijn stadionpas",zh:"🚩 我的球場護照"})[prefix]||"🚩 Stadium Passport";
+    }
     if (item?.id === "hilfe") {
       const lang=String(i18n()?.getLanguage?.()||"de").toLowerCase().split("-")[0];
       return ({de:"Hilfe & FAQ",en:"Help & FAQ",es:"Ayuda y preguntas",pt:"Ajuda e perguntas",it:"Aiuto e FAQ",fr:"Aide et FAQ"})[lang] || "Help & FAQ";
@@ -204,6 +210,7 @@
       case "time-clash": navigateProtected("time-clash"); break;
       case "time-clash-team": navigateProtected("time-clash/mein-team"); break;
       case "my-public-profile": navigateAnyProtected("trainer"); break;
+      case "my-stadium-passport": navigateAnyProtected("stadionwelt"); break;
       case "time-clash-ranking": navigateProtected("time-clash/rangliste"); break;
       case "community": session().navigateLocal("trainer-feed"); break;
       case "time-clash-credits": navigateProtected("clash-token-tausch"); break;
