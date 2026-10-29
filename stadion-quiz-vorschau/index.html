@@ -35,11 +35,11 @@
 <div class="previewbar" role="note">⚠️ <span><strong>Interaktive Vorschau:</strong> Hier werden <strong>keine echten Units</strong> gutgeschrieben. Kein Live-Start, keine Registrierung, keine Verbindung zum Wallet.</span></div>
 <section class="hero" aria-label="Stadion-Quiz">
 <div class="hero-inner">
-<div><div class="eyebrow">🌍 BETINSIGHT STADIONWELT · 5 FRAGEN</div><h1>Kennst du die größten Stadien der Welt?</h1><p>Von Nordkorea bis Südafrika, von Iran bis Irak: Beweise dein Stadionwissen. Für jede neue richtig gelöste Stufe steigt deine mögliche Belohnung.</p><div class="hero-actions"><a href="#quiz" class="btn primary">🏟️ Jetzt Quiz testen</a><a class="btn secondary" href="https://app.betinsight.club/stadionwelt/?lang=de" target="_blank" rel="noopener">🌐 Stadionwelt entdecken ↗</a></div></div>
+<div><div class="eyebrow">🌍 BETINSIGHT STADIONWELT · 5 FRAGEN</div><h1>Kennst du die größten Stadien der Welt?</h1><p>Von Nordkorea bis Südafrika, von Iran bis Irak: Beweise dein Stadionwissen. Für jede richtige Antwort erhältst du die nächste Belohnungsstufe. Eine falsche Antwort bringt 0 Units – die nächste Frage bleibt aber beim noch offenen Gewinnbetrag.</p><div class="hero-actions"><a href="#quiz" class="btn primary">🏟️ Jetzt Quiz testen</a><a class="btn secondary" href="https://app.betinsight.club/stadionwelt/?lang=de" target="_blank" rel="noopener">🌐 Stadionwelt entdecken ↗</a></div></div>
 <div class="hero-reward"><div class="over">MÖGLICHE GESAMTBELOHNUNG</div><strong>5,00</strong><div class="unit">Free Units</div><div class="sub">5 Fragen · 5 Gewinnstufen · <b>1× pro Mitglied</b> (geplant)</div></div>
 </div></section>
 <div class="metrics"><div class="metric"><strong>5</strong><span>Stadionfragen mit jeweils 3–4 Antworten</span></div><div class="metric"><strong>5,00 U</strong><span>Maximale Summe bei allen fünf Stufen</span></div><div class="metric"><strong>0 U</strong><span>Zum Mitmachen erforderlich</span></div></div>
-<div class="section-title"><h2>Deine fünf Belohnungsstufen</h2><small>Jede Stufe höchstens einmal</small></div>
+<div class="section-title"><h2>Deine fünf Belohnungsstufen</h2><small>Fünf Fragen – Gewinne rücken bei Fehlern nach</small></div>
 <div class="steps" id="steps" aria-label="Belohnungsstufen"></div>
 <div class="game" id="quiz">
 <section class="panel quiz" aria-label="Quizfrage">
@@ -55,7 +55,7 @@
 <div class="eyebrow">🚩 DEIN STADIONPASS</div><h3>Entdecken. Vergleichen. Sammeln.</h3>
 <p>Unser neues Quiz bringt Fans in die Stadionwelt. Dort kannst du die Weltkugel drehen, nach Stadien suchen und später deine Besuche im persönlichen Stadionpass markieren.</p>
 <div class="balance" aria-live="polite"><small>In dieser Vorschau vorgemerkt</small><strong id="balance">0,00 Units</strong><span id="balanceInfo">Noch keine Stufe gelöst.</span></div>
-<ul><li>Richtig gelöste Stufen werden nur <b>einmal</b> gezählt.</li><li>Bei einer falschen Antwort beginnt die Fragerunde wieder bei <b>Frage 1</b>.</li><li>Bereits vorgemerkte Stufen bleiben erhalten; Wiederholungen bringen keine weiteren Units.</li><li>Erst nach einer späteren Freigabe kann es echte Geschenk-Units geben.</li></ul>
+<ul><li>Jede richtige Antwort schaltet die <b>nächste noch offene Gewinnstufe</b> frei.</li><li>Nach einer falschen Antwort geht es mit der <b>nächsten Frage</b> weiter – bei <b>derselben Gewinnstufe</b>.</li><li>Es gibt <b>keine Wiederholungsfragen</b>. Nur richtige Antworten erhöhen den Gewinn und die Belohnungsstufe.</li><li>Erst nach einer späteren Freigabe kann es echte Geschenk-Units geben.</li></ul>
 <hr><a class="btn secondary" target="_blank" rel="noopener" href="https://app.betinsight.club/stadionwelt/?lang=de">🌍 2.493 Stadien entdecken ↗</a>
 <p class="little">Stadionkapazitäten können sich durch Umbauten ändern. Die importierte Stadionwelt ist teilweise noch ungeprüft. Quizangaben sind für diese Vorschau gesondert recherchiert.</p>
 </aside>
@@ -66,7 +66,7 @@
 (function(){
 "use strict";
 // This is deliberately a client-only preview. Never issue real reward credits in the browser.
-var KEY="betinsight_stadium_quiz_preview_v1";
+var KEY="betinsight_stadium_quiz_preview_v2";
 var rewards=[0.50,0.75,1.00,1.25,1.50];
 var questions=[
  {title:"Welches ist das größte Fußballstadion der Welt?",hint:"Gemeint ist ein Stadion für Fußball – nicht das größte Stadion aller Sportarten.",opts:[["rungrado","🇰🇵","Rungrado 1st of May Stadium","Nordkorea"],["fnb","🇿🇦","FNB Stadium (Soccer City)","Südafrika"],["wembley","🏴","Wembley Stadium","England"],["azadi","🇮🇷","Azadi Stadium","Iran"]],correct:"rungrado",fact:"Das Rungrado 1st of May Stadium in Pjöngjang gilt als größtes Fußballstadion. Neuere Sitzplatzzählungen liegen bei rund 114.000; die ältere offizielle Angabe von 150.000 ist umstritten.",src:"https://stadiumdb.com/stadiums/pkr/rungrado_may_day_stadium"},
@@ -75,25 +75,138 @@ var questions=[
  {title:"In welchem Stadion fand das WM-Finale 2022 statt?",hint:"Argentinien und Frankreich lieferten sich ein legendäres Endspiel.",opts:[["azteca","🇲🇽","Estadio Azteca","Mexiko"],["lusail","🇶🇦","Lusail Stadium","Katar"],["wembley","🏴","Wembley Stadium","England"],["fnb","🇿🇦","FNB Stadium","Südafrika"]],correct:"lusail",fact:"Am 18. Dezember 2022 besiegte Argentinien Frankreich nach Elfmeterschießen im Lusail Stadium in Katar.",src:"https://www.fifa.com/en/tournaments/mens/worldcup/articles/argentina-france-2022-final-greatest-games"},
  {title:"Welches Stadion war Schauplatz des WM-Finales 2010?",hint:"Spanien gewann dort gegen die Niederlande seinen ersten Weltmeistertitel.",opts:[["maracana","🇧🇷","Maracanã","Brasilien"],["lusail","🇶🇦","Lusail Stadium","Katar"],["fnb","🇿🇦","FNB Stadium / Soccer City · Johannesburg","Südafrika"],["sansiro","🇮🇹","San Siro · Mailand","Italien"]],correct:"fnb",fact:"Das WM-Finale 2010 fand in Soccer City (heute meist FNB Stadium genannt) in Johannesburg statt. Spanien gewann 1:0 nach Verlängerung.",src:"https://www.uefa.com/european-qualifiers/news/0253-0d7c93af147b-ec4c815d5574-1000--spain-make-history-in-johannesburg/"}
 ];
-var state={index:0,earned:[],phase:"choose",selected:null,complete:false,newlyEarned:false};
+var state={index:0,earned:[],phase:"choose",selected:null,complete:false};
 var $=function(id){return document.getElementById(id)};
 var money=function(n){return new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)};
-function total(){return rewards.reduce(function(n,r,i){return n+(state.earned.indexOf(i)>=0?r:0)},0)}
-function save(){try{sessionStorage.setItem(KEY,JSON.stringify({index:state.index,earned:state.earned,phase:state.phase,selected:state.selected,complete:state.complete,newlyEarned:state.newlyEarned}))}catch(e){}}
-function restore(){try{var data=JSON.parse(sessionStorage.getItem(KEY)||"null");if(data&&Array.isArray(data.earned)&&Number.isInteger(data.index)&&data.index>=0&&data.index<=4&&["choose","correct","wrong","done"].indexOf(data.phase)>=0){state.index=data.index;state.earned=data.earned.filter(function(x){return Number.isInteger(x)&&x>=0&&x<5}).filter(function(x,i,a){return a.indexOf(x)===i});state.phase=data.phase;state.selected=typeof data.selected==="string"?data.selected:null;state.complete=data.complete===true&&state.earned.length===5;state.newlyEarned=data.newlyEarned===true;if(state.complete)state.phase="done";if(state.phase==="correct"&&state.earned.indexOf(state.index)<0)state.phase="choose";}}catch(e){}}
-function make(tag,klass,txt){var e=document.createElement(tag);if(klass)e.className=klass;if(txt!==undefined)e.textContent=txt;return e}
-function renderSteps(){var box=$("steps");box.textContent="";rewards.forEach(function(v,i){var el=make("div","step"+(state.earned.indexOf(i)>=0?" earned":"")+(i===state.index&&!state.complete?" active":""));el.appendChild(make("small","",("0"+(i+1)).slice(-2)+" · STUFE"));el.appendChild(make("b","",money(v)+" U"));el.appendChild(make("em","",state.earned.indexOf(i)>=0?"✓ Bereits vorgemerkt":i===state.index&&!state.complete?"● Jetzt gewinnen":"Noch offen"));box.appendChild(el)})}
-function renderAnswers(){var out=$("answers");out.textContent="";var q=questions[state.index];q.opts.forEach(function(o,i){var button=make("button","answer"+(state.selected===o[0]?" selected":""));button.type="button";button.setAttribute("aria-pressed",String(state.selected===o[0]));button.disabled=state.phase!=="choose";if(state.phase==="correct"||state.phase==="wrong"){if(o[0]===q.correct)button.classList.add("correct");else if(o[0]===state.selected)button.classList.add("wrong")}button.appendChild(make("span","flag",o[1]));var label=make("span","answer-text");label.appendChild(make("b","",o[2]));label.appendChild(make("small","",o[3]));button.appendChild(label);button.appendChild(make("span","option-id",String.fromCharCode(65+i)));button.addEventListener("click",function(){if(state.phase!=="choose")return;state.selected=o[0];save();renderAnswers();$("action").disabled=false});out.appendChild(button)})}
-function showFact(isCorrect,already){var box=$("result");box.hidden=false;box.className="result"+(isCorrect?"":" error");box.textContent="";box.appendChild(make("strong","",isCorrect?(already?"✅ Richtig – diese Stufe hast du bereits einmal erreicht.":"✅ Richtig! +"+money(rewards[state.index])+" Units vorgemerkt."):"❌ Leider falsch – die Runde beginnt wieder bei Frage 1."));box.appendChild(make("p","",questions[state.index].fact));var source=make("a","","Faktenquelle ↗");source.href=questions[state.index].src;source.target="_blank";source.rel="noopener noreferrer";box.appendChild(source)}
-function render(){renderSteps();var earned=total();$("balance").textContent=money(earned)+" Units";$("balanceInfo").textContent=state.earned.length+" von 5 Stufen einmalig vorgemerkt. Keine echte Gutschrift.";$("counter").textContent=state.complete?"QUIZ ABGESCHLOSSEN":"FRAGE "+(state.index+1)+" VON 5";$("tier").textContent=state.complete?"🏆 Alle 5 Stufen":"+ "+money(rewards[state.index])+" Units";$("progress").style.width=(state.complete?100:(state.index/5)*100)+"%";
-if(state.complete){$("question").textContent="🏆 Geschafft! Alle fünf Stadionfragen richtig gelöst.";$("help").textContent="In der späteren Liveversion wäre dein einmaliger Bonus nach serverseitiger Prüfung abgeschlossen.";$("answers").textContent="";$("result").hidden=false;$("result").className="result";$("result").textContent="";$("result").appendChild(make("strong","","🎉 5,00 Units vollständig vorgemerkt – nur in der Vorschau."));$("result").appendChild(make("p","","Du hast jede Belohnungsstufe einmal erreicht. Eine echte Auszahlung ist hier deaktiviert. Entdecke jetzt weitere Fußballstadien in unserer Stadionwelt."));var link=make("a","","🌍 Zur Stadionwelt ↗");link.href="https://app.betinsight.club/stadionwelt/?lang=de";link.target="_blank";link.rel="noopener";$("result").appendChild(link);$("quizFoot").hidden=true;return}
-$("quizFoot").hidden=false;$("question").textContent=questions[state.index].title;$("help").textContent=questions[state.index].hint;$("result").hidden=true;$("action").disabled=state.phase==="choose"&&!state.selected;$("action").textContent=state.phase==="choose"?"Antwort bestätigen →":state.phase==="wrong"?"↺ Neue Runde starten":state.index===4?"🏆 Ergebnis anzeigen":"Nächste Stadionfrage →";$("footNote").textContent=state.phase==="choose"?"Pro Stufe nur eine zusätzliche Belohnung möglich.":state.phase==="wrong"?"Die bereits verdienten Stufen bleiben vorgemerkt.":"Die nächste Frage bringt einen höheren Bonus.";
-renderAnswers();if(state.phase==="correct"||state.phase==="wrong")showFact(state.phase==="correct",state.phase==="correct"&&!state.newlyEarned)}
-function answer(){if(state.phase==="choose"){if(!state.selected)return;var correct=questions[state.index].correct===state.selected;if(correct){state.newlyEarned=state.earned.indexOf(state.index)<0;if(state.newlyEarned)state.earned.push(state.index);state.phase="correct"}else{state.newlyEarned=false;state.phase="wrong"}save();render();return}
-if(state.phase==="wrong"){state.index=0;state.selected=null;state.phase="choose";save();render();return}
-if(state.phase==="correct"){if(state.index===4){state.complete=true;state.phase="done"}else{state.index++;state.phase="choose";state.selected=null}save();render()}}
+function total(){return state.earned.reduce(function(sum,tier){return sum+rewards[tier]},0)}
+function nextTier(){return Math.min(state.earned.length,rewards.length-1)}
+function save(){try{sessionStorage.setItem(KEY,JSON.stringify({version:2,index:state.index,earned:state.earned,phase:state.phase,selected:state.selected,complete:state.complete}))}catch(e){}}
+function restore(){
+ try{
+  var data=JSON.parse(sessionStorage.getItem(KEY)||"null");
+  if(!data||data.version!==2||!Array.isArray(data.earned)||!Number.isInteger(data.index)||data.index<0||data.index>=questions.length||["choose","correct","wrong","done"].indexOf(data.phase)<0)return;
+  var tiers=data.earned;
+  if(tiers.length>questions.length||tiers.some(function(t,i){return t!==i}))return;
+  if(data.phase==="choose"&&tiers.length>data.index)return;
+  if(data.phase==="wrong"&&tiers.length>data.index)return;
+  if(data.phase==="correct"&&(tiers.length===0||tiers.length>data.index+1))return;
+  if(data.phase==="done"&&(data.index!==questions.length-1||data.complete!==true))return;
+  state.index=data.index;
+  state.earned=tiers.slice();
+  state.phase=data.phase;
+  state.selected=questions[data.index].opts.some(function(o){return o[0]===data.selected})?data.selected:null;
+  state.complete=data.phase==="done";
+  if(state.phase!=="choose"&&!state.selected)return state={index:0,earned:[],phase:"choose",selected:null,complete:false};
+ }catch(e){}
+}
+function make(tag,klass,txt){var el=document.createElement(tag);if(klass)el.className=klass;if(txt!==undefined)el.textContent=txt;return el}
+function renderSteps(){
+ var box=$("steps");box.textContent="";
+ rewards.forEach(function(value,i){
+  var isEarned=i<state.earned.length;
+  var isNext=i===state.earned.length&&!state.complete;
+  var el=make("div","step"+(isEarned?" earned":"")+(isNext?" active":""));
+  el.appendChild(make("small","",("0"+(i+1)).slice(-2)+" · GEWINNSTUFE"));
+  el.appendChild(make("b","",money(value)+" U"));
+  el.appendChild(make("em","",isEarned?"✓ Gewonnen":isNext?"● Nächster Gewinn":"Noch offen"));
+  box.appendChild(el);
+ })
+}
+function renderAnswers(){
+ var out=$("answers");out.textContent="";
+ var q=questions[state.index];
+ q.opts.forEach(function(o,i){
+  var button=make("button","answer"+(state.selected===o[0]?" selected":""));
+  button.type="button";
+  button.setAttribute("aria-pressed",String(state.selected===o[0]));
+  button.disabled=state.phase!=="choose";
+  if(state.phase==="correct"||state.phase==="wrong"){
+   if(o[0]===q.correct)button.classList.add("correct");
+   else if(o[0]===state.selected)button.classList.add("wrong");
+  }
+  button.appendChild(make("span","flag",o[1]));
+  var label=make("span","answer-text");
+  label.appendChild(make("b","",o[2]));label.appendChild(make("small","",o[3]));
+  button.appendChild(label);
+  button.appendChild(make("span","option-id",String.fromCharCode(65+i)));
+  button.addEventListener("click",function(){
+   if(state.phase!=="choose")return;
+   state.selected=o[0];save();renderAnswers();$("action").disabled=false;
+  });
+  out.appendChild(button);
+ })
+}
+function showFact(){
+ var correct=state.phase==="correct",box=$("result");
+ box.hidden=false;box.className="result"+(correct?"":" error");box.textContent="";
+ var headline;
+ if(correct){
+  headline="✅ Richtig! +"+money(rewards[state.earned.length-1])+" Units vorgemerkt.";
+ }else if(state.index<questions.length-1){
+  headline="❌ Leider falsch. 0 Units – die nächste Frage gibt weiterhin +"+money(rewards[nextTier()])+" Units.";
+ }else{
+  headline="❌ Leider falsch. 0 Units für diese Frage – das Quiz ist danach beendet.";
+ }
+ box.appendChild(make("strong","",headline));
+ box.appendChild(make("p","",questions[state.index].fact));
+ var source=make("a","","Faktenquelle ↗");
+ source.href=questions[state.index].src;source.target="_blank";source.rel="noopener noreferrer";
+ box.appendChild(source);
+}
+function render(){
+ renderSteps();
+ $("balance").textContent=money(total())+" Units";
+ $("balanceInfo").textContent=state.earned.length+" richtige Antworten, jeweils einmal gewertet. Keine echte Gutschrift.";
+ $("counter").textContent=state.complete?"QUIZ ABGESCHLOSSEN":"FRAGE "+(state.index+1)+" VON "+questions.length;
+ var amount=state.phase==="correct"?rewards[state.earned.length-1]:rewards[nextTier()];
+ $("tier").textContent=state.complete?"🏆 Ergebnis":(state.phase==="correct"?"+"+money(amount)+" gewonnen":"+"+money(amount)+" Units");
+ $("progress").style.width=(state.complete?100:(state.index+(state.phase==="choose"?0:1))/questions.length*100)+"%";
+ if(state.complete){
+  var correctCount=state.earned.length;
+  $("question").textContent="🏁 Quiz abgeschlossen! "+correctCount+" von "+questions.length+" Fragen richtig.";
+  $("help").textContent="Alle fünf Fragen wurden einmal beantwortet. Nur die richtigen Antworten bringen Units.";
+  $("answers").textContent="";
+  $("result").hidden=false;$("result").className="result";$("result").textContent="";
+  $("result").appendChild(make("strong","","🎉 "+money(total())+" Units vorgemerkt – nur in der Vorschau."));
+  $("result").appendChild(make("p","","Du hast "+correctCount+" von "+questions.length+" Fragen richtig beantwortet. Falsche Antworten haben die nächste Gewinnstufe nicht erhöht. Es werden keine echten Units gutgeschrieben."));
+  var link=make("a","","🌍 Zur Stadionwelt ↗");link.href="https://app.betinsight.club/stadionwelt/?lang=de";link.target="_blank";link.rel="noopener";$("result").appendChild(link);
+  $("quizFoot").hidden=true;return;
+ }
+ $("quizFoot").hidden=false;
+ $("question").textContent=questions[state.index].title;
+ $("help").textContent=questions[state.index].hint;
+ $("result").hidden=true;
+ $("action").disabled=state.phase==="choose"&&!state.selected;
+ $("action").textContent=state.phase==="choose"?"Antwort bestätigen →":state.index===questions.length-1?"🏆 Ergebnis anzeigen":"Nächste Stadionfrage →";
+ $("footNote").textContent=state.phase==="choose"?"Nächste richtige Antwort = nächste Gewinnstufe.":state.phase==="wrong"?"Die Belohnungsstufe bleibt gleich; es geht zur nächsten Frage.":"Super! Die nächste Frage bietet die nächsthöhere Gewinnstufe.";
+ renderAnswers();
+ if(state.phase==="correct"||state.phase==="wrong")showFact();
+}
+function answer(){
+ if(state.phase==="choose"){
+  if(!state.selected)return;
+  if(questions[state.index].correct===state.selected){
+   // The reward tier depends ONLY on prior correct answers, not the question number.
+   state.earned.push(state.earned.length);
+   state.phase="correct";
+  }else{
+   // A wrong answer advances the question later, but leaves reward tier untouched.
+   state.phase="wrong";
+  }
+  save();render();return;
+ }
+ if(state.phase==="correct"||state.phase==="wrong"){
+  if(state.index===questions.length-1){state.complete=true;state.phase="done"}
+  else{state.index++;state.phase="choose";state.selected=null}
+  save();render();
+ }
+}
 $("action").addEventListener("click",answer);
-$("demoReset").addEventListener("click",function(){state={index:0,earned:[],phase:"choose",selected:null,complete:false,newlyEarned:false};try{sessionStorage.removeItem(KEY)}catch(e){}render();document.getElementById("quiz").scrollIntoView({behavior:"smooth",block:"start"})});
+$("demoReset").addEventListener("click",function(){
+ state={index:0,earned:[],phase:"choose",selected:null,complete:false};
+ try{sessionStorage.removeItem(KEY)}catch(e){}
+ render();document.getElementById("quiz").scrollIntoView({behavior:"smooth",block:"start"});
+});
 restore();render();
 })();
 </script>
