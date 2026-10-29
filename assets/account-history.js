@@ -147,6 +147,7 @@
     if (type === "kauf") return tr("packageBought", "Unit-Paket gekauft");
     if (type === "tipp_freischaltung") return tr("tipUnlocked", "Tipp freigeschaltet");
     if (type === "admin_gutschrift") return tr("adminCredit", "🎁 Unit-Gutschrift");
+    if (type === "quiz_gutschrift" && String(item.source || "") === "stadium_quiz") return tr("stadiumQuizGift", "🏟️ Stadionquiz · Geschenk-Units");
     if (String(item.source || "") === "daily_bonus") {
       return type === "box_geoeffnet" ? tr("dailyLoyaltyBox", "Daily Bonus · Treuebox") : tr("dailyBonus", "Daily Bonus");
     }
