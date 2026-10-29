@@ -20,7 +20,7 @@
   const gap=Number(v.gap_pp);
   const score=elt("p",(gap>=0?"+":"")+format(gap)+" Prozentpunkte gegenüber Gewinnschwelle","price-watch-gap");
   score.style.fontWeight="850";score.style.fontSize="18px";
-  score.style.color=gap>=5?"#8af0bf":gap>=0?"#ffe0a2":"#ffb7aa";
+  score.style.color=gap>=0?"#ffe0a2":"#ffb7aa";
   el.append(score);
   el.append(elt("div","Marktwert: "+format(v.market_probability)+" % · Gewinnschwelle: "+
    format(v.break_even)+" % · Referenzangebote: "+v.reference_books,"small muted"));
@@ -29,7 +29,7 @@
   el.append(elt("div","Zeitpunkt: "+timeLabel(v.fetched_at)+
     (historical?" · Historisch/abgelaufen; keine aktuelle Freigabe":" · Cache gültig bis "+timeLabel(v.expires_at)),
     "small muted"));
-  if(v.meets_price_threshold)el.append(elt("p","Rechnerische +5-Pp.-Schwelle erreicht. Keine Freigabe: Anbieterzuordnung, Konto-Quote und unabhängige Prognose nicht nachgewiesen.","small muted"));
+  if(v.meets_price_threshold)el.append(elt("p","Nur Marktbeobachtung: +5-Pp.-Schwelle erreicht, aber KEINE grüne Freigabe: Anbieterzuordnung, Konto-Quote und unabhängige Prognose nicht nachgewiesen.","small muted"));
   return el;
  }
  function render(d){
