@@ -20,6 +20,7 @@ select{font:inherit;background:#092638;color:white;border:1px solid #52839b;padd
 .info{border:1px solid #346880;background:#0b2d42;padding:15px;border-radius:12px}.small{font-size:12px}.muted{color:var(--muted)}.tag{display:inline-block;font-size:11px;border:1px solid #488977;border-radius:30px;padding:4px 8px;font-weight:800;color:#91eeca}.hidden{display:none!important}
 .green-league-row{padding:11px;border:1px solid #315d73;border-radius:10px;background:#092b3d;margin:7px 0}
 #greenFinderResults{margin-top:17px}
+.price-watch-gap{margin:10px 0}
 </style>
 </head>
 <body>
@@ -45,6 +46,34 @@ select{font:inherit;background:#092638;color:white;border:1px solid #52839b;padd
  <div id="greenFinderResults" class="grid"></div>
  <details style="margin-top:16px"><summary style="cursor:pointer;font-weight:850;color:#a4ebd9">Status aller 12 Ligen und Aktualität anzeigen</summary><div id="greenFinderLeagues" style="margin-top:11px"></div></details>
  <p class="small muted">Tischtennis und Cricket werden ohne überprüfbare DE-Angebote nicht künstlich bewertet. Keine Garantie, dass ein grünes Angebot tatsächlich bei einem deutschen Wettkonto verfügbar ist. Nur virtuelle interne Tests.</p>
+</section>
+<section id="priceWatchPanel" class="panel">
+ <div class="overline">Zusatzanalyse ohne API-Credits · keine Tippfreigabe</div>
+ <h2>🔍 Beste Preisabstände und Buchmacher vergleichen</h2>
+ <p class="muted">Die bisherigen Winamax-, Tipico- und 888sport-Angebote getrennt auswerten. Auch andere Buchmacher können als Marktvergleich angezeigt werden. Gespeicherte Quoten bleiben gespeichert; eine abgelaufene Quote ist <strong>kein aktuelles Angebot</strong>.</p>
+ <div class="controls">
+  <div class="control"><label for="priceWatchProvider">Anbieter-Auswahl</label>
+   <select id="priceWatchProvider">
+    <option value="all">Alle verfügbaren Buchmacher</option>
+    <option value="winamax">Winamax (DE)</option>
+    <option value="tipico">Tipico</option>
+    <option value="888sport">888sport</option>
+    <option value="other">Weitere Anbieter (nur Vergleich)</option>
+   </select>
+  </div>
+  <button id="priceWatchRun" class="secondary" type="button">Preisabstände vergleichen · 0 Credits</button>
+ </div>
+ <p id="priceWatchStatus" class="muted" role="status">Noch nicht ausgewertet. Keine neuen Quotenabrufe.</p>
+ <div id="priceWatchOverview" class="info">Dieser Bereich zeigt Beobachtungen unterhalb der Grün-Grenze ausdrücklich an, ohne gelbe oder rote Auswahlen freizugeben. Auch ein rechnerischer Abstand von +5 Prozentpunkten garantiert keinen tatsächlichen Vorteil.</div>
+ <h3>Aktuelle Cache-Beobachtungen</h3>
+ <div id="priceWatchCurrent" class="grid" style="margin:12px 0 18px"></div>
+ <details><summary style="cursor:pointer;font-weight:800;color:#c3e8f5">Historische Quoten anzeigen – nicht mehr gültig</summary>
+  <div id="priceWatchHistorical" class="grid" style="margin:15px 0"></div>
+ </details>
+ <details style="margin-top:14px"><summary style="cursor:pointer;font-weight:800;color:#c3e8f5">Auswertung nach Buchmachergruppen</summary>
+  <div id="priceWatchGroups" style="margin:14px 0"></div>
+ </details>
+ <p class="small muted">Die API-Region „eu“ ist keine deutsche Lizenz- oder Verfügbarkeitsbestätigung. Der Anbietername oder eine GGL-Whitelist-Marke beweist keine tatsächlich auf einem deutschen Konto handelbare Quote. Kein automatischer Wett- oder Tippvorgang.</p>
 </section>
 <section id="soccerPanel" class="panel hidden"><h2>⚽ Details zum Fußballmarkt</h2><select id="soccerLeague"><option>Fußball</option></select><div id="soccerDetails" class="grid" style="margin-top:14px"></div></section>
 <section id="additionalOddsScout" class="panel hidden"><h2>Details zu weiteren Sportligen</h2><select id="otherOddsLeague"><option>Andere Sportarten</option></select><div id="otherOddsDetails" class="grid" style="margin-top:14px"></div><p id="otherOddsStatus" class="small muted"></p></section>
@@ -93,5 +122,6 @@ function showOtherOdds(key){return details(key,"otherOddsDetails","additionalOdd
 })();
 </script>
 <script src="/admin/testlabor/green-scanner-v1.js?v=1" defer></script>
+<script src="/admin/testlabor/price-watch-v1.js?v=1" defer></script>
 </body>
 </html>
