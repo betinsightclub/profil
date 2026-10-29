@@ -19,7 +19,7 @@
       " mit Quoten-Snapshot · "+d.current_leagues+" noch gültig · "+d.current_games+
       " kommende Spiele im gültigen Cache · "+greens.length+" gültige grüne Auswahlen. "+
       (d.current_leagues<d.scanned_leagues?"Nicht alle Ligen sind aktuell geprüft. ":"")+
-      "0 neue Anbieter-Credits verbraucht.";
+      "Dieser Cache-Vergleich: 0 zusätzliche Quotenabrufe (vorherige Aktualisierungen separat).";
     if(!greens.length){
       const none=add("div","Keine aktuelle grüne Preisampel in den "+d.current_leagues+
         " Ligen mit gültigen Cache-Daten gefunden. Fehlende oder abgelaufene Ligen gelten ausdrücklich NICHT als erfolglos geprüft. "+
