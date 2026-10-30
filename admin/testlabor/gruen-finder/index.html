@@ -75,6 +75,26 @@ select{font:inherit;background:#092638;color:white;border:1px solid #52839b;padd
  </details>
  <p class="small muted">Die API-Region „eu“ ist keine deutsche Lizenz- oder Verfügbarkeitsbestätigung. Der Anbietername oder eine GGL-Whitelist-Marke beweist keine tatsächlich auf einem deutschen Konto handelbare Quote. Kein automatischer Wett- oder Tippvorgang.</p>
 </section>
+<section id="marketLabPanel" class="panel">
+ <div class="overline">Neue Fußballmärkte · kostenfreie Vorprüfung</div>
+ <h2>⚽ Doppelte Chance &amp; Geld zurück bei Unentschieden</h2>
+ <p class="muted">Hier testen wir zuerst die Logik der Märkte mit gespeicherten <strong>1X2-Quoten</strong>. Aus diesen Daten lassen sich bedingte Wahrscheinlichkeiten und <strong>theoretisch notwendige Quoten</strong> berechnen – aber keine tatsächlichen DNB-/Doppelte-Chance-Angebote. Eine grüne Ampel gibt es deshalb hier noch nicht.</p>
+ <div class="controls">
+  <div class="control"><label for="marketLabType">Wettmarkt</label>
+   <select id="marketLabType">
+    <option value="all">DNB und Doppelte Chance</option>
+    <option value="draw_no_bet">Draw No Bet – Remis: Geld zurück</option>
+    <option value="double_chance">Doppelte Chance – 1X, X2, 12</option>
+   </select></div>
+  <div class="control"><label for="marketLabLeague">Fußballliga</label>
+   <select id="marketLabLeague"><option value="all">Alle vier Fußballligen</option></select></div>
+  <button id="marketLabRun" type="button">Märkte kostenlos vergleichen · 0 Credits</button>
+ </div>
+ <p id="marketLabStatus" class="muted" role="status">Noch kein theoretischer Vergleich gestartet. Keine Anbieterabfrage.</p>
+ <div class="info"><strong>Wichtig:</strong> DNB erhält den Einsatz bei Remis zurück. Der +5-Prozentpunkte-Vergleich wird deshalb nur für Spiele <em>ohne</em> Remis als bedingte Wahrscheinlichkeit berechnet; er ist nicht direkt mit dem 1X2-Abstand gleichzusetzen. Doppelte Chance deckt zwei Resultate ab, hat aber üblicherweise niedrigere Quoten. Kein aus 1X2 geschätzter Preis wird als echte Buchmacherquote angezeigt.</div>
+ <div id="marketLabResults" class="grid" style="margin-top:16px"></div>
+ <p class="small muted">Nur internes Forschungslabor. Historische Daten sind gekennzeichnet. Vor jeder echten Marktfreigabe brauchen wir separat bestätigte Buchmacherangebote, korrekte Abrechnungsregeln und einen rückblickend überprüften Wahrscheinlichkeitsansatz.</p>
+</section>
 <section id="soccerPanel" class="panel hidden"><h2>⚽ Details zum Fußballmarkt</h2><select id="soccerLeague"><option>Fußball</option></select><div id="soccerDetails" class="grid" style="margin-top:14px"></div></section>
 <section id="additionalOddsScout" class="panel hidden"><h2>Details zu weiteren Sportligen</h2><select id="otherOddsLeague"><option>Andere Sportarten</option></select><div id="otherOddsDetails" class="grid" style="margin-top:14px"></div><p id="otherOddsStatus" class="small muted"></p></section>
 </div>
@@ -123,5 +143,6 @@ function showOtherOdds(key){return details(key,"otherOddsDetails","additionalOdd
 </script>
 <script src="/admin/testlabor/green-scanner-v1.js?v=2" defer></script>
 <script src="/admin/testlabor/price-watch-v1.js?v=2" defer></script>
+<script src="/admin/testlabor/market-lab-v1.js?v=1" defer></script>
 </body>
 </html>
