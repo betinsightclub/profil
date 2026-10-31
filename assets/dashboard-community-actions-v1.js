@@ -334,3 +334,14 @@
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",attach,{once:true});
   else attach();
 })();
+/* TIME CLASH: after registration, offer an optional claim of browser-held guest games.
+ * Uses the existing secure Supabase account verification, never auto-claims or awards Units.
+ */
+(function(){
+  if(location.hostname!=="app.betinsight.club")return;
+  if(document.getElementById("biTcDashboardClaimLoader"))return;
+  var script=document.createElement("script");
+  script.id="biTcDashboardClaimLoader";
+  script.src="https://betinsight.club/assets/time-clash-guest-bridge-v1.js?v=20261031-4";
+  document.head.appendChild(script);
+})();
