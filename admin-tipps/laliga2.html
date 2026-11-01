@@ -8,6 +8,13 @@
 </head><body><a id="persistentBack" href="/admin/">← Zurück zum Admin Center</a><div class="load"><div class="spin"></div><strong>BetInsight Tipp-Terminal · Kombi wird geladen …</strong></div>
 <script>
 (async()=>{
+  let access=null;
+  try{access=JSON.parse(sessionStorage.getItem('betinsight_admin_session_v1')||'null')}catch(e){}
+  if(!access || !access.adminId || Number(access.expiresMs||0)<=Date.now() || access.adminId==='ADM-003'){
+    const p=document.querySelector('.load');
+    p.innerHTML='<h2>'+(access?.adminId==='ADM-003'?'Tipp-Eingabe seit 01.11.2026 gesperrt':'Bitte zuerst anmelden')+'</h2><p>Dein Backoffice erreichst du weiterhin über das Admin Center.</p><p><a href="/admin/" style="color:#40baff">Zurück zum Admin Center</a></p>';
+    return;
+  }
   // 01.11.2026: Tipp-Eingabe nur für berechtigte Admins; Frank darf sein Backoffice weiterhin nutzen.
   let __biSession=null;
   try{__biSession=JSON.parse(sessionStorage.getItem('betinsight_admin_session_v1')||'null')}catch(_){}
