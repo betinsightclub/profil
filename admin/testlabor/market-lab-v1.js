@@ -80,7 +80,7 @@
      "Es wurden keine weiteren API-Credits verbraucht.","info"));
    const numberOfOptions=rows.slice(0,shown).reduce((sum,match)=>
      sum+(match.markets||[]).filter(m=>type==="all"||m.market_type===type).length,0);
-   $("marketLabStatus").textContent="Angezeigt: "+shown+" Begegnungen mit "+
+   $("marketLabStatus").textContent="Angezeigt: "+shown+(shown===1?" Begegnung mit ":" Begegnungen mit ")+
      numberOfOptions+" Marktampeln · 0 grüne Freigaben · "+
      "0 neue API-Credits. Ohne echte DNB-/Doppelte-Chance-Quote bleibt die Ampel grau.";
  };
