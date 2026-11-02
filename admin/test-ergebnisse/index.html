@@ -20,8 +20,13 @@ const KEY="betinsight_admin_session_v1";
 const list=document.getElementById("list"),msg=document.getElementById("message"),select=document.getElementById("matchday"),stats=document.getElementById("stats");
 const ss=(()=>{try{return JSON.parse(sessionStorage.getItem(KEY)||"null")}catch{return null}})();
 if(!ss||!ss.token||!ss.adminId||Number(ss.expiresMs||0)<Date.now()){window.location.replace("/admin/?next=score-test");return;}
-const role=String(ss.adminId),editable=role==="ADM-003";
+const role=String(ss.adminId),editable=["ADM-001","ADM-003"].includes(role);
 if(!["ADM-001","ADM-003"].includes(role)){window.location.replace("/admin/");return;}
+if(role==="ADM-001"){
+ document.querySelector("h1").textContent="Master-Testkonto: Ergebnisse tippen";
+ document.querySelector(".lead").textContent="Auch du kannst hier Ergebnistipps zum Test eingeben und speichern. Deine Prognosen werden vollständig getrennt von Franks Testtipps erfasst. Frank sieht und speichert nur seine eigenen Tipps.";
+ document.querySelector(".ey").textContent="Master-Testkonto · Bundesliga 2026/27";
+}
 const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(String(ss.token)));
 const hash=[...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,"0")).join("");
 async function call(body){
