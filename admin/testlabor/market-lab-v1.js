@@ -4,6 +4,40 @@
  const $=id=>document.getElementById(id);
  const txt=(tag,content,cls)=>{const e=document.createElement(tag);e.textContent=String(content??"");if(cls)e.className=cls;return e};
  const fmt=n=>Number(n).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2});
+
+ // A display-only signal: no real DC/DNB quote = no price-ampel.
+ // Independent probabilities and verified prices are required for color status.
+ function marketSignal(match,m){
+   const price=Number(m.real_market_odds);
+   const p=Number(m.model_probability_pct);
+   if(match.cache_status!=="current")return {light:"gray",label:"Nicht bewertbar",reason:"1X2-Daten historisch/abgelaufen."};
+   if(m.quote_verified!==true || m.real_market_odds==null || !Number.isFinite(price) || price<=1)
+     return {light:"gray",label:"Nicht bewertbar",reason:"Keine aktuelle geprüfte Buchmacherquote für genau diesen Markt."};
+   if(m.independent_probability_available!==true || !Number.isFinite(p) || p<=0||p>=100)
+     return {light:"gray",label:"Nicht bewertbar",reason:"Unabhängige Wahrscheinlichkeit ist nicht validiert."};
+   const delta=p-100/price;
+   if(price<1.4||price>2.5)return {light:"red",label:"Nicht geeignet",reason:"Quote außerhalb des bisherigen Bereichs 1,40–2,50."};
+   if(delta>=5)return {light:"green",label:"Preisregel erfüllt – nur Test",reason:"Berechneter Abstand +"+fmt(delta)+" Pp.; keine automatische Tippfreigabe."};
+   if(delta>=0)return {light:"yellow",label:"Kein ausreichender Vorteil",reason:"Preisabstand "+fmt(delta)+" Pp.; erforderlich sind +5,00 Pp."};
+   return {light:"red",label:"Zu geringer Quotenpreis",reason:"Preisabstand "+fmt(delta)+" Pp. unter der Gewinnschwelle."};
+ }
+ function renderAmpel(match,m){
+   const signal=marketSignal(match,m);
+   const panel=txt("div","","market-ampel market-ampel-"+signal.light);
+   panel.setAttribute("role","status");
+   const bulbs=txt("div","","market-ampel-bulbs");
+   for(const [name,label] of [["red","Rot"],["yellow","Gelb"],["green","Grün"],["gray","Grau"]]){
+      const dot=txt("span","", "market-ampel-dot market-ampel-dot-"+name+(signal.light===name?" active":""));
+      dot.setAttribute("aria-hidden","true");dot.title=label;
+      bulbs.append(dot);
+   }
+   const detail=txt("div","","market-ampel-copy");
+   detail.append(txt("strong","Ampel: "+signal.label));
+   detail.append(txt("div",signal.reason,"small muted"));
+   panel.append(bulbs,detail);
+   return panel;
+ }
+
  let data=null;
  const update=()=>{
    if(!data)return;
@@ -26,6 +60,7 @@
      for(const m of marketOptions){
        const r=txt("div","","green-league-row");
        r.append(txt("strong",m.name));
+       r.append(renderAmpel(match,m));
        r.append(txt("div","Theoretisch faire Quote "+fmt(m.fair_odds)+
           " · Mindestquote für +5 Prozentpunkte: "+
           (m.needed_odds_for_plus5pp===null?"nicht berechenbar":fmt(m.needed_odds_for_plus5pp)),"small"));
@@ -43,9 +78,11 @@
    }
    if(!shown)area.append(txt("div","Keine passenden Fußballbegegnungen in den gespeicherten Daten. "+
      "Es wurden keine weiteren API-Credits verbraucht.","info"));
-   $("marketLabStatus").textContent="Angezeigt: "+shown+" Begegnungen · "+
-     data.sample_games+" auswertbare Spiele aus 1X2-Snapshots insgesamt · 0 neue API-Credits. "+
-     "Grüne Freigaben: 0 (es liegen keine tatsächlichen DNB-/DC-Angebote vor).";
+   const numberOfOptions=rows.slice(0,shown).reduce((sum,match)=>
+     sum+(match.markets||[]).filter(m=>type==="all"||m.market_type===type).length,0);
+   $("marketLabStatus").textContent="Angezeigt: "+shown+" Begegnungen mit "+
+     numberOfOptions+" Marktampeln · 0 grüne Freigaben · "+
+     "0 neue API-Credits. Ohne echte DNB-/Doppelte-Chance-Quote bleibt die Ampel grau.";
  };
  const run=async()=>{
    if(!rawToken)return;
