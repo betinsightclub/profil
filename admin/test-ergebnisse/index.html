@@ -19,7 +19,7 @@ const API="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-scor
 const KEY="betinsight_admin_session_v1";
 const list=document.getElementById("list"),msg=document.getElementById("message"),select=document.getElementById("matchday"),stats=document.getElementById("stats");
 const ss=(()=>{try{return JSON.parse(sessionStorage.getItem(KEY)||"null")}catch{return null}})();
-if(!ss||!ss.token||!ss.adminId||Number(ss.expiresMs||0)<Date.now()){window.location.replace("/admin/");return;}
+if(!ss||!ss.token||!ss.adminId||Number(ss.expiresMs||0)<Date.now()){window.location.replace("/admin/?next=score-test");return;}
 const role=String(ss.adminId),editable=role==="ADM-003";
 if(!["ADM-001","ADM-003"].includes(role)){window.location.replace("/admin/");return;}
 const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(String(ss.token)));
