@@ -35,8 +35,7 @@ function el(tag,cl,text){const node=document.createElement(tag);if(cl)node.class
 let all=[],current=9;
 function dateOf(v){return v?new Intl.DateTimeFormat("de-DE",{timeZone:"Europe/Berlin",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(new Date(v))+" Uhr":"Anstoßzeit noch offen"}
 function isLocked(f){if(f.kickoff_at)return Date.now()>=Date.parse(f.kickoff_at);return Date.now()>=Date.parse(f.window_starts_on+"T00:00:00+01:00")}
-function summary(){const entered=all.filter(f=>f.prediction),settled=entered.filter(f=>f.prediction.result_status!=="OFFEN"),won=settled.filter(f=>f.prediction.result_status==="TREFFER");
- stats.replaceChildren();for(const text of ["Spiele geladen: "+all.length,"Abgegeben: "+entered.length,"Ausgewertet: "+settled.length,"Exakte Treffer: "+won.length])stats.appendChild(el("span","",text));}
+function summary(){const entered=all.filter(f=>f.prediction),settled=entered.filter(f=>f.prediction.result_status!=="OFFEN"),won=settled.filter(f=>f.prediction.result_status==="TREFFER");const quoted=settled.filter(f=>Number(f.prediction.quote)>1);const pnl=quoted.reduce((sum,f)=>sum+(f.prediction.result_status==="TREFFER"?(Number(f.prediction.quote)-1):-1),0);const roi=quoted.length?((pnl/quoted.length)*100).toFixed(1).replace(".",",")+" %":"–";stats.replaceChildren();for(const text of ["Spiele geladen: "+all.length,"Abgegeben: "+entered.length,"Ausgewertet: "+settled.length,"Exakte Treffer: "+won.length,"Mit echter Quote bewertet: "+quoted.length,"Papier-ROI bei 1 € je bewerteter Prognose: "+roi])stats.appendChild(el("span","",text));}
 function render(){
  const active=all.filter(f=>Number(f.matchday)===current);
  list.replaceChildren();if(!active.length){list.appendChild(el("div","empty","Für diesen Spieltag sind noch keine Paarungen erfasst."));return;}
