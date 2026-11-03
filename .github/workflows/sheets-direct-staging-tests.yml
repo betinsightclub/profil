@@ -1,0 +1,19 @@
+name: Sheets direct staging tests
+on:
+  push:
+    branches:
+      - work/sheets-direct-tipunlock-20261103
+    paths:
+      - 'migration/sheets-direct-v1/**'
+      - '.github/workflows/sheets-direct-staging-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-safety-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run isolated tests (no production credentials)
+        run: node --test migration/sheets-direct-v1/direct-sheets-transport.test.mjs
