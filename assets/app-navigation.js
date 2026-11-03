@@ -42,31 +42,6 @@
     }, true);
   }
 
-  function installCuratedProviderChoice() {
-    const pathname = location.pathname.replace(/\/+$/, "/");
-    const providerPath = new URL("anbieter/", APP_ROOT).pathname.replace(/\/+$/, "/");
-    if (pathname !== providerPath && pathname !== providerPath + "index.html") return;
-    if (window.__betinsightCuratedProviderChoiceInstalled) return;
-    window.__betinsightCuratedProviderChoiceInstalled = true;
-
-    document.addEventListener("click", event => {
-      const button = event.target instanceof Element ? event.target.closest('.choice[data-mode="any"]') : null;
-      if (!button) return;
-
-      const country = String(document.getElementById("countrySelect")?.value || "").trim().toUpperCase();
-      const region = String(document.getElementById("regionSelect")?.value || "").trim();
-      if (!country) return;
-
-      event.preventDefault();
-      event.stopImmediatePropagation();
-
-      const url = new URL("anbieter-auswahl/", APP_ROOT);
-      url.searchParams.set("country", country);
-      if (region) url.searchParams.set("region", region);
-      location.assign(url.toString());
-    }, true);
-  }
-
   function installPremiumProvisionInfo() {
     if (!isRootDashboard() || window.__betinsightPremiumProvisionInfoInstalled) return;
     window.__betinsightPremiumProvisionInfoInstalled = true;
@@ -285,7 +260,6 @@
 
   async function boot() {
     installLandingLogoLink();
-    installCuratedProviderChoice();
     installPremiumProvisionInfo();
     installAssistAccess();
     addDashboardScope();
