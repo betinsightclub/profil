@@ -109,7 +109,10 @@ h2{font-size:clamp(21px,2.7vw,26px);margin:0 0 6px;letter-spacing:-.015em}
 .card-bottom{display:flex;justify-content:space-between;align-items:center;gap:9px;margin-top:auto}
 .small-button{border:1px solid #2795cb;border-radius:10px;background:#096a96;color:white;font-size:11px;font-weight:800;padding:11px 13px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
 .small-button:hover{background:#1084b7}
-.tip-training-refund{font-size:10px!important;color:#a9cbd9!important;line-height:1.45!important;margin:0!important;text-align:right;opacity:.92}
+.training-tip .demo-list{margin:3px 0 6px}
+.training-tip .card-bottom{align-items:flex-end}
+.training-unlock-actions{display:flex;flex-direction:column;align-items:flex-end;gap:5px;max-width:65%;min-width:190px}
+.training-refund-small{font-size:10px!important;color:#a9cbd9!important;line-height:1.4!important;margin:0!important;text-align:right;opacity:.95}
 .note{font-size:11px;color:#93b3bf;line-height:1.6;margin-top:14px}
 .roi-help-row{display:flex;justify-content:flex-start;margin-top:12px}
 .roi-help-trigger{width:26px;height:26px;display:inline-grid;place-items:center;border:1.5px solid #87cde7;background:#0d3549;border-radius:50%;color:#e7faff;font-size:16px;line-height:1;font-weight:900;padding:0;cursor:pointer}
@@ -256,18 +259,49 @@ if(personal){
 else if(r.tipp)c.appendChild(ele("p","","Tipp: "+str(r.tipp)));
 var b=ele("div","card-bottom");b.appendChild(ele("span","meta",numeric(r.quote)>1?"Quote: "+str(r.quote):"Quote: –"));b.appendChild(ele("span","meta",str(r.endergebnis)?("Endstand: "+str(r.endergebnis)):(personal?"Persönlicher Zugang":"Bestätigter Tipp")));c.appendChild(b);return c}
 function newCard(r){
- var c=ele("article","tip"),meta=ele("div","meta");
- meta.appendChild(ele("span","pill",training(r)?"🎓 SCHULUNGSTIPP":"🔒 ANALYSE"));
- meta.appendChild(ele("span","",shortDate(r.spiel_datum)+" · "+str(r.anpfiff)));
+ var isTraining=training(r),c=ele("article","tip"+(isTraining?" training-tip":"")),meta=ele("div","meta");
+ meta.appendChild(ele("span","pill",isTraining?"🎓 SCHULUNGSTIPP":"🔒 ANALYSE"));
+ meta.appendChild(ele("span","",shortDate(r.spiel_datum)+" · "+str(r.anpfiff||"–")));
  c.appendChild(meta);
- c.appendChild(ele("h3","","Neue Sportanalyse von "+(training(r)?"BetInsight":str(r.tippgeber||"BetInsight"))));
- c.appendChild(ele("p","",str(r.sportart||"Sport")+" · "+str(r.liga)));
- c.appendChild(ele("p","","Quotenbereich: "+str(r.quote_bereich||"Nach Freischaltung")+" · Begegnung, Markt und Tipp werden erst nach Freischaltung angezeigt."));
- var bottom=ele("div","card-bottom");
- bottom.appendChild(ele("span","pill","Preis: "+str(r.preis_units)+" Units"));
- var button=ele("button","small-button","🔓 Tipp freischalten");button.type="button";bottom.appendChild(button);c.appendChild(bottom);
-  if(training(r)){var refund=ele("p","tip-training-refund","Bei verlorenem Schulungstipp: 1 Unit zurück · manuelle Gutschrift nach Ergebnisbestätigung.");c.appendChild(refund);}
- var feedback=ele("p","demo-feedback","");feedback.setAttribute("aria-live","polite");c.appendChild(feedback);
+ c.appendChild(ele("h3","","Neue Sportanalyse von "+(isTraining?"BetInsight":str(r.tippgeber||"BetInsight"))));
+ if(isTraining){
+  var rows=[
+   ["⚽ Sport",str(r.sportart||"Fußball")],
+   ["🏟️ Liga",str(r.liga||"–")],
+   ["👤 Tippgeber","BetInsight"],
+   ["📅 Datum",shortDate(r.spiel_datum)],
+   ["🕒 Anpfiff",str(r.anpfiff||"–")],
+   ["📊 Quotenbereich",str(r.quote_bereich||"Nach Freischaltung")],
+   ["🎯 Markt","Nach Freischaltung sichtbar"],
+   ["⚔️ Begegnung","████████ – ████████"],
+   ["✅ Auswahl","Nach Freischaltung sichtbar"]
+  ];
+  var list=ele("div","demo-list");
+  rows.forEach(function(kv){
+   var line=ele("div","demo-row");
+   line.appendChild(ele("span","",kv[0]));
+   line.appendChild(ele("strong","",kv[1]));
+   list.appendChild(line);
+  });
+  c.appendChild(list);
+ }else{
+  c.appendChild(ele("p","",str(r.sportart||"Sport")+" · "+str(r.liga)));
+  c.appendChild(ele("p","","Quotenbereich: "+str(r.quote_bereich||"Nach Freischaltung")+" · Begegnung, Markt und Tipp werden erst nach Freischaltung angezeigt."));
+ }
+ var bottom=ele("div","card-bottom"),units=str(r.preis_units),price=units+" "+(numeric(r.preis_units)===1?"Unit":"Units");
+ bottom.appendChild(ele("span","pill","Preis: "+price));
+ var button=ele("button","small-button",isTraining?"🔓 Tipp für "+price+" freischalten":"🔓 Tipp freischalten");
+ button.type="button";
+ if(isTraining){
+  var actions=ele("div","training-unlock-actions");
+  actions.appendChild(button);
+  actions.appendChild(ele("p","training-refund-small","Bei verlorenem Schulungstipp: 1 Unit zurück · manuelle Gutschrift nach Ergebnisbestätigung."));
+  bottom.appendChild(actions);
+ }else bottom.appendChild(button);
+ c.appendChild(bottom);
+ var feedback=ele("p","demo-feedback","");
+ feedback.setAttribute("aria-live","polite");
+ c.appendChild(feedback);
  button.addEventListener("click",function(){unlockTip(r,button,feedback)});
  return c;
 }
@@ -295,7 +329,7 @@ async function unlockTip(tip,button,feedback){
   try{await fetch("https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-profile-resync?token="+encodeURIComponent(access),{method:"GET",cache:"no-store",credentials:"omit"})}catch(_){}
   load();
  }catch(error){feedback.textContent="Freischaltung konnte nicht bestätigt werden. Bitte versuche es erneut oder kontaktiere den Support.";console.warn("BetInsight tip unlock error",String(error).slice(0,100))}
- finally{button.disabled=false;button.textContent="🔓 Tipp freischalten"}
+ finally{button.disabled=false;button.textContent=training(tip)?"🔓 Tipp für "+str(tip.preis_units)+" "+(numeric(tip.preis_units)===1?"Unit":"Units")+" freischalten":"🔓 Tipp freischalten"}
 }
 function expired(r){
   const flag=str(r.expired).toLowerCase();
