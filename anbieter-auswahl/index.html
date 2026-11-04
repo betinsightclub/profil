@@ -18,34 +18,48 @@ Version: 2026.08.25-04
 - Zentrale BetInsight-App-Navigation eingebunden.
 - Bestehendes BetInsight-Logo und Favicon weiterverwendet.
 -->
-<html lang="de">
+<html lang="de" class="bi-regional-pending">
 <head>
-<!-- Canonical provider list: legacy global crypto showcase is retired to avoid out-of-region referrals. -->
-<meta http-equiv="refresh" content="0;url=../anbieter/">
-<script>window.location.replace("../anbieter/");</script>
+<!-- Internationale BetInsight-Anbieterübersicht mit vorgeschalteter Länderprüfung. -->
 <!-- BETINSIGHT APP NOINDEX START -->
 <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
 <!-- BETINSIGHT APP NOINDEX END -->
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <script src="../assets/regional-restrictions.js?v=20260927-2"></script>
-  <style>html.bi-regional-block body{visibility:hidden}</style>
+  <style>html.bi-regional-block body,html.bi-regional-pending body{visibility:hidden}</style>
   <script>
   (async() => {
     const regional=window.BetInsightRegionalRestrictions;
-    await regional?.ready?.();
-    if (!regional?.brazilBettingBlockActive) return;
-    const code=regional.currentCountry?.() || "";
-    if (!code) {
+    try { await regional?.ready?.(); } catch (_) {}
+    const urlCountry=regional?.normalizeCountryCode?.(new URLSearchParams(location.search).get("country")) || "";
+    const savedCountry=regional?.currentCountry?.() || "";
+    const country=savedCountry || urlCountry;
+    if (!country) {
       location.replace("../anbieter/?return=anbieter-auswahl");
       return;
     }
-    if (!regional.isBrazilBlocked?.(code)) return;
-    document.documentElement.classList.add("bi-regional-block");
-    document.addEventListener("DOMContentLoaded",() => {
-      const msg=regional.getMessages?.() || {title:"Für Brasilien derzeit nicht verfügbar",body:"Dieser Anbieterbereich ist in Brasilien derzeit deaktiviert."};
-      document.body.innerHTML='<main style="min-height:100vh;display:grid;place-items:center;padding:24px;background:#001b24;color:#f4f8fb;font-family:Inter,system-ui,sans-serif"><section style="max-width:720px;padding:30px;border:1px solid rgba(255,255,255,.13);border-radius:20px;background:#04263a;text-align:center"><h1 style="margin-top:0">'+msg.title+'</h1><p style="color:#c4d5de;line-height:1.65">'+msg.body+'</p><a href="../anbieter/" style="display:inline-block;margin-top:10px;padding:12px 18px;border-radius:10px;background:#169cff;color:#fff;text-decoration:none;font-weight:800">Zurück</a></section></main>';
-      document.documentElement.classList.remove("bi-regional-block");
-    });
+    if (urlCountry) regional?.rememberCountry?.(urlCountry);
+    if (!regional || country==="BR" || urlCountry==="BR" || regional.isBrazilBlocked?.(country)) {
+      const showBlock=()=>{
+        const msg=regional?.getMessages?.() || {title:"Für Brasilien derzeit nicht verfügbar",body:"Dieser Anbieterbereich ist in Brasilien derzeit deaktiviert."};
+        const main=document.createElement("main");
+        main.style.cssText="min-height:100vh;display:grid;place-items:center;padding:24px;background:#001b24;color:#f4f8fb;font-family:Inter,system-ui,sans-serif";
+        const section=document.createElement("section");
+        section.style.cssText="max-width:720px;padding:30px;border:1px solid rgba(255,255,255,.13);border-radius:20px;background:#04263a;text-align:center";
+        const heading=document.createElement("h1"); heading.textContent=msg.title;
+        const body=document.createElement("p"); body.textContent=msg.body;
+        const back=document.createElement("a"); back.href="../anbieter/"; back.textContent="Zurück zur Länderwahl";
+        back.style.cssText="display:inline-block;margin-top:10px;padding:12px 18px;border-radius:10px;background:#169cff;color:#fff;text-decoration:none;font-weight:800";
+        section.append(heading,body,back); main.appendChild(section);
+        document.body.replaceChildren(main);
+        document.documentElement.classList.remove("bi-regional-block","bi-regional-pending");
+      };
+      document.documentElement.classList.add("bi-regional-block");
+      if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",showBlock,{once:true});
+      else showBlock();
+      return;
+    }
+    document.documentElement.classList.remove("bi-regional-pending");
   })();
   </script>
   <meta charset="UTF-8">
@@ -152,8 +166,8 @@ Version: 2026.08.25-04
 
     <section class="hero">
       <div class="eyebrow">⚽ BetInsight Auswahl</div>
-      <h1>Unsere Wettanbieter</h1>
-      <p>Eine übersichtliche Auswahl unserer bevorzugten und ergänzenden Wettanbieter. Verfügbarkeit, Funktionen und Bedingungen können je nach Land unterschiedlich sein. Bitte prüfe vor der Nutzung immer die für deinen Wohnsitz geltenden Regeln.</p>
+      <h1>Internationale Wettanbieter-Auswahl</h1>
+      <p>Unsere internationale redaktionelle Auswahl mit Schwerpunkt auf Sportwetten und Krypto-Plattformen. Die Verfügbarkeit, Zahlungsarten und rechtliche Zulässigkeit unterscheiden sich je nach Wohnsitzland. Eine Nennung ist keine lokale Zulassungsbestätigung. Brasilien ist ausgeschlossen.</p>
     </section>
 
     <div class="section-title">
@@ -257,13 +271,13 @@ Version: 2026.08.25-04
             </p>
           </div>
           <div class="actions">
-            <button class="provider-btn pending-link" type="button">Stake öffnen</button>
+            <a class="provider-btn" href="https://stake.com/?c=betinsightclub" target="_blank" rel="sponsored noopener noreferrer">Stake öffnen ↗</a>
             <div class="vpn-row">
               <button class="vpn-btn pending-link" type="button">🛡️ VPN-Anbieter öffnen</button>
               <button class="info-btn" type="button" aria-expanded="false">?</button>
               <div class="info" hidden>Der VPN-Bereich dient dem Datenschutz und einer geschützten Verbindung. Regionale Regeln und Plattformbedingungen bleiben davon unberührt.</div>
             </div>
-            <p class="pending">Partnerlinks werden später ergänzt.</p>
+            <p class="pending">BetInsight-Partnerlink · Bitte prüfe die Verfügbarkeit und rechtliche Zulässigkeit in deinem Wohnsitzland.</p>
           </div>
         </div>
       </article>

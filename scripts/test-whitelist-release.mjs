@@ -43,10 +43,14 @@ const regional = read('assets/regional-restrictions.js');
 assert.match(regional,/return code === "BR";/);
 assert.doesNotMatch(regional,/return brazilBettingBlockActive && code === "BR";/);
 const legacy=read('anbieter-auswahl/index.html');
-assert.match(legacy,/<meta http-equiv="refresh" content="0;url=\.\.\/anbieter\/"/);
-assert.match(legacy,/location\.replace\("\.\.\/anbieter\/"\)/);
+assert.doesNotMatch(legacy,/<meta http-equiv="refresh" content="0;url=\.\.\/anbieter\//,'international provider overview must not redirect back to local list');
+assert.doesNotMatch(legacy,/location\.replace\("\.\.\/anbieter\/"\)/,'international provider overview must remain reachable');
+assert.match(legacy,/href="https:\/\/stake\.com\/\?c=betinsightclub"/,'Stake partner link must be present');
+assert.match(legacy,/country==="BR"/,'international provider overview must block Brazil');
+assert.match(legacy,/BetInsight-Partnerlink/,'Stake partner disclosure must be present');
 const selector=read('anbieter/index.html');
 assert.match(selector,/function ruleHasPublishedList/);
+assert.match(selector,/destination=new URL\('\.\.\/anbieter-auswahl\/',location\.href\)/,'Keine Präferenz must route to the international provider overview');
 assert.doesNotMatch(selector,/Date\.now\(\) - checked/);
 assert.doesNotMatch(selector,/Für \\?\$\{locationText\} sind noch keine von BetInsight verifizierten Anbieter hinterlegt/);
 assert.match(selector,/Bonusbedingungen: ungeprüft/);
@@ -82,4 +86,4 @@ for(const path of ['anbieter/index.html','anbieter-auswahl/index.html','premium-
  }
  assert.ok(scripts>0,path+' must have inline JS');
 }
-console.log('PASS BetInsight production whitelist regression: DE 31; CH 2; AT 9x7 restored; FR 17 restored; BR denied; 93 merge files; legacy redirect; Premium unchanged; all inline scripts parse.');
+console.log('PASS BetInsight production whitelist regression: DE 31; CH 2; AT 9x7 restored; FR 17 restored; BR denied; 93 merge files; international no-preference route; Stake referral; Premium unchanged; all inline scripts parse.');

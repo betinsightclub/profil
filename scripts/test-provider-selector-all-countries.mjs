@@ -90,7 +90,7 @@ const window={
   },
   addEventListener:()=>{}
 };
-const location={href:'https://app.betinsight.club/anbieter/',search:''};
+const location={href:'https://app.betinsight.club/anbieter/',search:'',assigned:'',assign(url){this.assigned=String(url)}};
 let fetchCount=0;
 async function fakeFetch(url) {
   const path=new URL(url,location.href).pathname.replace(/^\//,'');
@@ -153,15 +153,24 @@ async function select(country,region){
     return;
   }
   assert.equal(el('filterStep').classList.contains('hidden'),false,country+'/'+region+' must offer all three choices');
-  assert.equal(el('results').classList.contains('hidden'),false,country+'/'+region+' auto-result must be shown');
-  assertView(country,region,'any',getExpectedRule(country,region));
-  for(const mode of ['allowed','crypto','any']){
+  assert.equal(el('results').classList.contains('hidden'),false,country+'/'+region+' default country result must be shown');
+  assertView(country,region,'allowed',getExpectedRule(country,region));
+  for(const mode of ['allowed','crypto']){
     const choice=choices.find(x=>x.dataset.mode===mode);
     assert.ok(choice.events.click,country+' missing '+mode+' handler');
     choice.events.click();
     assert.equal(choice.classList.contains('active'),true,country+'/'+region+'/'+mode+' must be visibly selected');
     assertView(country,region,mode,getExpectedRule(country,region));
   }
+  location.assigned='';
+  const noPreference=choices.find(x=>x.dataset.mode==='any');
+  assert.ok(noPreference.events.click,country+' missing any handler');
+  noPreference.events.click();
+  const destination=new URL(location.assigned);
+  assert.equal(destination.pathname,'/anbieter-auswahl/',country+'/'+region+' no-preference destination');
+  assert.equal(destination.searchParams.get('country'),country,country+'/'+region+' country must be passed to international overview');
+  assert.equal(destination.searchParams.get('region')||'',region,country+'/'+region+' region must be passed to international overview');
+
 }
 function getExpectedRule(country,region){
   const base=data.country_rules?.[country];
