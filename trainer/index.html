@@ -356,6 +356,8 @@
     }
     .composer textarea:focus{border-color:rgba(22,135,255,.55);box-shadow:0 0 0 3px rgba(22,135,255,.08)}
     .composer textarea::placeholder{color:#829da9}
+    .post-char-counter{margin:6px 2px 4px 57px;text-align:right;color:#8da8b6;font-size:12px;font-variant-numeric:tabular-nums}
+    .post-char-counter.at-limit{color:#ffc56e;font-weight:700}
     .emotion-picker,.emoji-picker{
       display:none;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:11px 0 0 57px
     }
@@ -802,8 +804,9 @@
         <article class="card composer owner-only" id="composerCard">
           <div class="composer-top">
             <div class="mini-avatar"><span id="composerInitials">BI</span></div>
-            <textarea id="postText" maxlength="1600" placeholder="Was möchtest du mit deiner Trainer-Community teilen?"></textarea>
+            <textarea id="postText" maxlength="5000" aria-describedby="postTextCounter" placeholder="Was möchtest du mit deiner Trainer-Community teilen?"></textarea>
           </div>
+          <div class="post-char-counter" id="postCharCounter"><output id="postTextCounter" for="postText" aria-live="polite">0 / 5.000 Zeichen</output></div>
 
           <div class="emoji-picker" id="emojiPicker" aria-label="Emoji auswählen">
             <button class="emoji-option" type="button" data-emoji="😀">😀</button>
@@ -3630,8 +3633,14 @@
       });
 
       function updatePublishState(){
-        var hasText = document.getElementById("postText").value.trim().length > 0;
-        document.getElementById("publishPostBtn").disabled = postImagePreparing || !(hasText || selectedImageFile || selectedImageData || selectedEmotion);
+        var postField=document.getElementById("postText");
+        var count=postField.value.length;
+        var counter=document.getElementById("postTextCounter");
+        if(counter)counter.textContent=count.toLocaleString("de-DE")+" / 5.000 Zeichen";
+        var counterWrap=document.getElementById("postCharCounter");
+        if(counterWrap)counterWrap.classList.toggle("at-limit",count>=5000);
+        var hasText = postField.value.trim().length > 0;
+        document.getElementById("publishPostBtn").disabled = postImagePreparing || count>5000 || !(hasText || selectedImageFile || selectedImageData || selectedEmotion);
       }
       document.getElementById("postText").addEventListener("input",updatePublishState);
 
@@ -3733,6 +3742,7 @@
             else if(error.data&&error.data.error==="LINK_IN_TEXT_NOT_ALLOWED")showToast("Links sind im Text nicht erlaubt. Nutze das separate Link-Feld.");
             else if(error.data&&error.data.error==="LINK_CHECK_REQUIRED")showToast("Bitte den Link-Schalter aktivieren.");
             else if(error.data&&error.data.error==="INVALID_EXTERNAL_URL")showToast("Der Link ist ungültig.");
+            else if(error.data&&error.data.error==="POST_TEXT_TOO_LONG")showToast("Der Beitrag darf maximal 5.000 Zeichen enthalten.");
             else if(error.data&&error.data.error==="BILLING_NOT_CONFIGURED")showToast("Unit-Abrechnung ist noch nicht aktiviert.");
             else if(error.data&&error.data.error==="UNIT_SERVICE_INVALID_RESPONSE")showToast("Die Unit-Buchung wurde nicht eindeutig bestätigt. Es wurde nicht automatisch erneut abgebucht.");
             else if(error.data&&error.data.error==="UNIT_CHARGE_FAILED")showToast("Die Unit-Abbuchung ist fehlgeschlagen. Bitte Guthaben und Buchungsstatus prüfen.");
