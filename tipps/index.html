@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../assets/app-navigation.css">
 <script src="../assets/app-session.js?v=20260905-4"></script>
 <script src="../assets/app-navigation-v2.js?v=20261029-tipcenter-live-1" defer></script>
+<script src="../assets/tip-view-cache-v1.js?v=20261104-1"></script>
 <style>
 :root{--bg:#051720;--panel:#082b39;--panel2:#0c3547;--line:#225568;--cyan:#18b5f7;--teal:#43dfb4;--red:#ff7583;--yellow:#ffd077;--mute:#a3beca;--white:#f2fcff}
 *{box-sizing:border-box}
@@ -292,6 +293,7 @@ function newCard(r){
  bottom.appendChild(ele("span","pill","Preis: "+price));
  var button=ele("button","small-button",isTraining?"🔓 Tipp für "+price+" freischalten":"🔓 Tipp freischalten");
  button.type="button";
+ if(state.hasAccess&&!state.unlocksVerified){button.disabled=true;button.textContent="⏳ Freischaltungen werden geprüft";}
  if(isTraining){
   var actions=ele("div","training-unlock-actions");
   actions.appendChild(button);
@@ -326,11 +328,12 @@ async function unlockTip(tip,button,feedback){
   var info=Object.assign({},tip,{spiel:str(data.spiel),tipp:str(data.tipp),quote:data.quote,ersteller:str(data.ersteller||tip.tippgeber),markt:str(data.markt),analyse:str(data.analyse||data.analyse_text),liga:str(data.liga||tip.liga),anpfiff:str(data.anpfiff||tip.anpfiff),datum:new Date().toISOString()});
   state.unlocked=[info].concat(state.unlocked.filter(function(x){return str(x.tipp_id)!==tipId}));
   state.recentUnlocks.add(tipId);
+  try{await window.BetInsightTipViewCache?.merge(access,{unlocked:state.unlocked})}catch(_){}
   state.hasAccess=true;
   state.tips=state.tips.filter(function(x){return str(x.tipp_id)!==tipId});
   selectArea("meine");drawMine();drawNew();
   try{await fetch("https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-profile-resync?token="+encodeURIComponent(access),{method:"GET",cache:"no-store",credentials:"omit"})}catch(_){}
-  load();
+  load(true);
  }catch(error){feedback.textContent="Freischaltung konnte nicht bestätigt werden. Bitte versuche es erneut oder kontaktiere den Support.";console.warn("BetInsight tip unlock error",String(error).slice(0,100))}
  finally{button.disabled=false;button.textContent=training(tip)?"🔓 Tipp für "+str(tip.preis_units)+" "+(numeric(tip.preis_units)===1?"Unit":"Units")+" freischalten":"🔓 Tipp freischalten"}
 }
@@ -382,7 +385,7 @@ function drawNew(){var who=state.provider;var head=who==="Schulung"?"Neue Schulu
 var node=$("newFeed");node.replaceChildren();
 if(who==="Schulung")node.appendChild(trainingDemoCard());
 if(!state.tipsLoaded){if(who!=="Schulung")empty(node,"Neue Tipps konnten derzeit nicht geladen werden.");return}
-if(state.hasAccess&&!state.unlocksVerified){var warning="Deine bisherigen Freischaltungen konnten nicht geprüft werden. Zur Sicherheit werden keine neuen Freischaltungen angeboten. Bitte aktualisiere die Seite.";if(who==="Schulung")node.appendChild(ele("div","alert",warning));else empty(node,warning);return}
+if(state.hasAccess&&!state.unlocksVerified&&state.privateError){var warning="Deine bisherigen Freischaltungen konnten nicht geprüft werden. Zur Sicherheit werden keine neuen Freischaltungen angeboten. Bitte aktualisiere die Seite.";if(who==="Schulung")node.appendChild(ele("div","alert",warning));else empty(node,warning);return}
 var ended=new Set(state.results.filter(function(r){return !!status(r.ergebnis_status)}).map(function(r){return str(r.tipp_id)}));
 var unlockedIds=new Set(state.unlocked.map(function(r){return str(r.tipp_id)}));state.recentUnlocks.forEach(function(id){unlockedIds.add(id)});
 var rows=state.tips.filter(function(r){return !expired(r)&&!ended.has(str(r.tipp_id))&&!unlockedIds.has(str(r.tipp_id))&&belongs(r,who)}).sort(function(a,b){return time(a.spiel_datum)-time(b.spiel_datum)});if(!rows.length){if(who!=="Schulung")empty(node,"In dieser Kategorie sind derzeit keine neuen, freischaltbaren Tipps vorhanden.");return}rows.forEach(function(r){node.appendChild(newCard(r))})}
@@ -405,7 +408,8 @@ async function requestCompleteResults(){
  if(!data.ok||!Array.isArray(data.results)||!Array.isArray(data.records))throw new Error("UNEXPECTED_RESULTS");
  return data;
 }
-async function load(){if(state.loading)return;state.loading=true;$("reload").disabled=true;$("dataInfo").textContent="Aktuelle Tipps und Ergebnisse werden abgefragt …";
+var lastNetworkRefreshAt=0;
+async function load(force){if(state.loading||(!force&&Date.now()-lastNetworkRefreshAt<25000))return;lastNetworkRefreshAt=Date.now();state.loading=true;$("reload").disabled=true;$("dataInfo").textContent="Aktuelle Tipps und Ergebnisse werden abgefragt …";
 var t=token();state.hasAccess=!!t;state.privateError="";
 var req=[requestCompleteResults(),request("list")];if(t)req.push(request("unlocked",t));
 var out=await Promise.allSettled(req);if(out[0].status==="fulfilled"){
@@ -419,13 +423,44 @@ else if(!t){state.unlocked=[];state.recentUnlocks.clear();state.unlocksVerified=
 var ok=out[0].status==="fulfilled"&&out[1].status==="fulfilled";
 $("dataInfo").textContent=ok?"Live-Daten · "+state.results.length+" veröffentlichte Ergebnisse · aktualisiert "+new Date().toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"}):"Teilweise nicht erreichbar · "+(state.resultsLoaded?"Letzter Datenstand wird gezeigt":"Bitte später erneut laden");
 state.loading=false;$("reload").disabled=false;rerender();
+if(t&&window.BetInsightTipViewCache){
+ var fresh={};
+ if(out[0].status==="fulfilled"){fresh.results=state.results;fresh.performanceResults=state.performanceResults}
+ if(out[1].status==="fulfilled")fresh.list=state.tips;
+ if(out[2]?.status==="fulfilled")fresh.unlocked=state.unlocked;
+ if(Object.keys(fresh).length)window.BetInsightTipViewCache.merge(t,fresh).catch(function(){});
+}
 }
 $("roiHelpTrigger").addEventListener("click",function(){$("roiExplain").showModal()});
 $("roiHelpClose").addEventListener("click",function(){$("roiExplain").close()});
 $("roiExplain").addEventListener("click",function(event){if(event.target===$("roiExplain"))$("roiExplain").close()});
-$("reload").addEventListener("click",load);window.addEventListener("focus",function(){if(!document.hidden)load()});document.addEventListener("visibilitychange",function(){if(!document.hidden)load()});
-setInterval(function(){if(!document.hidden)load()},30000);
-rerender();load();
+$("reload").addEventListener("click",function(){load(true)});
+window.addEventListener("focus",function(){if(!document.hidden)load(false)});
+document.addEventListener("visibilitychange",function(){if(!document.hidden)load(false)});
+setInterval(function(){if(!document.hidden)load(false)},30000);
+async function start(){
+ var access=token();
+ if(access&&window.BetInsightTipViewCache){
+  try{
+   var cached=await window.BetInsightTipViewCache.read(access);
+   if(cached){
+    state.hasAccess=true;
+    if(Array.isArray(cached.list)){state.tips=cached.list;state.tipsLoaded=true}
+    if(Array.isArray(cached.results)&&Array.isArray(cached.performanceResults)){
+     state.results=cached.results;state.resultsLoaded=true;
+     state.performanceResults=cached.performanceResults;state.performanceLoaded=true;
+    }
+    if(Array.isArray(cached.unlocked)){state.unlocked=cached.unlocked}
+    // Cached membership history is display-only: never approve a new debit from it.
+    state.unlocksVerified=false;
+    rerender();
+    $("dataInfo").textContent="Letzte Ansicht · aktuelle Daten werden geprüft …";
+   }
+  }catch(_){}
+ }
+ load(true);
+}
+rerender();start();
 })();
 </script>
 </body>
