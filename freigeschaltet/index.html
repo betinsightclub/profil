@@ -23,6 +23,7 @@ Version: 2026.08.28-01
   <script src="../assets/i18n/core-v2.js"></script>
   <script src="../assets/regional-restrictions.js?v=20260927-2"></script>
   <script src="../assets/app-navigation-v2.js?v=20260830-9" defer></script>
+  <script src="../assets/tip-view-cache-v1.js?v=20261104-1"></script>
   <style>
     *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,rgba(0,200,255,.10),transparent 35%),linear-gradient(180deg,#061923 0%,#071d2b 45%,#04131c 100%);color:#fff;font-family:Arial,sans-serif;text-align:center}button,a{font:inherit}.page{max-width:1400px;margin:0 auto;padding:35px 18px 90px}.logo{width:155px;max-width:70%;height:auto;margin:8px 0 24px}h1{margin:8px 0;font-size:34px}.subtitle{max-width:850px;margin:0 auto 34px;color:#b8d7e8;font-size:16px;line-height:1.55}.status{color:#8fd3ff;margin:25px 0}.tips-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;align-items:start}.tip-card{position:relative;overflow:hidden;width:100%;padding:20px 18px;text-align:left;border:1px solid rgba(35,190,255,.48);border-radius:18px;background:linear-gradient(180deg,rgba(16,72,91,.98),rgba(9,51,68,.98));box-shadow:0 14px 32px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.06)}.tip-card:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at top right,rgba(0,200,255,.13),transparent 35%);pointer-events:none}.tip-inner{position:relative;z-index:1}.badge{display:inline-block;margin-bottom:12px;padding:5px 10px;border:1px solid rgba(0,255,180,.35);border-radius:999px;background:rgba(0,255,180,.14);color:#bfffe8;font-size:12px}.tip-card h2{margin:0 0 16px;font-size:21px;line-height:1.25;text-align:center}.tip-meta{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;padding:12px 0;margin-bottom:16px;border-top:1px solid rgba(255,255,255,.08);border-bottom:2px solid #19c8f5;color:#e4f7ff;font-size:12px}.meta-item{padding:6px 8px;border-radius:9px;background:rgba(255,255,255,.04)}.detail-row{margin:8px 0;line-height:1.45;font-size:14px}
     .provider-panel{margin:18px 0 4px;padding:14px 12px 12px;border:1px solid rgba(104,205,255,.30);border-radius:15px;background:radial-gradient(circle at 90% 0%,rgba(74,211,255,.11),transparent 38%),rgba(2,25,37,.60)}.provider-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:11px}.provider-title{font-size:14px;font-weight:900}.membership-pill{flex:0 0 auto;padding:4px 8px;border:1px solid rgba(103,213,255,.25);border-radius:999px;background:rgba(24,153,219,.10);color:#bcecff;font-size:10px;font-weight:900;white-space:nowrap}.provider-slots{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.provider-slot{appearance:none;min-width:0;min-height:61px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:7px 3px;border:1px solid rgba(125,213,255,.20);border-radius:10px;background:rgba(255,255,255,.035);color:#cfeafa;cursor:pointer;text-align:center}.provider-slot.locked{background:rgba(2,19,29,.60);color:#7da4b7}.provider-slot.available{border-color:rgba(79,224,164,.36);background:rgba(79,224,164,.075);color:#d8fff0}.slot-code{font-size:13px;font-weight:900}.slot-state{font-size:9px;line-height:1.1}.provider-tier-rail{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:7px}.tier-label{display:flex;align-items:center;justify-content:center;min-height:25px;padding:4px 5px;border-radius:8px;font-size:9px;font-weight:900;text-align:center}.tier-label.premium{grid-column:span 2;border:1px solid rgba(22,168,255,.32);background:rgba(22,168,255,.10);color:#aee5ff}.tier-label.plus{grid-column:span 3;border:1px solid rgba(255,190,74,.34);background:rgba(255,190,74,.09);color:#ffe0a4}.provider-note{margin-top:9px;color:#86abba;font-size:9.5px;line-height:1.4}.provider-feedback{min-height:0;margin-top:8px;color:#9edff7;font-size:10px;line-height:1.35}
@@ -84,12 +85,69 @@ function openUpgradeModal(requiredLevel){const overlay=document.getElementById("
 function closeUpgradeModal(){const overlay=document.getElementById("upgradeOverlay");overlay.classList.remove("open");overlay.setAttribute("aria-hidden","true")}
 function attachProviderSlotEvents(card){const panel=card.querySelector(".provider-panel");if(!panel)return;const currentLevel=Number(panel.dataset.membershipLevel||0),feedback=panel.querySelector(".provider-feedback");panel.querySelectorAll(".provider-slot").forEach(button=>button.addEventListener("click",()=>{const required=Number(button.dataset.requiredLevel||0);if(currentLevel<required){openUpgradeModal(required);return}feedback.textContent=tr("unlockedPage.slotReady","Dieser Slot ist für deinen Tarif freigeschaltet. Anbieter und aktuelle Quote erscheinen hier, sobald sie für diesen Tipp hinterlegt bzw. per API geliefert wurden.")}))}
 function leagueNoteHtml(value){const note=window.BetInsightLeagueGuide?.explain(value,window.BetInsightI18n?.getLanguage?.()||"de")||"";return note?`<p class="detail-row">ℹ️ ${escapeHtml(note)}</p>`:""}
-function createTipCard(tipp){const card=document.createElement("div");card.className="tip-card";const title=tipp.spiel||tr("unlockedPage.defaultTitle","Freigeschalteter Tipp");const schulungsBadge=String(tipp.analyse||"").startsWith("🎓 SCHULUNGSTIPP")?`<div class="badge" style="background:#123f70;border:1px solid #399bff;color:#fff">🎓 SCHULUNGSTIPP – WORKSHOP MITTWOCH, 20 UHR · Nicht in der offiziellen Trefferwertung</div>`:"";const oddsMeta=isBrazilRestricted()?"":`<span class="meta-item">📈 ${escapeHtml(tr("unlockedPage.odds","Quote"))} ${escapeHtml(tipp.quote)}</span>`;card.innerHTML=`<div class="tip-inner">${schulungsBadge}<div class="badge">✅ ${escapeHtml(tr("unlockedPage.badge","Freigeschaltet"))}</div><h2>${escapeHtml(title)}</h2><div class="tip-meta"><span class="meta-item">${escapeHtml(window.BetInsightLeagueGuide?.display(tipp.liga)||tipp.liga)}</span><span class="meta-item">📅 ${escapeHtml(tipp.spiel_datum)}</span><span class="meta-item">⏰ ${escapeHtml(tipp.anpfiff)}</span><span class="meta-item">📊 ${escapeHtml(tipp.markt)}</span>${oddsMeta}</div>${leagueNoteHtml(tipp.liga)}<p class="detail-row"><strong>${escapeHtml(tr("unlockedPage.tip","Tipp"))}:</strong> ${escapeHtml(tipp.tipp)}</p><p class="detail-row"><strong>${escapeHtml(tr("unlockedPage.price","Preis"))}:</strong> ${escapeHtml(tipp.preis_units)} Units</p><p class="detail-row"><strong>${escapeHtml(tr("unlockedPage.tipster","Tippgeber"))}:</strong> ${escapeHtml(tipp.ersteller)}</p><p class="detail-row"><strong>${escapeHtml(tr("unlockedPage.unlockedAt","Freigeschaltet am"))}:</strong><br>${formatDateTime(tipp.datum)}</p>${providerSlotsHtml(tipp)}${resultPanelHtml(tipp)}<details><summary>${escapeHtml(tr("unlockedPage.showAnalysis","Analyse anzeigen"))}</summary><div class="analysis-text">${escapeHtml(tipp.analyse||tr("unlockedPage.noAnalysis","Für diesen Eintrag liegt keine Analyse vor."))}</div></details></div>`;attachProviderSlotEvents(card);return card}
+function createTipCard(tipp){const card=document.createElement("div");card.className="tip-card";const title=tipp.spiel||tr("unlockedPage.defaultTitle","Freigeschalteter Tipp");const schulungsBadge=String(tipp.analyse||"").startsWith("🎓 SCHULUNGSTIPP")?`<div class="badge" style="background:#123f70;border:1px solid #399bff;color:#fff">🎓 SCHULUNGSTIPP – WORKSHOP MITTWOCH, 20 UHR · Nicht in der offiziellen Trefferwertung</div>`:"";const oddsMeta=isBrazilRestricted()?"":`<span class="meta-item">📈 ${escapeHtml(tr("unlockedPage.odds","Quote"))} ${escapeHtml(tipp.quote)}</span>`;card.innerHTML=`<div class="tip-inner">${schulungsBadge}<div class="badge">✅ ${escapeHtml(tr("unlockedPage.badge","Freigeschaltet"))}</div><h2>${escapeHtml(title)}</h2><div class="tip-meta"><span class="meta-item">${escapeHtml(window.BetInsightLeagueGuide?.display(tipp.liga)||tipp.liga)}</span><span class="meta-item">📅 ${escapeHtml(tipp.spiel_datum)}</span><span class="meta-item">⏰ ${escapeHtml(tipp.anpfiff)}</span><span class="meta-item">📊 ${escapeHtml(tipp.markt)}</span>${oddsMeta}</div>${leagueNoteHtml(tipp.liga)}<p class="detail-row"><strong>${escapeHtml(tr("unlockedPage.tip","Tipp"))}:</strong> ${escapeHtml(tipp.tipp)}</p><p class="detail-row"><strong>${escapeHtml(tr("unlockedPage.price","Preis"))}:</strong> ${escapeHtml(tipp.preis_units)} Units</p><p class="detail-row"><strong>${escapeHtml(tr("unlockedPage.tipster","Tippgeber"))}:</strong> ${escapeHtml(tipp.ersteller)}</p><p class="detail-row"><strong>${escapeHtml(tr("unlockedPage.unlockedAt","Freigeschaltet am"))}:</strong><br>${formatDateTime(tipp.datum)}</p>${providerSlotsHtml(tipp)}${resultPanelHtml(tipp)}<details><summary>${escapeHtml(tr("unlockedPage.showAnalysis","Analyse anzeigen"))}</summary><div class="analysis-text"></div></details></div>`;attachProviderSlotEvents(card);
+const detail=card.querySelector("details");
+detail?.addEventListener("toggle",function(){
+  if(detail.open){
+    const text=detail.querySelector(".analysis-text");
+    if(text)text.textContent=tipp.analyse||tr("unlockedPage.noAnalysis","Für diesen Eintrag liegt keine Analyse vor.");
+  }
+},{once:true});
+return card}
 function renderTips(){const tipsBox=document.getElementById("tips");tipsBox.innerHTML="";if(!loadedTipps.length){tipsBox.innerHTML=`<div class="empty">${escapeHtml(tr("unlockedPage.empty","Du hast bisher noch keine Tipps freigeschaltet."))}</div>`;return}loadedTipps.forEach(t=>tipsBox.appendChild(createTipCard(t)))}
 
-async function loadFreigeschalteteTipps(){const token=getToken(),statusBox=document.getElementById("status"),tipsBox=document.getElementById("tips");if(!token){statusBox.style.display="none";tipsBox.innerHTML=`<div class="error">${escapeHtml(tr("unlockedPage.noAccess","Kein persönlicher Dashboard-Zugang gefunden. Bitte öffne diese Seite über dein BetInsight-Profil."))}</div>`;return}try{const url=FREIGESCHALTETE_TIPPS_WEBHOOK+"&token="+encodeURIComponent(token)+"&cachebuster="+Date.now(),response=await fetch(url,{method:"GET",cache:"no-store"}),rawText=await response.text();if(!response.ok)throw new Error("HTTP "+response.status);const raw=parseWebhookJson(rawText);statusBox.style.display="none";if(!Array.isArray(raw)||raw.length===0){loadedTipps=[];renderTips();return}const normalized=raw.map(normalizeTip);loadedTipps=normalized.filter((tipp,index,all)=>!tipp.tipp_id||index===all.findIndex(x=>x.tipp_id===tipp.tipp_id)).sort((a,b)=>parseDateForSorting(b.datum)-parseDateForSorting(a.datum));renderTips()}catch(error){statusBox.style.display="none";tipsBox.innerHTML=`<div class="error">${escapeHtml(tr("unlockedPage.loadError","Fehler beim Laden deiner freigeschalteten Tipps"))}:\n\n${escapeHtml(error.message)}</div>`;console.error(error)}}
+function normalizeLoadedTipps(raw){
+ const normalized=raw.map(normalizeTip);
+ return normalized.filter((tipp,index,all)=>!tipp.tipp_id||index===all.findIndex(x=>x.tipp_id===tipp.tipp_id))
+   .sort((a,b)=>parseDateForSorting(b.datum)-parseDateForSorting(a.datum));
+}
+async function loadFreigeschalteteTipps(){
+ const token=getToken(),statusBox=document.getElementById("status"),tipsBox=document.getElementById("tips");
+ if(!token){
+  statusBox.style.display="none";
+  tipsBox.innerHTML=`<div class="error">${escapeHtml(tr("unlockedPage.noAccess","Kein persönlicher Dashboard-Zugang gefunden. Bitte öffne diese Seite über dein BetInsight-Profil."))}</div>`;
+  return;
+ }
+ // Start the fresh, authorized read immediately; wait for regional rules only before displaying it.
+ const regionalReady=Promise.resolve(window.BetInsightRegionalRestrictions?.ready?.()||undefined).catch(()=>{});
+ const url=FREIGESCHALTETE_TIPPS_WEBHOOK+"&token="+encodeURIComponent(token)+"&cachebuster="+Date.now();
+ const fresh=fetch(url,{method:"GET",cache:"no-store"}).then(async response=>{
+  const rawText=await response.text();
+  if(!response.ok)throw new Error("HTTP "+response.status);
+  return parseWebhookJson(rawText);
+ }).then(data=>({data}),error=>({error}));
+ let cachedVisible=false;
+ try{
+  const cached=await window.BetInsightTipViewCache?.read(token);
+  await regionalReady;
+  if(cached&&Array.isArray(cached.unlocked)&&getToken()===token){
+   loadedTipps=normalizeLoadedTipps(cached.unlocked);
+   renderTips();
+   statusBox.style.display="none";
+   cachedVisible=true;
+  }
+ }catch(_){await regionalReady}
+ const result=await fresh;
+ if(getToken()!==token)return; // Prevent showing a different member's data after account changes.
+ if(result.error||!Array.isArray(result.data)){
+  const error=result.error||new Error("UNEXPECTED_RESPONSE");
+  if(cachedVisible){
+   statusBox.textContent=tr("unlockedPage.updatePending","Aktualisierung derzeit nicht möglich – zuletzt geladene Ansicht.");
+   statusBox.style.display="";
+  }else{
+   statusBox.style.display="none";
+   tipsBox.innerHTML=`<div class="error">${escapeHtml(tr("unlockedPage.loadError","Fehler beim Laden deiner freigeschalteten Tipps"))}: ${escapeHtml(error.message)}</div>`;
+  }
+  console.error(error);
+  return;
+ }
+ loadedTipps=normalizeLoadedTipps(result.data);
+ statusBox.style.display="none";
+ renderTips();
+ window.BetInsightTipViewCache?.merge(token,{unlocked:result.data}).catch(()=>{});
+}
 
-document.getElementById("upgradeClose").addEventListener("click",closeUpgradeModal);document.getElementById("upgradeOverlay").addEventListener("click",event=>{if(event.target.id==="upgradeOverlay")closeUpgradeModal()});document.addEventListener("keydown",event=>{if(event.key==="Escape")closeUpgradeModal()});window.addEventListener("bi:languagechange",()=>{document.title=tr("unlockedPage.title","BetInsight – Freigeschaltete Tipps");renderTips()});document.title=tr("unlockedPage.title","BetInsight – Freigeschaltete Tipps");(window.BetInsightRegionalRestrictions?.ready?.()||Promise.resolve()).finally(loadFreigeschalteteTipps);
+document.getElementById("upgradeClose").addEventListener("click",closeUpgradeModal);document.getElementById("upgradeOverlay").addEventListener("click",event=>{if(event.target.id==="upgradeOverlay")closeUpgradeModal()});document.addEventListener("keydown",event=>{if(event.key==="Escape")closeUpgradeModal()});window.addEventListener("bi:languagechange",()=>{document.title=tr("unlockedPage.title","BetInsight – Freigeschaltete Tipps");renderTips()});document.title=tr("unlockedPage.title","BetInsight – Freigeschaltete Tipps");loadFreigeschalteteTipps();
 </script>
 </body>
 </html>
