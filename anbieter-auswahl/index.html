@@ -20,17 +20,20 @@ Version: 2026.08.25-04
 -->
 <html lang="de" class="bi-regional-pending">
 <head>
+  <meta name="bi-i18n-scope" content="providers">
 <!-- Internationale BetInsight-Anbieterübersicht mit vorgeschalteter Länderprüfung. -->
 <!-- BETINSIGHT APP NOINDEX START -->
 <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
 <!-- BETINSIGHT APP NOINDEX END -->
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <script src="../assets/i18n/core-v2.js"></script>
   <script src="../assets/regional-restrictions.js?v=20260927-2"></script>
   <style>html.bi-regional-block body,html.bi-regional-pending body{visibility:hidden}</style>
   <script>
   (async() => {
     const regional=window.BetInsightRegionalRestrictions;
     try { await regional?.ready?.(); } catch (_) {}
+    try { await window.BetInsightI18n?.init?.(); } catch (_) {}
     const urlCountry=regional?.normalizeCountryCode?.(new URLSearchParams(location.search).get("country")) || "";
     const savedCountry=regional?.currentCountry?.() || "";
     const country=savedCountry || urlCountry;
@@ -48,7 +51,7 @@ Version: 2026.08.25-04
         section.style.cssText="max-width:720px;padding:30px;border:1px solid rgba(255,255,255,.13);border-radius:20px;background:#04263a;text-align:center";
         const heading=document.createElement("h1"); heading.textContent=msg.title;
         const body=document.createElement("p"); body.textContent=msg.body;
-        const back=document.createElement("a"); back.href="../anbieter/"; back.textContent="Zurück zur Länderwahl";
+        const back=document.createElement("a"); back.href="../anbieter/"; back.textContent=window.BetInsightI18n?.t?.("providersPage.backToCountrySelection",{},"Zurück zur Länderauswahl") || "Zurück zur Länderauswahl";
         back.style.cssText="display:inline-block;margin-top:10px;padding:12px 18px;border-radius:10px;background:#169cff;color:#fff;text-decoration:none;font-weight:800";
         section.append(heading,body,back); main.appendChild(section);
         document.body.replaceChildren(main);
@@ -141,7 +144,7 @@ Version: 2026.08.25-04
     .legal h2{margin:0 0 9px;font-size:1.05rem}
     .legal p{margin:6px 0 0;color:var(--muted);font-size:.84rem}
     .footer{padding:27px 8px 0;color:#8fa5b0;font-size:.76rem;text-align:center}
-    .back{position:fixed;left:18px;bottom:18px;z-index:100;display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:11px 17px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:linear-gradient(105deg,#168dff,#08bdec);color:#fff;font-weight:850;text-decoration:none;box-shadow:0 14px 32px rgba(0,135,224,.32)}
+    .back{position:fixed;right:22px;left:auto;bottom:18px;z-index:100;display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:11px 17px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:linear-gradient(105deg,#168dff,#08bdec);color:#fff;font-weight:850;text-decoration:none;box-shadow:0 14px 32px rgba(0,135,224,.32);max-width:calc(100vw - 24px)}
     .toast{position:fixed;left:50%;bottom:78px;z-index:200;width:min(430px,calc(100% - 30px));padding:13px 16px;transform:translate(-50%,18px);opacity:0;pointer-events:none;border:1px solid rgba(77,184,255,.38);border-radius:12px;background:#063149;color:#fff;box-shadow:0 18px 45px rgba(0,0,0,.38);transition:.2s ease;text-align:center;font-size:.86rem}
     .toast.show{opacity:1;transform:translate(-50%,0)}
     @media(max-width:980px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -152,12 +155,12 @@ Version: 2026.08.25-04
       .card-head,.card-body{padding-left:18px;padding-right:18px}
       .preferred{position:static;display:inline-flex;margin:12px 0 0}
       .name-row{flex-wrap:wrap}
-      .back{left:10px;right:10px;bottom:10px}
+      .back{right:10px;left:auto;bottom:10px;max-width:calc(100vw - 20px)}
     }
   </style>
 </head>
 <body>
-  <a class="back" href="https://app.betinsight.club/">⬅ Zum Backoffice</a>
+  <a class="back" href="../anbieter/?return=anbieter-auswahl" data-bi-i18n="providersPage.backToCountrySelection" data-bi-i18n-aria-label="providersPage.backToCountrySelection">← Zurück zur Länderauswahl</a>
 
   <main class="page">
     <div class="topbar">
@@ -394,6 +397,19 @@ Version: 2026.08.25-04
 
   <script>
     "use strict";
+    const backLink=document.querySelector(".back");
+    if(backLink){
+      const params=new URLSearchParams(location.search);
+      const backUrl=new URL("../anbieter/",location.href);
+      backUrl.searchParams.set("return","anbieter-auswahl");
+      const country=window.BetInsightRegionalRestrictions?.normalizeCountryCode?.(params.get("country")) || "";
+      const region=String(params.get("region")||"").trim().toUpperCase();
+      const language=window.BetInsightI18n?.getLanguage?.() || params.get("lang") || "";
+      if(country) backUrl.searchParams.set("country",country);
+      if(/^[A-Z0-9_-]{1,12}$/.test(region)) backUrl.searchParams.set("region",region);
+      if(language) backUrl.searchParams.set("lang",language);
+      backLink.href=backUrl.toString();
+    }
     const toast=document.getElementById("toast");
     let toastTimer=null;
 
