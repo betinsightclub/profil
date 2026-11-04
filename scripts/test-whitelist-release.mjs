@@ -45,7 +45,7 @@ assert.doesNotMatch(regional,/return brazilBettingBlockActive && code === "BR";/
 const legacy=read('anbieter-auswahl/index.html');
 assert.doesNotMatch(legacy,/<meta http-equiv="refresh" content="0;url=\.\.\/anbieter\//,'international provider overview must not redirect back to local list');
 assert.doesNotMatch(legacy,/location\.replace\("\.\.\/anbieter\/"\)/,'international provider overview must remain reachable');
-assert.match(legacy,/href="https:\/\/stake\.com\/?c=betinsightclub"/,'Stake partner link must be present');
+assert.match(legacy,/href="https:\/\/stake\.com\/\?c=betinsightclub"/,'Stake partner link must be present');
 assert.match(legacy,/country==="BR"/,'international provider overview must block Brazil');
 assert.match(legacy,/BetInsight-Partnerlink/,'Stake partner disclosure must be present');
 const selector=read('anbieter/index.html');
