@@ -210,7 +210,7 @@
 
   function route(id) {
     switch (id) {
-      case "dashboard": navigateProtected(""); break;
+      case "dashboard": session().navigateLocal(""); break; // Dashboard also handles sign-in and server-side profile loading.
       case "daily": navigateProtected("daily"); break;
       case "fan-challenge": navigateProtected("fan-challenge"); break;
       case "stadion-quiz": navigateProtected("stadion-quiz"); break;
