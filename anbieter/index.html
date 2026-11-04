@@ -736,12 +736,9 @@
       countryForm.classList.add('hidden'); confirmedCountry.classList.remove('hidden'); results.classList.add('hidden'); activeMode='';
       if (selectedCountry==='BR' || regional?.isBrazilBlocked?.(selectedCountry)) { showBrazilBlocked(); return; }
       filterStep.classList.remove('hidden');
-      // Every selected country gets an immediate visible result, even if the list is
-      // empty or still awaiting verification. This is a display-only preference:
-      // the existing regulatory whitelist and Brazil exclusion remain mandatory.
-      renderProviders('any');
-      const returnTarget=new URLSearchParams(location.search).get('return');
-      // Legacy provider showcase is retired; stay on this country-controlled selector.
+      // Nach der Länderbestätigung ist die geprüfte Landesliste die Standardansicht.
+      // Die Auswahl „Keine Präferenz“ öffnet separat die internationale Krypto-Übersicht.
+      renderProviders('allowed');
     });
     changeCountry.addEventListener('click',()=>{
       selectedCountry=''; selectedRegion=''; activeMode='';
@@ -751,7 +748,21 @@
       countrySelect.value=''; renderCountryDropdown(); setCountryDropdownOpen(false);
       populateRegions('',''); updateConfirmState(); countrySearch.focus();
     });
-    document.querySelectorAll('.choice').forEach(button=>button.addEventListener('click',()=>{ renderProviders(button.dataset.mode); results.scrollIntoView({behavior:'smooth',block:'start'}); }));
+    document.querySelectorAll('.choice').forEach(button=>button.addEventListener('click',()=>{
+      const mode=button.dataset.mode;
+      if(mode==='any'){
+        if(!selectedCountry) return;
+        const regional=window.BetInsightRegionalRestrictions;
+        if(selectedCountry==='BR'||regional?.isBrazilBlocked?.(selectedCountry)){showBrazilBlocked();return;}
+        const destination=new URL('../anbieter-auswahl/',location.href);
+        destination.searchParams.set('country',selectedCountry);
+        if(selectedRegion) destination.searchParams.set('region',selectedRegion);
+        location.assign(destination.toString());
+        return;
+      }
+      renderProviders(mode);
+      results.scrollIntoView({behavior:'smooth',block:'start'});
+    }));
     window.addEventListener('bi:languagechange',refreshLanguage);
 
     function deepMerge(target, source) {
