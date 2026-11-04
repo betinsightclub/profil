@@ -43,6 +43,16 @@ const regional = read('assets/regional-restrictions.js');
 assert.match(regional,/return code === "BR";/);
 assert.doesNotMatch(regional,/return brazilBettingBlockActive && code === "BR";/);
 const legacy=read('anbieter-auswahl/index.html');
+assert.match(legacy,/class="back" href="\.\.\/anbieter\/\?return=anbieter-auswahl"/,'visible back button must return to the country selector');
+assert.match(legacy,/data-bi-i18n="providersPage\.backToCountrySelection"/,'back button must use the provider-page locale key');
+assert.match(legacy,/right:22px;left:auto/,'back button must not be hidden under the left app sidebar');
+assert.match(legacy,/backUrl\.searchParams\.set\("country",country\)/,'back button must preserve selected country');
+assert.match(legacy,/backUrl\.searchParams\.set\("region",region\)/,'back button must preserve selected region');
+assert.match(legacy,/await window\.BetInsightI18n\?\.init\?\.\(\)/,'international overview must initialize the selected language');
+for(const language of ['de','en','es','fr','it','nl','pt','zh-tw']) {
+  const dictionary=json('assets/i18n/pages/providers/'+language+'.json');
+  assert.ok(dictionary.providersPage?.backToCountrySelection,language+' missing localized back-button label');
+}
 assert.doesNotMatch(legacy,/<meta http-equiv="refresh" content="0;url=\.\.\/anbieter\//,'international provider overview must not redirect back to local list');
 assert.doesNotMatch(legacy,/location\.replace\("\.\.\/anbieter\/"\)/,'international provider overview must remain reachable');
 assert.match(legacy,/href="https:\/\/stake\.com\/\?c=betinsightclub"/,'Stake partner link must be present');
@@ -50,6 +60,9 @@ assert.match(legacy,/country==="BR"/,'international provider overview must block
 assert.match(legacy,/BetInsight-Partnerlink/,'Stake partner disclosure must be present');
 const selector=read('anbieter/index.html');
 assert.match(selector,/function ruleHasPublishedList/);
+assert.match(selector,/returnParams\.get\('return'\)==='anbieter-auswahl'/,'return route must be recognized');
+assert.match(selector,/populateCountries\(returnCountry\)/,'country must be restored on return');
+assert.match(selector,/populateRegions\(countrySelect\.value,returnRegion\)/,'region must be restored on return');
 assert.match(selector,/destination=new URL\('\.\.\/anbieter-auswahl\/',location\.href\)/,'Keine Präferenz must route to the international provider overview');
 assert.doesNotMatch(selector,/Date\.now\(\) - checked/);
 assert.doesNotMatch(selector,/Für \\?\$\{locationText\} sind noch keine von BetInsight verifizierten Anbieter hinterlegt/);
