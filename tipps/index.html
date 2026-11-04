@@ -107,6 +107,9 @@ h2{font-size:clamp(21px,2.7vw,26px);margin:0 0 6px;letter-spacing:-.015em}
 .pill.won{border-color:#2b987d;background:#115143;color:#a5ffdc}
 .pill.lost{border-color:#a75060;background:#542934;color:#ffd4d9}
 .pill.void{border-color:#bb9447;background:#59452c;color:#ffe2ad}
+.pill.bet-type{white-space:normal;text-align:center;line-height:1.35}
+.pill.bet-type.single{border-color:#298a72;background:#10493f;color:#b1ffe2}
+.pill.bet-type.combo{border-color:#c89a47;background:#654721;color:#fff0c4}
 .card-bottom{display:flex;justify-content:space-between;align-items:center;gap:9px;margin-top:auto}
 .small-button{border:1px solid #2795cb;border-radius:10px;background:#096a96;color:white;font-size:11px;font-weight:800;padding:11px 13px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
 .small-button:hover{background:#1084b7}
@@ -259,15 +262,24 @@ if(personal){
 }
 else if(r.tipp)c.appendChild(ele("p","","Tipp: "+str(r.tipp)));
 var b=ele("div","card-bottom");b.appendChild(ele("span","meta",numeric(r.quote)>1?"Quote: "+str(r.quote):"Quote: –"));b.appendChild(ele("span","meta",str(r.endergebnis)?("Endstand: "+str(r.endergebnis)):(personal?"Persönlicher Zugang":"Bestätigter Tipp")));c.appendChild(b);return c}
+function betTypeLabel(r){
+ var kind=str(r.wettart).toUpperCase(),num=numeric(r.anzahl_auswahlen);
+ if(kind==="KOMBI")return "⚽ KOMBIWETTE"+(Number.isInteger(num)&&num>=2?" · "+num+" AUSWAHLEN":"");
+ if(kind==="EINZEL")return "⚽ EINZELWETTE";
+ return "";
+}
 function newCard(r){
  var isTraining=training(r),c=ele("article","tip"+(isTraining?" training-tip":"")),meta=ele("div","meta");
  meta.appendChild(ele("span","pill",isTraining?"🎓 SCHULUNGSTIPP":"🔒 ANALYSE"));
+ var typeText=betTypeLabel(r);
+ if(typeText)meta.appendChild(ele("span","pill bet-type "+(str(r.wettart).toUpperCase()==="KOMBI"?"combo":"single"),typeText));
  meta.appendChild(ele("span","",shortDate(r.spiel_datum)+" · "+str(r.anpfiff||"–")));
  c.appendChild(meta);
  c.appendChild(ele("h3","","Neue Sportanalyse von "+(isTraining?"BetInsight":str(r.tippgeber||"BetInsight"))));
  if(isTraining){
   var rows=[
    ["⚽ Sport",str(r.sportart||"Fußball")],
+   ["🎟️ Wettart",typeText?typeText.replace(/^⚽\s*/,""):"Nicht angegeben"],
    ["🏟️ Liga",str(r.liga||"–")],
    ["👤 Tippgeber","BetInsight"],
    ["📅 Datum",shortDate(r.spiel_datum)],
