@@ -821,8 +821,16 @@
       for(const batch of batches) config=deepMerge(config,batch);
       if (manifest?.updated && (!config.updated || manifest.updated > config.updated)) config.updated=manifest.updated;
       dataStand.textContent=formatIsoDate(config.updated);
-      populateCountries(countrySelect.value);
-      populateRegions(countrySelect.value,regionSelect.value);
+      // When returning from the international overview, restore the chosen country
+      // and region so the user can continue without selecting them again.
+      const returnParams=new URLSearchParams(location.search);
+      const returningFromInternational=returnParams.get('return')==='anbieter-auswahl';
+      const returnCountry=returningFromInternational
+        ? (window.BetInsightRegionalRestrictions?.normalizeCountryCode?.(returnParams.get('country')) || '')
+        : '';
+      const returnRegion=returningFromInternational ? String(returnParams.get('region')||'').trim().toUpperCase() : '';
+      populateCountries(returnCountry);
+      populateRegions(countrySelect.value,returnRegion);
       updateConfirmState();
       refreshLanguage();
     }).catch(error=>{
