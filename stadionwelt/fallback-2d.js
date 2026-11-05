@@ -132,7 +132,16 @@
   if(!map||!stadium)return;
   const lat=Number(stadium.latitude),lng=Number(stadium.longitude);
   if(Number.isFinite(lat)&&Number.isFinite(lng)){
-   opts.selected=stadium;draw();map.flyTo([lat,lng],opts.mode==="satellite"?12:(opts.journeyStops?.length>1?7:14),{duration:opts.journeyStops?.length>1?2:1});
+   opts.selected=stadium;draw();
+   // Leaflet's flyTo provides natural zoom-out and zoom-in. Its duration
+   // is seconds (MapLibre's duration is milliseconds).
+   const fallbackMs=opts.mode==="satellite"?6000:5000;
+   const configuredMs=Number(opts.mapTravelDurationMs?.(opts.mode));
+   const durationMs=Number.isFinite(configuredMs)&&configuredMs>=3000&&configuredMs<=15000?configuredMs:fallbackMs;
+   map.stop?.();
+   map.flyTo([lat,lng],opts.mode==="satellite"?12:(opts.journeyStops?.length>1?13:14),{
+    duration:durationMs/1000,easeLinearity:0.25
+   });
   }
  }
  function zoom(delta){if(map)map.setZoom(Math.max(1,Math.min(opts.mode==="satellite"?13:20,map.getZoom()+delta)))}
