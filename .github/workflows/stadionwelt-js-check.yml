@@ -1,0 +1,37 @@
+name: Stadionwelt JavaScript safety checks
+on:
+  push:
+    paths:
+      - 'stadionwelt/**'
+      - '.github/workflows/stadionwelt-js-check.yml'
+  pull_request:
+    paths:
+      - 'stadionwelt/**'
+      - '.github/workflows/stadionwelt-js-check.yml'
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check standalone WebGL-independent map fallback
+        run: node --check stadionwelt/fallback-2d.js
+      - name: Check all inline Stadionwelt scripts
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const vm = require('node:vm');
+          const html = fs.readFileSync('stadionwelt/index.html','utf8');
+          const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)];
+          if (!scripts.length) throw new Error('No scripts found in Stadionwelt');
+          scripts.forEach((script, index) =>
+            new vm.Script(script[1], {filename: 'stadionwelt/index.html#script-' + index}));
+          const checks = [
+            'function fallbackTo2D(', 'function showLeaf2D(', 'function showMap(',
+            'function showGlobe(', 'function renderStreetDots(', 'BetInsightLeaflet2D'
+          ];
+          for(const item of checks)if(!html.includes(item))throw new Error('Missing ' + item);
+          console.log('Syntax OK (' + scripts.length + ' scripts); fallback connected.');
+          NODE
