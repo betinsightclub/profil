@@ -2,7 +2,7 @@
    Loaded only when WebGL-based maps cannot render. No backend writes. */
 (function(){
  "use strict";
- let map=null,base=null,dots=null,flags=null,selectedMarker=null,loader=null,opts={},version=0,canvas=null;
+ let map=null,base=null,dots=null,flags=null,journeyLayer=null,selectedMarker=null,loader=null,opts={},version=0,canvas=null;
  const languages={
   de:"Die Kartenansicht konnte nicht geladen werden. Die Stadionliste bleibt verfügbar.",
   en:"The map could not be loaded. The stadium list remains available.",
@@ -56,6 +56,14 @@
   if(!map||!window.L)return;
   if(dots){dots.remove();dots=null}
   if(flags){flags.remove();flags=null}
+  if(journeyLayer){journeyLayer.remove();journeyLayer=null}
+  journeyLayer=L.layerGroup().addTo(map);
+  for(const feature of opts.journeyRouteFeatures||[]){
+   if(feature.geometry?.type!=="LineString")continue;
+   const coords=feature.geometry.coordinates.map(pair=>[pair[1],pair[0]]);
+   if(coords.length<2)continue;
+   L.polyline(coords,{color:feature.properties?.completed?"#48f4d7":"#72acc0",weight:3,opacity:feature.properties?.completed?.92:.42,interactive:false}).addTo(journeyLayer);
+  }
   dots=L.layerGroup().addTo(map);flags=L.layerGroup().addTo(map);
   canvas=canvas||L.canvas({padding:.3});
   const visited=new Set((opts.visits||[]).map(x=>Number(x.stadium_id)));
@@ -124,7 +132,7 @@
   if(!map||!stadium)return;
   const lat=Number(stadium.latitude),lng=Number(stadium.longitude);
   if(Number.isFinite(lat)&&Number.isFinite(lng)){
-   opts.selected=stadium;draw();map.flyTo([lat,lng],opts.mode==="satellite"?12:14);
+   opts.selected=stadium;draw();map.flyTo([lat,lng],opts.mode==="satellite"?12:(opts.journeyStops?.length>1?7:14),{duration:opts.journeyStops?.length>1?2:1});
   }
  }
  function zoom(delta){if(map)map.setZoom(Math.max(1,Math.min(opts.mode==="satellite"?13:20,map.getZoom()+delta)))}
