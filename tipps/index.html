@@ -82,6 +82,31 @@ h2{font-size:clamp(21px,2.7vw,26px);margin:0 0 6px;letter-spacing:-.015em}
 .winbtn.selected{background:#147aa4;color:#fff;box-shadow:0 4px 15px #0004}
 .winbtn:disabled{cursor:default;opacity:.6}
 .perf-model{border-top:1px solid #28596e;margin-top:22px;padding-top:22px}
+.perf-disclosure{margin-bottom:18px}
+.perf-disclosure>summary{list-style:none;border:1px solid #25617b;border-radius:13px;background:#092d3e;padding:13px 17px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:#e4f7ff;cursor:pointer;font-size:13px;font-weight:850}
+.perf-disclosure>summary::-webkit-details-marker,.perf-details>summary::-webkit-details-marker{display:none}
+.perf-disclosure>summary:hover,.perf-disclosure>summary:focus-visible,.perf-details>summary:hover,.perf-details>summary:focus-visible{border-color:#36b5e7;background:#10435c;outline-offset:3px}
+.perf-disclosure[open]>summary{border-radius:13px 13px 0 0;border-color:#2da7d7}
+.perf-disclosure>.performance{margin:0;border-radius:0 0 18px 18px;border-top:0}
+.perf-summary-name{color:#80dfff;font-weight:700;font-size:12px}
+.perf-chevron{color:#8cdafa;font-size:18px;transition:transform .15s}
+.perf-disclosure[open]>.perf-summary .perf-chevron,.perf-details[open]>.perf-detail-summary .perf-chevron{transform:rotate(180deg)}
+.perf-details{border-top:1px solid #28596e;margin-top:20px;padding-top:10px}
+.perf-details>summary{list-style:none;padding:11px 7px;display:flex;align-items:center;justify-content:space-between;gap:14px;border:1px solid transparent;border-radius:9px;color:#e4f7ff;font-size:13px;font-weight:850;cursor:pointer}
+.perf-detail-content{padding-top:9px}
+.perf-detail-text{font-size:11px;line-height:1.55;color:#a1c2d0;margin:3px 0 12px}
+.perf-detail-scroll{width:100%;overflow-x:auto;border:1px solid #275b6d;border-radius:11px}
+.perf-detail-table{border-collapse:collapse;width:100%;min-width:610px;font-size:12px;background:#031e2b66}
+.perf-detail-table th,.perf-detail-table td{padding:10px 12px;border-bottom:1px solid #235367;vertical-align:middle}
+.perf-detail-table th{background:#0d394e;color:#a9cfe0;font-size:11px;text-align:right}
+.perf-detail-table th:first-child,.perf-detail-table td:first-child{text-align:left}
+.perf-detail-table td:first-child{min-width:210px;max-width:290px;overflow-wrap:anywhere}
+.perf-detail-table td:not(:first-child){text-align:right;white-space:nowrap}
+.perf-detail-table tr:last-child td{border-bottom:0}
+.perf-detail-pagination{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:12px;color:#a8d0dd;font-size:12px}
+.perf-page-controls{display:flex;align-items:center;gap:8px}
+.perf-page-controls button{background:#0b516d;border:1px solid #287b9c;color:#e7f7ff;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:800}
+.perf-page-controls button:disabled{opacity:.4;cursor:default}
 .perf-stake-head{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
 .perf-stake-head strong{display:block;font-size:14px}
 .perf-stake-head small{display:block;color:var(--mute);font-size:11px;line-height:1.5;margin-top:6px}
@@ -179,6 +204,8 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
       <button type="button" class="provider" data-provider="Schulung" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🎓</span><span class="pill">LERNBEREICH</span></span><span class="pro-name">Schulungstipps</span><span class="pro-sub">Schulungsbeispiele und Demonstrationen</span><span class="pro-stat" id="trainingMini">Schulungs-Performance wird geladen …</span></button>
       <button type="button" class="provider" data-provider="Testphase" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🧪</span><span class="pill">VORBEREITUNG</span></span><span class="pro-name">User-Testphase</span><span class="pro-sub">Begrenzter gemeinsamer Tipp-Test. Teilnahme und Unit-Rückgaben sind noch nicht freigeschaltet.</span><span class="pro-stat" id="testMini">Noch keine gewerteten Testtipps</span></button>
     </div>
+    <details id="perfDisclosure" class="perf-disclosure">
+      <summary class="perf-summary" id="perfDisclosureTrigger"><span>📊 Tippgeber-Performance ansehen <span class="perf-summary-name" id="perfDisclosureName">· Martin</span></span><span class="perf-chevron" aria-hidden="true">⌄</span></summary>
     <section class="performance" id="performance">
       <div class="perf-top"><div class="author"><div class="avatar" id="avatar">M</div><div><small>TIPPGEBER-PERFORMANCE · MODELLRECHNUNG</small><strong id="perfName">Martin</strong></div></div><div class="windows" id="perfWindows" role="group" aria-label="Tippgruppen, neueste zuerst"></div></div>
       <div class="kpis">
@@ -206,7 +233,20 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
         </div>
         <p id="perfModelHint" class="perf-model-hint">Rechnerisches Gesamtergebnis der gewählten Tippgruppe, ohne Abzug der Freischaltkosten. Vergangene Ergebnisse sind keine Garantie für zukünftige Gewinne.</p>
       </div>
+      <details id="perfDetails" class="perf-details">
+        <summary class="perf-detail-summary" id="perfDetailsTrigger"><span id="perfDetailsTitle">☷ Berechnung im Detail ansehen</span><span class="perf-chevron" aria-hidden="true">⌄</span></summary>
+        <div class="perf-detail-content">
+          <p class="perf-detail-text">Jeder Tipp der ausgewählten Gruppe mit Originalquote, geforderten Units und simuliertem Einsatz und Nettogewinn. Alle Beträge verwenden den obigen Euro-Regler und werden nur beim Öffnen berechnet.</p>
+          <div class="perf-detail-scroll"><table class="perf-detail-table" aria-label="Tippberechnung je Spiel">
+            <thead><tr><th scope="col">Spiel / Tipp</th><th scope="col">Quote</th><th scope="col">Units</th><th scope="col">Bewertung</th><th scope="col">Einsatz</th><th scope="col">Netto</th></tr></thead>
+            <tbody id="perfDetailRows"></tbody>
+          </table></div>
+          <div id="perfDetailPagination" class="perf-detail-pagination"></div>
+          <p class="perf-detail-text">Bei „Gesamt“ maximal zehn Tipps pro Seite. Das Gesamtergebnis oben umfasst weiterhin alle ausgewählten Tipps. Historische 0-Unit-Tipps gehen mit 0 € in die Modellrechnung ein.</p>
+        </div>
+      </details>
     </section>
+    </details>
     <div class="section-top"><div><h2 id="feedTitle">Neue Tipps von Martin</h2><p class="lead">Nur noch nicht angepfiffene Tipps. Begegnung, Markt und Auswahl bleiben vor der Freischaltung geschützt.</p></div></div>
     <div class="tips-stack" id="newFeed"><div class="alert">Neue Tipps werden geladen …</div></div>
     <p class="note">Echte Tipps werden über den geschützten BetInsight-Mitgliederzugang freigeschaltet. Der Webinar-Platzhalter bucht niemals Units ab.</p>
@@ -291,6 +331,50 @@ function stats(who,period){
   roi:use.length&&!missing&&unitSum>0?profit/unitSum*100:null,
   profit:profit,unitSum:unitSum,zeroUnits:zeroUnits,missing:missing,noStake:unitSum<=0};
 }
+var perfDetailPage=0;
+function resetDetails(){
+ perfDetailPage=0;$("perfDetails").open=false;$("perfDetailRows").replaceChildren();$("perfDetailPagination").replaceChildren();
+ $("perfDetailsTitle").textContent="☷ Berechnung im Detail ansehen";
+}
+function detailCell(tr,textValue,cssClass){var cell=ele("td",cssClass||"",textValue);tr.appendChild(cell);return cell}
+function renderPerformanceDetails(){
+ if(!$("perfDisclosure").open||!$("perfDetails").open)return;
+ var rowsNode=$("perfDetailRows"),pagesNode=$("perfDetailPagination");rowsNode.replaceChildren();pagesNode.replaceChildren();
+ var who=state.provider,loaded=(who==="Martin"||who==="Frank")?(state.performanceLoaded&&state.resultsLoaded):state.resultsLoaded;
+ if(!loaded){var p=ele("tr");detailCell(p,"Ergebnisse werden geladen …").colSpan=6;rowsNode.appendChild(p);return}
+ var selected=stats(who,state.period),records=selected.rows;
+ if(!records.length){var emptyRow=ele("tr");detailCell(emptyRow,"Für diese Kategorie gibt es noch keine ausgewerteten Tipps.").colSpan=6;rowsNode.appendChild(emptyRow);return}
+ var totalPages=Math.ceil(records.length/10);perfDetailPage=Math.max(0,Math.min(perfDetailPage,totalPages-1));
+ var start=perfDetailPage*10,subset=records.slice(start,start+10),value=state.stake;
+ var detailMap=new Map(state.results.map(function(r){return [str(r.tipp_id),r]}));
+ subset.forEach(function(r,i){
+  var full=detailMap.get(str(r.tipp_id))||r;
+  var tr=ele("tr"),q=numeric(r.quote),units=numeric(r.preis_units);
+  var valid=r.preis_units!=null&&str(r.preis_units)!==""&&Number.isFinite(units)&&units>=0&&q>1;
+  var won=status(r.ergebnis_status)==="won",stake=valid?units*value:null;
+  var gain=valid?stake*(won?q-1:-1):null;
+  var label=str(full.spiel)||str(r.spiel)||"Tipp "+str(r.tipp_id);
+  var tip=str(full.tipp);if(tip&&tip.length<90)label+=" · "+tip;
+  detailCell(tr,(start+i+1)+". "+label);
+  detailCell(tr,q>1?new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(q):"–");
+  detailCell(tr,valid?new Intl.NumberFormat("de-DE",{maximumFractionDigits:2}).format(units):"–");
+  detailCell(tr,won?"Gewonnen":"Verloren",won?"green":"red");
+  detailCell(tr,valid?euro(stake):"–");
+  detailCell(tr,valid?(gain>0?"+":"")+euro(gain):"–",valid?(gain>=0?"green":"red"):"");
+  rowsNode.appendChild(tr);
+ });
+ var label=ele("span","",state.period==="all"?"Tipps "+(start+1)+"–"+(start+subset.length)+" von "+records.length+" · Gesamtauswertung oben":"Tipps "+(start+1)+"–"+(start+subset.length)+" von "+records.length);
+ pagesNode.appendChild(label);
+ if(totalPages>1){
+  var nav=ele("div","perf-page-controls");
+  var back=ele("button","","← Zurück");back.type="button";back.disabled=perfDetailPage===0;
+  back.addEventListener("click",function(){perfDetailPage--;renderPerformanceDetails()});
+  nav.appendChild(back);nav.appendChild(ele("span","",String(perfDetailPage+1)+" / "+totalPages));
+  var next=ele("button","","Weiter →");next.type="button";next.disabled=perfDetailPage+1>=totalPages;
+  next.addEventListener("click",function(){perfDetailPage++;renderPerformanceDetails()});
+  nav.appendChild(next);pagesNode.appendChild(nav);
+ }
+}
 function mini(){
  [["Martin","martinMini"],["Frank","frankMini"],["Schulung","trainingMini"],["Testphase","testMini"]].forEach(function(item){
   var el=$(item[1]);if(!el)return;el.replaceChildren();
@@ -322,9 +406,13 @@ function drawModel(){
   new Intl.NumberFormat("de-DE",{maximumFractionDigits:2}).format(v.unitSum)+" ursprünglich geforderte Units insgesamt"+
   (v.zeroUnits?" · "+v.zeroUnits+" Tipp(s) mit 0 Units":"")+".";
  hint.textContent=v.missing?"Mindestens einem Tipp fehlen gültige Quote oder Unit-Angabe; die Gruppensumme kann nicht vollständig berechnet werden.":v.noStake?"Historischer Bestand: Für diese Tippgruppe sind ausschließlich Tipps mit 0 geforderten Units gespeichert. Ohne ursprüngliches Einsatzgewicht lässt sich keine Wett-Rendite berechnen.":"Gesamtergebnis der gewählten Tippgruppe: pro Tipp geforderte Units × Euro je Unit, dann nach Originalquote abgerechnet und summiert. Ohne Freischaltkosten, Gebühren und Steuern. Kein realer Kundenkontostand; keine Gewinngarantie.";
+ renderPerformanceDetails();
 }
 function performance(){
- var who=state.provider,box=$("performance");box.hidden=false;
+ var who=state.provider;
+ $("perfDisclosureName").textContent="· "+(who==="Schulung"?"Schulungstipps":who==="Testphase"?"User-Testphase":who);
+ if(!$("perfDisclosure").open)return;
+ var box=$("performance");box.hidden=false;
  $("perfName").textContent=who==="Schulung"?"Schulungstipps":who==="Testphase"?"User-Testphase":who;
  $("avatar").textContent=who==="Testphase"?"T":who==="Schulung"?"S":who[0];
  var loaded=(who==="Martin"||who==="Frank")?(state.performanceLoaded&&state.resultsLoaded):state.resultsLoaded;
@@ -336,12 +424,12 @@ function performance(){
    (function(idx){
     var b=ele("button","winbtn"+(state.period===String(idx)?" selected":""),(idx*10+1)+"–"+Math.min(all.length,(idx+1)*10));
     b.type="button";b.setAttribute("aria-pressed",state.period===String(idx)?"true":"false");
-    b.addEventListener("click",function(){state.period=String(idx);performance()});windows.appendChild(b);
+    b.addEventListener("click",function(){state.period=String(idx);perfDetailPage=0;performance()});windows.appendChild(b);
    })(i)
   }
   var total=ele("button","winbtn"+(state.period==="all"?" selected":""),"Gesamt");
   total.type="button";total.setAttribute("aria-pressed",state.period==="all"?"true":"false");
-  total.addEventListener("click",function(){state.period="all";performance()});windows.appendChild(total);
+  total.addEventListener("click",function(){state.period="all";perfDetailPage=0;performance()});windows.appendChild(total);
  }else{
   var none=ele("button","winbtn","Keine gewerteten Tipps");none.disabled=true;none.type="button";windows.appendChild(none);
  }
@@ -541,7 +629,19 @@ var data=latest(state.results.filter(function(r){return !!status(r.ergebnis_stat
 function rerender(){mini();performance();drawNew();drawMine();drawArchive()}
 function selectArea(area){state.area=area;document.querySelectorAll(".navtab").forEach(function(b){var yes=b.dataset.tab===area;b.classList.toggle("selected",yes);b.setAttribute("aria-current",yes?"page":"false")});document.querySelectorAll(".area").forEach(function(el){el.classList.toggle("active",el.id==="area-"+area)})}
 document.querySelectorAll(".navtab").forEach(function(b){b.addEventListener("click",function(){selectArea(b.dataset.tab)})});
-document.querySelectorAll(".provider:not([disabled])").forEach(function(b){b.addEventListener("click",function(){state.provider=b.dataset.provider;document.querySelectorAll(".provider").forEach(function(p){var yes=p===b;p.classList.toggle("selected",yes);p.setAttribute("aria-pressed",yes?"true":"false")});performance();drawNew()})});
+document.querySelectorAll(".provider:not([disabled])").forEach(function(b){b.addEventListener("click",function(){
+ state.provider=b.dataset.provider;state.period="0";$("perfDisclosure").open=false;resetDetails();
+ document.querySelectorAll(".provider").forEach(function(p){var yes=p===b;p.classList.toggle("selected",yes);p.setAttribute("aria-pressed",yes?"true":"false")});
+ performance();drawNew()
+})});
+$("perfDisclosure").addEventListener("toggle",function(){
+ if(this.open)performance();
+ else resetDetails();
+});
+$("perfDetails").addEventListener("toggle",function(){
+ if(this.open){perfDetailPage=0;$("perfDetailsTitle").textContent="☷ Einzelberechnung schließen";renderPerformanceDetails()}
+ else{$("perfDetailsTitle").textContent="☷ Berechnung im Detail ansehen";$("perfDetailRows").replaceChildren();$("perfDetailPagination").replaceChildren();}
+});
 $("perfStake").addEventListener("input",function(){state.stake=Number(this.value)||10;drawModel()});
 document.querySelectorAll("[data-archive]").forEach(function(b){b.addEventListener("click",function(){state.archive=b.dataset.archive;document.querySelectorAll("[data-archive]").forEach(function(n){n.classList.toggle("selected",n===b)});drawArchive()})});
 async function request(action,access){var url=ROOT+action+"&t="+Date.now();if(access)url+="&token="+encodeURIComponent(access);var res=await fetch(url,{cache:"no-store"});if(!res.ok)throw new Error("HTTP "+res.status);var json=await res.json();if(!Array.isArray(json))throw new Error("UNEXPECTED_RESPONSE");return json}
