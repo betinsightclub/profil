@@ -40,6 +40,32 @@ jobs:
           for(const item of checks)if(!html.includes(item))throw new Error('Missing ' + item);
           console.log('Syntax OK (' + scripts.length + ' scripts); fallback connected.');
           NODE
+      - name: Regression - pinned Globe 2.45 constructor receives DOM element
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const vm = require('node:vm');
+          const assert = require('node:assert/strict');
+          const html = fs.readFileSync('stadionwelt/index.html','utf8');
+          const match = html.match(/globe=(new Globe\([^;]+\));globeInitStage="configure-layers"/);
+          assert(match, 'Expected documented new Globe(DOM, config) constructor');
+          const context = {
+            holder: { nodeType: 1 },
+            globe: null,
+            Globe: class {
+              constructor(element, options) {
+                assert.equal(element.nodeType, 1, 'DOM element must be passed first');
+                assert.equal(options.animateIn, false);
+                assert.equal(options.waitForGlobeReady, false);
+                this.element = element;
+                this.options = options;
+              }
+            }
+          };
+          vm.runInNewContext('globe=' + match[1] + ';',context);
+          assert.equal(context.globe.element,context.holder);
+          console.log('Pinned globe.gl v2.45 constructor contract passed');
+          NODE
       - name: Regression - attempt real globe before fallback
         run: |
           node - <<'NODE'
