@@ -34,6 +34,8 @@ select{font:inherit;background:#092638;color:white;border:1px solid #52839b;padd
 .market-ampel-green{border-color:#39b88b}.market-ampel-yellow{border-color:#b89b55}.market-ampel-red{border-color:#b66e77}
 .market-ampel-note{font-size:13px;line-height:1.5;border:1px solid #4d7188;background:#092939;color:#d9eef6;padding:12px 15px;border-radius:11px;margin:15px 0}
 
+.market-quote-warning{border:1px solid #4d7188;background:#09293c;color:#e1f1f6;padding:13px 15px;border-radius:11px;margin:14px 0}
+#realMarketPanel select{max-width:100%}
 </style>
 </head>
 <body>
@@ -87,6 +89,40 @@ select{font:inherit;background:#092638;color:white;border:1px solid #52839b;padd
   <div id="priceWatchGroups" style="margin:14px 0"></div>
  </details>
  <p class="small muted">Die API-Region „eu“ ist keine deutsche Lizenz- oder Verfügbarkeitsbestätigung. Der Anbietername oder eine GGL-Whitelist-Marke beweist keine tatsächlich auf einem deutschen Konto handelbare Quote. Kein automatischer Wett- oder Tippvorgang.</p>
+</section>
+<section id="realMarketPanel" class="panel">
+ <div class="overline">Nächste Ausbaustufe · echte Zusatzmarktquoten · nur Master-Admin</div>
+ <h2>⚽ Fehlende Daten gezielt ergänzen</h2>
+ <p class="muted">Wähle zuerst eine aktuelle Fußballbegegnung und anschließend <strong>Doppelte Chance</strong> oder <strong>Draw No Bet</strong>. Der Abruf erfolgt ausschließlich auf Bestätigung für ein einzelnes Spiel und einen einzigen Markt. Ohne neue unabhängige Prognose bleibt die Preisampel zunächst weiterhin <strong>grau</strong>; der Datenstand wird jedoch sichtbar vollständiger.</p>
+ <div class="controls">
+  <button type="button" id="realMarketLoad" class="secondary">Aktuelle Spiele aus Cache laden · 0 Credits</button>
+ </div>
+ <div class="controls">
+  <div class="control"><label for="realMarketLeague">Optional: 1X2-Liga aktualisieren</label>
+   <select id="realMarketLeague">
+    <option value="soccer_italy_serie_a">Serie A · Italien</option>
+    <option value="soccer_france_ligue_one">Ligue 1 · Frankreich</option>
+    <option value="soccer_netherlands_eredivisie">Eredivisie · Niederlande</option>
+    <option value="soccer_portugal_primeira_liga">Primeira Liga · Portugal</option>
+   </select>
+  </div>
+  <button id="realMarketRefresh" type="button" class="secondary">1X2-Quoten mit Kostenbestätigung aktualisieren</button>
+ </div>
+ <div class="controls">
+  <div class="control" style="flex:1;min-width:240px"><label for="realMarketGame">Aktuelle Begegnung</label>
+   <select id="realMarketGame" style="width:100%"><option value="">Zuerst gültige Spiele laden</option></select>
+  </div>
+  <div class="control"><label for="realMarketType">Gesuchter Wettmarkt</label>
+   <select id="realMarketType"><option value="draw_no_bet">Draw No Bet · Remis Geld zurück</option>
+    <option value="double_chance">Doppelte Chance · 1X, X2, 12</option></select>
+  </div>
+  <button id="realMarketRequest" type="button" disabled>Marktquote abrufen · Bestätigung erforderlich</button>
+ </div>
+ <p id="realMarketHints" class="small muted">Noch keine aktuelle Begegnung geladen.</p>
+ <p id="realMarketStatus" role="status" class="muted">Es wurde noch keine neue Zusatzmarkt-Abfrage gestartet.</p>
+ <div class="market-quote-warning"><strong>Zwei Prüfschritte:</strong> (1) echte Marktquote vorhanden? (2) für ein deutsches Konto nachgewiesen und unabhängig validierte Gewinnwahrscheinlichkeit vorhanden? Nur Schritt 1 wird hier ergänzt. Die Ampel wird dadurch nicht automatisch Grün.</div>
+ <div id="realMarketResults" style="display:grid;gap:12px;margin-top:15px"></div>
+ <p class="small muted">Eine Anfrage entspricht einem ausgewählten Markt und einer API-Region; sie kostet gewöhnlich höchstens einen Anbieter-Credit, bei fehlenden Märkten kann die tatsächliche Belastung abweichen. Den vom Anbieter gemeldeten Verbrauch zeigen wir im Ergebnis. Pro Tag sind höchstens drei zusätzliche Einzelmarkt-Anfragen vorgesehen. Kein automatisches Nachladen.</p>
 </section>
 <section id="marketLabPanel" class="panel">
  <div class="overline">Neue Fußballmärkte · kostenfreie Vorprüfung</div>
@@ -158,5 +194,6 @@ function showOtherOdds(key){return details(key,"otherOddsDetails","additionalOdd
 <script src="/admin/testlabor/green-scanner-v1.js?v=2" defer></script>
 <script src="/admin/testlabor/price-watch-v1.js?v=2" defer></script>
 <script src="/admin/testlabor/market-lab-v1.js?v=2" defer></script>
+<script src="/admin/testlabor/real-market-lookup-v1.js?v=1" defer></script>
 </body>
 </html>
