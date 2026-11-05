@@ -48,7 +48,7 @@ a{color:var(--aqua)}.shell{min-height:100vh}.header{height:76px;border-bottom:1p
 .stadium-rotation-control input[type="range"]{width:100%;height:16px;cursor:pointer;accent-color:#42e2d1;touch-action:pan-y}
 .stadium-rotation-control output{font-weight:800;color:#76fff0;white-space:nowrap;font-variant-numeric:tabular-nums}
 .stadium-rotation-control small{color:#a8cbd5;font-size:10px}
-</style><link rel="stylesheet" href="./selection-pin.css"><link rel="stylesheet" href="./passport-journey.css"></head>
+</style><link rel="stylesheet" href="./selection-pin.css?v=20261105-flight-edit-1"><link rel="stylesheet" href="./passport-journey.css?v=20261105-flight-edit-1"></head>
 <body><div class="shell">
 <header class="header"><div class="brand"><img src="https://betinsight.club/assets/betinsight-logo.png" alt="BetInsight"><div><h1>Football World</h1><small>BETINSIGHT · STADIUM EXPLORER</small></div></div>
 <div class="actions"><a class="btn back-profile" href="../" id="backToProfile" aria-label="Zurück zum Profil">← <span data-i="backToProfile">Zurück zum Profil</span></a><select id="language" aria-label="Language"><option value="de">🇩🇪 Deutsch</option><option value="en">🇬🇧 English</option><option value="es">🇪🇸 Español</option><option value="pt">🇧🇷 Português</option><option value="it">🇮🇹 Italiano</option><option value="fr">🇫🇷 Français</option><option value="nl">🇳🇱 Nederlands</option><option value="zh">🇨🇳 中文</option></select><button class="btn primary" id="newBtn">＋ <span data-i="add">Stadion vorschlagen</span></button></div></header>
@@ -70,7 +70,7 @@ a{color:var(--aqua)}.shell{min-height:100vh}.header{height:76px;border-bottom:1p
 </main></div>
 <div class="lock hide" id="lock"><div class="lockcard"><img src="https://betinsight.club/assets/betinsight-logo.png" alt="BetInsight"><h2 data-i="restricted">Geschützte Entwickler-Vorschau</h2><p id="lockMessage" data-i="loginInfo">Öffne unten das BetInsight Admin Center, melde dich dort an und klicke anschließend auf „🌍 Stadionwelt (Test)“. Wichtig: im selben Browser-Tab bleiben.</p><a class="btn primary" href="/admin/" id="adminLink" data-i="goAdmin">Zum Backoffice-Login</a><button class="btn" id="retry" data-i="retry">Zugang erneut prüfen</button></div></div><div class="toast hide" id="toast"></div>
 <script async src="https://unpkg.com/globe.gl@2.45.0/dist/globe.gl.min.js" onload="window.dispatchEvent(new Event('stadium-globe-ready'))" onerror="window.dispatchEvent(new Event('stadium-globe-error'))"></script>
-<script src="./fallback-2d.js"></script><script src="./passport-journey.js"></script><script src="./globe-flight.js"></script>
+<script src="./fallback-2d.js?v=20261105-flight-edit-1"></script><script src="./passport-journey.js?v=20261105-flight-edit-1"></script><script src="./globe-flight.js?v=20261105-flight-edit-1"></script>
 <script>
 "use strict";
 if(new URLSearchParams(location.search).get("embedded")==="1")document.body.classList.add("embedded");
