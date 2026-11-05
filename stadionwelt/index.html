@@ -42,6 +42,12 @@ a{color:var(--aqua)}.shell{min-height:100vh}.header{height:76px;border-bottom:1p
 .embedded .main{padding:5px;max-width:none}
 .embedded .workspace{height:calc(100vh - 12px);min-height:570px;max-height:none}
 @media(min-width:900px){.embedded .workspace{display:grid;grid-template-columns:235px minmax(290px,1fr) 280px;height:calc(100vh - 12px);max-height:none}.embedded .right{grid-column:auto;max-height:none}.embedded .left{height:auto}.embedded .stage{min-height:550px}}
+/* Personal rotation speed. No changes to stadium data or globe rendering. */
+.stadium-rotation-control{display:flex;flex-direction:column;gap:4px;margin-top:9px;padding-top:8px;border-top:1px solid #2e596b;font-size:11px;color:#d4f4f3;pointer-events:auto}
+.stadium-rotation-title{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.stadium-rotation-control input[type="range"]{width:100%;height:16px;cursor:pointer;accent-color:#42e2d1;touch-action:pan-y}
+.stadium-rotation-control output{font-weight:800;color:#76fff0;white-space:nowrap;font-variant-numeric:tabular-nums}
+.stadium-rotation-control small{color:#a8cbd5;font-size:10px}
 </style><link rel="stylesheet" href="./selection-pin.css"><link rel="stylesheet" href="./passport-journey.css"></head>
 <body><div class="shell">
 <header class="header"><div class="brand"><img src="https://betinsight.club/assets/betinsight-logo.png" alt="BetInsight"><div><h1>Football World</h1><small>BETINSIGHT · STADIUM EXPLORER</small></div></div>
@@ -52,7 +58,12 @@ a{color:var(--aqua)}.shell{min-height:100vh}.header{height:76px;border-bottom:1p
 <div class="listtitle"><span id="listStatus">–</span><span data-i="sourceWarning">Importdaten · noch ungeprüft</span></div><div class="list" id="stadiumList"></div><div class="pager"><button class="btn small ghost" id="prev">←</button><span id="pages">–</span><button class="btn small ghost" id="next">→</button></div></section>
 <section class="stage"><div class="stars"></div><div id="globe"></div><div id="globeWait" class="globe-wait">🌍 Weltkugel wird vorbereitet …</div><div id="detailMap" class="hide" aria-label="Stadion-Umgebungskarte"></div><div id="journeyOverlay" class="journey-overlay hide" aria-live="polite"></div><div id="mapFallbackNotice" class="map-fallback-notice hide" role="status" aria-live="polite"><span id="mapFallbackText"></span><button id="globeRetryBtn" type="button">↻ 3D erneut prüfen</button></div><div class="mode-toggle" role="group" aria-label="Kartenansicht"><button type="button" id="globeModeBtn" class="active" aria-pressed="true">🌍 <span data-i="globeView">Weltkugel</span></button><button type="button" id="mapModeBtn" aria-pressed="false">🗺️ <span data-i="mapView">Straßenkarte</span></button><button type="button" id="satModeBtn" aria-pressed="false">🛰️ <span data-i="satellite">Satellit</span></button></div><div id="emptyglobe" class="globe-placeholder"><div>🌍<p id="globeError">3D globe requires WebGL and an Internet connection.</p></div></div><div class="sat-credit hide" id="satCredit">EOxCloudless © EOX IT Services GmbH · Sentinel‑2 2016 · CC BY 4.0 · <a href="https://cloudless.eox.at/" target="_blank" rel="noopener noreferrer">Quelle</a><div><span data-i="satLimit">Historische Satellitenaufnahme, nicht hochauflösend</span></div></div><div class="globe-overlay"><div class="pill">🌍 <span data-i="spin">Drehen · Zoomen · Stadion anklicken</span></div><div class="pill" id="globeCount">–</div></div><div class="globe-bottom"><div class="hint"><span id="globeHint" data-i="globeHint">Dezente Punkte zeigen größere Stadien. Rote Fahnen markieren besuchte Stadien.</span><div class="globe-legend"><span>🚩 <span data-i="myVisitedFlags">Meine Besuche</span> (<strong id="visitFlagCount">0</strong>)</span><span>• <span data-i="colorScaleTitle">Stadiongröße nach Plätzen</span></span></div>
 <div class="stadium-size-legend" id="stadiumSizeLegend"></div>
-<label class="legend-check"><input type="checkbox" id="allGlobePoints" checked><span data-i="showAllMarkers">Alle Stadionpunkte anzeigen</span></label></div><div class="globe-buttons"><a class="btn small hide" id="satExternal" href="https://www.google.com/maps" target="_blank" rel="noopener noreferrer">🔎 <span data-i="hires">Satellit hochauflösend ↗</span></a><button class="btn small" id="mapBtn">🗺️ <span data-i="mapView">Umgebung</span></button><button class="btn small" type="button" id="zoomInBtn" aria-label="Zoom in" title="Zoom +">＋</button><button class="btn small" type="button" id="zoomOutBtn" aria-label="Zoom out" title="Zoom −">−</button><button class="btn small" id="resetBtn">🌐 <span data-i="reset">Welt</span></button></div></div></section>
+<label class="legend-check"><input type="checkbox" id="allGlobePoints" checked><span data-i="showAllMarkers">Alle Stadionpunkte anzeigen</span></label>
+<label class="stadium-rotation-control" for="stadiumRotationDuration">
+ <span class="stadium-rotation-title"><span id="stadiumRotationLabel">Drehdauer pro Stadion</span><output id="stadiumRotationValue" for="stadiumRotationDuration">12 s</output></span>
+ <input type="range" id="stadiumRotationDuration" min="8" max="25" step="1" value="12" aria-label="Drehdauer pro Stadion">
+ <small id="stadiumRotationHint">Links schneller · Rechts langsamer</small>
+</label></div><div class="globe-buttons"><a class="btn small hide" id="satExternal" href="https://www.google.com/maps" target="_blank" rel="noopener noreferrer">🔎 <span data-i="hires">Satellit hochauflösend ↗</span></a><button class="btn small" id="mapBtn">🗺️ <span data-i="mapView">Umgebung</span></button><button class="btn small" type="button" id="zoomInBtn" aria-label="Zoom in" title="Zoom +">＋</button><button class="btn small" type="button" id="zoomOutBtn" aria-label="Zoom out" title="Zoom −">−</button><button class="btn small" id="resetBtn">🌐 <span data-i="reset">Welt</span></button></div></div></section>
 <section class="pane right"><div class="right-top"><button class="tab active" data-tab="details" data-i="details">Details</button><button class="tab" data-tab="passport" data-i="passport">Mein Stadionpass</button><button class="tab" data-tab="suggest" data-i="suggest">Eintragen</button><button class="tab hide" data-tab="review" data-i="review" aria-hidden="true">Prüfliste</button></div>
 <div class="detail" id="rightBody"></div></section></div>
 <footer class="foot"><span>© BetInsight · Football World</span><span data-i="qa">Stadiondaten sind importiert und noch nicht vollständig geprüft. Angaben ohne Gewähr.</span><span>3D Globe: globe.gl · Earth imagery: NASA/three-globe · Stadionquelle: WorldSoccerStadiums</span></footer>
@@ -145,8 +156,38 @@ function renderSizeLegend(){
 
 const $=id=>document.getElementById(id), t=k=>(D[lang]&&D[lang][k])||D.en[k]||k, esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=n=>n==null?"–":Number(n).toLocaleString(lang==="de"?"de-DE":"en-US");
+
+const ROTATION_DURATION_KEY="betinsight_stadium_rotation_duration_v1";
+const ROTATION_DEFAULT_SECONDS=12;
+const ROTATION_LABELS={
+ de:["Drehdauer pro Stadion","Links schneller · Rechts langsamer"],
+ en:["Rotation time per stadium","Left faster · Right slower"],
+ es:["Duración del giro por estadio","Izquierda más rápido · Derecha más lento"],
+ pt:["Duração do giro por estádio","Esquerda mais rápido · Direita mais devagar"],
+ it:["Durata rotazione per stadio","Sinistra più veloce · Destra più lento"],
+ fr:["Durée de rotation par stade","Gauche plus rapide · Droite plus lent"],
+ nl:["Draaitijd per stadion","Links sneller · Rechts langzamer"],
+ zh:["每個球場的旋轉時間","左側較快 · 右側較慢"]
+};
+function validRotationSeconds(value){
+ const number=Number(value);
+ return Number.isFinite(number)?Math.max(8,Math.min(25,Math.round(number))):ROTATION_DEFAULT_SECONDS;
+}
+let rotationSeconds=ROTATION_DEFAULT_SECONDS;
+try{const saved=localStorage.getItem(ROTATION_DURATION_KEY);if(saved!==null)rotationSeconds=validRotationSeconds(saved)}catch{}
+function globeRotationDurationMs(){return rotationSeconds*1000}
+function syncRotationControl(){
+ const input=$("stadiumRotationDuration"),output=$("stadiumRotationValue");
+ if(!input||!output)return;
+ const lines=ROTATION_LABELS[lang]||ROTATION_LABELS.en;
+ input.value=String(rotationSeconds);
+ input.setAttribute("aria-label",lines[0]);$("stadiumRotationLabel").textContent=lines[0];
+ $("stadiumRotationHint").textContent=lines[1];
+ output.value=rotationSeconds+" s";output.textContent=rotationSeconds+" s";
+}
+
 const toast=(s)=>{const e=$("toast");e.textContent=s;e.classList.remove("hide");setTimeout(()=>e.classList.add("hide"),4500)};
-function translate(){renderSizeLegend();syncModeControls();updateSatellitePanel();updateFallbackNotice();if(mapMode==="satellite"){$("globeHint").textContent=t("satLimit");$("mapBtn").textContent="🌐 "+t("globeView")}else if(mapMode==="map"){$("mapBtn").textContent="🌐 "+t("globeView");$("globeHint").textContent=t("mapHint")}else{$("mapBtn").textContent="🗺️ "+t("mapView");$("globeHint").textContent=t("globeHint")}document.documentElement.lang=lang==="zh"?"zh-Hant-TW":lang;document.querySelectorAll("[data-i]").forEach(e=>e.textContent=t(e.dataset.i));document.querySelectorAll("[data-ph]").forEach(e=>e.placeholder=t(e.dataset.ph));$("language").value=lang;if(ready){applyFilters();renderRight();renderStreetSelectionMarker()} }
+function translate(){renderSizeLegend();syncRotationControl();syncModeControls();updateSatellitePanel();updateFallbackNotice();if(mapMode==="satellite"){$("globeHint").textContent=t("satLimit");$("mapBtn").textContent="🌐 "+t("globeView")}else if(mapMode==="map"){$("mapBtn").textContent="🌐 "+t("globeView");$("globeHint").textContent=t("mapHint")}else{$("mapBtn").textContent="🗺️ "+t("mapView");$("globeHint").textContent=t("globeHint")}document.documentElement.lang=lang==="zh"?"zh-Hant-TW":lang;document.querySelectorAll("[data-i]").forEach(e=>e.textContent=t(e.dataset.i));document.querySelectorAll("[data-ph]").forEach(e=>e.placeholder=t(e.dataset.ph));$("language").value=lang;if(ready){applyFilters();renderRight();renderStreetSelectionMarker()} }
 function loadLang(){try{sessionStorage.removeItem("betinsight_stadium_mapbox_token")}catch{}let savedLang="";try{savedLang=localStorage.getItem("betinsight_language")||""}catch{}let v=new URLSearchParams(location.search).get("lang")||savedLang||navigator.language.slice(0,2);v=String(v).toLowerCase().replace("_","-");if(v.startsWith("zh"))v="zh";else v=v.slice(0,2);if(!D[v])v="en";lang=v;translate()}
 async function hash(v){const b=new TextEncoder().encode(v),bytes=await crypto.subtle.digest("SHA-256",b);return Array.from(new Uint8Array(bytes)).map(x=>x.toString(16).padStart(2,"0")).join("")}
 async function session(){adminHash="";memberToken="";try{memberToken=localStorage.getItem("betinsight_dashboard_token")||localStorage.getItem("betinsight_profile_token")||""}catch(e){console.info("Stadionwelt: browser storage unavailable; public guest mode remains available.")}}
@@ -646,7 +687,7 @@ function selectStadium(id,keepPassport=false,forceFocus=false){
   if(window.BetInsightLeaflet2D?.active())window.BetInsightLeaflet2D.focus(selected);
   updateSatLink();return;
  }
- if(globe)globe.pointOfView({lat:+selected.latitude,lng:+selected.longitude,altitude:keepPassport?1.52:1.65},keepPassport?3600:3200);
+ if(globe)globe.pointOfView({lat:+selected.latitude,lng:+selected.longitude,altitude:keepPassport?1.52:1.65},globeRotationDurationMs());
 }
 function renderRight(force){if(force)tab=force;if(tab==="review")tab="details";document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.dataset.tab===tab));let el=$("rightBody"),scroller=document.querySelector(".right"),scroll=scroller?.scrollTop||0;if(tab==="details")el.innerHTML=detailHTML();else if(tab==="suggest")el.innerHTML=formHTML();else if(tab==="review")el.innerHTML=queueHTML()+proofQueueHTML();else el.innerHTML=passHTML();attachRight();if(tab==="passport")window.BetInsightStadiumJourney?.bind();if(tab==="details")drawPhotos();wirePhotoFallbacks(el);if(scroller&&tab==="passport")scroller.scrollTop=scroll;window.BetInsightStadiumJourney?.refresh()}
 function detailHTML(){if(!selected)return "<div class='kicker'>BETINSIGHT FOOTBALL WORLD</div><h3>"+esc(t("details"))+"</h3><div class='empty'>🌍 "+esc(t("globeHint"))+"</div><p class='muted'>"+esc(t("previewNotice"))+"</p>";const s=selected,teams=clubMap(s.id).concat((s.details?.submitted_clubs||[]).filter(x=>!clubMap(s.id).includes(x))),up=fixtures.filter(x=>Number(x.stadium_id)===Number(s.id)).slice(0,5),ids=tipLinks.filter(x=>Number(x.stadium_id)===Number(s.id)).map(x=>x.tipp_id),rows=tips.filter(x=>ids.includes(x.tipp_id)),wins=rows.filter(x=>x.ergebnis_status==="GEWONNEN").length,losses=rows.filter(x=>x.ergebnis_status==="VERLOREN").length;return "<div class='kicker'>"+(s.is_verified?"✓ "+t("verified"):"◌ "+t("notVerified"))+"</div><h3>"+esc(s.name)+"</h3>"+(hasVisited(s.id)?"<div class='infoitem visit-flag-label'>🚩 "+esc(t("alreadyVisited"))+"</div>":"")+"<p class='muted'>📍 "+esc([s.city,s.country].filter(Boolean).join(", "))+"</p>"+photoCoverHTML(s)+"<button id='mapSelected' class='btn w100' type='button' style='margin:8px 0 0'>🗺️ "+esc(t("showOnMap"))+"</button><div class='infogrid'><div class='infobox'><small>"+t("capacity")+"</small><strong>"+fmt(s.capacity)+"</strong></div><div class='infobox'><small>"+t("country")+"</small><strong>"+esc(s.country)+"</strong></div></div><div class='sectionhead'>⚽ "+t("club")+"</div>"+(teams.length?teams.map(x=>"<div class='infoitem'>"+esc(x)+"</div>").join(""):"<div class='empty'>"+t("noClub")+"</div>")+"<div class='sectionhead'>📅 "+t("upcoming")+"</div>"+(up.length?up.map(x=>"<div class='infoitem'><strong>"+esc(x.home_team)+" – "+esc(x.away_team)+"</strong><br><span class='mini'>"+esc(x.league||"")+" · "+esc(new Date(x.kickoff_at).toLocaleString(lang))+"</span></div>").join(""):"<div class='empty'>"+t("noUpcoming")+"</div>")+"<div class='sectionhead'>📊 "+t("tips")+"</div>"+(rows.length?"<div class='infogrid'><div class='infobox'><small>"+t("win")+"</small><strong style='color:var(--lime)'>"+wins+"</strong></div><div class='infobox'><small>"+t("loss")+"</small><strong style='color:var(--danger)'>"+losses+"</strong></div></div>"+rows.map(x=>"<div class='infoitem'>"+esc(x.spiel)+" · "+esc(x.spiel_datum)+"<br><strong>"+esc(x.ergebnis_status)+"</strong></div>").join(""):"<div class='empty'>"+t("noTips")+"</div>")+"<div style='margin-top:14px'><button class='btn primary w100' id='visit'>✓ "+t("visit")+"</button></div><div class='sectionhead'>📷 "+t("gallery")+"</div><div id='stadiumPhotos'></div><p class='mini'>"+t("notPublic")+"</p>"}
@@ -704,6 +745,12 @@ document.querySelectorAll(".tab:not(.hide)").forEach(b=>b.addEventListener("clic
  const altitude=Math.max(0.20,Math.min(4.5,current*(direction>0?0.72:1.4)));
  globe.pointOfView({lat:p.lat,lng:p.lng,altitude},380);
 }
+$("stadiumRotationDuration").addEventListener("input",event=>{
+ rotationSeconds=validRotationSeconds(event.target.value);
+ syncRotationControl();
+ try{localStorage.setItem(ROTATION_DURATION_KEY,String(rotationSeconds))}catch{}
+ window.BetInsightStadiumJourney?.onRotationDurationChanged?.();
+});
 $("zoomInBtn").addEventListener("click",()=>zoomStadiumWorld(1));
 $("zoomOutBtn").addEventListener("click",()=>zoomStadiumWorld(-1));
 $("resetBtn").addEventListener("click",()=>{
@@ -718,7 +765,7 @@ window.BetInsightStadiumJourney?.install({
  leafletConfig:()=>leaf2DConfig(),passportVisible:()=>tab==="passport",
  select:(id,keep,force)=>selectStadium(id,keep,force),
  renderPassport:()=>{if(tab==="passport")renderRight("passport")},
- stadiaLabel:()=>t("stadia"),toast
+ stadiaLabel:()=>t("stadia"),rotationDuration:()=>globeRotationDurationMs(),isGlobe:()=>mapMode==="globe"&&Boolean(globe),toast
 });
 loadLang();boot();
 </script></body></html>
