@@ -61,7 +61,7 @@ a{color:var(--aqua)}.shell{min-height:100vh}.header{height:76px;border-bottom:1p
 <label class="legend-check"><input type="checkbox" id="allGlobePoints" checked><span data-i="showAllMarkers">Alle Stadionpunkte anzeigen</span></label>
 <label class="stadium-rotation-control" for="stadiumRotationDuration">
  <span class="stadium-rotation-title"><span id="stadiumRotationLabel">Drehdauer pro Stadion</span><output id="stadiumRotationValue" for="stadiumRotationDuration">12 s</output></span>
- <input type="range" id="stadiumRotationDuration" min="8" max="25" step="1" value="12" aria-label="Drehdauer pro Stadion">
+ <input type="range" id="stadiumRotationDuration" min="4" max="25" step="1" value="12" aria-label="Drehdauer pro Stadion">
  <small id="stadiumRotationHint">Links schneller · Rechts langsamer</small>
 </label></div><div class="globe-buttons"><a class="btn small hide" id="satExternal" href="https://www.google.com/maps" target="_blank" rel="noopener noreferrer">🔎 <span data-i="hires">Satellit hochauflösend ↗</span></a><button class="btn small" id="mapBtn">🗺️ <span data-i="mapView">Umgebung</span></button><button class="btn small" type="button" id="zoomInBtn" aria-label="Zoom in" title="Zoom +">＋</button><button class="btn small" type="button" id="zoomOutBtn" aria-label="Zoom out" title="Zoom −">−</button><button class="btn small" id="resetBtn">🌐 <span data-i="reset">Welt</span></button></div></div></section>
 <section class="pane right"><div class="right-top"><button class="tab active" data-tab="details" data-i="details">Details</button><button class="tab" data-tab="passport" data-i="passport">Mein Stadionpass</button><button class="tab" data-tab="suggest" data-i="suggest">Eintragen</button><button class="tab hide" data-tab="review" data-i="review" aria-hidden="true">Prüfliste</button></div>
@@ -70,7 +70,7 @@ a{color:var(--aqua)}.shell{min-height:100vh}.header{height:76px;border-bottom:1p
 </main></div>
 <div class="lock hide" id="lock"><div class="lockcard"><img src="https://betinsight.club/assets/betinsight-logo.png" alt="BetInsight"><h2 data-i="restricted">Geschützte Entwickler-Vorschau</h2><p id="lockMessage" data-i="loginInfo">Öffne unten das BetInsight Admin Center, melde dich dort an und klicke anschließend auf „🌍 Stadionwelt (Test)“. Wichtig: im selben Browser-Tab bleiben.</p><a class="btn primary" href="/admin/" id="adminLink" data-i="goAdmin">Zum Backoffice-Login</a><button class="btn" id="retry" data-i="retry">Zugang erneut prüfen</button></div></div><div class="toast hide" id="toast"></div>
 <script async src="https://unpkg.com/globe.gl@2.45.0/dist/globe.gl.min.js" onload="window.dispatchEvent(new Event('stadium-globe-ready'))" onerror="window.dispatchEvent(new Event('stadium-globe-error'))"></script>
-<script src="./fallback-2d.js?v=20261105-flight-edit-1"></script><script src="./passport-journey.js?v=20261105-flight-edit-1"></script><script src="./globe-flight.js?v=20261105-flight-edit-1"></script><script src="./visit-types.js?v=20261105-event-v1"></script>
+<script src="./fallback-2d.js?v=20261105-flight-edit-1"></script><script src="./passport-journey.js?v=20261105-flight-edit-1"></script><script src="./globe-flight.js?v=20261105-flight-edit-2"></script><script src="./visit-types.js?v=20261105-event-v1"></script>
 <script>
 "use strict";
 if(new URLSearchParams(location.search).get("embedded")==="1")document.body.classList.add("embedded");
@@ -171,7 +171,7 @@ const ROTATION_LABELS={
 };
 function validRotationSeconds(value){
  const number=Number(value);
- return Number.isFinite(number)?Math.max(8,Math.min(25,Math.round(number))):ROTATION_DEFAULT_SECONDS;
+ return Number.isFinite(number)?Math.max(4,Math.min(25,Math.round(number))):ROTATION_DEFAULT_SECONDS;
 }
 let rotationSeconds=ROTATION_DEFAULT_SECONDS;
 try{const saved=localStorage.getItem(ROTATION_DURATION_KEY);if(saved!==null)rotationSeconds=validRotationSeconds(saved)}catch{}
@@ -626,7 +626,7 @@ function showGlobe(){
  mapMode="globe";mapRequested=false;syncModeControls();$("satCredit").classList.add("hide");updateSatLink();
  $("globe").classList.remove("hide");$("detailMap").classList.add("hide");
  $("mapBtn").textContent="🗺️ "+t("mapView");$("globeHint").textContent=t("globeHint");
- if(globe){const rect=$("globe");globe.width(rect.clientWidth).height(rect.clientHeight);const p=selected?{lat:+selected.latitude,lng:+selected.longitude,altitude:1.65}:{lat:21,lng:9,altitude:2.5};globe.pointOfView(p,0);globe.controls().autoRotate=rotating;window.BetInsightStadiumJourney?.refresh()}
+ if(globe){const rect=$("globe");globe.width(rect.clientWidth).height(rect.clientHeight);const p=selected?{lat:+selected.latitude,lng:+selected.longitude,altitude:1.15}:{lat:21,lng:9,altitude:2.5};globe.pointOfView(p,0);globe.controls().autoRotate=rotating;window.BetInsightStadiumJourney?.refresh()}
 }
 window.addEventListener("maplibre-ready",()=>{if(mapRequested)showMap(pendingMapMode==="satellite"?12:14.2,pendingMapMode||"map")});
 
@@ -665,7 +665,7 @@ function initGlobe(){const holder=$("globe");if(typeof Globe==="undefined"){ $("
 .htmlElement(s=>s.kind==="selection"?makeSelectionPin(s,true):makeFlagButton(s))
 .htmlTransitionDuration(0)
 .htmlElementVisibilityModifier((element,isVisible)=>{element.style.display=isVisible?"":"none";element.style.pointerEvents=isVisible?"auto":"none"}).pointLabel(x=>esc(x.name)+" · "+esc(x.city||"")+" · "+esc(x.country)+" · "+(x.capacity==null?esc(t("unknownSize")):fmt(x.capacity)+" "+esc(t("capacity")))).onPointClick(x=>selectStadium(x.id)).onGlobeClick(p=>{if(pickMode){$("latitude").value=p.lat.toFixed(6);$("longitude").value=p.lng.toFixed(6);pickMode=false;toast("✓ "+p.lat.toFixed(5)+", "+p.lng.toFixed(5))}});
-globe.width(w).height(h).pointOfView(selected?{lat:+selected.latitude,lng:+selected.longitude,altitude:1.65}:{lat:21,lng:9,altitude:2.5},0);globe.controls().autoRotate=false;globe.controls().autoRotateSpeed=0;globe.controls().enableDamping=true;globe.controls().minDistance=118;new ResizeObserver(()=>{if(globe&&holder.clientWidth&&holder.clientHeight)globe.width(holder.clientWidth).height(holder.clientHeight)}).observe(holder);
+globe.width(w).height(h).pointOfView(selected?{lat:+selected.latitude,lng:+selected.longitude,altitude:1.15}:{lat:21,lng:9,altitude:2.5},0);globe.controls().autoRotate=false;globe.controls().autoRotateSpeed=0;globe.controls().enableDamping=true;globe.controls().minDistance=118;new ResizeObserver(()=>{if(globe&&holder.clientWidth&&holder.clientHeight)globe.width(holder.clientWidth).height(holder.clientHeight)}).observe(holder);
  const canvas=holder.querySelector("canvas");
  if(!canvas)throw Error("GLOBE_RENDERER_CANVAS_MISSING");
  canvas.addEventListener("pointerdown",()=>window.BetInsightStadiumFlight?.cancel(),{passive:true});
@@ -693,7 +693,7 @@ function selectStadium(id,keepPassport=false,forceFocus=false){
   updateSatLink();return;
  }
  if(globe){
-  const target={lat:+selected.latitude,lng:+selected.longitude,altitude:keepPassport?1.52:1.65};
+  const target={lat:+selected.latitude,lng:+selected.longitude,altitude:keepPassport?1.05:1.15};
   const handled=window.BetInsightStadiumFlight?.flyTo(globe,target,globeRotationDurationMs());
   if(!handled)globe.pointOfView(target,globeRotationDurationMs());
  }
