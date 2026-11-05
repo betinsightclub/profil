@@ -70,7 +70,7 @@ a{color:var(--aqua)}.shell{min-height:100vh}.header{height:76px;border-bottom:1p
 </main></div>
 <div class="lock hide" id="lock"><div class="lockcard"><img src="https://betinsight.club/assets/betinsight-logo.png" alt="BetInsight"><h2 data-i="restricted">Geschützte Entwickler-Vorschau</h2><p id="lockMessage" data-i="loginInfo">Öffne unten das BetInsight Admin Center, melde dich dort an und klicke anschließend auf „🌍 Stadionwelt (Test)“. Wichtig: im selben Browser-Tab bleiben.</p><a class="btn primary" href="/admin/" id="adminLink" data-i="goAdmin">Zum Backoffice-Login</a><button class="btn" id="retry" data-i="retry">Zugang erneut prüfen</button></div></div><div class="toast hide" id="toast"></div>
 <script async src="https://unpkg.com/globe.gl@2.45.0/dist/globe.gl.min.js" onload="window.dispatchEvent(new Event('stadium-globe-ready'))" onerror="window.dispatchEvent(new Event('stadium-globe-error'))"></script>
-<script src="./fallback-2d.js"></script><script src="./passport-journey.js"></script>
+<script src="./fallback-2d.js"></script><script src="./passport-journey.js"></script><script src="./globe-flight.js"></script>
 <script>
 "use strict";
 if(new URLSearchParams(location.search).get("embedded")==="1")document.body.classList.add("embedded");
@@ -234,6 +234,7 @@ function leaf2DConfig(zoom=2,mode=mapMode){
  };
 }
 async function showLeaf2D(zoom=2,mode="map"){
+ window.BetInsightStadiumFlight?.cancel();
  mapRequested=false;mapMode=mode;syncModeControls();
  $("globe").classList.add("hide");$("globeWait").classList.add("hide");
  $("emptyglobe").style.display="none";$("detailMap").classList.remove("hide");
@@ -245,6 +246,7 @@ async function showLeaf2D(zoom=2,mode="map"){
  window.BetInsightStadiumJourney?.refresh();updateSatellitePanel();updateSatLink();
 }
 function fallbackTo2D(reason){
+ window.BetInsightStadiumFlight?.cancel();
  if(globeUnavailable)return;
  console.warn("Stadionwelt 3D is unavailable; opening map",reason);
  globeUnavailable=true;globe=null;globeVisitSignature="";
@@ -602,6 +604,7 @@ function updateSatLink(){const a=$("satExternal");if(!a)return;
  a.href=p?"https://www.google.com/maps/@"+Number(p.lat).toFixed(6)+","+Number(p.lng).toFixed(6)+",18z/data=!3m1!1e3":googleSatUrl();
  a.classList.toggle("hide",mapMode!=="satellite")}
 function showMap(zoom=14.2,desiredMode="map"){
+ window.BetInsightStadiumFlight?.cancel();
  if(window.BetInsightLeaflet2D?.active()||!hasWebGL2()){void showLeaf2D(zoom,desiredMode);return}
  if(!window.maplibregl){mapRequested=true;pendingMapMode=desiredMode;void loadStreetAssets();return}
  mapRequested=false;mapMode=desiredMode;syncModeControls();
@@ -618,6 +621,7 @@ function showMap(zoom=14.2,desiredMode="map"){
 }
 function showSatellite(){showMap(12,"satellite")}
 function showGlobe(){
+ window.BetInsightStadiumFlight?.cancel();
  if(globeUnavailable){void retryGlobe();return}
  mapMode="globe";mapRequested=false;syncModeControls();$("satCredit").classList.add("hide");updateSatLink();
  $("globe").classList.remove("hide");$("detailMap").classList.add("hide");
@@ -664,6 +668,7 @@ function initGlobe(){const holder=$("globe");if(typeof Globe==="undefined"){ $("
 globe.width(w).height(h).pointOfView(selected?{lat:+selected.latitude,lng:+selected.longitude,altitude:1.65}:{lat:21,lng:9,altitude:2.5},0);globe.controls().autoRotate=false;globe.controls().autoRotateSpeed=0;globe.controls().enableDamping=true;globe.controls().minDistance=118;new ResizeObserver(()=>{if(globe&&holder.clientWidth&&holder.clientHeight)globe.width(holder.clientWidth).height(holder.clientHeight)}).observe(holder);
  const canvas=holder.querySelector("canvas");
  if(!canvas)throw Error("GLOBE_RENDERER_CANVAS_MISSING");
+ canvas.addEventListener("pointerdown",()=>window.BetInsightStadiumFlight?.cancel(),{passive:true});
  canvas.addEventListener("webglcontextlost",()=>fallbackTo2D("webgl_context_lost"),{once:true});
  renderDots();window.BetInsightStadiumJourney?.refresh();}catch(e){globe=null;if(!globeUnavailable)fallbackTo2D(e);else console.warn("Stadionwelt 3D retry initialization failed",e)}}
 function renderDots(){
@@ -687,7 +692,11 @@ function selectStadium(id,keepPassport=false,forceFocus=false){
   if(window.BetInsightLeaflet2D?.active())window.BetInsightLeaflet2D.focus(selected);
   updateSatLink();return;
  }
- if(globe)globe.pointOfView({lat:+selected.latitude,lng:+selected.longitude,altitude:keepPassport?1.52:1.65},globeRotationDurationMs());
+ if(globe){
+  const target={lat:+selected.latitude,lng:+selected.longitude,altitude:keepPassport?1.52:1.65};
+  const handled=window.BetInsightStadiumFlight?.flyTo(globe,target,globeRotationDurationMs());
+  if(!handled)globe.pointOfView(target,globeRotationDurationMs());
+ }
 }
 function renderRight(force){if(force)tab=force;if(tab==="review")tab="details";document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.dataset.tab===tab));let el=$("rightBody"),scroller=document.querySelector(".right"),scroll=scroller?.scrollTop||0;if(tab==="details")el.innerHTML=detailHTML();else if(tab==="suggest")el.innerHTML=formHTML();else if(tab==="review")el.innerHTML=queueHTML()+proofQueueHTML();else el.innerHTML=passHTML();attachRight();if(tab==="passport")window.BetInsightStadiumJourney?.bind();if(tab==="details")drawPhotos();wirePhotoFallbacks(el);if(scroller&&tab==="passport")scroller.scrollTop=scroll;window.BetInsightStadiumJourney?.refresh()}
 function detailHTML(){if(!selected)return "<div class='kicker'>BETINSIGHT FOOTBALL WORLD</div><h3>"+esc(t("details"))+"</h3><div class='empty'>🌍 "+esc(t("globeHint"))+"</div><p class='muted'>"+esc(t("previewNotice"))+"</p>";const s=selected,teams=clubMap(s.id).concat((s.details?.submitted_clubs||[]).filter(x=>!clubMap(s.id).includes(x))),up=fixtures.filter(x=>Number(x.stadium_id)===Number(s.id)).slice(0,5),ids=tipLinks.filter(x=>Number(x.stadium_id)===Number(s.id)).map(x=>x.tipp_id),rows=tips.filter(x=>ids.includes(x.tipp_id)),wins=rows.filter(x=>x.ergebnis_status==="GEWONNEN").length,losses=rows.filter(x=>x.ergebnis_status==="VERLOREN").length;return "<div class='kicker'>"+(s.is_verified?"✓ "+t("verified"):"◌ "+t("notVerified"))+"</div><h3>"+esc(s.name)+"</h3>"+(hasVisited(s.id)?"<div class='infoitem visit-flag-label'>🚩 "+esc(t("alreadyVisited"))+"</div>":"")+"<p class='muted'>📍 "+esc([s.city,s.country].filter(Boolean).join(", "))+"</p>"+photoCoverHTML(s)+"<button id='mapSelected' class='btn w100' type='button' style='margin:8px 0 0'>🗺️ "+esc(t("showOnMap"))+"</button><div class='infogrid'><div class='infobox'><small>"+t("capacity")+"</small><strong>"+fmt(s.capacity)+"</strong></div><div class='infobox'><small>"+t("country")+"</small><strong>"+esc(s.country)+"</strong></div></div><div class='sectionhead'>⚽ "+t("club")+"</div>"+(teams.length?teams.map(x=>"<div class='infoitem'>"+esc(x)+"</div>").join(""):"<div class='empty'>"+t("noClub")+"</div>")+"<div class='sectionhead'>📅 "+t("upcoming")+"</div>"+(up.length?up.map(x=>"<div class='infoitem'><strong>"+esc(x.home_team)+" – "+esc(x.away_team)+"</strong><br><span class='mini'>"+esc(x.league||"")+" · "+esc(new Date(x.kickoff_at).toLocaleString(lang))+"</span></div>").join(""):"<div class='empty'>"+t("noUpcoming")+"</div>")+"<div class='sectionhead'>📊 "+t("tips")+"</div>"+(rows.length?"<div class='infogrid'><div class='infobox'><small>"+t("win")+"</small><strong style='color:var(--lime)'>"+wins+"</strong></div><div class='infobox'><small>"+t("loss")+"</small><strong style='color:var(--danger)'>"+losses+"</strong></div></div>"+rows.map(x=>"<div class='infoitem'>"+esc(x.spiel)+" · "+esc(x.spiel_datum)+"<br><strong>"+esc(x.ergebnis_status)+"</strong></div>").join(""):"<div class='empty'>"+t("noTips")+"</div>")+"<div style='margin-top:14px'><button class='btn primary w100' id='visit'>✓ "+t("visit")+"</button></div><div class='sectionhead'>📷 "+t("gallery")+"</div><div id='stadiumPhotos'></div><p class='mini'>"+t("notPublic")+"</p>"}
@@ -754,6 +763,7 @@ $("stadiumRotationDuration").addEventListener("input",event=>{
 $("zoomInBtn").addEventListener("click",()=>zoomStadiumWorld(1));
 $("zoomOutBtn").addEventListener("click",()=>zoomStadiumWorld(-1));
 $("resetBtn").addEventListener("click",()=>{
+ window.BetInsightStadiumFlight?.cancel();
  if(globeUnavailable){if(window.BetInsightLeaflet2D?.active())window.BetInsightLeaflet2D.reset();
  else if(streetMap)streetMap.flyTo({center:[9,21],zoom:2});else showMap(2,"map");return}
  showGlobe();globe?.pointOfView({lat:21,lng:9,altitude:2.5},1000);
