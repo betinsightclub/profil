@@ -65,11 +65,11 @@ select{font:inherit;background:#092638;color:white;border:1px solid #52839b;padd
 </head>
 <body>
 <main>
-<header><div class="brand">BETINSIGHT<span>.CLUB</span> · GRÜN-FINDER</div><nav><a href="/admin/testlabor/">← Testlabor</a> · <a href="/admin/testlabor/duell/">Virtuelles Tippduell</a></nav></header>
+<header><div class="brand">BETINSIGHT<span>.CLUB</span> · QUOTEN-FINDER</div><nav><a href="/admin/">← Admin Center</a></nav></header>
 <div class="overline">Internes Analysewerkzeug · keine echte Wettabgabe</div>
 <h1>BetInsight Quoten-Finder</h1>
 <p class="muted">Einfacher Überblick über gespeicherte Quoten, aktuelle Daten und Preisabstände. Auswertungen sind keine Gewinnversprechen oder automatisch freigegebenen Tipps.</p>
-<section id="locked" class="panel"><h2>Zugang wird geprüft …</h2><p id="authStatus">Die Sitzung wird geprüft. Öffne diesen Bereich aus dem angemeldeten Testlabor im selben Tab.</p><p><a href="/admin/testlabor/" style="display:inline-block;padding:10px 16px;border:1px solid #58bca2;border-radius:10px;color:#baffea;font-weight:800">← Zurück zum Testlabor – dort Grün-Finder anklicken</a></p></section>
+<section id="locked" class="panel"><h2 id="authTitle">Deine Anmeldung wird geprüft</h2><p id="authStatus" role="status">Du wirst bei Bedarf zum Admin Center weitergeleitet. Nach der Anmeldung kommst du automatisch hierher zurück.</p><p><a href="/admin/?next=gruen-finder" style="display:inline-block;padding:12px 18px;border-radius:10px;background:#26cfae;color:#05232e;font-weight:850;text-decoration:none">Zum Admin-Login und zurück zum Quoten-Finder</a></p></section>
 <div id="workspace" class="hidden">
 <section id="simpleDashboard" class="panel simple-main">
  <div class="overline">BetInsight · Schnellanalyse</div>
@@ -235,10 +235,24 @@ async function details(key,id,section){
 }
 function showScout(key){return details(key,"soccerDetails","soccerPanel")}
 function showOtherOdds(key){return details(key,"otherOddsDetails","additionalOddsScout")}
-(async()=>{const s=session();if(!s){$("authStatus").textContent="Bitte das Testlabor zuerst im selben Tab über das BetInsight Admin Center öffnen. Ohne gültige Session ist kein Datenabruf möglich.";return}
- rawToken=s.token;
- try{await duelCall("list");$("locked").classList.add("hidden");$("workspace").classList.remove("hidden")}
- catch(e){$("authStatus").textContent="Master-Admin-Sitzung nicht bestätigt: "+String(e.message||e)}
+(async()=>{
+ const saved=session();
+ if(!saved){
+   $("authTitle").textContent="Hier anmelden – anschließend direkt zum Quoten-Finder";
+   $("authStatus").textContent="Der Chat-Link hat einen neuen Browser-Tab geöffnet. Deine Admin-Anmeldung ist hier nicht gespeichert. Du wirst jetzt im selben Tab zum Admin Center geleitet; nach der Anmeldung öffnet sich diese Seite automatisch.";
+   location.replace("/admin/?next=gruen-finder");
+   return;
+ }
+ rawToken=saved.token;
+ try{
+   await duelCall("list");
+   $("locked").classList.add("hidden");
+   $("workspace").classList.remove("hidden");
+ }catch(error){
+   rawToken="";
+   $("authTitle").textContent="Anmeldung kann nicht bestätigt werden";
+   $("authStatus").textContent="Bitte prüfe deine Anmeldung im Admin Center. Die Quoten-Finder-Daten werden nicht ohne gültige Master-Sitzung geladen.";
+ }
 })();
 </script>
 <script src="/admin/testlabor/green-scanner-v1.js?v=2" defer></script>
