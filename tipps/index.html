@@ -396,7 +396,7 @@ function drawModel(){
  var who=state.provider,loaded=(who==="Martin"||who==="Frank")?(state.performanceLoaded&&state.resultsLoaded):state.resultsLoaded;
  var v=loaded?stats(who,state.period):null;
  var sum=$("perfTotalStake"),ret=$("perfTotalReturn"),net=$("perfNet"),hint=$("perfModelHint");
- if(!v||!v.rows.length){sum.textContent="–";ret.textContent="–";net.textContent="–";net.className="";$("perfUnitBasis").textContent="Noch keine gewerteten Tipps in dieser Gruppe.";hint.textContent=loaded?"Für diese Kategorie liegen noch keine gewerteten Tipps vor. Es werden keine Beispielergebnisse erfunden.":"Bestätigte Ergebnisse werden geladen …";return}
+ if(!v||!v.rows.length){sum.textContent="–";ret.textContent="–";net.textContent="–";net.className="";$("perfUnitBasis").textContent="Noch keine gewerteten Tipps in dieser Gruppe.";hint.textContent=loaded?"Für diese Kategorie liegen noch keine gewerteten Tipps vor. Es werden keine Beispielergebnisse erfunden.":"Bestätigte Ergebnisse werden geladen …";renderPerformanceDetails();return}
  var risk=v.unitSum*n,profit=v.profit*n,complete=!v.missing&&!v.noStake;
  sum.textContent=complete?euro(risk):"–";
  ret.textContent=complete?euro(risk+profit):"–";
