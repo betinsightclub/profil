@@ -182,7 +182,7 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
       <div class="perf-top"><div class="author"><div class="avatar" id="avatar">M</div><div><small>TIPPGEBER-PERFORMANCE · MODELLRECHNUNG</small><strong id="perfName">Martin</strong></div></div><div class="windows" id="perfWindows" role="group" aria-label="Tippgruppen, neueste zuerst"></div></div>
       <div class="kpis">
         <div class="kpi"><span class="kpi-label">Trefferquote</span><span class="kpi-value neutral" id="hit">–</span><span class="kpi-foot" id="hitSub">Gewonnene / entschiedene Tipps</span></div>
-        <div class="kpi"><span class="kpi-label">Wett-ROI</span><span class="kpi-value" id="roi">–</span><span class="kpi-foot">Gleicher Wetteinsatz · ohne Tippkosten</span></div>
+        <div class="kpi"><span class="kpi-label">Wett-ROI</span><span class="kpi-value" id="roi">–</span><span class="kpi-foot">Nach Unit-Anzahl gewichtet · ohne Tippkosten</span></div>
         <div class="kpi"><span class="kpi-label">Gewonnen</span><span class="kpi-value green" id="wins">–</span><span class="kpi-foot">Bestätigte Gewinne</span></div>
         <div class="kpi"><span class="kpi-label">Verloren</span><span class="kpi-value red" id="losses">–</span><span class="kpi-foot">Bestätigte Verluste</span></div>
       </div>
@@ -192,17 +192,17 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
       </div>
       <div class="perf-model">
         <div class="perf-stake-head">
-          <div><strong>Hypothetischer Wetteinsatz je Tipp</strong><small>Konstanter Einsatz, unabhängig von BetInsight-Freischalt-Units</small></div>
+          <div><strong>Hypothetischer Wetteinsatz je Unit</strong><small>Gruppensumme aus den tatsächlich je Tipp geforderten Units × gewähltem Euro-Wert</small></div>
           <output id="perfStakeValue" class="perf-stake-value" for="perfStake">10,00 €</output>
         </div>
-        <input type="range" class="perf-range" id="perfStake" min="1" max="100" step="1" value="10" aria-label="Wetteinsatz je Tipp in Euro, 1 bis 100">
-        <div class="perf-range-labels"><span>1 €</span><span>100 €</span></div>
+        <input type="range" class="perf-range" id="perfStake" min="1" max="100" step="1" value="10" aria-label="Wetteinsatz je Unit in Euro, 1 bis 100">
+        <div class="perf-range-labels"><span>1 € je Unit</span><span>100 € je Unit</span></div><p class="perf-model-hint" id="perfUnitBasis">Unit-Gesamtgewicht wird geladen …</p>
         <div class="perf-model-figures" aria-live="polite">
           <div class="perf-figure"><small>Gesamteinsätze</small><strong id="perfTotalStake">–</strong></div>
           <div class="perf-figure"><small>Gesamtauszahlungen</small><strong id="perfTotalReturn">–</strong></div>
           <div class="perf-figure"><small>Rechnerischer Gewinn / Verlust</small><strong id="perfNet">–</strong></div>
         </div>
-        <p id="perfModelHint" class="perf-model-hint">Historische Modellrechnung, ohne Freischaltkosten. Vergangene Ergebnisse sind keine Garantie für zukünftige Gewinne.</p>
+        <p id="perfModelHint" class="perf-model-hint">Rechnerisches Gesamtergebnis der gewählten Tippgruppe, ohne Abzug der Freischaltkosten. Vergangene Ergebnisse sind keine Garantie für zukünftige Gewinne.</p>
       </div>
     </section>
     <div class="section-top"><div><h2 id="feedTitle">Neue Tipps von Martin</h2><p class="lead">Nur noch nicht angepfiffene Tipps. Begegnung, Markt und Auswahl bleiben vor der Freischaltung geschützt.</p></div></div>
@@ -226,10 +226,10 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
 <dialog id="roiExplain" class="roi-dialog" aria-labelledby="roiDialogTitle">
   <button type="button" class="roi-dialog-close" id="roiHelpClose" aria-label="Erklärung schließen">×</button>
   <h2 id="roiDialogTitle">Wie wird der ROI berechnet?</h2>
-  <p>Zur fairen Vergleichbarkeit wird jeder Tipp mit dem gleichen rechnerischen Einsatz bewertet. Bei einem gewonnenen Tipp zählt der Gewinn entsprechend der tatsächlichen Quote, bei einem verlorenen Tipp der vollständige Einsatz als Verlust.</p>
-  <p>Aus allen Gewinnen und Verlusten berechnen wir die prozentuale Rendite (ROI). Kosten für die Freischaltung von Tipps sind darin nicht enthalten.</p>
-  <p>Die Gruppen 1–10, 11–20 usw. enthalten die zuletzt bestätigten, entschiedenen Tipps in absteigender Reihenfolge. Der Euro-Regler verändert den hypothetischen Einsatz und Gewinnbetrag, nicht die prozentuale Rendite. Offene und annullierte Tipps zählen nicht als Gewinn oder Verlust.</p><p>Die Werte zeigen vergangene Ergebnisse und stellen weder eine Wetteinsatzempfehlung noch eine Gewinngarantie dar.</p>
-  <p class="roi-extra-note" id="roiExtraNote" hidden>Für mindestens einen Tipp fehlt eine gültige Quote. Deshalb wird aktuell kein vollständiger ROI angezeigt.</p>
+  <p>Jeder tatsächlich veröffentlichte Tipp wird mit seiner ursprünglich hinterlegten, für die Freischaltung geforderten Anzahl an BetInsight-Units gewichtet. Der hypothetische Wetteinsatz dieses Tipps ergibt sich aus geforderten Units × eingestelltem Euro-Wert je Unit (1 bis 100 €). Für jeden Tipp werden Gewinn oder Verlust anhand seiner ursprünglichen Quote berechnet.</p>
+  <p>Die Anzeige fasst alle Tipps der gewählten Gruppe (1–10, 11–20 usw. oder Gesamt) zusammen: Gesamteinsätze, Gesamtauszahlungen sowie gesamten Nettogewinn/-verlust. Wett-ROI = gesamter rechnerischer Nettogewinn/-verlust ÷ gesamte rechnerische Wetteinsätze × 100. Die Units dienen nur als Einsatzgewichtung; sie werden nicht zusätzlich als Freischaltkosten abgezogen.</p>
+  <p>Beispiel: Ein Tipp mit 5 geforderten Units, 10 € je Unit und Quote 2,30 bedeutet 50 € rechnerischen Einsatz. Gewonnen: 115 € Auszahlung, 65 € Nettogewinn. Verloren: 50 € Verlust. Weil die Unit-Gewichtung und die Quote je Tipp unterschiedlich sind, ist der gewichtete Wett-ROI anders als bei gleichen Einsätzen je Tipp. Der Euro-Regler verändert die Euro-Gesamtsummen, bei gleichbleibender Gewichtung aber nicht den ROI-Prozentsatz. Ältere Tipps mit 0 geforderten Units tragen 0 € zum Modell-Einsatz bei und zählen weiterhin zur Trefferquote.</p><p>Die Werte zeigen vergangene Ergebnisse und stellen weder eine Wetteinsatzempfehlung noch eine Gewinngarantie dar.</p>
+  <p class="roi-extra-note" id="roiExtraNote" hidden>Für einen Tipp fehlen gültige Quoten oder Unit-Angaben, oder die ausgewählte Gruppe hat keinen positiven Modell-Einsatz. Der ROI kann daher nicht korrekt angezeigt werden.</p>
 </dialog>
 <script>
 (function(){
@@ -255,20 +255,44 @@ function token(){var s=window.BetInsightSession;if(!s)return"";return s.getDashb
 function latest(rows){var map=new Map();rows.slice().sort(sortNew).forEach(function(r){var id=str(r.tipp_id||r.ergebnis_id);if(id&&!map.has(id))map.set(id,r)});return Array.from(map.values()).sort(sortNew)}
 function decided(who){
  var src=(who==="Martin"||who==="Frank")?state.performanceResults:state.results;
- return latest(src.filter(function(r){return belongs(r,who)&&["won","lost"].includes(status(r.ergebnis_status))}));
+ var rows=latest(src.filter(function(r){return belongs(r,who)&&["won","lost"].includes(status(r.ergebnis_status))}));
+ if(who==="Martin"||who==="Frank"){
+  // Keep the performance service's eligibility/order unchanged; add the Unit price
+  // from the separate public result snapshot (the compact performance list lacks it).
+  var unitPrices=new Map(state.results.map(function(r){return [str(r.tipp_id),r.preis_units]}));
+  return rows.map(function(r){
+   var id=str(r.tipp_id);
+   return Object.assign({},r,{preis_units:unitPrices.has(id)?unitPrices.get(id):null});
+  });
+ }
+ return rows;
 }
 function stats(who,period){
  var all=decided(who),offset=period==="all"?0:(Number(period)||0)*10;
  var use=period==="all"?all:all.slice(offset,offset+10);
  var w=use.filter(function(r){return status(r.ergebnis_status)==="won"}).length,l=use.length-w;
- var missing=use.some(function(r){return !(numeric(r.quote)>1)});
- var profit=use.reduce(function(acc,r){var q=numeric(r.quote);return acc+(status(r.ergebnis_status)==="won"?(Number.isFinite(q)?q-1:0):-1)},0);
- return {rows:use,w:w,l:l,total:all.length,hit:use.length?w/use.length*100:null,roi:use.length&&!missing?profit/use.length*100:null,profit:profit,missing:missing};
+ var missing=use.some(function(r){return !(numeric(r.quote)>1)||r.preis_units==null||
+  str(r.preis_units)===""||!Number.isFinite(numeric(r.preis_units))||numeric(r.preis_units)<0});
+ var unitSum=use.reduce(function(acc,r){
+  var u=numeric(r.preis_units);
+  return acc+(r.preis_units!=null&&str(r.preis_units)!==""&&Number.isFinite(u)&&u>=0?u:0);
+ },0);
+ var zeroUnits=use.filter(function(r){
+  return r.preis_units!=null&&str(r.preis_units)!==""&&numeric(r.preis_units)===0;
+ }).length;
+ var profit=use.reduce(function(acc,r){
+  var q=numeric(r.quote),u=numeric(r.preis_units);
+  if(r.preis_units==null||str(r.preis_units)===""||!Number.isFinite(u)||u<0||!(q>1))return acc;
+  return acc+u*(status(r.ergebnis_status)==="won"?(q-1):-1);
+ },0);
+ return {rows:use,w:w,l:l,total:all.length,hit:use.length?w/use.length*100:null,
+  roi:use.length&&!missing&&unitSum>0?profit/unitSum*100:null,
+  profit:profit,unitSum:unitSum,zeroUnits:zeroUnits,missing:missing,noStake:unitSum<=0};
 }
 function mini(){
  [["Martin","martinMini"],["Frank","frankMini"],["Schulung","trainingMini"],["Testphase","testMini"]].forEach(function(item){
   var el=$(item[1]);if(!el)return;el.replaceChildren();
-  var loaded=(item[0]==="Martin"||item[0]==="Frank")?state.performanceLoaded:state.resultsLoaded;
+  var loaded=(item[0]==="Martin"||item[0]==="Frank")?(state.performanceLoaded&&state.resultsLoaded):state.resultsLoaded;
   if(!loaded){el.textContent="Performance wird geladen …";return}
   var a=stats(item[0],"0"),b=stats(item[0],"all");
   if(!b.total){el.textContent="Noch keine gewerteten Tipps";return}
@@ -283,21 +307,25 @@ function euro(n){return new Intl.NumberFormat("de-DE",{style:"currency",currency
 function drawModel(){
  var n=Math.max(1,Math.min(100,Math.round(Number(state.stake)||10)));
  state.stake=n;$("perfStake").value=String(n);$("perfStakeValue").textContent=euro(n);
- var who=state.provider,loaded=(who==="Martin"||who==="Frank")?state.performanceLoaded:state.resultsLoaded;
+ var who=state.provider,loaded=(who==="Martin"||who==="Frank")?(state.performanceLoaded&&state.resultsLoaded):state.resultsLoaded;
  var v=loaded?stats(who,state.period):null;
  var sum=$("perfTotalStake"),ret=$("perfTotalReturn"),net=$("perfNet"),hint=$("perfModelHint");
- if(!v||!v.rows.length){sum.textContent="–";ret.textContent="–";net.textContent="–";net.className="";hint.textContent=loaded?"Für diese Kategorie liegen noch keine gewerteten Tipps vor. Es werden keine Beispielergebnisse erfunden.":"Bestätigte Ergebnisse werden geladen …";return}
- var risk=v.rows.length*n,profit=v.profit*n;
- sum.textContent=euro(risk);ret.textContent=v.missing?"–":euro(risk+profit);
- net.textContent=v.missing?"–":(profit>0?"+":"")+euro(profit);
- net.className=v.missing?"neutral":profit>=0?"green":"red";
- hint.textContent=v.missing?"Für mindestens einen Tipp fehlt eine gültige Quote. Deshalb kann die Rendite nicht vollständig berechnet werden.":"Modell mit gleichem Wetteinsatz je Tipp; ohne Freischaltkosten, Gebühren und Steuern. Kein realer Kundenkontostand. Historische Ergebnisse garantieren keine Gewinne.";
+ if(!v||!v.rows.length){sum.textContent="–";ret.textContent="–";net.textContent="–";net.className="";$("perfUnitBasis").textContent="Noch keine gewerteten Tipps in dieser Gruppe.";hint.textContent=loaded?"Für diese Kategorie liegen noch keine gewerteten Tipps vor. Es werden keine Beispielergebnisse erfunden.":"Bestätigte Ergebnisse werden geladen …";return}
+ var risk=v.unitSum*n,profit=v.profit*n,complete=!v.missing&&!v.noStake;
+ sum.textContent=complete?euro(risk):"–";
+ ret.textContent=complete?euro(risk+profit):"–";
+ net.textContent=complete?(profit>0?"+":"")+euro(profit):"–";
+ net.className=!complete?"neutral":profit>=0?"green":"red";
+ $("perfUnitBasis").textContent="Ausgewählte Gruppe: "+v.rows.length+" gewertete Tipps · "+
+  new Intl.NumberFormat("de-DE",{maximumFractionDigits:2}).format(v.unitSum)+" ursprünglich geforderte Units insgesamt"+
+  (v.zeroUnits?" · "+v.zeroUnits+" Tipp(s) mit 0 Units":"")+".";
+ hint.textContent=v.missing?"Mindestens einem Tipp fehlen gültige Quote oder Unit-Angabe; die Gruppensumme kann nicht vollständig berechnet werden.":v.noStake?"Diese Gruppe enthält keinen positiven Unit-Einsatz. Daher ist kein Wett-ROI berechenbar.":"Gesamtergebnis der gewählten Tippgruppe: pro Tipp geforderte Units × Euro je Unit, dann nach Originalquote abgerechnet und summiert. Ohne Freischaltkosten, Gebühren und Steuern. Kein realer Kundenkontostand; keine Gewinngarantie.";
 }
 function performance(){
  var who=state.provider,box=$("performance");box.hidden=false;
  $("perfName").textContent=who==="Schulung"?"Schulungstipps":who==="Testphase"?"User-Testphase":who;
  $("avatar").textContent=who==="Testphase"?"T":who==="Schulung"?"S":who[0];
- var loaded=(who==="Martin"||who==="Frank")?state.performanceLoaded:state.resultsLoaded;
+ var loaded=(who==="Martin"||who==="Frank")?(state.performanceLoaded&&state.resultsLoaded):state.resultsLoaded;
  var all=loaded?decided(who):[];
  var windows=$("perfWindows");windows.replaceChildren();
  if(state.period!=="all"&&(Number(state.period)||0)*10>=all.length)state.period="0";
