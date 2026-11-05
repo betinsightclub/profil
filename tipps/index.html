@@ -142,6 +142,7 @@ h2{font-size:clamp(21px,2.7vw,26px);margin:0 0 6px;letter-spacing:-.015em}
 .roi-dialog-close{position:absolute;right:17px;top:17px;width:33px;height:33px;display:grid;place-items:center;border:1px solid #4e93b0;border-radius:10px;background:#0a3044;color:#fff;font-size:20px;cursor:pointer}
 .roi-dialog-close:hover{background:#17678b}
 .roi-extra-note{color:#ffe5ac!important}
+.perf-history-warning{font-size:12px;line-height:1.55;border:1px solid #9b7b42;background:#59482544;color:#ffdf9f;border-radius:10px;padding:11px 14px;margin:14px 0 0}.perf-history-warning[hidden]{display:none}
 .alert{padding:20px;border:1px solid #295f70;background:#0b3445;border-radius:14px;color:#bad5e4;line-height:1.55}
 .unlock-success{padding:15px 18px;background:linear-gradient(110deg,#0b4454,#0a3444);border:1px solid #259caa;color:#defcf8;border-radius:12px;font-size:13px;font-weight:700;line-height:1.55;margin-bottom:18px}.unlock-success[hidden]{display:none}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
@@ -186,6 +187,7 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
         <div class="kpi"><span class="kpi-label">Gewonnen</span><span class="kpi-value green" id="wins">–</span><span class="kpi-foot">Bestätigte Gewinne</span></div>
         <div class="kpi"><span class="kpi-label">Verloren</span><span class="kpi-value red" id="losses">–</span><span class="kpi-foot">Bestätigte Verluste</span></div>
       </div>
+      <p id="perfHistoryNotice" class="perf-history-warning" role="status" hidden></p>
       <div class="perf-bottom">
         <div><p class="mini-label" id="trackTitle">Die letzten bewerteten Tipps</p><div class="streak" id="streak"></div><p class="legend">G = gewonnen · V = verloren · Neueste Bewertung zuerst</p></div>
         <div><p class="mini-label">Gewinn-/Verlustverteilung</p><div class="meter"><div class="meter-fill" id="meterFill"></div></div><div class="wl-line"><span id="winLine">Gewonnen: –</span><span id="lossLine">Verloren: –</span></div><div class="roi-help-row"><button type="button" id="roiHelpTrigger" class="roi-help-trigger" aria-label="Wie wird der ROI berechnet?" aria-haspopup="dialog" aria-controls="roiExplain" title="Wie wird der ROI berechnet?">?</button></div></div>
@@ -319,7 +321,7 @@ function drawModel(){
  $("perfUnitBasis").textContent="Ausgewählte Gruppe: "+v.rows.length+" gewertete Tipps · "+
   new Intl.NumberFormat("de-DE",{maximumFractionDigits:2}).format(v.unitSum)+" ursprünglich geforderte Units insgesamt"+
   (v.zeroUnits?" · "+v.zeroUnits+" Tipp(s) mit 0 Units":"")+".";
- hint.textContent=v.missing?"Mindestens einem Tipp fehlen gültige Quote oder Unit-Angabe; die Gruppensumme kann nicht vollständig berechnet werden.":v.noStake?"Diese Gruppe enthält keinen positiven Unit-Einsatz. Daher ist kein Wett-ROI berechenbar.":"Gesamtergebnis der gewählten Tippgruppe: pro Tipp geforderte Units × Euro je Unit, dann nach Originalquote abgerechnet und summiert. Ohne Freischaltkosten, Gebühren und Steuern. Kein realer Kundenkontostand; keine Gewinngarantie.";
+ hint.textContent=v.missing?"Mindestens einem Tipp fehlen gültige Quote oder Unit-Angabe; die Gruppensumme kann nicht vollständig berechnet werden.":v.noStake?"Historischer Bestand: Für diese Tippgruppe sind ausschließlich Tipps mit 0 geforderten Units gespeichert. Ohne ursprüngliches Einsatzgewicht lässt sich keine Wett-Rendite berechnen.":"Gesamtergebnis der gewählten Tippgruppe: pro Tipp geforderte Units × Euro je Unit, dann nach Originalquote abgerechnet und summiert. Ohne Freischaltkosten, Gebühren und Steuern. Kein realer Kundenkontostand; keine Gewinngarantie.";
 }
 function performance(){
  var who=state.provider,box=$("performance");box.hidden=false;
@@ -349,19 +351,26 @@ function performance(){
   $("hitSub").textContent=loaded?"Noch keine gewonnenen/verlorenen Tipps":"Performance-Daten werden geladen";
   $("streak").replaceChildren();$("meterFill").style.width="0%";
   $("winLine").textContent="Gewonnen: –";$("lossLine").textContent="Verloren: –";
-  $("trackTitle").textContent="Noch keine bewerteten Tipps";$("roiExtraNote").hidden=true;
+  $("trackTitle").textContent="Noch keine bewerteten Tipps";$("roiExtraNote").hidden=true;$("perfHistoryNotice").hidden=true;
   drawModel();return;
  }
  var s=stats(who,state.period),len=s.rows.length;
  $("hit").textContent=s.hit===null?"–":percent(s.hit);
  $("hitSub").textContent=s.w+" gewonnen · "+s.l+" verloren · "+len+" ausgewertet";
- $("roi").textContent=s.roi===null?"–":(s.roi>0?"+":"")+percent(s.roi);
+ $("roi").textContent=s.roi===null?(s.noStake?"Nicht berechenbar":"–"):(s.roi>0?"+":"")+percent(s.roi);
  $("roi").className="kpi-value "+(s.roi===null?"neutral":s.roi>=0?"green":"red");
  $("wins").textContent=String(s.w);$("losses").textContent=String(s.l);
  $("meterFill").style.width=(s.hit||0)+"%";
  $("winLine").textContent="Gewonnen: "+s.w;$("lossLine").textContent="Verloren: "+s.l;
  $("trackTitle").textContent=state.period==="all"?"Die letzten 10 von "+len+" Bewertungen":"Die "+len+" Ergebnisse dieser Tippgruppe";
  $("roiExtraNote").hidden=!s.missing;
+ var historyNote=$("perfHistoryNotice");
+ if(s.noStake){
+  historyNote.textContent="Diese historischen Tipps haben zusammen 0 hinterlegte Freischalt-Units. Ohne positives Einsatzgewicht ist kein Wett-ROI berechenbar. Die Trefferquote bleibt davon unabhängig.";
+ }else if(s.zeroUnits){
+  historyNote.textContent=s.zeroUnits+" von "+len+" Tipps in dieser Gruppe haben 0 hinterlegte Freischalt-Units und gehen deshalb mit 0 € in die ROI-Modellrechnung ein. Der Wett-ROI beruht nur auf den übrigen "+(len-s.zeroUnits)+" Tipps mit positivem Einsatzgewicht; die Trefferquote enthält alle "+len+" Ergebnisse.";
+ }else historyNote.textContent="";
+ historyNote.hidden=!s.noStake&&!s.zeroUnits;
  var t=$("streak");t.replaceChildren();s.rows.slice(0,10).forEach(function(r){
   var cls=status(r.ergebnis_status),n=ele("span",cls,cls==="won"?"G":"V");
   n.title=shortDate(r.bestaetigt_am||r.spiel_datum)+" · "+str(r.spiel||r.tipp_id);t.appendChild(n)
