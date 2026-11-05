@@ -115,7 +115,7 @@ a{color:var(--aqua)}.shell{min-height:100vh}.header{height:76px;border-bottom:1p
   const startAltitude=Number.isFinite(Number(from.altitude))?Number(from.altitude):1.65;
   const targetAltitude=Number.isFinite(Number(target.altitude))?Number(target.altitude):1.65;
   // The globe first pulls back far enough to make the continental movement legible.
-  const highAltitude=Math.max(3.1,startAltitude,targetAltitude);
+  const highAltitude=Math.max(2.35,startAltitude,targetAltitude);
   const total=clamp(Number(durationMs)||8000,4000,30000);
   // Zoom phases remain quick at both 4 and 25-second travel settings.
   const zoomOutMs=Math.min(600,total*0.12);
@@ -254,17 +254,52 @@ function validRotationSeconds(value){
  const number=Number(value);
  return Number.isFinite(number)?Math.max(4,Math.min(25,Math.round(number))):ROTATION_DEFAULT_SECONDS;
 }
-let rotationSeconds=ROTATION_DEFAULT_SECONDS;
-try{const saved=localStorage.getItem(ROTATION_DURATION_KEY);if(saved!==null)rotationSeconds=validRotationSeconds(saved)}catch{}
+// The globe, street map and satellite map have independent travel speeds.
+const MAP_TRAVEL_SPEED_KEY="betinsight_stadium_street_travel_seconds_v1";
+const SATELLITE_TRAVEL_SPEED_KEY="betinsight_stadium_satellite_travel_seconds_v1";
+const MAP_TRAVEL_COPY={
+ de:{map:"Reisedauer Straßenkarte",satellite:"Reisedauer Satellitenkarte",hint:"Links schneller · Rechts langsamer"},
+ en:{map:"Street map travel time",satellite:"Satellite travel time",hint:"Left faster · Right slower"},
+ es:{map:"Duración del viaje en mapa",satellite:"Duración del viaje en satélite",hint:"Izquierda más rápido · Derecha más lento"},
+ pt:{map:"Tempo de viagem no mapa",satellite:"Tempo de viagem no satélite",hint:"Esquerda mais rápido · Direita mais devagar"},
+ it:{map:"Durata viaggio mappa",satellite:"Durata viaggio satellite",hint:"Sinistra più veloce · Destra più lento"},
+ fr:{map:"Durée de trajet sur carte",satellite:"Durée de trajet satellite",hint:"Gauche plus rapide · Droite plus lent"},
+ nl:{map:"Reistijd wegenkaart",satellite:"Reistijd satellietkaart",hint:"Links sneller · Rechts langzamer"},
+ zh:{map:"地圖旅行時間",satellite:"衛星地圖旅行時間",hint:"左側較快 · 右側較慢"}
+};
+function validMapTravelSeconds(value,fallback){
+ const n=Number(value);
+ return Number.isFinite(n)?Math.max(3,Math.min(15,Math.round(n))):fallback;
+}
+let rotationSeconds=ROTATION_DEFAULT_SECONDS,streetTravelSeconds=5,satelliteTravelSeconds=6;
+try{
+ const saved=localStorage.getItem(ROTATION_DURATION_KEY);
+ if(saved!==null)rotationSeconds=validRotationSeconds(saved);
+ const street=localStorage.getItem(MAP_TRAVEL_SPEED_KEY);
+ if(street!==null)streetTravelSeconds=validMapTravelSeconds(street,5);
+ const satellite=localStorage.getItem(SATELLITE_TRAVEL_SPEED_KEY);
+ if(satellite!==null)satelliteTravelSeconds=validMapTravelSeconds(satellite,6);
+}catch{}
 function globeRotationDurationMs(){return rotationSeconds*1000}
+function stadiumMapTravelDurationMs(mode=mapMode){
+ return (mode==="satellite"?satelliteTravelSeconds:streetTravelSeconds)*1000;
+}
+function activeTravelDurationMs(){
+ return mapMode==="globe"?globeRotationDurationMs():stadiumMapTravelDurationMs(mapMode);
+}
 function syncRotationControl(){
  const input=$("stadiumRotationDuration"),output=$("stadiumRotationValue");
  if(!input||!output)return;
- const lines=ROTATION_LABELS[lang]||ROTATION_LABELS.en;
- input.value=String(rotationSeconds);
- input.setAttribute("aria-label",lines[0]);$("stadiumRotationLabel").textContent=lines[0];
- $("stadiumRotationHint").textContent=lines[1];
- output.value=rotationSeconds+" s";output.textContent=rotationSeconds+" s";
+ const globeView=mapMode==="globe";
+ const lines=globeView?(ROTATION_LABELS[lang]||ROTATION_LABELS.en):null;
+ const mapLines=MAP_TRAVEL_COPY[lang]||MAP_TRAVEL_COPY.en;
+ const textLabel=globeView?lines[0]:mapLines[mapMode];
+ const speed=globeView?rotationSeconds:(mapMode==="satellite"?satelliteTravelSeconds:streetTravelSeconds);
+ input.min=globeView?"4":"3";input.max=globeView?"25":"15";input.step="1";
+ input.value=String(speed);
+ input.setAttribute("aria-label",textLabel);$("stadiumRotationLabel").textContent=textLabel;
+ $("stadiumRotationHint").textContent=globeView?lines[1]:mapLines.hint;
+ output.value=speed+" s";output.textContent=speed+" s";
 }
 
 const toast=(s)=>{const e=$("toast");e.textContent=s;e.classList.remove("hide");setTimeout(()=>e.classList.add("hide"),4500)};
@@ -310,7 +345,7 @@ function hasWebGL(kind){
 function hasWebGL2(){return hasWebGL("webgl2")}
 function leaf2DConfig(zoom=2,mode=mapMode){
  return {container:$("detailMap"),stadiums:filtered,visits,selected,zoom,mode,lang,
-  stadiumColor,capacityBand,selectedPinHtml:selectionPinHTML,journeyStops:window.BetInsightStadiumJourney?.tourStops()||[],journeyRouteFeatures:window.BetInsightStadiumJourney?.geo().features||[],journeyIndex:window.BetInsightStadiumJourney?.index()??-1,onSelect:id=>selectStadium(id),
+  stadiumColor,capacityBand,selectedPinHtml:selectionPinHTML,mapTravelDurationMs:mode=>stadiumMapTravelDurationMs(mode),journeyStops:window.BetInsightStadiumJourney?.tourStops()||[],journeyRouteFeatures:window.BetInsightStadiumJourney?.geo().features||[],journeyIndex:window.BetInsightStadiumJourney?.index()??-1,onSelect:id=>selectStadium(id),
   isPicking:()=>pickMode,onPick:(lat,lng)=>{const a=$("latitude"),b=$("longitude");
    if(a&&b){a.value=lat.toFixed(6);b.value=lng.toFixed(6);pickMode=false;toast("✓ "+a.value+", "+b.value)}},
   onMarkersRendered:n=>{if($("visitFlagCount"))$("visitFlagCount").textContent=fmt(n)}
@@ -711,7 +746,7 @@ function ensureStreet(){
   else console.info("Map tiles",message);
  });
 }
-function syncModeControls(){for(const [id,mode] of [["globeModeBtn","globe"],["mapModeBtn","map"],["satModeBtn","satellite"]]){const b=$(id);if(!b)continue;const on=mapMode===mode;b.classList.toggle("active",on);b.setAttribute("aria-pressed",String(on));if(mode==="globe"){b.disabled=false;b.title=globeUnavailable?(GLOBE_RETRY_LANG[lang]||GLOBE_RETRY_LANG.en).button:""}}}
+function syncModeControls(){for(const [id,mode] of [["globeModeBtn","globe"],["mapModeBtn","map"],["satModeBtn","satellite"]]){const b=$(id);if(!b)continue;const on=mapMode===mode;b.classList.toggle("active",on);b.setAttribute("aria-pressed",String(on));if(mode==="globe"){b.disabled=false;b.title=globeUnavailable?(GLOBE_RETRY_LANG[lang]||GLOBE_RETRY_LANG.en).button:""}}syncRotationControl()}
 function googleSatUrl(){const p=streetMap&&mapMode!=="globe"?streetMap.getCenter():selected?{lat:+selected.latitude,lng:+selected.longitude}:globe?.pointOfView()||{lat:20,lng:0};return "https://www.google.com/maps/@"+Number(p.lat).toFixed(6)+","+Number(p.lng).toFixed(6)+",18z/data=!3m1!1e3"}
 function applySatelliteLayer(){
  if(streetMap?.getLayer("eox-satellite"))streetMap.setLayoutProperty("eox-satellite","visibility",mapMode==="satellite"?"visible":"none");
@@ -737,7 +772,7 @@ function showMap(zoom=14.2,desiredMode="map"){
  streetMap.resize();applySatelliteLayer();updateSatellitePanel();updateSatLink();
  const p=selected?{lat:+selected.latitude,lng:+selected.longitude}:globe?.pointOfView()||{lat:20,lng:0};
  if(streetMap.setMaxZoom)streetMap.setMaxZoom(mapMode==="satellite"?13:20);
- streetMap.flyTo({center:[p.lng,p.lat],zoom:mapMode==="satellite"?Math.min(12,zoom):zoom,duration:700});window.BetInsightStadiumJourney?.refresh();
+ streetMap.flyTo({center:[p.lng,p.lat],zoom:mapMode==="satellite"?Math.min(12,zoom):zoom,duration:Math.min(2300,Math.round(stadiumMapTravelDurationMs(mapMode)*0.45)),curve:1.6,essential:true});window.BetInsightStadiumJourney?.refresh();
 }
 function showSatellite(){showMap(12,"satellite")}
 function showGlobe(){
@@ -809,7 +844,18 @@ function selectStadium(id,keepPassport=false,forceFocus=false){
  renderStreetVisitFlags();renderStreetSelectionMarker();
  if(same&&!forceFocus)return;
  if(mapMode==="map"||mapMode==="satellite"){
-  if(streetMap)streetMap.flyTo({center:[+selected.longitude,+selected.latitude],zoom:mapMode==="satellite"?12:keepPassport?9:14.2,duration:keepPassport?2800:850});
+  // Let MapLibre's native flyTo perform its natural zoom-out/pan/zoom-in.
+  // Use separate timings for street and satellite; neither depends on the globe's 4 seconds.
+  if(streetMap){
+   streetMap.stop?.();
+   streetMap.flyTo({
+    center:[+selected.longitude,+selected.latitude],
+    zoom:mapMode==="satellite"?12:keepPassport?13:14.2,
+    duration:stadiumMapTravelDurationMs(mapMode),
+    curve:1.6,
+    essential:true
+   });
+  }
   if(window.BetInsightLeaflet2D?.active())window.BetInsightLeaflet2D.focus(selected);
   updateSatLink();return;
  }
@@ -961,9 +1007,23 @@ document.querySelectorAll(".tab:not(.hide)").forEach(b=>b.addEventListener("clic
  globe.pointOfView({lat:p.lat,lng:p.lng,altitude},380);
 }
 $("stadiumRotationDuration").addEventListener("input",event=>{
- rotationSeconds=validRotationSeconds(event.target.value);
+ try{
+  if(mapMode==="globe"){
+   rotationSeconds=validRotationSeconds(event.target.value);
+   localStorage.setItem(ROTATION_DURATION_KEY,String(rotationSeconds));
+  }else if(mapMode==="satellite"){
+   satelliteTravelSeconds=validMapTravelSeconds(event.target.value,6);
+   localStorage.setItem(SATELLITE_TRAVEL_SPEED_KEY,String(satelliteTravelSeconds));
+  }else{
+   streetTravelSeconds=validMapTravelSeconds(event.target.value,5);
+   localStorage.setItem(MAP_TRAVEL_SPEED_KEY,String(streetTravelSeconds));
+  }
+ }catch{
+  if(mapMode==="globe")rotationSeconds=validRotationSeconds(event.target.value);
+  else if(mapMode==="satellite")satelliteTravelSeconds=validMapTravelSeconds(event.target.value,6);
+  else streetTravelSeconds=validMapTravelSeconds(event.target.value,5);
+ }
  syncRotationControl();
- try{localStorage.setItem(ROTATION_DURATION_KEY,String(rotationSeconds))}catch{}
  window.BetInsightStadiumJourney?.onRotationDurationChanged?.();
 });
 $("zoomInBtn").addEventListener("click",()=>zoomStadiumWorld(1));
@@ -981,7 +1041,7 @@ window.BetInsightStadiumJourney?.install({
  leafletConfig:()=>leaf2DConfig(),passportVisible:()=>tab==="passport",
  select:(id,keep,force)=>selectStadium(id,keep,force),
  renderPassport:()=>{if(tab==="passport")renderRight("passport")},
- stadiaLabel:()=>t("stadia"),rotationDuration:()=>globeRotationDurationMs(),isGlobe:()=>mapMode==="globe"&&Boolean(globe),toast
+ stadiaLabel:()=>t("stadia"),rotationDuration:()=>activeTravelDurationMs(),isGlobe:()=>mapMode==="globe"&&Boolean(globe),toast
 });
 loadLang();boot();
 </script></body></html>

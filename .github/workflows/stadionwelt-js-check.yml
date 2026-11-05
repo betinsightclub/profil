@@ -80,7 +80,8 @@ jobs:
           assert(html.indexOf(embedded[0]) < html.indexOf('function selectStadium('),'Flight must initialize before stadium selection');
           assert(!html.includes('globe.pointOfView(target,globeRotationDurationMs())'),'Do not silently regress to old eased camera motion');
           assert(html.includes('ROTATION_DEFAULT_SECONDS=4'),'Approved globe flight time is 4 seconds');
-          assert(html.includes('duration:keepPassport?2800:850'),'Do not change satellite/2D selection timing');
+          assert(html.includes('duration:stadiumMapTravelDurationMs(mapMode)'),'MapLibre must use independent map duration');
+          assert(html.includes('ROTATION_DEFAULT_SECONDS=4'),'Globe keeps the approved 4-second default');
           let t=0,frame=null,last={lat:21,lng:9,altitude:2.5};
           const calls=[];
           const scene={
@@ -101,13 +102,54 @@ jobs:
           assert(ctx.window.BetInsightStadiumFlight.flyTo(scene,{lat:45,lng:-75,altitude:1.15},4000));
           for(t=0;t<=4000;t+=20){const callback=frame;frame=null;if(callback)callback(t)}
           const sample=time=>calls.find(x=>x.time===time);
-          assert(sample(480).p.altitude>=3.09,'Zoom-out must be visible even from overview');
-          assert(sample(2000).p.altitude>=3.09,'Rotate at overview altitude');
-          assert(sample(3900).p.altitude<3.1,'Quick zoom-in must begin before arrival');
+          assert(sample(480).p.altitude<=2.6,'Globe must not pull beyond initial world overview');
+          assert(sample(2000).p.altitude<=2.6,'Globe travel must avoid excessive zoom-out');
+          assert(sample(3900).p.altitude<2.5,'Quick zoom-in must begin before arrival');
           assert.equal(sample(4000).p.altitude,1.15,'Finish close to selected stadium');
           assert(Math.abs(sample(4000).p.lng+75)<1e-6,'Finish at selected stadium');
           assert(calls.every(x=>x.ms===0),'3D tween easing must remain disabled');
           console.log('Automatic globe flight: four-second zoom-out/travel/zoom-in sequence OK');
+          NODE
+      - name: Regression - independent street, satellite and Leaflet travel timings
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const vm = require('node:vm');
+          const assert = require('node:assert/strict');
+          const html=fs.readFileSync('stadionwelt/index.html','utf8');
+          const leaflet=fs.readFileSync('stadionwelt/fallback-2d.js','utf8');
+          const journey=fs.readFileSync('stadionwelt/passport-journey.js','utf8');
+          assert(html.includes('ROTATION_DEFAULT_SECONDS=4'),'Globe duration must remain 4 seconds');
+          assert(html.includes('streetTravelSeconds=5,satelliteTravelSeconds=6'),'Separate 2D defaults required');
+          assert(html.includes('MAP_TRAVEL_SPEED_KEY')&&html.includes('SATELLITE_TRAVEL_SPEED_KEY'),'Separate storage keys required');
+          assert(html.includes('stadiumMapTravelDurationMs(mapMode)'),'MapLibre must use current view duration');
+          assert(html.includes('curve:1.6'),'MapLibre must use its smooth zoom-out/zoom-in flight');
+          assert(!html.includes('duration:keepPassport?2800:850'),'Old 850-ms jump must be gone');
+          assert(leaflet.includes('duration:durationMs/1000'),'Leaflet must convert milliseconds to seconds');
+          assert(leaflet.includes('map.stop?.()'),'Leaflet must cancel previous journey cleanly');
+          assert(journey.includes('Number(cfg.rotationDuration?.())'),'Stadium tour waits for active view duration');
+          const src=html.slice(html.indexOf('function selectStadium('),html.indexOf('function renderRight(',html.indexOf('function selectStadium(')));
+          assert(src.startsWith('function selectStadium('),'Selection function missing');
+          const context={
+            selected:null,all:[{id:1,latitude:40,longitude:15}],mapMode:'map',tab:'details',
+            streetMap:null,globe:null,
+            window:{BetInsightStadiumJourney:{stop(){}},BetInsightLeaflet2D:{active(){return false}}},
+            renderList(){},renderRight(){},renderDots(){},
+            renderStreetVisitFlags(){},renderStreetSelectionMarker(){},updateSatLink(){},
+            stadiumMapTravelDurationMs:mode=>mode==='satellite'?6000:5000
+          };
+          const select=new Function('scope','with(scope){'+src+'return selectStadium;}')(context);
+          const flights=[];
+          context.streetMap={stop(){},flyTo(opts){flights.push(opts)}};
+          select(1);
+          assert.equal(flights.at(-1).duration,5000,'Street map must travel for 5 seconds');
+          assert.equal(flights.at(-1).zoom,14.2,'Street map must zoom back in');
+          context.mapMode='satellite';
+          select(1,false,true);
+          assert.equal(flights.at(-1).duration,6000,'Satellite map must travel for 6 seconds');
+          assert.equal(flights.at(-1).zoom,12,'Satellite must zoom back into available imagery');
+          assert.equal(flights.at(-1).curve,1.6,'Satellite must use native smooth flyTo');
+          console.log('Separate 4s globe / 5s street / 6s satellite, smooth fly and Leaflet fallback OK');
           NODE
       - name: Regression - attempt real globe before fallback
         run: |
