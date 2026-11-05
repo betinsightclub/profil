@@ -22,6 +22,7 @@ jobs:
         run: |
           node --check stadionwelt/passport-journey.js
           node --check stadionwelt/globe-flight.js
+          node --check stadionwelt/visit-types.js
       - name: Check all inline Stadionwelt scripts
         run: |
           node - <<'NODE'
