@@ -141,4 +141,15 @@
  }
  scanButton.addEventListener("click",()=>checkOnly());
  refreshButton.addEventListener("click",updateOne);
+ // Authenticated page: run only the free, read-only cache inspection once.
+ // The parent page signals readiness only after successful server verification.
+ let autoStarted=false;
+ const runAuto=()=>{
+   if(autoStarted || !rawToken || byId("workspace")?.classList.contains("hidden"))return;
+   autoStarted=true;
+   checkOnly();
+ };
+ document.addEventListener("betinsight:finder-ready",runAuto);
+ // Handles the rare case where admin verification finished before this script loaded.
+ if(rawToken && !byId("workspace")?.classList.contains("hidden"))runAuto();
 })();
