@@ -228,6 +228,7 @@ async function reloadGlobeLibrary(){
 async function retryGlobe(){
  if(!globeUnavailable||globeRetryBusy||!ready)return;
  const copy=GLOBE_RETRY_LANG[lang]||GLOBE_RETRY_LANG.en;
+ const previousMode=mapMode;
  globeRetryBusy=true;updateFallbackNotice();
  const holder=$("globe");
  try{
@@ -242,20 +243,24 @@ async function retryGlobe(){
   if(!globe||!canvas)throw Error("GLOBE_INITIALIZATION_FAILED");
   const context=canvas.getContext("webgl2")||canvas.getContext("webgl")||canvas.getContext("experimental-webgl");
   if(context?.isContextLost?.())throw Error("WEBGL_CONTEXT_LOST");
+  // Complete all potentially failing 3D calls before hiding the working map.
+  globe.width(holder.clientWidth).height(holder.clientHeight);
+  globe.controls().autoRotate=rotating;
   globeUnavailable=false;mapMode="globe";mapRequested=false;
   $("detailMap").classList.add("hide");$("emptyglobe").style.display="none";
   $("globeWait").classList.add("hide");$("satCredit").classList.add("hide");
   holder.style.visibility="";holder.style.pointerEvents="";
   $("mapBtn").textContent="🗺️ "+t("mapView");$("globeHint").textContent=t("globeHint");
   updateSatLink();syncModeControls();
-  globe.width(holder.clientWidth).height(holder.clientHeight);
-  globe.controls().autoRotate=rotating;
   toast(copy.success);
  }catch(e){
   console.warn("Stadionwelt: 3D retry unsuccessful",e);
   try{globe?._destructor?.()}catch{}
-  globe=null;globeUnavailable=true;globeVisitSignature="";
+  globe=null;globeUnavailable=true;globeVisitSignature="";mapMode=previousMode;
   holder.classList.add("hide");holder.replaceChildren();
+  $("detailMap").classList.remove("hide");
+  $("satCredit").classList.toggle("hide",previousMode!=="satellite");
+  syncModeControls();
   toast(copy.failed);
  }finally{
   holder.style.visibility="";holder.style.pointerEvents="";
