@@ -86,7 +86,11 @@ function tick(){
   if(!playing)return;
   if(index>=entries().length-1){pause();return}
   goto(index+1);tick();
- },7400);
+ },cfg?.isGlobe?.()?Math.max(7400,(Number(cfg.rotationDuration?.())||12000)+4500):7400);
+}
+function onRotationDurationChanged(){
+ // If the viewer changes the duration mid-tour, allow the current camera move to finish.
+ if(playing){if(timer!==null)clearTimeout(timer);timer=null;tick()}
 }
 function play(){
  const stops=entries();
@@ -142,6 +146,6 @@ function onVisitsChanged(){
 function tourStops(){return active?entries().map(e=>e.stadium):[]}
 window.BetInsightStadiumJourney={
  install,ordered,entries,active:()=>active,playing:()=>playing,index:()=>index,
- tourStops,geo,refresh,stop,onVisitsChanged,panelHTML,visitButtonHTML,bind
+ tourStops,geo,refresh,stop,onVisitsChanged,onRotationDurationChanged,panelHTML,visitButtonHTML,bind
 };
 })();
