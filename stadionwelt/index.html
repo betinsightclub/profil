@@ -70,7 +70,7 @@ a{color:var(--aqua)}.shell{min-height:100vh}.header{height:76px;border-bottom:1p
 </main></div>
 <div class="lock hide" id="lock"><div class="lockcard"><img src="https://betinsight.club/assets/betinsight-logo.png" alt="BetInsight"><h2 data-i="restricted">Geschützte Entwickler-Vorschau</h2><p id="lockMessage" data-i="loginInfo">Öffne unten das BetInsight Admin Center, melde dich dort an und klicke anschließend auf „🌍 Stadionwelt (Test)“. Wichtig: im selben Browser-Tab bleiben.</p><a class="btn primary" href="/admin/" id="adminLink" data-i="goAdmin">Zum Backoffice-Login</a><button class="btn" id="retry" data-i="retry">Zugang erneut prüfen</button></div></div><div class="toast hide" id="toast"></div>
 <script async src="https://unpkg.com/globe.gl@2.45.0/dist/globe.gl.min.js" onload="window.dispatchEvent(new Event('stadium-globe-ready'))" onerror="window.dispatchEvent(new Event('stadium-globe-error'))"></script>
-<script src="./fallback-2d.js"></script><script src="./passport-journey.js"></script>
+<script src="./fallback-2d.js"></script><script src="./passport-journey.js"></script><script src="./globe-flight.js"></script>
 <script>
 "use strict";
 if(new URLSearchParams(location.search).get("embedded")==="1")document.body.classList.add("embedded");
@@ -234,6 +234,7 @@ function leaf2DConfig(zoom=2,mode=mapMode){
  };
 }
 async function showLeaf2D(zoom=2,mode="map"){
+ window.BetInsightStadiumFlight?.cancel();
  mapRequested=false;mapMode=mode;syncModeControls();
  $("globe").classList.add("hide");$("globeWait").classList.add("hide");
  $("emptyglobe").style.display="none";$("detailMap").classList.remove("hide");
@@ -245,6 +246,7 @@ async function showLeaf2D(zoom=2,mode="map"){
  window.BetInsightStadiumJourney?.refresh();updateSatellitePanel();updateSatLink();
 }
 function fallbackTo2D(reason){
+ window.BetInsightStadiumFlight?.cancel();
  if(globeUnavailable)return;
  console.warn("Stadionwelt 3D is unavailable; opening map",reason);
  globeUnavailable=true;globe=null;globeVisitSignature="";
@@ -602,6 +604,7 @@ function updateSatLink(){const a=$("satExternal");if(!a)return;
  a.href=p?"https://www.google.com/maps/@"+Number(p.lat).toFixed(6)+","+Number(p.lng).toFixed(6)+",18z/data=!3m1!1e3":googleSatUrl();
  a.classList.toggle("hide",mapMode!=="satellite")}
 function showMap(zoom=14.2,desiredMode="map"){
+ window.BetInsightStadiumFlight?.cancel();
  if(window.BetInsightLeaflet2D?.active()||!hasWebGL2()){void showLeaf2D(zoom,desiredMode);return}
  if(!window.maplibregl){mapRequested=true;pendingMapMode=desiredMode;void loadStreetAssets();return}
  mapRequested=false;mapMode=desiredMode;syncModeControls();
@@ -618,6 +621,7 @@ function showMap(zoom=14.2,desiredMode="map"){
 }
 function showSatellite(){showMap(12,"satellite")}
 function showGlobe(){
+ if(typeof window!=="undefined")window.BetInsightStadiumFlight?.cancel();
  if(globeUnavailable){void retryGlobe();return}
  mapMode="globe";mapRequested=false;syncModeControls();$("satCredit").classList.add("hide");updateSatLink();
  $("globe").classList.remove("hide");$("detailMap").classList.add("hide");
@@ -664,6 +668,7 @@ function initGlobe(){const holder=$("globe");if(typeof Globe==="undefined"){ $("
 globe.width(w).height(h).pointOfView(selected?{lat:+selected.latitude,lng:+selected.longitude,altitude:1.65}:{lat:21,lng:9,altitude:2.5},0);globe.controls().autoRotate=false;globe.controls().autoRotateSpeed=0;globe.controls().enableDamping=true;globe.controls().minDistance=118;new ResizeObserver(()=>{if(globe&&holder.clientWidth&&holder.clientHeight)globe.width(holder.clientWidth).height(holder.clientHeight)}).observe(holder);
  const canvas=holder.querySelector("canvas");
  if(!canvas)throw Error("GLOBE_RENDERER_CANVAS_MISSING");
+ canvas.addEventListener("pointerdown",()=>window.BetInsightStadiumFlight?.cancel(),{passive:true});
  canvas.addEventListener("webglcontextlost",()=>fallbackTo2D("webgl_context_lost"),{once:true});
  renderDots();window.BetInsightStadiumJourney?.refresh();}catch(e){globe=null;if(!globeUnavailable)fallbackTo2D(e);else console.warn("Stadionwelt 3D retry initialization failed",e)}}
 function renderDots(){
@@ -687,31 +692,67 @@ function selectStadium(id,keepPassport=false,forceFocus=false){
   if(window.BetInsightLeaflet2D?.active())window.BetInsightLeaflet2D.focus(selected);
   updateSatLink();return;
  }
- if(globe)globe.pointOfView({lat:+selected.latitude,lng:+selected.longitude,altitude:keepPassport?1.52:1.65},globeRotationDurationMs());
+ if(globe){
+  const target={lat:+selected.latitude,lng:+selected.longitude,altitude:keepPassport?1.52:1.65};
+  const handled=window.BetInsightStadiumFlight?.flyTo(globe,target,globeRotationDurationMs());
+  if(!handled)globe.pointOfView(target,globeRotationDurationMs());
+ }
 }
 function renderRight(force){if(force)tab=force;if(tab==="review")tab="details";document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.dataset.tab===tab));let el=$("rightBody"),scroller=document.querySelector(".right"),scroll=scroller?.scrollTop||0;if(tab==="details")el.innerHTML=detailHTML();else if(tab==="suggest")el.innerHTML=formHTML();else if(tab==="review")el.innerHTML=queueHTML()+proofQueueHTML();else el.innerHTML=passHTML();attachRight();if(tab==="passport")window.BetInsightStadiumJourney?.bind();if(tab==="details")drawPhotos();wirePhotoFallbacks(el);if(scroller&&tab==="passport")scroller.scrollTop=scroll;window.BetInsightStadiumJourney?.refresh()}
 function detailHTML(){if(!selected)return "<div class='kicker'>BETINSIGHT FOOTBALL WORLD</div><h3>"+esc(t("details"))+"</h3><div class='empty'>🌍 "+esc(t("globeHint"))+"</div><p class='muted'>"+esc(t("previewNotice"))+"</p>";const s=selected,teams=clubMap(s.id).concat((s.details?.submitted_clubs||[]).filter(x=>!clubMap(s.id).includes(x))),up=fixtures.filter(x=>Number(x.stadium_id)===Number(s.id)).slice(0,5),ids=tipLinks.filter(x=>Number(x.stadium_id)===Number(s.id)).map(x=>x.tipp_id),rows=tips.filter(x=>ids.includes(x.tipp_id)),wins=rows.filter(x=>x.ergebnis_status==="GEWONNEN").length,losses=rows.filter(x=>x.ergebnis_status==="VERLOREN").length;return "<div class='kicker'>"+(s.is_verified?"✓ "+t("verified"):"◌ "+t("notVerified"))+"</div><h3>"+esc(s.name)+"</h3>"+(hasVisited(s.id)?"<div class='infoitem visit-flag-label'>🚩 "+esc(t("alreadyVisited"))+"</div>":"")+"<p class='muted'>📍 "+esc([s.city,s.country].filter(Boolean).join(", "))+"</p>"+photoCoverHTML(s)+"<button id='mapSelected' class='btn w100' type='button' style='margin:8px 0 0'>🗺️ "+esc(t("showOnMap"))+"</button><div class='infogrid'><div class='infobox'><small>"+t("capacity")+"</small><strong>"+fmt(s.capacity)+"</strong></div><div class='infobox'><small>"+t("country")+"</small><strong>"+esc(s.country)+"</strong></div></div><div class='sectionhead'>⚽ "+t("club")+"</div>"+(teams.length?teams.map(x=>"<div class='infoitem'>"+esc(x)+"</div>").join(""):"<div class='empty'>"+t("noClub")+"</div>")+"<div class='sectionhead'>📅 "+t("upcoming")+"</div>"+(up.length?up.map(x=>"<div class='infoitem'><strong>"+esc(x.home_team)+" – "+esc(x.away_team)+"</strong><br><span class='mini'>"+esc(x.league||"")+" · "+esc(new Date(x.kickoff_at).toLocaleString(lang))+"</span></div>").join(""):"<div class='empty'>"+t("noUpcoming")+"</div>")+"<div class='sectionhead'>📊 "+t("tips")+"</div>"+(rows.length?"<div class='infogrid'><div class='infobox'><small>"+t("win")+"</small><strong style='color:var(--lime)'>"+wins+"</strong></div><div class='infobox'><small>"+t("loss")+"</small><strong style='color:var(--danger)'>"+losses+"</strong></div></div>"+rows.map(x=>"<div class='infoitem'>"+esc(x.spiel)+" · "+esc(x.spiel_datum)+"<br><strong>"+esc(x.ergebnis_status)+"</strong></div>").join(""):"<div class='empty'>"+t("noTips")+"</div>")+"<div style='margin-top:14px'><button class='btn primary w100' id='visit'>✓ "+t("visit")+"</button></div><div class='sectionhead'>📷 "+t("gallery")+"</div><div id='stadiumPhotos'></div><p class='mini'>"+t("notPublic")+"</p>"}
 function formHTML(){if(!memberToken)return "<div class='kicker'>BETINSIGHT · COMMUNITY</div><h3>"+esc(t("newStadium"))+"</h3>"+memberLoginHTML();return "<div class='kicker'>BETINSIGHT · COMMUNITY</div><h3>"+t("newStadium")+"</h3><p class='muted'>"+t("notPublic")+"</p><form id='suggestForm'><div class='field'><label>"+t("name")+" *</label><input name='name' required maxlength='200'></div><div class='formgrid'><div class='field'><label>"+t("city")+" *</label><input name='city' required maxlength='150'></div><div class='field'><label>"+t("country")+" *</label><input name='country' required maxlength='150'></div><div class='field full'><label>"+t("address")+"</label><input name='address' maxlength='300'></div><div class='field'><label>"+t("capacity")+"</label><input name='capacity' type='number' min='1' max='250000'></div><div class='field'><label>"+t("teams")+"</label><input name='club_names' maxlength='600'></div></div><div class='sectionhead'>"+t("position")+" *</div><button class='btn w100' type='button' id='pick'>📍 "+t("pick")+"</button><div class='formgrid' style='margin-top:10px'><div class='field'><label>"+t("lat")+"</label><input id='latitude' name='latitude' type='number' step='any' required min='-90' max='90'></div><div class='field'><label>"+t("lng")+"</label><input id='longitude' name='longitude' type='number' step='any' required min='-180' max='180'></div></div><div class='field'><label>"+t("notes")+"</label><textarea name='description' maxlength='2000'></textarea></div><div class='field'><label>"+t("source")+"</label><input name='source_url' type='url' placeholder='https://'></div><div class='field'><label>"+t("photo")+"</label><input id='uploadFiles' type='file' multiple accept='image/jpeg,image/png,image/webp'></div><p class='mini'>"+t("photoInfo")+"</p><button class='btn primary w100' id='send' type='submit'>"+t("submit")+"</button></form>"}
 function queueHTML(){return "<div class='kicker'>BETINSIGHT · INTERNAL</div><h3>"+t("review")+"</h3><button id='reloadQueue' class='btn small'>↻ "+t("refresh")+"</button>"+(!reviewQueue.length?"<p class='empty'>"+t("queueEmpty")+"</p>":reviewQueue.map(s=>"<div class='queue-card'><div class='mini'>"+esc(s.status.toUpperCase())+" · "+esc(new Date(s.created_at).toLocaleString(lang))+"</div><h4>"+esc(s.name)+"</h4><p>"+esc(s.city)+" · "+esc(s.country)+" · "+fmt(s.capacity)+" "+t("capacity")+"</p><p class='mini'>"+esc(s.address||"")+" / "+esc((s.club_names||[]).join(", "))+"</p><p class='mini'>"+esc(s.description||"")+"</p><div class='queue-imgs'>"+reviewMedia.filter(x=>x.submission_id===s.id).map(x=>"<a href='"+esc(x.url)+"' target='_blank' rel='noopener noreferrer'><img src='"+esc(x.url)+"' alt='Photo'></a>").join("")+"</div>"+(s.status==="pending"?"<div class='adminbtns'><button class='btn small primary' data-approve='"+s.id+"'>✓ "+t("approve")+"</button><button class='btn small danger' data-reject='"+s.id+"'>✕ "+t("reject")+"</button></div>":"")+"</div>").join(""))}
 function proofQueueHTML(){return "<div class='sectionhead'>📷 "+t("photo")+"</div>"+(reviewProofs.length?reviewProofs.map(p=>{const s=all.find(x=>Number(x.id)===Number(p.stadium_id));return "<div class='queue-card'><h4>"+esc(s?.name||"Stadium")+"</h4><p class='mini'>"+esc(p.visited_on||"")+"</p><div class='queue-imgs'><a href='"+esc(p.url)+"' target='_blank' rel='noopener noreferrer'><img src='"+esc(p.url)+"' alt='Proof photo'></a></div><div class='adminbtns'><button class='btn small primary' data-proof-accept='"+p.id+"'>✓ "+t("approve")+"</button><button class='btn small danger' data-proof-reject='"+p.id+"'>✕ "+t("reject")+"</button></div></div>"}).join(""):"<div class='empty'>"+t("queueEmpty")+"</div>")}
+
+const PASSPORT_EDIT_TEXT={
+ de:{show:"🌍 Stadion anzeigen",details:"Details öffnen",edit:"Besuch bearbeiten und Fotos hinzufügen",save:"Änderungen speichern",photo:"Weitere Bilder hinzufügen",photoHint:"Maximal 5 neue Bilder pro Speichervorgang (JPG, PNG, WEBP; je 5 MB), insgesamt 20 pro Besuch.",photos:"Gespeicherte Bilder",saved:"Besuch aktualisiert",partial:"Besuch gespeichert; einige Bilder konnten nicht hochgeladen werden.",photoLimit:"Zu viele Bilder für diesen Besuch (maximal 20).",invalidFiles:"Bitte höchstens 5 Bilder bis je 5 MB als JPG, PNG oder WEBP auswählen.",noPosition:"Stadionposition nicht verfügbar."},
+ en:{show:"🌍 Show stadium",details:"Open details",edit:"Edit visit and add photos",save:"Save changes",photo:"Add more photos",photoHint:"Up to 5 new images per save (JPG, PNG, WEBP; 5 MB each), 20 per visit in total.",photos:"Saved photos",saved:"Visit updated",partial:"Visit saved; some photos could not be uploaded.",photoLimit:"Too many photos for this visit (20 maximum).",invalidFiles:"Choose up to 5 JPG, PNG or WEBP photos, max 5 MB each.",noPosition:"Stadium coordinates unavailable."},
+ es:{show:"🌍 Mostrar estadio",details:"Abrir detalles",edit:"Editar visita y añadir fotos",save:"Guardar cambios",photo:"Añadir fotos",photoHint:"Hasta 5 fotos nuevas por guardado (5 MB cada una), 20 por visita.",photos:"Fotos guardadas",saved:"Visita actualizada",partial:"Visita guardada; algunas fotos no se pudieron subir.",photoLimit:"Máximo 20 fotos por visita.",invalidFiles:"Elige hasta 5 fotos JPG, PNG o WEBP de máximo 5 MB.",noPosition:"Ubicación no disponible."},
+ pt:{show:"🌍 Mostrar estádio",details:"Abrir detalhes",edit:"Editar visita e adicionar fotos",save:"Salvar alterações",photo:"Adicionar fotos",photoHint:"Até 5 fotos novas por vez (5 MB cada), 20 por visita.",photos:"Fotos salvas",saved:"Visita atualizada",partial:"Visita salva; algumas fotos falharam.",photoLimit:"Máximo de 20 fotos por visita.",invalidFiles:"Selecione até 5 fotos JPG, PNG ou WEBP de no máximo 5 MB.",noPosition:"Localização indisponível."},
+ it:{show:"🌍 Mostra stadio",details:"Apri dettagli",edit:"Modifica visita e aggiungi foto",save:"Salva modifiche",photo:"Aggiungi foto",photoHint:"Fino a 5 nuove foto per volta (5 MB ciascuna), massimo 20 per visita.",photos:"Foto salvate",saved:"Visita aggiornata",partial:"Visita salvata; alcune foto non sono state caricate.",photoLimit:"Massimo 20 foto per visita.",invalidFiles:"Scegli fino a 5 foto JPG, PNG o WEBP, 5 MB ciascuna.",noPosition:"Posizione non disponibile."},
+ fr:{show:"🌍 Voir le stade",details:"Ouvrir les détails",edit:"Modifier la visite et ajouter des photos",save:"Enregistrer",photo:"Ajouter des photos",photoHint:"Jusqu'à 5 nouvelles photos par enregistrement (5 Mo chacune), 20 par visite.",photos:"Photos enregistrées",saved:"Visite mise à jour",partial:"Visite enregistrée; certaines photos ont échoué.",photoLimit:"20 photos maximum par visite.",invalidFiles:"Choisissez jusqu'à 5 photos JPG, PNG ou WEBP de 5 Mo.",noPosition:"Position indisponible."},
+ nl:{show:"🌍 Stadion tonen",details:"Details openen",edit:"Bezoek bewerken en foto's toevoegen",save:"Wijzigingen opslaan",photo:"Meer foto's toevoegen",photoHint:"Maximaal 5 nieuwe foto's tegelijk (elk 5 MB), 20 per bezoek.",photos:"Bewaarde foto's",saved:"Bezoek bijgewerkt",partial:"Bezoek opgeslagen; enkele foto's mislukt.",photoLimit:"Maximaal 20 foto's per bezoek.",invalidFiles:"Kies maximaal 5 JPG-, PNG- of WEBP-foto's van 5 MB.",noPosition:"Locatie niet beschikbaar."},
+ zh:{show:"🌍 查看球場",details:"開啟詳情",edit:"編輯到訪紀錄並新增照片",save:"儲存變更",photo:"新增照片",photoHint:"每次最多新增 5 張照片（每張 5MB），每次到訪最多 20 張。",photos:"已儲存照片",saved:"紀錄已更新",partial:"紀錄已儲存，部分照片上傳失敗。",photoLimit:"每次到訪最多 20 張照片。",invalidFiles:"最多選擇 5 張 JPG、PNG、WEBP 照片，每張 5MB。",noPosition:"無法取得球場位置。"}
+};
+function editCopy(k){return (PASSPORT_EDIT_TEXT[lang]||PASSPORT_EDIT_TEXT.en)[k]||PASSPORT_EDIT_TEXT.en[k]||k}
 function passHTML(){
  if(!memberToken)return "<div class='kicker'>BETINSIGHT · TRAINER</div><h3>"+esc(t("passport"))+"</h3>"+memberLoginHTML();
  const journey=window.BetInsightStadiumJourney;
- const summary="<div class='infogrid'><div class='infobox'><small>"+t("stadia")+"</small><strong>"+fmt(visits.length)+"</strong></div><div class='infobox'><small>"+t("countries")+"</small><strong>"+fmt(new Set(visits.map(v=>all.find(x=>Number(x.id)===Number(v.stadium_id))?.country).filter(Boolean)).size)+"</strong></div></div>";
+ const summary="<div class='infogrid'><div class='infobox'><small>"+esc(t("stadia"))+"</small><strong>"+fmt(visits.length)+"</strong></div><div class='infobox'><small>"+esc(t("countries"))+"</small><strong>"+fmt(new Set(visits.map(v=>all.find(x=>Number(x.id)===Number(v.stadium_id))?.country).filter(Boolean)).size)+"</strong></div></div>";
  const stops=journey?.entries()||[];
- const items=visits.length?(journey?.ordered()||visits.map(v=>({visit:v,stadium:all.find(s=>Number(s.id)===Number(v.stadium_id))}))).map(({visit:v,stadium:s})=>{
-  const idx=stops.findIndex(x=>String(x.visit.id)===String(v.id)),picked=journey?.active()&&journey.index()===idx&&idx>=0;
-  return "<div class='passport-stop"+(picked?" active":"")+"'>"+
-   (journey?.visitButtonHTML(v)||("<strong>"+esc(s?.name||"Stadium")+"</strong>"))+
-   "<span class='mini'>🚩 "+esc(v.proof_status||"unverified")+"</span>"+
-   "<details class='notebox'><summary>✎ "+esc(t("editNote"))+"</summary><form data-visit-note='"+esc(v.id)+"'><textarea name='private_note' maxlength='2000' placeholder='"+esc(t("noteTitle"))+"'>"+esc(v.private_note||"")+"</textarea><button type='submit' class='btn small'>"+esc(t("saveNote"))+"</button><p class='mini'>"+esc(t("noteHint"))+"</p></form></details>"+
-   "<div class='queue-imgs'>"+visitPhotos.filter(p=>p.visit_id===v.id).map(p=>"<a href='"+esc(p.url)+"' target='_blank' rel='noopener noreferrer'><img src='"+esc(p.url)+"' alt='Visit photo'></a>").join("")+"</div></div>";
- }).join(""):"<div class='empty'>"+esc(t("passportEmpty"))+"</div>";
- const visitForm=selected?"<div class='sectionhead'>✓ "+esc(selected.name)+"</div><form id='visitForm'><div class='field'><label>"+t("date")+"</label><input name='visited_on' type='date' max='"+new Date().toISOString().slice(0,10)+"'></div><div class='field'><label>"+t("match")+"</label><input name='match_description' maxlength='200'></div><div class='field'><label>"+t("noteTitle")+"</label><textarea name='private_note' maxlength='2000' placeholder='"+t("noteHint")+"'></textarea></div><div class='field'><label>"+t("photo")+"</label><input type='file' id='visitPhotosInput' accept='image/jpeg,image/png,image/webp' multiple></div><button class='btn primary w100' type='submit'>"+t("saveVisit")+"</button></form>":"";
- return "<div class='kicker'>BETINSIGHT · TRAINER</div><h3>"+esc(t("passport"))+"</h3>"+summary+
-  (journey?.panelHTML()||"")+"<div class='passport-stop-list'>"+items+"</div>"+visitForm;
+ const items=(visits.length?(journey?.ordered()||visits.map(v=>({visit:v,stadium:all.find(s=>Number(s.id)===Number(v.stadium_id))}))).map(({visit:v,stadium:stadium})=>{
+  const id=String(v.id||""),s=stadium,idx=stops.findIndex(x=>String(x.visit.id)===id);
+  const here=journey?.active()&&journey.index()===idx&&idx>=0;
+  const photos=visitPhotos.filter(p=>String(p.visit_id)===id);
+  const gallery=photos.map(p=>"<a href='"+esc(p.url)+"' target='_blank' rel='noopener noreferrer'><img src='"+esc(p.url)+"' alt='"+esc(editCopy("photos"))+"' loading='lazy'></a>").join("");
+  const actions=s&&validSelectionCoordinates(s)?
+    "<div class='passport-actions'><button class='btn small' type='button' data-passport-show='"+esc(id)+"'>"+esc(editCopy("show"))+"</button><button class='btn small' type='button' data-passport-details='"+esc(id)+"'>"+esc(editCopy("details"))+"</button></div>":"<p class='mini'>"+esc(editCopy("noPosition"))+"</p>";
+  return "<article class='passport-stop"+(here?" active":"")+"'>"+
+   (journey?.visitButtonHTML(v)||"<div class='passport-stop-name'>🏟 "+esc(s?.name||"Stadium")+"</div>")+
+   actions+
+   "<span class='passport-visit-meta'>🚩 "+esc(v.visited_on||"")+" · "+esc(v.proof_status||"unverified")+
+   (v.match_description?" · "+esc(v.match_description):"")+"</span>"+
+   "<span class='passport-photo-count'>📷 "+esc(editCopy("photos"))+": "+photos.length+" / 20</span>"+
+   "<div class='queue-imgs'>"+gallery+"</div>"+
+   "<details class='notebox' data-passport-editor='"+esc(id)+"'><summary>✎ "+esc(editCopy("edit"))+"</summary>"+
+   "<form class='passport-edit-form' data-visit-edit='"+esc(id)+"'>"+
+   "<div class='field'><label>"+esc(t("date"))+"</label><input type='date' name='visited_on' value='"+esc(v.visited_on||"")+"' max='"+new Date().toISOString().slice(0,10)+"'></div>"+
+   "<div class='field'><label>"+esc(t("match"))+"</label><input type='text' name='match_description' maxlength='200' value='"+esc(v.match_description||"")+"'></div>"+
+   "<div class='field'><label>"+esc(t("noteTitle"))+"</label><textarea name='private_note' maxlength='2000' rows='4'>"+esc(v.private_note||"")+"</textarea></div>"+
+   "<div class='field'><label>"+esc(editCopy("photo"))+"</label><input data-more-visit-photos type='file' accept='image/jpeg,image/png,image/webp' multiple></div>"+
+   "<p class='passport-edit-hint'>"+esc(editCopy("photoHint"))+"</p>"+
+   "<button class='btn primary w100' type='submit'>"+esc(editCopy("save"))+"</button>"+
+   "</form></details></article>";
+ }).join(""):"<div class='empty'>"+esc(t("passportEmpty"))+"</div>");
+ const addForm=selected?"<div class='sectionhead'>✓ "+esc(selected.name)+"</div><form id='visitForm'><div class='field'><label>"+t("date")+"</label><input name='visited_on' type='date' max='"+new Date().toISOString().slice(0,10)+"'></div><div class='field'><label>"+t("match")+"</label><input name='match_description' maxlength='200'></div><div class='field'><label>"+t("noteTitle")+"</label><textarea name='private_note' maxlength='2000' placeholder='"+t("noteHint")+"'></textarea></div><div class='field'><label>"+t("photo")+"</label><input type='file' id='visitPhotosInput' accept='image/jpeg,image/png,image/webp' multiple></div><button class='btn primary w100' type='submit'>"+t("saveVisit")+"</button></form>":"";
+ return "<div class='kicker'>BETINSIGHT · TRAINER</div><h3>"+esc(t("passport"))+"</h3>"+summary+(journey?.panelHTML()||"")+"<div class='passport-stop-list'>"+items+"</div>"+addForm;
 }
-function attachRight(){if(tab==="details"){$("visit")?.addEventListener("click",()=>renderRight("passport"));$("mapSelected")?.addEventListener("click",()=>showMap(15.2))}if(tab==="suggest"){$("pick")?.addEventListener("click",()=>{pickMode=true;toast(t("picking"));document.querySelector(".stage").scrollIntoView({behavior:"smooth",block:"center"})});$("suggestForm")?.addEventListener("submit",submitNew)}if(tab==="review"){ $("reloadQueue")?.addEventListener("click",async()=>{await Promise.all([fetchQueue(),fetchProofQueue()]);renderRight()});document.querySelectorAll("[data-approve],[data-reject]").forEach(btn=>btn.addEventListener("click",()=>review(btn.dataset.approve||btn.dataset.reject,btn.dataset.approve?"approved":"rejected")));document.querySelectorAll("[data-proof-accept],[data-proof-reject]").forEach(btn=>btn.addEventListener("click",()=>reviewProof(btn.dataset.proofAccept||btn.dataset.proofReject,btn.dataset.proofAccept?"accepted":"rejected")))}if(tab==="passport"){$("visitForm")?.addEventListener("submit",saveVisit);document.querySelectorAll("[data-visit-note]").forEach(form=>form.addEventListener("submit",saveExistingNote))}}
+function attachRight(){if(tab==="details"){$("visit")?.addEventListener("click",()=>renderRight("passport"));$("mapSelected")?.addEventListener("click",()=>showMap(15.2))}if(tab==="suggest"){$("pick")?.addEventListener("click",()=>{pickMode=true;toast(t("picking"));document.querySelector(".stage").scrollIntoView({behavior:"smooth",block:"center"})});$("suggestForm")?.addEventListener("submit",submitNew)}if(tab==="review"){ $("reloadQueue")?.addEventListener("click",async()=>{await Promise.all([fetchQueue(),fetchProofQueue()]);renderRight()});document.querySelectorAll("[data-approve],[data-reject]").forEach(btn=>btn.addEventListener("click",()=>review(btn.dataset.approve||btn.dataset.reject,btn.dataset.approve?"approved":"rejected")));document.querySelectorAll("[data-proof-accept],[data-proof-reject]").forEach(btn=>btn.addEventListener("click",()=>reviewProof(btn.dataset.proofAccept||btn.dataset.proofReject,btn.dataset.proofAccept?"accepted":"rejected")))}if(tab==="passport"){
+ $("visitForm")?.addEventListener("submit",saveVisit);
+ document.querySelectorAll("[data-visit-edit]").forEach(form=>form.addEventListener("submit",saveExistingVisit));
+ document.querySelectorAll("[data-passport-show]").forEach(button=>button.addEventListener("click",()=>openPassportStadium(button.dataset.passportShow,true)));
+ document.querySelectorAll("[data-passport-details]").forEach(button=>button.addEventListener("click",()=>openPassportStadium(button.dataset.passportDetails,false)));
+}}
 async function submitNew(ev){ev.preventDefault();const f=ev.currentTarget,b=$("send");const data=Object.fromEntries(new FormData(f).entries());const images=[...$("uploadFiles").files];if(images.length>5||images.some(x=>x.size>5*1024*1024)){toast("Max 5 photos, each 5 MB");return}b.disabled=true;try{const r=await call("submit",data);let failures=0;for(const file of images){const fd=new FormData();fd.append("action","upload");fd.append("admin_hash",adminHash);fd.append("member_token",memberToken);fd.append("submission_id",r.submission.id);fd.append("file",file);const res=await fetch(API,{method:"POST",body:fd});if(!res.ok)failures++}f.reset();toast(t("sent")+(failures?" · "+failures+" photo upload(s) failed":""));await Promise.all([fetchQueue(),fetchProofQueue()]);renderRight("review")}catch(e){toast(t("error")+": "+e.message)}finally{b.disabled=false}}
 async function fetchQueue(){try{const d=await call("queue");reviewQueue=d.queue||[];reviewMedia=d.media||[];$("pendingCount").textContent=fmt(reviewQueue.filter(x=>x.status==="pending").length)}catch{$("pendingCount").textContent="–"}}
 async function fetchProofQueue(){try{const d=await call("proof_queue");reviewProofs=d.media||[];const n=reviewQueue.filter(x=>x.status==="pending").length+reviewProofs.length;$("pendingCount").textContent=fmt(n)}catch{reviewProofs=[]}}
@@ -724,6 +765,51 @@ async function fetchVisits(){
  }catch(e){console.info("Visits unavailable for current trainer session",e?.message||e);if(String(e?.message||"").includes("MEMBER_LOGIN_REQUIRED")){memberToken="";visits=[];visitPhotos=[];if(tab==="passport")renderRight("passport")}}
 }
 async function review(id,decision){const note=prompt(t("note"),"")||"";if(!confirm(t(decision)))return;try{await call("review",{id,decision,note});await Promise.all([fetchQueue(),fetchProofQueue()]);const d=await call("list");all=d.stadiums||[];clubs=d.clubs||[];fixtures=d.fixtures||[];tips=d.tipResults||[];tipLinks=d.tipLinks||[];$("total").textContent=fmt(all.length);fillCountries();applyFilters();renderRight("review");toast(t(decision))}catch(e){toast(t("error")+": "+e.message)}}
+
+function openPassportStadium(visitId,keepPassport){
+ const visit=visits.find(item=>String(item.id)===String(visitId));
+ if(!visit)return;
+ const stadium=all.find(item=>Number(item.id)===Number(visit.stadium_id));
+ if(!validSelectionCoordinates(stadium)){toast(editCopy("noPosition"));return}
+ // A manual selection must stop the automatic tour before centering this stadium.
+ if(keepPassport)window.BetInsightStadiumJourney?.stop();
+ selectStadium(Number(stadium.id),keepPassport,true);
+}
+async function saveExistingVisit(ev){
+ ev.preventDefault();
+ const form=ev.currentTarget,visitId=String(form.dataset.visitEdit||"");
+ if(!visits.some(v=>String(v.id)===visitId)){toast(t("error")+": VISIT_NOT_FOUND");return}
+ const date=String(form.elements.namedItem("visited_on")?.value||"");
+ const match=String(form.elements.namedItem("match_description")?.value||"").slice(0,200);
+ const note=String(form.elements.namedItem("private_note")?.value||"").slice(0,2000);
+ const files=[...(form.querySelector("[data-more-visit-photos]")?.files||[])];
+ const types=new Set(["image/jpeg","image/png","image/webp"]);
+ if(files.length>5||files.some(f=>!types.has(f.type)||f.size<100||f.size>5*1024*1024)){toast(editCopy("invalidFiles"));return}
+ const existing=visitPhotos.filter(p=>String(p.visit_id)===visitId).length;
+ if(existing+files.length>20){toast(editCopy("photoLimit"));return}
+ const button=form.querySelector("button[type=submit]");
+ if(button)button.disabled=true;
+ try{
+  // This action is server-authorized for the member's own trainer profile.
+  await call("visit_update",{visit_id:visitId,visited_on:date,match_description:match,private_note:note});
+  let uploadErrors=0,firstError="";
+  for(const file of files){
+   const data=new FormData();
+   data.append("action","visit_upload");data.append("admin_hash",adminHash);
+   data.append("member_token",memberToken);data.append("visit_id",visitId);data.append("file",file);
+   try{
+    const response=await fetch(API,{method:"POST",body:data});
+    if(!response.ok){uploadErrors++;if(!firstError){const body=await response.json().catch(()=>({}));firstError=String(body.error||response.status)}}
+   }catch(error){uploadErrors++;if(!firstError)firstError=String(error)}
+  }
+  await fetchVisits();
+  if(tab==="passport")renderRight("passport");
+  toast(uploadErrors?editCopy("partial")+(firstError?" ("+firstError+")":""):editCopy("saved"));
+ }catch(error){
+  toast(t("error")+": "+String(error.message||error));
+ }finally{if(button?.isConnected)button.disabled=false}
+}
+
 async function saveExistingNote(ev){ev.preventDefault();const form=ev.currentTarget;const id=form.dataset.visitNote;const note=String(new FormData(form).get("private_note")||"").slice(0,2000);try{await call("visit_update",{visit_id:id,private_note:note});await fetchVisits();renderRight("passport");toast(t("saved"))}catch(e){toast(t("error")+": "+e.message)}}
 async function saveVisit(ev){ev.preventDefault();if(!selected)return;try{
  const f=ev.target,form=Object.fromEntries(new FormData(f).entries());
@@ -754,6 +840,7 @@ $("stadiumRotationDuration").addEventListener("input",event=>{
 $("zoomInBtn").addEventListener("click",()=>zoomStadiumWorld(1));
 $("zoomOutBtn").addEventListener("click",()=>zoomStadiumWorld(-1));
 $("resetBtn").addEventListener("click",()=>{
+ window.BetInsightStadiumFlight?.cancel();
  if(globeUnavailable){if(window.BetInsightLeaflet2D?.active())window.BetInsightLeaflet2D.reset();
  else if(streetMap)streetMap.flyTo({center:[9,21],zoom:2});else showMap(2,"map");return}
  showGlobe();globe?.pointOfView({lat:21,lng:9,altitude:2.5},1000);

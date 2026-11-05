@@ -24,3 +24,19 @@
 .journey-overlay .journey-step{font-size:10px;font-weight:900;letter-spacing:.07em;color:#55ffdf;text-transform:uppercase;margin-bottom:3px}
 @media(max-width:760px){.journey-overlay{top:115px;left:8px;max-width:220px;padding:8px 10px}.journey-overlay strong{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.passport-stop,.journey-overlay{scroll-behavior:auto}}
+
+
+.passport-actions{display:flex;gap:6px;flex-wrap:wrap;margin:9px 0 4px}
+.passport-actions .btn{flex:1;min-width:95px;font-size:11px;padding:8px 6px}
+.passport-edit-form{display:grid;gap:10px;margin-top:10px}
+.passport-edit-form .field{margin:0}
+.passport-edit-form input,.passport-edit-form textarea{width:100%}
+.passport-edit-form label{font-size:11px;color:#b9e3e7;font-weight:750}
+.passport-edit-form textarea{min-height:88px}
+.passport-edit-hint{font-size:10px;color:#9adbcf;line-height:1.5}
+.passport-visit-meta{display:block;color:#a5c5d2;font-size:11px;line-height:1.5;margin-top:7px}
+.passport-photo-count{font-size:11px;color:#92efdf;display:block;margin-top:9px}
+.passport-stop .queue-imgs{display:flex;flex-wrap:wrap;gap:6px}
+.passport-stop .queue-imgs a{display:block;max-width:88px}
+.passport-stop .queue-imgs img{width:84px;height:70px;object-fit:cover;border-radius:8px}
+.passport-edit-form button[disabled]{opacity:.6;cursor:wait}

@@ -18,6 +18,10 @@ jobs:
           node-version: '22'
       - name: Check standalone WebGL-independent map fallback
         run: node --check stadionwelt/fallback-2d.js
+      - name: Check standalone journey and cinematic flight scripts
+        run: |
+          node --check stadionwelt/passport-journey.js
+          node --check stadionwelt/globe-flight.js
       - name: Check all inline Stadionwelt scripts
         run: |
           node - <<'NODE'
