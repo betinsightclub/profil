@@ -86,7 +86,7 @@ function tick(){
   if(!playing)return;
   if(index>=entries().length-1){pause();return}
   goto(index+1);tick();
- },4600);
+ },7400);
 }
 function play(){
  const stops=entries();
