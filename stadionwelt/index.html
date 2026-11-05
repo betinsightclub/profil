@@ -60,8 +60,8 @@ a{color:var(--aqua)}.shell{min-height:100vh}.header{height:76px;border-bottom:1p
 <div class="stadium-size-legend" id="stadiumSizeLegend"></div>
 <label class="legend-check"><input type="checkbox" id="allGlobePoints" checked><span data-i="showAllMarkers">Alle Stadionpunkte anzeigen</span></label>
 <label class="stadium-rotation-control" for="stadiumRotationDuration">
- <span class="stadium-rotation-title"><span id="stadiumRotationLabel">Drehdauer pro Stadion</span><output id="stadiumRotationValue" for="stadiumRotationDuration">12 s</output></span>
- <input type="range" id="stadiumRotationDuration" min="4" max="25" step="1" value="12" aria-label="Drehdauer pro Stadion">
+ <span class="stadium-rotation-title"><span id="stadiumRotationLabel">Drehdauer pro Stadion</span><output id="stadiumRotationValue" for="stadiumRotationDuration">4 s</output></span>
+ <input type="range" id="stadiumRotationDuration" min="4" max="25" step="1" value="4" aria-label="Drehdauer pro Stadion">
  <small id="stadiumRotationHint">Links schneller · Rechts langsamer</small>
 </label></div><div class="globe-buttons"><a class="btn small hide" id="satExternal" href="https://www.google.com/maps" target="_blank" rel="noopener noreferrer">🔎 <span data-i="hires">Satellit hochauflösend ↗</span></a><button class="btn small" id="mapBtn">🗺️ <span data-i="mapView">Umgebung</span></button><button class="btn small" type="button" id="zoomInBtn" aria-label="Zoom in" title="Zoom +">＋</button><button class="btn small" type="button" id="zoomOutBtn" aria-label="Zoom out" title="Zoom −">−</button><button class="btn small" id="resetBtn">🌐 <span data-i="reset">Welt</span></button></div></div></section>
 <section class="pane right"><div class="right-top"><button class="tab active" data-tab="details" data-i="details">Details</button><button class="tab" data-tab="passport" data-i="passport">Mein Stadionpass</button><button class="tab" data-tab="suggest" data-i="suggest">Eintragen</button><button class="tab hide" data-tab="review" data-i="review" aria-hidden="true">Prüfliste</button></div>
@@ -157,8 +157,8 @@ function renderSizeLegend(){
 const $=id=>document.getElementById(id), t=k=>(D[lang]&&D[lang][k])||D.en[k]||k, esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=n=>n==null?"–":Number(n).toLocaleString(lang==="de"?"de-DE":"en-US");
 
-const ROTATION_DURATION_KEY="betinsight_stadium_rotation_duration_v1";
-const ROTATION_DEFAULT_SECONDS=12;
+const ROTATION_DURATION_KEY="betinsight_stadium_rotation_duration_v2";
+const ROTATION_DEFAULT_SECONDS=4;
 const ROTATION_LABELS={
  de:["Drehdauer pro Stadion","Links schneller · Rechts langsamer"],
  en:["Rotation time per stadium","Left faster · Right slower"],
