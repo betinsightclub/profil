@@ -2,7 +2,7 @@
    Loaded only when WebGL-based maps cannot render. No backend writes. */
 (function(){
  "use strict";
- let map=null,base=null,dots=null,flags=null,loader=null,opts={},version=0,canvas=null;
+ let map=null,base=null,dots=null,flags=null,selectedMarker=null,loader=null,opts={},version=0,canvas=null;
  const languages={
   de:"Die Kartenansicht konnte nicht geladen werden. Die Stadionliste bleibt verfügbar.",
   en:"The map could not be loaded. The stadium list remains available.",
@@ -69,14 +69,27 @@
    });
    marker.bindTooltip([s.name,s.city,s.country].filter(Boolean).map(html).join(" · "));
    marker.on("click",()=>opts.onSelect?.(Number(s.id)));marker.addTo(dots);
-   if(visited.has(Number(s.id))){
+   if(visited.has(Number(s.id))&&Number(s.id)!==Number(opts.selected?.id)){
     const flag=L.marker([lat,lng],{
      icon:L.divIcon({className:"stadium-leaflet-flag",html:"🚩",iconSize:[25,27],iconAnchor:[12,27]})
     });
     flag.on("click",()=>opts.onSelect?.(Number(s.id)));flag.addTo(flags);
    }
   }
+  drawSelected();
   opts.onMarkersRendered?.(visited.size);
+ }
+ function drawSelected(){
+  if(selectedMarker){selectedMarker.remove();selectedMarker=null}
+  const s=opts.selected;
+  if(!map||!window.L||!s||typeof opts.selectedPinHtml!=="function")return;
+  const lat=Number(s.latitude),lng=Number(s.longitude);
+  if(!Number.isFinite(lat)||!Number.isFinite(lng)||lat < -90||lat > 90||lng < -180||lng > 180)return;
+  selectedMarker=L.marker([lat,lng],{
+   icon:L.divIcon({className:"stadium-leaflet-selection",html:opts.selectedPinHtml(s),iconSize:[220,150],iconAnchor:[110,150]}),
+   zIndexOffset:1200
+  }).addTo(map);
+  selectedMarker.on("click",()=>opts.onSelect?.(Number(s.id)));
  }
  async function show(next){
   opts={...opts,...next};
@@ -110,7 +123,9 @@
  function focus(stadium){
   if(!map||!stadium)return;
   const lat=Number(stadium.latitude),lng=Number(stadium.longitude);
-  if(Number.isFinite(lat)&&Number.isFinite(lng))map.flyTo([lat,lng],opts.mode==="satellite"?12:14);
+  if(Number.isFinite(lat)&&Number.isFinite(lng)){
+   opts.selected=stadium;draw();map.flyTo([lat,lng],opts.mode==="satellite"?12:14);
+  }
  }
  function zoom(delta){if(map)map.setZoom(Math.max(1,Math.min(opts.mode==="satellite"?13:20,map.getZoom()+delta)))}
  function reset(){if(map)map.setView([21,9],2)}
