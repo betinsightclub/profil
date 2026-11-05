@@ -245,27 +245,52 @@ async function showLeaf2D(zoom=2,mode="map"){
  await window.BetInsightLeaflet2D.show(leaf2DConfig(zoom,mode));
  window.BetInsightStadiumJourney?.refresh();updateSatellitePanel();updateSatLink();
 }
+let globeLastFailure="NONE";
+function globeFailureCategory(reason){
+ const message=String(reason?.message||reason||"").toLowerCase();
+ if(/webgl_context_lost|context lost|webgl|gpu|context_creation|renderer/i.test(message))return "WEBGL_CONTEXT";
+ if(/globe_load_timeout|load_timeout|timeout/i.test(message))return "LOAD_TIMEOUT";
+ if(/library|globe is not defined|script|cdn|network|fetch/i.test(message))return "SCRIPT_LOAD";
+ return "GLOBE_INIT";
+}
+function releaseGlobeRenderer(){
+ window.BetInsightStadiumFlight?.cancel();
+ const previous=globe;globe=null;globeVisitSignature="";
+ if(previous){try{previous._destructor?.()}catch(e){console.info("3D cleanup",e)}}
+ // Do not retain failed canvases / event listeners between 3D reinitializations.
+ const container=$("globe");if(container)container.replaceChildren();
+}
+
 function fallbackTo2D(reason){
  window.BetInsightStadiumFlight?.cancel();
  if(globeUnavailable)return;
  console.warn("Stadionwelt 3D is unavailable; opening map",reason);
- globeUnavailable=true;globe=null;globeVisitSignature="";
+ globeLastFailure=globeFailureCategory(reason);
+ globeUnavailable=true;releaseGlobeRenderer();
  $("globeWait").classList.add("hide");$("emptyglobe").style.display="none";
  $("globeModeBtn").disabled=true;updateFallbackNotice();
  if(hasWebGL2())showMap(2,"map");else void showLeaf2D(2,"map");
 }
 async function reloadGlobeLibrary(){
  if(typeof Globe==="function")return true;
- return new Promise(resolve=>{
-  const script=document.createElement("script");
-  script.src="https://unpkg.com/globe.gl@2.45.0/dist/globe.gl.min.js";
-  let settled=false;
-  const finish=ok=>{if(settled)return;settled=true;clearTimeout(timer);resolve(ok)};
-  script.onload=()=>finish(typeof Globe==="function");
-  script.onerror=()=>finish(false);
-  const timer=setTimeout(()=>finish(false),8000);
-  document.head.appendChild(script);
- });
+ const sources=[
+  "https://unpkg.com/globe.gl@2.45.0/dist/globe.gl.min.js",
+  "https://cdn.jsdelivr.net/npm/globe.gl@2.45.0/dist/globe.gl.min.js"
+ ];
+ for(const url of sources){
+  if(typeof Globe==="function")return true;
+  const loaded=await new Promise(resolve=>{
+   const script=document.createElement("script");script.src=url;script.async=true;
+   let settled=false;
+   const done=ok=>{if(settled)return;settled=true;clearTimeout(timer);resolve(ok)};
+   script.onload=()=>done(typeof Globe==="function");
+   script.onerror=()=>done(false);
+   const timer=setTimeout(()=>done(false),6500);
+   document.head.appendChild(script);
+  });
+  if(loaded||typeof Globe==="function")return true;
+ }
+ return typeof Globe==="function";
 }
 async function retryGlobe(){
  if(!globeUnavailable||globeRetryBusy||!ready)return;
@@ -276,7 +301,7 @@ async function retryGlobe(){
  try{
   // Never remove the functioning 2D map until the 3D globe has initialized.
   if(!(await reloadGlobeLibrary()))throw Error("GLOBE_LIBRARY_UNAVAILABLE");
-  holder.replaceChildren();
+  releaseGlobeRenderer();
   holder.classList.remove("hide");
   holder.style.visibility="hidden";holder.style.pointerEvents="none";
   initGlobe();
@@ -285,7 +310,7 @@ async function retryGlobe(){
   // Complete all potentially failing 3D calls before hiding the working map.
   globe.width(holder.clientWidth).height(holder.clientHeight);
   globe.controls().autoRotate=rotating;
-  globeUnavailable=false;mapMode="globe";mapRequested=false;
+  globeUnavailable=false;globeLastFailure="NONE";mapMode="globe";mapRequested=false;
   $("detailMap").classList.add("hide");$("emptyglobe").style.display="none";
   $("globeWait").classList.add("hide");$("satCredit").classList.add("hide");
   holder.style.visibility="";holder.style.pointerEvents="";
@@ -294,13 +319,13 @@ async function retryGlobe(){
   toast(copy.success);
  }catch(e){
   console.warn("Stadionwelt: 3D retry unsuccessful",e);
-  try{globe?._destructor?.()}catch{}
-  globe=null;globeUnavailable=true;globeVisitSignature="";mapMode=previousMode;
+  globeLastFailure=globeFailureCategory(e);
+  releaseGlobeRenderer();globeUnavailable=true;mapMode=previousMode;
   holder.classList.add("hide");holder.replaceChildren();
   $("detailMap").classList.remove("hide");
   $("satCredit").classList.toggle("hide",previousMode!=="satellite");
   syncModeControls();
-  toast(copy.failed);
+  toast(copy.failed+" ["+globeLastFailure+"]");
  }finally{
   holder.style.visibility="";holder.style.pointerEvents="";
   globeRetryBusy=false;updateFallbackNotice();
@@ -314,7 +339,10 @@ function initGlobeWhenReady(){
  }
  initGlobe();if(globe){$("globeWait").classList.add("hide");renderDots()}
 }
-window.addEventListener("stadium-globe-ready",initGlobeWhenReady);
+window.addEventListener("stadium-globe-ready",()=>{
+ if(globeUnavailable&&ready&&!globeRetryBusy){void retryGlobe();return}
+ initGlobeWhenReady();
+});
 window.addEventListener("stadium-globe-error",()=>{globeLibraryFailed=true;initGlobeWhenReady()});
 async function loadReviewOnDemand(){
  if(reviewLoaded||reviewLoadPromise)return reviewLoadPromise;
@@ -372,7 +400,7 @@ async function boot(){
    const deepId=Number(new URLSearchParams(location.search).get("stadium"));
    if(Number.isSafeInteger(deepId)&&deepId>0&&all.some(s=>Number(s.id)===deepId))selectStadium(deepId);
    initGlobeWhenReady();
-   setTimeout(()=>{if(ready&&!globe&&!globeUnavailable)fallbackTo2D("globe_load_timeout")},10000);
+   setTimeout(()=>{if(ready&&!globe&&!globeUnavailable)fallbackTo2D("globe_load_timeout")},15000);
    // Private visits may take a further gateway round trip; do not block the globe.
    void fetchVisits().then(()=>{if(tab==="passport")renderRight()});
    // Administrative media queues are only needed when the review tab is opened.
@@ -661,7 +689,7 @@ async function loadPhotos(id,name){
  }catch(e){console.info("Commons search unavailable",e.message)}
  photoCache.set(id,{loading:false,photos});if(Number(selected?.id)===id&&tab==="details")drawPhotos();
 }
-function initGlobe(){const holder=$("globe");if(typeof Globe==="undefined"){ $("emptyglobe").style.display="flex";$("globeError").textContent="3D library unavailable. Stadium list still works.";return;}try{const w=holder.clientWidth,h=holder.clientHeight;globe=Globe({animateIn:false,waitForGlobeReady:false})(holder).globeImageUrl("https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg").backgroundColor("rgba(0,0,0,0)").showAtmosphere(true).atmosphereColor("#5dcbd1").atmosphereAltitude(0.15).pointLat("lat").pointLng("lng").pointRadius(x=>{const band=capacityBand(x.capacity);return (x.id===selected?.id) ? 0.29 : (band<0 ? 0.095 : 0.11+band*0.025)}).pointAltitude(0).pointResolution(10).pointsTransitionDuration(0).pointColor(x=>stadiumColor(x.capacity)).htmlLat("lat").htmlLng("lng").htmlAltitude(0.003)
+function initGlobe(){const holder=$("globe");if(typeof Globe==="undefined"){ $("emptyglobe").style.display="flex";$("globeError").textContent="3D library unavailable. Stadium list still works.";return;}try{const w=holder.clientWidth,h=holder.clientHeight;globe=Globe({animateIn:false,waitForGlobeReady:false})(holder);globe.globeImageUrl("https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg").backgroundColor("rgba(0,0,0,0)").showAtmosphere(true).atmosphereColor("#5dcbd1").atmosphereAltitude(0.15).pointLat("lat").pointLng("lng").pointRadius(x=>{const band=capacityBand(x.capacity);return (x.id===selected?.id) ? 0.29 : (band<0 ? 0.095 : 0.11+band*0.025)}).pointAltitude(0).pointResolution(10).pointsTransitionDuration(0).pointColor(x=>stadiumColor(x.capacity)).htmlLat("lat").htmlLng("lng").htmlAltitude(0.003)
 .htmlElement(s=>s.kind==="selection"?makeSelectionPin(s,true):makeFlagButton(s))
 .htmlTransitionDuration(0)
 .htmlElementVisibilityModifier((element,isVisible)=>{element.style.display=isVisible?"":"none";element.style.pointerEvents=isVisible?"auto":"none"}).pointLabel(x=>esc(x.name)+" · "+esc(x.city||"")+" · "+esc(x.country)+" · "+(x.capacity==null?esc(t("unknownSize")):fmt(x.capacity)+" "+esc(t("capacity")))).onPointClick(x=>selectStadium(x.id)).onGlobeClick(p=>{if(pickMode){$("latitude").value=p.lat.toFixed(6);$("longitude").value=p.lng.toFixed(6);pickMode=false;toast("✓ "+p.lat.toFixed(5)+", "+p.lng.toFixed(5))}});
@@ -670,7 +698,7 @@ globe.width(w).height(h).pointOfView(selected?{lat:+selected.latitude,lng:+selec
  if(!canvas)throw Error("GLOBE_RENDERER_CANVAS_MISSING");
  canvas.addEventListener("pointerdown",()=>window.BetInsightStadiumFlight?.cancel(),{passive:true});
  canvas.addEventListener("webglcontextlost",()=>fallbackTo2D("webgl_context_lost"),{once:true});
- renderDots();window.BetInsightStadiumJourney?.refresh();}catch(e){globe=null;if(!globeUnavailable)fallbackTo2D(e);else console.warn("Stadionwelt 3D retry initialization failed",e)}}
+ renderDots();window.BetInsightStadiumJourney?.refresh();}catch(e){console.warn("Stadionwelt 3D initialization failed",e);if(!globeUnavailable)fallbackTo2D(e);else{globeLastFailure=globeFailureCategory(e);releaseGlobeRenderer()}}}
 function renderDots(){
  if(!globe)return;
  const globeLocations=filtered.filter(s=>showAllGlobePoints||Number(s.capacity||0)>=40000||Number(s.id)===Number(selected?.id));
