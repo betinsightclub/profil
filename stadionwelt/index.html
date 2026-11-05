@@ -164,7 +164,7 @@ function hasWebGL(kind){
 }
 function hasWebGL2(){return hasWebGL("webgl2")}
 function hasGlobeWebGL(){return hasWebGL2()||hasWebGL("webgl")||hasWebGL("experimental-webgl")}
-function leaf2DConfig(zoom=2,mode="map"){
+function leaf2DConfig(zoom=2,mode=mapMode){
  return {container:$("detailMap"),stadiums:filtered,visits,selected,zoom,mode,lang,
   stadiumColor,capacityBand,onSelect:id=>selectStadium(id),
   isPicking:()=>pickMode,onPick:(lat,lng)=>{const a=$("latitude"),b=$("longitude");
