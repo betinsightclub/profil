@@ -390,6 +390,11 @@ function makeSelectionPin(s,onGlobe=false){
  pin.tabIndex=0;pin.setAttribute("role","button");
  pin.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();selectStadium(Number(s.id))});
  pin.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();event.stopPropagation();selectStadium(Number(s.id))}});
+ if(onGlobe){
+  // Globe.gl positions its DOM root with CSS2DRenderer; anchor the card inside it.
+  const anchor=document.createElement("div");anchor.className="stadium-selection-globe-anchor";
+  anchor.appendChild(pin);return anchor;
+ }
  return pin;
 }
 function validSelectionCoordinates(s){
