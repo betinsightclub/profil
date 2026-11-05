@@ -1,0 +1,19 @@
+/* Stadionwelt: active selection is a temporary turquoise callout.
+   Personal visit flags remain red and independent of the selection. */
+.stadium-selection-pin{position:relative;box-sizing:border-box;width:220px;display:flex;flex-direction:column;align-items:center;isolation:isolate;pointer-events:auto;cursor:pointer;font:12px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;color:#f5fdff;user-select:none}
+.stadium-selection-card{box-sizing:border-box;width:210px;max-width:210px;text-align:left;padding:11px 13px 12px;border:1px solid #52e1d6;border-radius:14px;background:linear-gradient(145deg,rgba(13,52,67,.98),rgba(3,26,42,.98));box-shadow:0 12px 36px rgba(0,0,0,.65),0 0 0 3px rgba(54,222,204,.12);backdrop-filter:blur(8px);overflow-wrap:anywhere}
+.stadium-selection-kicker{display:block;margin-bottom:4px;color:#70f7e9;font-size:10px;font-weight:850;letter-spacing:.065em;text-transform:uppercase}
+.stadium-selection-name{display:block;font-size:14px;line-height:1.3;font-weight:800;color:#fff;max-height:3.9em;overflow:hidden}
+.stadium-selection-place,.stadium-selection-capacity{display:block;margin-top:3px;color:#c3dbe2;font-size:11px}
+.stadium-selection-capacity{color:#95f1df;font-weight:650}
+.stadium-selection-visited{display:block;margin-top:5px;color:#ffb1ba;font-size:10px;font-weight:750}
+.stadium-selection-stem{display:block;width:2px;height:16px;background:linear-gradient(#4be7dc,#edfefd);box-shadow:0 0 10px #24e5d7}
+.stadium-selection-target{position:relative;display:block;flex:0 0 19px;width:19px;height:19px;border:4px solid #f1fffe;border-radius:50%;background:#1ed4c7;box-shadow:0 0 0 3px rgba(21,211,196,.35),0 0 20px rgba(34,229,209,.85)}
+.stadium-selection-target:before{content:"";position:absolute;inset:-9px;border:2px solid rgba(52,241,220,.55);border-radius:50%;animation:stadium-selection-pulse 2.2s ease-out infinite}
+@keyframes stadium-selection-pulse{0%{opacity:.85;transform:scale(.64)}75%,100%{opacity:0;transform:scale(1.45)}}
+.stadium-selection-pin:hover .stadium-selection-card{border-color:#b0fff2;box-shadow:0 12px 36px rgba(0,0,0,.7),0 0 0 4px rgba(54,222,204,.22)}
+.stadium-selection-pin:focus-visible{outline:2px solid white;outline-offset:3px;border-radius:14px}
+.stadium-selection-globe{transform:translate(-50%,-100%)}
+.stadium-leaflet-selection{background:transparent!important;border:0!important;z-index:550!important}
+.stadium-leaflet-selection>.stadium-selection-pin{position:absolute;left:0;bottom:0}
+@media(prefers-reduced-motion:reduce){.stadium-selection-target:before{animation:none;opacity:.4}}
