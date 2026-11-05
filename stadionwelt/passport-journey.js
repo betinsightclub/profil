@@ -86,7 +86,7 @@ function tick(){
   if(!playing)return;
   if(index>=entries().length-1){pause();return}
   goto(index+1);tick();
- },cfg?.isGlobe?.()?Math.max(7400,(Number(cfg.rotationDuration?.())||4000)+4500):7400);
+ },Math.max(7400,(Number(cfg.rotationDuration?.())||4000)+(cfg?.isGlobe?.()?4500:1600)));
 }
 function onRotationDurationChanged(){
  // If the viewer changes the duration mid-tour, allow the current camera move to finish.
