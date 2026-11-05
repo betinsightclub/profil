@@ -186,7 +186,7 @@ function hasWebGL(kind){
 function hasWebGL2(){return hasWebGL("webgl2")}
 function leaf2DConfig(zoom=2,mode=mapMode){
  return {container:$("detailMap"),stadiums:filtered,visits,selected,zoom,mode,lang,
-  stadiumColor,capacityBand,selectedPinHtml:selectionPinHTML,journeyStops:window.BetInsightStadiumJourney?.tourStops()||[],journeyIndex:window.BetInsightStadiumJourney?.index()??-1,onSelect:id=>selectStadium(id),
+  stadiumColor,capacityBand,selectedPinHtml:selectionPinHTML,journeyStops:window.BetInsightStadiumJourney?.tourStops()||[],journeyRouteFeatures:window.BetInsightStadiumJourney?.geo().features||[],journeyIndex:window.BetInsightStadiumJourney?.index()??-1,onSelect:id=>selectStadium(id),
   isPicking:()=>pickMode,onPick:(lat,lng)=>{const a=$("latitude"),b=$("longitude");
    if(a&&b){a.value=lat.toFixed(6);b.value=lng.toFixed(6);pickMode=false;toast("✓ "+a.value+", "+b.value)}},
   onMarkersRendered:n=>{if($("visitFlagCount"))$("visitFlagCount").textContent=fmt(n)}
