@@ -1498,7 +1498,9 @@
         var m=globalPricingState&&globalPricingState.membership||{};
         return Number(m.unitsAvailable??m.units_available??0)||0;
       }
+      function isRadarEditor(){return Boolean(globalPricingState&&globalPricingState.radar_profile===true);}
       function hasEnoughForGlobal(){
+        if(isRadarEditor())return true;
         if(!globalPricingState)return false;
         var p=globalPricingState.pricing||{};
         return currentUnitBalance()+1e-9>=Number(p.unit_cost||0);
@@ -1506,18 +1508,18 @@
       function renderLinkOption(){
         var box=document.getElementById("postLinkOption"),check=document.getElementById("postLinkEnabled"),field=document.getElementById("postLinkField"),note=document.getElementById("postLinkNote");
         if(!box||!check||!field||!note)return;
-        var global=selectedDistributionScope==="GLOBAL",enough=global&&hasEnoughForGlobal();
-        box.classList.toggle("hidden",!global);
+        var global=selectedDistributionScope==="GLOBAL",radar=isRadarEditor(),eligible=global||radar,enough=radar||(global&&hasEnoughForGlobal());
+        box.classList.toggle("hidden",!eligible);
         check.disabled=!enough;
-        if(!global||!enough){
+        if(!eligible||!enough){
           check.checked=false;postLinkEnabled=false;field.classList.remove("show");
           document.getElementById("postExternalUrl").value="";
         }
-        if(global&&!enough){
+        if(eligible&&!enough){
           note.textContent="Für einen globalen Link-Post ist zuerst genügend Unit-Guthaben erforderlich.";
           note.className="post-link-note post-link-warning";
         }else{
-          note.textContent="Links sind nur über dieses Feld erlaubt. Die Units werden bis zur Freigabe reserviert.";
+          note.textContent=radar?"Radar-Redaktion: Links im Text und im Link-Feld erlaubt, keine Unit-Kosten.":"Links sind nur über dieses Feld erlaubt. Die Units werden bis zur Freigabe reserviert.";
           note.className="post-link-note";
         }
       }
@@ -1527,13 +1529,18 @@
         if(!globalPricingState){
           price.textContent="Preis wird geladen …";
           hint.innerHTML="Eigene Profilbeiträge bleiben <strong>kostenlos</strong>. Für den globalen Feed wird dein Tarif geprüft.";
+        }else if(isRadarEditor()){
+          price.textContent="Offizielles Radar-Profil · kostenlos";
+          hint.textContent="Radar-Redaktion: Links, Zahlen und Artikel bis 15.000 Zeichen möglich. Kein Unit-Abzug beim globalen Posten.";
         }else{
           var p=globalPricingState.pricing||{},m=globalPricingState.membership||{};
           var discounted=p.monthly_limit==null?"Basispreis":(Number(p.remaining||0)>0?(Number(p.remaining||0)+" vergünstigte Posts in diesem Monat verbleibend"):"Vergünstigtes Monatskontingent aufgebraucht · danach 0,5 Units");
           price.textContent=unitLabel(p.unit_cost)+" · "+tierLabel(m.effectiveTier||m.effective_tier)+" · "+discounted;
           hint.innerHTML='Tarif: <strong>'+esc(tierLabel(m.effectiveTier||m.effective_tier))+'</strong> · Status: <strong>'+esc(m.effectiveStatus||m.effective_status||"")+'</strong> · Global: <strong>'+esc(unitLabel(p.unit_cost))+'</strong> pro Beitrag. Links nur über das separate Link-Feld.';
         }
-        if(submit)submit.textContent=selectedDistributionScope==="GLOBAL"&&globalPricingState
+        if(submit)submit.textContent=isRadarEditor()
+          ? (selectedDistributionScope==="GLOBAL"?"Radar-Nachricht global veröffentlichen":"Radar-Nachricht veröffentlichen")
+          : selectedDistributionScope==="GLOBAL"&&globalPricingState
           ? "Global posten · "+unitLabel(globalPricingState.pricing.unit_cost)
           : "Posten";
         renderLinkOption();
@@ -1548,10 +1555,11 @@
           if(price)price.textContent="Tarifprüfung momentan nicht verfügbar";
         }
         renderPostPricing();
+        updatePublishState();
       }
       function selectPostScope(scope){
         selectedDistributionScope=scope==="GLOBAL"?"GLOBAL":"PROFILE";
-        if(selectedDistributionScope!=="GLOBAL"){
+        if(selectedDistributionScope!=="GLOBAL"&&!isRadarEditor()){
           postLinkEnabled=false;
           var c=document.getElementById("postLinkEnabled"),u=document.getElementById("postExternalUrl");
           if(c)c.checked=false;if(u)u.value="";
@@ -3634,13 +3642,14 @@
 
       function updatePublishState(){
         var postField=document.getElementById("postText");
-        var count=postField.value.length;
+        var count=postField.value.length,maxLen=isRadarEditor()?15000:5000;
+        postField.maxLength=maxLen;
         var counter=document.getElementById("postTextCounter");
-        if(counter)counter.textContent=count.toLocaleString("de-DE")+" / 5.000 Zeichen";
+        if(counter)counter.textContent=count.toLocaleString("de-DE")+" / "+maxLen.toLocaleString("de-DE")+" Zeichen";
         var counterWrap=document.getElementById("postCharCounter");
-        if(counterWrap)counterWrap.classList.toggle("at-limit",count>=5000);
+        if(counterWrap)counterWrap.classList.toggle("at-limit",count>=maxLen);
         var hasText = postField.value.trim().length > 0;
-        document.getElementById("publishPostBtn").disabled = postImagePreparing || count>5000 || !(hasText || selectedImageFile || selectedImageData || selectedEmotion);
+        document.getElementById("publishPostBtn").disabled = postImagePreparing || count>maxLen || !(hasText || selectedImageFile || selectedImageData || selectedEmotion);
       }
       document.getElementById("postText").addEventListener("input",updatePublishState);
 
@@ -3658,12 +3667,13 @@
         // Inhaltsregeln werden serverseitig anhand des angemeldeten Trainerkontos geprüft.
         var externalUrl=postLinkEnabled?document.getElementById("postExternalUrl").value.trim():"";
         if(postLinkEnabled){
-          if(selectedDistributionScope!=="GLOBAL"){showToast("Links sind nur bei globalen Beiträgen möglich.");return}
+          if(selectedDistributionScope!=="GLOBAL"&&!isRadarEditor()){showToast("Links sind nur bei globalen Beiträgen möglich.");return}
           if(!hasEnoughForGlobal()){showToast("Nicht genügend Units für den globalen Link-Post.");return}
           try{var parsedUrl=new URL(externalUrl);if(!/^https?:$/.test(parsedUrl.protocol))throw new Error()}catch(_e){showToast("Bitte einen gültigen http(s)-Link eintragen.");return}
         }
 
-        var screening = await screenCommunityText(text,"post");
+        // Server validates all posts on save. Skip the redundant preliminary request for verified Radar profiles.
+        var screening = isRadarEditor()?{decision:"PUBLISHED",flags:[]}:await screenCommunityText(text,"post");
         if(screening.decision === "REJECTED"){
           showToast(moderationMessage(screening.flags) || "Dieser Beitrag ist nicht zulässig.");
           return;
@@ -3671,7 +3681,7 @@
 
         if(serverMode){
           try{
-            if(selectedDistributionScope==="GLOBAL"){
+            if(selectedDistributionScope==="GLOBAL"&&!isRadarEditor()){
               if(!globalPricingState)await loadPostPricing();
               if(!globalPricingState)throw new Error("Tarifprüfung nicht verfügbar");
               var gp=globalPricingState.pricing||{};
@@ -3728,11 +3738,11 @@
             if(saved.moderation && saved.moderation.status === "PENDING_REVIEW"){
               showToast("Beitrag gespeichert und zur Prüfung geschickt.");
             }else if(saved.billing&&saved.billing.scope==="GLOBAL"){
-              showToast("Global veröffentlicht · "+unitLabel(saved.billing.unit_cost)+" abgebucht.");
+              showToast(isRadarEditor()?"Radar-Nachricht global veröffentlicht – kostenlos.":"Global veröffentlicht · "+unitLabel(saved.billing.unit_cost)+" abgebucht.");
             }else{
               showToast("Beitrag kostenlos auf deinem Profil veröffentlicht.");
             }
-            if(selectedDistributionScope==="GLOBAL")await loadPostPricing();
+            if(selectedDistributionScope==="GLOBAL"&&!isRadarEditor())await loadPostPricing();
             loadServerFeed(feedMode);
             return;
           }catch(error){
