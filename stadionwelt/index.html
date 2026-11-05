@@ -181,10 +181,9 @@ function updateFallbackNotice(){
  n.classList.toggle("hide",!globeUnavailable);
 }
 function hasWebGL(kind){
- try{const canvas=document.createElement("canvas"),gl=canvas.getContext(kind);if(!gl)return false;gl.getExtension("WEBGL_lose_context")?.loseContext();return true}catch{return false}
+ try{const canvas=document.createElement("canvas"),gl=canvas.getContext(kind);return Boolean(gl&&!gl.isContextLost?.())}catch{return false}
 }
 function hasWebGL2(){return hasWebGL("webgl2")}
-function hasGlobeWebGL(){return hasWebGL2()||hasWebGL("webgl")||hasWebGL("experimental-webgl")}
 function leaf2DConfig(zoom=2,mode=mapMode){
  return {container:$("detailMap"),stadiums:filtered,visits,selected,zoom,mode,lang,
   stadiumColor,capacityBand,selectedPinHtml:selectionPinHTML,onSelect:id=>selectStadium(id),
@@ -233,7 +232,6 @@ async function retryGlobe(){
  const holder=$("globe");
  try{
   // Never remove the functioning 2D map until the 3D globe has initialized.
-  if(!hasGlobeWebGL())throw Error("WEBGL_NOT_AVAILABLE");
   if(!(await reloadGlobeLibrary()))throw Error("GLOBE_LIBRARY_UNAVAILABLE");
   holder.replaceChildren();
   holder.classList.remove("hide");
@@ -241,8 +239,6 @@ async function retryGlobe(){
   initGlobe();
   const canvas=holder.querySelector("canvas");
   if(!globe||!canvas)throw Error("GLOBE_INITIALIZATION_FAILED");
-  const context=canvas.getContext("webgl2")||canvas.getContext("webgl")||canvas.getContext("experimental-webgl");
-  if(context?.isContextLost?.())throw Error("WEBGL_CONTEXT_LOST");
   // Complete all potentially failing 3D calls before hiding the working map.
   globe.width(holder.clientWidth).height(holder.clientHeight);
   globe.controls().autoRotate=rotating;
@@ -269,7 +265,6 @@ async function retryGlobe(){
 }
 function initGlobeWhenReady(){
  if(!ready||globe||globeUnavailable||!$("lock").classList.contains("hide"))return;
- if(!hasGlobeWebGL()){fallbackTo2D("webgl_unavailable");return}
  if(typeof Globe==="undefined"){
   if(globeLibraryFailed)fallbackTo2D("globe_library_unavailable");
   return;
@@ -551,7 +546,7 @@ function ensureStreet(){
   else console.info("Map tiles",message);
  });
 }
-function syncModeControls(){for(const [id,mode] of [["globeModeBtn","globe"],["mapModeBtn","map"],["satModeBtn","satellite"]]){const b=$(id);if(!b)continue;const on=mapMode===mode;b.classList.toggle("active",on);b.setAttribute("aria-pressed",String(on));if(mode==="globe")b.disabled=globeUnavailable}}
+function syncModeControls(){for(const [id,mode] of [["globeModeBtn","globe"],["mapModeBtn","map"],["satModeBtn","satellite"]]){const b=$(id);if(!b)continue;const on=mapMode===mode;b.classList.toggle("active",on);b.setAttribute("aria-pressed",String(on));if(mode==="globe"){b.disabled=false;b.title=globeUnavailable?(GLOBE_RETRY_LANG[lang]||GLOBE_RETRY_LANG.en).button:""}}}
 function googleSatUrl(){const p=streetMap&&mapMode!=="globe"?streetMap.getCenter():selected?{lat:+selected.latitude,lng:+selected.longitude}:globe?.pointOfView()||{lat:20,lng:0};return "https://www.google.com/maps/@"+Number(p.lat).toFixed(6)+","+Number(p.lng).toFixed(6)+",18z/data=!3m1!1e3"}
 function applySatelliteLayer(){
  if(streetMap?.getLayer("eox-satellite"))streetMap.setLayoutProperty("eox-satellite","visibility",mapMode==="satellite"?"visible":"none");
@@ -580,7 +575,7 @@ function showMap(zoom=14.2,desiredMode="map"){
 }
 function showSatellite(){showMap(12,"satellite")}
 function showGlobe(){
- if(globeUnavailable){showMap(2,"map");return}
+ if(globeUnavailable){void retryGlobe();return}
  mapMode="globe";mapRequested=false;syncModeControls();$("satCredit").classList.add("hide");updateSatLink();
  $("globe").classList.remove("hide");$("detailMap").classList.add("hide");
  $("mapBtn").textContent="🗺️ "+t("mapView");$("globeHint").textContent=t("globeHint");
@@ -625,7 +620,8 @@ function initGlobe(){const holder=$("globe");if(typeof Globe==="undefined"){ $("
 .htmlElementVisibilityModifier((element,isVisible)=>{element.style.display=isVisible?"":"none";element.style.pointerEvents=isVisible?"auto":"none"}).pointLabel(x=>esc(x.name)+" · "+esc(x.city||"")+" · "+esc(x.country)+" · "+(x.capacity==null?esc(t("unknownSize")):fmt(x.capacity)+" "+esc(t("capacity")))).onPointClick(x=>selectStadium(x.id)).onGlobeClick(p=>{if(pickMode){$("latitude").value=p.lat.toFixed(6);$("longitude").value=p.lng.toFixed(6);pickMode=false;toast("✓ "+p.lat.toFixed(5)+", "+p.lng.toFixed(5))}});
 globe.width(w).height(h).pointOfView(selected?{lat:+selected.latitude,lng:+selected.longitude,altitude:1.65}:{lat:21,lng:9,altitude:2.5},0);globe.controls().autoRotate=false;globe.controls().autoRotateSpeed=0;globe.controls().enableDamping=true;globe.controls().minDistance=118;new ResizeObserver(()=>{if(globe&&holder.clientWidth&&holder.clientHeight)globe.width(holder.clientWidth).height(holder.clientHeight)}).observe(holder);
  const canvas=holder.querySelector("canvas");
- if(canvas)canvas.addEventListener("webglcontextlost",()=>fallbackTo2D("webgl_context_lost"),{once:true});
+ if(!canvas)throw Error("GLOBE_RENDERER_CANVAS_MISSING");
+ canvas.addEventListener("webglcontextlost",()=>fallbackTo2D("webgl_context_lost"),{once:true});
  renderDots();}catch(e){globe=null;if(!globeUnavailable)fallbackTo2D(e);else console.warn("Stadionwelt 3D retry initialization failed",e)}}
 function renderDots(){
  if(!globe)return;
