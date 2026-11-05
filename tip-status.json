@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "sequence": 54,
-  "latest_tip_id": "BI-20261104-105101-MAR",
-  "published_at": "4.11.2026, 10:51:01",
+  "sequence": 55,
+  "latest_tip_id": "BI-20261105-232449-MAR",
+  "published_at": "5.11.2026, 23:24:49",
   "feature_started_at": "2026-09-05T14:25:00Z",
   "tips": [
     {
@@ -274,6 +274,11 @@
       "sequence": 54,
       "tipp_id": "BI-20261104-105101-MAR",
       "kickoff_at": "2026-11-04T18:45:00+01:00"
+    },
+    {
+      "sequence": 55,
+      "tipp_id": "BI-20261105-232449-MAR",
+      "kickoff_at": "2026-11-06T18:30:00+01:00"
     }
   ]
 }
