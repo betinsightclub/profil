@@ -15,6 +15,6 @@
 .stadium-selection-pin:focus-visible{outline:2px solid white;outline-offset:3px;border-radius:14px}
 .stadium-selection-globe-anchor{position:relative;width:0;height:0;overflow:visible}
 .stadium-selection-globe{position:absolute;top:0;left:0;transform:translate(-50%,-100%)}
-.stadium-leaflet-selection{background:transparent!important;border:0!important;z-index:550!important}
+.stadium-leaflet-selection{background:transparent!important;border:0!important}
 .stadium-leaflet-selection>.stadium-selection-pin{position:absolute;left:0;bottom:0}
 @media(prefers-reduced-motion:reduce){.stadium-selection-target:before{animation:none;opacity:.4}}
