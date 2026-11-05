@@ -61,6 +61,7 @@ select{font:inherit;background:#092638;color:white;border:1px solid #52839b;padd
 .simple-expert{border:1px solid #294e60;background:#072331;border-radius:14px;padding:17px 18px;margin-top:16px}
 .simple-expert>.panel{margin-top:16px}
 @media(max-width:760px){.simple-stats,.simple-observations{grid-template-columns:1fr}.simple-main{padding:17px}.simple-main h2{font-size:23px}}
+.simple-next-step{background:#0c3144;border-left:4px solid #4cdab2;border-radius:9px;padding:13px 16px;margin:0;color:#d8f0ed;font-size:14px;line-height:1.55}
 </style>
 </head>
 <body>
@@ -72,7 +73,7 @@ select{font:inherit;background:#092638;color:white;border:1px solid #52839b;padd
 <section id="locked" class="panel"><h2 id="authTitle">Deine Anmeldung wird geprüft</h2><p id="authStatus" role="status">Du wirst bei Bedarf zum Admin Center weitergeleitet. Nach der Anmeldung kommst du automatisch hierher zurück.</p><p><a href="/admin/?next=gruen-finder" style="display:inline-block;padding:12px 18px;border-radius:10px;background:#26cfae;color:#05232e;font-weight:850;text-decoration:none">Zum Admin-Login und zurück zum Quoten-Finder</a></p></section>
 <div id="workspace" class="hidden">
 <section id="simpleDashboard" class="panel simple-main">
- <div class="overline">BetInsight · Schnellanalyse</div>
+ <div class="overline">✓ Du bist im richtigen Bereich · BetInsight Schnellanalyse</div>
  <h2>Quoten übersichtlich prüfen</h2>
  <p class="muted">Ein Klick prüft alle bereits gespeicherten Quoten aus 12 Ligen. <strong>Keine neue Anbieterabfrage und keine API-Credits.</strong> Du siehst sofort, ob wir aktuelle Daten haben und ob der bisherige Preisfilter eine Auswahl findet.</p>
  <div class="controls"><button type="button" id="simpleCheck">🔎 Jetzt kostenlos prüfen · 0 Credits</button></div>
@@ -259,6 +260,6 @@ function showOtherOdds(key){return details(key,"otherOddsDetails","additionalOdd
 <script src="/admin/testlabor/price-watch-v1.js?v=2" defer></script>
 <script src="/admin/testlabor/market-lab-v1.js?v=2" defer></script>
 <script src="/admin/testlabor/real-market-lookup-v1.js?v=1" defer></script>
-<script src="/admin/testlabor/simple-dashboard-v1.js?v=1" defer></script>
+<script src="/admin/testlabor/simple-dashboard-v1.js?v=2" defer></script>
 </body>
 </html>
