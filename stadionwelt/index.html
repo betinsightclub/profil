@@ -245,7 +245,7 @@ async function showLeaf2D(zoom=2,mode="map"){
  await window.BetInsightLeaflet2D.show(leaf2DConfig(zoom,mode));
  window.BetInsightStadiumJourney?.refresh();updateSatellitePanel();updateSatLink();
 }
-let globeLastFailure="NONE";
+let globeLastFailure="NONE",globeResizeObserver=null;
 function globeFailureCategory(reason){
  const message=String(reason?.message||reason||"").toLowerCase();
  if(/webgl_context_lost|context lost|webgl|gpu|context_creation|renderer/i.test(message))return "WEBGL_CONTEXT";
@@ -255,6 +255,7 @@ function globeFailureCategory(reason){
 }
 function releaseGlobeRenderer(){
  window.BetInsightStadiumFlight?.cancel();
+ try{globeResizeObserver?.disconnect()}catch{}globeResizeObserver=null;
  const previous=globe;globe=null;globeVisitSignature="";
  if(previous){try{previous._destructor?.()}catch(e){console.info("3D cleanup",e)}}
  // Do not retain failed canvases / event listeners between 3D reinitializations.
@@ -693,7 +694,7 @@ function initGlobe(){const holder=$("globe");if(typeof Globe==="undefined"){ $("
 .htmlElement(s=>s.kind==="selection"?makeSelectionPin(s,true):makeFlagButton(s))
 .htmlTransitionDuration(0)
 .htmlElementVisibilityModifier((element,isVisible)=>{element.style.display=isVisible?"":"none";element.style.pointerEvents=isVisible?"auto":"none"}).pointLabel(x=>esc(x.name)+" · "+esc(x.city||"")+" · "+esc(x.country)+" · "+(x.capacity==null?esc(t("unknownSize")):fmt(x.capacity)+" "+esc(t("capacity")))).onPointClick(x=>selectStadium(x.id)).onGlobeClick(p=>{if(pickMode){$("latitude").value=p.lat.toFixed(6);$("longitude").value=p.lng.toFixed(6);pickMode=false;toast("✓ "+p.lat.toFixed(5)+", "+p.lng.toFixed(5))}});
-globe.width(w).height(h).pointOfView(selected?{lat:+selected.latitude,lng:+selected.longitude,altitude:1.15}:{lat:21,lng:9,altitude:2.5},0);globe.controls().autoRotate=false;globe.controls().autoRotateSpeed=0;globe.controls().enableDamping=true;globe.controls().minDistance=118;new ResizeObserver(()=>{if(globe&&holder.clientWidth&&holder.clientHeight)globe.width(holder.clientWidth).height(holder.clientHeight)}).observe(holder);
+globe.width(w).height(h).pointOfView(selected?{lat:+selected.latitude,lng:+selected.longitude,altitude:1.15}:{lat:21,lng:9,altitude:2.5},0);globe.controls().autoRotate=false;globe.controls().autoRotateSpeed=0;globe.controls().enableDamping=true;globe.controls().minDistance=118;const activeGlobe=globe;globeResizeObserver=new ResizeObserver(()=>{if(globe===activeGlobe&&holder.clientWidth&&holder.clientHeight)activeGlobe.width(holder.clientWidth).height(holder.clientHeight)});globeResizeObserver.observe(holder);
  const canvas=holder.querySelector("canvas");
  if(!canvas)throw Error("GLOBE_RENDERER_CANVAS_MISSING");
  canvas.addEventListener("pointerdown",()=>window.BetInsightStadiumFlight?.cancel(),{passive:true});
