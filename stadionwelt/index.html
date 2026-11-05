@@ -621,7 +621,7 @@ function showMap(zoom=14.2,desiredMode="map"){
 }
 function showSatellite(){showMap(12,"satellite")}
 function showGlobe(){
- window.BetInsightStadiumFlight?.cancel();
+ if(typeof window!=="undefined")window.BetInsightStadiumFlight?.cancel();
  if(globeUnavailable){void retryGlobe();return}
  mapMode="globe";mapRequested=false;syncModeControls();$("satCredit").classList.add("hide");updateSatLink();
  $("globe").classList.remove("hide");$("detailMap").classList.add("hide");
