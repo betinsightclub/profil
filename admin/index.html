@@ -34,6 +34,7 @@ GEÄNDERT:
 <section id="loginArea" class="card login-card" aria-labelledby="loginTitle">
 <h1 id="loginTitle">BetInsight Admin Center</h1>
 <p class="subtitle">Melde dich mit deinem persönlichen Admin-Code an.</p>
+<p id="greenFinderLoginHint" class="subtitle hidden" role="status" style="border:1px solid #3b927f;background:#0a3434;border-radius:10px;padding:11px 14px;color:#c4ffe7">Du bist auf dem richtigen Weg zum <strong>Quoten-Finder</strong>. Bitte melde dich hier an. Anschließend öffnet sich der Quoten-Finder automatisch – ohne weitere Suche im Admin Center.</p>
 <label class="login-label" for="adminCode">Persönlicher Admin-Code <span style="color:#91a6b7;font-weight:600">– nicht Profil-/Dashboard-Token</span></label>
 <input id="adminCode" class="login-input" type="password" inputmode="text" autocomplete="current-password" autocapitalize="characters" spellcheck="false" maxlength="40" placeholder="Persönlichen Admin-Code eingeben">
 <button id="loginButton" class="primary-button" type="button">Anmelden</button>
@@ -66,6 +67,7 @@ GEÄNDERT:
 "use strict";
 const AUTH_API_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-admin-auth";
 const SESSION_KEY="betinsight_admin_session_v1";
+if(new URLSearchParams(location.search).get("next")==="gruen-finder")document.getElementById("greenFinderLoginHint").classList.remove("hidden");
 const LEGACY_KEYS=["betinsight_admin_login","betinsight_admin_failed_attempts","betinsight_admin_locked_until"];
 const MAX_FAILED_ATTEMPTS=3;
 const LOCK_TIME_MINUTES=5;
