@@ -58,6 +58,15 @@
    "Geprüft wurden nur "+cur+" Ligen mit gültigem Cache. Weitere Ligen sind nicht automatisch untersucht worden; eine gute Wette lässt sich daraus nicht ableiten.";
   headline.append(make("p",line,"muted"));
   result.append(headline);
+  const next=make("p",
+    green.length?
+      "Du bist im richtigen Quoten-Finder. Diese Treffer sind vorläufige Marktbeobachtungen – keine freigegebenen Wetttipps.":
+    cur<n?
+      "Du bist richtig und die kostenlose Suche hat funktioniert. Derzeit haben nur "+cur+
+      " von "+n+" Ligen gültige Quoten. Du musst nichts weiter anklicken. Falls du weitere Ligen untersuchen willst, findest du ganz unten den einklappbaren Bereich „Neue Quotendaten für eine Liga laden“ – Kosten entstehen nur nach deiner ausdrücklichen Bestätigung.":
+      "Du bist richtig. Alle gespeicherten Ligen wurden mit aktuell gültigen Daten überprüft. Kein grüner Treffer bedeutet: Kein Angebot erfüllt derzeit den Preisfilter.",
+    "simple-next-step");
+  result.append(next);
   const observations=Array.isArray(watch?.current_watch)?watch.current_watch:[];
   if(observations.length){
     result.append(make("h3","Die drei besten aktuellen Preisbeobachtungen"));
