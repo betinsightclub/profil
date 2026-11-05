@@ -1,0 +1,26 @@
+/* BetInsight Stadionpass journey. Visual-only UI; saved visits remain unchanged. */
+.passport-journey{margin:12px 0 14px;padding:13px;border:1px solid #368a95;border-radius:14px;background:linear-gradient(160deg,#0a3447,#0b2337);box-shadow:0 9px 22px #0003}
+.passport-journey h4{margin:0 0 5px;color:#c6fff6;font-size:15px}
+.passport-journey p{margin:0 0 10px;font-size:11px;line-height:1.55;color:#acc9d6}
+.passport-journey-progress{display:block;font-size:11px;color:#79eee0;font-weight:750;margin:3px 0 10px}
+.passport-journey-buttons{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.passport-journey-buttons .btn{min-width:0;white-space:normal;line-height:1.3;padding:9px 6px;font-size:11px}
+.passport-stop-list{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.passport-stop{border:1px solid #2c5166;border-radius:11px;background:#0c2a3c;padding:8px}
+.passport-stop.active{border-color:#59e1d4;background:#124454;box-shadow:inset 3px 0 #3ce5d3}
+.passport-stop-button{width:100%;display:flex;align-items:center;gap:8px;text-align:left;padding:5px 4px;border:0;border-radius:7px;background:transparent;color:var(--text);cursor:pointer}
+.passport-stop-button:hover,.passport-stop-button:focus-visible{background:#205064;outline:2px solid #61eee4;outline-offset:1px}
+.passport-stop-number{flex:0 0 25px;display:inline-flex;align-items:center;justify-content:center;height:25px;border-radius:50%;background:#15495a;border:1px solid #459ca6;font-size:11px;font-weight:900;color:#8ffdf1}
+.passport-stop.active .passport-stop-number{background:#29d5c4;color:#07313a}
+.passport-stop-info{display:block;min-width:0;flex:1}
+.passport-stop-name{display:block;font-size:12px;line-height:1.35;font-weight:780;overflow-wrap:anywhere}
+.passport-stop-meta{display:block;margin-top:3px;font-size:10px;line-height:1.4;color:#c0d2dc}
+.passport-stop-arrow{color:#69eddf;font-size:15px}
+.passport-stop .notebox{margin:7px 0 0}
+.passport-stop .queue-imgs{margin-top:7px}
+.journey-overlay{position:absolute;z-index:14;top:110px;left:16px;max-width:min(280px,calc(100% - 32px));padding:11px 15px;background:#062b3de8;border:1px solid #54d7ce;border-radius:14px;box-shadow:0 9px 28px #001a2cbb;pointer-events:none;color:#f5ffff;backdrop-filter:blur(7px)}
+.journey-overlay strong{display:block;font-size:13px;line-height:1.3;overflow-wrap:anywhere}
+.journey-overlay span{display:block;font-size:11px;color:#b9e9e6;margin-top:3px}
+.journey-overlay .journey-step{font-size:10px;font-weight:900;letter-spacing:.07em;color:#55ffdf;text-transform:uppercase;margin-bottom:3px}
+@media(max-width:760px){.journey-overlay{top:115px;left:8px;max-width:220px;padding:8px 10px}.journey-overlay strong{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.passport-stop,.journey-overlay{scroll-behavior:auto}}
