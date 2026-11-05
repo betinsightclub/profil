@@ -42,7 +42,7 @@ a{color:var(--aqua)}.shell{min-height:100vh}.header{height:76px;border-bottom:1p
 .embedded .main{padding:5px;max-width:none}
 .embedded .workspace{height:calc(100vh - 12px);min-height:570px;max-height:none}
 @media(min-width:900px){.embedded .workspace{display:grid;grid-template-columns:235px minmax(290px,1fr) 280px;height:calc(100vh - 12px);max-height:none}.embedded .right{grid-column:auto;max-height:none}.embedded .left{height:auto}.embedded .stage{min-height:550px}}
-</style></head>
+</style><link rel="stylesheet" href="./selection-pin.css"></head>
 <body><div class="shell">
 <header class="header"><div class="brand"><img src="https://betinsight.club/assets/betinsight-logo.png" alt="BetInsight"><div><h1>Football World</h1><small>BETINSIGHT · STADIUM EXPLORER</small></div></div>
 <div class="actions"><a class="btn back-profile" href="../" id="backToProfile" aria-label="Zurück zum Profil">← <span data-i="backToProfile">Zurück zum Profil</span></a><select id="language" aria-label="Language"><option value="de">🇩🇪 Deutsch</option><option value="en">🇬🇧 English</option><option value="es">🇪🇸 Español</option><option value="pt">🇧🇷 Português</option><option value="it">🇮🇹 Italiano</option><option value="fr">🇫🇷 Français</option><option value="nl">🇳🇱 Nederlands</option><option value="zh">🇨🇳 中文</option></select><button class="btn primary" id="newBtn">＋ <span data-i="add">Stadion vorschlagen</span></button></div></header>
@@ -121,7 +121,7 @@ const PROFILE_BACK_I18N={
 };
 Object.entries(PROFILE_BACK_I18N).forEach(([locale,value])=>{D[locale].backToProfile=value});
 function memberLoginHTML(){return "<div class='empty'>"+esc(t("publicGuest"))+"</div><div class='adminbtns'><a class='btn primary' href='https://betinsight.systeme.io/school/course/mitglieder/lecture/9870726'>"+esc(t("publicLogin"))+"</a><a class='btn' href='https://betinsight.systeme.io/registrierung?ref=POOL'>"+esc(t("publicRegister"))+"</a></div>";}
-let lang="de";let all=[],filtered=[],clubs=[],fixtures=[],tips=[],tipLinks=[],globe=null,selected=null,page=0,tab=(new URLSearchParams(location.search).get("tab")==="passport"||location.hash.toLowerCase()==="#passport")?"passport":(new URLSearchParams(location.search).get("tab")==="suggest"||location.hash.toLowerCase()==="#suggest")?"suggest":"details",pickMode=false,rotating=false,mapMode="globe",streetMap=null,streetMarker=null,photoCache=new Map(),photoRequest=0,adminHash="",memberToken="",visits=[],visitPhotos=[],reviewQueue=[],reviewMedia=[],reviewProofs=[],streetVisitFlagMarkers=[],globeVisitSignature="",showAllGlobePoints=true,ready=false,globeUnavailable=false,globeRetryBusy=false;
+let lang="de";let all=[],filtered=[],clubs=[],fixtures=[],tips=[],tipLinks=[],globe=null,selected=null,page=0,tab=(new URLSearchParams(location.search).get("tab")==="passport"||location.hash.toLowerCase()==="#passport")?"passport":(new URLSearchParams(location.search).get("tab")==="suggest"||location.hash.toLowerCase()==="#suggest")?"suggest":"details",pickMode=false,rotating=false,mapMode="globe",streetMap=null,streetMarker=null,photoCache=new Map(),photoRequest=0,adminHash="",memberToken="",visits=[],visitPhotos=[],reviewQueue=[],reviewMedia=[],reviewProofs=[],streetVisitFlagMarkers=[],streetSelectionMarker=null,globeVisitSignature="",showAllGlobePoints=true,ready=false,globeUnavailable=false,globeRetryBusy=false;
 // Six capacity bands. Unknown capacities are neutral, never guessed.
 const STADIUM_SIZE_COLORS=["#64b7ff","#36dbd2","#8fe77d","#f7d469","#ff9859","#c69bff"];
 const UNKNOWN_STADIUM_COLOR="#acbbc7";
@@ -146,7 +146,7 @@ function renderSizeLegend(){
 const $=id=>document.getElementById(id), t=k=>(D[lang]&&D[lang][k])||D.en[k]||k, esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=n=>n==null?"–":Number(n).toLocaleString(lang==="de"?"de-DE":"en-US");
 const toast=(s)=>{const e=$("toast");e.textContent=s;e.classList.remove("hide");setTimeout(()=>e.classList.add("hide"),4500)};
-function translate(){renderSizeLegend();syncModeControls();updateSatellitePanel();updateFallbackNotice();if(mapMode==="satellite"){$("globeHint").textContent=t("satLimit");$("mapBtn").textContent="🌐 "+t("globeView")}else if(mapMode==="map"){$("mapBtn").textContent="🌐 "+t("globeView");$("globeHint").textContent=t("mapHint")}else{$("mapBtn").textContent="🗺️ "+t("mapView");$("globeHint").textContent=t("globeHint")}document.documentElement.lang=lang==="zh"?"zh-Hant-TW":lang;document.querySelectorAll("[data-i]").forEach(e=>e.textContent=t(e.dataset.i));document.querySelectorAll("[data-ph]").forEach(e=>e.placeholder=t(e.dataset.ph));$("language").value=lang;if(ready){applyFilters();renderRight()} }
+function translate(){renderSizeLegend();syncModeControls();updateSatellitePanel();updateFallbackNotice();if(mapMode==="satellite"){$("globeHint").textContent=t("satLimit");$("mapBtn").textContent="🌐 "+t("globeView")}else if(mapMode==="map"){$("mapBtn").textContent="🌐 "+t("globeView");$("globeHint").textContent=t("mapHint")}else{$("mapBtn").textContent="🗺️ "+t("mapView");$("globeHint").textContent=t("globeHint")}document.documentElement.lang=lang==="zh"?"zh-Hant-TW":lang;document.querySelectorAll("[data-i]").forEach(e=>e.textContent=t(e.dataset.i));document.querySelectorAll("[data-ph]").forEach(e=>e.placeholder=t(e.dataset.ph));$("language").value=lang;if(ready){applyFilters();renderRight();renderStreetSelectionMarker()} }
 function loadLang(){try{sessionStorage.removeItem("betinsight_stadium_mapbox_token")}catch{}let savedLang="";try{savedLang=localStorage.getItem("betinsight_language")||""}catch{}let v=new URLSearchParams(location.search).get("lang")||savedLang||navigator.language.slice(0,2);v=String(v).toLowerCase().replace("_","-");if(v.startsWith("zh"))v="zh";else v=v.slice(0,2);if(!D[v])v="en";lang=v;translate()}
 async function hash(v){const b=new TextEncoder().encode(v),bytes=await crypto.subtle.digest("SHA-256",b);return Array.from(new Uint8Array(bytes)).map(x=>x.toString(16).padStart(2,"0")).join("")}
 async function session(){adminHash="";memberToken="";try{memberToken=localStorage.getItem("betinsight_dashboard_token")||localStorage.getItem("betinsight_profile_token")||""}catch(e){console.info("Stadionwelt: browser storage unavailable; public guest mode remains available.")}}
@@ -187,7 +187,7 @@ function hasWebGL2(){return hasWebGL("webgl2")}
 function hasGlobeWebGL(){return hasWebGL2()||hasWebGL("webgl")||hasWebGL("experimental-webgl")}
 function leaf2DConfig(zoom=2,mode=mapMode){
  return {container:$("detailMap"),stadiums:filtered,visits,selected,zoom,mode,lang,
-  stadiumColor,capacityBand,onSelect:id=>selectStadium(id),
+  stadiumColor,capacityBand,selectedPinHtml:selectionPinHTML,onSelect:id=>selectStadium(id),
   isPicking:()=>pickMode,onPick:(lat,lng)=>{const a=$("latitude"),b=$("longitude");
    if(a&&b){a.value=lat.toFixed(6);b.value=lng.toFixed(6);pickMode=false;toast("✓ "+a.value+", "+b.value)}},
   onMarkersRendered:n=>{if($("visitFlagCount"))$("visitFlagCount").textContent=fmt(n)}
@@ -199,7 +199,7 @@ async function showLeaf2D(zoom=2,mode="map"){
  $("emptyglobe").style.display="none";$("detailMap").classList.remove("hide");
  $("mapBtn").textContent="🗺️ "+t("mapView");
  $("globeHint").textContent=mode==="satellite"?t("satLimit"):t("mapHint");
- if(streetMap){try{streetMap.remove()}catch{}streetMap=null;streetVisitFlagMarkers=[]}
+ if(streetMap){try{streetMap.remove()}catch{}streetMap=null;streetVisitFlagMarkers=[];streetSelectionMarker=null}
  if(!window.BetInsightLeaflet2D){console.error("No 2D fallback engine loaded");return}
  await window.BetInsightLeaflet2D.show(leaf2DConfig(zoom,mode));
  updateSatellitePanel();updateSatLink();
@@ -365,26 +365,76 @@ function makeFlagButton(stadium,isStreet=false){
  button.addEventListener("click",e=>{e.stopPropagation();selectStadium(Number(stadium.id))});
  return button;
 }
+
+const SELECTED_PIN_LABELS={
+ de:"Ausgewähltes Stadion",en:"Selected stadium",es:"Estadio seleccionado",pt:"Estádio selecionado",
+ it:"Stadio selezionato",fr:"Stade sélectionné",nl:"Geselecteerd stadion",zh:"已選擇的球場"
+};
+function selectionPinHTML(s){
+ const label=SELECTED_PIN_LABELS[lang]||SELECTED_PIN_LABELS.en;
+ const place=[s.city,s.country].filter(Boolean).join(" · ");
+ const cap=s.capacity===null||s.capacity===undefined||!Number.isFinite(Number(s.capacity))?t("unknownSize"):fmt(s.capacity)+" "+t("capacity");
+ return '<div class="stadium-selection-pin" title="'+esc(s.name)+'" aria-label="'+esc(label+": "+s.name)+'">'+
+  '<div class="stadium-selection-card"><span class="stadium-selection-kicker">⌖ '+esc(label)+'</span>'+
+  '<strong class="stadium-selection-name">'+esc(s.name)+'</strong>'+
+  '<span class="stadium-selection-place">'+esc(place)+'</span>'+
+  '<span class="stadium-selection-capacity">'+esc(cap)+'</span>'+
+  (hasVisited(s.id)?'<span class="stadium-selection-visited">🚩 '+esc(t("visitedFlag"))+'</span>':"")+
+  '</div><span class="stadium-selection-stem" aria-hidden="true"></span><span class="stadium-selection-target" aria-hidden="true"></span></div>';
+}
+function makeSelectionPin(s,onGlobe=false){
+ const wrapper=document.createElement("div");
+ wrapper.innerHTML=selectionPinHTML(s);
+ const pin=wrapper.firstElementChild;
+ if(onGlobe)pin.classList.add("stadium-selection-globe");
+ pin.tabIndex=0;pin.setAttribute("role","button");
+ pin.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();selectStadium(Number(s.id))});
+ pin.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();event.stopPropagation();selectStadium(Number(s.id))}});
+ if(onGlobe){
+  // Globe.gl positions its DOM root with CSS2DRenderer; anchor the card inside it.
+  const anchor=document.createElement("div");anchor.className="stadium-selection-globe-anchor";
+  anchor.appendChild(pin);return anchor;
+ }
+ return pin;
+}
+function validSelectionCoordinates(s){
+ const lat=Number(s?.latitude??s?.lat),lng=Number(s?.longitude??s?.lng);
+ return Boolean(s)&&Number.isFinite(lat)&&Number.isFinite(lng)&&lat>=-90&&lat<=90&&lng>=-180&&lng<=180;
+}
+
 function renderGlobeVisitFlags(){
  if(!globe||typeof globe.htmlElementsData!=="function")return;
  const marked=visitedIds();
- const sites=all.filter(s=>marked.has(Number(s.id))&&Number.isFinite(Number(s.latitude))&&Number.isFinite(Number(s.longitude))).map(s=>({
-  id:Number(s.id),name:s.name,lat:Number(s.latitude),lng:Number(s.longitude)
+ const markedStadiums=all.filter(s=>marked.has(Number(s.id))&&validSelectionCoordinates(s));
+ const sites=markedStadiums.filter(s=>Number(s.id)!==Number(selected?.id)).map(s=>({
+  kind:"visited",id:Number(s.id),name:s.name,lat:Number(s.latitude),lng:Number(s.longitude)
  }));
- const signature=sites.map(s=>[s.id,s.lat,s.lng].join(":")).join("|");
- // Never recreate the anchored markers when the user just selects another stadium or rotates the globe.
+ if(validSelectionCoordinates(selected)){
+  sites.push({kind:"selection",id:Number(selected.id),name:selected.name,city:selected.city,country:selected.country,
+   capacity:selected.capacity,lat:Number(selected.latitude),lng:Number(selected.longitude)});
+ }
+ // Rebuild only when the selected stadium, visits or language changes.
+ const signature=lang+"|"+sites.map(s=>[s.kind,s.id,s.lat,s.lng].join(":")).join("|")+"|"+(selected&&hasVisited(selected.id)?"visited":"");
  if(signature!==globeVisitSignature){globe.htmlElementsData(sites);globeVisitSignature=signature}
- if($("visitFlagCount"))$("visitFlagCount").textContent=fmt(sites.length);
+ if($("visitFlagCount"))$("visitFlagCount").textContent=fmt(markedStadiums.length);
 }
 function renderStreetVisitFlags(){
  if(!streetMap||!window.maplibregl||!streetMap.getSource("stads"))return;
  streetVisitFlagMarkers.forEach(marker=>marker.remove());streetVisitFlagMarkers=[];
  const marked=visitedIds();
- all.filter(s=>marked.has(Number(s.id))).forEach(s=>{
+ all.filter(s=>marked.has(Number(s.id))&&Number(s.id)!==Number(selected?.id)).forEach(s=>{
   const marker=new window.maplibregl.Marker({element:makeFlagButton(s,true),anchor:"bottom"}).setLngLat([Number(s.longitude),Number(s.latitude)]).addTo(streetMap);
   streetVisitFlagMarkers.push(marker);
  });
 }
+function renderStreetSelectionMarker(){
+ if(streetSelectionMarker){streetSelectionMarker.remove();streetSelectionMarker=null}
+ if(!streetMap||!window.maplibregl||!validSelectionCoordinates(selected))return;
+ streetSelectionMarker=new window.maplibregl.Marker({
+  element:makeSelectionPin(selected),anchor:"bottom"
+ }).setLngLat([Number(selected.longitude),Number(selected.latitude)]).addTo(streetMap);
+}
+
 let mapRequested=false,pendingMapMode="map",streetAssetsPromise=null;
 function loadStreetAssets(){
  if(window.maplibregl)return Promise.resolve(true);
@@ -492,7 +542,7 @@ function ensureStreet(){
   });
   streetMap.on("click",e=>{if(!pickMode)return;const a=$("latitude"),b=$("longitude");if(a&&b){a.value=e.lngLat.lat.toFixed(6);b.value=e.lngLat.lng.toFixed(6);pickMode=false;toast("✓ "+a.value+", "+b.value)}});
   streetMap.resize();
-  renderStreetVisitFlags();
+  renderStreetVisitFlags();renderStreetSelectionMarker();
   applySatelliteLayer();updateSatellitePanel();
  });
  streetMap.on("error",e=>{
@@ -570,7 +620,7 @@ async function loadPhotos(id,name){
  photoCache.set(id,{loading:false,photos});if(Number(selected?.id)===id&&tab==="details")drawPhotos();
 }
 function initGlobe(){const holder=$("globe");if(typeof Globe==="undefined"){ $("emptyglobe").style.display="flex";$("globeError").textContent="3D library unavailable. Stadium list still works.";return;}try{const w=holder.clientWidth,h=holder.clientHeight;globe=Globe({animateIn:false,waitForGlobeReady:false})(holder).globeImageUrl("https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg").backgroundColor("rgba(0,0,0,0)").showAtmosphere(true).atmosphereColor("#5dcbd1").atmosphereAltitude(0.15).pointLat("lat").pointLng("lng").pointRadius(x=>{const band=capacityBand(x.capacity);return (x.id===selected?.id) ? 0.29 : (band<0 ? 0.095 : 0.11+band*0.025)}).pointAltitude(0).pointResolution(10).pointsTransitionDuration(0).pointColor(x=>stadiumColor(x.capacity)).htmlLat("lat").htmlLng("lng").htmlAltitude(0.003)
-.htmlElement(s=>makeFlagButton(s))
+.htmlElement(s=>s.kind==="selection"?makeSelectionPin(s,true):makeFlagButton(s))
 .htmlTransitionDuration(0)
 .htmlElementVisibilityModifier((element,isVisible)=>{element.style.display=isVisible?"":"none";element.style.pointerEvents=isVisible?"auto":"none"}).pointLabel(x=>esc(x.name)+" · "+esc(x.city||"")+" · "+esc(x.country)+" · "+(x.capacity==null?esc(t("unknownSize")):fmt(x.capacity)+" "+esc(t("capacity")))).onPointClick(x=>selectStadium(x.id)).onGlobeClick(p=>{if(pickMode){$("latitude").value=p.lat.toFixed(6);$("longitude").value=p.lng.toFixed(6);pickMode=false;toast("✓ "+p.lat.toFixed(5)+", "+p.lng.toFixed(5))}});
 globe.width(w).height(h).pointOfView(selected?{lat:+selected.latitude,lng:+selected.longitude,altitude:1.65}:{lat:21,lng:9,altitude:2.5},0);globe.controls().autoRotate=false;globe.controls().autoRotateSpeed=0;globe.controls().enableDamping=true;globe.controls().minDistance=118;new ResizeObserver(()=>{if(globe&&holder.clientWidth&&holder.clientHeight)globe.width(holder.clientWidth).height(holder.clientHeight)}).observe(holder);
@@ -589,6 +639,7 @@ function selectStadium(id){
  const same=Number(selected?.id)===Number(id);
  selected=all.find(x=>Number(x.id)===Number(id));if(!selected)return;
  tab="details";renderList();renderRight();renderDots();
+ renderStreetVisitFlags();renderStreetSelectionMarker();
  if(same)return; // repeated list clicks must not zoom or change map modes
  if(mapMode==="map"||mapMode==="satellite"){if(streetMap)streetMap.flyTo({center:[+selected.longitude,+selected.latitude],zoom:mapMode==="satellite"?12:14.2,duration:650});if(window.BetInsightLeaflet2D?.active())window.BetInsightLeaflet2D.focus(selected);updateSatLink();return}
  if(globe)globe.pointOfView({lat:+selected.latitude,lng:+selected.longitude,altitude:1.65},950);
