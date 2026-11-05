@@ -75,9 +75,9 @@ select{font:inherit;background:#092638;color:white;border:1px solid #52839b;padd
 <section id="simpleDashboard" class="panel simple-main">
  <div class="overline">✓ Du bist im richtigen Bereich · BetInsight Schnellanalyse</div>
  <h2>Quoten übersichtlich prüfen</h2>
- <p class="muted">Ein Klick prüft alle bereits gespeicherten Quoten aus 12 Ligen. <strong>Keine neue Anbieterabfrage und keine API-Credits.</strong> Du siehst sofort, ob wir aktuelle Daten haben und ob der bisherige Preisfilter eine Auswahl findet.</p>
- <div class="controls"><button type="button" id="simpleCheck">🔎 Jetzt kostenlos prüfen · 0 Credits</button></div>
- <p id="simpleStatus" role="status" aria-live="polite" class="muted">Noch nicht geprüft. Es wird nichts automatisch kostenpflichtig abgerufen.</p>
+ <p class="muted">Die kostenlose Prüfung startet nach der Anmeldung automatisch. Sie verwendet nur gespeicherte Quoten aus 12 Ligen und verbraucht <strong>keine neuen Anbieter-Credits</strong>. Weitere Abrufe erfolgen ausschließlich nach deiner Bestätigung.</p>
+ <div class="controls"><button type="button" id="simpleCheck">↻ Kostenlos erneut prüfen · 0 Credits</button></div>
+ <p id="simpleStatus" role="status" aria-live="polite" class="muted">Die kostenlosen gespeicherten Daten werden nach der Anmeldung automatisch geprüft.</p>
  <div id="simpleResult" aria-live="polite" class="simple-result">
   <div class="info">Die bisherigen Marktampeln bleiben im Expertenbereich verfügbar. Im Überblick werden nur die wichtigsten Ergebnisse angezeigt.</div>
  </div>
@@ -249,6 +249,7 @@ function showOtherOdds(key){return details(key,"otherOddsDetails","additionalOdd
    await duelCall("list");
    $("locked").classList.add("hidden");
    $("workspace").classList.remove("hidden");
+   document.dispatchEvent(new Event("betinsight:finder-ready"));
  }catch(error){
    rawToken="";
    $("authTitle").textContent="Anmeldung kann nicht bestätigt werden";
@@ -260,6 +261,6 @@ function showOtherOdds(key){return details(key,"otherOddsDetails","additionalOdd
 <script src="/admin/testlabor/price-watch-v1.js?v=2" defer></script>
 <script src="/admin/testlabor/market-lab-v1.js?v=2" defer></script>
 <script src="/admin/testlabor/real-market-lookup-v1.js?v=1" defer></script>
-<script src="/admin/testlabor/simple-dashboard-v1.js?v=2" defer></script>
+<script src="/admin/testlabor/simple-dashboard-v1.js?v=3" defer></script>
 </body>
 </html>
