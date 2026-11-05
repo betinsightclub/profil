@@ -44,7 +44,10 @@
   // The globe first pulls back far enough to make the continental movement legible.
   const highAltitude=Math.max(2.65,startAltitude,targetAltitude);
   const total=clamp(Number(durationMs)||8000,4000,30000);
-  const zoomOutPart=.20,travelEnd=.86;
+  // Zoom phases remain quick at both 4 and 25-second travel settings.
+  const zoomOutMs=Math.min(600,total*0.12);
+  const zoomInMs=Math.min(650,total*0.13);
+  const zoomOutPart=zoomOutMs/total,travelEnd=1-zoomInMs/total;
   cancel();
   const run=++generation;
   runningGlobe=globe;
