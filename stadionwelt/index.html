@@ -215,7 +215,9 @@ const GLOBE_RETRY_LANG={
 };
 function updateFallbackNotice(){
  const n=$("mapFallbackNotice");if(!n)return;
- $("mapFallbackText").textContent=FALLBACK_LANG[lang]||FALLBACK_LANG.en;
+ const diagnostic=globeUnavailable&&globeLastFailure!=="NONE"
+  ?" ["+globeLastFailure+" / "+globeInitStage+"] "+globeLastFailureDetail:"";
+ $("mapFallbackText").textContent=(FALLBACK_LANG[lang]||FALLBACK_LANG.en)+diagnostic;
  const b=$("globeRetryBtn"),copy=GLOBE_RETRY_LANG[lang]||GLOBE_RETRY_LANG.en;
  b.textContent="↻ "+(globeRetryBusy?copy.checking:copy.button);
  b.disabled=globeRetryBusy;
@@ -245,7 +247,14 @@ async function showLeaf2D(zoom=2,mode="map"){
  await window.BetInsightLeaflet2D.show(leaf2DConfig(zoom,mode));
  window.BetInsightStadiumJourney?.refresh();updateSatellitePanel();updateSatLink();
 }
-let globeLastFailure="NONE",globeResizeObserver=null;
+let globeLastFailure="NONE",globeResizeObserver=null,globeInitStage="not-started",globeLastFailureDetail="";
+function recordGlobeFailure(error){
+ const message=String(error?.message||error||"Unknown initialization error");
+ globeLastFailure=globeFailureCategory(error);
+ // Only show a short local diagnostic; never display stack traces.
+ globeLastFailureDetail=message.replace(/\s+/g," ").slice(0,150);
+}
+
 function globeFailureCategory(reason){
  const message=String(reason?.message||reason||"").toLowerCase();
  if(/webgl_context_lost|context lost|webgl|gpu|context_creation|renderer/i.test(message))return "WEBGL_CONTEXT";
@@ -266,7 +275,7 @@ function fallbackTo2D(reason){
  window.BetInsightStadiumFlight?.cancel();
  if(globeUnavailable)return;
  console.warn("Stadionwelt 3D is unavailable; opening map",reason);
- globeLastFailure=globeFailureCategory(reason);
+ if(!globeLastFailureDetail)recordGlobeFailure(reason);
  globeUnavailable=true;releaseGlobeRenderer();
  $("globeWait").classList.add("hide");$("emptyglobe").style.display="none";
  $("globeModeBtn").disabled=true;updateFallbackNotice();
@@ -311,7 +320,7 @@ async function retryGlobe(){
   // Complete all potentially failing 3D calls before hiding the working map.
   globe.width(holder.clientWidth).height(holder.clientHeight);
   globe.controls().autoRotate=rotating;
-  globeUnavailable=false;globeLastFailure="NONE";mapMode="globe";mapRequested=false;
+  globeUnavailable=false;globeLastFailure="NONE";globeLastFailureDetail="";globeInitStage="ready";mapMode="globe";mapRequested=false;
   $("detailMap").classList.add("hide");$("emptyglobe").style.display="none";
   $("globeWait").classList.add("hide");$("satCredit").classList.add("hide");
   holder.style.visibility="";holder.style.pointerEvents="";
@@ -320,13 +329,14 @@ async function retryGlobe(){
   toast(copy.success);
  }catch(e){
   console.warn("Stadionwelt: 3D retry unsuccessful",e);
-  globeLastFailure=globeFailureCategory(e);
+  // A generic retry failure must not overwrite the original initialization exception.
+  if(!(String(e?.message||e).includes("GLOBE_INITIALIZATION_FAILED")&&globeLastFailureDetail))recordGlobeFailure(e);
   releaseGlobeRenderer();globeUnavailable=true;mapMode=previousMode;
   holder.classList.add("hide");holder.replaceChildren();
   $("detailMap").classList.remove("hide");
   $("satCredit").classList.toggle("hide",previousMode!=="satellite");
   syncModeControls();
-  toast(copy.failed+" ["+globeLastFailure+"]");
+  toast(copy.failed+" ["+globeLastFailure+" / "+globeInitStage+"]");
  }finally{
   holder.style.visibility="";holder.style.pointerEvents="";
   globeRetryBusy=false;updateFallbackNotice();
@@ -690,16 +700,17 @@ async function loadPhotos(id,name){
  }catch(e){console.info("Commons search unavailable",e.message)}
  photoCache.set(id,{loading:false,photos});if(Number(selected?.id)===id&&tab==="details")drawPhotos();
 }
-function initGlobe(){const holder=$("globe");if(typeof Globe==="undefined"){ $("emptyglobe").style.display="flex";$("globeError").textContent="3D library unavailable. Stadium list still works.";return;}try{const w=holder.clientWidth,h=holder.clientHeight;globe=Globe({animateIn:false,waitForGlobeReady:false})(holder);globe.globeImageUrl("https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg").backgroundColor("rgba(0,0,0,0)").showAtmosphere(true).atmosphereColor("#5dcbd1").atmosphereAltitude(0.15).pointLat("lat").pointLng("lng").pointRadius(x=>{const band=capacityBand(x.capacity);return (x.id===selected?.id) ? 0.29 : (band<0 ? 0.095 : 0.11+band*0.025)}).pointAltitude(0).pointResolution(10).pointsTransitionDuration(0).pointColor(x=>stadiumColor(x.capacity)).htmlLat("lat").htmlLng("lng").htmlAltitude(0.003)
+function initGlobe(){globeInitStage="setup";globeLastFailureDetail="";const holder=$("globe");if(typeof Globe==="undefined"){ $("emptyglobe").style.display="flex";$("globeError").textContent="3D library unavailable. Stadium list still works.";return;}try{const w=holder.clientWidth,h=holder.clientHeight;globeInitStage="create-renderer";globe=Globe({animateIn:false,waitForGlobeReady:false})(holder);globeInitStage="configure-layers";globe.globeImageUrl("https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg").backgroundColor("rgba(0,0,0,0)").showAtmosphere(true).atmosphereColor("#5dcbd1").atmosphereAltitude(0.15).pointLat("lat").pointLng("lng").pointRadius(x=>{const band=capacityBand(x.capacity);return (x.id===selected?.id) ? 0.29 : (band<0 ? 0.095 : 0.11+band*0.025)}).pointAltitude(0).pointResolution(10).pointsTransitionDuration(0).pointColor(x=>stadiumColor(x.capacity)).htmlLat("lat").htmlLng("lng").htmlAltitude(0.003)
 .htmlElement(s=>s.kind==="selection"?makeSelectionPin(s,true):makeFlagButton(s))
 .htmlTransitionDuration(0)
 .htmlElementVisibilityModifier((element,isVisible)=>{element.style.display=isVisible?"":"none";element.style.pointerEvents=isVisible?"auto":"none"}).pointLabel(x=>esc(x.name)+" · "+esc(x.city||"")+" · "+esc(x.country)+" · "+(x.capacity==null?esc(t("unknownSize")):fmt(x.capacity)+" "+esc(t("capacity")))).onPointClick(x=>selectStadium(x.id)).onGlobeClick(p=>{if(pickMode){$("latitude").value=p.lat.toFixed(6);$("longitude").value=p.lng.toFixed(6);pickMode=false;toast("✓ "+p.lat.toFixed(5)+", "+p.lng.toFixed(5))}});
-globe.width(w).height(h).pointOfView(selected?{lat:+selected.latitude,lng:+selected.longitude,altitude:1.15}:{lat:21,lng:9,altitude:2.5},0);globe.controls().autoRotate=false;globe.controls().autoRotateSpeed=0;globe.controls().enableDamping=true;globe.controls().minDistance=118;const activeGlobe=globe;globeResizeObserver=new ResizeObserver(()=>{if(globe===activeGlobe&&holder.clientWidth&&holder.clientHeight)activeGlobe.width(holder.clientWidth).height(holder.clientHeight)});globeResizeObserver.observe(holder);
- const canvas=holder.querySelector("canvas");
+globeInitStage="configure-camera";globe.width(w).height(h).pointOfView(selected?{lat:+selected.latitude,lng:+selected.longitude,altitude:1.15}:{lat:21,lng:9,altitude:2.5},0);globe.controls().autoRotate=false;globe.controls().autoRotateSpeed=0;globe.controls().enableDamping=true;globe.controls().minDistance=118;globeInitStage="resize-observer";const activeGlobe=globe;globeResizeObserver=new ResizeObserver(()=>{if(globe===activeGlobe&&holder.clientWidth&&holder.clientHeight)activeGlobe.width(holder.clientWidth).height(holder.clientHeight)});globeResizeObserver.observe(holder);
+ globeInitStage="canvas-validation";const canvas=holder.querySelector("canvas");
  if(!canvas)throw Error("GLOBE_RENDERER_CANVAS_MISSING");
  canvas.addEventListener("pointerdown",()=>window.BetInsightStadiumFlight?.cancel(),{passive:true});
  canvas.addEventListener("webglcontextlost",()=>fallbackTo2D("webgl_context_lost"),{once:true});
- renderDots();window.BetInsightStadiumJourney?.refresh();}catch(e){console.warn("Stadionwelt 3D initialization failed",e);if(!globeUnavailable)fallbackTo2D(e);else{globeLastFailure=globeFailureCategory(e);releaseGlobeRenderer()}}}
+ globeInitStage="stadium-points";renderDots();globeInitStage="journey-layer";window.BetInsightStadiumJourney?.refresh();globeInitStage="ready";
+ }catch(e){console.warn("Stadionwelt 3D initialization failed at",globeInitStage,e);recordGlobeFailure(e);if(!globeUnavailable)fallbackTo2D(e);else releaseGlobeRenderer()}}
 function renderDots(){
  if(!globe)return;
  const globeLocations=filtered.filter(s=>showAllGlobePoints||Number(s.capacity||0)>=40000||Number(s.id)===Number(selected?.id));
