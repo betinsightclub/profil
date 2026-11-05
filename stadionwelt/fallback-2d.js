@@ -62,7 +62,7 @@
    if(feature.geometry?.type!=="LineString")continue;
    const coords=feature.geometry.coordinates.map(pair=>[pair[1],pair[0]]);
    if(coords.length<2)continue;
-   L.polyline(coords,{color:feature.properties?.completed?"#48f4d7":"#72acc0",weight:3,opacity:feature.properties?.completed?.92:.42,interactive:false}).addTo(journeyLayer);
+   L.polyline(coords,{color:feature.properties?.completed?"#48f4d7":"#72acc0",weight:3,opacity:feature.properties?.completed?0.92:0.42,interactive:false}).addTo(journeyLayer);
   }
   dots=L.layerGroup().addTo(map);flags=L.layerGroup().addTo(map);
   canvas=canvas||L.canvas({padding:.3});
