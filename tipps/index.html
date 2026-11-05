@@ -77,9 +77,22 @@ h2{font-size:clamp(21px,2.7vw,26px);margin:0 0 6px;letter-spacing:-.015em}
 .avatar{width:56px;height:56px;display:grid;place-items:center;border-radius:17px;background:linear-gradient(135deg,#2389b3,#0a4b73);border:1px solid #5cbded;font-size:24px;font-weight:900}
 .author small{font-size:11px;color:#86dff8;font-weight:900;letter-spacing:.1em;display:block;margin-bottom:5px}
 .author strong{font-size:25px;line-height:1}
-.windows{display:flex;gap:5px;padding:5px;border:1px solid #2a5c70;border-radius:12px;background:#042330}
+.windows{display:flex;gap:5px;padding:5px;border:1px solid #2a5c70;border-radius:12px;background:#042330;flex-wrap:wrap;max-width:100%}
 .winbtn{padding:10px 14px;border:none;border-radius:9px;color:#afd0df;background:transparent;font-size:12px;font-weight:900}
 .winbtn.selected{background:#147aa4;color:#fff;box-shadow:0 4px 15px #0004}
+.winbtn:disabled{cursor:default;opacity:.6}
+.perf-model{border-top:1px solid #28596e;margin-top:22px;padding-top:22px}
+.perf-stake-head{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.perf-stake-head strong{display:block;font-size:14px}
+.perf-stake-head small{display:block;color:var(--mute);font-size:11px;line-height:1.5;margin-top:6px}
+.perf-stake-value{font-size:26px;font-weight:900;color:#b9efff;white-space:nowrap}
+.perf-range{display:block;width:100%;accent-color:#18b5f7;cursor:pointer;margin:18px 0 6px}
+.perf-range-labels{display:flex;justify-content:space-between;color:var(--mute);font-size:11px}
+.perf-model-figures{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px}
+.perf-figure{border:1px solid #235a70;background:#041e2cbb;border-radius:13px;padding:14px 12px;min-width:0}
+.perf-figure small{display:block;color:#a6cbd8;font-size:11px;margin-bottom:8px}
+.perf-figure strong{display:block;font-size:clamp(15px,2vw,23px);overflow-wrap:anywhere}
+.perf-model-hint{font-size:11px;color:#9ebecb;line-height:1.6;margin:13px 0 0}
 .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .kpi{background:#031e2b99;border:1px solid #1d536c;border-radius:15px;padding:18px 14px}
 .kpi-label{display:block;font-size:11px;color:#a0cadb;font-weight:800;margin-bottom:8px}
@@ -140,7 +153,7 @@ h2{font-size:clamp(21px,2.7vw,26px);margin:0 0 6px;letter-spacing:-.015em}
 .private-state a{color:#67d0ff}
 footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top:40px}
 @media(max-width:900px){.provider-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.perf-bottom{grid-template-columns:1fr}}
-@media(max-width:600px){main{padding:20px 13px 55px}.hero{padding:27px 19px}.nav-tabs{gap:7px}.navtab{padding:12px 9px;display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-height:102px;font-size:12px}.navtab .tab-icon{font-size:20px}.navtab .tab-desc{font-size:10px;margin-top:3px}.provider-grid{gap:9px}.provider{min-height:162px;padding:13px 12px}.pro-name{font-size:16px}.performance{padding:16px}.perf-top{align-items:stretch}.windows{width:100%}.winbtn{flex:1}.tips-stack{grid-template-columns:1fr}.kpi{padding:13px}.kpi-value{font-size:24px}.mini-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.mini-stat-value{font-size:19px}}
+@media(max-width:600px){.perf-model-figures{grid-template-columns:1fr 1fr}.perf-figure:last-child{grid-column:1/-1}.windows{gap:4px}.winbtn{padding:9px 10px}.perf-stake-value{font-size:23px}main{padding:20px 13px 55px}.hero{padding:27px 19px}.nav-tabs{gap:7px}.navtab{padding:12px 9px;display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-height:102px;font-size:12px}.navtab .tab-icon{font-size:20px}.navtab .tab-desc{font-size:10px;margin-top:3px}.provider-grid{gap:9px}.provider{min-height:162px;padding:13px 12px}.pro-name{font-size:16px}.performance{padding:16px}.perf-top{align-items:stretch}.windows{width:100%}.winbtn{flex:1}.tips-stack{grid-template-columns:1fr}.kpi{padding:13px}.kpi-value{font-size:24px}.mini-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.mini-stat-value{font-size:19px}}
 </style>
 </head>
 <body>
@@ -162,20 +175,34 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
     <div class="provider-grid">
       <button type="button" class="provider selected" data-provider="Martin" aria-pressed="true"><span class="pro-top"><span class="pro-icon">⚽</span><span class="pill">TIPPGEBER</span></span><span class="pro-name">Martin</span><span class="pro-sub">Fußballanalysen und individuelle Tipps</span><span class="pro-stat" id="martinMini">Letzte 10 und Gesamt werden geladen …</span></button>
       <button type="button" class="provider" data-provider="Frank" aria-pressed="false"><span class="pro-top"><span class="pro-icon">📈</span><span class="pill">TIPPGEBER</span></span><span class="pro-name">Frank</span><span class="pro-sub">Analysen und aktuelle Sporttipps</span><span class="pro-stat" id="frankMini">Letzte 10 und Gesamt werden geladen …</span></button>
-      <button type="button" class="provider" data-provider="Schulung" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🎓</span><span class="pill">LERNBEREICH</span></span><span class="pro-name">Schulungstipps</span><span class="pro-sub">Schulungsbeispiele und Demonstrationen</span><span class="pro-stat">Nur Schulungstipps ansehen</span></button>
-      <button type="button" class="provider" disabled aria-disabled="true"><span class="pro-top"><span class="pro-icon">📋</span><span class="pill">IN VORBEREITUNG</span></span><span class="pro-name">Weitere Tipps</span><span class="pro-sub">Externe Analysen, Testtipps und zusätzliche Sportprognosen</span><span class="disabled-label">Demnächst verfügbar</span></button>
+      <button type="button" class="provider" data-provider="Schulung" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🎓</span><span class="pill">LERNBEREICH</span></span><span class="pro-name">Schulungstipps</span><span class="pro-sub">Schulungsbeispiele und Demonstrationen</span><span class="pro-stat" id="trainingMini">Schulungs-Performance wird geladen …</span></button>
+      <button type="button" class="provider" data-provider="Testphase" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🧪</span><span class="pill">VORBEREITUNG</span></span><span class="pro-name">User-Testphase</span><span class="pro-sub">Begrenzter gemeinsamer Tipp-Test. Teilnahme und Unit-Rückgaben sind noch nicht freigeschaltet.</span><span class="pro-stat" id="testMini">Noch keine gewerteten Testtipps</span></button>
     </div>
     <section class="performance" id="performance">
-      <div class="perf-top"><div class="author"><div class="avatar" id="avatar">M</div><div><small>VERIFIZIERTE TIPPGEBER-PERFORMANCE</small><strong id="perfName">Martin</strong></div></div><div class="windows" role="group" aria-label="Performance-Zeitraum"><button type="button" class="winbtn selected" data-window="10" aria-pressed="true">Letzte 10 Tipps</button><button type="button" class="winbtn" data-window="all" aria-pressed="false">Gesamter Zeitraum</button></div></div>
+      <div class="perf-top"><div class="author"><div class="avatar" id="avatar">M</div><div><small>TIPPGEBER-PERFORMANCE · MODELLRECHNUNG</small><strong id="perfName">Martin</strong></div></div><div class="windows" id="perfWindows" role="group" aria-label="Tippgruppen, neueste zuerst"></div></div>
       <div class="kpis">
         <div class="kpi"><span class="kpi-label">Trefferquote</span><span class="kpi-value neutral" id="hit">–</span><span class="kpi-foot" id="hitSub">Gewonnene / entschiedene Tipps</span></div>
-        <div class="kpi"><span class="kpi-label">Rendite · ROI</span><span class="kpi-value" id="roi">–</span><span class="kpi-foot">Einheitlicher Einsatz: 1 Unit je Tipp</span></div>
+        <div class="kpi"><span class="kpi-label">Wett-ROI</span><span class="kpi-value" id="roi">–</span><span class="kpi-foot">Gleicher Wetteinsatz · ohne Tippkosten</span></div>
         <div class="kpi"><span class="kpi-label">Gewonnen</span><span class="kpi-value green" id="wins">–</span><span class="kpi-foot">Bestätigte Gewinne</span></div>
         <div class="kpi"><span class="kpi-label">Verloren</span><span class="kpi-value red" id="losses">–</span><span class="kpi-foot">Bestätigte Verluste</span></div>
       </div>
       <div class="perf-bottom">
         <div><p class="mini-label" id="trackTitle">Die letzten bewerteten Tipps</p><div class="streak" id="streak"></div><p class="legend">G = gewonnen · V = verloren · Neueste Bewertung zuerst</p></div>
         <div><p class="mini-label">Gewinn-/Verlustverteilung</p><div class="meter"><div class="meter-fill" id="meterFill"></div></div><div class="wl-line"><span id="winLine">Gewonnen: –</span><span id="lossLine">Verloren: –</span></div><div class="roi-help-row"><button type="button" id="roiHelpTrigger" class="roi-help-trigger" aria-label="Wie wird der ROI berechnet?" aria-haspopup="dialog" aria-controls="roiExplain" title="Wie wird der ROI berechnet?">?</button></div></div>
+      </div>
+      <div class="perf-model">
+        <div class="perf-stake-head">
+          <div><strong>Hypothetischer Wetteinsatz je Tipp</strong><small>Konstanter Einsatz, unabhängig von BetInsight-Freischalt-Units</small></div>
+          <output id="perfStakeValue" class="perf-stake-value" for="perfStake">10,00 €</output>
+        </div>
+        <input type="range" class="perf-range" id="perfStake" min="1" max="100" step="1" value="10" aria-label="Wetteinsatz je Tipp in Euro, 1 bis 100">
+        <div class="perf-range-labels"><span>1 €</span><span>100 €</span></div>
+        <div class="perf-model-figures" aria-live="polite">
+          <div class="perf-figure"><small>Gesamteinsätze</small><strong id="perfTotalStake">–</strong></div>
+          <div class="perf-figure"><small>Gesamtauszahlungen</small><strong id="perfTotalReturn">–</strong></div>
+          <div class="perf-figure"><small>Rechnerischer Gewinn / Verlust</small><strong id="perfNet">–</strong></div>
+        </div>
+        <p id="perfModelHint" class="perf-model-hint">Historische Modellrechnung, ohne Freischaltkosten. Vergangene Ergebnisse sind keine Garantie für zukünftige Gewinne.</p>
       </div>
     </section>
     <div class="section-top"><div><h2 id="feedTitle">Neue Tipps von Martin</h2><p class="lead">Nur noch nicht angepfiffene Tipps. Begegnung, Markt und Auswahl bleiben vor der Freischaltung geschützt.</p></div></div>
@@ -191,7 +218,7 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
 
   <section class="area" id="area-archiv">
     <div class="section-top"><div><h2>Vergangene Tipps & Ergebnisse</h2><p class="lead">Alle öffentlich bestätigten Ergebnisse, unabhängig davon, ob du diesen Tipp freigeschaltet hast.</p></div></div>
-    <div class="filter-row" role="group" aria-label="Ergebnisfilter"><button type="button" class="selected" data-archive="Alle">Alle Ergebnisse</button><button type="button" data-archive="Martin">Martin</button><button type="button" data-archive="Frank">Frank</button><button type="button" data-archive="Schulung">Schulungstipps</button></div>
+    <div class="filter-row" role="group" aria-label="Ergebnisfilter"><button type="button" class="selected" data-archive="Alle">Alle Ergebnisse</button><button type="button" data-archive="Martin">Martin</button><button type="button" data-archive="Frank">Frank</button><button type="button" data-archive="Schulung">Schulungstipps</button><button type="button" data-archive="Testphase">User-Testphase</button></div>
     <p id="archiveCount" class="status-line"></p><div class="tips-stack" id="archiveFeed"><div class="alert">Ergebnisse werden geladen …</div></div>
   </section>
   <footer>BetInsight.club · Tipps, Ergebnisse und Tippgeber-Performance · Vergangene Ergebnisse garantieren keine zukünftigen Gewinne</footer>
@@ -201,21 +228,22 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
   <h2 id="roiDialogTitle">Wie wird der ROI berechnet?</h2>
   <p>Zur fairen Vergleichbarkeit wird jeder Tipp mit dem gleichen rechnerischen Einsatz bewertet. Bei einem gewonnenen Tipp zählt der Gewinn entsprechend der tatsächlichen Quote, bei einem verlorenen Tipp der vollständige Einsatz als Verlust.</p>
   <p>Aus allen Gewinnen und Verlusten berechnen wir die prozentuale Rendite (ROI). Kosten für die Freischaltung von Tipps sind darin nicht enthalten.</p>
-  <p>Die Werte zeigen vergangene Ergebnisse und stellen keine Empfehlung für zukünftige Wetteinsätze dar.</p>
+  <p>Die Gruppen 1–10, 11–20 usw. enthalten die zuletzt bestätigten, entschiedenen Tipps in absteigender Reihenfolge. Der Euro-Regler verändert den hypothetischen Einsatz und Gewinnbetrag, nicht die prozentuale Rendite. Offene und annullierte Tipps zählen nicht als Gewinn oder Verlust.</p><p>Die Werte zeigen vergangene Ergebnisse und stellen weder eine Wetteinsatzempfehlung noch eine Gewinngarantie dar.</p>
   <p class="roi-extra-note" id="roiExtraNote" hidden>Für mindestens einen Tipp fehlt eine gültige Quote. Deshalb wird aktuell kein vollständiger ROI angezeigt.</p>
 </dialog>
 <script>
 (function(){
 "use strict";
 var ROOT="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-tips-api?action=";
-var state={area:"neu",provider:"Martin",period:"10",archive:"Alle",results:[],performanceResults:[],tips:[],unlocked:[],recentUnlocks:new Set(),unlocksVerified:false,hasAccess:false,resultsLoaded:false,performanceLoaded:false,tipsLoaded:false,loading:false,unlockMessage:"",privateError:""};
+var state={area:"neu",provider:"Martin",period:"0",stake:10,archive:"Alle",results:[],performanceResults:[],tips:[],unlocked:[],recentUnlocks:new Set(),unlocksVerified:false,hasAccess:false,resultsLoaded:false,performanceLoaded:false,tipsLoaded:false,loading:false,unlockMessage:"",privateError:""};
 var $=function(id){return document.getElementById(id)};
 var numeric=function(v){var n=Number(String(v==null?"":v).replace(",","."));return Number.isFinite(n)?n:NaN};
 var str=function(v){return String(v==null?"":v).trim()};
 function status(v){var k=str(v).toUpperCase();if(["GEWONNEN","WIN","WON"].indexOf(k)!==-1)return"won";if(["VERLOREN","LOSS","LOST"].indexOf(k)!==-1)return"lost";if(["VOID","PUSH","STORNIERT","REFUND"].indexOf(k)!==-1)return"void";if(["ABGEBROCHEN","ABGESAGT","CANCELLED"].indexOf(k)!==-1)return"void";return""}
 function owner(row){return str(row.tippgeber||row.ersteller||row.admin_name).toLowerCase()}
 function training(row){var s=str(row.quelle||row.tipp_quelle).toUpperCase();return row.schulungstipp===true||s==="SCHULUNGSTIPP"||s.indexOf("SCHULUNG")>=0}
-function belongs(row,who){if(who==="Schulung")return training(row);return !training(row)&&owner(row)===who.toLowerCase()}
+function testphase(row){var s=str(row.tipp_quelle||row.quelle).toUpperCase();return ["USER_TESTPHASE","TESTPHASE","COMMUNITY_TESTPHASE"].includes(s)}
+function belongs(row,who){if(who==="Schulung")return training(row);if(who==="Testphase")return testphase(row);return !training(row)&&!testphase(row)&&owner(row)===who.toLowerCase()}
 function time(v){var s=str(v);if(!s)return 0;var m=s.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})(?:\D+(\d{1,2}):(\d{2}))?/);if(m)return new Date(Number(m[3]),Number(m[2])-1,Number(m[1]),Number(m[4]||0),Number(m[5]||0)).getTime();var t=Date.parse(s);return Number.isFinite(t)?t:0}
 function sortNew(a,b){return time(b.bestaetigt_am||b.spiel_datum)-time(a.bestaetigt_am||a.spiel_datum)||str(b.tipp_id).localeCompare(str(a.tipp_id))}
 function ele(name,className,text){var n=document.createElement(name);if(className)n.className=className;if(text!==undefined)n.textContent=text;return n}
@@ -225,29 +253,93 @@ function percent(n){return new Intl.NumberFormat("de-DE",{minimumFractionDigits:
 function liveUrl(){var s=window.BetInsightSession;return s?.appPath?.("freigeschaltet")||"/freigeschaltet/"}
 function token(){var s=window.BetInsightSession;if(!s)return"";return s.getDashboardUuid?.()||s.getProfileToken?.()||""}
 function latest(rows){var map=new Map();rows.slice().sort(sortNew).forEach(function(r){var id=str(r.tipp_id||r.ergebnis_id);if(id&&!map.has(id))map.set(id,r)});return Array.from(map.values()).sort(sortNew)}
-function decided(who){return latest(state.performanceResults.filter(function(r){return belongs(r,who)&&["won","lost"].includes(status(r.ergebnis_status))}))}
-function stats(who,period){var all=decided(who),use=period==="5"?all.slice(0,5):period==="10"?all.slice(0,10):all;var w=use.filter(function(r){return status(r.ergebnis_status)==="won"}).length,l=use.length-w;var missing=use.some(function(r){return !(numeric(r.quote)>1)}),profit=use.reduce(function(acc,r){var q=numeric(r.quote);return acc+(status(r.ergebnis_status)==="won"?(Number.isFinite(q)?q-1:0):-1)},0);return{rows:use,w:w,l:l,total:all.length,hit:use.length?w/use.length*100:null,roi:use.length&&!missing?profit/use.length*100:null,missing:missing}}
-function mini(){["Martin","Frank"].forEach(function(w){
- var el=$(w.toLowerCase()+"Mini");el.replaceChildren();
- if(!state.performanceLoaded){el.textContent="Performance derzeit nicht verfügbar";return}
- var a=stats(w,"10"),b=stats(w,"all");
- var container=ele("span","mini-stats");
- [["LETZTE 10",a.hit],["GESAMT",b.hit]].forEach(function(p){
-   var item=ele("span","mini-stat");
-   item.appendChild(ele("span","mini-stat-label",p[0]));
-   item.appendChild(ele("span","mini-stat-value",p[1]===null?"–":percent(p[1])));
-   container.appendChild(item);
+function decided(who){
+ var src=(who==="Martin"||who==="Frank")?state.performanceResults:state.results;
+ return latest(src.filter(function(r){return belongs(r,who)&&["won","lost"].includes(status(r.ergebnis_status))}));
+}
+function stats(who,period){
+ var all=decided(who),offset=period==="all"?0:(Number(period)||0)*10;
+ var use=period==="all"?all:all.slice(offset,offset+10);
+ var w=use.filter(function(r){return status(r.ergebnis_status)==="won"}).length,l=use.length-w;
+ var missing=use.some(function(r){return !(numeric(r.quote)>1)});
+ var profit=use.reduce(function(acc,r){var q=numeric(r.quote);return acc+(status(r.ergebnis_status)==="won"?(Number.isFinite(q)?q-1:0):-1)},0);
+ return {rows:use,w:w,l:l,total:all.length,hit:use.length?w/use.length*100:null,roi:use.length&&!missing?profit/use.length*100:null,profit:profit,missing:missing};
+}
+function mini(){
+ [["Martin","martinMini"],["Frank","frankMini"],["Schulung","trainingMini"],["Testphase","testMini"]].forEach(function(item){
+  var el=$(item[1]);if(!el)return;el.replaceChildren();
+  var loaded=(item[0]==="Martin"||item[0]==="Frank")?state.performanceLoaded:state.resultsLoaded;
+  if(!loaded){el.textContent="Performance wird geladen …";return}
+  var a=stats(item[0],"0"),b=stats(item[0],"all");
+  if(!b.total){el.textContent="Noch keine gewerteten Tipps";return}
+  var container=ele("span","mini-stats");
+  [["LETZTE 10",a.hit],["GESAMT",b.hit]].forEach(function(p){
+   var one=ele("span","mini-stat");one.appendChild(ele("span","mini-stat-label",p[0]));
+   one.appendChild(ele("span","mini-stat-value",p[1]===null?"–":percent(p[1])));container.appendChild(one);
+  });el.appendChild(container);
+ })
+}
+function euro(n){return new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"}).format(n)}
+function drawModel(){
+ var n=Math.max(1,Math.min(100,Math.round(Number(state.stake)||10)));
+ state.stake=n;$("perfStake").value=String(n);$("perfStakeValue").textContent=euro(n);
+ var who=state.provider,loaded=(who==="Martin"||who==="Frank")?state.performanceLoaded:state.resultsLoaded;
+ var v=loaded?stats(who,state.period):null;
+ var sum=$("perfTotalStake"),ret=$("perfTotalReturn"),net=$("perfNet"),hint=$("perfModelHint");
+ if(!v||!v.rows.length){sum.textContent="–";ret.textContent="–";net.textContent="–";net.className="";hint.textContent=loaded?"Für diese Kategorie liegen noch keine gewerteten Tipps vor. Es werden keine Beispielergebnisse erfunden.":"Bestätigte Ergebnisse werden geladen …";return}
+ var risk=v.rows.length*n,profit=v.profit*n;
+ sum.textContent=euro(risk);ret.textContent=v.missing?"–":euro(risk+profit);
+ net.textContent=v.missing?"–":(profit>0?"+":"")+euro(profit);
+ net.className=v.missing?"neutral":profit>=0?"green":"red";
+ hint.textContent=v.missing?"Für mindestens einen Tipp fehlt eine gültige Quote. Deshalb kann die Rendite nicht vollständig berechnet werden.":"Modell mit gleichem Wetteinsatz je Tipp; ohne Freischaltkosten, Gebühren und Steuern. Kein realer Kundenkontostand. Historische Ergebnisse garantieren keine Gewinne.";
+}
+function performance(){
+ var who=state.provider,box=$("performance");box.hidden=false;
+ $("perfName").textContent=who==="Schulung"?"Schulungstipps":who==="Testphase"?"User-Testphase":who;
+ $("avatar").textContent=who==="Testphase"?"T":who==="Schulung"?"S":who[0];
+ var loaded=(who==="Martin"||who==="Frank")?state.performanceLoaded:state.resultsLoaded;
+ var all=loaded?decided(who):[];
+ var windows=$("perfWindows");windows.replaceChildren();
+ if(state.period!=="all"&&(Number(state.period)||0)*10>=all.length)state.period="0";
+ if(all.length){
+  for(var i=0;i<Math.ceil(all.length/10);i++){
+   (function(idx){
+    var b=ele("button","winbtn"+(state.period===String(idx)?" selected":""),(idx*10+1)+"–"+Math.min(all.length,(idx+1)*10));
+    b.type="button";b.setAttribute("aria-pressed",state.period===String(idx)?"true":"false");
+    b.addEventListener("click",function(){state.period=String(idx);performance()});windows.appendChild(b);
+   })(i)
+  }
+  var total=ele("button","winbtn"+(state.period==="all"?" selected":""),"Gesamt");
+  total.type="button";total.setAttribute("aria-pressed",state.period==="all"?"true":"false");
+  total.addEventListener("click",function(){state.period="all";performance()});windows.appendChild(total);
+ }else{
+  var none=ele("button","winbtn","Keine gewerteten Tipps");none.disabled=true;none.type="button";windows.appendChild(none);
+ }
+ if(!loaded||!all.length){
+  $("hit").textContent="–";$("roi").textContent="–";$("roi").className="kpi-value neutral";
+  $("wins").textContent="–";$("losses").textContent="–";
+  $("hitSub").textContent=loaded?"Noch keine gewonnenen/verlorenen Tipps":"Performance-Daten werden geladen";
+  $("streak").replaceChildren();$("meterFill").style.width="0%";
+  $("winLine").textContent="Gewonnen: –";$("lossLine").textContent="Verloren: –";
+  $("trackTitle").textContent="Noch keine bewerteten Tipps";$("roiExtraNote").hidden=true;
+  drawModel();return;
+ }
+ var s=stats(who,state.period),len=s.rows.length;
+ $("hit").textContent=s.hit===null?"–":percent(s.hit);
+ $("hitSub").textContent=s.w+" gewonnen · "+s.l+" verloren · "+len+" ausgewertet";
+ $("roi").textContent=s.roi===null?"–":(s.roi>0?"+":"")+percent(s.roi);
+ $("roi").className="kpi-value "+(s.roi===null?"neutral":s.roi>=0?"green":"red");
+ $("wins").textContent=String(s.w);$("losses").textContent=String(s.l);
+ $("meterFill").style.width=(s.hit||0)+"%";
+ $("winLine").textContent="Gewonnen: "+s.w;$("lossLine").textContent="Verloren: "+s.l;
+ $("trackTitle").textContent=state.period==="all"?"Die letzten 10 von "+len+" Bewertungen":"Die "+len+" Ergebnisse dieser Tippgruppe";
+ $("roiExtraNote").hidden=!s.missing;
+ var t=$("streak");t.replaceChildren();s.rows.slice(0,10).forEach(function(r){
+  var cls=status(r.ergebnis_status),n=ele("span",cls,cls==="won"?"G":"V");
+  n.title=shortDate(r.bestaetigt_am||r.spiel_datum)+" · "+str(r.spiel||r.tipp_id);t.appendChild(n)
  });
- el.appendChild(container);
-})}
-function performance(){var who=state.provider;var box=$("performance");if(who==="Schulung"){box.hidden=true;return}box.hidden=false;if(!state.performanceLoaded){$("perfName").textContent=who;$("hit").textContent="–";$("roi").textContent="–";$("wins").textContent="–";$("losses").textContent="–";$("hitSub").textContent="Performance-Daten werden geladen";$("streak").replaceChildren();return}$("perfName").textContent=who;$("avatar").textContent=who[0];var s=stats(who,state.period),len=s.rows.length;
-$("hit").textContent=s.hit===null?"–":percent(s.hit);$("hitSub").textContent=s.w+" gewonnen · "+s.l+" verloren · "+len+" ausgewertet";
-$("roi").textContent=s.roi===null?"–":(s.roi>0?"+":"")+percent(s.roi);$("roi").className="kpi-value "+(s.roi===null?"neutral":s.roi>=0?"green":"red");
-$("wins").textContent=String(s.w);$("losses").textContent=String(s.l);$("meterFill").style.width=(s.hit||0)+"%";
-$("winLine").textContent="Gewonnen: "+s.w;$("lossLine").textContent="Verloren: "+s.l;
-$("trackTitle").textContent=state.period==="10"?"Die "+len+" zuletzt bewerteten Tipps":"Die letzten bis zu 10 von "+len+" Bewertungen";
-$("roiExtraNote").hidden=!s.missing;
-var t=$("streak");t.replaceChildren();var display=s.rows.slice(0,10);display.forEach(function(r){var cls=status(r.ergebnis_status),n=ele("span",cls,cls==="won"?"G":"V");n.title=shortDate(r.bestaetigt_am||r.spiel_datum)+" · "+str(r.spiel||r.tipp_id);t.appendChild(n)});if(!display.length)t.appendChild(ele("span","muted","–"));
+ if(!s.rows.length)t.appendChild(ele("span","muted","–"));
+ drawModel();
 }
 function resultCard(r,personal){var s=status(r.ergebnis_status),c=ele("article","tip"),top=ele("div","meta"),tag=ele("span","pill"+(s?" "+s:""),s==="won"?"✓ GEWONNEN":s==="lost"?"✕ VERLOREN":s==="void"?"↔ ANNULLIERT":personal?"🔓 FREIGESCHALTET":"AUSWERTUNG OFFEN");top.appendChild(tag);top.appendChild(ele("span","",shortDate(r.bestaetigt_am||r.datum||r.spiel_datum)));c.appendChild(top);
 c.appendChild(ele("h3","",str(r.spiel)||"Spiel / Tipp "+str(r.tipp_id)));
@@ -393,8 +485,12 @@ function trainingDemoCard(){
   c.appendChild(feedback);
   return c;
 }
-function drawNew(){var who=state.provider;var head=who==="Schulung"?"Neue Schulungstipps":"Neue Tipps von "+who;$("feedTitle").textContent=head;
+function drawNew(){var who=state.provider;var head=who==="Schulung"?"Neue Schulungstipps":who==="Testphase"?"User-Testphase":"Neue Tipps von "+who;$("feedTitle").textContent=head;
 var node=$("newFeed");node.replaceChildren();
+if(who==="Testphase"){
+ node.appendChild(ele("div","alert","Die User-Testphase wird vorbereitet. Noch keine Teilnehmerfreigaben, keine Unit-Abbuchungen und keine automatischen Unit-Rückgaben. Die Teilnahmebedingungen und der serverseitige Rückgabeschutz müssen vor dem Start aktiviert und geprüft werden."));
+ return;
+}
 if(who==="Schulung")node.appendChild(trainingDemoCard());
 if(!state.tipsLoaded){if(who!=="Schulung")empty(node,"Neue Tipps konnten derzeit nicht geladen werden.");return}
 if(state.hasAccess&&!state.unlocksVerified&&state.privateError){var warning="Deine bisherigen Freischaltungen konnten nicht geprüft werden. Zur Sicherheit werden keine neuen Freischaltungen angeboten. Bitte aktualisiere die Seite.";if(who==="Schulung")node.appendChild(ele("div","alert",warning));else empty(node,warning);return}
@@ -409,7 +505,7 @@ function rerender(){mini();performance();drawNew();drawMine();drawArchive()}
 function selectArea(area){state.area=area;document.querySelectorAll(".navtab").forEach(function(b){var yes=b.dataset.tab===area;b.classList.toggle("selected",yes);b.setAttribute("aria-current",yes?"page":"false")});document.querySelectorAll(".area").forEach(function(el){el.classList.toggle("active",el.id==="area-"+area)})}
 document.querySelectorAll(".navtab").forEach(function(b){b.addEventListener("click",function(){selectArea(b.dataset.tab)})});
 document.querySelectorAll(".provider:not([disabled])").forEach(function(b){b.addEventListener("click",function(){state.provider=b.dataset.provider;document.querySelectorAll(".provider").forEach(function(p){var yes=p===b;p.classList.toggle("selected",yes);p.setAttribute("aria-pressed",yes?"true":"false")});performance();drawNew()})});
-document.querySelectorAll(".winbtn").forEach(function(b){b.addEventListener("click",function(){state.period=b.dataset.window;document.querySelectorAll(".winbtn").forEach(function(n){var yes=n===b;n.classList.toggle("selected",yes);n.setAttribute("aria-pressed",yes?"true":"false")});performance()})});
+$("perfStake").addEventListener("input",function(){state.stake=Number(this.value)||10;drawModel()});
 document.querySelectorAll("[data-archive]").forEach(function(b){b.addEventListener("click",function(){state.archive=b.dataset.archive;document.querySelectorAll("[data-archive]").forEach(function(n){n.classList.toggle("selected",n===b)});drawArchive()})});
 async function request(action,access){var url=ROOT+action+"&t="+Date.now();if(access)url+="&token="+encodeURIComponent(access);var res=await fetch(url,{cache:"no-store"});if(!res.ok)throw new Error("HTTP "+res.status);var json=await res.json();if(!Array.isArray(json))throw new Error("UNEXPECTED_RESPONSE");return json}
 async function requestCompleteResults(){
