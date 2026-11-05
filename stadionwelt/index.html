@@ -42,7 +42,7 @@ a{color:var(--aqua)}.shell{min-height:100vh}.header{height:76px;border-bottom:1p
 .embedded .main{padding:5px;max-width:none}
 .embedded .workspace{height:calc(100vh - 12px);min-height:570px;max-height:none}
 @media(min-width:900px){.embedded .workspace{display:grid;grid-template-columns:235px minmax(290px,1fr) 280px;height:calc(100vh - 12px);max-height:none}.embedded .right{grid-column:auto;max-height:none}.embedded .left{height:auto}.embedded .stage{min-height:550px}}
-</style><link rel="stylesheet" href="./selection-pin.css"></head>
+</style><link rel="stylesheet" href="./selection-pin.css"><link rel="stylesheet" href="./passport-journey.css"></head>
 <body><div class="shell">
 <header class="header"><div class="brand"><img src="https://betinsight.club/assets/betinsight-logo.png" alt="BetInsight"><div><h1>Football World</h1><small>BETINSIGHT · STADIUM EXPLORER</small></div></div>
 <div class="actions"><a class="btn back-profile" href="../" id="backToProfile" aria-label="Zurück zum Profil">← <span data-i="backToProfile">Zurück zum Profil</span></a><select id="language" aria-label="Language"><option value="de">🇩🇪 Deutsch</option><option value="en">🇬🇧 English</option><option value="es">🇪🇸 Español</option><option value="pt">🇧🇷 Português</option><option value="it">🇮🇹 Italiano</option><option value="fr">🇫🇷 Français</option><option value="nl">🇳🇱 Nederlands</option><option value="zh">🇨🇳 中文</option></select><button class="btn primary" id="newBtn">＋ <span data-i="add">Stadion vorschlagen</span></button></div></header>
@@ -50,7 +50,7 @@ a{color:var(--aqua)}.shell{min-height:100vh}.header{height:76px;border-bottom:1p
 <div class="workspace">
 <section class="pane left"><div class="panehead"><h3 data-i="all">Alle Stadien</h3><div class="controls"><input type="search" id="search" data-ph="search" placeholder="Stadion, Stadt, Verein oder Land …"><div class="controlrow"><select id="country"><option value="" data-i="allCountries">Alle Länder</option></select><select id="capacity"><option value="0" data-i="allSizes">Alle Größen</option><option value="2000">≥ 2.000</option><option value="5000">≥ 5.000</option><option value="10000">≥ 10.000</option><option value="20000">≥ 20.000</option><option value="40000">≥ 40.000</option><option value="60000">≥ 60.000</option></select></div><select id="sort"><option value="capacity" data-i="biggest">Größte zuerst</option><option value="name" data-i="byName">Name A–Z</option><option value="country" data-i="byCountry">Nach Land</option><option value="city" data-i="byCity">Nach Stadt</option></select></div></div>
 <div class="listtitle"><span id="listStatus">–</span><span data-i="sourceWarning">Importdaten · noch ungeprüft</span></div><div class="list" id="stadiumList"></div><div class="pager"><button class="btn small ghost" id="prev">←</button><span id="pages">–</span><button class="btn small ghost" id="next">→</button></div></section>
-<section class="stage"><div class="stars"></div><div id="globe"></div><div id="globeWait" class="globe-wait">🌍 Weltkugel wird vorbereitet …</div><div id="detailMap" class="hide" aria-label="Stadion-Umgebungskarte"></div><div id="mapFallbackNotice" class="map-fallback-notice hide" role="status" aria-live="polite"><span id="mapFallbackText"></span><button id="globeRetryBtn" type="button">↻ 3D erneut prüfen</button></div><div class="mode-toggle" role="group" aria-label="Kartenansicht"><button type="button" id="globeModeBtn" class="active" aria-pressed="true">🌍 <span data-i="globeView">Weltkugel</span></button><button type="button" id="mapModeBtn" aria-pressed="false">🗺️ <span data-i="mapView">Straßenkarte</span></button><button type="button" id="satModeBtn" aria-pressed="false">🛰️ <span data-i="satellite">Satellit</span></button></div><div id="emptyglobe" class="globe-placeholder"><div>🌍<p id="globeError">3D globe requires WebGL and an Internet connection.</p></div></div><div class="sat-credit hide" id="satCredit">EOxCloudless © EOX IT Services GmbH · Sentinel‑2 2016 · CC BY 4.0 · <a href="https://cloudless.eox.at/" target="_blank" rel="noopener noreferrer">Quelle</a><div><span data-i="satLimit">Historische Satellitenaufnahme, nicht hochauflösend</span></div></div><div class="globe-overlay"><div class="pill">🌍 <span data-i="spin">Drehen · Zoomen · Stadion anklicken</span></div><div class="pill" id="globeCount">–</div></div><div class="globe-bottom"><div class="hint"><span id="globeHint" data-i="globeHint">Dezente Punkte zeigen größere Stadien. Rote Fahnen markieren besuchte Stadien.</span><div class="globe-legend"><span>🚩 <span data-i="myVisitedFlags">Meine Besuche</span> (<strong id="visitFlagCount">0</strong>)</span><span>• <span data-i="colorScaleTitle">Stadiongröße nach Plätzen</span></span></div>
+<section class="stage"><div class="stars"></div><div id="globe"></div><div id="globeWait" class="globe-wait">🌍 Weltkugel wird vorbereitet …</div><div id="detailMap" class="hide" aria-label="Stadion-Umgebungskarte"></div><div id="journeyOverlay" class="journey-overlay hide" aria-live="polite"></div><div id="mapFallbackNotice" class="map-fallback-notice hide" role="status" aria-live="polite"><span id="mapFallbackText"></span><button id="globeRetryBtn" type="button">↻ 3D erneut prüfen</button></div><div class="mode-toggle" role="group" aria-label="Kartenansicht"><button type="button" id="globeModeBtn" class="active" aria-pressed="true">🌍 <span data-i="globeView">Weltkugel</span></button><button type="button" id="mapModeBtn" aria-pressed="false">🗺️ <span data-i="mapView">Straßenkarte</span></button><button type="button" id="satModeBtn" aria-pressed="false">🛰️ <span data-i="satellite">Satellit</span></button></div><div id="emptyglobe" class="globe-placeholder"><div>🌍<p id="globeError">3D globe requires WebGL and an Internet connection.</p></div></div><div class="sat-credit hide" id="satCredit">EOxCloudless © EOX IT Services GmbH · Sentinel‑2 2016 · CC BY 4.0 · <a href="https://cloudless.eox.at/" target="_blank" rel="noopener noreferrer">Quelle</a><div><span data-i="satLimit">Historische Satellitenaufnahme, nicht hochauflösend</span></div></div><div class="globe-overlay"><div class="pill">🌍 <span data-i="spin">Drehen · Zoomen · Stadion anklicken</span></div><div class="pill" id="globeCount">–</div></div><div class="globe-bottom"><div class="hint"><span id="globeHint" data-i="globeHint">Dezente Punkte zeigen größere Stadien. Rote Fahnen markieren besuchte Stadien.</span><div class="globe-legend"><span>🚩 <span data-i="myVisitedFlags">Meine Besuche</span> (<strong id="visitFlagCount">0</strong>)</span><span>• <span data-i="colorScaleTitle">Stadiongröße nach Plätzen</span></span></div>
 <div class="stadium-size-legend" id="stadiumSizeLegend"></div>
 <label class="legend-check"><input type="checkbox" id="allGlobePoints" checked><span data-i="showAllMarkers">Alle Stadionpunkte anzeigen</span></label></div><div class="globe-buttons"><a class="btn small hide" id="satExternal" href="https://www.google.com/maps" target="_blank" rel="noopener noreferrer">🔎 <span data-i="hires">Satellit hochauflösend ↗</span></a><button class="btn small" id="mapBtn">🗺️ <span data-i="mapView">Umgebung</span></button><button class="btn small" type="button" id="zoomInBtn" aria-label="Zoom in" title="Zoom +">＋</button><button class="btn small" type="button" id="zoomOutBtn" aria-label="Zoom out" title="Zoom −">−</button><button class="btn small" id="resetBtn">🌐 <span data-i="reset">Welt</span></button></div></div></section>
 <section class="pane right"><div class="right-top"><button class="tab active" data-tab="details" data-i="details">Details</button><button class="tab" data-tab="passport" data-i="passport">Mein Stadionpass</button><button class="tab" data-tab="suggest" data-i="suggest">Eintragen</button><button class="tab hide" data-tab="review" data-i="review" aria-hidden="true">Prüfliste</button></div>
@@ -59,7 +59,7 @@ a{color:var(--aqua)}.shell{min-height:100vh}.header{height:76px;border-bottom:1p
 </main></div>
 <div class="lock hide" id="lock"><div class="lockcard"><img src="https://betinsight.club/assets/betinsight-logo.png" alt="BetInsight"><h2 data-i="restricted">Geschützte Entwickler-Vorschau</h2><p id="lockMessage" data-i="loginInfo">Öffne unten das BetInsight Admin Center, melde dich dort an und klicke anschließend auf „🌍 Stadionwelt (Test)“. Wichtig: im selben Browser-Tab bleiben.</p><a class="btn primary" href="/admin/" id="adminLink" data-i="goAdmin">Zum Backoffice-Login</a><button class="btn" id="retry" data-i="retry">Zugang erneut prüfen</button></div></div><div class="toast hide" id="toast"></div>
 <script async src="https://unpkg.com/globe.gl@2.45.0/dist/globe.gl.min.js" onload="window.dispatchEvent(new Event('stadium-globe-ready'))" onerror="window.dispatchEvent(new Event('stadium-globe-error'))"></script>
-<script src="./fallback-2d.js"></script>
+<script src="./fallback-2d.js"></script><script src="./passport-journey.js"></script>
 <script>
 "use strict";
 if(new URLSearchParams(location.search).get("embedded")==="1")document.body.classList.add("embedded");
@@ -186,7 +186,7 @@ function hasWebGL(kind){
 function hasWebGL2(){return hasWebGL("webgl2")}
 function leaf2DConfig(zoom=2,mode=mapMode){
  return {container:$("detailMap"),stadiums:filtered,visits,selected,zoom,mode,lang,
-  stadiumColor,capacityBand,selectedPinHtml:selectionPinHTML,onSelect:id=>selectStadium(id),
+  stadiumColor,capacityBand,selectedPinHtml:selectionPinHTML,journeyStops:window.BetInsightStadiumJourney?.tourStops()||[],journeyIndex:window.BetInsightStadiumJourney?.index()??-1,onSelect:id=>selectStadium(id),
   isPicking:()=>pickMode,onPick:(lat,lng)=>{const a=$("latitude"),b=$("longitude");
    if(a&&b){a.value=lat.toFixed(6);b.value=lng.toFixed(6);pickMode=false;toast("✓ "+a.value+", "+b.value)}},
   onMarkersRendered:n=>{if($("visitFlagCount"))$("visitFlagCount").textContent=fmt(n)}
@@ -201,7 +201,7 @@ async function showLeaf2D(zoom=2,mode="map"){
  if(streetMap){try{streetMap.remove()}catch{}streetMap=null;streetVisitFlagMarkers=[];streetSelectionMarker=null}
  if(!window.BetInsightLeaflet2D){console.error("No 2D fallback engine loaded");return}
  await window.BetInsightLeaflet2D.show(leaf2DConfig(zoom,mode));
- updateSatellitePanel();updateSatLink();
+ window.BetInsightStadiumJourney?.refresh();updateSatellitePanel();updateSatLink();
 }
 function fallbackTo2D(reason){
  if(globeUnavailable)return;
@@ -452,6 +452,8 @@ function ensureStreet(){
  streetMap.on("load",()=>{
   streetMap.addSource("eox-2016",{type:"raster",tiles:["https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/GoogleMapsCompatible/{z}/{y}/{x}.jpg"],tileSize:256,minzoom:0,maxzoom:13,attribution:'EOxCloudless by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2016 and 2017), CC BY 4.0'});
   streetMap.addLayer({id:"eox-satellite",type:"raster",source:"eox-2016",layout:{visibility:"none"},paint:{"raster-opacity":1}});
+  streetMap.addSource("stadium-journey",{type:"geojson",data:window.BetInsightStadiumJourney?.geo()||{type:"FeatureCollection",features:[]}});
+  streetMap.addLayer({id:"stadium-journey-route",type:"line",source:"stadium-journey",layout:{"line-cap":"round","line-join":"round"},paint:{"line-color":["case",["==",["get","completed"],1],"#44f1d6","#8fb8c8"],"line-width":3,"line-opacity":["case",["==",["get","completed"],1],.9,.38]}});
   streetMap.addSource("stads",{type:"geojson",data:makeGeo(),cluster:true,clusterMaxZoom:13,clusterRadius:45});
   streetMap.addLayer({id:"clst",type:"circle",source:"stads",filter:["has","point_count"],paint:{"circle-color":"#355b75","circle-radius":19,"circle-stroke-width":2,"circle-stroke-color":"#fff"}});
   streetMap.addLayer({id:"nums",type:"symbol",source:"stads",filter:["has","point_count"],layout:{"text-field":["get","point_count_abbreviated"],"text-size":13},"paint":{"text-color":"#fff"}});
@@ -537,7 +539,7 @@ function ensureStreet(){
   });
   streetMap.on("click",e=>{if(!pickMode)return;const a=$("latitude"),b=$("longitude");if(a&&b){a.value=e.lngLat.lat.toFixed(6);b.value=e.lngLat.lng.toFixed(6);pickMode=false;toast("✓ "+a.value+", "+b.value)}});
   streetMap.resize();
-  renderStreetVisitFlags();renderStreetSelectionMarker();
+  renderStreetVisitFlags();renderStreetSelectionMarker();window.BetInsightStadiumJourney?.refresh();
   applySatelliteLayer();updateSatellitePanel();
  });
  streetMap.on("error",e=>{
@@ -571,7 +573,7 @@ function showMap(zoom=14.2,desiredMode="map"){
  streetMap.resize();applySatelliteLayer();updateSatellitePanel();updateSatLink();
  const p=selected?{lat:+selected.latitude,lng:+selected.longitude}:globe?.pointOfView()||{lat:20,lng:0};
  if(streetMap.setMaxZoom)streetMap.setMaxZoom(mapMode==="satellite"?13:20);
- streetMap.flyTo({center:[p.lng,p.lat],zoom:mapMode==="satellite"?Math.min(12,zoom):zoom,duration:700});
+ streetMap.flyTo({center:[p.lng,p.lat],zoom:mapMode==="satellite"?Math.min(12,zoom):zoom,duration:700});window.BetInsightStadiumJourney?.refresh();
 }
 function showSatellite(){showMap(12,"satellite")}
 function showGlobe(){
@@ -579,7 +581,7 @@ function showGlobe(){
  mapMode="globe";mapRequested=false;syncModeControls();$("satCredit").classList.add("hide");updateSatLink();
  $("globe").classList.remove("hide");$("detailMap").classList.add("hide");
  $("mapBtn").textContent="🗺️ "+t("mapView");$("globeHint").textContent=t("globeHint");
- if(globe){const rect=$("globe");globe.width(rect.clientWidth).height(rect.clientHeight);const p=selected?{lat:+selected.latitude,lng:+selected.longitude,altitude:1.65}:{lat:21,lng:9,altitude:2.5};globe.pointOfView(p,0);globe.controls().autoRotate=rotating}
+ if(globe){const rect=$("globe");globe.width(rect.clientWidth).height(rect.clientHeight);const p=selected?{lat:+selected.latitude,lng:+selected.longitude,altitude:1.65}:{lat:21,lng:9,altitude:2.5};globe.pointOfView(p,0);globe.controls().autoRotate=rotating;window.BetInsightStadiumJourney?.refresh()}
 }
 window.addEventListener("maplibre-ready",()=>{if(mapRequested)showMap(pendingMapMode==="satellite"?12:14.2,pendingMapMode||"map")});
 
@@ -622,7 +624,7 @@ globe.width(w).height(h).pointOfView(selected?{lat:+selected.latitude,lng:+selec
  const canvas=holder.querySelector("canvas");
  if(!canvas)throw Error("GLOBE_RENDERER_CANVAS_MISSING");
  canvas.addEventListener("webglcontextlost",()=>fallbackTo2D("webgl_context_lost"),{once:true});
- renderDots();}catch(e){globe=null;if(!globeUnavailable)fallbackTo2D(e);else console.warn("Stadionwelt 3D retry initialization failed",e)}}
+ renderDots();window.BetInsightStadiumJourney?.refresh();}catch(e){globe=null;if(!globeUnavailable)fallbackTo2D(e);else console.warn("Stadionwelt 3D retry initialization failed",e)}}
 function renderDots(){
  if(!globe)return;
  const globeLocations=filtered.filter(s=>showAllGlobePoints||Number(s.capacity||0)>=40000||Number(s.id)===Number(selected?.id));
@@ -687,5 +689,14 @@ $("resetBtn").addEventListener("click",()=>{
  else if(streetMap)streetMap.flyTo({center:[9,21],zoom:2});else showMap(2,"map");return}
  showGlobe();globe?.pointOfView({lat:21,lng:9,altitude:2.5},1000);
 });$("globeModeBtn").addEventListener("click",showGlobe);$("mapModeBtn").addEventListener("click",()=>showMap());$("satModeBtn").addEventListener("click",showSatellite);
-$("mapBtn").addEventListener("click",()=>{if(mapMode==="map")showGlobe();else showMap()});$("globeRetryBtn").addEventListener("click",retryGlobe);$("retry").addEventListener("click",boot);loadLang();boot();
+$("mapBtn").addEventListener("click",()=>{if(mapMode==="map")showGlobe();else showMap()});$("globeRetryBtn").addEventListener("click",retryGlobe);$("retry").addEventListener("click",boot);
+window.BetInsightStadiumJourney?.install({
+ visits:()=>visits,stadiums:()=>all,lang:()=>lang,
+ globe:()=>globe,streetMap:()=>streetMap,leaflet:()=>window.BetInsightLeaflet2D,
+ leafletConfig:()=>leaf2DConfig(),passportVisible:()=>tab==="passport",
+ select:(id,keep,force)=>selectStadium(id,keep,force),
+ renderPassport:()=>{if(tab==="passport")renderRight("passport")},
+ stadiaLabel:()=>t("stadia"),toast
+});
+loadLang();boot();
 </script></body></html>
