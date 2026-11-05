@@ -36,16 +36,65 @@ select{font:inherit;background:#092638;color:white;border:1px solid #52839b;padd
 
 .market-quote-warning{border:1px solid #4d7188;background:#09293c;color:#e1f1f6;padding:13px 15px;border-radius:11px;margin:14px 0}
 #realMarketPanel select{max-width:100%}
+
+/* New minimalist landing; retains all original expert features inside collapsed details. */
+.simple-main{margin-top:22px;padding:26px;max-width:100%}
+.simple-main h2{font-size:27px;line-height:1.2}
+.simple-main>.controls{margin-top:21px}
+.simple-main .controls button{min-height:48px}
+.simple-main #simpleCheck{font-size:16px;padding:13px 22px}
+.simple-result{margin-top:17px;display:grid;gap:17px}
+.simple-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.simple-stat{background:#092638;border:1px solid #346680;padding:15px;border-radius:12px;display:flex;flex-direction:column;gap:4px}
+.simple-stat-value{font-size:25px;font-variant-numeric:tabular-nums;line-height:1.3}
+.simple-verdict{padding:17px;border:1px solid #4182a0;border-radius:13px;background:#082b3e}
+.simple-verdict strong{font-size:18px}
+.simple-verdict p{margin:8px 0 0;line-height:1.6}
+.simple-observations{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.simple-observation{border:1px solid #315d73;border-radius:12px;padding:16px;background:#0b2e43;display:flex;flex-direction:column;gap:8px;min-width:0}
+.simple-observation strong,.simple-observation span,.simple-observation div{overflow-wrap:anywhere}
+.simple-gap{color:#f7d88c;font-variant-numeric:tabular-nums}
+.simple-disclaimer{padding:12px 15px;border-radius:10px;border:1px solid #365c72;color:#c5dce6;font-size:13px;margin:0}
+.simple-optional{margin-top:21px;padding:15px 18px;border:1px solid #3c6b81;border-radius:12px;background:#0a293d}
+.simple-optional>summary,.simple-expert>summary{cursor:pointer;font-weight:800;color:#b9e6ee;line-height:1.5}
+.simple-optional[open]>summary,.simple-expert[open]>summary{margin-bottom:10px}
+.simple-expert{border:1px solid #294e60;background:#072331;border-radius:14px;padding:17px 18px;margin-top:16px}
+.simple-expert>.panel{margin-top:16px}
+@media(max-width:760px){.simple-stats,.simple-observations{grid-template-columns:1fr}.simple-main{padding:17px}.simple-main h2{font-size:23px}}
 </style>
 </head>
 <body>
 <main>
 <header><div class="brand">BETINSIGHT<span>.CLUB</span> · GRÜN-FINDER</div><nav><a href="/admin/testlabor/">← Testlabor</a> · <a href="/admin/testlabor/duell/">Virtuelles Tippduell</a></nav></header>
 <div class="overline">Internes Analysewerkzeug · keine echte Wettabgabe</div>
-<h1>🟢 Grüne Ampeln über 12 Ligen suchen</h1>
-<p class="muted">Vergleiche gespeicherte Quoten aus vier Fußballligen, Basketball, Eishockey, Baseball und American Football. Jede Suche aus dem Cache benötigt <strong>0 neue Quoten-API-Credits</strong>. Abgelaufene Quoten erscheinen nicht als aktuelle Empfehlungen.</p>
+<h1>BetInsight Quoten-Finder</h1>
+<p class="muted">Einfacher Überblick über gespeicherte Quoten, aktuelle Daten und Preisabstände. Auswertungen sind keine Gewinnversprechen oder automatisch freigegebenen Tipps.</p>
 <section id="locked" class="panel"><h2>Zugang wird geprüft …</h2><p id="authStatus">Die Sitzung wird geprüft. Öffne diesen Bereich aus dem angemeldeten Testlabor im selben Tab.</p><p><a href="/admin/testlabor/" style="display:inline-block;padding:10px 16px;border:1px solid #58bca2;border-radius:10px;color:#baffea;font-weight:800">← Zurück zum Testlabor – dort Grün-Finder anklicken</a></p></section>
 <div id="workspace" class="hidden">
+<section id="simpleDashboard" class="panel simple-main">
+ <div class="overline">BetInsight · Schnellanalyse</div>
+ <h2>Quoten übersichtlich prüfen</h2>
+ <p class="muted">Ein Klick prüft alle bereits gespeicherten Quoten aus 12 Ligen. <strong>Keine neue Anbieterabfrage und keine API-Credits.</strong> Du siehst sofort, ob wir aktuelle Daten haben und ob der bisherige Preisfilter eine Auswahl findet.</p>
+ <div class="controls"><button type="button" id="simpleCheck">🔎 Jetzt kostenlos prüfen · 0 Credits</button></div>
+ <p id="simpleStatus" role="status" aria-live="polite" class="muted">Noch nicht geprüft. Es wird nichts automatisch kostenpflichtig abgerufen.</p>
+ <div id="simpleResult" aria-live="polite" class="simple-result">
+  <div class="info">Die bisherigen Marktampeln bleiben im Expertenbereich verfügbar. Im Überblick werden nur die wichtigsten Ergebnisse angezeigt.</div>
+ </div>
+ <details id="simpleNewOdds" class="simple-optional">
+  <summary>Neue Quotendaten für eine Liga laden (nur nach Kostenbestätigung)</summary>
+  <p class="small muted">Nur notwendig, wenn du aktuellere Quoten brauchst. Eine Liga pro Klick; keine automatischen Folgeabrufe.</p>
+  <div class="controls">
+   <div class="control"><label for="simpleLeague">Fußball- oder andere Liga wählen</label>
+    <select id="simpleLeague"><option value="">Bitte Liga wählen</option></select>
+   </div>
+   <button type="button" class="secondary" id="simpleRefresh">Diese Liga nach Bestätigung aktualisieren</button>
+  </div>
+  <p class="small muted" role="status" id="simpleRefreshStatus">Es wurde noch kein Anbieterabruf gestartet.</p>
+ </details>
+</section>
+<details id="expertDetails" class="simple-expert">
+ <summary>Expertenansicht öffnen – Marktampeln, Buchmacher und Zusatzmärkte</summary>
+ <p class="small muted" style="margin:14px 0">Hier bleiben alle bisherigen Werkzeuge verfügbar. Sie sind nur aus der Startansicht ausgeblendet, nicht entfernt.</p>
 <section id="greenFinderPanel" class="panel">
  <div class="overline">Gesamtsuche – 4 Fußballligen + 8 weitere Ligen</div>
  <h2>🔎 Grün-Finder</h2>
@@ -147,6 +196,7 @@ select{font:inherit;background:#092638;color:white;border:1px solid #52839b;padd
 </section>
 <section id="soccerPanel" class="panel hidden"><h2>⚽ Details zum Fußballmarkt</h2><select id="soccerLeague"><option>Fußball</option></select><div id="soccerDetails" class="grid" style="margin-top:14px"></div></section>
 <section id="additionalOddsScout" class="panel hidden"><h2>Details zu weiteren Sportligen</h2><select id="otherOddsLeague"><option>Andere Sportarten</option></select><div id="otherOddsDetails" class="grid" style="margin-top:14px"></div><p id="otherOddsStatus" class="small muted"></p></section>
+</details>
 </div>
 </main>
 <script>
@@ -195,5 +245,6 @@ function showOtherOdds(key){return details(key,"otherOddsDetails","additionalOdd
 <script src="/admin/testlabor/price-watch-v1.js?v=2" defer></script>
 <script src="/admin/testlabor/market-lab-v1.js?v=2" defer></script>
 <script src="/admin/testlabor/real-market-lookup-v1.js?v=1" defer></script>
+<script src="/admin/testlabor/simple-dashboard-v1.js?v=1" defer></script>
 </body>
 </html>
