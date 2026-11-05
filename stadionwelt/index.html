@@ -747,7 +747,12 @@ function passHTML(){
  const addForm=selected?"<div class='sectionhead'>✓ "+esc(selected.name)+"</div><form id='visitForm'><div class='field'><label>"+t("date")+"</label><input name='visited_on' type='date' max='"+new Date().toISOString().slice(0,10)+"'></div><div class='field'><label>"+t("match")+"</label><input name='match_description' maxlength='200'></div><div class='field'><label>"+t("noteTitle")+"</label><textarea name='private_note' maxlength='2000' placeholder='"+t("noteHint")+"'></textarea></div><div class='field'><label>"+t("photo")+"</label><input type='file' id='visitPhotosInput' accept='image/jpeg,image/png,image/webp' multiple></div><button class='btn primary w100' type='submit'>"+t("saveVisit")+"</button></form>":"";
  return "<div class='kicker'>BETINSIGHT · TRAINER</div><h3>"+esc(t("passport"))+"</h3>"+summary+(journey?.panelHTML()||"")+"<div class='passport-stop-list'>"+items+"</div>"+addForm;
 }
-function attachRight(){if(tab==="details"){$("visit")?.addEventListener("click",()=>renderRight("passport"));$("mapSelected")?.addEventListener("click",()=>showMap(15.2))}if(tab==="suggest"){$("pick")?.addEventListener("click",()=>{pickMode=true;toast(t("picking"));document.querySelector(".stage").scrollIntoView({behavior:"smooth",block:"center"})});$("suggestForm")?.addEventListener("submit",submitNew)}if(tab==="review"){ $("reloadQueue")?.addEventListener("click",async()=>{await Promise.all([fetchQueue(),fetchProofQueue()]);renderRight()});document.querySelectorAll("[data-approve],[data-reject]").forEach(btn=>btn.addEventListener("click",()=>review(btn.dataset.approve||btn.dataset.reject,btn.dataset.approve?"approved":"rejected")));document.querySelectorAll("[data-proof-accept],[data-proof-reject]").forEach(btn=>btn.addEventListener("click",()=>reviewProof(btn.dataset.proofAccept||btn.dataset.proofReject,btn.dataset.proofAccept?"accepted":"rejected")))}if(tab==="passport"){$("visitForm")?.addEventListener("submit",saveVisit);document.querySelectorAll("[data-visit-note]").forEach(form=>form.addEventListener("submit",saveExistingNote))}}
+function attachRight(){if(tab==="details"){$("visit")?.addEventListener("click",()=>renderRight("passport"));$("mapSelected")?.addEventListener("click",()=>showMap(15.2))}if(tab==="suggest"){$("pick")?.addEventListener("click",()=>{pickMode=true;toast(t("picking"));document.querySelector(".stage").scrollIntoView({behavior:"smooth",block:"center"})});$("suggestForm")?.addEventListener("submit",submitNew)}if(tab==="review"){ $("reloadQueue")?.addEventListener("click",async()=>{await Promise.all([fetchQueue(),fetchProofQueue()]);renderRight()});document.querySelectorAll("[data-approve],[data-reject]").forEach(btn=>btn.addEventListener("click",()=>review(btn.dataset.approve||btn.dataset.reject,btn.dataset.approve?"approved":"rejected")));document.querySelectorAll("[data-proof-accept],[data-proof-reject]").forEach(btn=>btn.addEventListener("click",()=>reviewProof(btn.dataset.proofAccept||btn.dataset.proofReject,btn.dataset.proofAccept?"accepted":"rejected")))}if(tab==="passport"){
+ $("visitForm")?.addEventListener("submit",saveVisit);
+ document.querySelectorAll("[data-visit-edit]").forEach(form=>form.addEventListener("submit",saveExistingVisit));
+ document.querySelectorAll("[data-passport-show]").forEach(button=>button.addEventListener("click",()=>openPassportStadium(button.dataset.passportShow,true)));
+ document.querySelectorAll("[data-passport-details]").forEach(button=>button.addEventListener("click",()=>openPassportStadium(button.dataset.passportDetails,false)));
+}}
 async function submitNew(ev){ev.preventDefault();const f=ev.currentTarget,b=$("send");const data=Object.fromEntries(new FormData(f).entries());const images=[...$("uploadFiles").files];if(images.length>5||images.some(x=>x.size>5*1024*1024)){toast("Max 5 photos, each 5 MB");return}b.disabled=true;try{const r=await call("submit",data);let failures=0;for(const file of images){const fd=new FormData();fd.append("action","upload");fd.append("admin_hash",adminHash);fd.append("member_token",memberToken);fd.append("submission_id",r.submission.id);fd.append("file",file);const res=await fetch(API,{method:"POST",body:fd});if(!res.ok)failures++}f.reset();toast(t("sent")+(failures?" · "+failures+" photo upload(s) failed":""));await Promise.all([fetchQueue(),fetchProofQueue()]);renderRight("review")}catch(e){toast(t("error")+": "+e.message)}finally{b.disabled=false}}
 async function fetchQueue(){try{const d=await call("queue");reviewQueue=d.queue||[];reviewMedia=d.media||[];$("pendingCount").textContent=fmt(reviewQueue.filter(x=>x.status==="pending").length)}catch{$("pendingCount").textContent="–"}}
 async function fetchProofQueue(){try{const d=await call("proof_queue");reviewProofs=d.media||[];const n=reviewQueue.filter(x=>x.status==="pending").length+reviewProofs.length;$("pendingCount").textContent=fmt(n)}catch{reviewProofs=[]}}
@@ -760,6 +765,51 @@ async function fetchVisits(){
  }catch(e){console.info("Visits unavailable for current trainer session",e?.message||e);if(String(e?.message||"").includes("MEMBER_LOGIN_REQUIRED")){memberToken="";visits=[];visitPhotos=[];if(tab==="passport")renderRight("passport")}}
 }
 async function review(id,decision){const note=prompt(t("note"),"")||"";if(!confirm(t(decision)))return;try{await call("review",{id,decision,note});await Promise.all([fetchQueue(),fetchProofQueue()]);const d=await call("list");all=d.stadiums||[];clubs=d.clubs||[];fixtures=d.fixtures||[];tips=d.tipResults||[];tipLinks=d.tipLinks||[];$("total").textContent=fmt(all.length);fillCountries();applyFilters();renderRight("review");toast(t(decision))}catch(e){toast(t("error")+": "+e.message)}}
+
+function openPassportStadium(visitId,keepPassport){
+ const visit=visits.find(item=>String(item.id)===String(visitId));
+ if(!visit)return;
+ const stadium=all.find(item=>Number(item.id)===Number(visit.stadium_id));
+ if(!validSelectionCoordinates(stadium)){toast(editCopy("noPosition"));return}
+ // A manual selection must stop the automatic tour before centering this stadium.
+ if(keepPassport)window.BetInsightStadiumJourney?.stop();
+ selectStadium(Number(stadium.id),keepPassport,true);
+}
+async function saveExistingVisit(ev){
+ ev.preventDefault();
+ const form=ev.currentTarget,visitId=String(form.dataset.visitEdit||"");
+ if(!visits.some(v=>String(v.id)===visitId)){toast(t("error")+": VISIT_NOT_FOUND");return}
+ const date=String(form.elements.namedItem("visited_on")?.value||"");
+ const match=String(form.elements.namedItem("match_description")?.value||"").slice(0,200);
+ const note=String(form.elements.namedItem("private_note")?.value||"").slice(0,2000);
+ const files=[...(form.querySelector("[data-more-visit-photos]")?.files||[])];
+ const types=new Set(["image/jpeg","image/png","image/webp"]);
+ if(files.length>5||files.some(f=>!types.has(f.type)||f.size<100||f.size>5*1024*1024)){toast(editCopy("invalidFiles"));return}
+ const existing=visitPhotos.filter(p=>String(p.visit_id)===visitId).length;
+ if(existing+files.length>20){toast(editCopy("photoLimit"));return}
+ const button=form.querySelector("button[type=submit]");
+ if(button)button.disabled=true;
+ try{
+  // This action is server-authorized for the member's own trainer profile.
+  await call("visit_update",{visit_id:visitId,visited_on:date,match_description:match,private_note:note});
+  let uploadErrors=0,firstError="";
+  for(const file of files){
+   const data=new FormData();
+   data.append("action","visit_upload");data.append("admin_hash",adminHash);
+   data.append("member_token",memberToken);data.append("visit_id",visitId);data.append("file",file);
+   try{
+    const response=await fetch(API,{method:"POST",body:data});
+    if(!response.ok){uploadErrors++;if(!firstError){const body=await response.json().catch(()=>({}));firstError=String(body.error||response.status)}}
+   }catch(error){uploadErrors++;if(!firstError)firstError=String(error)}
+  }
+  await fetchVisits();
+  if(tab==="passport")renderRight("passport");
+  toast(uploadErrors?editCopy("partial")+(firstError?" ("+firstError+")":""):editCopy("saved"));
+ }catch(error){
+  toast(t("error")+": "+String(error.message||error));
+ }finally{if(button?.isConnected)button.disabled=false}
+}
+
 async function saveExistingNote(ev){ev.preventDefault();const form=ev.currentTarget;const id=form.dataset.visitNote;const note=String(new FormData(form).get("private_note")||"").slice(0,2000);try{await call("visit_update",{visit_id:id,private_note:note});await fetchVisits();renderRight("passport");toast(t("saved"))}catch(e){toast(t("error")+": "+e.message)}}
 async function saveVisit(ev){ev.preventDefault();if(!selected)return;try{
  const f=ev.target,form=Object.fromEntries(new FormData(f).entries());
