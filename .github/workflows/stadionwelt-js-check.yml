@@ -66,6 +66,49 @@ jobs:
           assert.equal(context.globe.element,context.holder);
           console.log('Pinned globe.gl v2.45 constructor contract passed');
           NODE
+      - name: Regression - automatic 3D travel stays bundled and keeps zoom phases
+        run: |
+          node - <<'NODE'
+          const assert = require('node:assert/strict');
+          const fs = require('node:fs');
+          const vm = require('node:vm');
+          const html = fs.readFileSync('stadionwelt/index.html','utf8');
+          const canonical = fs.readFileSync('stadionwelt/globe-flight.js','utf8').trimEnd();
+          const embedded = html.match(/<script data-stadium-globe-flight="inline">\n([\s\S]*?)\n<\/script>/);
+          assert(embedded, '3D camera flight must be embedded before the page logic');
+          assert.equal(embedded[1],canonical,'Embedded flight must stay in sync with standalone source');
+          assert(html.indexOf(embedded[0]) < html.indexOf('function selectStadium('),'Flight must initialize before stadium selection');
+          assert(!html.includes('globe.pointOfView(target,globeRotationDurationMs())'),'Do not silently regress to old eased camera motion');
+          assert(html.includes('ROTATION_DEFAULT_SECONDS=4'),'Approved globe flight time is 4 seconds');
+          assert(html.includes('duration:keepPassport?2800:850'),'Do not change satellite/2D selection timing');
+          let t=0,frame=null,last={lat:21,lng:9,altitude:2.5};
+          const calls=[];
+          const scene={
+            pointOfView(p,ms) {
+              if(!p)return {...last};
+              last={...p};calls.push({time:t,p:{...p},ms});
+              return this;
+            },
+            controls(){return {autoRotate:false}}
+          };
+          const ctx={
+            window:{},performance:{now:()=>0},
+            requestAnimationFrame(fn){frame=fn;return 1},
+            cancelAnimationFrame(){frame=null},
+            console
+          };
+          vm.runInNewContext(canonical,ctx);
+          assert(ctx.window.BetInsightStadiumFlight.flyTo(scene,{lat:45,lng:-75,altitude:1.15},4000));
+          for(t=0;t<=4000;t+=20){const callback=frame;frame=null;if(callback)callback(t)}
+          const sample=time=>calls.find(x=>x.time===time);
+          assert(sample(480).p.altitude>=3.09,'Zoom-out must be visible even from overview');
+          assert(sample(2000).p.altitude>=3.09,'Rotate at overview altitude');
+          assert(sample(3900).p.altitude<3.1,'Quick zoom-in must begin before arrival');
+          assert.equal(sample(4000).p.altitude,1.15,'Finish close to selected stadium');
+          assert(Math.abs(sample(4000).p.lng+75)<1e-6,'Finish at selected stadium');
+          assert(calls.every(x=>x.ms===0),'3D tween easing must remain disabled');
+          console.log('Automatic globe flight: four-second zoom-out/travel/zoom-in sequence OK');
+          NODE
       - name: Regression - attempt real globe before fallback
         run: |
           node - <<'NODE'
