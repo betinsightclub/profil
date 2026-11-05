@@ -35,3 +35,42 @@ jobs:
           for(const item of checks)if(!html.includes(item))throw new Error('Missing ' + item);
           console.log('Syntax OK (' + scripts.length + ' scripts); fallback connected.');
           NODE
+      - name: Regression - attempt real globe before fallback
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const vm = require('node:vm');
+          const assert = require('node:assert/strict');
+          const html = fs.readFileSync('stadionwelt/index.html','utf8');
+          const excerpt = (from,to) => {
+            const start = html.indexOf(from);
+            const end = html.indexOf(to,start);
+            assert(start !== -1 && end > start, 'Missing source boundary: '+from);
+            return html.slice(start,end);
+          };
+          const init = excerpt('function initGlobeWhenReady(){','window.addEventListener("stadium-globe-ready"');
+          const context = {
+            ready:true, globe:null, globeUnavailable:false, globeLibraryFailed:false,
+            Globe:()=>{}, $:()=>({classList:{contains:()=>true,add:()=>{}},style:{}}),
+            initGlobe(){this.globe={};},
+            renderDots(){this.drawn=true;},
+            fallbackTo2D(){this.fellBack=true;}
+          };
+          context.initGlobe = ()=>{context.globe={}};
+          context.renderDots = ()=>{context.drawn=true};
+          context.fallbackTo2D = ()=>{context.fellBack=true};
+          vm.runInNewContext(init+';initGlobeWhenReady();',context);
+          assert(context.globe && context.drawn, 'Globe should be attempted without a preliminary GPU rejection');
+          assert(!context.fellBack,'3D should not be prematurely rejected');
+          context.globe=null;context.drawn=false;context.globeLibraryFailed=true;context.Globe=undefined;
+          vm.runInNewContext(init+';initGlobeWhenReady();',context);
+          assert(context.fellBack,'3D script errors must still trigger 2D fallback');
+          const select = excerpt('function showGlobe(){','window.addEventListener("maplibre-ready"');
+          const button = {globeUnavailable:true,again:0,retryGlobe(){this.again++}};
+          button.retryGlobe=()=>{button.again++};
+          vm.runInNewContext(select+';showGlobe();',button);
+          assert.equal(button.again,1,'3D tab must permit another attempt after fallback');
+          const gpu = excerpt('function hasWebGL(kind){','function leaf2DConfig(');
+          assert(!gpu.includes('loseContext()'),'GPU probes must not forcibly discard WebGL contexts');
+          console.log('3D-first startup and manual retry regression checks passed.');
+          NODE
