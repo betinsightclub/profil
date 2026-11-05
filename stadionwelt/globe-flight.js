@@ -42,7 +42,7 @@
   const startAltitude=Number.isFinite(Number(from.altitude))?Number(from.altitude):1.65;
   const targetAltitude=Number.isFinite(Number(target.altitude))?Number(target.altitude):1.65;
   // The globe first pulls back far enough to make the continental movement legible.
-  const highAltitude=Math.max(2.35,startAltitude,targetAltitude);
+  const highAltitude=Math.max(2.08,startAltitude,targetAltitude);
   const total=clamp(Number(durationMs)||8000,4000,30000);
   // Zoom phases remain quick at both 4 and 25-second travel settings.
   const zoomOutMs=Math.min(600,total*0.12);
