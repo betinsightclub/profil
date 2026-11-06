@@ -515,12 +515,31 @@ function newCard(r){
   });
   c.appendChild(list);
  }else{
-  c.appendChild(ele("p","",str(r.sportart||"Sport")+" · "+str(r.liga)));
-  c.appendChild(ele("p","","Quotenbereich: "+str(r.quote_bereich||"Nach Freischaltung")+" · Begegnung, Markt und Tipp werden erst nach Freischaltung angezeigt."));
+  // Gleiche detaillierte Vorschau wie bei Schulungstipps; keine echten Tippdaten offenlegen.
+  var rows=[
+   ["⚽ Sport",str(r.sportart||"Fußball")],
+   ["🎟️ Wettart",typeText?typeText.replace(/^⚽\s*/,""):"Nicht angegeben"],
+   ["🏟️ Liga",str(r.liga||"–")],
+   ["👤 Tippgeber",str(r.tippgeber||r.ersteller||"BetInsight")],
+   ["📅 Datum",shortDate(r.spiel_datum)],
+   ["🕒 Anpfiff",str(r.anpfiff||"–")],
+   ["📊 Quotenbereich",str(r.quote_bereich||"Nach Freischaltung")],
+   ["🎯 Markt","Nach Freischaltung sichtbar"],
+   ["⚔️ Begegnung","████████ – ████████"],
+   ["✅ Auswahl","Nach Freischaltung sichtbar"]
+  ];
+  var list=ele("div","demo-list");
+  rows.forEach(function(kv){
+   var line=ele("div","demo-row");
+   line.appendChild(ele("span","",kv[0]));
+   line.appendChild(ele("strong","",kv[1]));
+   list.appendChild(line);
+  });
+  c.appendChild(list);
  }
  var bottom=ele("div","card-bottom"),units=str(r.preis_units),price=units+" "+(numeric(r.preis_units)===1?"Unit":"Units");
  bottom.appendChild(ele("span","pill","Preis: "+price));
- var button=ele("button","small-button",isTraining?"🔓 Tipp für "+price+" freischalten":"🔓 Tipp freischalten");
+ var button=ele("button","small-button","🔓 Tipp für "+price+" freischalten");
  button.type="button";
  if(state.hasAccess&&!state.unlocksVerified){button.disabled=true;button.textContent="⏳ Freischaltungen werden geprüft";}
  if(isTraining){
@@ -564,7 +583,7 @@ async function unlockTip(tip,button,feedback){
   try{await fetch("https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-profile-resync?token="+encodeURIComponent(access),{method:"GET",cache:"no-store",credentials:"omit"})}catch(_){}
   load(true);
  }catch(error){feedback.textContent="Freischaltung konnte nicht bestätigt werden. Bitte versuche es erneut oder kontaktiere den Support.";console.warn("BetInsight tip unlock error",String(error).slice(0,100))}
- finally{button.disabled=false;button.textContent=training(tip)?"🔓 Tipp für "+str(tip.preis_units)+" "+(numeric(tip.preis_units)===1?"Unit":"Units")+" freischalten":"🔓 Tipp freischalten"}
+ finally{button.disabled=false;button.textContent="🔓 Tipp für "+str(tip.preis_units)+" "+(numeric(tip.preis_units)===1?"Unit":"Units")+" freischalten"}
 }
 function expired(r){
   const flag=str(r.expired).toLowerCase();
