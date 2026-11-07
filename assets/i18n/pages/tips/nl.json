@@ -173,6 +173,18 @@
     "historyZero": "Deze historische tips hebben samen 0 Units. Zonder positieve inzetweging is ROI niet berekenbaar. Het trefferspercentage blijft gelijk.",
     "historyZeroSome": "{{zero}} van {{total}} tips hebben 0 Units en tellen voor €0 mee. ROI gebruikt alleen de andere {{positive}} tips; het trefferspercentage omvat alle {{total}}.",
     "detailCount": "Tips {{start}}–{{end}} van {{total}}{{overall}}",
-    "overallAbove": " · Totaal hierboven"
+    "overallAbove": " · Totaal hierboven",
+    "detailIntro": "Elke tip toont oorspronkelijke odds, benodigde Units, gesimuleerde inzet en nettoresultaat. Bedragen gebruiken de euroschuif en worden bij openen berekend.",
+    "detailFoot": "Bij 'Totaal' maximaal tien tips per pagina. Het totaal hierboven omvat alle geselecteerde tips. Historische 0-Unit-tips tellen als €0.",
+    "modelIntro": "Berekend totaalresultaat zonder ontgrendelkosten. Resultaten uit het verleden garanderen geen toekomstige winst.",
+    "roiIntro": "Elke gepubliceerde tip wordt gewogen naar de Units die oorspronkelijk nodig waren om deze te ontgrendelen. Hypothetische inzet = Units × euro per Unit (€1–€100). Winst of verlies volgt de oorspronkelijke odds.",
+    "roiMethod": "De gekozen groep (1–10, 11–20 of Totaal) omvat inzetten, uitbetalingen en nettoresultaat. ROI = gesimuleerde netto winst/verlies ÷ gesimuleerde inzetten × 100. Units dienen alleen als inzetweging; ontgrendelkosten worden niet dubbel afgetrokken.",
+    "roiExample": "Voorbeeld: 5 Units à €10 en odds 2,30 = €50 gesimuleerde inzet. Winst: €115 uitbetaling en €65 netto; verlies: €50. Omdat Units en odds verschillen, verschilt gewogen ROI van gelijke inzetten. De euroschuif verandert bedragen, niet het ROI-percentage. Tips met 0 Units tellen mee voor het trefferspercentage, niet voor de inzet.",
+    "roiDisclaimer": "Deze cijfers tonen eerdere resultaten, geen inzetadvies of winstgarantie.",
+    "roiExtra": "Een tip mist geldige odds of Units, of de groep heeft geen positieve inzet. ROI kan niet juist worden weergegeven.",
+    "closeExplain": "Uitleg sluiten",
+    "stakeAria": "Inzet per Unit in euro, 1 tot 100",
+    "tabAria": "Onderdelen van het tipcentrum",
+    "filterAria": "Resultatenfilter"
   }
 }
