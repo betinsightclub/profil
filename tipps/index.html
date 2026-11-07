@@ -296,6 +296,8 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
 var ROOT="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-tips-api?action=";
 var state={area:"neu",provider:"Martin",period:"0",stake:10,archive:"Alle",results:[],performanceResults:[],tips:[],unlocked:[],recentUnlocks:new Set(),unlocksVerified:false,hasAccess:false,resultsLoaded:false,performanceLoaded:false,tipsLoaded:false,loading:false,unlockMessage:"",privateError:""};
 var $=function(id){return document.getElementById(id)};
+function tr(key,fallback,variables){var i18n=window.BetInsightI18n;return i18n?.t("tipsCenter."+key,variables||{},fallback)||fallback}
+function currentLocale(){return window.BetInsightI18n?.getLanguage?.()||"de"}
 var numeric=function(v){var n=Number(String(v==null?"":v).replace(",","."));return Number.isFinite(n)?n:NaN};
 var str=function(v){return String(v==null?"":v).trim()};
 function status(v){var k=str(v).toUpperCase();if(["GEWONNEN","WIN","WON"].indexOf(k)!==-1)return"won";if(["VERLOREN","LOSS","LOST"].indexOf(k)!==-1)return"lost";if(["VOID","PUSH","STORNIERT","REFUND"].indexOf(k)!==-1)return"void";if(["ABGEBROCHEN","ABGESAGT","CANCELLED"].indexOf(k)!==-1)return"void";return""}
@@ -396,19 +398,19 @@ function mini(){
  [["Martin","martinMini"],["Frank","frankMini"],["Schulung","trainingMini"],["Testphase","testMini"]].forEach(function(item){
   var el=$(item[1]);if(!el)return;el.replaceChildren();
   var loaded=(item[0]==="Martin"||item[0]==="Frank")?(state.performanceLoaded&&state.resultsLoaded):state.resultsLoaded;
-  if(!loaded){el.textContent="Performance wird geladen …";return}
+  if(!loaded){el.textContent=tr("perfLoading","Performance wird geladen …");return}
   var overallOnly=item[0]==="Martin"||item[0]==="Frank";
   var a=overallOnly?null:stats(item[0],"0"),b=stats(item[0],"all");
-  if(!b.total){el.textContent="Noch keine gewerteten Tipps";return}
+  if(!b.total){el.textContent=tr("noRated","Noch keine gewerteten Tipps");return}
   var container=ele("span","mini-stats"+(overallOnly?" total-only":""));
-  (overallOnly?[["GESAMT",b.hit]]:[["LETZTE 10",a.hit],["GESAMT",b.hit]]).forEach(function(p){
+  (overallOnly?[[tr("overall","GESAMT"),b.hit]]:[["LETZTE 10",a.hit],[tr("overall","GESAMT"),b.hit]]).forEach(function(p){
    var band=p[1]==null?"":p[1]>=60?" score-good":p[1]>=40?" score-mid":p[1]>=20?" score-low":" score-bad";
    var one=ele("span","mini-stat"+(overallOnly?band:""));one.appendChild(ele("span","mini-stat-label",p[0]));
    one.appendChild(ele("span","mini-stat-value",p[1]===null?"–":percent(p[1])));container.appendChild(one);
   });el.appendChild(container);
  })
 }
-function euro(n){return new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"}).format(n)}
+function euro(n){return new Intl.NumberFormat(currentLocale(),{style:"currency",currency:"EUR"}).format(n)}
 function drawModel(){
  var n=Math.max(1,Math.min(100,Math.round(Number(state.stake)||10)));
  state.stake=n;$("perfStake").value=String(n);$("perfStakeValue").textContent=euro(n);
@@ -429,10 +431,10 @@ function drawModel(){
 }
 function performance(){
  var who=state.provider;
- $("perfDisclosureName").textContent="· "+(who==="Schulung"?"Schulungstipps":who==="Testphase"?"User-Testphase":who);
+ $("perfDisclosureName").textContent="· "+(who==="Schulung"?tr("training","Schulungstipps"):who==="Testphase"?tr("testing","User-Testphase"):who);
  if(!$("perfDisclosure").open)return;
  var box=$("performance");box.hidden=false;
- $("perfName").textContent=who==="Schulung"?"Schulungstipps":who==="Testphase"?"User-Testphase":who;
+ $("perfName").textContent=who==="Schulung"?tr("training","Schulungstipps"):who==="Testphase"?tr("testing","User-Testphase"):who;
  $("avatar").textContent=who==="Testphase"?"T":who==="Schulung"?"S":who[0];
  var loaded=(who==="Martin"||who==="Frank")?(state.performanceLoaded&&state.resultsLoaded):state.resultsLoaded;
  var all=loaded?decided(who):[];
@@ -446,7 +448,7 @@ function performance(){
     b.addEventListener("click",function(){state.period=String(idx);perfDetailPage=0;performance()});windows.appendChild(b);
    })(i)
   }
-  var total=ele("button","winbtn"+(state.period==="all"?" selected":""),"Gesamt");
+  var total=ele("button","winbtn"+(state.period==="all"?" selected":""),tr("overall","GESAMT"));
   total.type="button";total.setAttribute("aria-pressed",state.period==="all"?"true":"false");
   total.addEventListener("click",function(){state.period="all";perfDetailPage=0;performance()});windows.appendChild(total);
  }else{
@@ -648,7 +650,7 @@ function trainingDemoCard(){
   c.appendChild(feedback);
   return c;
 }
-function drawNew(){var who=state.provider;var head=who==="Schulung"?"Neue Schulungstipps":who==="Testphase"?"User-Testphase":"Neue Tipps von "+who;$("feedTitle").textContent=head;
+function drawNew(){var who=state.provider;var head=who==="Schulung"?tr("newTraining","Neue Schulungstipps"):who==="Testphase"?tr("testing","User-Testphase"):tr("newFrom","Neue Tipps von {{who}}",{who:who});$("feedTitle").textContent=head;
 var node=$("newFeed");node.replaceChildren();
 if(who==="Testphase"){
  node.appendChild(ele("div","alert","Die User-Testphase wird vorbereitet. Noch keine Teilnehmerfreigaben, keine Unit-Abbuchungen und keine automatischen Unit-Rückgaben. Die Teilnahmebedingungen und der serverseitige Rückgabeschutz müssen vor dem Start aktiviert und geprüft werden."));
@@ -659,7 +661,7 @@ if(!state.tipsLoaded){if(who!=="Schulung")empty(node,"Neue Tipps konnten derzeit
 if(state.hasAccess&&!state.unlocksVerified&&state.privateError){var warning="Deine bisherigen Freischaltungen konnten nicht geprüft werden. Zur Sicherheit werden keine neuen Freischaltungen angeboten. Bitte aktualisiere die Seite.";if(who==="Schulung")node.appendChild(ele("div","alert",warning));else empty(node,warning);return}
 var ended=new Set(state.results.filter(function(r){return !!status(r.ergebnis_status)}).map(function(r){return str(r.tipp_id)}));
 var unlockedIds=new Set(state.unlocked.map(function(r){return str(r.tipp_id)}));state.recentUnlocks.forEach(function(id){unlockedIds.add(id)});
-var rows=state.tips.filter(function(r){return !expired(r)&&!ended.has(str(r.tipp_id))&&!unlockedIds.has(str(r.tipp_id))&&belongs(r,who)}).sort(function(a,b){return time(a.spiel_datum)-time(b.spiel_datum)});if(!rows.length){if(who!=="Schulung")empty(node,"In dieser Kategorie sind derzeit keine neuen, freischaltbaren Tipps vorhanden.");return}rows.forEach(function(r){node.appendChild(newCard(r))})}
+var rows=state.tips.filter(function(r){return !expired(r)&&!ended.has(str(r.tipp_id))&&!unlockedIds.has(str(r.tipp_id))&&belongs(r,who)}).sort(function(a,b){return time(a.spiel_datum)-time(b.spiel_datum)});if(!rows.length){if(who!=="Schulung")empty(node,tr("newEmpty","In dieser Kategorie sind derzeit keine neuen, freischaltbaren Tipps vorhanden."));return}rows.forEach(function(r){node.appendChild(newCard(r))})}
 function drawMine(){var node=$("myFeed");node.replaceChildren();var confirmation=$("unlockNotice");confirmation.textContent=state.unlockMessage;confirmation.hidden=!state.unlockMessage;if(state.privateError)node.appendChild(ele("div","alert",state.privateError));if(!state.hasAccess){node.appendChild(ele("div","private-state","Kein bestätigter Mitgliederzugang erkannt. Öffne die Seite über dein angemeldetes Profil, um deine eigenen freigeschalteten Tipps zu sehen."));var a=ele("a","small-button","Zum Profil →");a.href="../";node.appendChild(a);return}
 if(!state.unlocked.length){empty(node,"Du hast noch keine persönlich freigeschalteten Tipps oder sie konnten nicht geladen werden.");return}var resultMap=new Map(state.results.map(function(r){return[str(r.tipp_id),r]}));state.unlocked.slice().sort(function(a,b){return time(b.datum)-time(a.datum)}).forEach(function(r){var rr=resultMap.get(str(r.tipp_id))||{};node.appendChild(resultCard(Object.assign({},r,{ergebnis_status:rr.ergebnis_status||r.ergebnis_status_bestaetigt,bestaetigt_am:rr.bestaetigt_am||r.ergebnis_bestaetigt_am,endergebnis:rr.endergebnis||""}),true))})}
 function drawArchive(){var node=$("archiveFeed");node.replaceChildren();if(!state.resultsLoaded){empty(node,"Bestätigte Ergebnisse konnten noch nicht geladen werden.");$("archiveCount").textContent="";return}
@@ -692,7 +694,7 @@ async function requestCompleteResults(){
  return data;
 }
 var lastNetworkRefreshAt=0;
-async function load(force){if(state.loading||(!force&&Date.now()-lastNetworkRefreshAt<25000))return;lastNetworkRefreshAt=Date.now();state.loading=true;$("reload").disabled=true;$("dataInfo").textContent="Aktuelle Tipps und Ergebnisse werden abgefragt …";
+async function load(force){if(state.loading||(!force&&Date.now()-lastNetworkRefreshAt<25000))return;lastNetworkRefreshAt=Date.now();state.loading=true;$("reload").disabled=true;$("dataInfo").textContent=tr("liveFetching","Aktuelle Tipps und Ergebnisse werden abgefragt …");
 var t=token();state.hasAccess=!!t;state.privateError="";
 var req=[requestCompleteResults(),request("list")];if(t)req.push(request("unlocked",t));
 var out=await Promise.allSettled(req);if(out[0].status==="fulfilled"){
@@ -704,7 +706,7 @@ if(t&&out[2]?.status==="fulfilled"){var confirmed=out[2].value;var confirmedIds=
 else if(t&&out[2]?.status==="rejected"){state.unlocksVerified=false;state.privateError="Die persönlichen Freischaltungen konnten nicht geladen werden. Bitte erneut versuchen."}
 else if(!t){state.unlocked=[];state.recentUnlocks.clear();state.unlocksVerified=false}
 var ok=out[0].status==="fulfilled"&&out[1].status==="fulfilled";
-$("dataInfo").textContent=ok?"Live-Daten · "+state.results.length+" veröffentlichte Ergebnisse · aktualisiert "+new Date().toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"}):"Teilweise nicht erreichbar · "+(state.resultsLoaded?"Letzter Datenstand wird gezeigt":"Bitte später erneut laden");
+$("dataInfo").textContent=ok?tr("liveInfo","Live-Daten · {{count}} veröffentlichte Ergebnisse · aktualisiert {{time}}",{count:state.results.length,time:new Date().toLocaleTimeString(currentLocale(),{hour:"2-digit",minute:"2-digit"})}):tr("livePartial","Teilweise nicht erreichbar")+" · "+(state.resultsLoaded?tr("liveLast","Letzter Datenstand wird gezeigt"):tr("liveRetry","Bitte später erneut laden"));
 state.loading=false;$("reload").disabled=false;rerender();
 if(t&&window.BetInsightTipViewCache){
  var fresh={};
@@ -737,12 +739,17 @@ async function start(){
     // Cached membership history is display-only: never approve a new debit from it.
     state.unlocksVerified=false;
     rerender();
-    $("dataInfo").textContent="Letzte Ansicht · aktuelle Daten werden geprüft …";
+    $("dataInfo").textContent=tr("liveCached","Letzte Ansicht · aktuelle Daten werden geprüft …");
    }
   }catch(_){}
  }
  load(true);
 }
+window.addEventListener("bi:languagechange",function(){
+  // The shared navigation owns the selected language; re-render display without changing data.
+  rerender();
+  if(state.resultsLoaded) $("dataInfo").textContent=tr("liveInfo","Live-Daten · {{count}} veröffentlichte Ergebnisse · aktualisiert {{time}}",{count:state.results.length,time:new Date().toLocaleTimeString(currentLocale(),{hour:"2-digit",minute:"2-digit"})});
+});
 rerender();start();
 })();
 </script>
