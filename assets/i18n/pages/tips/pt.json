@@ -173,6 +173,18 @@
     "historyZero": "Esses palpites históricos somam 0 Units. Sem ponderação positiva não é possível calcular o ROI. A taxa de acerto permanece.",
     "historyZeroSome": "{{zero}} de {{total}} palpites têm 0 Units e contam como € 0 no modelo. O ROI usa apenas os outros {{positive}} palpites; a taxa de acerto inclui todos os {{total}}.",
     "detailCount": "Palpites {{start}}–{{end}} de {{total}}{{overall}}",
-    "overallAbove": " · Total acima"
+    "overallAbove": " · Total acima",
+    "detailIntro": "Cada palpite mostra a odd original, Units exigidas, aposta simulada e resultado líquido. Os valores usam o controle em euros e são calculados ao abrir.",
+    "detailFoot": "Em “Geral”, até dez palpites por página. Os totais superiores incluem todos os palpites selecionados. Palpites históricos de 0 Units contam como € 0.",
+    "modelIntro": "Resultado total calculado, sem custos de desbloqueio. Resultados passados não garantem ganhos futuros.",
+    "roiIntro": "Cada palpite publicado é ponderado pelas Units originalmente exigidas. Aposta hipotética = Units exigidas × euros por Unit (€ 1–€ 100). Lucro ou perda é calculado pela odd original.",
+    "roiMethod": "O grupo escolhido (1–10, 11–20 ou Geral) soma apostas, retornos e lucro/prejuízo líquido. ROI = resultado líquido simulado ÷ apostas simuladas × 100. As Units só ponderam a aposta, sem desconto adicional de desbloqueio.",
+    "roiExample": "Exemplo: 5 Units a € 10 e odd 2,30 = aposta simulada de € 50. Ganhou: retorno de € 115 e lucro de € 65; perdeu: perda de € 50. Como Units e odds variam, o ROI difere de apostas iguais. O controle em euros altera totais, mas não o percentual de ROI. Palpites de 0 Units contam para acertos, mas não para a aposta.",
+    "roiDisclaimer": "Esses valores mostram resultados passados. Não são recomendações de aposta nem garantias de ganho.",
+    "roiExtra": "Faltam odds ou Units válidas ou o grupo não tem aposta positiva. O ROI não pode ser exibido corretamente.",
+    "closeExplain": "Fechar explicação",
+    "stakeAria": "Aposta por Unit em euros, de 1 a 100",
+    "tabAria": "Seções da central de palpites",
+    "filterAria": "Filtro de resultados"
   }
 }
