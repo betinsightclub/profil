@@ -203,7 +203,7 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
 <main>
   <header class="top">
     <div class="brand"><img src="../logo_betisight.club.png" alt="BetInsight Club"><small data-bi-i18n="tipsCenter.motto">DATEN. ANALYSEN. TRANSPARENZ.</small></div>
-    <div class="top-links"><span class="preview-tag">BETINSIGHT TIPP-CENTER</span><a class="linkbtn" href="../" data-bi-i18n="tipsCenter.profile">← Mein Profil</a></div>
+    <div class="top-links"><span class="preview-tag" data-bi-i18n="tipsCenter.previewTag">BETINSIGHT TIPP-CENTER</span><a class="linkbtn" href="../" data-bi-i18n="tipsCenter.profile">← Mein Profil</a></div>
   </header>
   <section class="hero"><p class="eyebrow" data-bi-i18n="tipsCenter.eyebrow">Dein BetInsight Tipp-Center</p><h1><span data-bi-i18n="tipsCenter.heroFirst">Tipps. Ergebnisse.</span><br><span style="color:#69d8fb" data-bi-i18n="tipsCenter.heroSecond">Klare Performance.</span></h1><p data-bi-i18n="tipsCenter.heroDescription">Entdecke neue Tipps von Martin und Frank, behalte deine persönlich freigeschalteten Tipps im Blick und prüfe vergangene Ergebnisse. Jeder Tippgeber hat seine eigene Statistik.</p></section>
   <div class="livebar"><span><span class="dot"></span><span id="dataInfo" data-bi-i18n="tipsCenter.liveLoading">Bestätigte Ergebnisse werden geladen …</span></span><button type="button" class="refresh" id="reload" data-bi-i18n="tipsCenter.refresh">⟳ Jetzt aktualisieren</button></div>
@@ -224,7 +224,7 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
     <details id="perfDisclosure" class="perf-disclosure">
       <summary class="perf-summary" id="perfDisclosureTrigger"><span>📊 <span data-bi-i18n="tipsCenter.performanceView">Tippgeber-Performance ansehen</span> <span class="perf-summary-name" id="perfDisclosureName">· Martin</span></span><span class="perf-chevron" aria-hidden="true">⌄</span></summary>
     <section class="performance" id="performance">
-      <div class="perf-top"><div class="author"><div class="avatar" id="avatar">M</div><div><small data-bi-i18n="tipsCenter.perfLabel">TIPPGEBER-PERFORMANCE · MODELLRECHNUNG</small><strong id="perfName">Martin</strong></div></div><div class="windows" id="perfWindows" role="group" aria-label="Tippgruppen, neueste zuerst"></div></div>
+      <div class="perf-top"><div class="author"><div class="avatar" id="avatar">M</div><div><small data-bi-i18n="tipsCenter.perfLabel">TIPPGEBER-PERFORMANCE · MODELLRECHNUNG</small><strong id="perfName">Martin</strong></div></div><div class="windows" id="perfWindows" role="group" data-bi-i18n-aria-label="tipsCenter.windowsAria" aria-label="Tippgruppen, neueste zuerst"></div></div>
       <div class="kpis">
         <div class="kpi"><span class="kpi-label" data-bi-i18n="tipsCenter.hit">Trefferquote</span><span class="kpi-value neutral" id="hit">–</span><span class="kpi-foot" id="hitSub" data-bi-i18n="tipsCenter.hitFoot">Gewonnene / entschiedene Tipps</span></div>
         <div class="kpi"><span class="kpi-label" data-bi-i18n="tipsCenter.roi">Wett-ROI</span><span class="kpi-value" id="roi">–</span><span class="kpi-foot" data-bi-i18n="tipsCenter.roiFoot">Nach Unit-Anzahl gewichtet · ohne Tippkosten</span></div>
@@ -242,7 +242,7 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
           <output id="perfStakeValue" class="perf-stake-value" for="perfStake">10,00 €</output>
         </div>
         <input type="range" class="perf-range" id="perfStake" min="1" max="100" step="1" value="10" data-bi-i18n-aria-label="tipsCenter.stakeAria" aria-label="Wetteinsatz je Unit in Euro, 1 bis 100">
-        <div class="perf-range-labels"><span>1 € je Unit</span><span>100 € je Unit</span></div><p class="perf-model-hint" id="perfUnitBasis">Unit-Gesamtgewicht wird geladen …</p>
+        <div class="perf-range-labels"><span data-bi-i18n="tipsCenter.rangeLow">1 € je Unit</span><span data-bi-i18n="tipsCenter.rangeHigh">100 € je Unit</span></div><p class="perf-model-hint" id="perfUnitBasis" data-bi-i18n="tipsCenter.unitWeightLoading">Unit-Gesamtgewicht wird geladen …</p>
         <div class="perf-model-figures" aria-live="polite">
           <div class="perf-figure"><small data-bi-i18n="tipsCenter.totalStake">Gesamteinsätze</small><strong id="perfTotalStake">–</strong></div>
           <div class="perf-figure"><small data-bi-i18n="tipsCenter.totalReturn">Gesamtauszahlungen</small><strong id="perfTotalReturn">–</strong></div>
@@ -254,7 +254,7 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
         <summary class="perf-detail-summary" id="perfDetailsTrigger"><span id="perfDetailsTitle" data-bi-i18n="tipsCenter.detailsOpen">☷ Berechnung im Detail ansehen</span><span class="perf-chevron" aria-hidden="true">⌄</span></summary>
         <div class="perf-detail-content">
           <p class="perf-detail-text" data-bi-i18n="tipsCenter.detailIntro">Jeder Tipp der ausgewählten Gruppe mit Originalquote, geforderten Units und simuliertem Einsatz und Nettogewinn. Alle Beträge verwenden den obigen Euro-Regler und werden nur beim Öffnen berechnet.</p>
-          <div class="perf-detail-scroll"><table class="perf-detail-table" aria-label="Tippberechnung je Spiel">
+          <div class="perf-detail-scroll"><table class="perf-detail-table" data-bi-i18n-aria-label="tipsCenter.detailTableAria" aria-label="Tippberechnung je Spiel">
             <thead><tr><th scope="col" data-bi-i18n="tipsCenter.tableGame">Spiel / Tipp</th><th scope="col" data-bi-i18n="tipsCenter.tableOdds">Quote</th><th scope="col" data-bi-i18n="tipsCenter.tableUnits">Units</th><th scope="col" data-bi-i18n="tipsCenter.tableResult">Bewertung</th><th scope="col" data-bi-i18n="tipsCenter.tableStake">Einsatz</th><th scope="col" data-bi-i18n="tipsCenter.tableNet">Netto</th></tr></thead>
             <tbody id="perfDetailRows"></tbody>
           </table></div>
@@ -309,8 +309,8 @@ function time(v){var s=str(v);if(!s)return 0;var m=s.match(/^(\d{1,2})[.\/-](\d{
 function sortNew(a,b){return time(b.bestaetigt_am||b.spiel_datum)-time(a.bestaetigt_am||a.spiel_datum)||str(b.tipp_id).localeCompare(str(a.tipp_id))}
 function ele(name,className,text){var n=document.createElement(name);if(className)n.className=className;if(text!==undefined)n.textContent=text;return n}
 function empty(node,message){node.replaceChildren(ele("div","alert",message))}
-function shortDate(s){var n=time(s);return n?new Intl.DateTimeFormat("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"}).format(new Date(n)):str(s)||"–"}
-function percent(n){return new Intl.NumberFormat("de-DE",{minimumFractionDigits:1,maximumFractionDigits:1}).format(n)+" %"}
+function shortDate(s){var n=time(s);return n?new Intl.DateTimeFormat(currentLocale(),{day:"2-digit",month:"2-digit",year:"numeric"}).format(new Date(n)):str(s)||"–"}
+function percent(n){return new Intl.NumberFormat(currentLocale(),{minimumFractionDigits:1,maximumFractionDigits:1}).format(n)+" %"}
 function liveUrl(){var s=window.BetInsightSession;return s?.appPath?.("freigeschaltet")||"/freigeschaltet/"}
 function token(){var s=window.BetInsightSession;if(!s)return"";return s.getDashboardUuid?.()||s.getProfileToken?.()||""}
 function latest(rows){var map=new Map();rows.slice().sort(sortNew).forEach(function(r){var id=str(r.tipp_id||r.ergebnis_id);if(id&&!map.has(id))map.set(id,r)});return Array.from(map.values()).sort(sortNew)}
