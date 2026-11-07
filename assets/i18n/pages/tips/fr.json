@@ -173,6 +173,18 @@
     "historyZero": "Ces pronostics historiques totalisent 0 Unit. Sans pondération positive, le ROI est incalculable. Le taux de réussite reste inchangé.",
     "historyZeroSome": "{{zero}} des {{total}} pronostics ont 0 Unit et comptent 0 € dans le modèle. Le ROI ne porte que sur les {{positive}} autres ; le taux de réussite inclut les {{total}}.",
     "detailCount": "Pronostics {{start}}–{{end}} sur {{total}}{{overall}}",
-    "overallAbove": " · Total ci-dessus"
+    "overallAbove": " · Total ci-dessus",
+    "detailIntro": "Chaque pronostic affiche cote d'origine, Units requises, mise simulée et résultat net. Les montants suivent le curseur en euros et sont calculés à l'ouverture.",
+    "detailFoot": "En vue « Global », dix pronostics maximum par page. Les totaux ci-dessus comprennent toujours tous les pronostics sélectionnés. Les anciens pronostics à 0 Unit comptent pour 0 €. ",
+    "modelIntro": "Résultat global calculé, hors coûts de déblocage. Les performances passées ne garantissent pas les gains futurs.",
+    "roiIntro": "Chaque pronostic publié est pondéré selon les Units initialement exigées pour le débloquer. Mise hypothétique = Units requises × euros par Unit (1 à 100 €). Le gain ou la perte utilise la cote d'origine.",
+    "roiMethod": "Le groupe choisi (1–10, 11–20 ou Global) additionne mises, paiements et gain/perte net. ROI = résultat net simulé ÷ mises simulées × 100. Les Units servent uniquement de pondération, sans second retrait de coûts de déblocage.",
+    "roiExample": "Exemple : 5 Units à 10 € et cote 2,30 = mise simulée de 50 €. Gain : paiement de 115 € et bénéfice net de 65 € ; perte : 50 €. Les Units et les cotes varient, donc le ROI pondéré diffère de mises identiques. Le curseur en euros modifie les montants, pas le taux de ROI. Les pronostics à 0 Unit comptent pour le taux de réussite mais pas pour la mise.",
+    "roiDisclaimer": "Ces chiffres reflètent des résultats passés. Ils ne constituent ni conseil de mise ni garantie de gain.",
+    "roiExtra": "Il manque des cotes ou des Units valides, ou le groupe n'a pas de mise positive. Le ROI ne peut pas être calculé correctement.",
+    "closeExplain": "Fermer l'explication",
+    "stakeAria": "Mise par Unit en euros, de 1 à 100",
+    "tabAria": "Rubriques du centre de pronostics",
+    "filterAria": "Filtre des résultats"
   }
 }
