@@ -173,6 +173,18 @@
     "historyZero": "Questi pronostici storici hanno 0 Unit in totale. Senza ponderazione positiva il ROI non è calcolabile. La percentuale di successo non cambia.",
     "historyZeroSome": "{{zero}} di {{total}} pronostici hanno 0 Unit e pesano 0 € nella simulazione. Il ROI usa solo gli altri {{positive}} pronostici; la percentuale di successo considera tutti i {{total}}.",
     "detailCount": "Pronostici {{start}}–{{end}} di {{total}}{{overall}}",
-    "overallAbove": " · Totale sopra"
+    "overallAbove": " · Totale sopra",
+    "detailIntro": "Ogni pronostico mostra quota originale, Unit richieste, puntata simulata e risultato netto. Gli importi usano il cursore in euro e sono calcolati solo all'apertura.",
+    "detailFoot": "Con “Totale”, massimo dieci pronostici per pagina. Il risultato complessivo comprende comunque tutti quelli selezionati. I pronostici storici da 0 Unit valgono 0 € nella simulazione.",
+    "modelIntro": "Risultato complessivo simulato, esclusi i costi di sblocco. I risultati passati non garantiscono profitti futuri.",
+    "roiIntro": "Ogni pronostico pubblicato è ponderato per le Unit originariamente richieste per lo sblocco. Puntata ipotetica = Unit richieste × euro per Unit (1–100 €). Profitto o perdita sono calcolati con la quota originale.",
+    "roiMethod": "Il gruppo scelto (1–10, 11–20 o Totale) somma puntate, pagamenti e utile/perdita netta. ROI = risultato netto simulato ÷ puntate simulate × 100. Le Unit servono solo come peso della puntata e non vengono dedotte di nuovo.",
+    "roiExample": "Esempio: 5 Unit a 10 € e quota 2,30 = puntata simulata di 50 €. Vittoria: 115 € pagati e 65 € netti; sconfitta: perdita di 50 €. Unit e quote variano tra i pronostici, quindi il ROI ponderato differisce da puntate uguali. Il cursore in euro cambia gli importi, non la percentuale ROI. I pronostici da 0 Unit contano nella percentuale di successo, ma non nella puntata.",
+    "roiDisclaimer": "I dati mostrano risultati passati. Non sono consigli di puntata né garanzie di guadagno.",
+    "roiExtra": "Mancano quote o Unit valide oppure il gruppo non ha una puntata positiva. Il ROI non può essere mostrato correttamente.",
+    "closeExplain": "Chiudi spiegazione",
+    "stakeAria": "Puntata per Unit in euro, da 1 a 100",
+    "tabAria": "Sezioni del centro pronostici",
+    "filterAria": "Filtro risultati"
   }
 }
