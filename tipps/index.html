@@ -58,6 +58,7 @@ h2{font-size:clamp(21px,2.7vw,26px);margin:0 0 6px;letter-spacing:-.015em}
 .pro-sub{font-size:11px;color:#aacddb;line-height:1.4;flex:1}
 .pro-stat{font-size:12px;font-weight:800;color:#91f0d6;display:block}
 .mini-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;margin-top:4px}
+.mini-stats.total-only{grid-template-columns:1fr}
 .mini-stat{min-width:0;border-radius:9px;border:1px solid #28647b;background:#031e2b88;padding:10px 9px}
 .mini-stat-label{display:block;color:#abcbd9;font-size:9px;letter-spacing:0;font-weight:800;line-height:1.25;white-space:nowrap}
 .mini-stat-value{display:block;color:#e9ffff;font-size:21px;font-weight:950;margin-top:5px;letter-spacing:-.03em;white-space:nowrap}
@@ -200,8 +201,8 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
   <section class="area active" id="area-neu">
     <div class="section-top"><div><h2>Wähle deinen Tippgeber</h2><p class="lead">Jede Kategorie zeigt ausschließlich die zugehörigen neuen Tipps.</p></div></div>
     <div class="provider-grid">
-      <button type="button" class="provider selected" data-provider="Martin" aria-pressed="true"><span class="pro-top"><span class="pro-icon">⚽</span><span class="pill">TIPPGEBER</span></span><span class="pro-name">Martin</span><span class="pro-sub">Fußballanalysen und individuelle Tipps</span><span class="pro-stat" id="martinMini">Letzte 10 und Gesamt werden geladen …</span></button>
-      <button type="button" class="provider" data-provider="Frank" aria-pressed="false"><span class="pro-top"><span class="pro-icon">📈</span><span class="pill">TIPPGEBER</span></span><span class="pro-name">Frank</span><span class="pro-sub">Analysen und aktuelle Sporttipps</span><span class="pro-stat" id="frankMini">Letzte 10 und Gesamt werden geladen …</span></button>
+      <button type="button" class="provider selected" data-provider="Martin" aria-pressed="true"><span class="pro-top"><span class="pro-icon">⚽</span><span class="pill">TIPPGEBER</span></span><span class="pro-name">Martin</span><span class="pro-sub">Fußballanalysen und individuelle Tipps</span><span class="pro-stat" id="martinMini">Gesamtperformance wird geladen …</span></button>
+      <button type="button" class="provider" data-provider="Frank" aria-pressed="false"><span class="pro-top"><span class="pro-icon">📈</span><span class="pill">TIPPGEBER</span></span><span class="pro-name">Frank</span><span class="pro-sub">Analysen und aktuelle Sporttipps</span><span class="pro-stat" id="frankMini">Gesamtperformance wird geladen …</span></button>
       <button type="button" class="provider" data-provider="Schulung" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🎓</span><span class="pill">LERNBEREICH</span></span><span class="pro-name">Schulungstipps</span><span class="pro-sub">Schulungsbeispiele und Demonstrationen</span><span class="pro-stat" id="trainingMini">Schulungs-Performance wird geladen …</span></button>
       <button type="button" class="provider" data-provider="Testphase" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🧪</span><span class="pill">VORBEREITUNG</span></span><span class="pro-name">User-Testphase</span><span class="pro-sub">Begrenzter gemeinsamer Tipp-Test. Teilnahme und Unit-Rückgaben sind noch nicht freigeschaltet.</span><span class="pro-stat" id="testMini">Noch keine gewerteten Testtipps</span></button>
     </div>
@@ -381,10 +382,11 @@ function mini(){
   var el=$(item[1]);if(!el)return;el.replaceChildren();
   var loaded=(item[0]==="Martin"||item[0]==="Frank")?(state.performanceLoaded&&state.resultsLoaded):state.resultsLoaded;
   if(!loaded){el.textContent="Performance wird geladen …";return}
-  var a=stats(item[0],"0"),b=stats(item[0],"all");
+  var overallOnly=item[0]==="Martin"||item[0]==="Frank";
+  var a=overallOnly?null:stats(item[0],"0"),b=stats(item[0],"all");
   if(!b.total){el.textContent="Noch keine gewerteten Tipps";return}
-  var container=ele("span","mini-stats");
-  [["LETZTE 10",a.hit],["GESAMT",b.hit]].forEach(function(p){
+  var container=ele("span","mini-stats"+(overallOnly?" total-only":""));
+  (overallOnly?[["GESAMT",b.hit]]:[["LETZTE 10",a.hit],["GESAMT",b.hit]]).forEach(function(p){
    var one=ele("span","mini-stat");one.appendChild(ele("span","mini-stat-label",p[0]));
    one.appendChild(ele("span","mini-stat-value",p[1]===null?"–":percent(p[1])));container.appendChild(one);
   });el.appendChild(container);
