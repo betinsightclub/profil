@@ -202,60 +202,60 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
 <body>
 <main>
   <header class="top">
-    <div class="brand"><img src="../logo_betisight.club.png" alt="BetInsight Club"><small>DATEN. ANALYSEN. TRANSPARENZ.</small></div>
-    <div class="top-links"><span class="preview-tag">BETINSIGHT TIPP-CENTER</span><a class="linkbtn" href="../">← Mein Profil</a></div>
+    <div class="brand"><img src="../logo_betisight.club.png" alt="BetInsight Club"><small data-bi-i18n="tipsCenter.motto">DATEN. ANALYSEN. TRANSPARENZ.</small></div>
+    <div class="top-links"><span class="preview-tag">BETINSIGHT TIPP-CENTER</span><a class="linkbtn" href="../" data-bi-i18n="tipsCenter.profile">← Mein Profil</a></div>
   </header>
-  <section class="hero"><p class="eyebrow">Dein BetInsight Tipp-Center</p><h1>Tipps. Ergebnisse.<br><span style="color:#69d8fb">Klare Performance.</span></h1><p>Entdecke neue Tipps von <b>Martin</b> und <b>Frank</b>, behalte deine persönlich freigeschalteten Tipps im Blick und prüfe vergangene Ergebnisse. Jeder Tippgeber hat seine eigene Statistik.</p></section>
-  <div class="livebar"><span><span class="dot"></span><span id="dataInfo">Bestätigte Ergebnisse werden geladen …</span></span><button type="button" class="refresh" id="reload">⟳ Jetzt aktualisieren</button></div>
+  <section class="hero"><p class="eyebrow" data-bi-i18n="tipsCenter.eyebrow">Dein BetInsight Tipp-Center</p><h1><span data-bi-i18n="tipsCenter.heroFirst">Tipps. Ergebnisse.</span><br><span style="color:#69d8fb" data-bi-i18n="tipsCenter.heroSecond">Klare Performance.</span></h1><p data-bi-i18n="tipsCenter.heroDescription">Entdecke neue Tipps von Martin und Frank, behalte deine persönlich freigeschalteten Tipps im Blick und prüfe vergangene Ergebnisse. Jeder Tippgeber hat seine eigene Statistik.</p></section>
+  <div class="livebar"><span><span class="dot"></span><span id="dataInfo" data-bi-i18n="tipsCenter.liveLoading">Bestätigte Ergebnisse werden geladen …</span></span><button type="button" class="refresh" id="reload" data-bi-i18n="tipsCenter.refresh">⟳ Jetzt aktualisieren</button></div>
   <nav class="nav-tabs" aria-label="Tipp-Center Bereiche">
-    <button type="button" class="navtab selected" data-tab="neu" aria-current="page"><span class="tab-icon">🔥</span><span class="tab-text">Neue Tipps<span class="tab-desc">Tippgeber und aktuelle Analysen</span></span></button>
-    <button type="button" class="navtab" data-tab="meine"><span class="tab-icon">🔓</span><span class="tab-text">Meine Tipps<span class="tab-desc">Persönlich freigeschaltet</span></span></button>
-    <button type="button" class="navtab" data-tab="archiv"><span class="tab-icon">🗂️</span><span class="tab-text">Vergangene Tipps<span class="tab-desc">Ergebnisse für alle sichtbar</span></span></button>
+    <button type="button" class="navtab selected" data-tab="neu" aria-current="page"><span class="tab-icon">🔥</span><span class="tab-text"><span data-bi-i18n="tipsCenter.navNew">Neue Tipps</span><span class="tab-desc" data-bi-i18n="tipsCenter.navNewDesc">Tippgeber und aktuelle Analysen</span></span></button>
+    <button type="button" class="navtab" data-tab="meine"><span class="tab-icon">🔓</span><span class="tab-text"><span data-bi-i18n="tipsCenter.navMine">Meine Tipps</span><span class="tab-desc" data-bi-i18n="tipsCenter.navMineDesc">Persönlich freigeschaltet</span></span></button>
+    <button type="button" class="navtab" data-tab="archiv"><span class="tab-icon">🗂️</span><span class="tab-text"><span data-bi-i18n="tipsCenter.navArchive">Vergangene Tipps</span><span class="tab-desc" data-bi-i18n="tipsCenter.navArchiveDesc">Ergebnisse für alle sichtbar</span></span></button>
   </nav>
 
   <section class="area active" id="area-neu">
-    <div class="section-top"><div><h2>Wähle deinen Tippgeber</h2><p class="lead">Jede Kategorie zeigt ausschließlich die zugehörigen neuen Tipps.</p></div></div>
+    <div class="section-top"><div><h2 data-bi-i18n="tipsCenter.pick">Wähle deinen Tippgeber</h2><p class="lead" data-bi-i18n="tipsCenter.pickDesc">Jede Kategorie zeigt ausschließlich die zugehörigen neuen Tipps.</p></div></div>
     <div class="provider-grid">
-      <button type="button" class="provider selected" data-provider="Martin" aria-pressed="true"><span class="pro-top"><span class="pro-icon">⚽</span><span class="pill">TIPPGEBER</span></span><span class="pro-name">Martin</span><span class="pro-sub">Fußballanalysen und individuelle Tipps</span><span class="pro-stat" id="martinMini">Gesamtperformance wird geladen …</span></button>
-      <button type="button" class="provider" data-provider="Frank" aria-pressed="false"><span class="pro-top"><span class="pro-icon">📈</span><span class="pill">TIPPGEBER</span></span><span class="pro-name">Frank</span><span class="pro-sub">Analysen und aktuelle Sporttipps</span><span class="pro-stat" id="frankMini">Gesamtperformance wird geladen …</span></button>
-      <button type="button" class="provider" data-provider="Schulung" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🎓</span><span class="pill">LERNBEREICH</span></span><span class="pro-name">Schulungstipps</span><span class="pro-sub">Schulungsbeispiele und Demonstrationen</span><span class="pro-stat" id="trainingMini">Schulungs-Performance wird geladen …</span></button>
-      <button type="button" class="provider" data-provider="Testphase" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🧪</span><span class="pill">VORBEREITUNG</span></span><span class="pro-name">User-Testphase</span><span class="pro-sub">Begrenzter gemeinsamer Tipp-Test. Teilnahme und Unit-Rückgaben sind noch nicht freigeschaltet.</span><span class="pro-stat" id="testMini">Noch keine gewerteten Testtipps</span></button>
+      <button type="button" class="provider selected" data-provider="Martin" aria-pressed="true"><span class="pro-top"><span class="pro-icon">⚽</span><span class="pill" data-bi-i18n="tipsCenter.tagTipster">TIPPGEBER</span></span><span class="pro-name">Martin</span><span class="pro-sub" data-bi-i18n="tipsCenter.martinSub">Fußballanalysen und individuelle Tipps</span><span class="pro-stat" id="martinMini">Gesamtperformance wird geladen …</span></button>
+      <button type="button" class="provider" data-provider="Frank" aria-pressed="false"><span class="pro-top"><span class="pro-icon">📈</span><span class="pill" data-bi-i18n="tipsCenter.tagTipster">TIPPGEBER</span></span><span class="pro-name">Frank</span><span class="pro-sub" data-bi-i18n="tipsCenter.frankSub">Analysen und aktuelle Sporttipps</span><span class="pro-stat" id="frankMini">Gesamtperformance wird geladen …</span></button>
+      <button type="button" class="provider" data-provider="Schulung" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🎓</span><span class="pill" data-bi-i18n="tipsCenter.tagLearn">LERNBEREICH</span></span><span class="pro-name" data-bi-i18n="tipsCenter.training">Schulungstipps</span><span class="pro-sub" data-bi-i18n="tipsCenter.trainingSub">Schulungsbeispiele und Demonstrationen</span><span class="pro-stat" id="trainingMini">Schulungs-Performance wird geladen …</span></button>
+      <button type="button" class="provider" data-provider="Testphase" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🧪</span><span class="pill" data-bi-i18n="tipsCenter.tagPrep">VORBEREITUNG</span></span><span class="pro-name" data-bi-i18n="tipsCenter.testing">User-Testphase</span><span class="pro-sub" data-bi-i18n="tipsCenter.testingSub">Begrenzter gemeinsamer Tipp-Test. Teilnahme und Unit-Rückgaben sind noch nicht freigeschaltet.</span><span class="pro-stat" id="testMini">Noch keine gewerteten Testtipps</span></button>
     </div>
     <details id="perfDisclosure" class="perf-disclosure">
-      <summary class="perf-summary" id="perfDisclosureTrigger"><span>📊 Tippgeber-Performance ansehen <span class="perf-summary-name" id="perfDisclosureName">· Martin</span></span><span class="perf-chevron" aria-hidden="true">⌄</span></summary>
+      <summary class="perf-summary" id="perfDisclosureTrigger"><span>📊 <span data-bi-i18n="tipsCenter.performanceView">Tippgeber-Performance ansehen</span> <span class="perf-summary-name" id="perfDisclosureName">· Martin</span></span><span class="perf-chevron" aria-hidden="true">⌄</span></summary>
     <section class="performance" id="performance">
-      <div class="perf-top"><div class="author"><div class="avatar" id="avatar">M</div><div><small>TIPPGEBER-PERFORMANCE · MODELLRECHNUNG</small><strong id="perfName">Martin</strong></div></div><div class="windows" id="perfWindows" role="group" aria-label="Tippgruppen, neueste zuerst"></div></div>
+      <div class="perf-top"><div class="author"><div class="avatar" id="avatar">M</div><div><small data-bi-i18n="tipsCenter.perfLabel">TIPPGEBER-PERFORMANCE · MODELLRECHNUNG</small><strong id="perfName">Martin</strong></div></div><div class="windows" id="perfWindows" role="group" aria-label="Tippgruppen, neueste zuerst"></div></div>
       <div class="kpis">
-        <div class="kpi"><span class="kpi-label">Trefferquote</span><span class="kpi-value neutral" id="hit">–</span><span class="kpi-foot" id="hitSub">Gewonnene / entschiedene Tipps</span></div>
-        <div class="kpi"><span class="kpi-label">Wett-ROI</span><span class="kpi-value" id="roi">–</span><span class="kpi-foot">Nach Unit-Anzahl gewichtet · ohne Tippkosten</span></div>
-        <div class="kpi"><span class="kpi-label">Gewonnen</span><span class="kpi-value green" id="wins">–</span><span class="kpi-foot">Bestätigte Gewinne</span></div>
-        <div class="kpi"><span class="kpi-label">Verloren</span><span class="kpi-value red" id="losses">–</span><span class="kpi-foot">Bestätigte Verluste</span></div>
+        <div class="kpi"><span class="kpi-label" data-bi-i18n="tipsCenter.hit">Trefferquote</span><span class="kpi-value neutral" id="hit">–</span><span class="kpi-foot" id="hitSub" data-bi-i18n="tipsCenter.hitFoot">Gewonnene / entschiedene Tipps</span></div>
+        <div class="kpi"><span class="kpi-label" data-bi-i18n="tipsCenter.roi">Wett-ROI</span><span class="kpi-value" id="roi">–</span><span class="kpi-foot" data-bi-i18n="tipsCenter.roiFoot">Nach Unit-Anzahl gewichtet · ohne Tippkosten</span></div>
+        <div class="kpi"><span class="kpi-label" data-bi-i18n="tipsCenter.won">Gewonnen</span><span class="kpi-value green" id="wins">–</span><span class="kpi-foot" data-bi-i18n="tipsCenter.wonFoot">Bestätigte Gewinne</span></div>
+        <div class="kpi"><span class="kpi-label" data-bi-i18n="tipsCenter.lost">Verloren</span><span class="kpi-value red" id="losses">–</span><span class="kpi-foot" data-bi-i18n="tipsCenter.lostFoot">Bestätigte Verluste</span></div>
       </div>
       <p id="perfHistoryNotice" class="perf-history-warning" role="status" hidden></p>
       <div class="perf-bottom">
-        <div><p class="mini-label" id="trackTitle">Die letzten bewerteten Tipps</p><div class="streak" id="streak"></div><p class="legend">G = gewonnen · V = verloren · Neueste Bewertung zuerst</p></div>
-        <div><p class="mini-label">Gewinn-/Verlustverteilung</p><div class="meter"><div class="meter-fill" id="meterFill"></div></div><div class="wl-line"><span id="winLine">Gewonnen: –</span><span id="lossLine">Verloren: –</span></div><div class="roi-help-row"><button type="button" id="roiHelpTrigger" class="roi-help-trigger" aria-label="Wie wird der ROI berechnet?" aria-haspopup="dialog" aria-controls="roiExplain" title="Wie wird der ROI berechnet?">?</button></div></div>
+        <div><p class="mini-label" id="trackTitle" data-bi-i18n="tipsCenter.track">Die letzten bewerteten Tipps</p><div class="streak" id="streak"></div><p class="legend" data-bi-i18n="tipsCenter.legend">G = gewonnen · V = verloren · Neueste Bewertung zuerst</p></div>
+        <div><p class="mini-label" data-bi-i18n="tipsCenter.distribution">Gewinn-/Verlustverteilung</p><div class="meter"><div class="meter-fill" id="meterFill"></div></div><div class="wl-line"><span id="winLine">Gewonnen: –</span><span id="lossLine">Verloren: –</span></div><div class="roi-help-row"><button type="button" id="roiHelpTrigger" class="roi-help-trigger" aria-label="Wie wird der ROI berechnet?" aria-haspopup="dialog" aria-controls="roiExplain" title="Wie wird der ROI berechnet?">?</button></div></div>
       </div>
       <div class="perf-model">
         <div class="perf-stake-head">
-          <div><strong>Hypothetischer Wetteinsatz je Unit</strong><small>Gruppensumme aus den tatsächlich je Tipp geforderten Units × gewähltem Euro-Wert</small></div>
+          <div><strong data-bi-i18n="tipsCenter.stakeLabel">Hypothetischer Wetteinsatz je Unit</strong><small data-bi-i18n="tipsCenter.stakeDesc">Gruppensumme aus den tatsächlich je Tipp geforderten Units × gewähltem Euro-Wert</small></div>
           <output id="perfStakeValue" class="perf-stake-value" for="perfStake">10,00 €</output>
         </div>
         <input type="range" class="perf-range" id="perfStake" min="1" max="100" step="1" value="10" aria-label="Wetteinsatz je Unit in Euro, 1 bis 100">
         <div class="perf-range-labels"><span>1 € je Unit</span><span>100 € je Unit</span></div><p class="perf-model-hint" id="perfUnitBasis">Unit-Gesamtgewicht wird geladen …</p>
         <div class="perf-model-figures" aria-live="polite">
-          <div class="perf-figure"><small>Gesamteinsätze</small><strong id="perfTotalStake">–</strong></div>
-          <div class="perf-figure"><small>Gesamtauszahlungen</small><strong id="perfTotalReturn">–</strong></div>
-          <div class="perf-figure"><small>Rechnerischer Gewinn / Verlust</small><strong id="perfNet">–</strong></div>
+          <div class="perf-figure"><small data-bi-i18n="tipsCenter.totalStake">Gesamteinsätze</small><strong id="perfTotalStake">–</strong></div>
+          <div class="perf-figure"><small data-bi-i18n="tipsCenter.totalReturn">Gesamtauszahlungen</small><strong id="perfTotalReturn">–</strong></div>
+          <div class="perf-figure"><small data-bi-i18n="tipsCenter.net">Rechnerischer Gewinn / Verlust</small><strong id="perfNet">–</strong></div>
         </div>
         <p id="perfModelHint" class="perf-model-hint">Rechnerisches Gesamtergebnis der gewählten Tippgruppe, ohne Abzug der Freischaltkosten. Vergangene Ergebnisse sind keine Garantie für zukünftige Gewinne.</p>
       </div>
       <details id="perfDetails" class="perf-details">
-        <summary class="perf-detail-summary" id="perfDetailsTrigger"><span id="perfDetailsTitle">☷ Berechnung im Detail ansehen</span><span class="perf-chevron" aria-hidden="true">⌄</span></summary>
+        <summary class="perf-detail-summary" id="perfDetailsTrigger"><span id="perfDetailsTitle" data-bi-i18n="tipsCenter.detailsOpen">☷ Berechnung im Detail ansehen</span><span class="perf-chevron" aria-hidden="true">⌄</span></summary>
         <div class="perf-detail-content">
           <p class="perf-detail-text">Jeder Tipp der ausgewählten Gruppe mit Originalquote, geforderten Units und simuliertem Einsatz und Nettogewinn. Alle Beträge verwenden den obigen Euro-Regler und werden nur beim Öffnen berechnet.</p>
           <div class="perf-detail-scroll"><table class="perf-detail-table" aria-label="Tippberechnung je Spiel">
-            <thead><tr><th scope="col">Spiel / Tipp</th><th scope="col">Quote</th><th scope="col">Units</th><th scope="col">Bewertung</th><th scope="col">Einsatz</th><th scope="col">Netto</th></tr></thead>
+            <thead><tr><th scope="col" data-bi-i18n="tipsCenter.tableGame">Spiel / Tipp</th><th scope="col" data-bi-i18n="tipsCenter.tableOdds">Quote</th><th scope="col" data-bi-i18n="tipsCenter.tableUnits">Units</th><th scope="col" data-bi-i18n="tipsCenter.tableResult">Bewertung</th><th scope="col" data-bi-i18n="tipsCenter.tableStake">Einsatz</th><th scope="col" data-bi-i18n="tipsCenter.tableNet">Netto</th></tr></thead>
             <tbody id="perfDetailRows"></tbody>
           </table></div>
           <div id="perfDetailPagination" class="perf-detail-pagination"></div>
@@ -264,27 +264,27 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
       </details>
     </section>
     </details>
-    <div class="section-top"><div><h2 id="feedTitle">Neue Tipps von Martin</h2><p class="lead">Nur noch nicht angepfiffene Tipps. Begegnung, Markt und Auswahl bleiben vor der Freischaltung geschützt.</p></div></div>
-    <div class="tips-stack" id="newFeed"><div class="alert">Neue Tipps werden geladen …</div></div>
-    <p class="note">Echte Tipps werden über den geschützten BetInsight-Mitgliederzugang freigeschaltet. Der Webinar-Platzhalter bucht niemals Units ab.</p>
+    <div class="section-top"><div><h2 id="feedTitle">Neue Tipps von Martin</h2><p class="lead" data-bi-i18n="tipsCenter.feedLead">Nur noch nicht angepfiffene Tipps. Begegnung, Markt und Auswahl bleiben vor der Freischaltung geschützt.</p></div></div>
+    <div class="tips-stack" id="newFeed"><div class="alert" data-bi-i18n="tipsCenter.feedLoading">Neue Tipps werden geladen …</div></div>
+    <p class="note" data-bi-i18n="tipsCenter.memberNote">Echte Tipps werden über den geschützten BetInsight-Mitgliederzugang freigeschaltet. Der Webinar-Platzhalter bucht niemals Units ab.</p>
   </section>
 
   <section class="area" id="area-meine">
-    <div class="section-top"><div><h2>Meine freigeschalteten Tipps</h2><p class="lead">Hier kannst du deine freigeschalteten Tipps direkt ansehen – auch wenn das Spiel bereits vorbei ist.</p></div></div>
+    <div class="section-top"><div><h2 data-bi-i18n="tipsCenter.mineHeader">Meine freigeschalteten Tipps</h2><p class="lead" data-bi-i18n="tipsCenter.mineLead">Hier kannst du deine freigeschalteten Tipps direkt ansehen – auch wenn das Spiel bereits vorbei ist.</p></div></div>
     <div id="unlockNotice" class="unlock-success" role="status" aria-live="polite" hidden></div>
-    <div class="tips-stack" id="myFeed"><div class="alert">Persönliche Freischaltungen werden geprüft …</div></div>
+    <div class="tips-stack" id="myFeed"><div class="alert" data-bi-i18n="tipsCenter.myLoading">Persönliche Freischaltungen werden geprüft …</div></div>
   </section>
 
   <section class="area" id="area-archiv">
-    <div class="section-top"><div><h2>Vergangene Tipps & Ergebnisse</h2><p class="lead">Alle öffentlich bestätigten Ergebnisse, unabhängig davon, ob du diesen Tipp freigeschaltet hast.</p></div></div>
-    <div class="filter-row" role="group" aria-label="Ergebnisfilter"><button type="button" class="selected" data-archive="Alle">Alle Ergebnisse</button><button type="button" data-archive="Martin">Martin</button><button type="button" data-archive="Frank">Frank</button><button type="button" data-archive="Schulung">Schulungstipps</button><button type="button" data-archive="Testphase">User-Testphase</button></div>
-    <p id="archiveCount" class="status-line"></p><div class="tips-stack" id="archiveFeed"><div class="alert">Ergebnisse werden geladen …</div></div>
+    <div class="section-top"><div><h2 data-bi-i18n="tipsCenter.archiveHeader">Vergangene Tipps & Ergebnisse</h2><p class="lead" data-bi-i18n="tipsCenter.archiveLead">Alle öffentlich bestätigten Ergebnisse, unabhängig davon, ob du diesen Tipp freigeschaltet hast.</p></div></div>
+    <div class="filter-row" role="group" aria-label="Ergebnisfilter"><button type="button" class="selected" data-archive="Alle" data-bi-i18n="tipsCenter.allResults">Alle Ergebnisse</button><button type="button" data-archive="Martin">Martin</button><button type="button" data-archive="Frank">Frank</button><button type="button" data-archive="Schulung" data-bi-i18n="tipsCenter.training">Schulungstipps</button><button type="button" data-archive="Testphase" data-bi-i18n="tipsCenter.testing">User-Testphase</button></div>
+    <p id="archiveCount" class="status-line"></p><div class="tips-stack" id="archiveFeed"><div class="alert" data-bi-i18n="tipsCenter.archiveLoading">Ergebnisse werden geladen …</div></div>
   </section>
-  <footer>BetInsight.club · Tipps, Ergebnisse und Tippgeber-Performance · Vergangene Ergebnisse garantieren keine zukünftigen Gewinne</footer>
+  <footer data-bi-i18n="tipsCenter.footer">BetInsight.club · Tipps, Ergebnisse und Tippgeber-Performance · Vergangene Ergebnisse garantieren keine zukünftigen Gewinne</footer>
 </main>
 <dialog id="roiExplain" class="roi-dialog" aria-labelledby="roiDialogTitle">
   <button type="button" class="roi-dialog-close" id="roiHelpClose" aria-label="Erklärung schließen">×</button>
-  <h2 id="roiDialogTitle">Wie wird der ROI berechnet?</h2>
+  <h2 id="roiDialogTitle" data-bi-i18n="tipsCenter.roiHelp">Wie wird der ROI berechnet?</h2>
   <p>Jeder tatsächlich veröffentlichte Tipp wird mit seiner ursprünglich hinterlegten, für die Freischaltung geforderten Anzahl an BetInsight-Units gewichtet. Der hypothetische Wetteinsatz dieses Tipps ergibt sich aus geforderten Units × eingestelltem Euro-Wert je Unit (1 bis 100 €). Für jeden Tipp werden Gewinn oder Verlust anhand seiner ursprünglichen Quote berechnet.</p>
   <p>Die Anzeige fasst alle Tipps der gewählten Gruppe (1–10, 11–20 usw. oder Gesamt) zusammen: Gesamteinsätze, Gesamtauszahlungen sowie gesamten Nettogewinn/-verlust. Wett-ROI = gesamter rechnerischer Nettogewinn/-verlust ÷ gesamte rechnerische Wetteinsätze × 100. Die Units dienen nur als Einsatzgewichtung; sie werden nicht zusätzlich als Freischaltkosten abgezogen.</p>
   <p>Beispiel: Ein Tipp mit 5 geforderten Units, 10 € je Unit und Quote 2,30 bedeutet 50 € rechnerischen Einsatz. Gewonnen: 115 € Auszahlung, 65 € Nettogewinn. Verloren: 50 € Verlust. Weil die Unit-Gewichtung und die Quote je Tipp unterschiedlich sind, ist der gewichtete Wett-ROI anders als bei gleichen Einsätzen je Tipp. Der Euro-Regler verändert die Euro-Gesamtsummen, bei gleichbleibender Gewichtung aber nicht den ROI-Prozentsatz. Ältere Tipps mit 0 geforderten Units tragen 0 € zum Modell-Einsatz bei und zählen weiterhin zur Trefferquote.</p><p>Die Werte zeigen vergangene Ergebnisse und stellen weder eine Wetteinsatzempfehlung noch eine Gewinngarantie dar.</p>
