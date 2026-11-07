@@ -487,19 +487,19 @@ function performance(){
  if(!s.rows.length)t.appendChild(ele("span","muted","–"));
  drawModel();
 }
-function resultCard(r,personal){var s=status(r.ergebnis_status),c=ele("article","tip"),top=ele("div","meta"),tag=ele("span","pill"+(s?" "+s:""),s==="won"?"✓ GEWONNEN":s==="lost"?"✕ VERLOREN":s==="void"?"↔ ANNULLIERT":personal?"🔓 FREIGESCHALTET":"AUSWERTUNG OFFEN");top.appendChild(tag);top.appendChild(ele("span","",shortDate(r.bestaetigt_am||r.datum||r.spiel_datum)));c.appendChild(top);
-c.appendChild(ele("h3","",str(r.spiel)||"Spiel / Tipp "+str(r.tipp_id)));
-var m=ele("p","","Tippgeber: "+str(r.tippgeber||r.ersteller||"BetInsight")+" · "+str(r.sportart||r.liga||"Sportanalyse"));c.appendChild(m);
+function resultCard(r,personal){var s=status(r.ergebnis_status),c=ele("article","tip"),top=ele("div","meta"),tag=ele("span","pill"+(s?" "+s:""),s==="won"?tr("wonTag","✓ GEWONNEN"):s==="lost"?tr("lostTag","✕ VERLOREN"):s==="void"?tr("voidTag","↔ ANNULLIERT"):personal?tr("unlockedTag","🔓 FREIGESCHALTET"):tr("pendingTag","AUSWERTUNG OFFEN"));top.appendChild(tag);top.appendChild(ele("span","",shortDate(r.bestaetigt_am||r.datum||r.spiel_datum)));c.appendChild(top);
+c.appendChild(ele("h3","",str(r.spiel)||tr("tableGame","Spiel / Tipp")+" "+str(r.tipp_id)));
+var m=ele("p","",tr("tipsterPrefix","Tippgeber: ")+str(r.tippgeber||r.ersteller||"BetInsight")+" · "+str(r.sportart||r.liga||tr("analysisType","Sportanalyse")));c.appendChild(m);
 if(personal){
- c.appendChild(ele("p","","Markt: "+str(r.markt||"–")));
- c.appendChild(ele("p","","Auswahl: "+str(r.tipp||"–")));
- if(r.analyse)c.appendChild(ele("p","full-analysis","Analyse: "+str(r.analyse)));
- var details=ele("a","small-button","Vollständige Anbieter- und Quotenansicht →");
+ c.appendChild(ele("p","",tr("marketPrefix","Markt: ")+str(r.markt||"–")));
+ c.appendChild(ele("p","",tr("selectionPrefix","Auswahl: ")+str(r.tipp||"–")));
+ if(r.analyse)c.appendChild(ele("p","full-analysis",tr("analysisPrefix","Analyse: ")+str(r.analyse)));
+ var details=ele("a","small-button",tr("fullView","Vollständige Anbieter- und Quotenansicht →"));
  details.href=liveUrl();
  c.appendChild(details);
 }
-else if(r.tipp)c.appendChild(ele("p","","Tipp: "+str(r.tipp)));
-var b=ele("div","card-bottom");b.appendChild(ele("span","meta",numeric(r.quote)>1?"Quote: "+str(r.quote):"Quote: –"));b.appendChild(ele("span","meta",str(r.endergebnis)?("Endstand: "+str(r.endergebnis)):(personal?"Persönlicher Zugang":"Bestätigter Tipp")));c.appendChild(b);return c}
+else if(r.tipp)c.appendChild(ele("p","",tr("tipPrefix","Tipp: ")+str(r.tipp)));
+var b=ele("div","card-bottom");b.appendChild(ele("span","meta",tr("oddsPrefix","Quote: ")+(numeric(r.quote)>1?str(r.quote):"–")));b.appendChild(ele("span","meta",str(r.endergebnis)?(tr("scorePrefix","Endstand: ")+str(r.endergebnis)):(personal?tr("personalAccess","Persönlicher Zugang"):tr("confirmedTip","Bestätigter Tipp"))));c.appendChild(b);return c}
 function betTypeLabel(r){
  var kind=str(r.wettart).toUpperCase(),num=numeric(r.anzahl_auswahlen);
  if(kind==="KOMBI")return "⚽ KOMBIWETTE"+(Number.isInteger(num)&&num>=2?" · "+num+" AUSWAHLEN":"");
@@ -513,7 +513,7 @@ function newCard(r){
  if(typeText)meta.appendChild(ele("span","pill bet-type "+(str(r.wettart).toUpperCase()==="KOMBI"?"combo":"single"),typeText));
  meta.appendChild(ele("span","",shortDate(r.spiel_datum)+" · "+str(r.anpfiff||"–")));
  c.appendChild(meta);
- c.appendChild(ele("h3","","Neue Sportanalyse von "+(isTraining?"BetInsight":str(r.tippgeber||"BetInsight"))));
+ c.appendChild(ele("h3","",tr("newAnalysis","Neue Sportanalyse von {{who}}",{who:isTraining?"BetInsight":str(r.tippgeber||"BetInsight")})));
  if(isTraining){
   var rows=[
    ["⚽ Sport",str(r.sportart||"Fußball")],
@@ -559,14 +559,14 @@ function newCard(r){
   c.appendChild(list);
  }
  var bottom=ele("div","card-bottom"),units=str(r.preis_units),price=units+" "+(numeric(r.preis_units)===1?"Unit":"Units");
- bottom.appendChild(ele("span","pill","Preis: "+price));
- var button=ele("button","small-button","🔓 Tipp für "+price+" freischalten");
+ bottom.appendChild(ele("span","pill",tr("price","Preis: ")+price));
+ var button=ele("button","small-button",tr("unlockAction","🔓 Tipp für {{price}} freischalten",{price:price}));
  button.type="button";
- if(state.hasAccess&&!state.unlocksVerified){button.disabled=true;button.textContent="⏳ Freischaltungen werden geprüft";}
+ if(state.hasAccess&&!state.unlocksVerified){button.disabled=true;button.textContent=tr("unlockChecking","⏳ Freischaltungen werden geprüft");}
  if(isTraining){
   var actions=ele("div","training-unlock-actions");
   actions.appendChild(button);
-  actions.appendChild(ele("p","training-refund-small","Bei verlorenem Schulungstipp: 1 Unit zurück · manuelle Gutschrift nach Ergebnisbestätigung."));
+  actions.appendChild(ele("p","training-refund-small",tr("refundNote","Bei verlorenem Schulungstipp: 1 Unit zurück · manuelle Gutschrift nach Ergebnisbestätigung.")));
   bottom.appendChild(actions);
  }else bottom.appendChild(button);
  c.appendChild(bottom);
