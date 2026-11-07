@@ -173,6 +173,18 @@
     "historyZero": "Estos pronósticos históricos suman 0 Units. Sin ponderación positiva no puede calcularse el ROI. La tasa de acierto no cambia.",
     "historyZeroSome": "{{zero}} de {{total}} pronósticos tienen 0 Units y cuentan como 0 € en el modelo. El ROI usa los otros {{positive}} pronósticos; la tasa de acierto incluye los {{total}}.",
     "detailCount": "Pronósticos {{start}}–{{end}} de {{total}}{{overall}}",
-    "overallAbove": " · Total arriba"
+    "overallAbove": " · Total arriba",
+    "detailIntro": "Cada pronóstico muestra cuota original, Units exigidas, apuesta simulada y resultado neto. Los importes usan el control de euros y se calculan al abrir.",
+    "detailFoot": "En «Total» se muestran hasta diez pronósticos por página. El total superior incluye todos los seleccionados. Los pronósticos históricos de 0 Units cuentan como 0 €.",
+    "modelIntro": "Resultado global calculado, sin costes de desbloqueo. Los resultados pasados no garantizan ganancias futuras.",
+    "roiIntro": "Cada pronóstico publicado se pondera por las Units originales necesarias para desbloquearlo. Apuesta hipotética = Units exigidas × euros por Unit (1–100 €). La ganancia o pérdida se calcula con la cuota original.",
+    "roiMethod": "El grupo elegido (1–10, 11–20 o Total) agrupa apuestas, pagos y resultado neto. ROI = ganancia/pérdida neta simulada ÷ apuestas simuladas × 100. Las Units solo ponderan las apuestas; no se descuentan otra vez como coste.",
+    "roiExample": "Ejemplo: 5 Units a 10 € y cuota 2,30 = apuesta simulada de 50 €. Ganado: pago de 115 € y beneficio neto de 65 €; perdido: 50 € de pérdida. La ponderación y las cuotas varían, por eso el ROI difiere de apuestas iguales. El control en euros cambia importes, no el porcentaje de ROI. Los pronósticos de 0 Units cuentan para aciertos pero no para la apuesta.",
+    "roiDisclaimer": "Estas cifras muestran resultados pasados. No son una recomendación de apuesta ni garantía de beneficio.",
+    "roiExtra": "Faltan cuotas o Units válidas o el grupo no tiene apuestas positivas. No puede mostrarse correctamente el ROI.",
+    "closeExplain": "Cerrar explicación",
+    "stakeAria": "Apuesta por Unit en euros, de 1 a 100",
+    "tabAria": "Secciones del centro de pronósticos",
+    "filterAria": "Filtro de resultados"
   }
 }
