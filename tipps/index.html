@@ -353,16 +353,16 @@ function stats(who,period){
 var perfDetailPage=0;
 function resetDetails(){
  perfDetailPage=0;$("perfDetails").open=false;$("perfDetailRows").replaceChildren();$("perfDetailPagination").replaceChildren();
- $("perfDetailsTitle").textContent="☷ Berechnung im Detail ansehen";
+ $("perfDetailsTitle").textContent=tr("detailsOpen","☷ Berechnung im Detail ansehen");
 }
 function detailCell(tr,textValue,cssClass){var cell=ele("td",cssClass||"",textValue);tr.appendChild(cell);return cell}
 function renderPerformanceDetails(){
  if(!$("perfDisclosure").open||!$("perfDetails").open)return;
  var rowsNode=$("perfDetailRows"),pagesNode=$("perfDetailPagination");rowsNode.replaceChildren();pagesNode.replaceChildren();
  var who=state.provider,loaded=(who==="Martin"||who==="Frank")?(state.performanceLoaded&&state.resultsLoaded):state.resultsLoaded;
- if(!loaded){var p=ele("tr");detailCell(p,"Ergebnisse werden geladen …").colSpan=6;rowsNode.appendChild(p);return}
+ if(!loaded){var p=ele("tr");detailCell(p,tr("archiveLoading","Ergebnisse werden geladen …")).colSpan=6;rowsNode.appendChild(p);return}
  var selected=stats(who,state.period),records=selected.rows;
- if(!records.length){var emptyRow=ele("tr");detailCell(emptyRow,"Für diese Kategorie gibt es noch keine ausgewerteten Tipps.").colSpan=6;rowsNode.appendChild(emptyRow);return}
+ if(!records.length){var emptyRow=ele("tr");detailCell(emptyRow,tr("noResults","Für diese Kategorie gibt es noch keine ausgewerteten Tipps.")).colSpan=6;rowsNode.appendChild(emptyRow);return}
  var totalPages=Math.ceil(records.length/10);perfDetailPage=Math.max(0,Math.min(perfDetailPage,totalPages-1));
  var start=perfDetailPage*10,subset=records.slice(start,start+10),value=state.stake;
  var detailMap=new Map(state.results.map(function(r){return [str(r.tipp_id),r]}));
@@ -375,21 +375,21 @@ function renderPerformanceDetails(){
   var label=str(full.spiel)||str(r.spiel)||"Tipp "+str(r.tipp_id);
   var tip=str(full.tipp);if(tip&&tip.length<90)label+=" · "+tip;
   detailCell(tr,(start+i+1)+". "+label);
-  detailCell(tr,q>1?new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(q):"–");
-  detailCell(tr,valid?new Intl.NumberFormat("de-DE",{maximumFractionDigits:2}).format(units):"–");
-  detailCell(tr,won?"Gewonnen":"Verloren",won?"green":"red");
+  detailCell(tr,q>1?new Intl.NumberFormat(currentLocale(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(q):"–");
+  detailCell(tr,valid?new Intl.NumberFormat(currentLocale(),{maximumFractionDigits:2}).format(units):"–");
+  detailCell(tr,won?tr("won","Gewonnen"):tr("lost","Verloren"),won?"green":"red");
   detailCell(tr,valid?euro(stake):"–");
   detailCell(tr,valid?(gain>0?"+":"")+euro(gain):"–",valid?(gain>=0?"green":"red"):"");
   rowsNode.appendChild(tr);
  });
- var label=ele("span","",state.period==="all"?"Tipps "+(start+1)+"–"+(start+subset.length)+" von "+records.length+" · Gesamtauswertung oben":"Tipps "+(start+1)+"–"+(start+subset.length)+" von "+records.length);
+ var label=ele("span","",tr("detailCount","Tipps {{start}}–{{end}} von {{total}}{{overall}}",{start:start+1,end:start+subset.length,total:records.length,overall:state.period==="all"?tr("overallAbove"," · Gesamtauswertung oben"):""}));
  pagesNode.appendChild(label);
  if(totalPages>1){
   var nav=ele("div","perf-page-controls");
-  var back=ele("button","","← Zurück");back.type="button";back.disabled=perfDetailPage===0;
+  var back=ele("button","",tr("back","← Zurück"));back.type="button";back.disabled=perfDetailPage===0;
   back.addEventListener("click",function(){perfDetailPage--;renderPerformanceDetails()});
   nav.appendChild(back);nav.appendChild(ele("span","",String(perfDetailPage+1)+" / "+totalPages));
-  var next=ele("button","","Weiter →");next.type="button";next.disabled=perfDetailPage+1>=totalPages;
+  var next=ele("button","",tr("next","Weiter →"));next.type="button";next.disabled=perfDetailPage+1>=totalPages;
   next.addEventListener("click",function(){perfDetailPage++;renderPerformanceDetails()});
   nav.appendChild(next);pagesNode.appendChild(nav);
  }
@@ -424,7 +424,7 @@ function drawModel(){
  net.textContent=complete?(profit>0?"+":"")+euro(profit):"–";
  net.className=!complete?"neutral":profit>=0?"green":"red";
  $("perfUnitBasis").textContent="Ausgewählte Gruppe: "+v.rows.length+" gewertete Tipps · "+
-  new Intl.NumberFormat("de-DE",{maximumFractionDigits:2}).format(v.unitSum)+" ursprünglich geforderte Units insgesamt"+
+  new Intl.NumberFormat(currentLocale(),{maximumFractionDigits:2}).format(v.unitSum)+" ursprünglich geforderte Units insgesamt"+
   (v.zeroUnits?" · "+v.zeroUnits+" Tipp(s) mit 0 Units":"")+".";
  hint.textContent=v.missing?"Mindestens einem Tipp fehlen gültige Quote oder Unit-Angabe; die Gruppensumme kann nicht vollständig berechnet werden.":v.noStake?"Historischer Bestand: Für diese Tippgruppe sind ausschließlich Tipps mit 0 geforderten Units gespeichert. Ohne ursprüngliches Einsatzgewicht lässt sich keine Wett-Rendite berechnen.":"Gesamtergebnis der gewählten Tippgruppe: pro Tipp geforderte Units × Euro je Unit, dann nach Originalquote abgerechnet und summiert. Ohne Freischaltkosten, Gebühren und Steuern. Kein realer Kundenkontostand; keine Gewinngarantie.";
  renderPerformanceDetails();
@@ -452,36 +452,36 @@ function performance(){
   total.type="button";total.setAttribute("aria-pressed",state.period==="all"?"true":"false");
   total.addEventListener("click",function(){state.period="all";perfDetailPage=0;performance()});windows.appendChild(total);
  }else{
-  var none=ele("button","winbtn","Keine gewerteten Tipps");none.disabled=true;none.type="button";windows.appendChild(none);
+  var none=ele("button","winbtn",tr("noRated","Noch keine gewerteten Tipps"));none.disabled=true;none.type="button";windows.appendChild(none);
  }
  if(!loaded||!all.length){
   $("hit").textContent="–";$("roi").textContent="–";$("roi").className="kpi-value neutral";
   $("wins").textContent="–";$("losses").textContent="–";
-  $("hitSub").textContent=loaded?"Noch keine gewonnenen/verlorenen Tipps":"Performance-Daten werden geladen";
+  $("hitSub").textContent=loaded?tr("noHitData","Noch keine gewonnenen/verlorenen Tipps"):tr("perfDataLoading","Performance-Daten werden geladen");
   $("streak").replaceChildren();$("meterFill").style.width="0%";
-  $("winLine").textContent="Gewonnen: –";$("lossLine").textContent="Verloren: –";
-  $("trackTitle").textContent="Noch keine bewerteten Tipps";$("roiExtraNote").hidden=true;$("perfHistoryNotice").hidden=true;
+  $("winLine").textContent=tr("winLabel","Gewonnen: ")+"–";$("lossLine").textContent=tr("lossLabel","Verloren: ")+"–";
+  $("trackTitle").textContent=tr("noRated","Noch keine gewerteten Tipps");$("roiExtraNote").hidden=true;$("perfHistoryNotice").hidden=true;
   drawModel();return;
  }
  var s=stats(who,state.period),len=s.rows.length;
  $("hit").textContent=s.hit===null?"–":percent(s.hit);
- $("hitSub").textContent=s.w+" gewonnen · "+s.l+" verloren · "+len+" ausgewertet";
- $("roi").textContent=s.roi===null?(s.noStake?"Nicht berechenbar":"–"):(s.roi>0?"+":"")+percent(s.roi);
+ $("hitSub").textContent=tr("hitSummary","{{wins}} gewonnen · {{losses}} verloren · {{total}} ausgewertet",{wins:s.w,losses:s.l,total:len});
+ $("roi").textContent=s.roi===null?(s.noStake?tr("notCalculable","Nicht berechenbar"):"–"):(s.roi>0?"+":"")+percent(s.roi);
  $("roi").className="kpi-value "+(s.roi===null?"neutral":s.roi>=0?"green":"red");
  $("wins").textContent=String(s.w);$("losses").textContent=String(s.l);
  $("meterFill").style.width=(s.hit||0)+"%";
- $("winLine").textContent="Gewonnen: "+s.w;$("lossLine").textContent="Verloren: "+s.l;
- $("trackTitle").textContent=state.period==="all"?"Die letzten 10 von "+len+" Bewertungen":"Die "+len+" Ergebnisse dieser Tippgruppe";
+ $("winLine").textContent=tr("winLabel","Gewonnen: ")+s.w;$("lossLine").textContent=tr("lossLabel","Verloren: ")+s.l;
+ $("trackTitle").textContent=state.period==="all"?tr("lastResults","Die letzten 10 von {{count}} Bewertungen",{count:len}):tr("groupResults","Die {{count}} Ergebnisse dieser Tippgruppe",{count:len});
  $("roiExtraNote").hidden=!s.missing;
  var historyNote=$("perfHistoryNotice");
  if(s.noStake){
-  historyNote.textContent="Diese historischen Tipps haben zusammen 0 hinterlegte Freischalt-Units. Ohne positives Einsatzgewicht ist kein Wett-ROI berechenbar. Die Trefferquote bleibt davon unabhängig.";
+  historyNote.textContent=tr("historyZero","Diese historischen Tipps haben zusammen 0 hinterlegte Freischalt-Units. Ohne positives Einsatzgewicht ist kein Wett-ROI berechenbar. Die Trefferquote bleibt davon unabhängig.");
  }else if(s.zeroUnits){
-  historyNote.textContent=s.zeroUnits+" von "+len+" Tipps in dieser Gruppe haben 0 hinterlegte Freischalt-Units und gehen deshalb mit 0 € in die ROI-Modellrechnung ein. Der Wett-ROI beruht nur auf den übrigen "+(len-s.zeroUnits)+" Tipps mit positivem Einsatzgewicht; die Trefferquote enthält alle "+len+" Ergebnisse.";
+  historyNote.textContent=tr("historyZeroSome","{{zero}} von {{total}} Tipps in dieser Gruppe haben 0 hinterlegte Freischalt-Units und gehen deshalb mit 0 € in die ROI-Modellrechnung ein. Der Wett-ROI beruht nur auf den übrigen {{positive}} Tipps mit positivem Einsatzgewicht; die Trefferquote enthält alle {{total}} Ergebnisse.",{zero:s.zeroUnits,total:len,positive:len-s.zeroUnits});
  }else historyNote.textContent="";
  historyNote.hidden=!s.noStake&&!s.zeroUnits;
  var t=$("streak");t.replaceChildren();s.rows.slice(0,10).forEach(function(r){
-  var cls=status(r.ergebnis_status),n=ele("span",cls,cls==="won"?"G":"V");
+  var cls=status(r.ergebnis_status),n=ele("span",cls,cls==="won"?tr("winShort","G"):tr("lossShort","V"));
   n.title=shortDate(r.bestaetigt_am||r.spiel_datum)+" · "+str(r.spiel||r.tipp_id);t.appendChild(n)
  });
  if(!s.rows.length)t.appendChild(ele("span","muted","–"));
@@ -679,8 +679,8 @@ $("perfDisclosure").addEventListener("toggle",function(){
  else resetDetails();
 });
 $("perfDetails").addEventListener("toggle",function(){
- if(this.open){perfDetailPage=0;$("perfDetailsTitle").textContent="☷ Einzelberechnung schließen";renderPerformanceDetails()}
- else{$("perfDetailsTitle").textContent="☷ Berechnung im Detail ansehen";$("perfDetailRows").replaceChildren();$("perfDetailPagination").replaceChildren();}
+ if(this.open){perfDetailPage=0;$("perfDetailsTitle").textContent=tr("detailsClose","☷ Einzelberechnung schließen");renderPerformanceDetails()}
+ else{$("perfDetailsTitle").textContent=tr("detailsOpen","☷ Berechnung im Detail ansehen");$("perfDetailRows").replaceChildren();$("perfDetailPagination").replaceChildren();}
 });
 $("perfStake").addEventListener("input",function(){state.stake=Number(this.value)||10;drawModel()});
 document.querySelectorAll("[data-archive]").forEach(function(b){b.addEventListener("click",function(){state.archive=b.dataset.archive;document.querySelectorAll("[data-archive]").forEach(function(n){n.classList.toggle("selected",n===b)});drawArchive()})});
