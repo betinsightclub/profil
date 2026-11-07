@@ -59,6 +59,21 @@ h2{font-size:clamp(21px,2.7vw,26px);margin:0 0 6px;letter-spacing:-.015em}
 .pro-stat{font-size:12px;font-weight:800;color:#91f0d6;display:block}
 .mini-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;margin-top:4px}
 .mini-stats.total-only{grid-template-columns:1fr}
+
+/* Overall hit-rate bands — visual only; Unit/FIFO logic unchanged. */
+.mini-stats.total-only{margin-top:6px}
+.mini-stats.total-only .mini-stat{min-height:65px;padding:11px 12px;display:flex;flex-direction:column;justify-content:center;border-radius:11px;transition:background .18s,border-color .18s}
+.mini-stats.total-only .mini-stat-label{font-size:10px;letter-spacing:.045em;color:#d2e4ed}
+.mini-stats.total-only .mini-stat-value{font-size:clamp(21px,1.55vw,26px);margin-top:5px}
+.mini-stats.total-only .score-good{border-color:#26966b;background:linear-gradient(135deg,#124b3e,#082d32)}
+.mini-stats.total-only .score-good .mini-stat-value{color:#81f3b2}
+.mini-stats.total-only .score-mid{border-color:#c48332;background:linear-gradient(135deg,#4b341b,#30281f)}
+.mini-stats.total-only .score-mid .mini-stat-value{color:#ffd17a}
+.mini-stats.total-only .score-low{border-color:#bc532d;background:linear-gradient(135deg,#572a1d,#30201c)}
+.mini-stats.total-only .score-low .mini-stat-value{color:#ff9d72}
+.mini-stats.total-only .score-bad{border-color:#99343f;background:linear-gradient(135deg,#421822,#260f1b)}
+.mini-stats.total-only .score-bad .mini-stat-value{color:#ff7c87}
+
 .mini-stat{min-width:0;border-radius:9px;border:1px solid #28647b;background:#031e2b88;padding:10px 9px}
 .mini-stat-label{display:block;color:#abcbd9;font-size:9px;letter-spacing:0;font-weight:800;line-height:1.25;white-space:nowrap}
 .mini-stat-value{display:block;color:#e9ffff;font-size:21px;font-weight:950;margin-top:5px;letter-spacing:-.03em;white-space:nowrap}
@@ -387,7 +402,8 @@ function mini(){
   if(!b.total){el.textContent="Noch keine gewerteten Tipps";return}
   var container=ele("span","mini-stats"+(overallOnly?" total-only":""));
   (overallOnly?[["GESAMT",b.hit]]:[["LETZTE 10",a.hit],["GESAMT",b.hit]]).forEach(function(p){
-   var one=ele("span","mini-stat");one.appendChild(ele("span","mini-stat-label",p[0]));
+   var band=p[1]==null?"":p[1]>=60?" score-good":p[1]>=40?" score-mid":p[1]>=20?" score-low":" score-bad";
+   var one=ele("span","mini-stat"+(overallOnly?band:""));one.appendChild(ele("span","mini-stat-label",p[0]));
    one.appendChild(ele("span","mini-stat-value",p[1]===null?"–":percent(p[1])));container.appendChild(one);
   });el.appendChild(container);
  })
