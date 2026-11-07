@@ -173,6 +173,18 @@
     "historyZero": "Diese historischen Tipps haben zusammen 0 hinterlegte Freischalt-Units. Ohne positives Einsatzgewicht ist kein Wett-ROI berechenbar. Die Trefferquote bleibt davon unabhängig.",
     "historyZeroSome": "{{zero}} von {{total}} Tipps in dieser Gruppe haben 0 hinterlegte Freischalt-Units und gehen deshalb mit 0 € in die ROI-Modellrechnung ein. Der Wett-ROI beruht nur auf den übrigen {{positive}} Tipps mit positivem Einsatzgewicht; die Trefferquote enthält alle {{total}} Ergebnisse.",
     "detailCount": "Tipps {{start}}–{{end}} von {{total}}{{overall}}",
-    "overallAbove": " · Gesamtauswertung oben"
+    "overallAbove": " · Gesamtauswertung oben",
+    "detailIntro": "Jeder Tipp der ausgewählten Gruppe mit Originalquote, geforderten Units und simuliertem Einsatz und Nettogewinn. Alle Beträge verwenden den obigen Euro-Regler und werden nur beim Öffnen berechnet.",
+    "detailFoot": "Bei „Gesamt“ maximal zehn Tipps pro Seite. Das Gesamtergebnis oben umfasst weiterhin alle ausgewählten Tipps. Historische 0-Unit-Tipps gehen mit 0 € in die Modellrechnung ein.",
+    "modelIntro": "Rechnerisches Gesamtergebnis der gewählten Tippgruppe, ohne Abzug der Freischaltkosten. Vergangene Ergebnisse sind keine Garantie für zukünftige Gewinne.",
+    "roiIntro": "Jeder tatsächlich veröffentlichte Tipp wird mit seiner ursprünglich hinterlegten, für die Freischaltung geforderten Anzahl an BetInsight-Units gewichtet. Der hypothetische Wetteinsatz dieses Tipps ergibt sich aus geforderten Units × eingestelltem Euro-Wert je Unit (1 bis 100 €). Für jeden Tipp werden Gewinn oder Verlust anhand seiner ursprünglichen Quote berechnet.",
+    "roiMethod": "Die Anzeige fasst alle Tipps der gewählten Gruppe (1–10, 11–20 usw. oder Gesamt) zusammen: Gesamteinsätze, Gesamtauszahlungen sowie gesamten Nettogewinn/-verlust. Wett-ROI = gesamter rechnerischer Nettogewinn/-verlust ÷ gesamte rechnerische Wetteinsätze × 100. Die Units dienen nur als Einsatzgewichtung; sie werden nicht zusätzlich als Freischaltkosten abgezogen.",
+    "roiExample": "Beispiel: Ein Tipp mit 5 geforderten Units, 10 € je Unit und Quote 2,30 bedeutet 50 € rechnerischen Einsatz. Gewonnen: 115 € Auszahlung, 65 € Nettogewinn. Verloren: 50 € Verlust. Weil die Unit-Gewichtung und die Quote je Tipp unterschiedlich sind, ist der gewichtete Wett-ROI anders als bei gleichen Einsätzen je Tipp. Der Euro-Regler verändert die Euro-Gesamtsummen, bei gleichbleibender Gewichtung aber nicht den ROI-Prozentsatz. Ältere Tipps mit 0 geforderten Units tragen 0 € zum Modell-Einsatz bei und zählen weiterhin zur Trefferquote.",
+    "roiDisclaimer": "Die Werte zeigen vergangene Ergebnisse und stellen weder eine Wetteinsatzempfehlung noch eine Gewinngarantie dar.",
+    "roiExtra": "Für einen Tipp fehlen gültige Quoten oder Unit-Angaben, oder die ausgewählte Gruppe hat keinen positiven Modell-Einsatz. Der ROI kann daher nicht korrekt angezeigt werden.",
+    "closeExplain": "Erklärung schließen",
+    "stakeAria": "Wetteinsatz je Unit in Euro, 1 bis 100",
+    "tabAria": "Tipp-Center Bereiche",
+    "filterAria": "Ergebnisfilter"
   }
 }
