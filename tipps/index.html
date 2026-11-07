@@ -578,22 +578,22 @@ function newCard(r){
 }
 async function unlockTip(tip,button,feedback){
  var access=token();
- if(!access){feedback.textContent="Bitte öffne zuerst dein angemeldetes BetInsight-Profil.";return}
+ if(!access){feedback.textContent=tr("needLogin","Bitte öffne zuerst dein angemeldetes BetInsight-Profil.");return}
  var tipId=str(tip.tipp_id);
- if(!tipId||tipId.toUpperCase().includes("DEMO")){feedback.textContent="Kein echter freischaltbarer Tipp.";return}
- if(!state.unlocksVerified){feedback.textContent="Deine bisherigen Freischaltungen konnten nicht geprüft werden. Zur Sicherheit ist die Freischaltung gesperrt. Bitte aktualisiere die Seite.";return}
- if(state.recentUnlocks.has(tipId)||state.unlocked.some(function(r){return str(r.tipp_id)===tipId})){feedback.textContent="Dieser Tipp ist bereits freigeschaltet.";selectArea("meine");drawMine();drawNew();return}
- button.disabled=true;button.textContent="Freischaltung läuft …";feedback.textContent="";
+ if(!tipId||tipId.toUpperCase().includes("DEMO")){feedback.textContent=tr("notRealTip","Kein echter freischaltbarer Tipp.");return}
+ if(!state.unlocksVerified){feedback.textContent=tr("verifyFailed","Deine bisherigen Freischaltungen konnten nicht geprüft werden. Zur Sicherheit ist die Freischaltung gesperrt. Bitte aktualisiere die Seite.");return}
+ if(state.recentUnlocks.has(tipId)||state.unlocked.some(function(r){return str(r.tipp_id)===tipId})){feedback.textContent=tr("alreadyUnlocked","Dieser Tipp ist bereits freigeschaltet.");selectArea("meine");drawMine();drawNew();return}
+ button.disabled=true;button.textContent=tr("unlockRunning","Freischaltung läuft …");feedback.textContent="";
  try{
   var url="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=tip-unlock&token="+encodeURIComponent(access)+"&tipp_id="+encodeURIComponent(tipId)+"&cachebuster="+Date.now();
   var response=await fetch(url,{method:"GET",cache:"no-store"});
   if(!response.ok)throw Error("HTTP "+response.status);
   var data=await response.json();
   if(!data||typeof data!=="object")throw Error("Ungültige Freischaltungsantwort");
-  if(data.status==="not_enough_units"){feedback.textContent="Nicht genug Units. Verfügbar: "+str(data.units)+" · Benötigt: "+str(data.required);return}
-  if(data.status==="units_source_missing"){feedback.textContent="Die Herkunft deiner Units konnte nicht eindeutig zugeordnet werden. Bitte kontaktiere den Support.";return}
+  if(data.status==="not_enough_units"){feedback.textContent=tr("notEnough","Nicht genug Units. Verfügbar: {{available}} · Benötigt: {{required}}",{available:str(data.units),required:str(data.required)});return}
+  if(data.status==="units_source_missing"){feedback.textContent=tr("sourceMissing","Die Herkunft deiner Units konnte nicht eindeutig zugeordnet werden. Bitte kontaktiere den Support.");return}
   if(data.status!=="success"&&data.status!=="already_unlocked")throw Error("Keine bestätigte Freischaltung");
-  state.unlockMessage=data.status==="already_unlocked"?"✓ Dieser Tipp war bereits freigeschaltet. Du kannst ihn hier unter „Meine freigeschalteten Tipps“ ansehen.":"✓ Dein Tipp wurde erfolgreich freigeschaltet! Du findest ihn jetzt unter „Meine freigeschalteten Tipps“ und kannst ihn direkt ansehen.";
+  state.unlockMessage=data.status==="already_unlocked"?tr("unlockExisting","✓ Dieser Tipp war bereits freigeschaltet. Du kannst ihn hier unter „Meine freigeschalteten Tipps“ ansehen."):tr("unlockSuccess","✓ Dein Tipp wurde erfolgreich freigeschaltet! Du findest ihn jetzt unter „Meine freigeschalteten Tipps“ und kannst ihn direkt ansehen.");
   var info=Object.assign({},tip,{spiel:str(data.spiel),tipp:str(data.tipp),quote:data.quote,ersteller:str(data.ersteller||tip.tippgeber),markt:str(data.markt),analyse:str(data.analyse||data.analyse_text),liga:str(data.liga||tip.liga),anpfiff:str(data.anpfiff||tip.anpfiff),datum:new Date().toISOString()});
   state.unlocked=[info].concat(state.unlocked.filter(function(x){return str(x.tipp_id)!==tipId}));
   state.recentUnlocks.add(tipId);
@@ -603,8 +603,8 @@ async function unlockTip(tip,button,feedback){
   selectArea("meine");drawMine();drawNew();
   try{await fetch("https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-profile-resync?token="+encodeURIComponent(access),{method:"GET",cache:"no-store",credentials:"omit"})}catch(_){}
   load(true);
- }catch(error){feedback.textContent="Freischaltung konnte nicht bestätigt werden. Bitte versuche es erneut oder kontaktiere den Support.";console.warn("BetInsight tip unlock error",String(error).slice(0,100))}
- finally{button.disabled=false;button.textContent="🔓 Tipp für "+str(tip.preis_units)+" "+(numeric(tip.preis_units)===1?"Unit":"Units")+" freischalten"}
+ }catch(error){feedback.textContent=tr("unlockError","Freischaltung konnte nicht bestätigt werden. Bitte versuche es erneut oder kontaktiere den Support.");console.warn("BetInsight tip unlock error",String(error).slice(0,100))}
+ finally{button.disabled=false;button.textContent=tr("unlockAction","🔓 Tipp für {{price}} freischalten",{price:str(tip.preis_units)+" "+(numeric(tip.preis_units)===1?"Unit":"Units")})}
 }
 function expired(r){
   const flag=str(r.expired).toLowerCase();
@@ -653,19 +653,19 @@ function trainingDemoCard(){
 function drawNew(){var who=state.provider;var head=who==="Schulung"?tr("newTraining","Neue Schulungstipps"):who==="Testphase"?tr("testing","User-Testphase"):tr("newFrom","Neue Tipps von {{who}}",{who:who});$("feedTitle").textContent=head;
 var node=$("newFeed");node.replaceChildren();
 if(who==="Testphase"){
- node.appendChild(ele("div","alert","Die User-Testphase wird vorbereitet. Noch keine Teilnehmerfreigaben, keine Unit-Abbuchungen und keine automatischen Unit-Rückgaben. Die Teilnahmebedingungen und der serverseitige Rückgabeschutz müssen vor dem Start aktiviert und geprüft werden."));
+ node.appendChild(ele("div","alert",tr("testPreparing","Die User-Testphase wird vorbereitet. Noch keine Teilnehmerfreigaben, keine Unit-Abbuchungen und keine automatischen Unit-Rückgaben. Die Teilnahmebedingungen und der serverseitige Rückgabeschutz müssen vor dem Start aktiviert und geprüft werden.")));
  return;
 }
 if(who==="Schulung")node.appendChild(trainingDemoCard());
-if(!state.tipsLoaded){if(who!=="Schulung")empty(node,"Neue Tipps konnten derzeit nicht geladen werden.");return}
-if(state.hasAccess&&!state.unlocksVerified&&state.privateError){var warning="Deine bisherigen Freischaltungen konnten nicht geprüft werden. Zur Sicherheit werden keine neuen Freischaltungen angeboten. Bitte aktualisiere die Seite.";if(who==="Schulung")node.appendChild(ele("div","alert",warning));else empty(node,warning);return}
+if(!state.tipsLoaded){if(who!=="Schulung")empty(node,tr("newLoadError","Neue Tipps konnten derzeit nicht geladen werden."));return}
+if(state.hasAccess&&!state.unlocksVerified&&state.privateError){var warning=tr("verifyFailed","Deine bisherigen Freischaltungen konnten nicht geprüft werden. Zur Sicherheit ist die Freischaltung gesperrt. Bitte aktualisiere die Seite.");if(who==="Schulung")node.appendChild(ele("div","alert",warning));else empty(node,warning);return}
 var ended=new Set(state.results.filter(function(r){return !!status(r.ergebnis_status)}).map(function(r){return str(r.tipp_id)}));
 var unlockedIds=new Set(state.unlocked.map(function(r){return str(r.tipp_id)}));state.recentUnlocks.forEach(function(id){unlockedIds.add(id)});
 var rows=state.tips.filter(function(r){return !expired(r)&&!ended.has(str(r.tipp_id))&&!unlockedIds.has(str(r.tipp_id))&&belongs(r,who)}).sort(function(a,b){return time(a.spiel_datum)-time(b.spiel_datum)});if(!rows.length){if(who!=="Schulung")empty(node,tr("newEmpty","In dieser Kategorie sind derzeit keine neuen, freischaltbaren Tipps vorhanden."));return}rows.forEach(function(r){node.appendChild(newCard(r))})}
-function drawMine(){var node=$("myFeed");node.replaceChildren();var confirmation=$("unlockNotice");confirmation.textContent=state.unlockMessage;confirmation.hidden=!state.unlockMessage;if(state.privateError)node.appendChild(ele("div","alert",state.privateError));if(!state.hasAccess){node.appendChild(ele("div","private-state","Kein bestätigter Mitgliederzugang erkannt. Öffne die Seite über dein angemeldetes Profil, um deine eigenen freigeschalteten Tipps zu sehen."));var a=ele("a","small-button","Zum Profil →");a.href="../";node.appendChild(a);return}
-if(!state.unlocked.length){empty(node,"Du hast noch keine persönlich freigeschalteten Tipps oder sie konnten nicht geladen werden.");return}var resultMap=new Map(state.results.map(function(r){return[str(r.tipp_id),r]}));state.unlocked.slice().sort(function(a,b){return time(b.datum)-time(a.datum)}).forEach(function(r){var rr=resultMap.get(str(r.tipp_id))||{};node.appendChild(resultCard(Object.assign({},r,{ergebnis_status:rr.ergebnis_status||r.ergebnis_status_bestaetigt,bestaetigt_am:rr.bestaetigt_am||r.ergebnis_bestaetigt_am,endergebnis:rr.endergebnis||""}),true))})}
-function drawArchive(){var node=$("archiveFeed");node.replaceChildren();if(!state.resultsLoaded){empty(node,"Bestätigte Ergebnisse konnten noch nicht geladen werden.");$("archiveCount").textContent="";return}
-var data=latest(state.results.filter(function(r){return !!status(r.ergebnis_status)&&(state.archive==="Alle"||belongs(r,state.archive))}));$("archiveCount").textContent=data.length+" bestätigte Ergebnisse sichtbar · Neueste Bewertung zuerst";if(!data.length){empty(node,"Für diesen Filter sind keine bestätigten Ergebnisse vorhanden.");return}data.forEach(function(r){node.appendChild(resultCard(r,false))})}
+function drawMine(){var node=$("myFeed");node.replaceChildren();var confirmation=$("unlockNotice");confirmation.textContent=state.unlockMessage;confirmation.hidden=!state.unlockMessage;if(state.privateError)node.appendChild(ele("div","alert",state.privateError));if(!state.hasAccess){node.appendChild(ele("div","private-state",tr("noAccess","Kein bestätigter Mitgliederzugang erkannt. Öffne die Seite über dein angemeldetes Profil, um deine eigenen freigeschalteten Tipps zu sehen.")));var a=ele("a","small-button",tr("toProfile","Zum Profil →"));a.href="../";node.appendChild(a);return}
+if(!state.unlocked.length){empty(node,tr("noMine","Du hast noch keine persönlich freigeschalteten Tipps oder sie konnten nicht geladen werden."));return}var resultMap=new Map(state.results.map(function(r){return[str(r.tipp_id),r]}));state.unlocked.slice().sort(function(a,b){return time(b.datum)-time(a.datum)}).forEach(function(r){var rr=resultMap.get(str(r.tipp_id))||{};node.appendChild(resultCard(Object.assign({},r,{ergebnis_status:rr.ergebnis_status||r.ergebnis_status_bestaetigt,bestaetigt_am:rr.bestaetigt_am||r.ergebnis_bestaetigt_am,endergebnis:rr.endergebnis||""}),true))})}
+function drawArchive(){var node=$("archiveFeed");node.replaceChildren();if(!state.resultsLoaded){empty(node,tr("archiveLoadError","Bestätigte Ergebnisse konnten noch nicht geladen werden."));$("archiveCount").textContent="";return}
+var data=latest(state.results.filter(function(r){return !!status(r.ergebnis_status)&&(state.archive==="Alle"||belongs(r,state.archive))}));$("archiveCount").textContent=tr("archiveCount","{{count}} bestätigte Ergebnisse sichtbar · Neueste Bewertung zuerst",{count:data.length});if(!data.length){empty(node,tr("archiveEmpty","Für diesen Filter sind keine bestätigten Ergebnisse vorhanden."));return}data.forEach(function(r){node.appendChild(resultCard(r,false))})}
 function rerender(){mini();performance();drawNew();drawMine();drawArchive()}
 function selectArea(area){state.area=area;document.querySelectorAll(".navtab").forEach(function(b){var yes=b.dataset.tab===area;b.classList.toggle("selected",yes);b.setAttribute("aria-current",yes?"page":"false")});document.querySelectorAll(".area").forEach(function(el){el.classList.toggle("active",el.id==="area-"+area)})}
 document.querySelectorAll(".navtab").forEach(function(b){b.addEventListener("click",function(){selectArea(b.dataset.tab)})});
@@ -703,7 +703,7 @@ var out=await Promise.allSettled(req);if(out[0].status==="fulfilled"){
 }else if(!state.resultsLoaded){state.results=[];state.performanceResults=[];state.performanceLoaded=false}
 if(out[1].status==="fulfilled"){state.tips=out[1].value;state.tipsLoaded=true}
 if(t&&out[2]?.status==="fulfilled"){var confirmed=out[2].value;var confirmedIds=new Set(confirmed.map(function(r){return str(r.tipp_id)}));state.unlocked=confirmed.concat(state.unlocked.filter(function(r){return state.recentUnlocks.has(str(r.tipp_id))&&!confirmedIds.has(str(r.tipp_id))}));state.unlocksVerified=true}
-else if(t&&out[2]?.status==="rejected"){state.unlocksVerified=false;state.privateError="Die persönlichen Freischaltungen konnten nicht geladen werden. Bitte erneut versuchen."}
+else if(t&&out[2]?.status==="rejected"){state.unlocksVerified=false;state.privateError=tr("unlockListError","Die persönlichen Freischaltungen konnten nicht geladen werden. Bitte erneut versuchen.")}
 else if(!t){state.unlocked=[];state.recentUnlocks.clear();state.unlocksVerified=false}
 var ok=out[0].status==="fulfilled"&&out[1].status==="fulfilled";
 $("dataInfo").textContent=ok?tr("liveInfo","Live-Daten · {{count}} veröffentlichte Ergebnisse · aktualisiert {{time}}",{count:state.results.length,time:new Date().toLocaleTimeString(currentLocale(),{hour:"2-digit",minute:"2-digit"})}):tr("livePartial","Teilweise nicht erreichbar")+" · "+(state.resultsLoaded?tr("liveLast","Letzter Datenstand wird gezeigt"):tr("liveRetry","Bitte später erneut laden"));
