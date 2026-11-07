@@ -502,8 +502,8 @@ else if(r.tipp)c.appendChild(ele("p","",tr("tipPrefix","Tipp: ")+str(r.tipp)));
 var b=ele("div","card-bottom");b.appendChild(ele("span","meta",tr("oddsPrefix","Quote: ")+(numeric(r.quote)>1?str(r.quote):"–")));b.appendChild(ele("span","meta",str(r.endergebnis)?(tr("scorePrefix","Endstand: ")+str(r.endergebnis)):(personal?tr("personalAccess","Persönlicher Zugang"):tr("confirmedTip","Bestätigter Tipp"))));c.appendChild(b);return c}
 function betTypeLabel(r){
  var kind=str(r.wettart).toUpperCase(),num=numeric(r.anzahl_auswahlen);
- if(kind==="KOMBI")return "⚽ KOMBIWETTE"+(Number.isInteger(num)&&num>=2?" · "+num+" AUSWAHLEN":"");
- if(kind==="EINZEL")return "⚽ EINZELWETTE";
+ if(kind==="KOMBI")return tr("comboBet","⚽ KOMBIWETTE")+(Number.isInteger(num)&&num>=2?" · "+num+" "+tr("selectionsCount","AUSWAHLEN"):"");
+ if(kind==="EINZEL")return tr("singleBet","⚽ EINZELWETTE");
  return "";
 }
 function newCard(r){
@@ -516,16 +516,16 @@ function newCard(r){
  c.appendChild(ele("h3","",tr("newAnalysis","Neue Sportanalyse von {{who}}",{who:isTraining?"BetInsight":str(r.tippgeber||"BetInsight")})));
  if(isTraining){
   var rows=[
-   ["⚽ Sport",str(r.sportart||"Fußball")],
-   ["🎟️ Wettart",typeText?typeText.replace(/^⚽\s*/,""):"Nicht angegeben"],
-   ["🏟️ Liga",str(r.liga||"–")],
-   ["👤 Tippgeber","BetInsight"],
-   ["📅 Datum",shortDate(r.spiel_datum)],
-   ["🕒 Anpfiff",str(r.anpfiff||"–")],
-   ["📊 Quotenbereich",str(r.quote_bereich||"Nach Freischaltung")],
-   ["🎯 Markt","Nach Freischaltung sichtbar"],
-   ["⚔️ Begegnung","████████ – ████████"],
-   ["✅ Auswahl","Nach Freischaltung sichtbar"]
+   [tr("sport","⚽ Sport"),str(r.sportart||tr("football","Fußball"))],
+   [tr("betType","🎟️ Wettart"),typeText?typeText.replace(/^⚽\s*/,""):tr("notSpecified","Nicht angegeben")],
+   [tr("league","🏟️ Liga"),str(r.liga||"–")],
+   [tr("tipsterField","👤 Tippgeber"),"BetInsight"],
+   [tr("date","📅 Datum"),shortDate(r.spiel_datum)],
+   [tr("kickoff","🕒 Anpfiff"),str(r.anpfiff||"–")],
+   [tr("oddsRange","📊 Quotenbereich"),str(r.quote_bereich||tr("afterUnlock","Nach Freischaltung sichtbar"))],
+   [tr("market","🎯 Markt"),tr("afterUnlock","Nach Freischaltung sichtbar")],
+   [tr("fixture","⚔️ Begegnung"),"████████ – ████████"],
+   [tr("selection","✅ Auswahl"),tr("afterUnlock","Nach Freischaltung sichtbar")]
   ];
   var list=ele("div","demo-list");
   rows.forEach(function(kv){
@@ -538,16 +538,16 @@ function newCard(r){
  }else{
   // Gleiche detaillierte Vorschau wie bei Schulungstipps; keine echten Tippdaten offenlegen.
   var rows=[
-   ["⚽ Sport",str(r.sportart||"Fußball")],
-   ["🎟️ Wettart",typeText?typeText.replace(/^⚽\s*/,""):"Nicht angegeben"],
-   ["🏟️ Liga",str(r.liga||"–")],
-   ["👤 Tippgeber",str(r.tippgeber||r.ersteller||"BetInsight")],
-   ["📅 Datum",shortDate(r.spiel_datum)],
-   ["🕒 Anpfiff",str(r.anpfiff||"–")],
-   ["📊 Quotenbereich",str(r.quote_bereich||"Nach Freischaltung")],
-   ["🎯 Markt","Nach Freischaltung sichtbar"],
-   ["⚔️ Begegnung","████████ – ████████"],
-   ["✅ Auswahl","Nach Freischaltung sichtbar"]
+   [tr("sport","⚽ Sport"),str(r.sportart||tr("football","Fußball"))],
+   [tr("betType","🎟️ Wettart"),typeText?typeText.replace(/^⚽\s*/,""):tr("notSpecified","Nicht angegeben")],
+   [tr("league","🏟️ Liga"),str(r.liga||"–")],
+   [tr("tipsterField","👤 Tippgeber"),str(r.tippgeber||r.ersteller||"BetInsight")],
+   [tr("date","📅 Datum"),shortDate(r.spiel_datum)],
+   [tr("kickoff","🕒 Anpfiff"),str(r.anpfiff||"–")],
+   [tr("oddsRange","📊 Quotenbereich"),str(r.quote_bereich||tr("afterUnlock","Nach Freischaltung sichtbar"))],
+   [tr("market","🎯 Markt"),tr("afterUnlock","Nach Freischaltung sichtbar")],
+   [tr("fixture","⚔️ Begegnung"),"████████ – ████████"],
+   [tr("selection","✅ Auswahl"),tr("afterUnlock","Nach Freischaltung sichtbar")]
   ];
   var list=ele("div","demo-list");
   rows.forEach(function(kv){
@@ -629,14 +629,14 @@ function trainingDemoCard(){
   var top=ele("div","meta");top.appendChild(ele("span","demo-badge","🧪 DEMO · KEIN ECHTER TIPP"));top.appendChild(ele("span","","WEBINAR / SCHULUNG"));c.appendChild(top);
   c.appendChild(ele("h3","","Beispiel: So funktioniert eine Tippfreischaltung"));
   var rows=[
-    ["⚽ Sport","Fußball"],
-    ["🏟️ Liga","Bundesliga (Beispiel)"],
-    ["👤 Tippgeber","Beispiel-Tippgeber"],
-    ["📅 Datum","Beispieldatum"],
-    ["🕒 Anpfiff","–:–"],
+    [tr("sport","⚽ Sport"),"Fußball"],
+    [tr("league","🏟️ Liga"),"Bundesliga (Beispiel)"],
+    [tr("tipsterField","👤 Tippgeber"),"Beispiel-Tippgeber"],
+    [tr("date","📅 Datum"),"Beispieldatum"],
+    [tr("kickoff","🕒 Anpfiff"),"–:–"],
     ["📊 Quote","1,60–2,00 (Beispiel)"],
-    ["🎯 Markt","Nach Freischaltung sichtbar"],
-    ["⚔️ Begegnung","██████████ – ██████████"]
+    [tr("market","🎯 Markt"),tr("afterUnlock","Nach Freischaltung sichtbar")],
+    [tr("fixture","⚔️ Begegnung"),"██████████ – ██████████"]
   ];
   var list=ele("div","demo-list");
   rows.forEach(function(kv){var line=ele("div","demo-row");line.appendChild(ele("span","",kv[0]));line.appendChild(ele("strong","",kv[1]));list.appendChild(line)});
