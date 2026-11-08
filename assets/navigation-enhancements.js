@@ -113,7 +113,7 @@
     if (!original) return;
 
     const group = document.createElement("div");
-    group.className = "bi-nav-group bi-nav-resources-group";
+    group.className = "bi-nav-group bi-nav-resources-group bi-nav-theme-academy";
     group.dataset.biNavGroup = "resources-group";
 
     const button = document.createElement("button");
