@@ -146,6 +146,7 @@
     if (type === "referral_aufs_konto") return tr("referralToAccount", "Referral-Units aufs Konto");
     if (type === "kauf") return tr("packageBought", "Unit-Paket gekauft");
     if (type === "tipp_freischaltung") return tr("tipUnlocked", "Tipp freigeschaltet");
+    if (type === "tipp_erstattung") return tr("tipRefund", "↩️ Tipp-Erstattung");
     if (type === "admin_gutschrift") return tr("adminCredit", "🎁 Unit-Gutschrift");
     if (type === "quiz_gutschrift" && String(item.source || "") === "stadium_quiz") return tr("stadiumQuizGift", "🏟️ Stadionquiz · Geschenk-Units");
     if (String(item.source || "") === "daily_bonus") {
@@ -331,7 +332,7 @@
           ? ` · ${tr("creditReason", "Grund")}: ${localizedCreditReason(item.label)}`
           : ` · ${item.label}`;
       }
-      if (item.type.toLowerCase() === "tipp_freischaltung") {
+      if (["tipp_freischaltung", "tipp_erstattung"].includes(item.type.toLowerCase())) {
         if (item.reference) detail += ` · ${usageText("tipId", "Tipp-ID")}: ${item.reference}`;
         const portions = [];
         if (item.purchaseUsed !== null && item.purchaseUsed > 0)
