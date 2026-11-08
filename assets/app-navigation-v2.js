@@ -42,43 +42,52 @@
     community:'<svg class="bi-nav-icon-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2.5 21v-3a5.5 5.5 0 0 1 11 0v3M14 15.3a5.5 5.5 0 0 1 7.5 5.2"/></svg>'
   };
 
+  // Menu layout only. Existing route IDs and their backend logic are preserved.
+  // Theme colors visually separate products without changing access permissions.
   const navigation = [
     {id:"dashboard",key:"nav.dashboard",fallback:"Dashboard",icon:icons.dashboard},
-    {id:"free-units-group",key:"nav.freeUnits",fallback:"Free Units",icon:icons.daily,children:[
+    {id:"tips-group",key:"nav.tipsAnalysis",fallback:"Tipps & Analysen",icon:icons.tips,theme:"tips",children:[
+      {id:"tipps",key:"nav.newTips",fallback:"Neue Tipps"},
+      {id:"freigeschaltet",key:"nav.unlockedTips",fallback:"Freigeschaltete Tipps"},
+      {id:"anbieter",key:"nav.providers",fallback:"Wettanbieter"}
+    ]},
+    {id:"free-units-group",key:"nav.freeUnitsBonus",fallback:"Free Units & Bonus",icon:icons.daily,theme:"free",children:[
       {id:"daily",key:"nav.daily",fallback:"Daily Bonus"},
       {id:"fan-challenge",key:"nav.fanChallenge",fallback:"Fan Challenge"},
       {id:"stadion-quiz",key:"nav.stadionQuiz",fallback:"Stadionfragen"}
     ]},
-    {id:"tips-group",key:"nav.tips",fallback:"Tipps",icon:icons.tips,children:[
-      {id:"tipps",key:"nav.newTips",fallback:"Neue Tipps"},
-      {id:"freigeschaltet",key:"nav.unlockedTips",fallback:"Freigeschaltete Tipps"}
+    {id:"account-group",key:"nav.accountUnitsNetwork",fallback:"Konto, Units & Netzwerk",icon:icons.wallet,theme:"account",children:[
+      {id:"kaufen",key:"nav.buyPackages",fallback:"Units-Pakete kaufen"},
+      {id:"wallet",key:"nav.wallet",fallback:"Wallet"},
+      {kind:"heading",key:"nav.exchange",fallback:"Unit-Wechselstube"},
+      {id:"wechselboerse",key:"nav.overview",fallback:"Übersicht"},
+      {id:"angebote",key:"nav.buyOffers",fallback:"Angebote kaufen"},
+      {id:"verkaufen",key:"nav.sellUnits",fallback:"Units verkaufen"},
+      {id:"meine-verkaufsangebote",key:"nav.mySaleOffers",fallback:"Meine Verkaufsangebote"},
+      {kind:"heading",key:"nav.network",fallback:"Netzwerk & Provisionen"},
+      {id:"netzwerk",key:"nav.unitCommissions",fallback:"Unit-Provisionen"},
+      {id:"premium-provisionen",key:"nav.premiumCommissions",fallback:"Premium-Provisionen"},
+      {id:"premium",key:"nav.membership",fallback:"Mitgliedschaft"}
     ]},
-    {id:"time-clash-group",key:"nav.timeClash",fallback:"TIME CLASH",icon:icons.timeclash,children:[
+    {id:"time-clash-group",key:"nav.timeClash",fallback:"TIME CLASH",icon:icons.timeclash,theme:"clash",children:[
       {id:"time-clash",key:"nav.timeClashOverview",fallback:"Spiel starten",fallbackEn:"Start a match"},
       {id:"time-clash-team",key:"nav.timeClashTeam",fallback:"Mein Team",fallbackEn:"My Team"},
       {id:"time-clash-ranking",key:"nav.timeClashRanking",fallback:"Weltrangliste",fallbackEn:"World Ranking"},
       {id:"time-clash-credits",key:"nav.timeClashCredits",fallback:"ClashToken aufladen",fallbackEn:"Top up ClashToken"}
     ]},
-    {id:"my-public-profile",key:"nav.myPublicProfile",fallback:"Mein Profil",fallbackEn:"My Profile",icon:icons.profile},
-    {id:"my-stadium-passport",key:"nav.myStadiumPassport",fallback:"🚩 Mein Stadionpass",fallbackEn:"🚩 My Stadium Passport",icon:icons.profile},
-    {id:"community",key:"nav.community",fallback:"Community",fallbackEn:"Community",icon:icons.community},
-    {id:"kaufen",key:"nav.buyPackages",fallback:"Units-Pakete kaufen",icon:icons.buy},
-    {id:"exchange-group",key:"nav.exchange",fallback:"Unit-Wechselstube",icon:icons.exchange,children:[
-      {id:"wechselboerse",key:"nav.overview",fallback:"Übersicht"},
-      {id:"angebote",key:"nav.buyOffers",fallback:"Angebote kaufen"},
-      {id:"verkaufen",key:"nav.sellUnits",fallback:"Units verkaufen"},
-      {id:"meine-verkaufsangebote",key:"nav.mySaleOffers",fallback:"Meine Verkaufsangebote",fallbackEn:"My Sale Offers"}
+    {id:"community-profiles-group",key:"nav.communityProfiles",fallback:"Community & Profile",icon:icons.community,theme:"community",children:[
+      {id:"my-public-profile",key:"nav.publicProfileNav",fallback:"Mein öffentliches Profil"},
+      {id:"community",key:"nav.communityFeedNav",fallback:"Community-Feed"}
     ]},
-    {id:"wallet",key:"nav.wallet",fallback:"Wallet",icon:icons.wallet},
-    {id:"anbieter",key:"nav.providers",fallback:"Wettanbieter",icon:icons.providers},
-    {id:"network-group",key:"nav.network",fallback:"Netzwerk & Provisionen",icon:icons.network,children:[
-      {id:"netzwerk",key:"nav.unitCommissions",fallback:"Unit-Provisionen"},
-      {id:"premium-provisionen",key:"nav.premiumCommissions",fallback:"Premium-Provisionen"}
+    {id:"stadium-world-group",key:"nav.stadiumWorld",fallback:"Stadionwelt",icon:icons.profile,theme:"stadium",children:[
+      {id:"stadionwelt",key:"nav.stadiumWorldMap",fallback:"Stadionwelt / Weltkarte"},
+      {id:"my-stadium-passport",key:"nav.myStadiumPassport",fallback:"🚩 Mein Stadionpass"}
     ]},
-    {id:"ressourcen",key:"nav.resources",fallback:"Academy & Ressourcen",fallbackEn:"Academy & Resources",icon:icons.membership},
-    {id:"premium",key:"nav.membership",fallback:"Mitgliedschaft",icon:icons.membership},
-    {id:"hilfe",key:"nav.help",fallback:"Hilfe & FAQ",icon:icons.support},
-    {id:"support",key:"nav.support",fallback:"Support",icon:icons.support}
+    {id:"ressourcen",key:"nav.resources",fallback:"Academy & Ressourcen",fallbackEn:"Academy & Resources",icon:icons.membership,theme:"academy"},
+    {id:"help-service-group",key:"nav.helpService",fallback:"Hilfe & Service",icon:icons.support,theme:"service",children:[
+      {id:"hilfe",key:"nav.help",fallback:"Hilfe & FAQ"},
+      {id:"support",key:"nav.support",fallback:"Support"}
+    ]}
   ];
 
   let sidebar, overlay, toggle, closeButton;
@@ -220,6 +229,7 @@
       case "time-clash-team": navigateProtected("time-clash/mein-team"); break;
       case "my-public-profile": navigateAnyProtected("trainer"); break;
       case "my-stadium-passport": navigateAnyProtected("stadionwelt",{hash:"passport"}); break;
+      case "stadionwelt": navigateAnyProtected("stadionwelt"); break;
       case "time-clash-ranking": navigateProtected("time-clash/rangliste"); break;
       case "community": session().navigateLocal("trainer-feed"); break;
       case "time-clash-credits": navigateProtected("clash-token-tausch"); break;
@@ -273,17 +283,20 @@
     if (first === "time-clash") return "time-clash";
     if (first === "trainer-feed") return "community";
     if (first === "trainer") return "my-public-profile";
+    if (first === "stadionwelt") return hash === "passport" ? "my-stadium-passport" : "stadionwelt";
     if (first === "clash-token-tausch") return "time-clash-credits";
     const known = ["daily","fan-challenge","stadion-quiz","tipps","freigeschaltet","wechselboerse","verkaufen","meine-verkaufsangebote","wallet","anbieter","ressourcen","marketing-center","hilfe","support"];
     return known.includes(first) ? first : "dashboard";
   }
 
   function groupForRoute(id) {
+    if (["tipps","freigeschaltet","anbieter"].includes(id)) return "tips-group";
     if (["daily","fan-challenge","stadion-quiz"].includes(id)) return "free-units-group";
-    if (["tipps","freigeschaltet"].includes(id)) return "tips-group";
+    if (["kaufen","wallet","wechselboerse","angebote","verkaufen","meine-verkaufsangebote","netzwerk","premium-provisionen","premium"].includes(id)) return "account-group";
     if (["time-clash","time-clash-team","time-clash-ranking","time-clash-credits"].includes(id)) return "time-clash-group";
-    if (["wechselboerse","angebote","verkaufen","meine-verkaufsangebote"].includes(id)) return "exchange-group";
-    if (["netzwerk","premium-provisionen"].includes(id)) return "network-group";
+    if (["my-public-profile","community"].includes(id)) return "community-profiles-group";
+    if (["stadionwelt","my-stadium-passport"].includes(id)) return "stadium-world-group";
+    if (["hilfe","support"].includes(id)) return "help-service-group";
     return "";
   }
 
@@ -340,7 +353,7 @@
 
   function createDirectLink(item) {
     const link = document.createElement("a");
-    link.className = "bi-nav-link";
+    link.className = "bi-nav-link" + (item.theme ? " bi-nav-theme-" + item.theme : "");
     link.href = "#";
     link.dataset.biNavRoute = item.id;
     link.innerHTML = `<span class="bi-nav-icon">${item.icon}</span><span class="bi-nav-label">${itemLabel(item)}</span>`;
@@ -354,7 +367,7 @@
 
   function createGroup(item) {
     const group = document.createElement("div");
-    group.className = "bi-nav-group";
+    group.className = "bi-nav-group" + (item.theme ? " bi-nav-theme-" + item.theme : "");
     group.dataset.biNavGroup = item.id;
 
     const button = document.createElement("button");
@@ -369,6 +382,13 @@
     const inner = document.createElement("div");
     inner.className = "bi-nav-submenu-inner";
     item.children.forEach(child => {
+      if (child.kind === "heading") {
+        const heading = document.createElement("div");
+        heading.className = "bi-nav-subsection-label";
+        heading.textContent = itemLabel(child);
+        inner.appendChild(heading);
+        return;
+      }
       const link = document.createElement("a");
       link.className = "bi-nav-sub-link";
       link.href = "#";
@@ -675,7 +695,19 @@
 
     const footer = document.createElement("div");
     footer.className = "bi-nav-footer";
-    footer.appendChild(i18n().createSwitcher());
+    // Preview-only marketplace entry: visible in every language but never navigates.
+    const marketplace = document.createElement("button");
+    marketplace.type = "button";
+    marketplace.disabled = true;
+    marketplace.className = "bi-nav-betterinsight";
+    marketplace.setAttribute("aria-disabled", "true");
+    marketplace.title = t("nav.marketplaceComingSoon", "Demnächst verfügbar");
+    marketplace.innerHTML = '<span class="bi-nav-betterinsight-header"><strong>betterInsight.club</strong><span class="bi-nav-betterinsight-open">OPEN</span></span><span class="bi-nav-betterinsight-slogan">Post. Discover. Connect.</span>';
+    const marketplaceNote = document.createElement("span");
+    marketplaceNote.className = "bi-nav-betterinsight-note";
+    marketplaceNote.textContent = t("nav.marketplaceComingSoon", "Demnächst verfügbar");
+    marketplace.appendChild(marketplaceNote);
+    footer.append(marketplace, i18n().createSwitcher());
 
     const logout = document.createElement("button");
     logout.type = "button";
