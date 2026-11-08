@@ -93,7 +93,7 @@
       uiEnhancementsPromise = (async () => {
         await loadUiScript("theme-manager.js?v=20260908-4", "BetInsightTheme");
         await loadUiScript("i18n/member-completion.js?v=20260913-1", "BetInsightMemberCompletion");
-        await loadUiScript("navigation-enhancements.js?v=20260913-2", "BetInsightNavigationEnhancements");
+        await loadUiScript("navigation-enhancements.js?v=20261109-academy-theme-1", "BetInsightNavigationEnhancements");
         return true;
       })().catch(error => {
         console.error("BetInsight UI enhancements could not be loaded.", error);
