@@ -532,3 +532,47 @@
 .bi-nav-betterinsight-open{border:1px solid #c0d1dc;border-radius:6px;padding:3px 6px;color:#647f90;background:#e7eff4;font-size:9px;font-weight:900;letter-spacing:.06em}
 .bi-nav-betterinsight-slogan{font-size:9px;font-weight:700;color:#526f7f}
 .bi-nav-betterinsight-note{font-size:9px;font-weight:800;color:#6b8291}
+
+
+/* Academy resources accordion: legacy navigation enhancement compatibility. */
+/* The resource link is replaced by navigation-enhancements.js with the stable
+   .bi-nav-resources-group class; apply the same gold theme even when an older
+   cached enhancement did not carry forward .bi-nav-theme-academy. */
+.bi-nav-sidebar .bi-nav-resources-group {
+  --bi-nav-topic: 251,196,95;
+}
+.bi-nav-sidebar .bi-nav-resources-group > .bi-nav-group-button {
+  padding-left: 7px;
+  border: 1px solid rgba(251,196,95,.12);
+  border-left: 3px solid rgba(251,196,95,.74);
+  border-radius: 11px;
+  background: linear-gradient(100deg,rgba(251,196,95,.105),rgba(251,196,95,.025));
+}
+.bi-nav-sidebar .bi-nav-resources-group > .bi-nav-group-button .bi-nav-label {
+  color: rgb(251,196,95);
+  font-weight: 850;
+}
+.bi-nav-sidebar .bi-nav-resources-group > .bi-nav-group-button .bi-nav-icon {
+  border-color: rgba(251,196,95,.18);
+  background: rgba(251,196,95,.09);
+  color: rgb(251,196,95);
+}
+.bi-nav-sidebar .bi-nav-resources-group > .bi-nav-group-button:hover,
+.bi-nav-sidebar .bi-nav-resources-group.bi-nav-group-open > .bi-nav-group-button {
+  border-color: rgba(251,196,95,.34);
+  border-left-color: rgb(251,196,95);
+  background: linear-gradient(100deg,rgba(251,196,95,.17),rgba(251,196,95,.045));
+}
+.bi-nav-sidebar .bi-nav-resources-group .bi-nav-submenu-inner {
+  margin-left: 14px;
+  padding-left: 12px;
+  border-left: 1px solid rgba(251,196,95,.20);
+}
+.bi-nav-sidebar .bi-nav-resources-group .bi-nav-sub-link-active {
+  border-color: rgba(251,196,95,.22);
+  background: rgba(251,196,95,.14);
+  box-shadow: inset 3px 0 0 rgb(251,196,95);
+}
+.bi-nav-sidebar .bi-nav-resources-group .bi-nav-sub-link-active .bi-nav-sub-dot {
+  color: rgb(251,196,95);
+}
