@@ -156,7 +156,7 @@ Ziele dieses Piloten:
 
       const ALLOWED_NEXT = new Set([
         "dashboard","premium-provisionen","premium","netzwerk","wallet","tipps","kaufen",
-        "freigeschaltet","wechselboerse","angebote","verkaufen","support","daily","time-clash"
+        "freigeschaltet","wechselboerse","angebote","verkaufen","support","daily","time-clash","betterinsight"
       ]);
 
       const NEXT_I18N_KEYS = {
@@ -173,7 +173,8 @@ Ziele dieses Piloten:
         "verkaufen":"account.next.sellUnits",
         "support":"account.next.support",
         "daily":"account.next.daily",
-        "time-clash":"account.next.timeClash"
+        "time-clash":"account.next.timeClash",
+        "betterinsight":"BetterInsight"
       };
 
       const status = document.getElementById("accessStatus");
@@ -275,6 +276,11 @@ Ziele dieses Piloten:
         else removeSaved(NEXT_KEY);
 
         /* Same-origin access is already stored in the browser. Deliberately no UUID/profile value is appended to the URL. */
+        if(next==="betterinsight"){
+          removeSaved(NEXT_KEY);
+          window.location.assign(new URL(session ? session.appPath("betterinsight-connect") : "/betterinsight-connect/", window.location.origin).toString());
+          return true;
+        }
         if(next==="time-clash"){
           removeSaved(NEXT_KEY);
           window.location.assign(new URL(session ? session.appPath("time-clash") : "/time-clash/", window.location.origin).toString());
