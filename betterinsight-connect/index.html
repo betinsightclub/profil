@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="de"><head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
+  <title>BetInsight · BetterInsight verbinden</title>
+  <script src="../assets/app-session.js"></script>
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#041b27;color:#edf8ff;font:16px system-ui,sans-serif;padding:24px}
+    main{width:min(100%,560px);border:1px solid #276477;border-radius:22px;padding:30px;background:#092d3e}
+    h1{font-size:27px;margin:10px 0}p{color:#c0d9e3;line-height:1.6}
+    button,a.cta{border:0;display:inline-block;margin-top:15px;text-decoration:none;border-radius:12px;background:#9de256;padding:14px 18px;color:#052b32;font-weight:750;cursor:pointer}
+    #message{min-height:28px;color:#edeeef}small{color:#98b9c8}
+  </style>
+</head><body><main>
+  <small>BETINSIGHT · GEMEINSAMES MITGLIEDSKONTO</small>
+  <h1>Mit BetterInsight verbinden</h1>
+  <p>Dein BetInsight-Konto bleibt die zentrale Anmeldung. Für den Marktplatz wird nur ein einmaliger Zugangscode übertragen; kein dauerhaftes Dashboard-Zugangstoken.</p>
+  <p id="message" role="status" aria-live="polite">Verbindung wird geprüft …</p>
+  <a id="login" class="cta" href="/konto/?next=betterinsight" hidden>Bei BetInsight anmelden</a>
+  <button id="go" type="button" hidden>Verbindung sicher fortsetzen</button>
+  <p><small>Diese Funktion bleibt bis zur serverseitigen Freigabe deaktiviert. Es werden keine Units verändert.</small></p>
+</main>
+<script>
+(() => {
+  "use strict";
+  const STORE = "betinsight_betterinsight_sso_pending";
+  const ENDPOINT = "https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-betterinsight-sso?action=issue";
+  const CALLBACKS = new Set([
+    "https://betterinsight.club/api/betterinsight/auth/callback",
+    "https://betterinsight-test.blindenhandarbeit.workers.dev/api/betterinsight/auth/callback"
+  ]);
+  const message = document.getElementById("message");
+  const login = document.getElementById("login");
+  const go = document.getElementById("go");
+  const params = new URLSearchParams(location.search);
+  const stateOK = value => typeof value === "string" && /^[A-Za-z0-9_-]{40,100}$/.test(value);
+  const codeOK = value => typeof value === "string" && /^[A-Za-z0-9_-]{32,128}$/.test(value);
+  let pending = null;
+  try {
+    if (params.get("client_id") === "betterinsight"
+        && params.get("response_type") === "code"
+        && stateOK(params.get("state"))
+        && CALLBACKS.has(params.get("redirect_uri"))) {
+      pending = {state:params.get("state"),redirect_uri:params.get("redirect_uri"),created_at:Date.now()};
+      sessionStorage.setItem(STORE,JSON.stringify(pending));
+      history.replaceState(null,"",location.pathname);
+    } else {
+      const stored = JSON.parse(sessionStorage.getItem(STORE) || "null");
+      if (stored && stateOK(stored.state) && CALLBACKS.has(stored.redirect_uri)
+          && Date.now()-stored.created_at < 180000 && Date.now() >= stored.created_at) pending=stored;
+    }
+  } catch (_) {}
+  if (!pending) {
+    message.textContent = "Die sichere Anmeldung ist abgelaufen oder wurde nicht über BetterInsight gestartet.";
+    return;
+  }
+  const session = window.BetInsightSession;
+  const token = session?.getDashboardUuid?.() || "";
+  if (!session?.isUuid?.(token)) {
+    message.textContent = "Bitte bestätige zuerst deinen BetInsight-Zugang.";
+    login.hidden = false;
+    return;
+  }
+  message.textContent = "BetInsight-Zugang erkannt. Du kannst die Verbindung fortsetzen.";
+  go.hidden = false;
+  go.addEventListener("click", async () => {
+    go.disabled = true; message.textContent = "Sicherer Einmalcode wird angefordert …";
+    try {
+      const response=await fetch(ENDPOINT,{method:"POST",cache:"no-store",credentials:"omit",referrerPolicy:"no-referrer",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({dashboard_token:token,audience:"betterinsight",redirect_uri:pending.redirect_uri})
+      });
+      const body = await response.json();
+      if (!response.ok || body.success!==true || !codeOK(body.code)) throw new Error("no-code");
+      const url = new URL(pending.redirect_uri);
+      url.searchParams.set("code",body.code);
+      url.searchParams.set("state",pending.state);
+      sessionStorage.removeItem(STORE);
+      location.assign(url.toString());
+    } catch (_) {
+      go.disabled = false; message.textContent = "Die Verbindung ist noch nicht freigeschaltet. Bitte später erneut versuchen.";
+    }
+  });
+})();
+</script>
+</body></html>
