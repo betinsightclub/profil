@@ -33,7 +33,7 @@ Deno.serve(async request => {
     const { dashboard_token, audience, redirect_uri } = await request.json();
     if(audience!=="betterinsight"||redirect_uri!==callback
         ||typeof dashboard_token!=="string"
-        ||!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(dashboard_token))
+        ||!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(dashboard_token))
       return respond({success:false,error:"INVALID_REQUEST"},400);
     // Rate limit on both address and token; failure is closed.
     const ip=(request.headers.get("cf-connecting-ip")||"unknown").slice(0,64);
