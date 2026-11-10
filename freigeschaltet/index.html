@@ -93,7 +93,7 @@ function tipInformationHtml(tipp){
     '<strong style="display:block;margin-bottom:10px;color:#acffcf">'+escapeHtml(tr("unlockedPage.newInfoTitle","📣 Neue Informationen zu diesem Tipp"))+'</strong>'+
     '<p style="font-size:13px;opacity:.9">'+escapeHtml(tr("unlockedPage.noSecondUnlock","Kein neuer Tipp. Diese Ergänzungen sind bereits freigeschaltet und kosten keine weiteren Units."))+'</p>'+
     items.map(u=>'<article style="border-top:1px solid rgba(127,232,180,.22);padding-top:11px;margin-top:11px">'+
-      '<strong>'+escapeHtml(u.kind==="HIGHER_ODDS"?"📈 Höhere Quote – neue Information":"ℹ️ Neue Information")+'</strong>'+
+      '<strong>'+escapeHtml(u.kind==="EXIT_TIP"?"🚪 Wettschein verkaufen – Tipp wieder verlassen":u.kind==="HIGHER_ODDS"?"📈 Höhere Quote – neue Information":"ℹ️ Neue Information")+'</strong>'+
       '<div style="font-size:12px;opacity:.75;margin-top:4px">'+formatDateTime(u.created_at)+'</div>'+
       '<div style="white-space:pre-wrap;overflow-wrap:anywhere;margin-top:9px">'+escapeHtml(u.information_text)+'</div>'+
     '</article>').join("")+'</section>';
