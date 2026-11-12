@@ -31,7 +31,7 @@ test('all language files keep protected details hidden',()=>{
 });
 
 test('Spezial refund display is one sentence and contains no internal accounting explanations',()=>{
-  assert.match(special,/Falls deine freigeschaltete Saisonprognose nicht eintrifft, erhältst du 1 Unit erstattet/);
+  assert.match(special,/Für jeden freigeschalteten Tipp aus dieser Kategorie, der als verloren gewertet wird, erhältst du die dafür bezahlte 1 Unit erstattet/);
   assert.doesNotMatch(special,/specialDisclaimer|specialDeadline|Gift-Unit|Geschenk-Unit|Provisionen|Wetteinsätze|Wettverluste/);
   for(const lang of langs){
     const strings=JSON.parse(fs.readFileSync(path.join(root,'assets/i18n/pages/tips',lang+'.json'),'utf8')).tipsCenter;
