@@ -212,6 +212,14 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
 .special-inactive{color:#ffd797;font-size:12px;font-weight:800}
 @media(max-width:750px){.special-slots{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:420px){.special-slots{grid-template-columns:1fr}}
+
+.special-slot .small-button{width:100%;min-height:39px;margin-top:auto}
+.special-slot .small-button[disabled]{opacity:.56;cursor:not-allowed;background:#245063;border-color:#315e70}
+.special-slot-price{font-weight:850;color:#9ff0d4!important;font-size:12px!important}
+.special-slot-odds{margin-bottom:8px}
+.special-slot .demo-feedback{font-size:11px;min-height:0;color:#ffe09c}
+.special-slot{min-height:245px}
+.special-report-link{width:max-content;max-width:100%;margin-top:2px}
 </style>
 </head>
 <body>
@@ -234,7 +242,7 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
       <button type="button" class="provider selected" data-provider="Martin" aria-pressed="true"><span class="pro-top"><span class="pro-icon">⚽</span><span class="pill" data-bi-i18n="tipsCenter.tagTipster">TIPPGEBER</span></span><span class="pro-name">Martin</span><span class="pro-sub" data-bi-i18n="tipsCenter.martinSub">Fußballanalysen und individuelle Tipps</span><span class="pro-stat" id="martinMini">Gesamtperformance wird geladen …</span></button>
       <button type="button" class="provider" data-provider="Frank" aria-pressed="false"><span class="pro-top"><span class="pro-icon">📈</span><span class="pill" data-bi-i18n="tipsCenter.tagTipster">TIPPGEBER</span></span><span class="pro-name">Frank</span><span class="pro-sub" data-bi-i18n="tipsCenter.frankSub">Analysen und aktuelle Sporttipps</span><span class="pro-stat" id="frankMini">Gesamtperformance wird geladen …</span></button>
       <button type="button" class="provider" data-provider="Schulung" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🎓</span><span class="pill" data-bi-i18n="tipsCenter.tagLearn">LERNBEREICH</span></span><span class="pro-name" data-bi-i18n="tipsCenter.training">Schulungstipps</span><span class="pro-sub" data-bi-i18n="tipsCenter.trainingSub">Schulungsbeispiele und Demonstrationen</span><span class="pro-stat" id="trainingMini">Schulungs-Performance wird geladen …</span></button>
-      <button type="button" class="provider" data-provider="Testphase" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🏆</span><span class="pill" data-bi-i18n="tipsCenter.tagPrep">SPEZIAL · VORSCHAU</span></span><span class="pro-name" data-bi-i18n="tipsCenter.testing">BetInsight Spezial</span><span class="pro-sub" data-bi-i18n="tipsCenter.testingSub">Saisonprognosen und Sonderanalysen · Bundesliga 2026/27 als Vorschau.</span><span class="pro-stat" id="testMini">Vier Analysen in Vorbereitung</span></button>
+      <button type="button" class="provider" data-provider="Testphase" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🏆</span><span class="pill" data-bi-i18n="tipsCenter.tagPrep">SAISONWETTEN · 1 UNIT</span></span><span class="pro-name" data-bi-i18n="tipsCenter.testing">BetInsight Spezial – Saisonwetten</span><span class="pro-sub" data-bi-i18n="tipsCenter.testingSub">Bundesliga 2026/27 · Vier Top-4-Prognosen · 1 Unit je Analyse</span><span class="pro-stat" id="testMini">Vier Saisonwetten · je 1 Unit</span></button>
     </div>
     <details id="perfDisclosure" class="perf-disclosure">
       <summary class="perf-summary" id="perfDisclosureTrigger"><span>📊 <span data-bi-i18n="tipsCenter.performanceView">Tippgeber-Performance ansehen</span> <span class="perf-summary-name" id="perfDisclosureName">· Martin</span></span><span class="perf-chevron" aria-hidden="true">⌄</span></summary>
@@ -292,7 +300,7 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
 
   <section class="area" id="area-archiv">
     <div class="section-top"><div><h2 data-bi-i18n="tipsCenter.archiveHeader">Vergangene Tipps & Ergebnisse</h2><p class="lead" data-bi-i18n="tipsCenter.archiveLead">Alle öffentlich bestätigten Ergebnisse, unabhängig davon, ob du diesen Tipp freigeschaltet hast.</p></div></div>
-    <div class="filter-row" role="group" data-bi-i18n-aria-label="tipsCenter.filterAria" aria-label="Ergebnisfilter"><button type="button" class="selected" data-archive="Alle" data-bi-i18n="tipsCenter.allResults">Alle Ergebnisse</button><button type="button" data-archive="Martin">Martin</button><button type="button" data-archive="Frank">Frank</button><button type="button" data-archive="Schulung" data-bi-i18n="tipsCenter.training">Schulungstipps</button><button type="button" data-archive="Testphase" data-bi-i18n="tipsCenter.testing">BetInsight Spezial</button></div>
+    <div class="filter-row" role="group" data-bi-i18n-aria-label="tipsCenter.filterAria" aria-label="Ergebnisfilter"><button type="button" class="selected" data-archive="Alle" data-bi-i18n="tipsCenter.allResults">Alle Ergebnisse</button><button type="button" data-archive="Martin">Martin</button><button type="button" data-archive="Frank">Frank</button><button type="button" data-archive="Schulung" data-bi-i18n="tipsCenter.training">Schulungstipps</button><button type="button" data-archive="Testphase" data-bi-i18n="tipsCenter.testing">BetInsight Spezial – Saisonwetten</button></div>
     <p id="archiveCount" class="status-line"></p><div class="tips-stack" id="archiveFeed"><div class="alert" data-bi-i18n="tipsCenter.archiveLoading">Ergebnisse werden geladen …</div></div>
   </section>
   <footer data-bi-i18n="tipsCenter.footer">BetInsight.club · Tipps, Ergebnisse und Tippgeber-Performance · Vergangene Ergebnisse garantieren keine zukünftigen Gewinne</footer>
@@ -318,8 +326,9 @@ var str=function(v){return String(v==null?"":v).trim()};
 function status(v){var k=str(v).toUpperCase();if(["GEWONNEN","WIN","WON"].indexOf(k)!==-1)return"won";if(["VERLOREN","LOSS","LOST"].indexOf(k)!==-1)return"lost";if(["VOID","PUSH","STORNIERT","REFUND"].indexOf(k)!==-1)return"void";if(["ABGEBROCHEN","ABGESAGT","CANCELLED"].indexOf(k)!==-1)return"void";return""}
 function owner(row){return str(row.tippgeber||row.ersteller||row.admin_name).toLowerCase()}
 function training(row){var s=[row.tipp_quelle,row.quelle].map(function(x){return str(x).toUpperCase()}).join(" ");return row.schulungstipp===true||s.indexOf("SCHULUNG")>=0}
-function testphase(row){var s=[row.tipp_quelle,row.quelle].map(function(x){return str(x).toUpperCase()}).join(" ");return ["USER_TESTPHASE","TESTPHASE","COMMUNITY_TESTPHASE"].some(function(v){return s.split(/\s+/).includes(v)})}
-function belongs(row,who){if(who==="Schulung")return training(row);if(who==="Testphase")return testphase(row);return !training(row)&&!testphase(row)&&owner(row)===who.toLowerCase()}
+function specialSeasonBet(row){return str(row.tipp_id).toUpperCase().startsWith("BI-SP-2627-TOP4-")||[row.tipp_quelle,row.quelle].some(function(x){return str(x).toUpperCase().includes("BETINSIGHT_SPEZIAL_SAISONWETTEN")})}
+function testphase(row){var source=[row.tipp_quelle,row.quelle].map(function(x){return str(x).toUpperCase()}).join(" ");return specialSeasonBet(row)||["USER_TESTPHASE","TESTPHASE","COMMUNITY_TESTPHASE"].some(function(v){return source.split(/\s+/).includes(v)})}
+function belongs(row,who){if(who==="Schulung")return training(row);if(who==="Testphase")return specialSeasonBet(row);return !training(row)&&!testphase(row)&&owner(row)===who.toLowerCase()}
 function time(v){var s=str(v);if(!s)return 0;var m=s.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})(?:\D+(\d{1,2}):(\d{2}))?/);if(m)return new Date(Number(m[3]),Number(m[2])-1,Number(m[1]),Number(m[4]||0),Number(m[5]||0)).getTime();var t=Date.parse(s);return Number.isFinite(t)?t:0}
 function sortNew(a,b){return time(b.bestaetigt_am||b.spiel_datum)-time(a.bestaetigt_am||a.spiel_datum)||str(b.tipp_id).localeCompare(str(a.tipp_id))}
 function ele(name,className,text){var n=document.createElement(name);if(className)n.className=className;if(text!==undefined)n.textContent=text;return n}
@@ -416,7 +425,7 @@ function mini(){
   if(!loaded){el.textContent=tr("perfLoading","Performance wird geladen …");return}
   var overallOnly=item[0]==="Martin"||item[0]==="Frank";
   var a=overallOnly?null:stats(item[0],"0"),b=stats(item[0],"all");
-  if(!b.total){el.textContent=item[0]==="Testphase"?tr("specialMini","Vier Saisonanalysen in Vorbereitung"):tr("noRated","Noch keine gewerteten Tipps");return}
+  if(!b.total){el.textContent=item[0]==="Testphase"?tr("specialMini","Vier Saisonwetten · jeweils 1 Unit"):tr("noRated","Noch keine gewerteten Tipps");return}
   var container=ele("span","mini-stats"+(overallOnly?" total-only":""));
   (overallOnly?[[tr("overall","GESAMT"),b.hit]]:[["LETZTE 10",a.hit],[tr("overall","GESAMT"),b.hit]]).forEach(function(p){
    var band=p[1]==null?"":p[1]>=60?" score-good":p[1]>=40?" score-mid":p[1]>=20?" score-low":" score-bad";
@@ -664,29 +673,57 @@ function trainingDemoCard(){
   return c;
 }
 
+
 function specialPreviewCard(){
-  // Die interne Testphase-Kennung bleibt zur Kompatibilität bestehen.
-  // Kein Echtgeld-/Unit-Checkout, kein Storno oder Vergütungs-API-Aufruf.
-  var c=ele("article","tip special-preview");c.dataset.specialPreview="bundesliga-2026-27";
+  // Saisonwetten: reale Tip-IDs, nur freigegebene Supabase-Tipps koennen kostenpflichtig entsperrt werden.
+  // Automatische Telegram-Meldungen sind fuer diese eigene Kategorie nicht vorgesehen.
+  var c=ele("article","tip special-preview");c.dataset.specialCategory="BetInsight Spezial – Saisonwetten";
   var meta=ele("div","meta");
-  meta.appendChild(ele("span","pill",tr("specialBadge","VORSCHAU · NOCH KEINE FREISCHALTUNG")));
-  meta.appendChild(ele("span","",tr("specialPeriod","Saison 2026/27 · nach Spieltag 9")));
+  meta.appendChild(ele("span","pill",tr("specialBadge","🏆 SPEZIAL · SAISONWETTEN")));
+  meta.appendChild(ele("span","",tr("specialPeriod","Bundesliga 2026/27 · Stand nach Spieltag 9")));
   c.appendChild(meta);
-  c.appendChild(ele("h3","",tr("specialTitle","Bundesliga 2026/27 · Die vier Top-4-Prognosen")));
-  c.appendChild(ele("p","special-intro",tr("specialIntro","Vier eigenständige Platzierungsanalysen auf Grundlage einer veröffentlichten Opta-Prognose. Vor einer Freigabe prüfen wir die Quoten und geeignete Wettmärkte separat.")));
+  c.appendChild(ele("h3","",tr("specialTitle","Bundesliga 2026/27 · Vier Top-4-Saisonwetten")));
+  c.appendChild(ele("p","special-intro",tr("specialIntro","Vier einzelne Top-4-Prognosen auf Basis der veröffentlichten Opta-Simulation. Die Analysen können einzeln für jeweils 1 Unit freigeschaltet werden. Ein bestätigter Buchmacherpreis liegt nicht für jede Prognose vor.")));
+  var clubs=["FC Bayern München","Borussia Dortmund","RB Leipzig","Bayer Leverkusen"];
   var slots=ele("div","special-slots");
-  for(var i=1;i<=4;i++){
-    var num=String(i).padStart(2,"0"),slot=ele("div","special-slot");
-    slot.appendChild(ele("span","special-slot-no","SPEZIAL "+num));
-    slot.appendChild(ele("strong","",tr("specialSlot","Analyse")+" "+num));
-    slot.appendChild(ele("small","",tr("specialPrice","Geplant: 1 Unit je Analyse")));
+  clubs.forEach(function(club,i){
+    var num=String(i+1).padStart(2,"0"),id="BI-SP-2627-TOP4-"+num;
+    var tip=state.tips.find(function(x){return str(x.tipp_id)===id})||null;
+    var unlocked=state.recentUnlocks.has(id)||state.unlocked.some(function(x){return str(x.tipp_id)===id});
+    var slot=ele("div","special-slot");slot.dataset.specialTip=id;
+    slot.appendChild(ele("span","special-slot-no","SAISONWETTE "+num));
+    slot.appendChild(ele("strong","",club));
+    slot.appendChild(ele("small","",tr("specialBetMarket","Prognose: Platz 1–4 am Saisonende")));
+    slot.appendChild(ele("small","special-slot-price",tr("specialPrice","Preis: 1 Unit je Analyse")));
+    slot.appendChild(ele("small","special-slot-odds",tr("specialNoOdds","Keine aktuell bestätigte Buchmacherquote")));
+    var button=ele("button","small-button"),feedback=ele("p","demo-feedback","");
+    feedback.setAttribute("aria-live","polite");
+    button.type="button";
+    if(unlocked){
+      button.textContent=tr("specialAlready","✓ Freigeschaltet · ansehen");
+      button.addEventListener("click",function(){selectArea("meine");drawMine()});
+    }else if(tip&&!expired(tip)){
+      button.textContent=tr("specialUnlock","🔓 Für 1 Unit freischalten");
+      if(state.hasAccess&&!state.unlocksVerified){
+        button.disabled=true;
+        button.textContent=tr("unlockChecking","⏳ Freischaltungen werden geprüft");
+      }
+      button.addEventListener("click",function(){unlockTip(tip,button,feedback)});
+    }else{
+      button.textContent=tr("specialUnavailable","Noch in Vorbereitung");
+      button.disabled=true;
+    }
+    slot.appendChild(button);
+    slot.appendChild(feedback);
     slots.appendChild(slot);
-  }
+  });
   c.appendChild(slots);
-  c.appendChild(ele("div","special-note",tr("specialCompensation","Bei falscher Top-4-Prognose ist eine zusätzliche kostenlose Geschenk-Unit als Entschädigung vorgesehen. Die ursprünglich verbrauchte Unit bleibt verbraucht.")));
-  c.appendChild(ele("p","special-disclaimer",tr("specialDisclaimer","Keine Rückbuchung von Kauf- oder Referral-Units und Provisionen; kein Ersatz externer Wetteinsätze oder Wettverluste.")));
-  c.appendChild(ele("p","special-disclaimer",tr("specialSource","Quellenbasis: veröffentlichte Opta-Saisonprognose vom 09.11.2026 nach dem 9. Spieltag. Keine eigene BetInsight-Simulation.")));
-  c.appendChild(ele("div","special-inactive",tr("specialInactive","Nur Vorschau: Keine Freischaltung, Unit-Abbuchung oder automatische Entschädigung aktiv.")));
+  c.appendChild(ele("div","special-note",tr("specialCompensation","Trifft eine freigeschaltete Top-4-Prognose nicht ein, erhältst du nach offizieller Saisonabrechnung 1 neue kostenlose Geschenk-Unit als Entschädigung. Deine ursprünglich verbrauchte Unit und bestehende Provisionen bleiben unverändert.")));
+  c.appendChild(ele("p","special-disclaimer",tr("specialDisclaimer","Nur die BetInsight-Analyse ist freischaltbar. Keine Garantie, dass ein Buchmacher den Markt anbietet; keine Erstattung externer Wetteinsätze oder Wettverluste. Entschädigung erfolgt als nicht auszahlbare Geschenk-Unit.")));
+  c.appendChild(ele("p","special-disclaimer",tr("specialDeadline","Freischaltung spätestens bis 21.05.2027, 23:59 Uhr (Deutschland). Saisonabschluss laut DFL: 22.05.2027.")));
+  c.appendChild(ele("p","special-disclaimer",tr("specialSource","Grundlage: veröffentlichte Opta-Prognose vom 09.11.2026 nach dem 9. Spieltag; keine von BetInsight selbst gerechnete Simulation.")));
+  var link=ele("a","small-button special-report-link",tr("specialReportLink","Hintergrundbericht im NewsRadar lesen"));
+  link.href="https://betinsight.club/de/newsradar/bundesliga-2026-27-opta-top4-saisonwetten/";c.appendChild(link);
   return c;
 }
 function drawNew(){var who=state.provider;var head=who==="Schulung"?tr("newTraining","Neue Schulungstipps"):who==="Testphase"?tr("testing","BetInsight Spezial"):tr("newFrom","Neue Tipps von {{who}}",{who:who});$("feedTitle").textContent=head;

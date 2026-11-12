@@ -1,37 +1,47 @@
-# BetInsight Spezial – Bundesliga 2026/27 (Vorschau, 12.11.2026)
+# BetInsight Spezial – Saisonwetten / Bundesliga 2026/27
+Stand: 12.11.2026. Redaktioneller Opta-Datenstand: 09.11.2026 nach Spieltag 9.
 
-Status: **Nur UI-Vorschau in Entwicklungsbranch. Nicht buchbar; keine Unit-Abbuchung und keine automatische Kompensation.**
+## Verbindliche Kategorie
+**Anzeigename:** BetInsight Spezial – Saisonwetten.
+**Tippgebername:** BetInsight Spezial; getrennt von Martin, Frank und Schulung.
+**Interner Quelltyp:** `BETINSIGHT_SPEZIAL_SAISONWETTEN`.
+**Vier Tipp-IDs:** `BI-SP-2627-TOP4-01` bis `-04`.
+Die bisherige sichtbare User-Testphase-Kachel wurde ersetzt; technisch heißt der Auswahlwert zur Rückwärtskompatibilität `Testphase`. Die alten Testphasen-Tipps werden **nicht** in der Spezial-Statistik mitgezählt und fließen auch nicht in Martin/Frank.
 
-## Beschluss
+## Inhalte und Preis
+1. FC Bayern München: prognostizierter Top-4-Platz.
+2. Borussia Dortmund: prognostizierter Top-4-Platz.
+3. RB Leipzig: prognostizierter Top-4-Platz.
+4. Bayer Leverkusen: prognostizierter Top-4-Platz.
 
-- Sichtbarer Name der vierten Tipp-Center-Kachel: **BetInsight Spezial** (bisher „User-Testphase“).
-- Separat von Martin, Frank und Schulung; alle drei bestehenden Kacheln und deren Abrechnung bleiben unverändert.
-- Erste Vorschau: **Bundesliga 2026/27 – vier separate Top-4-Platzierungsanalysen**.
-- Externe Prognosequelle: Opta-Saisonprognose veröffentlicht 09.11.2026 nach Spieltag 9. **Keine von BetInsight selbst durchgeführte Simulation.**
-- Erst nach Prüfung der konkreten Märkte und Quoten sowie der Teilnahmebedingungen darf ein Artikel als kostenpflichtiger Spezial-Tipp gelten.
-- Geplanter Einzelpreis: **1 plattformweite BetInsight-Unit pro Spezial-Analyse**, nicht vier Units für ein Paket.
-- Bei einer nach der offiziellen Bundesliga-Abschlusstabelle *falschen* freigeschalteten Prognose: **1 zusätzliche kostenlos erzeugte Geschenk-Unit pro berechtigter Freischaltung als Entschädigung**.
-- Die ursprünglich verbrauchte Unit **bleibt verbraucht**: keine rückwirkende Wiederherstellung einer gekauften, Geschenk- oder Referral-Unit-Charge, keine Rücknahme der damaligen Freischaltung und keine Rückbuchung bereits entstandener Provisionen.
-- Entschädigung ist **keine Erstattung eines externen Wetteinsatzes oder Wettverlusts**.
-- Geschenk-Units aus Entschädigung sind ausschließlich für Plattformfunktionen nutzbar: nicht verkaufbar, nicht auszahlbar, nicht in Referral-Units umwandelbar und lösen beim späteren Einsatz keine neue Referral-Provision aus.
-- Buchhalterisch als **separate kompensatorische Geschenk-Unit-Gutschrift** mit Ursprungs-Tipp-ID erfassen; originale Debit-/Referral-Buchungen bleiben unverändert.
-- Für jede berechtigte Kombination aus Aktion, Mitglied und Tipp **höchstens eine** Entschädigung; atomare/duplikatgeschützte serverseitige Buchung mit Journal, erst nach offiziell bestätigtem Saisonergebnis; keine Gutschrift bei offenem/nicht gewertetem Ergebnis.
-- Budget-/Missbrauchsgrenzen und rechtliche Einordnung sind vor Freischaltung festzulegen.
+Jeweils **1 Unit pro einzeln freigeschalteter Analyse**. Opta 10.000 Simulationen laut 90min, keine eigene BetInsight-Simulation. Opta-Tabelle vom 09.11.2026 – die Reihenfolge ist eine Prognose; keine Garantie und keine nachgewiesene bookmaker-value-Wette. **Keine erfundenen oder ungeprüften Quoten.** Die freischaltbare Leistung ist eine digitale Analyse, kein externer Wettschein. DFL-Spieltag 34 am 22.05.2027; Freischaltschluss bewusst am **21.05.2027 um 23:59 Uhr Europe/Berlin**, damit nicht nach dem letzten Spieltag gekauft wird. In der bestehenden Tipp-Datenstruktur ist dieses Datum als `spiel_datum` und `anpfiff` (Abschlusszeit, **kein tatsächlicher Spielanpfiff**) gespeichert. Jeder Tipp wird erst bei offiziellem Saisonende gewertet.
 
-## Technische Abgrenzung der Vorschau
+## Kundenentschädigung bei falscher Top-4-Prognose
+Nach offizieller DFL-Abschlusstabelle wird pro **tatsächlich und individuell freigeschalteter** Prognose, die nicht eingetroffen ist, **1 neue kostenlose Geschenk-Unit** als Entschädigung gutgeschrieben. Der Gründer nimmt diese Entschädigungsbuchungen über das bestehende autorisierte Admin-Unit-Credit-Verfahren vor. Nicht automatisch bis zu einer gesondert geprüften Abrechnungsautomation. Eindeutige Buchungskennung je (Saison, Tipp, Mitglied), keine Doppelbuchung. Keine Rücknahme/Erstattung ursprünglicher Units, keine Rückbuchung bereits bestehender Referral-/Adminprovisionen und kein externer Wetteinsatzersatz. Geschenk-Unit nicht auszahlbar, erzeugt selbst keine Referral-Provisionen. Bei verschobenem, annulliertem oder nicht endgültig gewertetem Saisonergebnis zuerst manuell prüfen. Bevor echte Entschädigungen gebucht werden, ist der originale BetInsight-Geschenk-Unit-Buchungspfad samt Idempotenz und Finanzjournal zu prüfen.
 
-- Die bisherige interne Kennung `Testphase` / `USER_TESTPHASE` und die vorhandene Filter-/Statistikzuordnung bleiben aus Rückwärtskompatibilität zunächst unangetastet. Dies ist **keine** Freigabe, alte Testphasen-Daten als neue Spezial-Artikel zu verwenden; die neue Artikelart muss vor Liveschaltung separat definiert und geprüft werden.
-- `tipps/index.html` zeigt eine statische Vorschaubox mit vier geplanten Analysen; kein Freischalt-Button, keine Zahlungs-API, keine neue Datenbankabfrage.
-- UI-Texte wurden in allen acht vorhandenen Tipp-Center-Sprachen aktualisiert.
-- Bisheriges Dokument `USER-TESTPHASE-UNIT-RUECKGABE-2026-11-05.md` enthält die **ältere, nicht aktivierte** 50/100-Units-Test-Idee. Diese ist nicht automatisch ein Teil des Spezial-Angebots; nicht ohne eigene Entscheidung zusammenführen.
-- Keine Änderung an Supabase, Make, FIFO, Kauf-Units, Referral-Provisionen, Wallet oder Admin-Tippprozess.
+## Freischaltung / Datenherkunft
+- Nutzt die **bestehende** produktive BetInsight-Mitgliederroute `betinsight-member-gateway?route=tip-unlock`, nachgeschaltet `betinsight-tips-api?action=unlock` und **bestehende** Transaktions-RPC `betinsight_tip_unlock_v1`. Dadurch bleibt die originale FIFO-/Kauf-/Geschenk-/Referral-Logik unberührt.
+- Jede Tipp-ID wird separat freigeschaltet. Die bestehende Freischaltung ist serverseitig idempotent pro Mitglied und Tipp. Es wird bei erneutem Klick nicht doppelt abgebucht.
+- Die vier `betinsight_tips`-Datensätze wurden zunächst als **Entwurf** angelegt, `preis_units=1`, `quote=NULL`, `sportart=Saisonprognose`, `tipp_quelle=BETINSIGHT_SPEZIAL_SAISONWETTEN`, `telegram_tipp_status=NICHT_ERFORDERLICH`.
+- Die Frontend-Kachel zeigt den Button nur aktiv, wenn der zugehörige Datensatz auf der offiziellen Tippliste als `veröffentlicht` erscheint. Noch nicht freigegebene Datensätze haben deaktivierte Buttons.
 
-## Go-live-Check vor echten Spezial-Freischaltungen
+## KEINE Telegram-, Live- oder MatchRadar-Alarme
+- Saisonprognosen sind bewusst mit `sportart=Saisonprognose` gekennzeichnet, **nicht** mit normalem Sportartwert `Fussball`. Der vorhandene MatchRadar-Trigger erstellt nur bei ausgewählten normalen Sportarten Posts. Dadurch keine automatische Community-Neutipp-Meldung.
+- Die Entwürfe werden **nicht über** den regulären Admin-Tipp-Publish-Prozess gesendet (dort würde ein Publish-Outbox-Eintrag entstehen); es wird **kein** Eintrag in `betinsight_tip_publish_outbox` erzeugt.
+- Für diese vier IDs ist `telegram_tipp_status=NICHT_ERFORDERLICH`. Weder Telegram-Neutipp-Bot noch Live-Alarm noch Newsletter-Neutipp-Push sind zu aktivieren.
 
-1. Für jeden Tipp: konkrete Wette/Abrechnungsdefinition, endgültig überprüfte Quote, Quelle, Abrufzeitpunkt und Aufnahmestatus festhalten.
-2. Eindeutige Tipp-/Kampagnen-IDs und keine Überschneidung mit vorhandener Testphase.
-3. Regel für verlorene Tipps (z. B. Top 4 gemäß offizieller Abschlusstabelle), Abbruch/Annullierung, Status und Ergebnisverifikation definieren.
-4. Entschädigung als Geschenk-Unit atomar und idempotent im Ledger implementieren und mit Testkonten prüfen, inklusive wiederholter Requests und Affiliate-/FIFO-Abgrenzung.
-5. Nutzungsbedingungen, Werberecht, Länderzugang und rechtliche Behandlung von Gratis-Units im Sportwettenkontext prüfen.
-6. Erst nach separater Abnahme die 1-Unit-Freischaltung freigeben. Vorher ausschließlich Vorschau.
+## Redaktioneller NewsRadar-Bericht
+Öffentlich (kostenfrei): `https://betinsight.club/de/newsradar/bundesliga-2026-27-opta-top4-saisonwetten/`
+Der Bericht wird über das bestehende statische Website-Repo `betinsightclub/website` und die NewsRadar-Übersicht veröffentlicht; **kein Telegram-Massenversand**. Enthält Quellennachweise, Warnung vor ungeprüften Buchmacherquoten und Link zur Spezial-Kategorie.
 
+## Verifikation / Go-Live
+1. Branch-Tests für Tippcenter-Syntax, acht Sprachen und bestehende Tipp-Regressionen grün.
+2. Pro ID in Supabase prüfen: genau 1 Datensatz; Preis 1; `quote IS NULL`; korrekter Spezial-Quelltyp; keine Publish-Outbox; kein Telegram-/MatchRadar-Post.
+3. Vier Entwürfe erst auf `veröffentlicht` stellen, **nachdem die neue Frontend-Kachel freigegeben** wurde.
+4. Danach alle vier im Tipp-Center sichtbar und Button aktiv, ohne Testuser-Buchung zu riskieren.
+5. Bei Bedarf Testfreischaltung nur in einem dafür autorisierten Testkonto mit passenden Units durchführen. Reale Nutzerkonten nicht für Probebuchungen belasten.
+6. Die kommende Auszahlung von Gratis-Geschenk-Units und die Einstufung möglicher Werberechtsrisiken vor späterer Saisonabrechnung separat prüfen.
+
+## Quellen
+- Opta via 90min (09.11.2026): https://www.90min.de/supercomputer-sagt-bundesliga-tabelle-26-27-voraus-ki-prognose-nach-dem-9-spieltag
+- DFL Terminplan: https://www.bundesliga.com/de/bundesliga/news/spielplan-saison-start-termine-daten-2026-27-22043
