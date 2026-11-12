@@ -23,9 +23,19 @@ test('special pre-unlock rendering contains no paywalled selections',()=>{
 test('all language files keep protected details hidden',()=>{
  for(const lang of langs){
    const langData=JSON.parse(fs.readFileSync(path.join(root,'assets/i18n/pages/tips',lang+'.json'),'utf8')).tipsCenter;
-   for(const key of ['testingSub','specialTitle','specialIntro','specialBetMarket','specialCompensation','specialDeadline','specialSource']){
+   for(const key of ['testingSub','specialTitle','specialIntro','specialBetMarket','specialCompensation','specialSource']){
       assert.ok(langData[key],lang+': '+key+' is present');
       assert.doesNotMatch(langData[key],privateHints,lang+': '+key+' leaks confidential prediction');
    }
  }
+});
+
+test('Spezial refund display is one sentence and contains no internal accounting explanations',()=>{
+  assert.match(special,/Falls deine freigeschaltete Saisonprognose nicht eintrifft, erhältst du 1 Unit erstattet/);
+  assert.doesNotMatch(special,/specialDisclaimer|specialDeadline|Gift-Unit|Geschenk-Unit|Provisionen|Wetteinsätze|Wettverluste/);
+  for(const lang of langs){
+    const strings=JSON.parse(fs.readFileSync(path.join(root,'assets/i18n/pages/tips',lang+'.json'),'utf8')).tipsCenter;
+    assert.ok(strings.specialCompensation.includes('1 Unit'),lang+': refund quantity');
+    assert.equal(strings.specialCompensation.match(/[.!?。]/g)?.length||0,1,lang+': exactly one sentence');
+  }
 });
