@@ -1,5 +1,5 @@
 # BetInsight Spezial – Saisonwetten / Bundesliga 2026/27
-Stand: 12.11.2026. Redaktioneller Opta-Datenstand: 09.11.2026 nach Spieltag 9.
+Stand: 12.11.2026. **UI veröffentlicht und vier Saisonwetten-Datensätze produktiv auf `veröffentlicht` gesetzt.** Redaktioneller Opta-Datenstand: 09.11.2026 nach Spieltag 9.
 
 ## Verbindliche Kategorie
 **Anzeigename:** BetInsight Spezial – Saisonwetten.
@@ -22,7 +22,7 @@ Nach offizieller DFL-Abschlusstabelle wird pro **tatsächlich und individuell fr
 ## Freischaltung / Datenherkunft
 - Nutzt die **bestehende** produktive BetInsight-Mitgliederroute `betinsight-member-gateway?route=tip-unlock`, nachgeschaltet `betinsight-tips-api?action=unlock` und **bestehende** Transaktions-RPC `betinsight_tip_unlock_v1`. Dadurch bleibt die originale FIFO-/Kauf-/Geschenk-/Referral-Logik unberührt.
 - Jede Tipp-ID wird separat freigeschaltet. Die bestehende Freischaltung ist serverseitig idempotent pro Mitglied und Tipp. Es wird bei erneutem Klick nicht doppelt abgebucht.
-- Die vier `betinsight_tips`-Datensätze wurden zunächst als **Entwurf** angelegt, `preis_units=1`, `quote=NULL`, `sportart=Saisonprognose`, `tipp_quelle=BETINSIGHT_SPEZIAL_SAISONWETTEN`, `telegram_tipp_status=NICHT_ERFORDERLICH`.
+- Die vier `betinsight_tips`-Datensätze wurden zunächst als **Entwurf** angelegt und erst nach grünen GitHub-Tests am 12.11.2026 auf **`veröffentlicht`** gesetzt. `preis_units=1`, `quote=NULL`, `sportart=Saisonprognose`, `tipp_quelle=BETINSIGHT_SPEZIAL_SAISONWETTEN`, `telegram_tipp_status=NICHT_ERFORDERLICH`.
 - Die Frontend-Kachel zeigt den Button nur aktiv, wenn der zugehörige Datensatz auf der offiziellen Tippliste als `veröffentlicht` erscheint. Noch nicht freigegebene Datensätze haben deaktivierte Buttons.
 
 ## KEINE Telegram-, Live- oder MatchRadar-Alarme
@@ -37,11 +37,18 @@ Der Bericht wird über das bestehende statische Website-Repo `betinsightclub/web
 ## Verifikation / Go-Live
 1. Branch-Tests für Tippcenter-Syntax, acht Sprachen und bestehende Tipp-Regressionen grün.
 2. Pro ID in Supabase prüfen: genau 1 Datensatz; Preis 1; `quote IS NULL`; korrekter Spezial-Quelltyp; keine Publish-Outbox; kein Telegram-/MatchRadar-Post.
-3. Vier Entwürfe erst auf `veröffentlicht` stellen, **nachdem die neue Frontend-Kachel freigegeben** wurde.
-4. Danach alle vier im Tipp-Center sichtbar und Button aktiv, ohne Testuser-Buchung zu riskieren.
-5. Bei Bedarf Testfreischaltung nur in einem dafür autorisierten Testkonto mit passenden Units durchführen. Reale Nutzerkonten nicht für Probebuchungen belasten.
+3. **Erledigt am 12.11.2026:** Vier Entwürfe wurden erst nach grünem CI und Merge beider GitHub-PRs auf `veröffentlicht` gestellt.
+4. Quellcode und Datenbank bestätigt; tatsächliche Erreichbarkeit/Anzeige auf den öffentlichen Domains konnte von der Entwicklungsumgebung nicht unabhängig geprüft werden. Die Buttons werden erst aktiv, wenn die Live-Tippliste die veröffentlichten Datensätze liefert.
+5. **Offen:** End-to-End-Freischaltung mit autorisiertem Testkonto und echten Test-Units prüfen; noch keine Unit von einem echten Mitglied abgebucht. Keine reale Nutzerbelastung für Probebuchungen.
 6. Die kommende Auszahlung von Gratis-Geschenk-Units und die Einstufung möglicher Werberechtsrisiken vor späterer Saisonabrechnung separat prüfen.
 
 ## Quellen
 - Opta via 90min (09.11.2026): https://www.90min.de/supercomputer-sagt-bundesliga-tabelle-26-27-voraus-ki-prognose-nach-dem-9-spieltag
 - DFL Terminplan: https://www.bundesliga.com/de/bundesliga/news/spielplan-saison-start-termine-daten-2026-27-22043
+
+## Umsetzung / Nachweise
+- GitHub Tipp-Center: PR #121 (merged), https://github.com/betinsightclub/profil/pull/121
+- GitHub NewsRadar: PR #20 (merged), https://github.com/betinsightclub/website/pull/20
+- CI: Tip expiry regression tests, Validate Eight-Language Member UI, FIFA U15 News SEO and integrity jeweils erfolgreich.
+- Produktionskontrolle am 12.11.2026 nach Freigabe: 4/4 Datensätze `veröffentlicht`, je 1 Unit, Quote NULL, `telegram_tipp_status=NICHT_ERFORDERLICH`, 0 Telegram-Outbox-Einträge, 0 MatchRadar-Tippposts, 0 echte Freischaltungen.
+- Öffentliche Links: https://app.betinsight.club/tipps/ und https://betinsight.club/de/newsradar/bundesliga-2026-27-opta-top4-saisonwetten/
