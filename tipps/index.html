@@ -197,6 +197,21 @@ h2{font-size:clamp(21px,2.7vw,26px);margin:0 0 6px;letter-spacing:-.015em}
 footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top:40px}
 @media(max-width:900px){.provider-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.perf-bottom{grid-template-columns:1fr}}
 @media(max-width:600px){.perf-model-figures{grid-template-columns:1fr 1fr}.perf-figure:last-child{grid-column:1/-1}.windows{gap:4px}.winbtn{padding:9px 10px}.perf-stake-value{font-size:23px}main{padding:20px 13px 55px}.hero{padding:27px 19px}.nav-tabs{gap:7px}.navtab{padding:12px 9px;display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-height:102px;font-size:12px}.navtab .tab-icon{font-size:20px}.navtab .tab-desc{font-size:10px;margin-top:3px}.provider-grid{gap:9px}.provider{min-height:162px;padding:13px 12px}.pro-name{font-size:16px}.performance{padding:16px}.perf-top{align-items:stretch}.windows{width:100%}.winbtn{flex:1}.tips-stack{grid-template-columns:1fr}.kpi{padding:13px}.kpi-value{font-size:24px}.mini-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.mini-stat-value{font-size:19px}}
+
+/* Spezial-Vorschau: ausschließlich Darstellung; keine Freischalt-/Wallet-Logik */
+.special-preview{grid-column:1/-1;background:linear-gradient(135deg,#0d3d50,#062530);border-color:#279aaf;gap:13px}
+.special-preview h3{font-size:clamp(19px,2.5vw,24px);margin:0}
+.special-preview .special-intro{font-size:13px;max-width:850px}
+.special-slots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.special-slot{display:flex;flex-direction:column;gap:5px;background:#072a39;border:1px solid #2a6378;border-radius:12px;padding:14px;min-width:0}
+.special-slot-no{font-size:12px;color:#6bcee9;font-weight:900;letter-spacing:.08em}
+.special-slot strong{font-size:14px;color:#effbff}
+.special-slot small{color:#9dc5d5;font-size:11px;line-height:1.4}
+.special-note{padding:12px 15px;border-radius:12px;background:#093e47;border:1px solid #237d79;color:#d2f7ed;font-size:12px;line-height:1.6}
+.special-disclaimer{font-size:11px!important;line-height:1.5!important;color:#aed1df!important}
+.special-inactive{color:#ffd797;font-size:12px;font-weight:800}
+@media(max-width:750px){.special-slots{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:420px){.special-slots{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -219,7 +234,7 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
       <button type="button" class="provider selected" data-provider="Martin" aria-pressed="true"><span class="pro-top"><span class="pro-icon">⚽</span><span class="pill" data-bi-i18n="tipsCenter.tagTipster">TIPPGEBER</span></span><span class="pro-name">Martin</span><span class="pro-sub" data-bi-i18n="tipsCenter.martinSub">Fußballanalysen und individuelle Tipps</span><span class="pro-stat" id="martinMini">Gesamtperformance wird geladen …</span></button>
       <button type="button" class="provider" data-provider="Frank" aria-pressed="false"><span class="pro-top"><span class="pro-icon">📈</span><span class="pill" data-bi-i18n="tipsCenter.tagTipster">TIPPGEBER</span></span><span class="pro-name">Frank</span><span class="pro-sub" data-bi-i18n="tipsCenter.frankSub">Analysen und aktuelle Sporttipps</span><span class="pro-stat" id="frankMini">Gesamtperformance wird geladen …</span></button>
       <button type="button" class="provider" data-provider="Schulung" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🎓</span><span class="pill" data-bi-i18n="tipsCenter.tagLearn">LERNBEREICH</span></span><span class="pro-name" data-bi-i18n="tipsCenter.training">Schulungstipps</span><span class="pro-sub" data-bi-i18n="tipsCenter.trainingSub">Schulungsbeispiele und Demonstrationen</span><span class="pro-stat" id="trainingMini">Schulungs-Performance wird geladen …</span></button>
-      <button type="button" class="provider" data-provider="Testphase" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🧪</span><span class="pill" data-bi-i18n="tipsCenter.tagPrep">VORBEREITUNG</span></span><span class="pro-name" data-bi-i18n="tipsCenter.testing">User-Testphase</span><span class="pro-sub" data-bi-i18n="tipsCenter.testingSub">Begrenzter gemeinsamer Tipp-Test. Teilnahme und Unit-Rückgaben sind noch nicht freigeschaltet.</span><span class="pro-stat" id="testMini">Noch keine gewerteten Testtipps</span></button>
+      <button type="button" class="provider" data-provider="Testphase" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🏆</span><span class="pill" data-bi-i18n="tipsCenter.tagPrep">SPEZIAL · VORSCHAU</span></span><span class="pro-name" data-bi-i18n="tipsCenter.testing">BetInsight Spezial</span><span class="pro-sub" data-bi-i18n="tipsCenter.testingSub">Saisonprognosen und Sonderanalysen · Bundesliga 2026/27 als Vorschau.</span><span class="pro-stat" id="testMini">Vier Analysen in Vorbereitung</span></button>
     </div>
     <details id="perfDisclosure" class="perf-disclosure">
       <summary class="perf-summary" id="perfDisclosureTrigger"><span>📊 <span data-bi-i18n="tipsCenter.performanceView">Tippgeber-Performance ansehen</span> <span class="perf-summary-name" id="perfDisclosureName">· Martin</span></span><span class="perf-chevron" aria-hidden="true">⌄</span></summary>
@@ -277,7 +292,7 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
 
   <section class="area" id="area-archiv">
     <div class="section-top"><div><h2 data-bi-i18n="tipsCenter.archiveHeader">Vergangene Tipps & Ergebnisse</h2><p class="lead" data-bi-i18n="tipsCenter.archiveLead">Alle öffentlich bestätigten Ergebnisse, unabhängig davon, ob du diesen Tipp freigeschaltet hast.</p></div></div>
-    <div class="filter-row" role="group" data-bi-i18n-aria-label="tipsCenter.filterAria" aria-label="Ergebnisfilter"><button type="button" class="selected" data-archive="Alle" data-bi-i18n="tipsCenter.allResults">Alle Ergebnisse</button><button type="button" data-archive="Martin">Martin</button><button type="button" data-archive="Frank">Frank</button><button type="button" data-archive="Schulung" data-bi-i18n="tipsCenter.training">Schulungstipps</button><button type="button" data-archive="Testphase" data-bi-i18n="tipsCenter.testing">User-Testphase</button></div>
+    <div class="filter-row" role="group" data-bi-i18n-aria-label="tipsCenter.filterAria" aria-label="Ergebnisfilter"><button type="button" class="selected" data-archive="Alle" data-bi-i18n="tipsCenter.allResults">Alle Ergebnisse</button><button type="button" data-archive="Martin">Martin</button><button type="button" data-archive="Frank">Frank</button><button type="button" data-archive="Schulung" data-bi-i18n="tipsCenter.training">Schulungstipps</button><button type="button" data-archive="Testphase" data-bi-i18n="tipsCenter.testing">BetInsight Spezial</button></div>
     <p id="archiveCount" class="status-line"></p><div class="tips-stack" id="archiveFeed"><div class="alert" data-bi-i18n="tipsCenter.archiveLoading">Ergebnisse werden geladen …</div></div>
   </section>
   <footer data-bi-i18n="tipsCenter.footer">BetInsight.club · Tipps, Ergebnisse und Tippgeber-Performance · Vergangene Ergebnisse garantieren keine zukünftigen Gewinne</footer>
@@ -401,7 +416,7 @@ function mini(){
   if(!loaded){el.textContent=tr("perfLoading","Performance wird geladen …");return}
   var overallOnly=item[0]==="Martin"||item[0]==="Frank";
   var a=overallOnly?null:stats(item[0],"0"),b=stats(item[0],"all");
-  if(!b.total){el.textContent=tr("noRated","Noch keine gewerteten Tipps");return}
+  if(!b.total){el.textContent=item[0]==="Testphase"?tr("specialMini","Vier Saisonanalysen in Vorbereitung"):tr("noRated","Noch keine gewerteten Tipps");return}
   var container=ele("span","mini-stats"+(overallOnly?" total-only":""));
   (overallOnly?[[tr("overall","GESAMT"),b.hit]]:[["LETZTE 10",a.hit],[tr("overall","GESAMT"),b.hit]]).forEach(function(p){
    var band=p[1]==null?"":p[1]>=60?" score-good":p[1]>=40?" score-mid":p[1]>=20?" score-low":" score-bad";
@@ -429,10 +444,10 @@ function drawModel(){
 }
 function performance(){
  var who=state.provider;
- $("perfDisclosureName").textContent="· "+(who==="Schulung"?tr("training","Schulungstipps"):who==="Testphase"?tr("testing","User-Testphase"):who);
+ $("perfDisclosureName").textContent="· "+(who==="Schulung"?tr("training","Schulungstipps"):who==="Testphase"?tr("testing","BetInsight Spezial"):who);
  if(!$("perfDisclosure").open)return;
  var box=$("performance");box.hidden=false;
- $("perfName").textContent=who==="Schulung"?tr("training","Schulungstipps"):who==="Testphase"?tr("testing","User-Testphase"):who;
+ $("perfName").textContent=who==="Schulung"?tr("training","Schulungstipps"):who==="Testphase"?tr("testing","BetInsight Spezial"):who;
  $("avatar").textContent=who==="Testphase"?"T":who==="Schulung"?"S":who[0];
  var loaded=(who==="Martin"||who==="Frank")?(state.performanceLoaded&&state.resultsLoaded):state.resultsLoaded;
  var all=loaded?decided(who):[];
@@ -648,10 +663,36 @@ function trainingDemoCard(){
   c.appendChild(feedback);
   return c;
 }
-function drawNew(){var who=state.provider;var head=who==="Schulung"?tr("newTraining","Neue Schulungstipps"):who==="Testphase"?tr("testing","User-Testphase"):tr("newFrom","Neue Tipps von {{who}}",{who:who});$("feedTitle").textContent=head;
+
+function specialPreviewCard(){
+  // Die interne Testphase-Kennung bleibt zur Kompatibilität bestehen.
+  // Kein Echtgeld-/Unit-Checkout, kein Storno oder Vergütungs-API-Aufruf.
+  var c=ele("article","tip special-preview");c.dataset.specialPreview="bundesliga-2026-27";
+  var meta=ele("div","meta");
+  meta.appendChild(ele("span","pill",tr("specialBadge","VORSCHAU · NOCH KEINE FREISCHALTUNG")));
+  meta.appendChild(ele("span","",tr("specialPeriod","Saison 2026/27 · nach Spieltag 9")));
+  c.appendChild(meta);
+  c.appendChild(ele("h3","",tr("specialTitle","Bundesliga 2026/27 · Die vier Top-4-Prognosen")));
+  c.appendChild(ele("p","special-intro",tr("specialIntro","Vier eigenständige Platzierungsanalysen auf Grundlage einer veröffentlichten Opta-Prognose. Vor einer Freigabe prüfen wir die Quoten und geeignete Wettmärkte separat.")));
+  var slots=ele("div","special-slots");
+  for(var i=1;i<=4;i++){
+    var num=String(i).padStart(2,"0"),slot=ele("div","special-slot");
+    slot.appendChild(ele("span","special-slot-no","SPEZIAL "+num));
+    slot.appendChild(ele("strong","",tr("specialSlot","Analyse")+" "+num));
+    slot.appendChild(ele("small","",tr("specialPrice","Geplant: 1 Unit je Analyse")));
+    slots.appendChild(slot);
+  }
+  c.appendChild(slots);
+  c.appendChild(ele("div","special-note",tr("specialCompensation","Bei falscher Top-4-Prognose ist eine zusätzliche kostenlose Geschenk-Unit als Entschädigung vorgesehen. Die ursprünglich verbrauchte Unit bleibt verbraucht.")));
+  c.appendChild(ele("p","special-disclaimer",tr("specialDisclaimer","Keine Rückbuchung von Kauf- oder Referral-Units und Provisionen; kein Ersatz externer Wetteinsätze oder Wettverluste.")));
+  c.appendChild(ele("p","special-disclaimer",tr("specialSource","Quellenbasis: veröffentlichte Opta-Saisonprognose vom 09.11.2026 nach dem 9. Spieltag. Keine eigene BetInsight-Simulation.")));
+  c.appendChild(ele("div","special-inactive",tr("specialInactive","Nur Vorschau: Keine Freischaltung, Unit-Abbuchung oder automatische Entschädigung aktiv.")));
+  return c;
+}
+function drawNew(){var who=state.provider;var head=who==="Schulung"?tr("newTraining","Neue Schulungstipps"):who==="Testphase"?tr("testing","BetInsight Spezial"):tr("newFrom","Neue Tipps von {{who}}",{who:who});$("feedTitle").textContent=head;
 var node=$("newFeed");node.replaceChildren();
 if(who==="Testphase"){
- node.appendChild(ele("div","alert",tr("testPreparing","Die User-Testphase wird vorbereitet. Noch keine Teilnehmerfreigaben, keine Unit-Abbuchungen und keine automatischen Unit-Rückgaben. Die Teilnahmebedingungen und der serverseitige Rückgabeschutz müssen vor dem Start aktiviert und geprüft werden.")));
+ node.appendChild(specialPreviewCard());
  return;
 }
 if(who==="Schulung")node.appendChild(trainingDemoCard());
