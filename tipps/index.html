@@ -714,9 +714,7 @@ function specialPreviewCard(){
     slot.appendChild(button);slot.appendChild(feedback);slots.appendChild(slot);
   }
   c.appendChild(slots);
-  c.appendChild(ele("div","special-note",tr("specialCompensation","Falls eine freigeschaltete Saisonprognose nicht eintrifft, erhältst du nach offizieller Saisonabrechnung 1 neue kostenlose Geschenk-Unit als Entschädigung. Bereits verbrauchte Units und Provisionen bleiben unverändert.")));
-  c.appendChild(ele("p","special-disclaimer",tr("specialDisclaimer","BetInsight verkauft ausschließlich die Analyse; externe Wetteinsätze und Wettverluste werden nicht erstattet. Geschenk-Units können nicht ausgezahlt werden.")));
-  c.appendChild(ele("p","special-disclaimer",tr("specialDeadline","Die verbindliche Ergebnis- und Freischaltfrist wird bei der freigeschalteten Analyse dokumentiert.")));
+  c.appendChild(ele("div","special-note",tr("specialCompensation","Falls deine freigeschaltete Saisonprognose nicht eintrifft, erhältst du 1 Unit erstattet.")));
   var link=ele("a","small-button special-report-link",tr("specialReportLink","Mehr zur Spezialkategorie im NewsRadar"));
   link.href="https://betinsight.club/de/newsradar/betinsight-spezial-saisonanalysen/";c.appendChild(link);
   return c;
