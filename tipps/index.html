@@ -201,6 +201,12 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
 /* Spezial-Vorschau: ausschließlich Darstellung; keine Freischalt-/Wallet-Logik */
 .special-preview{grid-column:1/-1;background:linear-gradient(135deg,#0d3d50,#062530);border-color:#279aaf;gap:13px}
 .special-preview h3{font-size:clamp(19px,2.5vw,24px);margin:0}
+.weekly-season-schedule{padding:13px 14px;border:1px solid #2b7185;border-radius:12px;background:#082e3c;font-size:13px;line-height:1.6}
+.weekly-season-phases{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
+.weekly-season-phase{padding:10px;border-radius:9px;border:1px solid #317188;background:#0b3949;display:flex;flex-direction:column;gap:3px}
+.weekly-season-phase small{color:#b3d0da;font-size:11px}
+.weekly-season-schedule p{color:#b3d0da;margin:8px 0 0}
+@media(max-width:680px){.weekly-season-phases{grid-template-columns:1fr}}
 .special-preview .special-intro{font-size:13px;max-width:850px}
 .special-slots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .special-slot{display:flex;flex-direction:column;gap:5px;background:#072a39;border:1px solid #2a6378;border-radius:12px;padding:14px;min-width:0}
@@ -732,6 +738,23 @@ function weeklyPreviewCard(){
   c.appendChild(meta);
   c.appendChild(ele("h3","","Kurzfristige BetInsight Analysen"));
   c.appendChild(ele("p","special-intro","Pro Analyse 1 Unit. Begegnung, Wettmarkt und konkrete Prognose bleiben bis zur persönlichen Freischaltung geschützt. Unsere interne Auswahlmethode wird nicht veröffentlicht."));
+  // Sichtbar nur nach Klick auf die eigenständige Wochen-Spezial-Kachel.
+  var calendar=ele("section","weekly-season-schedule");
+  calendar.appendChild(ele("strong","","📅 Wann gibt es Wochen-Spezial-Tipps?"));
+  var phases=ele("div","weekly-season-phases");
+  [
+    ["1.–11. Spieltag","Analysen möglich"],
+    ["12.–23. Spieltag","Keine neuen Wochen-Spezial-Tipps"],
+    ["24.–34. Spieltag","Analysen wieder möglich"]
+  ].forEach(function(info){
+    var phase=ele("div","weekly-season-phase");
+    phase.appendChild(ele("strong","",info[0]));
+    phase.appendChild(ele("small","",info[1]));
+    phases.appendChild(phase);
+  });
+  calendar.appendChild(phases);
+  calendar.appendChild(ele("p","","Nächster geplanter Bundesliga-Spieltag: 10. Spieltag · 20.–22. November 2026. Am 13.–15. November ist Länderspielpause."));
+  c.appendChild(calendar);
   var list=ele("div","special-slots");
   var tips=state.tips.filter(function(t){return weeklySpecial(t)&&!expired(t)}).sort(function(a,b){return time(a.spiel_datum)-time(b.spiel_datum)});
   tips.forEach(function(t,i){
