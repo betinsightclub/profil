@@ -740,6 +740,8 @@ function weeklyPreviewCard(){
     slot.appendChild(ele("span","special-slot-no","WOCHEN-SPEZIAL "+String(i+1).padStart(2,"0")));
     slot.appendChild(ele("strong","","🔒 Details geschützt"));
     slot.appendChild(ele("small","","Begegnung und konkrete Prognose nach Freischaltung sichtbar"));
+    var exactQuote=numeric(t.quote_exakt!=null?t.quote_exakt:t.quote);
+    slot.appendChild(ele("small","special-slot-odds",Number.isFinite(exactQuote)&&exactQuote>1?"📈 Quote: "+exactQuote.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" · vorläufig":"📈 Konkrete Quote wird vor Veröffentlichung angegeben"));
     slot.appendChild(ele("small","special-slot-price","Preis: 1 Unit"));
     var already=state.recentUnlocks.has(id)||state.unlocked.some(function(x){return str(x.tipp_id)===id});
     var b=ele("button","small-button"), feedback=ele("p","demo-feedback","");
