@@ -46,7 +46,7 @@ test('Spezial tile shows standard non-secret sports and season metadata',()=>{
     assert.ok(special.includes('tr("'+key+'"'),key+': preview field is present');
   }
   for(const field of ['spiel','markt','tipp','quote','liga']){
-    assert.ok(!special.includes('tip.'+field),'secret tip field '+field+' must never be read in pre-unlock tile');
+    assert.doesNotMatch(special,new RegExp('tip[.]'+field+'(?![A-Za-z_])'),'secret tip field '+field+' must never be read in pre-unlock tile');
   }
   assert.ok(special.includes('shortDate(tip.spiel_datum)'),'display documented deadline without leaking the match');
   assert.match(special,/specialLockedValue/);
