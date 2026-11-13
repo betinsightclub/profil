@@ -32,7 +32,8 @@ test('all language files keep protected details hidden',()=>{
 
 test('Spezial refund display is one sentence and contains no internal accounting explanations',()=>{
   assert.match(special,/Für jeden freigeschalteten Tipp aus dieser Kategorie, der als verloren gewertet wird, erhältst du die dafür bezahlte 1 Unit erstattet/);
-  assert.doesNotMatch(special,/specialDisclaimer|specialDeadline|Gift-Unit|Geschenk-Unit|Provisionen|Wetteinsätze|Wettverluste/);
+  assert.doesNotMatch(special,/specialDisclaimer|Gift-Unit|Geschenk-Unit|Provisionen|Wetteinsätze|Wettverluste/);
+  assert.ok(!special.includes('tr("specialDeadline",'),'legacy deadline paragraph must stay removed');
   for(const lang of langs){
     const strings=JSON.parse(fs.readFileSync(path.join(root,'assets/i18n/pages/tips',lang+'.json'),'utf8')).tipsCenter;
     assert.ok(strings.specialCompensation.includes('1 Unit'),lang+': refund quantity');
@@ -45,12 +46,12 @@ test('Spezial tile shows standard non-secret sports and season metadata',()=>{
     assert.ok(special.includes('tr("'+key+'"'),key+': preview field is present');
   }
   for(const field of ['spiel','markt','tipp','quote','liga']){
-    assert.doesNotMatch(special,new RegExp('tip\\\\.'+field+'\\\\b'),'secret tip field must never be used in pre-unlock tile');
+    assert.ok(!special.includes('tip.'+field),'secret tip field '+field+' must never be read in pre-unlock tile');
   }
-  assert.match(special,/shortDate\\(tip\\.spiel_datum\\)/);
+  assert.ok(special.includes('shortDate(tip.spiel_datum)'),'display documented deadline without leaking the match');
   assert.match(special,/specialLockedValue/);
   assert.match(special,/specialOddsUnverified/);
-  assert.doesNotMatch(special,/tr\\("kickoff"/,'season deadline must not be mislabelled as kickoff');
+  assert.ok(!special.includes('tr("kickoff"'),'season deadline must not be mislabelled as kickoff');
   for(const lang of langs){
     const strings=JSON.parse(fs.readFileSync(path.join(root,'assets/i18n/pages/tips',lang+'.json'),'utf8')).tipsCenter;
     for(const key of ['specialLockedValue','specialBetKind','specialTipster','specialSeasonLabel','specialDeadlineLabel','specialGermanTime','specialSettlementLabel','specialSettlementValue','specialOddsUnverified','specialDeadlineFallback']){
