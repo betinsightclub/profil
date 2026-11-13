@@ -243,7 +243,7 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
       <button type="button" class="provider" data-provider="Frank" aria-pressed="false"><span class="pro-top"><span class="pro-icon">📈</span><span class="pill" data-bi-i18n="tipsCenter.tagTipster">TIPPGEBER</span></span><span class="pro-name">Frank</span><span class="pro-sub" data-bi-i18n="tipsCenter.frankSub">Analysen und aktuelle Sporttipps</span><span class="pro-stat" id="frankMini">Gesamtperformance wird geladen …</span></button>
       <button type="button" class="provider" data-provider="Schulung" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🎓</span><span class="pill" data-bi-i18n="tipsCenter.tagLearn">LERNBEREICH</span></span><span class="pro-name" data-bi-i18n="tipsCenter.training">Schulungstipps</span><span class="pro-sub" data-bi-i18n="tipsCenter.trainingSub">Schulungsbeispiele und Demonstrationen</span><span class="pro-stat" id="trainingMini">Schulungs-Performance wird geladen …</span></button>
       <button type="button" class="provider" data-provider="Testphase" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🏆</span><span class="pill" data-bi-i18n="tipsCenter.tagPrep">SAISONWETTEN · 1 UNIT</span></span><span class="pro-name" data-bi-i18n="tipsCenter.testing">BetInsight Spezial – Saisonwetten</span><span class="pro-sub" data-bi-i18n="tipsCenter.testingSub">Vier exklusive Saisonanalysen · je 1 Unit · Details erst nach Freischaltung</span><span class="pro-stat" id="testMini">Vier Saisonwetten · je 1 Unit</span></button>
-      <button type="button" class="provider" data-provider="WochenSpezial" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🗓️</span><span class="pill">WOCHEN-SPEZIAL · 1 UNIT</span></span><span class="pro-name">BetInsight Wochen-Spezial</span><span class="pro-sub">Kurzfristige Analysen · Auswahl nach Freischaltung sichtbar</span><span class="pro-stat" id="weeklyMini">Eigene Kategorie · derzeit Testvorbereitung</span></button>
+      <button type="button" class="provider" data-provider="WochenSpezial" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🗓️</span><span class="pill">WOCHEN-SPEZIAL · 1 UNIT</span></span><span class="pro-name">BetInsight Wochen-Spezial</span><span class="pro-sub">Kurzfristige Analysen · Auswahl nach Freischaltung sichtbar</span><span class="pro-stat" id="weeklyMini">1 Unit je Tipp · Ersatz-Geschenk-Unit manuell</span></button>
     </div>
     <details id="perfDisclosure" class="perf-disclosure">
       <summary class="perf-summary" id="perfDisclosureTrigger"><span>📊 <span data-bi-i18n="tipsCenter.performanceView">Tippgeber-Performance ansehen</span> <span class="perf-summary-name" id="perfDisclosureName">· Martin</span></span><span class="perf-chevron" aria-hidden="true">⌄</span></summary>
@@ -728,7 +728,7 @@ function weeklyPreviewCard(){
   var c=ele("article","tip special-preview");c.dataset.specialCategory="BetInsight Wochen-Spezial";
   var meta=ele("div","meta");
   meta.appendChild(ele("span","pill","🗓️ WOCHEN-SPEZIAL"));
-  meta.appendChild(ele("span","","Eigenständige Tippkategorie · Testvorbereitung"));
+  meta.appendChild(ele("span","","Eigenständige Tippkategorie · begrenzter Testbetrieb"));
   c.appendChild(meta);
   c.appendChild(ele("h3","","Kurzfristige BetInsight Analysen"));
   c.appendChild(ele("p","special-intro","Pro Analyse 1 Unit. Begegnung, Wettmarkt und konkrete Prognose bleiben bis zur persönlichen Freischaltung geschützt. Unsere interne Auswahlmethode wird nicht veröffentlicht."));
@@ -741,13 +741,26 @@ function weeklyPreviewCard(){
     slot.appendChild(ele("strong","","🔒 Details geschützt"));
     slot.appendChild(ele("small","","Begegnung und konkrete Prognose nach Freischaltung sichtbar"));
     slot.appendChild(ele("small","special-slot-price","Preis: 1 Unit"));
-    var b=ele("button","small-button","⏳ Freischaltung nach Abnahmetest verfügbar");
-    b.type="button";b.disabled=true;slot.appendChild(b);
+    var already=state.recentUnlocks.has(id)||state.unlocked.some(function(x){return str(x.tipp_id)===id});
+    var b=ele("button","small-button"), feedback=ele("p","demo-feedback","");
+    feedback.setAttribute("aria-live","polite");
+    b.type="button";
+    if(already){
+      b.textContent="✓ Freigeschaltet · ansehen";
+      b.addEventListener("click",function(){selectArea("meine");drawMine()});
+    }else{
+      b.textContent="🔓 Für 1 Unit freischalten";
+      if(state.hasAccess&&!state.unlocksVerified){
+        b.disabled=true;b.textContent="⏳ Freischaltungen werden geprüft";
+      }
+      b.addEventListener("click",function(){unlockTip(t,b,feedback)});
+    }
+    slot.appendChild(b);slot.appendChild(feedback);
     list.appendChild(slot);
   });
   if(tips.length)c.appendChild(list);
   else c.appendChild(ele("div","alert",state.tipsLoaded?"Aktuell keine neuen Wochen-Spezial-Analysen verfügbar.":"Analyse-Angebote werden geladen …"));
-  c.appendChild(ele("div","special-note","Unit-Schutz in Vorbereitung: Bei einem bestätigten Fehltipp soll eine Ersatz-Geschenk-Unit gutgeschrieben werden. Die Freischaltung wird erst aktiviert, wenn Abrechnung, Garantie und Zugriffsschutz getestet sind."));
+  c.appendChild(ele("div","special-note","Unit-Schutz: Wird ein freigeschalteter Wochen-Spezial-Tipp nach dem Endergebnis als verloren bestätigt, schreibt BetInsight dem berechtigten Nutzer nach manueller Prüfung einmalig 1 Geschenk-Unit gut. Die Gutschrift ist nicht automatisch."));
   c.appendChild(ele("p","special-disclaimer","Kein Ersatz für Wettverluste beim Buchmacher. Vergangene Ergebnisse sind keine Gewinngarantie."));
   return c;
 }
