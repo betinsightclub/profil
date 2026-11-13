@@ -243,6 +243,7 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
       <button type="button" class="provider" data-provider="Frank" aria-pressed="false"><span class="pro-top"><span class="pro-icon">📈</span><span class="pill" data-bi-i18n="tipsCenter.tagTipster">TIPPGEBER</span></span><span class="pro-name">Frank</span><span class="pro-sub" data-bi-i18n="tipsCenter.frankSub">Analysen und aktuelle Sporttipps</span><span class="pro-stat" id="frankMini">Gesamtperformance wird geladen …</span></button>
       <button type="button" class="provider" data-provider="Schulung" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🎓</span><span class="pill" data-bi-i18n="tipsCenter.tagLearn">LERNBEREICH</span></span><span class="pro-name" data-bi-i18n="tipsCenter.training">Schulungstipps</span><span class="pro-sub" data-bi-i18n="tipsCenter.trainingSub">Schulungsbeispiele und Demonstrationen</span><span class="pro-stat" id="trainingMini">Schulungs-Performance wird geladen …</span></button>
       <button type="button" class="provider" data-provider="Testphase" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🏆</span><span class="pill" data-bi-i18n="tipsCenter.tagPrep">SAISONWETTEN · 1 UNIT</span></span><span class="pro-name" data-bi-i18n="tipsCenter.testing">BetInsight Spezial – Saisonwetten</span><span class="pro-sub" data-bi-i18n="tipsCenter.testingSub">Vier exklusive Saisonanalysen · je 1 Unit · Details erst nach Freischaltung</span><span class="pro-stat" id="testMini">Vier Saisonwetten · je 1 Unit</span></button>
+      <button type="button" class="provider" data-provider="WochenSpezial" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🗓️</span><span class="pill">WOCHEN-SPEZIAL · 1 UNIT</span></span><span class="pro-name">BetInsight Wochen-Spezial</span><span class="pro-sub">Kurzfristige Analysen · Auswahl nach Freischaltung sichtbar</span><span class="pro-stat" id="weeklyMini">Eigene Kategorie · derzeit Testvorbereitung</span></button>
     </div>
     <details id="perfDisclosure" class="perf-disclosure">
       <summary class="perf-summary" id="perfDisclosureTrigger"><span>📊 <span data-bi-i18n="tipsCenter.performanceView">Tippgeber-Performance ansehen</span> <span class="perf-summary-name" id="perfDisclosureName">· Martin</span></span><span class="perf-chevron" aria-hidden="true">⌄</span></summary>
@@ -300,7 +301,7 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
 
   <section class="area" id="area-archiv">
     <div class="section-top"><div><h2 data-bi-i18n="tipsCenter.archiveHeader">Vergangene Tipps & Ergebnisse</h2><p class="lead" data-bi-i18n="tipsCenter.archiveLead">Alle öffentlich bestätigten Ergebnisse, unabhängig davon, ob du diesen Tipp freigeschaltet hast.</p></div></div>
-    <div class="filter-row" role="group" data-bi-i18n-aria-label="tipsCenter.filterAria" aria-label="Ergebnisfilter"><button type="button" class="selected" data-archive="Alle" data-bi-i18n="tipsCenter.allResults">Alle Ergebnisse</button><button type="button" data-archive="Martin">Martin</button><button type="button" data-archive="Frank">Frank</button><button type="button" data-archive="Schulung" data-bi-i18n="tipsCenter.training">Schulungstipps</button><button type="button" data-archive="Testphase" data-bi-i18n="tipsCenter.testing">BetInsight Spezial – Saisonwetten</button></div>
+    <div class="filter-row" role="group" data-bi-i18n-aria-label="tipsCenter.filterAria" aria-label="Ergebnisfilter"><button type="button" class="selected" data-archive="Alle" data-bi-i18n="tipsCenter.allResults">Alle Ergebnisse</button><button type="button" data-archive="Martin">Martin</button><button type="button" data-archive="Frank">Frank</button><button type="button" data-archive="Schulung" data-bi-i18n="tipsCenter.training">Schulungstipps</button><button type="button" data-archive="Testphase" data-bi-i18n="tipsCenter.testing">BetInsight Spezial – Saisonwetten</button><button type="button" data-archive="WochenSpezial">BetInsight Wochen-Spezial</button></div>
     <p id="archiveCount" class="status-line"></p><div class="tips-stack" id="archiveFeed"><div class="alert" data-bi-i18n="tipsCenter.archiveLoading">Ergebnisse werden geladen …</div></div>
   </section>
   <footer data-bi-i18n="tipsCenter.footer">BetInsight.club · Tipps, Ergebnisse und Tippgeber-Performance · Vergangene Ergebnisse garantieren keine zukünftigen Gewinne</footer>
@@ -328,7 +329,8 @@ function owner(row){return str(row.tippgeber||row.ersteller||row.admin_name).toL
 function training(row){var s=[row.tipp_quelle,row.quelle].map(function(x){return str(x).toUpperCase()}).join(" ");return row.schulungstipp===true||s.indexOf("SCHULUNG")>=0}
 function specialSeasonBet(row){return str(row.tipp_id).toUpperCase().startsWith("BI-SP-2627-TOP4-")||[row.tipp_quelle,row.quelle].some(function(x){return str(x).toUpperCase().includes("BETINSIGHT_SPEZIAL_SAISONWETTEN")})}
 function testphase(row){var source=[row.tipp_quelle,row.quelle].map(function(x){return str(x).toUpperCase()}).join(" ");return specialSeasonBet(row)||["USER_TESTPHASE","TESTPHASE","COMMUNITY_TESTPHASE"].some(function(v){return source.split(/\s+/).includes(v)})}
-function belongs(row,who){if(who==="Schulung")return training(row);if(who==="Testphase")return specialSeasonBet(row);return !training(row)&&!testphase(row)&&owner(row)===who.toLowerCase()}
+function weeklySpecial(row){return /^BI-WS-/.test(str(row.tipp_id).toUpperCase())||[row.tipp_quelle,row.quelle].some(function(x){return str(x).toUpperCase()==="BETINSIGHT_WOCHEN_SPEZIAL"})}
+function belongs(row,who){if(who==="Schulung")return training(row);if(who==="Testphase")return specialSeasonBet(row);if(who==="WochenSpezial")return weeklySpecial(row);return !training(row)&&!testphase(row)&&!weeklySpecial(row)&&owner(row)===who.toLowerCase()}
 function time(v){var s=str(v);if(!s)return 0;var m=s.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})(?:\D+(\d{1,2}):(\d{2}))?/);if(m)return new Date(Number(m[3]),Number(m[2])-1,Number(m[1]),Number(m[4]||0),Number(m[5]||0)).getTime();var t=Date.parse(s);return Number.isFinite(t)?t:0}
 function sortNew(a,b){return time(b.bestaetigt_am||b.spiel_datum)-time(a.bestaetigt_am||a.spiel_datum)||str(b.tipp_id).localeCompare(str(a.tipp_id))}
 function ele(name,className,text){var n=document.createElement(name);if(className)n.className=className;if(text!==undefined)n.textContent=text;return n}
@@ -419,13 +421,13 @@ function renderPerformanceDetails(){
  }
 }
 function mini(){
- [["Martin","martinMini"],["Frank","frankMini"],["Schulung","trainingMini"],["Testphase","testMini"]].forEach(function(item){
+ [["Martin","martinMini"],["Frank","frankMini"],["Schulung","trainingMini"],["Testphase","testMini"],["WochenSpezial","weeklyMini"]].forEach(function(item){
   var el=$(item[1]);if(!el)return;el.replaceChildren();
   var loaded=(item[0]==="Martin"||item[0]==="Frank")?(state.performanceLoaded&&state.resultsLoaded):state.resultsLoaded;
   if(!loaded){el.textContent=tr("perfLoading","Performance wird geladen …");return}
   var overallOnly=item[0]==="Martin"||item[0]==="Frank";
   var a=overallOnly?null:stats(item[0],"0"),b=stats(item[0],"all");
-  if(!b.total){el.textContent=item[0]==="Testphase"?tr("specialMini","Vier exklusive Analysen · jeweils 1 Unit"):tr("noRated","Noch keine gewerteten Tipps");return}
+  if(!b.total){el.textContent=item[0]==="Testphase"?tr("specialMini","Vier exklusive Analysen · jeweils 1 Unit"):item[0]==="WochenSpezial"?"Derzeit keine bestätigten Wochen-Spezial-Ergebnisse":tr("noRated","Noch keine gewerteten Tipps");return}
   var container=ele("span","mini-stats"+(overallOnly?" total-only":""));
   (overallOnly?[[tr("overall","GESAMT"),b.hit]]:[["LETZTE 10",a.hit],[tr("overall","GESAMT"),b.hit]]).forEach(function(p){
    var band=p[1]==null?"":p[1]>=60?" score-good":p[1]>=40?" score-mid":p[1]>=20?" score-low":" score-bad";
@@ -453,11 +455,11 @@ function drawModel(){
 }
 function performance(){
  var who=state.provider;
- $("perfDisclosureName").textContent="· "+(who==="Schulung"?tr("training","Schulungstipps"):who==="Testphase"?tr("testing","BetInsight Spezial"):who);
+ $("perfDisclosureName").textContent="· "+(who==="Schulung"?tr("training","Schulungstipps"):who==="Testphase"?tr("testing","BetInsight Spezial"):who==="WochenSpezial"?"BetInsight Wochen-Spezial":who);
  if(!$("perfDisclosure").open)return;
  var box=$("performance");box.hidden=false;
- $("perfName").textContent=who==="Schulung"?tr("training","Schulungstipps"):who==="Testphase"?tr("testing","BetInsight Spezial"):who;
- $("avatar").textContent=who==="Testphase"?"T":who==="Schulung"?"S":who[0];
+ $("perfName").textContent=who==="Schulung"?tr("training","Schulungstipps"):who==="Testphase"?tr("testing","BetInsight Spezial"):who==="WochenSpezial"?"BetInsight Wochen-Spezial":who;
+ $("avatar").textContent=who==="Testphase"?"T":who==="WochenSpezial"?"W":who==="Schulung"?"S":who[0];
  var loaded=(who==="Martin"||who==="Frank")?(state.performanceLoaded&&state.resultsLoaded):state.resultsLoaded;
  var all=loaded?decided(who):[];
  var windows=$("perfWindows");windows.replaceChildren();
@@ -719,10 +721,44 @@ function specialPreviewCard(){
   link.href="https://betinsight.club/de/newsradar/betinsight-spezial-saisonanalysen/";c.appendChild(link);
   return c;
 }
-function drawNew(){var who=state.provider;var head=who==="Schulung"?tr("newTraining","Neue Schulungstipps"):who==="Testphase"?tr("testing","BetInsight Spezial"):tr("newFrom","Neue Tipps von {{who}}",{who:who});$("feedTitle").textContent=head;
+
+function weeklyPreviewCard(){
+  // Keine Strategie- oder Tippdaten im Frontend hinterlegen.
+  // Alle Freischaltungen bleiben bis zur separaten Garantie-/Ledger-Abnahme gesperrt.
+  var c=ele("article","tip special-preview");c.dataset.specialCategory="BetInsight Wochen-Spezial";
+  var meta=ele("div","meta");
+  meta.appendChild(ele("span","pill","🗓️ WOCHEN-SPEZIAL"));
+  meta.appendChild(ele("span","","Eigenständige Tippkategorie · Testvorbereitung"));
+  c.appendChild(meta);
+  c.appendChild(ele("h3","","Kurzfristige BetInsight Analysen"));
+  c.appendChild(ele("p","special-intro","Pro Analyse 1 Unit. Begegnung, Wettmarkt und konkrete Prognose bleiben bis zur persönlichen Freischaltung geschützt. Unsere interne Auswahlmethode wird nicht veröffentlicht."));
+  var list=ele("div","special-slots");
+  var tips=state.tips.filter(function(t){return weeklySpecial(t)&&!expired(t)}).sort(function(a,b){return time(a.spiel_datum)-time(b.spiel_datum)});
+  tips.forEach(function(t,i){
+    var id=str(t.tipp_id),slot=ele("div","special-slot");
+    slot.dataset.specialTip=id;
+    slot.appendChild(ele("span","special-slot-no","WOCHEN-SPEZIAL "+String(i+1).padStart(2,"0")));
+    slot.appendChild(ele("strong","","🔒 Details geschützt"));
+    slot.appendChild(ele("small","","Begegnung und konkrete Prognose nach Freischaltung sichtbar"));
+    slot.appendChild(ele("small","special-slot-price","Preis: 1 Unit"));
+    var b=ele("button","small-button","⏳ Freischaltung nach Abnahmetest verfügbar");
+    b.type="button";b.disabled=true;slot.appendChild(b);
+    list.appendChild(slot);
+  });
+  if(tips.length)c.appendChild(list);
+  else c.appendChild(ele("div","alert",state.tipsLoaded?"Aktuell keine neuen Wochen-Spezial-Analysen verfügbar.":"Analyse-Angebote werden geladen …"));
+  c.appendChild(ele("div","special-note","Unit-Schutz in Vorbereitung: Bei einem bestätigten Fehltipp soll eine Ersatz-Geschenk-Unit gutgeschrieben werden. Die Freischaltung wird erst aktiviert, wenn Abrechnung, Garantie und Zugriffsschutz getestet sind."));
+  c.appendChild(ele("p","special-disclaimer","Kein Ersatz für Wettverluste beim Buchmacher. Vergangene Ergebnisse sind keine Gewinngarantie."));
+  return c;
+}
+function drawNew(){var who=state.provider;var head=who==="Schulung"?tr("newTraining","Neue Schulungstipps"):who==="Testphase"?tr("testing","BetInsight Spezial"):who==="WochenSpezial"?"BetInsight Wochen-Spezial":tr("newFrom","Neue Tipps von {{who}}",{who:who});$("feedTitle").textContent=head;
 var node=$("newFeed");node.replaceChildren();
 if(who==="Testphase"){
  node.appendChild(specialPreviewCard());
+ return;
+}
+if(who==="WochenSpezial"){
+ node.appendChild(weeklyPreviewCard());
  return;
 }
 if(who==="Schulung")node.appendChild(trainingDemoCard());
