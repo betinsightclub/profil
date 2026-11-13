@@ -716,77 +716,6 @@ function trainingDemoCard(){
 }
 
 
-function specialPreviewCard(){
-  // VERTRAULICH: vor einer individuellen Freischaltung keine Teams, Märkte,
-  // konkreten Auswahlen, Prognosepositionen oder Quellenhinweise preisgeben.
-  // Die echten Daten werden erst nach serverseitiger Unit-Freischaltung geladen.
-  var c=ele("article","tip special-preview");c.dataset.specialCategory="BetInsight Spezial – Saisonwetten";
-  var meta=ele("div","meta");
-  meta.appendChild(ele("span","pill",tr("specialBadge","🏆 SPEZIAL · SAISONWETTEN")));
-  meta.appendChild(ele("span","",tr("specialPeriod","Langzeit-Analysen")));
-  c.appendChild(meta);
-  c.appendChild(ele("h3","",tr("specialTitle","Vier exklusive Saisonanalysen")));
-  c.appendChild(ele("p","special-intro",tr("specialIntro","Vier eigenständige Spezialanalysen. Welcher Wettbewerb, welche Auswahl und welche Prognose dahinterstehen, siehst du erst nach deiner persönlichen Freischaltung.")));
-  var slots=ele("div","special-slots");
-  for(var i=1;i<=4;i++){
-    var num=String(i).padStart(2,"0"),id="BI-SP-2627-"+num;
-    var tip=state.tips.find(function(x){return str(x.tipp_id)===id})||null;
-    var unlocked=state.recentUnlocks.has(id)||state.unlocked.some(function(x){return str(x.tipp_id)===id});
-    var slot=ele("div","special-slot");slot.dataset.specialTip=id;
-    slot.appendChild(ele("span","special-slot-no",tr("specialSlotLabel","SPEZIAL")+" "+num));
-    slot.appendChild(ele("strong","",tr("specialConfidential","🔒 Details geschützt")));
-    // Gewohnte Tipp-Vorschau: nur allgemeine Spiel-/Saisondaten offenlegen.
-    // Keine konkreten Mannschaften, Liga, Spiele, Wettmärkte oder Auswahlen verraten.
-    var locked=tr("specialLockedValue","🔒 Nach Freischaltung");
-    var deadline=tip?shortDate(tip.spiel_datum):tr("specialDeadlineFallback","21.05.2027");
-    var deadlineTime=tip?str(tip.anpfiff||"23:59"):"23:59";
-    var rows=[
-      [tr("sport","⚽ Sport"),tr("football","Fußball")],
-      [tr("betType","🎟️ Wettart"),tr("specialBetKind","Einzelwette · Saisonwette")],
-      [tr("league","🏟️ Liga"),locked],
-      [tr("tipsterField","👤 Tippgeber"),tr("specialTipster","BetInsight Spezial")],
-      [tr("specialSeasonLabel","📅 Saison"),"2026/27"],
-      [tr("specialDeadlineLabel","🕒 Freischaltfrist"),deadline+" · "+deadlineTime+" "+tr("specialGermanTime","(DE)")],
-      [tr("specialSettlementLabel","📋 Auswertung"),tr("specialSettlementValue","Nach offiziellem Saisonende")],
-      [tr("oddsRange","📊 Quotenbereich"),tr("specialOddsUnverified","Keine bestätigte Quote")],
-      [tr("market","🎯 Markt"),locked],
-      [tr("fixture","⚔️ Begegnung"),locked],
-      [tr("selection","✅ Auswahl"),locked]
-    ];
-    var details=ele("div","special-fields");
-    rows.forEach(function(kv){
-      var line=ele("div","special-field");
-      line.appendChild(ele("span","special-field-label",kv[0]));
-      line.appendChild(ele("span","special-field-value",kv[1]));
-      details.appendChild(line);
-    });
-    slot.appendChild(details);
-    slot.appendChild(ele("small","special-slot-price",tr("specialPrice","Preis: 1 Unit je Analyse")));
-    var button=ele("button","small-button"),feedback=ele("p","demo-feedback","");
-    feedback.setAttribute("aria-live","polite");button.type="button";
-    if(unlocked){
-      button.textContent=tr("specialAlready","✓ Freigeschaltet · ansehen");
-      button.addEventListener("click",function(){selectArea("meine");drawMine()});
-    }else if(tip&&!expired(tip)){
-      button.textContent=tr("specialUnlock","🔓 Für 1 Unit freischalten");
-      if(state.hasAccess&&!state.unlocksVerified){
-        button.disabled=true;
-        button.textContent=tr("unlockChecking","⏳ Freischaltungen werden geprüft");
-      }
-      button.addEventListener("click",function(){unlockTip(tip,button,feedback)});
-    }else{
-      button.textContent=tr("specialUnavailable","Vorübergehend nicht verfügbar");
-      button.disabled=true;
-    }
-    slot.appendChild(button);slot.appendChild(feedback);slots.appendChild(slot);
-  }
-  c.appendChild(slots);
-  c.appendChild(ele("div","special-note",tr("specialCompensation","Für jeden freigeschalteten Tipp aus dieser Kategorie, der als verloren gewertet wird, erhältst du die dafür bezahlte 1 Unit erstattet.")));
-  var link=ele("a","small-button special-report-link",tr("specialReportLink","Mehr zur Spezialkategorie im NewsRadar"));
-  link.href="https://betinsight.club/de/newsradar/betinsight-spezial-saisonanalysen/";c.appendChild(link);
-  return c;
-}
-
 function weeklyButtonLabel(button){
   button.replaceChildren(
     ele("span","weekly-cta-main","🔓 Für 1 Unit freischalten"),
@@ -858,6 +787,78 @@ function weeklyPreviewCard(){
   c.appendChild(ele("p","special-disclaimer","Kein Ersatz für Wettverluste beim Buchmacher. Vergangene Ergebnisse sind keine Gewinngarantie."));
   return c;
 }
+
+function specialPreviewCard(){
+  // VERTRAULICH: vor einer individuellen Freischaltung keine Teams, Märkte,
+  // konkreten Auswahlen, Prognosepositionen oder Quellenhinweise preisgeben.
+  // Die echten Daten werden erst nach serverseitiger Unit-Freischaltung geladen.
+  var c=ele("article","tip special-preview");c.dataset.specialCategory="BetInsight Spezial – Saisonwetten";
+  var meta=ele("div","meta");
+  meta.appendChild(ele("span","pill",tr("specialBadge","🏆 SPEZIAL · SAISONWETTEN")));
+  meta.appendChild(ele("span","",tr("specialPeriod","Langzeit-Analysen")));
+  c.appendChild(meta);
+  c.appendChild(ele("h3","",tr("specialTitle","Vier exklusive Saisonanalysen")));
+  c.appendChild(ele("p","special-intro",tr("specialIntro","Vier eigenständige Spezialanalysen. Welcher Wettbewerb, welche Auswahl und welche Prognose dahinterstehen, siehst du erst nach deiner persönlichen Freischaltung.")));
+  var slots=ele("div","special-slots");
+  for(var i=1;i<=4;i++){
+    var num=String(i).padStart(2,"0"),id="BI-SP-2627-"+num;
+    var tip=state.tips.find(function(x){return str(x.tipp_id)===id})||null;
+    var unlocked=state.recentUnlocks.has(id)||state.unlocked.some(function(x){return str(x.tipp_id)===id});
+    var slot=ele("div","special-slot");slot.dataset.specialTip=id;
+    slot.appendChild(ele("span","special-slot-no",tr("specialSlotLabel","SPEZIAL")+" "+num));
+    slot.appendChild(ele("strong","",tr("specialConfidential","🔒 Details geschützt")));
+    // Gewohnte Tipp-Vorschau: nur allgemeine Spiel-/Saisondaten offenlegen.
+    // Keine konkreten Mannschaften, Liga, Spiele, Wettmärkte oder Auswahlen verraten.
+    var locked=tr("specialLockedValue","🔒 Nach Freischaltung");
+    var deadline=tip?shortDate(tip.spiel_datum):tr("specialDeadlineFallback","21.05.2027");
+    var deadlineTime=tip?str(tip.anpfiff||"23:59"):"23:59";
+    var rows=[
+      [tr("sport","⚽ Sport"),tr("football","Fußball")],
+      [tr("betType","🎟️ Wettart"),tr("specialBetKind","Einzelwette · Saisonwette")],
+      [tr("league","🏟️ Liga"),locked],
+      [tr("tipsterField","👤 Tippgeber"),tr("specialTipster","BetInsight Spezial")],
+      [tr("specialSeasonLabel","📅 Saison"),"2026/27"],
+      [tr("specialDeadlineLabel","🕒 Freischaltfrist"),deadline+" · "+deadlineTime+" "+tr("specialGermanTime","(DE)")],
+      [tr("specialSettlementLabel","📋 Auswertung"),tr("specialSettlementValue","Nach offiziellem Saisonende")],
+      [tr("oddsRange","📊 Quotenbereich"),tr("specialOddsUnverified","Keine bestätigte Quote")],
+      [tr("market","🎯 Markt"),locked],
+      [tr("fixture","⚔️ Begegnung"),locked],
+      [tr("selection","✅ Auswahl"),locked]
+    ];
+    var details=ele("div","special-fields");
+    rows.forEach(function(kv){
+      var line=ele("div","special-field");
+      line.appendChild(ele("span","special-field-label",kv[0]));
+      line.appendChild(ele("span","special-field-value",kv[1]));
+      details.appendChild(line);
+    });
+    slot.appendChild(details);
+    slot.appendChild(ele("small","special-slot-price",tr("specialPrice","Preis: 1 Unit je Analyse")));
+    var button=ele("button","small-button"),feedback=ele("p","demo-feedback","");
+    feedback.setAttribute("aria-live","polite");button.type="button";
+    if(unlocked){
+      button.textContent=tr("specialAlready","✓ Freigeschaltet · ansehen");
+      button.addEventListener("click",function(){selectArea("meine");drawMine()});
+    }else if(tip&&!expired(tip)){
+      button.textContent=tr("specialUnlock","🔓 Für 1 Unit freischalten");
+      if(state.hasAccess&&!state.unlocksVerified){
+        button.disabled=true;
+        button.textContent=tr("unlockChecking","⏳ Freischaltungen werden geprüft");
+      }
+      button.addEventListener("click",function(){unlockTip(tip,button,feedback)});
+    }else{
+      button.textContent=tr("specialUnavailable","Vorübergehend nicht verfügbar");
+      button.disabled=true;
+    }
+    slot.appendChild(button);slot.appendChild(feedback);slots.appendChild(slot);
+  }
+  c.appendChild(slots);
+  c.appendChild(ele("div","special-note",tr("specialCompensation","Für jeden freigeschalteten Tipp aus dieser Kategorie, der als verloren gewertet wird, erhältst du die dafür bezahlte 1 Unit erstattet.")));
+  var link=ele("a","small-button special-report-link",tr("specialReportLink","Mehr zur Spezialkategorie im NewsRadar"));
+  link.href="https://betinsight.club/de/newsradar/betinsight-spezial-saisonanalysen/";c.appendChild(link);
+  return c;
+}
+
 function drawNew(){var who=state.provider;var head=who==="Schulung"?tr("newTraining","Neue Schulungstipps"):who==="Testphase"?tr("testing","BetInsight Spezial"):who==="WochenSpezial"?"BetInsight Wochen-Spezial":tr("newFrom","Neue Tipps von {{who}}",{who:who});$("feedTitle").textContent=head;
 var node=$("newFeed");node.replaceChildren();
 if(who==="Testphase"){
