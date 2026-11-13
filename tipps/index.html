@@ -221,6 +221,15 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
 
 .special-slot .small-button{width:100%;min-height:39px;margin-top:auto}
 .special-slot .small-button[disabled]{opacity:.56;cursor:not-allowed;background:#245063;border-color:#315e70}
+.weekly-guarantee-btn{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;min-height:65px!important;padding:10px 12px!important;line-height:1.3;white-space:normal;background:linear-gradient(125deg,#095f56,#0c4861)!important;border-color:#42cba1!important;color:#f4ffff!important}
+.weekly-guarantee-btn .weekly-cta-main{font-weight:850;font-size:13px}
+.weekly-guarantee-btn .weekly-cta-sub{font-weight:750;font-size:11px;color:#b5ffde}
+.weekly-guarantee-btn:focus-visible{outline:2px solid #8ff5de;outline-offset:3px}
+.weekly-guarantee-note{color:#a6cddd!important;font-size:11px;line-height:1.5}
+.weekly-unlocked{border-color:#279d83!important}
+.weekly-unlock-meta{border:1px solid #23566a;border-radius:9px;background:#0b394c;padding:10px 12px;color:#aaf4e2!important;font-size:12px}
+.weekly-unlock-quote{font-weight:800;font-size:15px;color:#8cebcf!important}
+.weekly-unlock-terms{padding:10px 12px;background:#0a3841;border:1px solid #268675;border-radius:9px;font-size:11px;color:#c5f4ec;line-height:1.5}
 .special-slot-price{font-weight:850;color:#9ff0d4!important;font-size:12px!important}
 .special-slot-odds{margin-bottom:8px}
 .special-slot .demo-feedback{font-size:11px;min-height:0;color:#ffe09c}
@@ -521,6 +530,18 @@ function resultCard(r,personal){var s=status(r.ergebnis_status),c=ele("article",
 c.appendChild(ele("h3","",str(r.spiel)||tr("tableGame","Spiel / Tipp")+" "+str(r.tipp_id)));
 var m=ele("p","",tr("tipsterPrefix","Tippgeber: ")+str(r.tippgeber||r.ersteller||"BetInsight")+" · "+str(r.sportart||r.liga||tr("analysisType","Sportanalyse")));c.appendChild(m);
 if(personal){
+ if(weeklySpecial(r)){
+  c.classList.add("weekly-unlocked");
+  var weekMatch=str(r.tipp_id).match(/^BI-WS-\d{4}-(\d{1,2})-/i);
+  var gameTime=[];
+  if(weekMatch)gameTime.push("⚽ "+Number(weekMatch[1])+". Spieltag");
+  if(str(r.spiel_datum))gameTime.push("📅 "+shortDate(r.spiel_datum));
+  if(str(r.anpfiff))gameTime.push("🕒 "+str(r.anpfiff)+" Uhr (DE)");
+  if(gameTime.length)c.appendChild(ele("p","weekly-unlock-meta",gameTime.join("  ·  ")));
+  var odd=numeric(r.quote);
+  if(Number.isFinite(odd)&&odd>1)c.appendChild(ele("p","weekly-unlock-quote","📈 Quote: "+odd.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})));
+  c.appendChild(ele("div","weekly-unlock-terms","🛡 Unit-zurück-Garantie: Bei einem bestätigten Fehltipp wird nach manueller Prüfung einmalig 1 Geschenk-Unit gutgeschrieben. Keine Erstattung des Wetteinsatzes."));
+ }
  c.appendChild(ele("p","",tr("marketPrefix","Markt: ")+str(r.markt||"–")));
  c.appendChild(ele("p","",tr("selectionPrefix","Auswahl: ")+str(r.tipp||"–")));
  if(r.analyse)c.appendChild(ele("p","full-analysis",tr("analysisPrefix","Analyse: ")+str(r.analyse)));
@@ -634,7 +655,15 @@ async function unlockTip(tip,button,feedback){
   try{await fetch("https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-profile-resync?token="+encodeURIComponent(access),{method:"GET",cache:"no-store",credentials:"omit"})}catch(_){}
   load(true);
  }catch(error){feedback.textContent=tr("unlockError","Freischaltung konnte nicht bestätigt werden. Bitte versuche es erneut oder kontaktiere den Support.");console.warn("BetInsight tip unlock error",String(error).slice(0,100))}
- finally{button.disabled=false;button.textContent=tr("unlockAction","🔓 Tipp für {{price}} freischalten",{price:str(tip.preis_units)+" "+(numeric(tip.preis_units)===1?"Unit":"Units")})}
+ finally{
+  button.disabled=false;
+  if(weeklySpecial(tip)){
+    button.classList.add("weekly-guarantee-btn");
+    weeklyButtonLabel(button);
+  }else{
+    button.textContent=tr("unlockAction","🔓 Tipp für {{price}} freischalten",{price:str(tip.preis_units)+" "+(numeric(tip.preis_units)===1?"Unit":"Units")});
+  }
+ }
 }
 function expired(r){
   const flag=str(r.expired).toLowerCase();
@@ -728,6 +757,12 @@ function specialPreviewCard(){
   return c;
 }
 
+function weeklyButtonLabel(button){
+  button.replaceChildren(
+    ele("span","weekly-cta-main","🔓 Für 1 Unit freischalten"),
+    ele("span","weekly-cta-sub","🛡 Unit-zurück-Garantie")
+  );
+}
 function weeklyPreviewCard(){
   // Keine Strategie- oder Tippdaten im Frontend hinterlegen.
   // Alle Freischaltungen bleiben bis zur separaten Garantie-/Ledger-Abnahme gesperrt.
@@ -774,13 +809,16 @@ function weeklyPreviewCard(){
       b.textContent="✓ Freigeschaltet · ansehen";
       b.addEventListener("click",function(){selectArea("meine");drawMine()});
     }else{
-      b.textContent="🔓 Für 1 Unit freischalten";
+      b.classList.add("weekly-guarantee-btn");
+      weeklyButtonLabel(b);
       if(state.hasAccess&&!state.unlocksVerified){
         b.disabled=true;b.textContent="⏳ Freischaltungen werden geprüft";
       }
       b.addEventListener("click",function(){unlockTip(t,b,feedback)});
     }
-    slot.appendChild(b);slot.appendChild(feedback);
+    slot.appendChild(b);
+    slot.appendChild(ele("small","weekly-guarantee-note","Bei bestätigtem Fehltipp: einmalig 1 Ersatz-Geschenk-Unit nach manueller Prüfung. Kein Ausgleich für Wettverluste."));
+    slot.appendChild(feedback);
     list.appendChild(slot);
   });
   if(tips.length)c.appendChild(list);
