@@ -906,18 +906,33 @@ async function requestCompleteResults(){
  return data;
 }
 var lastNetworkRefreshAt=0;
+async function requestWeeklySpecial(){
+ var url="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-weekly-public?t="+Date.now();
+ var response=await fetch(url,{method:"GET",cache:"no-store",credentials:"omit"});
+ if(!response.ok)throw Error("WEEKLY_PUBLIC_UNAVAILABLE");
+ var rows=await response.json();
+ if(!Array.isArray(rows))throw Error("WEEKLY_PUBLIC_INVALID");
+ return rows.filter(function(r){
+  return weeklySpecial(r)&&numeric(r.preis_units)===1&&numeric(r.quote_exakt)>1;
+ });
+}
 async function load(force){if(state.loading||(!force&&Date.now()-lastNetworkRefreshAt<25000))return;lastNetworkRefreshAt=Date.now();state.loading=true;$("reload").disabled=true;$("dataInfo").textContent=tr("liveFetching","Aktuelle Tipps und Ergebnisse werden abgefragt …");
 var t=token();state.hasAccess=!!t;state.privateError="";
 var req=[requestCompleteResults(),request("list")];if(t)req.push(request("unlocked",t));
+var weeklyRequestIndex=req.length;req.push(requestWeeklySpecial());
 var out=await Promise.allSettled(req);if(out[0].status==="fulfilled"){
  state.results=out[0].value.results;state.resultsLoaded=true;
  state.performanceResults=out[0].value.records;state.performanceLoaded=true;
 }else if(!state.resultsLoaded){state.results=[];state.performanceResults=[];state.performanceLoaded=false}
-if(out[1].status==="fulfilled"){state.tips=out[1].value;state.tipsLoaded=true}
+if(out[1].status==="fulfilled"){
+ state.tips=out[1].value.filter(function(r){return !weeklySpecial(r)});
+ if(out[weeklyRequestIndex].status==="fulfilled")state.tips=state.tips.concat(out[weeklyRequestIndex].value);
+ state.tipsLoaded=true;
+}
 if(t&&out[2]?.status==="fulfilled"){var confirmed=out[2].value;var confirmedIds=new Set(confirmed.map(function(r){return str(r.tipp_id)}));state.unlocked=confirmed.concat(state.unlocked.filter(function(r){return state.recentUnlocks.has(str(r.tipp_id))&&!confirmedIds.has(str(r.tipp_id))}));state.unlocksVerified=true}
 else if(t&&out[2]?.status==="rejected"){state.unlocksVerified=false;state.privateError=tr("unlockListError","Die persönlichen Freischaltungen konnten nicht geladen werden. Bitte erneut versuchen.")}
 else if(!t){state.unlocked=[];state.recentUnlocks.clear();state.unlocksVerified=false}
-var ok=out[0].status==="fulfilled"&&out[1].status==="fulfilled";
+var ok=out[0].status==="fulfilled"&&out[1].status==="fulfilled"&&out[weeklyRequestIndex].status==="fulfilled";
 $("dataInfo").textContent=ok?tr("liveInfo","Live-Daten · {{count}} veröffentlichte Ergebnisse · aktualisiert {{time}}",{count:state.results.length,time:new Date().toLocaleTimeString(currentLocale(),{hour:"2-digit",minute:"2-digit"})}):tr("livePartial","Teilweise nicht erreichbar")+" · "+(state.resultsLoaded?tr("liveLast","Letzter Datenstand wird gezeigt"):tr("liveRetry","Bitte später erneut laden"));
 state.loading=false;$("reload").disabled=false;rerender();
 if(t&&window.BetInsightTipViewCache){
