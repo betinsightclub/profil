@@ -32,10 +32,31 @@ test('all language files keep protected details hidden',()=>{
 
 test('Spezial refund display is one sentence and contains no internal accounting explanations',()=>{
   assert.match(special,/Für jeden freigeschalteten Tipp aus dieser Kategorie, der als verloren gewertet wird, erhältst du die dafür bezahlte 1 Unit erstattet/);
-  assert.doesNotMatch(special,/specialDisclaimer|specialDeadline|Gift-Unit|Geschenk-Unit|Provisionen|Wetteinsätze|Wettverluste/);
+  assert.doesNotMatch(special,/specialDisclaimer|Gift-Unit|Geschenk-Unit|Provisionen|Wetteinsätze|Wettverluste/);
+  assert.ok(!special.includes('tr("specialDeadline",'),'legacy deadline paragraph must stay removed');
   for(const lang of langs){
     const strings=JSON.parse(fs.readFileSync(path.join(root,'assets/i18n/pages/tips',lang+'.json'),'utf8')).tipsCenter;
     assert.ok(strings.specialCompensation.includes('1 Unit'),lang+': refund quantity');
     assert.equal(strings.specialCompensation.match(/[.!?。]/g)?.length||0,1,lang+': exactly one sentence');
+  }
+});
+
+test('Spezial tile shows standard non-secret sports and season metadata',()=>{
+  for(const key of ['sport','betType','league','tipsterField','specialSeasonLabel','specialDeadlineLabel','specialSettlementLabel','oddsRange','market','fixture','selection']){
+    assert.ok(special.includes('tr("'+key+'"'),key+': preview field is present');
+  }
+  for(const field of ['spiel','markt','tipp','quote','liga']){
+    assert.doesNotMatch(special,new RegExp('tip[.]'+field+'(?![A-Za-z_])'),'secret tip field '+field+' must never be read in pre-unlock tile');
+  }
+  assert.ok(special.includes('shortDate(tip.spiel_datum)'),'display documented deadline without leaking the match');
+  assert.match(special,/specialLockedValue/);
+  assert.match(special,/specialOddsUnverified/);
+  assert.ok(!special.includes('tr("kickoff"'),'season deadline must not be mislabelled as kickoff');
+  for(const lang of langs){
+    const strings=JSON.parse(fs.readFileSync(path.join(root,'assets/i18n/pages/tips',lang+'.json'),'utf8')).tipsCenter;
+    for(const key of ['specialLockedValue','specialBetKind','specialTipster','specialSeasonLabel','specialDeadlineLabel','specialGermanTime','specialSettlementLabel','specialSettlementValue','specialOddsUnverified','specialDeadlineFallback']){
+      assert.ok(strings[key],lang+': '+key+' available');
+      assert.doesNotMatch(strings[key],privateHints,lang+': '+key+' remains non-secret');
+    }
   }
 });

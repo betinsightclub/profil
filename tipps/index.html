@@ -213,6 +213,11 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
 @media(max-width:750px){.special-slots{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:420px){.special-slots{grid-template-columns:1fr}}
 
+.special-fields{display:flex;flex-direction:column;margin:7px 0 10px;background:#061f2d;border:1px solid #265366;border-radius:10px;padding:3px 9px;width:100%}
+.special-field{display:flex;flex-direction:column;gap:1px;padding:6px 0;border-bottom:1px solid #204658}
+.special-field:last-child{border-bottom:0}
+.special-field-label{color:#9abed1;font-size:10px;line-height:1.3}
+.special-field-value{color:#ecfaff;font-weight:750;font-size:11px;line-height:1.4;overflow-wrap:anywhere}
 .special-slot .small-button{width:100%;min-height:39px;margin-top:auto}
 .special-slot .small-button[disabled]{opacity:.56;cursor:not-allowed;background:#245063;border-color:#315e70}
 .special-slot-price{font-weight:850;color:#9ff0d4!important;font-size:12px!important}
@@ -693,7 +698,32 @@ function specialPreviewCard(){
     var slot=ele("div","special-slot");slot.dataset.specialTip=id;
     slot.appendChild(ele("span","special-slot-no",tr("specialSlotLabel","SPEZIAL")+" "+num));
     slot.appendChild(ele("strong","",tr("specialConfidential","🔒 Details geschützt")));
-    slot.appendChild(ele("small","",tr("specialBetMarket","Wettbewerb, Prognose und Auswahl erst nach Freischaltung sichtbar")));
+    // Gewohnte Tipp-Vorschau: nur allgemeine Spiel-/Saisondaten offenlegen.
+    // Keine konkreten Mannschaften, Liga, Spiele, Wettmärkte oder Auswahlen verraten.
+    var locked=tr("specialLockedValue","🔒 Nach Freischaltung");
+    var deadline=tip?shortDate(tip.spiel_datum):tr("specialDeadlineFallback","21.05.2027");
+    var deadlineTime=tip?str(tip.anpfiff||"23:59"):"23:59";
+    var rows=[
+      [tr("sport","⚽ Sport"),tr("football","Fußball")],
+      [tr("betType","🎟️ Wettart"),tr("specialBetKind","Einzelwette · Saisonwette")],
+      [tr("league","🏟️ Liga"),locked],
+      [tr("tipsterField","👤 Tippgeber"),tr("specialTipster","BetInsight Spezial")],
+      [tr("specialSeasonLabel","📅 Saison"),"2026/27"],
+      [tr("specialDeadlineLabel","🕒 Freischaltfrist"),deadline+" · "+deadlineTime+" "+tr("specialGermanTime","(DE)")],
+      [tr("specialSettlementLabel","📋 Auswertung"),tr("specialSettlementValue","Nach offiziellem Saisonende")],
+      [tr("oddsRange","📊 Quotenbereich"),tr("specialOddsUnverified","Keine bestätigte Quote")],
+      [tr("market","🎯 Markt"),locked],
+      [tr("fixture","⚔️ Begegnung"),locked],
+      [tr("selection","✅ Auswahl"),locked]
+    ];
+    var details=ele("div","special-fields");
+    rows.forEach(function(kv){
+      var line=ele("div","special-field");
+      line.appendChild(ele("span","special-field-label",kv[0]));
+      line.appendChild(ele("span","special-field-value",kv[1]));
+      details.appendChild(line);
+    });
+    slot.appendChild(details);
     slot.appendChild(ele("small","special-slot-price",tr("specialPrice","Preis: 1 Unit je Analyse")));
     var button=ele("button","small-button"),feedback=ele("p","demo-feedback","");
     feedback.setAttribute("aria-live","polite");button.type="button";
