@@ -39,3 +39,23 @@ test('Spezial refund display is one sentence and contains no internal accounting
     assert.equal(strings.specialCompensation.match(/[.!?。]/g)?.length||0,1,lang+': exactly one sentence');
   }
 });
+
+test('Spezial tile shows standard non-secret sports and season metadata',()=>{
+  for(const key of ['sport','betType','league','tipsterField','specialSeasonLabel','specialDeadlineLabel','specialSettlementLabel','oddsRange','market','fixture','selection']){
+    assert.ok(special.includes('tr("'+key+'"'),key+': preview field is present');
+  }
+  for(const field of ['spiel','markt','tipp','quote','liga']){
+    assert.doesNotMatch(special,new RegExp('tip\\\\.'+field+'\\\\b'),'secret tip field must never be used in pre-unlock tile');
+  }
+  assert.match(special,/shortDate\\(tip\\.spiel_datum\\)/);
+  assert.match(special,/specialLockedValue/);
+  assert.match(special,/specialOddsUnverified/);
+  assert.doesNotMatch(special,/tr\\("kickoff"/,'season deadline must not be mislabelled as kickoff');
+  for(const lang of langs){
+    const strings=JSON.parse(fs.readFileSync(path.join(root,'assets/i18n/pages/tips',lang+'.json'),'utf8')).tipsCenter;
+    for(const key of ['specialLockedValue','specialBetKind','specialTipster','specialSeasonLabel','specialDeadlineLabel','specialGermanTime','specialSettlementLabel','specialSettlementValue','specialOddsUnverified','specialDeadlineFallback']){
+      assert.ok(strings[key],lang+': '+key+' available');
+      assert.doesNotMatch(strings[key],privateHints,lang+': '+key+' remains non-secret');
+    }
+  }
+});
