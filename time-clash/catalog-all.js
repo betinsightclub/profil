@@ -4,20 +4,16 @@ window.TC_CLUB_CATALOG={"Deutschland · Bundesliga-Meister":["1. FC Köln 1963/6
 window.TC_GROUP_LABELS={"de":{"Niederlande · Eredivisie":"Niederlande · Eredivisie","Belgien · Pro League":"Belgien · Pro League","Österreich · Bundesliga":"Österreich · Bundesliga","Schweiz · Super League":"Schweiz · Super League","Türkei · Süper Lig":"Türkei · Süper Lig","Schottland · Scottish Premiership":"Schottland · Scottish Premiership","Mexiko · Liga MX":"Mexiko · Liga MX","Ägypten · Egyptian Premier League":"Ägypten · Premier League","Südafrika · Meister":"Südafrika · Meister","Marokko · Meister":"Marokko · Meister"},"en":{"Niederlande · Eredivisie":"Netherlands · Eredivisie","Belgien · Pro League":"Belgium · Pro League","Österreich · Bundesliga":"Austria · Bundesliga","Schweiz · Super League":"Switzerland · Super League","Türkei · Süper Lig":"Türkiye · Süper Lig","Schottland · Scottish Premiership":"Scotland · Scottish Premiership","Mexiko · Liga MX":"Mexico · Liga MX","Ägypten · Egyptian Premier League":"Egypt · Premier League","Südafrika · Meister":"South Africa · Champions","Marokko · Meister":"Morocco · Champions"},"es":{"Niederlande · Eredivisie":"Países Bajos · Eredivisie","Belgien · Pro League":"Bélgica · Pro League","Österreich · Bundesliga":"Austria · Bundesliga","Schweiz · Super League":"Suiza · Super League","Türkei · Süper Lig":"Turquía · Süper Lig","Schottland · Scottish Premiership":"Escocia · Scottish Premiership","Mexiko · Liga MX":"México · Liga MX","Ägypten · Egyptian Premier League":"Egipto · Premier League","Südafrika · Meister":"Sudáfrica · Campeones","Marokko · Meister":"Marruecos · Campeones"},"fr":{"Niederlande · Eredivisie":"Pays-Bas · Eredivisie","Belgien · Pro League":"Belgique · Pro League","Österreich · Bundesliga":"Autriche · Bundesliga","Schweiz · Super League":"Suisse · Super League","Türkei · Süper Lig":"Turquie · Süper Lig","Schottland · Scottish Premiership":"Écosse · Scottish Premiership","Mexiko · Liga MX":"Mexique · Liga MX","Ägypten · Egyptian Premier League":"Égypte · Premier League","Südafrika · Meister":"Afrique du Sud · Champions","Marokko · Meister":"Maroc · Champions"},"it":{"Niederlande · Eredivisie":"Paesi Bassi · Eredivisie","Belgien · Pro League":"Belgio · Pro League","Österreich · Bundesliga":"Austria · Bundesliga","Schweiz · Super League":"Svizzera · Super League","Türkei · Süper Lig":"Turchia · Süper Lig","Schottland · Scottish Premiership":"Scozia · Scottish Premiership","Mexiko · Liga MX":"Messico · Liga MX","Ägypten · Egyptian Premier League":"Egitto · Premier League","Südafrika · Meister":"Sudafrica · Campioni","Marokko · Meister":"Marocco · Campioni"},"pt":{"Niederlande · Eredivisie":"Países Baixos · Eredivisie","Belgien · Pro League":"Bélgica · Pro League","Österreich · Bundesliga":"Áustria · Bundesliga","Schweiz · Super League":"Suíça · Super League","Türkei · Süper Lig":"Turquia · Süper Lig","Schottland · Scottish Premiership":"Escócia · Scottish Premiership","Mexiko · Liga MX":"México · Liga MX","Ägypten · Egyptian Premier League":"Egito · Premier League","Südafrika · Meister":"África do Sul · Campeões","Marokko · Meister":"Marrocos · Campeões"}};
 
 /* tc-public-roster-bridge-v1 */
-document.write('<script src="/time-clash/rosters-all.js"><\/script>');
+// The master roster is loaded once by index.html, before the historical patches.
 window.addEventListener("DOMContentLoaded",function(){
  try{
   if(typeof catalog!=="undefined"&&window.TC_CLUB_CATALOG){
    for(const [group,entries] of Object.entries(window.TC_CLUB_CATALOG)) catalog.club[group]=Array.isArray(entries)?entries.slice():[];
   }
   if(typeof rosterDB!=="undefined"&&window.TC_ROSTER_DB){
-   for(const [teamKey,players] of Object.entries(window.TC_ROSTER_DB)) rosterDB[teamKey]=Array.isArray(players)?players:[];
+   for(const [teamKey,players] of Object.entries(window.TC_ROSTER_DB)) rosterDB[teamKey]=Array.isArray(players)?players.filter(p=>!p.reconstructed&&!/^tc-reconstruction-/i.test(String(p.id||""))&&!/^Rekonstruktion\b/i.test(String(p.name||""))):[];
   }
-  if(typeof rosterReady==="function"){
-   rosterReady=function(side){
-    return activeRoster(side).length>=11;
-   };
-  }
+  // Never override the central real-roster eligibility check.
   if(typeof player==="function"){
    player=function(side){
     const r=activeRoster(side);
