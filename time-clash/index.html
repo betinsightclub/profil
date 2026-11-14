@@ -1162,6 +1162,12 @@ function startingLineup(side){
  if(explicit.length>=8){
    let ids=new Set(explicit.map(p=>p.id)),starters=explicit.slice();
    if(starters.length<11){for(const p of all.filter(p=>!p.starter)){if(starters.length>=11)break;if(!ids.has(p.id)){starters.push({...p,promoted:true});ids.add(p.id)}}}
+   // Retain a real goalkeeper even if the archived starter order omitted him.
+   const internal=["myclub","community"].includes(side==="A"?kindAActive:kindBActive);
+   if(!internal&&!starters.some(p=>p.prole==="Torwart")){
+     const keeper=all.filter(p=>p.prole==="Torwart"&&!ids.has(p.id)).sort((a,b)=>b.strength-a.strength)[0];
+     if(keeper){if(starters.length>=11)starters.pop();starters.unshift({...keeper,promoted:true})}
+   }
    return starters;
  }
  // Full season squads without a verified reference XI must never become "first 11 in file".
