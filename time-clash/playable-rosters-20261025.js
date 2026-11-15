@@ -1092,7 +1092,28 @@
     "note": "Al Bayane explicitly credits Zaki with the 1978 championship and WAC History dates his arrival to 1977. Other biographies date the move to 1978; exact transfer date and reference match XI not established."
   }
 ];
- for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10]){
+ // Batch 11: evidence from documented career intervals and role records.
+ const batch11=[
+  {
+    "key": "FAR Rabat 1983/84",
+    "mode": "selection",
+    "coach": "José Faria",
+    "sources": [
+      "https://dimasbaa.com/en/club/far-rabat",
+      "https://www.national-football-teams.com/club/1665/1984/Far_Rabat.html",
+      "https://www.transfermarkt.com/far-rabat/startseite/verein/9099/saison_id/1983",
+      "https://sport.le360.ma/football/botola/as-far-de-club-militaire-a-icone-du-football-populaire-a-rabat_4PQ5ON4NSRHE3BYDVAWUEKWQQM/"
+    ],
+    "groups": [
+      "Salahdine Hmied",
+      "Abdelmajid Lamriss;Saad Dahhane;Ahmed Ermouki;Lahcen Ouadani",
+      "Hammou Fadili;Mohamed Timoumi;Mohamed El Ouardi;Abdallah Haidamou",
+      "Abderrazak Khairi;Abdeslam Laghrissi"
+    ],
+    "note": "Season selection based on career intervals covering 1983/84, goalkeeper arrival in transfer archive and corroborating subsequent season position data. No original match XI or complete season squad claimed."
+  }
+];
+ for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10,...batch11]){
   const known=Array.isArray(db[t.key])?db[t.key]:[];
   const next=t.mode==="augment"?new Map(known.filter(p=>!p.reconstructed).map(p=>[p.id,{...p,starter:false}])):new Map();
   for(let i=0;i<t.groups.length;i++)for(const raw of t.groups[i].split(";").filter(Boolean)){
