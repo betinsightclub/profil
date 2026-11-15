@@ -720,7 +720,99 @@
     ]
   }
 ];
- for(const t of batch5){
+ const batch6=[
+  {
+    "key": "Hassania US Agadir 2001/02",
+    "coach": "M'hamed Fakhir",
+    "mode": "match",
+    "date": "2002-06-09",
+    "sources": [
+      "https://lematin.ma/journal/2002/CODM---HUSA--le-Hassania-deguste-son-premier-bonheur/17717.html",
+      "https://lematin.ma/journal/2002/Le-premier-sacre-du-Hassania-d-Agadir/17699.html",
+      "https://lematin.ma/journal/2002/Le-Hassania-confirme-sa-bonne-forme/14165.html",
+      "https://lematin.ma/journal/2002/GNF-I-un-Hassania--flamboyant/12365.html"
+    ],
+    "groups": [
+      "*Benchtioui",
+      "*Mustapha Ouchrif;*Tarik Miri",
+      "",
+      "*Hamou Mouhal",
+      "*Sylla;*Darouich;*Dalal;*Allouli;*Zaza;*Abdellatif Agja;*Cornéa;Oulhaj;Hassan Ouchrif;Fatihi"
+    ]
+  },
+  {
+    "key": "Hassania US Agadir 2002/03",
+    "coach": "M'hamed Fakhir",
+    "mode": "match",
+    "sources": [
+      "https://lematin.ma/journal/2003/GNF-I--le-Hassania-champion-d-automne/25247.html",
+      "https://lematin.ma/journal/2002/Raja---HUSA--les-Verts-respirent-mieux/23721.html",
+      "https://www.national-football-teams.com/club/4708/2002/Hassania_Us_Agadir.html",
+      "https://lematin.ma/journal/2003/HUSA-IZK--Khemisset-accroche-Agadir/26247.html"
+    ],
+    "groups": [
+      "*Benchtioui",
+      "*Mustapha Ouchrif;*Tarik Miri;*Abdellatif Agja",
+      "",
+      "*Hamou Mouhal",
+      "*Dalal;*Sylla;*Hassan Ouchrif;*Khalid Chakour;*Hassaini;*Aboulmaghar;Boubou;Mounir Jawad;Allouli"
+    ]
+  },
+  {
+    "key": "FAR Rabat 2004/05",
+    "mode": "selection",
+    "sources": [
+      "https://www.transfermarkt.com/as-far-rabat/kader/verein/9099/saison_id/2004",
+      "https://ssfaonline.com/leagues/botola-pro-1/season/2004-05/",
+      "https://national-football-teams.com/club/1665/2003/Far_Rabat.html"
+    ],
+    "groups": [
+      "Tarik El Jarmouni;Khalid Askri",
+      "Ali Bouabé;Noureddine Boubou;Mohamed Fadli;El Houssaine Ouchla;Omar Bendriss;Hassan El Mouataz;Faouzi El Brazi",
+      "Ahmed Ajeddou;Abdel El Bouzidi",
+      "Mohamed Armoumen;Hakim Ajraoui;Jawad Ouaddouch;Youssef Kaddioui",
+      "Brahim El Bahri;Mohamed Kharbouch;Adil Serraj"
+    ]
+  },
+  {
+    "key": "Olympique Khouribga 2006/07",
+    "coach": "Mustapha Madih",
+    "mode": "match",
+    "sources": [
+      "https://lematin.ma/journal/2006/OCK-a-euro--MAS--1a-euro-0-_L-OCK-MAS-une-rencontre-musclee/71852.html",
+      "https://www.national-football-teams.com/club/1668/2006/Olympique_Khouribga.html",
+      "https://www.transfermarkt.fr/olympique-khouribga/startseite/verein/18702/saison_id/2006"
+    ],
+    "groups": [
+      "*Abderrafi Gassi",
+      "*Hicham Mahdoufi;*Hassan Bouizgar;*Tarik Miri;Adil Bekkari",
+      "*Ibrahim Bezghoudi;Amara Karba Bangoura",
+      "*Jamal Triki",
+      "*Fellah;*Amzil;*Baqlal;*Ouarrad;*Largou;Ouganna"
+    ]
+  },
+  {
+    "key": "Cape Town Spurs 1995",
+    "coach": "Mich d'Avray",
+    "mode": "selection",
+    "sources": [
+      "https://www.national-football-teams.com/club/3904/1995_2/Cape_Town_Spurs.html",
+      "https://www.timeslive.co.za/sunday-times-daily/sport/2023-09-20-sazi-hadebe--time-is-running-out-for-spurs-to-beef-up-their-squad/",
+      "https://www.businessday.co.za/bd/sport/soccer/2023-06-20-mogamad-allie-memories-of-the-heyday-of-cape-town-spurs/",
+      "https://iol.co.za/capeargus/sport/2002-04-03-pirates-have-experience-santos-have-igesund/",
+      "https://www.rsssf.org/tablesz/zaf95.html",
+      "https://en.wikipedia.org/wiki/1995_NSL_First_Division"
+    ],
+    "groups": [
+      "André Arendse",
+      "David Kannemeyer;David Nyathi;Francis Shonhayi;Edries Burton",
+      "David Modise",
+      "Shaun Bartlett",
+      "Ronnie Zondi;Roger Lupiya;Mike Mhlanga;Craig Rosslee"
+    ]
+  }
+];
+ for(const t of [...batch5,...batch6]){
   const known=Array.isArray(db[t.key])?db[t.key]:[];
   const next=t.mode==="augment"?new Map(known.filter(p=>!p.reconstructed).map(p=>[p.id,{...p,starter:false}])):new Map();
   for(let i=0;i<t.groups.length;i++)for(const raw of t.groups[i].split(";").filter(Boolean)){
@@ -730,7 +822,7 @@
   }
   const players=[...next.values()].map((p,i)=>({...p,squadIndex:i}));
   const xi=players.filter(p=>p.starter);
-  if(players.length<11||new Set(players.map(p=>p.id)).size!==players.length||!players.some(p=>p.pos==="TW")||(t.mode==="match"&&(xi.length!==11||!xi.some(p=>p.pos==="TW"))))throw new Error("Invalid batch5 roster "+t.key);
+  if(players.length<11||new Set(players.map(p=>p.id)).size!==players.length||!players.some(p=>p.pos==="TW")||(t.mode==="match"&&(xi.length!==11||!xi.some(p=>p.pos==="TW"))))throw new Error("Invalid historical roster "+t.key);
   db[t.key]=players;
   if(t.coach)coaches[t.key]=t.coach;
   meta[t.key]={...(meta[t.key]||{}),source:t.sources[0],additionalSources:t.sources.slice(1),rosterScope:t.mode==="match"?"DOCUMENTED_MATCH_SELECTION":"HISTORICAL_SEASON_PLAYER_SELECTION",matchDate:t.date||undefined,rosterCompleteness:"NOT_EXHAUSTIVE",lineupPolicy:t.mode==="match"?"DOCUMENTED_XI":"SIMULATION_SELECTED_XI",strengthPolicy:"SIMULATION_ESTIMATE"};
