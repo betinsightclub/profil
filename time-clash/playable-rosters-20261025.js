@@ -195,6 +195,168 @@
    meta[key]={...(meta[original]||{}),rosterScope:"SAME_CLUB_TITLE_SEASON",rosterKey:original};
   }
  }
+ // 2026-11-15: sourced 2026 tournament squads and historical final match squads.
+ const batch3WorldCup=[
+  [
+    "USA 2026",
+    "Mauricio Pochettino",
+    "Chris Brady;Matt Freese;Matt Turner",
+    "Max Arfsten;Sergiño Dest;Alex Freeman;Mark McKenzie;Tim Ream;Chris Richards;Antonee Robinson;Miles Robinson;Joe Scally;Auston Trusty",
+    "Tyler Adams;Sebastian Berhalter;Weston McKennie;Gio Reyna;Cristian Roldan;Malik Tillman",
+    "Brenden Aaronson;Folarin Balogun;Ricardo Pepi;Christian Pulisic;Timothy Weah;Haji Wright;Alejandro Zendejas"
+  ],
+  [
+    "Mexiko 2026",
+    "Javier Aguirre",
+    "Carlos Acevedo;Guillermo Ochoa;Raúl Rangel",
+    "Mateo Chávez;Jesús Gallardo;César Montes;Israel Reyes;Jorge Sánchez;Johan Vásquez",
+    "Edson Álvarez;Luis Chávez;Álvaro Fidalgo;Brian Gutiérrez;César Huerta;Erik Lira;Gilberto Mora;Orbelín Pineda;Luis Romo;Obed Vargas",
+    "Roberto Alvarado;Santiago Giménez;Armando González;Raúl Jiménez;Guillermo Martínez;Julián Quiñones;Alexis Vega"
+  ],
+  [
+    "Kanada 2026",
+    "Jesse Marsch",
+    "Maxime Crépeau;Owen Goodman;Dayne St. Clair",
+    "Moïse Bombito;Derek Cornelius;Alphonso Davies;Luc de Fougerolles;Alistair Johnston;Alfie Jones;Richie Laryea;Niko Sigur;Joel Waterman",
+    "Ali Ahmed;Tajon Buchanan;Mathieu Choinière;Stephen Eustáquio;Ismaël Koné;Liam Millar;Jayden Nelson;Jonathan Osorio;Nathan Saliba;Jacob Shaffelburg",
+    "Jonathan David;Promise David;Cyle Larin;Tani Oluwaseyi"
+  ],
+  [
+    "Japan 2026",
+    "Hajime Moriyasu",
+    "Tomoki Hayakawa;Keisuke Osako;Zion Suzuki",
+    "Kou Itakura;Hiroki Ito;Yuto Nagatomo;Ayumu Seko;Yukinari Sugawara;Junnosuke Suzuki;Shogo Taniguchi;Takehiro Tomiyasu;Tsuyoshi Watanabe",
+    "Ritsu Doan;Junya Ito;Daichi Kamada;Takefusa Kubo;Shuto Machino;Keito Nakamura;Kaishu Sano;Ao Tanaka",
+    "Keisuke Goto;Daizen Maeda;Koki Ogawa;Kento Shiogai;Yuito Suzuki;Ayase Ueda"
+  ],
+  [
+    "Südkorea 2026",
+    "Hong Myung-bo",
+    "Jo Hyeon-Woo;Kim Seung-Gyu;Song Bum-Keun",
+    "Cho Yu-Min;Jens Castrop;Kim Min-Jae;Kim Moon-Hwan;Kim Tae-Hyeon;Lee Han-Beom;Lee Ki-Hyuk;Lee Tae-Seok;Park Jin-Seob;Seol Young-Woo",
+    "Bae Jun-Ho;Eom Ji-Sung;Hwang Hee-Chan;Hwang In-Beom;Kim Jin-Gyu;Lee Dong-Gyeong;Lee Jae-Sung;Lee Kang-In;Paik Seung-Ho;Yang Hyun-Jun",
+    "Cho Gue-Sung;Oh Hyeon-Gyu;Son Heung-Min"
+  ],
+  [
+    "Australien 2026",
+    "Tony Popovic",
+    "Patrick Beach;Paul Izzo;Mathew Ryan",
+    "Aziz Behich;Jordan Bos;Cameron Burgess;Alessandro Circati;Milos Degenek;Jason Geria;Lucas Herrington;Jacob Italiano;Harry Souttar;Kai Trewin",
+    "Cameron Devlin;Ajdin Hrustić;Jackson Irvine;Connor Metcalfe;Paul Okon-Englster;Aiden O'Neill",
+    "Nestory Irankunda;Mathew Leckie;Awer Mabil;Mohamed Touré;Nishan Velupilly;Cristian Volpato;Tete Yengi"
+  ],
+  [
+    "Katar 2026",
+    "Julen Lopetegui",
+    "Mahmoud Abunada;Meshaal Barsham;Salah Zakaria",
+    "Ayoub Alawi;Homam Al-Amin;Sultan Al-Brake;Hashmi Hussein;Boualem Khoukhi;Issa Laaye;Lucas Mendes;Pedro Miguel",
+    "Mohammed Al-Manai;Karim Boudiaf;Ahmed Fathi;Abdulaziz Hatem;Jassem Jaber;Assim Madibo",
+    "Youssef Abdulrazzaq;Akram Afif;Ahmed Alaa;Hassan Al-Haydos;Almoez Ali;Ahmed Al-Janahi;Edmilson Junior;Tahseen Mohammed;Mohammed Muntari"
+  ],
+  [
+    "Saudi-Arabien 2026",
+    "Georgios Donis",
+    "Nawaf Al-Aqidi;Mohamed Al-Owais;Ahmed Al-Kassar",
+    "Saud Abdulhamid;Mohammed Abu Al Shamat;Abdulelah Al Amri;Moteb Al Harbi;Hassan Al Tambakti;Nawaf Boushal;Hassan Kadesh;Ali Lajami;Ali Majrashi;Jehad Thakri",
+    "Nasser Al Dawsari;Abdullah Al Khaibari;Khalid Al Ghannam;Alaa Al Hejji;Ziyad Al Johani;Musab Al Juwayr;Mohamed Kanno;Sultan Mandash;Ayman Yahya",
+    "Feras Al Brikan;Salem Al Dawsari;Abdullah Al Hamdan;Saleh Al Shehri"
+  ]
+];
+ const batch3Match=[
+  [
+    "AC Milan 2007",
+    "Carlo Ancelotti",
+    "https://de.uefa.com/uefachampionsleague/match/300099--milan-vs-liverpool/lineups/",
+    "*Dida;Željko Kalac",
+    "*Massimo Oddo;*Alessandro Nesta;*Paolo Maldini;*Marek Jankulovski;Cafu;Kakha Kaladze;Giuseppe Favalli",
+    "*Gennaro Gattuso;*Andrea Pirlo;*Massimo Ambrosini;*Clarence Seedorf;*Kaká;Serginho;Cristian Brocchi",
+    "*Filippo Inzaghi;Alberto Gilardino"
+  ],
+  [
+    "Liverpool 2019",
+    "Jürgen Klopp",
+    "https://datencenter.dfb.de/en/data-center/champions-league/2018-2019/final/2273243",
+    "*Alisson Becker;Simon Mignolet;Caoimhín Kelleher",
+    "*Trent Alexander-Arnold;*Joël Matip;*Virgil van Dijk;*Andrew Robertson;Joe Gomez;Alberto Moreno;Dejan Lovren",
+    "*Jordan Henderson;*Fabinho;*Georginio Wijnaldum;Adam Lallana;James Milner;Alex Oxlade-Chamberlain;Xherdan Shaqiri",
+    "*Mohamed Salah;*Roberto Firmino;*Sadio Mané;Rhian Brewster;Divock Origi;Daniel Sturridge"
+  ],
+  [
+    "Chelsea 2021",
+    "Thomas Tuchel",
+    "https://www.uefa.com/uefachampionsleague/match/2029498--manchester-city-vs-chelsea/events/",
+    "*Édouard Mendy;Kepa Arrizabalaga;Willy Caballero",
+    "*Antonio Rüdiger;*Thiago Silva;*César Azpilicueta;*Reece James;*Ben Chilwell;Marcos Alonso;Andreas Christensen;Kurt Zouma;Emerson",
+    "*Jorginho;*N'Golo Kanté;*Mason Mount;*Kai Havertz;Mateo Kovačić;Billy Gilmour",
+    "*Timo Werner;Christian Pulisic;Olivier Giroud;Callum Hudson-Odoi;Hakim Ziyech"
+  ],
+  [
+    "Juventus 1996",
+    "Marcello Lippi",
+    "https://de.uefa.com/uefachampionsleague/match/52534--ajax-vs-juventus/lineups/",
+    "*Angelo Peruzzi;Michelangelo Rampulla",
+    "*Ciro Ferrara;*Gianluca Pessotto;*Moreno Torricelli;*Pietro Vierchowod;Sergio Porrini",
+    "*Paulo Sousa;*Didier Deschamps;*Antonio Conte;Vladimir Jugović;Angelo Di Livio",
+    "*Gianluca Vialli;*Alessandro Del Piero;*Fabrizio Ravanelli;Michele Padovano"
+  ],
+  [
+    "Benfica 1962",
+    "Béla Guttmann",
+    "https://www.uefa.com/uefachampionsleague/match/61650/",
+    "*Costa Pereira",
+    "*João;*Germano;*Ângelo Martins;*Fernando Cruz",
+    "*Domiciano Cavém;*Mário Coluna",
+    "*José Augusto;*Eusébio;*José Águas;*António Simões"
+  ],
+  [
+    "Nottingham Forest 1980",
+    "Brian Clough",
+    "https://de.uefa.com/uefachampionsleague/match/63642--nott-m-forest-vs-hamburg/events/",
+    "*Peter Shilton",
+    "*Viv Anderson;*Frank Gray;*Larry Lloyd;*Kenny Burns;Bryn Gunn",
+    "*John McGovern;*Martin O'Neill;*Ian Bowyer;*Gary Mills",
+    "*Garry Birtles;*John Robertson;John O'Hare"
+  ],
+  [
+    "Borussia Dortmund 1997",
+    "Ottmar Hitzfeld",
+    "https://www.uefa.com/uefachampionsleague/news/025a-0ea6c6ce87b6-6b4d11a8ce74-1000--dortmund-v-juventus-background/",
+    "*Stefan Klos",
+    "*Jürgen Kohler;*Martin Kree;*Matthias Sammer;*Stefan Reuter;*Jörg Heinrich",
+    "*Paul Lambert;*Andreas Möller;*Paulo Sousa;Michael Zorc;Lars Ricken",
+    "*Stéphane Chapuisat;*Karl-Heinz Riedle;Heiko Herrlich"
+  ],
+  [
+    "VAE 2026",
+    "Zlatko Dalić",
+    "https://www.skysports.com/football/u-a-e-vs-honduras/teams/579046",
+    "*Khalid Eisa;Hamad Al Meqbaali;Fahad Al Dhanhani",
+    "*Marcus Meloni;*Alaeddine Zouhir;*Khalifa Al Hammadi;*Ruben Amaral;Khalid Al Dhanhani;Saša Ivković;Yousef Al Mazrouei;Kouame Autonne",
+    "*Mamadou Coulibaly;*Isam Faiz;*Luan Pereira;*Ali Saleh;Nicolás Giménez;Abdullah Hamad;Richard Akonnor;Zayed Al Zaabi;Mohammed Al Mansouri;Fábio Lima",
+    "*Ousmane Camara;*Bruno Oliveira;Yahya Al Ghassani;Harib Abdullah;Sultan Adil"
+  ]
+];
+ function addBatch3(key,coach,source,groups,scope,expected){
+   const players=groups.flatMap((group,i)=>group.split(";").filter(Boolean).map(raw=>{
+     const starter=raw.startsWith("*"),name=raw.replace(/^\*/,"");
+     return {id:id(name),name,pos:roles[i],starter,impact:3,squadIndex:0,provenance:"DOCUMENTED_ROSTER"};
+   })).map((p,i)=>({...p,squadIndex:i}));
+   const xi=players.filter(p=>p.starter);
+   if(players.length<11||(expected&&players.length!==expected)||new Set(players.map(p=>p.id)).size!==players.length||!players.some(p=>p.pos==="TW")||(xi.length!==0&&(xi.length!==11||!xi.some(p=>p.pos==="TW"))))throw new Error("Invalid roster "+key);
+   if((db[key]||[]).length<11){
+     db[key]=players;coaches[key]=coach;
+     meta[key]={...(meta[key]||{}),source,rosterScope:scope,lineupPolicy:xi.length?"DOCUMENTED_XI":"SIMULATION_SELECTED_XI",strengthPolicy:"SIMULATION_ESTIMATE"};
+     if(scope==="WORLD_CUP_2026_TOURNAMENT_SQUAD"){meta[key].additionalSource="https://www.fifa.com/en/articles/fifa-world-cup-2026-squads-confirmed";meta[key].coachSource="https://bolavip.com/en/world-cup/2026-world-cup-coaches-all-48-managers-of-the-qualified-national-teams";}
+   }
+ }
+ for(const [key,coach,...groups] of batch3WorldCup)addBatch3(key,coach,"https://www.mlssoccer.com/news/2026-fifa-world-cup-all-squads",groups,"WORLD_CUP_2026_TOURNAMENT_SQUAD",26);
+ for(const [key,coach,src,...groups] of batch3Match)addBatch3(key,coach,src,groups,key==="VAE 2026"?"FRIENDLY_MATCH_SQUAD_2026_11_13":"EUROPEAN_CUP_FINAL_MATCH_SQUAD",0);
+ const psgSeason=db["Paris Saint-Germain 2025/26"];
+ if((db["Paris Saint-Germain 2026"]||[]).length<11&&Array.isArray(psgSeason)&&psgSeason.length>=11){
+  db["Paris Saint-Germain 2026"]=psgSeason.map(p=>({...p}));
+  coaches["Paris Saint-Germain 2026"]="Luis Enrique";
+  meta["Paris Saint-Germain 2026"]={...(meta["Paris Saint-Germain 2025/26"]||{}),source:"https://www.uefa.com/uefachampionsleague/news/02a5-20c02e59f219-15e92acdc717-1000/",rosterScope:"SAME_CLUB_TITLE_SEASON",rosterKey:"Paris Saint-Germain 2025/26"};
+ }
  // Never fabricate historical names or silently fill missing squad places.
  window.TC_COMPLETE_ROSTERS=function(){return 0;};
  window.TC_RECONSTRUCTION_STATUS={reconstructionPolicy:"DISABLED",generatedOn:"2026-11-14"};
