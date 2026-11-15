@@ -1015,7 +1015,45 @@
     ]
   }
 ];
- for(const t of [...batch5,...batch6,...batch7,...batch8]){
+ // Batch 9: short 1996 season continuity and independently dated 1990 club evidence. Unknown field roles remain unconfirmed.
+ const batch9=[
+  {
+    "key": "Kaizer Chiefs 1996",
+    "mode": "selection",
+    "sources": [
+      "https://www.kaizerchiefs.com/club/history",
+      "https://www.national-football-teams.com/club/2261/1995_2/Kaizer_Chiefs_Soweto.html",
+      "https://www.national-football-teams.com/club/2261/1996_1/Kaizer_Chiefs_Soweto.html",
+      "https://www.transfermarkt.co.za/kaizer-chiefs/alletransfers/verein/568",
+      "https://www.kaizerchiefs.com/club/the-preview-mamelodi-sundowns-v-kaizer-chiefs",
+      "https://www.kaizerchiefs.com/club/history-in-the-making",
+      "https://iol.co.za/capeargus/sport/2004-11-19-dynamos-itching-to-beat-amakhosi/"
+    ],
+    "groups": [
+      "Brian Baloyi",
+      "Jacob Tshisevhe;Neil Tovey;Leslie Langa;Rudolph Seale;Lifa Gqosha",
+      "Thabang Lebese;Thabo Mooki;Frank Makua;Isaac Kungwane;David Modise",
+      "Pollen Ndlanya"
+    ]
+  },
+  {
+    "key": "Mamelodi Sundowns 1990",
+    "mode": "selection",
+    "sources": [
+      "https://national-football-teams.com/club/2263/1990_2/Mamelodi_Sundowns.html",
+      "https://magazine.sundownsfc.co.za/articles/zungu-and-downs-cut-from-the-same-fabric",
+      "https://sundownsfc.co.za/honours/"
+    ],
+    "groups": [
+      "Mark Anderson",
+      "Joas Magolego;Sam Kambule",
+      "Zane Moosa;Harold Legodi",
+      "Bennett Masinga;Lovemore Chafunya;Cedric Nakhumwa",
+      "Harris Choeu;Rabie Moripe;Lucky Molefe"
+    ]
+  }
+];
+ for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9]){
   const known=Array.isArray(db[t.key])?db[t.key]:[];
   const next=t.mode==="augment"?new Map(known.filter(p=>!p.reconstructed).map(p=>[p.id,{...p,starter:false}])):new Map();
   for(let i=0;i<t.groups.length;i++)for(const raw of t.groups[i].split(";").filter(Boolean)){
