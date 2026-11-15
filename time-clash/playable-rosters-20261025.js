@@ -812,7 +812,109 @@
     ]
   }
 ];
- for(const t of [...batch5,...batch6]){
+ // Batch 7: season-specific evidence, archival spellings retained; no invented roles.
+ const batch7=[
+  {
+    "key": "Raja Beni Mellal 1973/74",
+    "mode": "selection",
+    "sources": [
+      "https://bayanealyaoume.press.ma/%E2%80%8E%D8%A8%D8%B9%D8%AF-%D8%B9%D9%88%D8%AF%D8%A9-%D8%B1%D8%AC%D8%A7%D8%A1-%D8%A8%D9%86%D9%8A-%D9%85%D9%84%D8%A7%D9%84-%D8%A5%D9%84%D9%89-%D8%A7%D9%84%D9%82%D8%B3%D9%85-%D8%A7%D9%84%D8%A3%D9%88/.html",
+      "https://rajabm.weebly.com/157516041606157515831610-1585158015751569-157616061610-1605160415751604.html",
+      "https://lematin.ma/journal/2012/Raja-Beni-Mellal_ObjectifA-le-maintien-/171342.html"
+    ],
+    "groups": [
+      "Lahbib",
+      "",
+      "",
+      "",
+      "Hassan;Babai;Najah;El Kadari;Mazi;Walad II;Boualem;Jardini;Alibou;Sefir"
+    ]
+  },
+  {
+    "key": "COD Meknès 1994/95",
+    "coach": "Abdelkader Youmir",
+    "mode": "selection",
+    "sources": [
+      "https://bibliothequer.org/dissertations/limpact-de-la-gouvernance-sur-la-performance-des-clubs-sportifs-cas-de-codm/",
+      "https://www.national-football-teams.com/club/5087/1994_1/Cod_Meknes.html"
+    ],
+    "groups": [
+      "Rhalil (Nkono)",
+      "Mustapha Bidane",
+      "",
+      "Abdeljalil Hadda",
+      "Boudouma;Hsina;Dridab;Benhsayen;Chakir;Dalil;Mantih;Ralfi;Yousfi"
+    ]
+  },
+  {
+    "key": "Wydad AC Casablanca 1989/90",
+    "mode": "selection",
+    "sources": [
+      "https://www.national-football-teams.com/app.php/club/1670/1989/Wydad_Ac_Casablanca.html",
+      "https://www.rsssf.org/tablesm/maro90.html"
+    ],
+    "groups": [
+      "Mustapha Achab;Khalil Azmi",
+      "Lahcen Abrami;Noureddine Naybet;Mustapha El Rharchi;Hassan Hirs;Fadel Jilal;Mustapha Mestouri",
+      "Hassan Benabicha;Abdelmajid Bouyboud;Rachid Daoudi",
+      "Youssef Fertout;Hassan Nader;Moussa N'Daw;Fakhreddine Rajhy"
+    ]
+  },
+  {
+    "key": "Kénitra AC 1980/81",
+    "mode": "selection",
+    "sources": [
+      "https://sport.akhbaralfajr.ma/?p=4118",
+      "https://lematin.ma/journal/2009/KAC_Le-club-navigue-a-flou/116457.html",
+      "https://www.lereporter.ma/kenitra-deces-de-lancien-portier-du-kac-kacem-bedda/",
+      "https://www.national-football-teams.com/club/4707/1980_1/Kenitra_Ac.html"
+    ],
+    "groups": [
+      "Abdelfettah Mouddani;Kacem Bedda",
+      "Abdelmajid Aguerd;Noureddine Bouyahyaoui;Khalifa Laâbd",
+      "Abdellatif Houmama;Jamal Jebrane;Mustapha Nkila",
+      "Mohamed Boussati;Hamed Janina;Aziz Bouabid",
+      "El Haouat;Hassan Wakrim;Abdallah Essahasseh;Abdelhak Aguerd;Said Aguerd;Jalil;Benjoud;Tijani"
+    ]
+  },
+  {
+    "key": "Kénitra AC 1981/82",
+    "mode": "selection",
+    "sources": [
+      "https://sport.akhbaralfajr.ma/?p=4118",
+      "https://lematin.ma/journal/2009/KAC_Le-club-navigue-a-flou/116457.html",
+      "https://www.lereporter.ma/kenitra-deces-de-lancien-portier-du-kac-kacem-bedda/",
+      "https://national-football-teams.com/de/club/4707/1981_1/Kenitra_Ac.html"
+    ],
+    "groups": [
+      "Abdelfettah Mouddani;Kacem Bedda",
+      "Abdelmajid Aguerd;Noureddine Bouyahyaoui;Khalifa Laâbd",
+      "Abdellatif Houmama;Jamal Jebrane;Mustapha Nkila;Aziz Bouabid",
+      "Mohamed Boussati",
+      "El Haouat;Hassan Wakrim;Abdallah Essahasseh;Abdelhak Aguerd;Said Aguerd"
+    ]
+  },
+  {
+    "key": "Manning Rangers 1996/97",
+    "coach": "Gordon Igesund",
+    "mode": "selection",
+    "sources": [
+      "https://www.timeslive.co.za/sport/soccer/2026-08-14-psl-at-30-years-amazing-time-for-us-says-igesund-on-winning-first-title-with-rangers/",
+      "https://www.national-football-teams.com/club/2264/1996/Manning_Rangers_Durban.html",
+      "https://mg.co.za/news/south-africa/1997-06-04-bafana-wage-dispute-settled/",
+      "https://iol.co.za/capeargus/sport/2001-10-30-bucs-duo-set-for-supersport/",
+      "https://mg.co.za/news/south-africa/1996-08-02-after-five-months-the-season-is-starting/"
+    ],
+    "groups": [
+      "Grant Johnson",
+      "Liswa Nduti;Innocent Chikoya",
+      "Clinton Larsen;Nzongani Kidoda;David Modise",
+      "Simon Makhubela;George Koumantarakis",
+      "Mark Davies;Bradley Muir;Warren du Pont;Marcus Mphafudi;Solo Ndimande"
+    ]
+  }
+];
+ for(const t of [...batch5,...batch6,...batch7]){
   const known=Array.isArray(db[t.key])?db[t.key]:[];
   const next=t.mode==="augment"?new Map(known.filter(p=>!p.reconstructed).map(p=>[p.id,{...p,starter:false}])):new Map();
   for(let i=0;i<t.groups.length;i++)for(const raw of t.groups[i].split(";").filter(Boolean)){
