@@ -1113,7 +1113,49 @@
     "note": "Season selection based on career intervals covering 1983/84, goalkeeper arrival in transfer archive and corroborating subsequent season position data. No original match XI or complete season squad claimed."
   }
 ];
- for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10,...batch11]){
+ // Batch 12: championship honour roll and season continuity; explicitly qualified evidence.
+ const batch12=[
+  {
+    "key": "SC Chabab Mohammédia 1979/80",
+    "mode": "selection",
+    "coach": "Abdelkader Lakhmiri",
+    "sources": [
+      "https://maroc-football-history.blogspot.com/p/blog-page_47.html",
+      "https://maroc-football-history.blogspot.com/2016/09/blog-post_67.html",
+      "https://lematin.ma/supplement/sport/2008/Gnfe_Vivement-la-chaleur-du-public-/Chabab-Mohammedia_Fraichement-promu-en-GNF-I/97825.html",
+      "https://www.snrt.ma/fr/node/20850"
+    ],
+    "groups": [
+      "Tahar Erraâd",
+      "",
+      "",
+      "Ahmed Faras;Acila",
+      "Raâd II;Haddadi II;Glaoua;Qathari;Hmida;Miguel II;Chane;Abdellah (Nijm)"
+    ],
+    "note": "The historical title honour roll names eleven members, including the brother Raâd II, Haddadi II and Miguel II under archival identifiers. Two blog copies of the roll are not independent. Le Matin independently corroborates the title, Faras, Acila, the Raâd and Haddadi families, Glaoua and Miguel. Incomplete given names and unverified positions are not invented."
+  },
+  {
+    "key": "Kawkab AC Marrakech 1991/92",
+    "mode": "selection",
+    "coach": "Abdelkhalek Louzani",
+    "sources": [
+      "https://www.zerozero.pt/equipa/kawkab/2451?epoca_id=121",
+      "https://dimasbaa.com/en/club/kawkab-ac-marrakech",
+      "https://national-football-teams.com/de/club/2851/1990_1/Kawkab_Ac_Marrakech.html",
+      "https://www.national-football-teams.com/club/2851/1992/Kawkab_Ac_Marrakech.html",
+      "https://www.pinte2foot.com/article/ahmed-bahja-le-kawkab-1-3",
+      "https://www.snrt.ma/fr/node/12298"
+    ],
+    "groups": [
+      "Zakaria Alaoui",
+      "Tahar El Khalej;Ahmed Ermouki;Ahmed Masbahi;Mohamed Ahmidouch",
+      "Mohamed Guisser;Hicham Dmiai",
+      "Ahmed Bahja;Mustapha Kiddi;Driss Loumari;Zakaria Rmouj"
+    ],
+    "note": "Seven players are directly listed for 1991/92 by zerozero; adjacent season records, career intervals and Bahja's interview-based retrospective corroborate other names. Ahmidouch's membership is inferred from the 1990/91 cup final scorer Hamiddouch and his 1992/93 squad record; no exact league match in 1991/92 has been located. Positions are general roles, not a historical XI."
+  }
+];
+ for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10,...batch11,...batch12]){
   const known=Array.isArray(db[t.key])?db[t.key]:[];
   const next=t.mode==="augment"?new Map(known.filter(p=>!p.reconstructed).map(p=>[p.id,{...p,starter:false}])):new Map();
   for(let i=0;i<t.groups.length;i++)for(const raw of t.groups[i].split(";").filter(Boolean)){
