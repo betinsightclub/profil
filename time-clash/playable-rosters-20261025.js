@@ -914,7 +914,108 @@
     ]
   }
 ];
- for(const t of [...batch5,...batch6,...batch7]){
+ // Batch 8: season-specific or dated career evidence; no extrapolated historical XI.
+ const batch8=[
+  {
+    "key": "Kaizer Chiefs 1977",
+    "mode": "selection",
+    "sources": [
+      "https://www.kaizerchiefs.com/club/history",
+      "https://www.kaizerchiefs.com/news/tribute-to-ryder",
+      "https://www.kaizerchiefs.com/news/teenage-dladla-genius-who-was-marvel-watch",
+      "https://www.kaizerchiefs.com/features/chiefs-legends-pass-birthday-wishes-chiefs-chairman",
+      "https://www.kaizerchiefs.com/supporters/jackie-asinamali-masike-kaizer-chiefs-icon",
+      "https://www.nasljerseys.com/Players/L/Lamola.Zaccaria.htm",
+      "https://www.kaizerchiefs.com/news/chiefs-mourn-legend-ten-ten-nzimande",
+      "https://kaizerchiefs.com/club/pele-blaschke-will-always-be-remembered",
+      "https://kaizerchiefs.com/club/kaizer-chiefs-embrace-heritage-day-2026",
+      "https://www.kaizerchiefs.com/features/kaizer-chiefs-vs-orlando-pirates-head-head-south-african-cup"
+    ],
+    "groups": [
+      "Joseph Sethlodi",
+      "Johannes Mofokeng;Jackie Masike",
+      "Petros Nzimande;Vusi Lamola;Jan Lechaba;Nelson Dladla;Patrick Ntsoelengoe",
+      "Herman Blaschke;Abednigo Ngcobo;Ebson Mugoyo"
+    ]
+  },
+  {
+    "key": "Kaizer Chiefs 1979",
+    "mode": "selection",
+    "sources": [
+      "https://www.kaizerchiefs.com/club/history",
+      "https://www.kaizerchiefs.com/news/tribute-to-ryder",
+      "https://www.kaizerchiefs.com/news/teenage-dladla-genius-who-was-marvel-watch",
+      "https://www.kaizerchiefs.com/features/chiefs-legends-pass-birthday-wishes-chiefs-chairman",
+      "https://www.kaizerchiefs.com/supporters/jackie-asinamali-masike-kaizer-chiefs-icon",
+      "https://www.nasljerseys.com/Players/L/Lamola.Zaccaria.htm",
+      "https://www.kaizerchiefs.com/news/khosi-legends-pay-homage-chiefs-56th-birthday",
+      "https://www.kaizerchiefs.com/news/chiefs-saddened-pereira-passing",
+      "https://en.wikipedia.org/wiki/Simon_Lehoko"
+    ],
+    "groups": [
+      "Joseph Sethlodi",
+      "Johannes Mofokeng;Jackie Masike;Simon Lehoko",
+      "Vusi Lamola;Nelson Dladla;Lucky Stylianou;Patrick Ntsoelengoe",
+      "Abednigo Ngcobo;Ebson Mugoyo;Frank Pereira"
+    ]
+  },
+  {
+    "key": "Kaizer Chiefs 1981",
+    "mode": "selection",
+    "sources": [
+      "https://www.kaizerchiefs.com/club/history",
+      "https://www.kaizerchiefs.com/news/tribute-to-ryder",
+      "https://www.kaizerchiefs.com/news/teenage-dladla-genius-who-was-marvel-watch",
+      "https://www.kaizerchiefs.com/features/chiefs-legends-pass-birthday-wishes-chiefs-chairman",
+      "https://www.kaizerchiefs.com/supporters/jackie-asinamali-masike-kaizer-chiefs-icon",
+      "https://www.nasljerseys.com/Players/L/Lamola.Zaccaria.htm",
+      "https://www.kaizerchiefs.com/features/kaizer-chiefs-vs-orlando-pirates-head-head-south-african-cup",
+      "https://www.kaizerchiefs.com/club-news/eighties-chiefs-golden-era",
+      "https://www.kaizerchiefs.com/club/memoirs-with-peta-balac-1980-1985",
+      "https://en.wikipedia.org/wiki/Simon_Lehoko",
+      "https://www.kaizerchiefs.com/news/chiefs-saddened-pereira-passing"
+    ],
+    "groups": [
+      "Peta Bala’c;Joseph Sethlodi",
+      "Johannes Mofokeng;Simon Lehoko;Frank Pereira",
+      "Patrick Ntsoelengoe;Jan Lechaba;Lucky Stylianou;Nelson Dladla",
+      "Abednigo Ngcobo;Zebulon Nhlapo;Marks Maponyane",
+      "Leonard Likoebe"
+    ]
+  },
+  {
+    "key": "FAR Rabat 1988/89",
+    "coach": "Antonio Angelillo",
+    "mode": "selection",
+    "sources": [
+      "https://www.national-football-teams.com/club/1665/1988_1/Far_Rabat.html",
+      "https://www.leballonrond.fr/equipe/far-rabat/2445?epoca_id=118"
+    ],
+    "groups": [
+      "Abdelkader El Brazi;Salahdine Hmied",
+      "Abdelmajid Lamriss;Mouhcine Bouhlal;Abdelouahed Chammami;Saad Dahhane;Ahmed Ermouki;Lahcen Ouadani",
+      "Hammou Fadili;Mohamed El Ouardi;Abdallah Haidamou",
+      "Lahcen Anaflous;Abderrazak Khairi;Abdeslam Laghrissi"
+    ]
+  },
+  {
+    "key": "MAS Fès 2025/26",
+    "mode": "selection",
+    "sources": [
+      "https://tkr-app.com/match/206786",
+      "https://www.transfermarkt.de/mas-fes/kader/verein/3282/saison_id/2025",
+      "https://www.transfermarkt.com/mas-fes/startseite/verein/3282/saison_id/2025",
+      "https://www.11props.com.br/matches/botola-pro-1706/25-26/raja-club-athletic-22345-x-mas-de-fes-22347"
+    ],
+    "groups": [
+      "Salaheddine Chihab;Oussama Errahmany",
+      "Hamza Ait Allal;Ayman Chabani;Adil Rhaili;Marouane Ouhrou;Saad Ait Khorsa;Driss El Jabli;Zakaria Hamadi",
+      "Achraf Harmach;Oussama Noureddine;Anas Tahiri;Adam Brika;Hamza Afsal;Amine Oudrhiri;El Habib Brija",
+      "Soufiane Benjdida;Soulaïman Allouch;Khalid Baba;Kevin Yamga;Youssef Dalouzi"
+    ]
+  }
+];
+ for(const t of [...batch5,...batch6,...batch7,...batch8]){
   const known=Array.isArray(db[t.key])?db[t.key]:[];
   const next=t.mode==="augment"?new Map(known.filter(p=>!p.reconstructed).map(p=>[p.id,{...p,starter:false}])):new Map();
   for(let i=0;i<t.groups.length;i++)for(const raw of t.groups[i].split(";").filter(Boolean)){
