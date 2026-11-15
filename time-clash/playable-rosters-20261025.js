@@ -485,6 +485,256 @@
   addBatch3(key,coach,src,groups,scope,0);
   meta[key]={...(meta[key]||{}),additionalSource:secondary||undefined,rosterScope:scope,rosterCompleteness:"DOCUMENTED_SELECTION_NOT_EXHAUSTIVE",verifiedDate:"2026-11-15"};
  }
+ // Batch 5: season-specific historical sources; existing master file remains intact.
+ const batch5=[
+  {
+    "key": "RWD Molenbeek 1974/75",
+    "coach": "Felix Week",
+    "mode": "augment",
+    "sources": [
+      "https://www.statscrew.com/worldfootball/roster/t-RWDFC809/y-1974",
+      "https://www.national-football-teams.com/club/257/1974_1/Rwd_Molenbeek.html",
+      "https://www.pesmitidelcalcio.com/viewtopic.php?f=30&t=14330"
+    ],
+    "groups": [
+      "Nico de Bree",
+      "Eric Dumon;Alex Lafont;Kresten Bjerre",
+      "",
+      ""
+    ]
+  },
+  {
+    "key": "Ghazl El Mahalla 1972/73",
+    "mode": "augment",
+    "sources": [
+      "https://koraapedia.com/%D9%86%D8%AA%D8%A7%D8%A6%D8%AC-%D8%A7%D9%84%D8%AF%D9%88%D8%B1%D9%8A-%D8%A7%D9%84%D9%85%D8%B5%D8%B1%D9%8A-%D9%85%D9%88%D8%B3%D9%85-1972-1973/",
+      "https://www.masrawy.com/news/news_regions/details/2019/6/15/1584959/بعد-طرحه-للتطوير-غزل-المحلة-شاهد-على-تاريخ-الرياضة-المصرية-في-80-سنة",
+      "https://www.elmwatin.com/496915",
+      "https://www.national-football-teams.com/app.php/club/3825/1972_1/Ghazl_El_Mahalla.html",
+      "https://www.youm7.com/story/2026/2/23/حدث-لا-يُنسى-عندما-خطف-غزل-المحلة-لقب-الدورى-عام/7314981"
+    ],
+    "groups": [
+      "Abdel Sattar Ali;Mahmoud Shahin",
+      "",
+      "",
+      "Mahmoud Abdeldaim;Omar Abdallah;Mohamed Omasha",
+      "Sayed Mehrez;Omar Ramadan;Ahmed Abu Ismail;Mohsen El Nehriri"
+    ],
+    "aliases": {
+      "mahmoud-abdeldaim": "abdeldaim"
+    }
+  },
+  {
+    "key": "Al Mokawloon 1982/83",
+    "mode": "augment",
+    "sources": [
+      "https://3rabica.org/%D9%86%D8%A7%D8%AF%D9%8A_%D8%A7%D9%84%D9%85%D9%82%D8%A7%D9%88%D9%84%D9%88%D9%86_%D8%A7%D9%84%D8%B9%D8%B1%D8%A8_%D9%85%D9%88%D8%B3%D9%85_1982%E2%80%9383",
+      "https://www.elbalad.news/5069073",
+      "https://www.vetogate.com/5747440"
+    ],
+    "groups": [
+      "Joseph-Antoine Bell;Alaa Khalil;Mohamed Younes",
+      "Ali Shehata;Gamal Salem;Nabil Ammar;Mohamed Zamzam;Saeed El Sheshini;Alaa Nabil",
+      "Mohamed Radwan;Karim Abdel Razek;Adel El Kordi;Magdy Darwish;Nabil Ibrahim;Hazem Khaled",
+      "Hamdi Nouh;Naser Mohamed Ali;Alaa Abdel Hafiz;Waheed Morad;Magdy Mostafa"
+    ]
+  },
+  {
+    "key": "Wydad AC Casablanca 2014/15",
+    "mode": "augment",
+    "sources": [
+      "https://www.transfermarkt.com/wydad-casablanca/torhueterchronik/verein/6603",
+      "https://www.national-football-teams.com/app.php/club/1670/2014/Wydad_Ac_Casablanca.html"
+    ],
+    "groups": [
+      "Mohamed Akid;Badereddine Benaachour;Hamza Ouzal",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "key": "Wydad AC Casablanca 2005/06",
+    "coach": "José Romão",
+    "mode": "selection",
+    "sources": [
+      "https://www.transfermarkt.co.uk/wydad-casablanca/startseite/verein/6603/saison_id/2005"
+    ],
+    "groups": [
+      "Nadir Lamyaghri;Hakim Mouzaki",
+      "Faouzi El Brazi;Hicham Louissi;Mohammed Benchrifa;Nabil Moustade;Mourad Fellah;Mustapha Talha;Zakaria Aoudane",
+      "Hamid Termina;Issam El Adoua;Jean-Jacques Gosso;Youness Mankari;Ahmed Talbi;Youssef Mariana;Mohamed Madihi",
+      "Faouzi Abdelghani;Abderrahim Saidi;Ibrahima Touré;Ibrahim Kabore"
+    ]
+  },
+  {
+    "key": "Wydad AC Casablanca 2016/17",
+    "coach": "Hussein Ammouta",
+    "mode": "match",
+    "date": "2017-03-11",
+    "sources": [
+      "https://www.transfermarkt.com/wydad-casablanca_cf-mounana/index/spielbericht/2827326"
+    ],
+    "groups": [
+      "*Zouhair Laaroubi;Badereddine Benaachour",
+      "*Youssef Rabeh;*Mourtada Fall;*Badr Gaddarine;*Abdellatif Noussir;Amine El Attouchi;Anass Lamrabat;Younès Bellakhdar",
+      "*Brahim Nekkach;*Walid El Karti;Anas El Asbahi;Jamel Aït Ben Idir",
+      "*Achraf Bencharki;*Mohamed Ounajem;*William Jebor;*Fabrice Ondama;Abdeladim Khadrouf"
+    ]
+  },
+  {
+    "key": "Wydad AC Casablanca 2020/21",
+    "coach": "Faouzi Benzarti",
+    "mode": "match",
+    "date": "2021-06-26",
+    "sources": [
+      "https://www.transfermarkt.com/kaizer-chiefs_wydad-casablanca/index/spielbericht/3573249",
+      "https://www.besoccer.com/match/kaizer-chiefs/wydad-casablanca/2021388656/lineups"
+    ],
+    "groups": [
+      "*Ahmed Reda Tagnaouti;Aissa Sioudi",
+      "*Amine Farhane;*Achraf Dari;*Yahia Attiyat Allah;*Ayoub El Amloud;Amine Aboulfath;Badr Gaddarine;Hamza Ait Allal",
+      "*Yahya Jabrane;*Walid El Karti;*Aymane El Hassouni;Salaheddine Saidi;Ayoub Skouma",
+      "*Mohamed Ounajem;*Simon Msuva;*Ayoub El Kaabi;Muaid Ellafi;Zouhair El Moutaraji;Badie Aouk"
+    ]
+  },
+  {
+    "key": "Wydad AC Casablanca 2021/22",
+    "coach": "Walid Regragui",
+    "mode": "match",
+    "date": "2022-05-30",
+    "sources": [
+      "https://www.worldfootball.net/match-report/co730/caf-champions-league/ma9406278/wydad-ac_al-ahly-sc/",
+      "https://www.transfermarkt.com/al-ahly-fc_wydad-casablanca/index/spielbericht/3817501"
+    ],
+    "groups": [
+      "*Ahmed Reda Tagnaouti;Aissa Sioudi",
+      "*Achraf Dari;*Yahia Attiyat Allah;*Ayoub El Amloud;*Amine Farhane;Cheick Comara;Hamza Asrir;Hamza Ait Allal",
+      "*Yahya Jabrane;*Jalal Daoudi;*Reda Jaadi;*Aymane El Hassouni;Anas Serrhat;Abdellah Haimoud",
+      "*Zouhair El Moutaraji;*Guy Mbenza;Badie Aouk;Mounsef Chrachem;Juvhel Tsoumou"
+    ]
+  },
+  {
+    "key": "Raja Casablanca 2010/11",
+    "mode": "selection",
+    "sources": [
+      "https://www.transfermarkt.com/raja-casablanca/kader/verein/2068/saison_id/2010",
+      "https://www.national-football-teams.com/club/1669/2010/Raja_Casablanca.html"
+    ],
+    "groups": [
+      "Tarik El Jarmouni;Yassine El Had;Youness Ataba",
+      "Mourad Ayni;Rachid Soulaimani;Mohamed Oulhaj;Ismaïl Benlamaalem;Elamine Erbate;Hicham Mahdoufi;Zakaria Zerouali;Mohamed Chibi",
+      "Said Fatah;Kouko Guehi;Nabil Mesloub;Abdessamad Ouarrad;Omar Najdi;Abdessamad Ouhaki;Mohsine Moutaouali;Abdelmoula Berrabeh",
+      "Hicham Aboucherouane;Yassine Salhi"
+    ]
+  },
+  {
+    "key": "Raja Casablanca 2019/20",
+    "coach": "Jamal Sellami",
+    "mode": "match",
+    "date": "2020-10-11",
+    "sources": [
+      "https://www.zerozero.pt/jogo/2020-10-11-raja-casablanca-far-rabat/7029924",
+      "https://www.soccerpunter.com/match/11961587/Raja-Casablanca-vs-FAR-Rabat"
+    ],
+    "groups": [
+      "*Anas Zniti;Mohamed Bouamira",
+      "*Badr Benoun;*Iliass Haddad;*Fabrice Ngah;*Abdelilah Madkour",
+      "*Omar Arjoune;*Abdelilah Hafidi;*Mohamed Zrida;Mohamed El Makahazi;Zakaria El Wardi",
+      "*Soufiane Rahimi;*Mohsine Moutouali;*Ayoub Nanah;Youssef Bekkari;Mahmoud Benhalib;Anas Jabroun;Oussama Soukhal"
+    ]
+  },
+  {
+    "key": "Raja Casablanca 2023/24",
+    "coach": "Josef Zinnbauer",
+    "mode": "augment",
+    "sources": [
+      "https://en.wikipedia.org/wiki/2023%E2%80%9324_Raja_CA_season"
+    ],
+    "groups": [
+      "",
+      "Zakaria Labib",
+      "El Mehdi Moubarik;Zakaria El Wardi;Sabir Bougrine;Adam Ennafati",
+      "Yousri Bouzok;Nawfel Zerhouni;El Mehdi Maouhoub;Riad Benayad"
+    ]
+  },
+  {
+    "key": "FAR Rabat 2022/23",
+    "coach": "Mustapha Samadi",
+    "mode": "match",
+    "date": "2023-05-29",
+    "sources": [
+      "https://www.footmercato.net/live/5830376022427848202-fus-rabat-vs-far-rabat",
+      "https://thefishy.co.uk/livematch2/fus-rabat-far-rabat-1026697"
+    ],
+    "groups": [
+      "*Mohamed Baayou;Ayoub Lakred",
+      "*Anouar Tarkhatt;*Hatim Essaoubi;*Diney Borges;*Mohamed Moufid;Emmanuel Imanishimwe",
+      "*Abdelfattah Hadraf;*Mohamed Hrimat;*Zineddine Derrag;*Reda Slim;Brahim Sabaouni;Zakaria Fati",
+      "*Mohamed Sahd;*Adam Ennaffati;Hamza Igamane;Joseph Gnadou;Ahmed Hammoudan;Lamine Diakité"
+    ]
+  },
+  {
+    "key": "Renaissance Berkane 2024/25",
+    "mode": "selection",
+    "sources": [
+      "https://www.transfermarkt.com/renaissance-de-berkane/kader/verein/37176/saison_id/2024"
+    ],
+    "groups": [
+      "Munir El Kajoui;Hamza Hamiani;Mehdi Maftah",
+      "Adil Tahif;Abdelhak Assal;Issoufou Dayo;Amine El Maswab;Hamza El Moussaoui;Mohamed Aymen Sadil;Haytam Manaout",
+      "Mamadou Lamine Camara;Soumaila Sidibe;Mohamed Farhane;Yassine Labhiri;Mohamed El Morabit;Reda Hajji",
+      "Youssef Mehri;Mateus Santos;Imad Riahi;Youssef Zghoudi;Oussama Lamlioui;Paul Bassène"
+    ]
+  },
+  {
+    "key": "FUS Rabat 2015/16",
+    "coach": "Walid Regragui",
+    "mode": "match",
+    "date": "2016-04-08",
+    "sources": [
+      "https://www.transfermarkt.com/fus-rabat_sports-club-villa/index/spielbericht/4511929",
+      "https://fufa.co.ug/caf-confederation-cup-sc-villa-edge-fus-rabat-for-third-consecutive-home-win-on-continent/"
+    ],
+    "groups": [
+      "*Abderahmane El Houasli;Aymane Majid",
+      "*Nayef Aguerd;*El Mehdi El Bassil;*Marwane Saadane;*Ass Mandaw Sy;*Mohamed Nahiri;Mehdi Khalis",
+      "*Badr Boulahroud;Ayoub Skouma;Youssef El Gnaoui",
+      "*Mourad Batna;*Mohammed Fouzair;*Abdessalam Benjelloun;*Yusupha Njie;Moustapha Kondé;Adam Ennaffati"
+    ]
+  },
+  {
+    "key": "Moghreb Tétouan 2011/12",
+    "coach": "Aziz El Amri",
+    "mode": "augment",
+    "sources": [
+      "https://www.transfermarkt.com/moghreb-tetouan/startseite/verein/9100/saison_id/2011",
+      "https://www.transfermarkt.es/moghreb-tetouan/startseite/verein/9100/saison_id/2012",
+      "https://www.national-football-teams.com/club/4627/2011_1/Moghreb_Tetouan.html"
+    ],
+    "groups": [
+      "",
+      "Mourtada Fall",
+      "Daniel Ekedo",
+      "Jamal Akachar"
+    ]
+  }
+];
+ for(const t of batch5){
+  const known=Array.isArray(db[t.key])?db[t.key]:[];
+  const next=t.mode==="augment"?new Map(known.filter(p=>!p.reconstructed).map(p=>[p.id,{...p,starter:false}])):new Map();
+  for(let i=0;i<t.groups.length;i++)for(const raw of t.groups[i].split(";").filter(Boolean)){
+   const starter=raw.startsWith("*"),name=raw.replace(/^\*/,""),canonical=id(name),key=t.aliases?.[canonical]||canonical;
+   const old=known.find(p=>p.id===key||p.id===canonical)||{};
+   next.set(key,{...old,id:canonical,name,pos:roles[i]||"",prole:roles[i]?undefined:"Feldspieler",role:undefined,starter,impact:old.impact||3,provenance:"DOCUMENTED_ROSTER",sourceRefs:t.sources,positionPolicy:roles[i]?"DOCUMENTED_OR_GENERAL_ROLE":"UNCONFIRMED"});
+  }
+  const players=[...next.values()].map((p,i)=>({...p,squadIndex:i}));
+  const xi=players.filter(p=>p.starter);
+  if(players.length<11||new Set(players.map(p=>p.id)).size!==players.length||!players.some(p=>p.pos==="TW")||(t.mode==="match"&&(xi.length!==11||!xi.some(p=>p.pos==="TW"))))throw new Error("Invalid batch5 roster "+t.key);
+  db[t.key]=players;
+  if(t.coach)coaches[t.key]=t.coach;
+  meta[t.key]={...(meta[t.key]||{}),source:t.sources[0],additionalSources:t.sources.slice(1),rosterScope:t.mode==="match"?"DOCUMENTED_MATCH_SELECTION":"HISTORICAL_SEASON_PLAYER_SELECTION",matchDate:t.date||undefined,rosterCompleteness:"NOT_EXHAUSTIVE",lineupPolicy:t.mode==="match"?"DOCUMENTED_XI":"SIMULATION_SELECTED_XI",strengthPolicy:"SIMULATION_ESTIMATE"};
+ }
  // Never fabricate historical names or silently fill missing squad places.
  window.TC_COMPLETE_ROSTERS=function(){return 0;};
  window.TC_RECONSTRUCTION_STATUS={reconstructionPolicy:"DISABLED",generatedOn:"2026-11-14"};
