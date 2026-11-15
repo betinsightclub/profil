@@ -357,6 +357,134 @@
   coaches["Paris Saint-Germain 2026"]="Luis Enrique";
   meta["Paris Saint-Germain 2026"]={...(meta["Paris Saint-Germain 2025/26"]||{}),source:"https://www.uefa.com/uefachampionsleague/news/02a5-20c02e59f219-15e92acdc717-1000/",rosterScope:"SAME_CLUB_TITLE_SEASON",rosterKey:"Paris Saint-Germain 2025/26"};
  }
+ // 2026-11-15 batch 4: documented player selections. No claim of exhaustive season coverage.
+ const batch4=[
+  [
+    "Spartak Moskau 1996",
+    "Georgi Yartsev",
+    "HISTORICAL_SEASON_PLAYER_SELECTION",
+    "https://spartakmoskva.ru/seasons/1996",
+    "https://national-football-teams.com/club/2026/1996_2/Spartak_Moskva.html",
+    "Aleksandr Filimonov;Ruslan Nigmatullin",
+    "Sergei Gorlukovich;Dmitri Ananko;Vadim Yevseyev;Ramiz Mamedov;Yuri Nikiforov;Aleksandr Lipko;Vladislav Duyun",
+    "Andrei Tikhonov;Dmitri Alenichev;Yegor Titov;Ilya Tsymbalar;Andrey Pyatnitski;Artyom Bezrodny;Serhiy Nahornyak;Aleksei Meleshin",
+    "Valeri Kechinov;Aleksandr Shirko;Vladimir Dzhubanov;Valeri Shmarov"
+  ],
+  [
+    "ZSKA Moskau 2005",
+    "Valeriy Gazzaev",
+    "UEFA_CUP_FINAL_MATCH_SQUAD",
+    "https://de.uefa.com/uefaeuropaleague/match/80814--sporting-cp-vs-cska-moskva/",
+    "https://www.rsssf.org/ec/ec200405det.html",
+    "*Igor Akinfeev;Veniamin Mandrykin",
+    "*Sergei Ignashevich;*Aleksei Berezutski;*Vasili Berezutski;*Chidi Odiah;Deividas Šemberas",
+    "*Daniel Carvalho;*Elvir Rahimić;*Evgeni Aldonin;*Yuri Zhirkov;Rolan Gusev;Miloš Krasić;Juris Laizāns;Osmar Ferreyra",
+    "*Ivica Olić;*Vágner Love;Aleksandr Salugin"
+  ],
+  [
+    "Zenit St. Petersburg 2007",
+    "Dick Advocaat",
+    "HISTORICAL_SEASON_PLAYER_SELECTION",
+    "https://en.wikipedia.org/wiki/2007_FC_Zenit_Saint_Petersburg_season",
+    "https://www.footballsquads.co.uk/russia/2007/rfpl/zenit.htm",
+    "Vyacheslav Malafeev;Kamil Čontofalský;Mikhail Kerzhakov",
+    "Martin Škrtel;Ivica Križanac;Kim Dong-jin;Nicolas Lombaerts;Erik Hagen;Aleksandr Anyukov;Fernando Ricksen",
+    "Anatoliy Tymoshchuk;Konstantin Zyryanov;Igor Denisov;Vladislav Radimov;Radek Šírl;Oleksandr Spivak;Lee Ho;Aleksandr Gorshkov;Ilya Maksimov",
+    "Andrey Arshavin;Alejandro Domínguez;Pavel Pogrebnyak;Fatih Tekke"
+  ],
+  [
+    "Rubin Kasan 2008",
+    "Kurban Berdyev",
+    "HISTORICAL_SEASON_PLAYER_SELECTION",
+    "https://www.national-football-teams.com/club/2023/2008/Rubin_Kazan.html",
+    "https://www.uefa.com/news-media/news/01d3-0f84ea7f1a10-5c9d8291e23f-1000--rubin-bring-up-half-century-with-title-triumph/",
+    "Sergei Ryzhikov;Aleksandrs Koļinko;Nukri Revishvili",
+    "Cristian Ansaldi;Roman Sharonov;Davit Kvirkvelia;Stjepan Tomas;Lasha Salukvadze;Aleksey Popov;Andrey Fyodorov",
+    "Gökdeniz Karadeniz;Sergei Semak;MacBeth Sibaya;Aleksandr Ryazantsev;Christian Noboa;Aleksei Rebko;Vagiz Galiulin",
+    "Serhiy Rebrov;Hasan Kabze;Aleksandr Bukharov;Savo Milošević;Roman Adamov"
+  ],
+  [
+    "Lokomotive Moskau 2004",
+    "Yuri Syomin",
+    "HISTORICAL_SEASON_PLAYER_SELECTION",
+    "https://www.rsssf.org/tablesr/rus04squads.html",
+    "",
+    "Sergei Ovchinnikov;Ruslan Nigmatullin;Zaur Khapov",
+    "Vadim Yevseyev;Syarhei Hurenka;Dmitriy Sennikov;Gennadiy Nizhegorodov;Oleg Pashinin;Jacob Lekgetho",
+    "Dmitriy Loskov;Diniyar Bilyaletdinov;Dmitriy Khokhlov;Malkhazi Asatiani;Marat Izmailov;Vladimir Maminov;Francisco Lima;Deividas Česnauskis",
+    "Dmitriy Sychov;James Chibuzor Obiorah;Ruslan Pimenov"
+  ],
+  [
+    "Inter Miami",
+    "Cristian González",
+    "2026_SEASON_PLAYER_SELECTION",
+    "https://www.mlssoccer.com/clubs/inter-miami-cf/roster/",
+    "https://www.mlssoccer.com/news/every-mls-call-up-november-2026-international-window",
+    "Dayne St. Clair;Luis Barraza",
+    "Gonzalo Luján;Sergio Reguilón;Facundo Mura;Maximiliano Falcón;Micael;Ian Fray;Israel Boatwright;Fricio Caicedo",
+    "Casemiro;Rodrigo De Paul;Telasco Segovia;David Ayala;Matías Galarza;Santiago Morales;Alexander Shaw",
+    "Lionel Messi;Luis Suárez;Germán Berterame;Riquelme Fillipi;Mateo Silvetti;Daniel Pinter"
+  ],
+  [
+    "Los Angeles FC",
+    "Marc Dos Santos",
+    "2026_PRESEASON_PLAYER_SELECTION",
+    "https://www.lafc.com/news/roster-rundown-2026",
+    "https://www.lafc.com/news/lafc-announces-roster-moves-for-2026-season",
+    "Hugo Lloris;Thomas Hasal",
+    "Ryan Hollingshead;Aaron Long;Kenny Nielsen;Sergi Palencia;Ryan Porteous;Eddie Segura;Artem Smolyakov;Nkosi Tafari",
+    "Mark Delgado;Igor Jesus;Jude Terry;Timothy Tillman;Yaw Yeboah",
+    "Denis Bouanga;Jeremy Ebobisse;Son Heung-Min;David Martínez;Nathan Ordaz;Adrian Wibowo"
+  ],
+  [
+    "Seattle Sounders",
+    "Brian Schmetzer",
+    "2026_SEASON_PLAYER_SELECTION",
+    "https://www.livescore.com/en/football/team/name/8301/squad/",
+    "https://www.soundersfc.com/news/sounders-fc-announces-roster-decisions-to-conclude-2025-season",
+    "Stefan Frei;Andrew Thomas;Max Anchor",
+    "Ryan Sailor;Nouhou Tolo;Kim Kee-hee;Jackson Ragen;Yeimar Gómez Andrade;Stuart Hawkins;Alex Roldan;Kalani Kossa-Rienzi",
+    "Cristian Roldan;Caden Clark;Albert Rusnák;Paul Rothrock;Hassani Dotson;Snyder Brunell;Peter Kingston",
+    "Dejan Joveljić;Pedro de la Vega;Jordan Morris;Paul Arriola;Danny Musovski;Jesús Ferreira"
+  ],
+  [
+    "Al Ain",
+    "Vladimir Ivić",
+    "2026_27_SEASON_PLAYER_SELECTION",
+    "https://m.aiscore.com/team-al-ain-fc/xvkjoi9352ix793/squad",
+    "https://www.uaepl.ae/en/news-and-gallery/adnoc-pro-league-1012",
+    "Khalid Eisa;Mohammed Busanda;Hassan Sani Muhammed",
+    "Djordje Skoko;Rafa Rodrigues;Amadu Saidou Niang;Marcel Ratnik;Yahya Benkhaleq;Ramy Rabia;Erik Jorgens de Menezes",
+    "Adis Jašić;Hazim Abbas;Matías Palacios;Abdoul Karim Traoré;Alejandro Romero Gamarra;Mohammed Al Baloushi;Valentino Lazaro",
+    "Houssine Rahimi;Giorgos Giakoumakis;Jonatas Santos;Soufiane Rahimi"
+  ],
+  [
+    "Shabab Al Ahli",
+    "André Jardine",
+    "2026_27_SEASON_PLAYER_SELECTION",
+    "https://www.shababalahli.ae/",
+    "https://www.uaeproleague.ae/en/news-and-gallery/serbian-coaches-lead-the-way-in-adnoc-pro-league-for-202627",
+    "Hamad Al Meqebaali;Khaled Saif Alsenaani;Matheus Donelli;Rakan Waleed",
+    "Igor Gomes;Jorge Fernandes;Renan;Wout Faes;Kaiky;Rikelme;Kauan Santos;Mersad Seifi",
+    "Saeid Ezatolahi;Nemanja Maksimović;Jahnoah Markelo;Federico Cartabia;Thiago Scarpino;Elian Irala;Breno Cascardo;Eid Khamis;Guilherme da Silva",
+    "Sardar Azmoun;Sultan Adil;Reza Ghandipour;João Marcelo;Mateus Dias Lima"
+  ],
+  [
+    "Al Wasl",
+    "Rui Vitória",
+    "2026_27_SEASON_PLAYER_SELECTION",
+    "https://www.goal.com/en-om/team/al-wasl/squad/empa4tz5zgtsetckdys3k916m",
+    "https://www.livescore.com/en/football/team/al-wasl/4682/squad/",
+    "Dinko Horkaš;Abdulrahman Al Ameri;Mohamed Ali;Suhail Abdulla",
+    "Soufiane Bouftini;Abdelrahman Saleh;Hugo Neto;Adryelson;Pedro Malheiro;Gabriel Vareta;Rodrigo",
+    "Renato Tapia;Siaka Sidibe;Yahia Nader;Cameron Puertas;Nicolás Giménez;Serginho;Ridwan Popoola;Leandro Spadacio",
+    "Ali Saleh;Mehdi Taremi;Fábio Lima;Matheus Saldanha;Brahian Palacios;Renato Júnior"
+  ]
+];
+ for(const [key,coach,scope,src,secondary,...groups] of batch4){
+  addBatch3(key,coach,src,groups,scope,0);
+  meta[key]={...(meta[key]||{}),additionalSource:secondary||undefined,rosterScope:scope,rosterCompleteness:"DOCUMENTED_SELECTION_NOT_EXHAUSTIVE",verifiedDate:"2026-11-15"};
+ }
  // Never fabricate historical names or silently fill missing squad places.
  window.TC_COMPLETE_ROSTERS=function(){return 0;};
  window.TC_RECONSTRUCTION_STATUS={reconstructionPolicy:"DISABLED",generatedOn:"2026-11-14"};
