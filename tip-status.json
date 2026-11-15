@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "sequence": 60,
-  "latest_tip_id": "BI-20261109-135159-MAR",
-  "published_at": "9.11.2026, 13:51:59",
+  "sequence": 61,
+  "latest_tip_id": "BI-20261115-021510-MAR",
+  "published_at": "15.11.2026, 02:15:10",
   "feature_started_at": "2026-09-05T14:25:00Z",
   "tips": [
     {
@@ -304,6 +304,11 @@
       "sequence": 60,
       "tipp_id": "BI-20261109-135159-MAR",
       "kickoff_at": "2026-11-09T20:30:00+01:00"
+    },
+    {
+      "sequence": 61,
+      "tipp_id": "BI-20261115-021510-MAR",
+      "kickoff_at": "2026-11-15T20:45:00+01:00"
     }
   ]
 }
