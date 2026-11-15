@@ -1053,7 +1053,46 @@
     ]
   }
 ];
- for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9]){
+ // Batch 10: historical season selections; uncertain transfer timing explicitly recorded.
+ const batch10=[
+  {
+    "key": "Raja Casablanca 1987/88",
+    "mode": "selection",
+    "coach": "Fernando Cabrita",
+    "sources": [
+      "https://www.national-football-teams.com/club/1669/1987/Raja_Casablanca.html",
+      "https://rajanation1949.blogspot.com/2016/09/19871988.html",
+      "https://lematin.ma/journal/2016/l-ex-portier-du-raja--et-de-la-rsk-said--ait-salah-honore/239842.html",
+      "https://fr.wikipedia.org/wiki/Liste_des_joueurs_du_Raja_Club_Athletic"
+    ],
+    "groups": [
+      "Saïd Aït Salah",
+      "Tijani El Maataoui;Hassan Mouahid;Khalid Moussalek;Mustapha Souyeb",
+      "Mustapha Khalif;Mohamed Madih;Said Seddiki",
+      "Salif Diagne;Abderrahim Hamraoui",
+      "Faouzi Kadmiri;Fathi Jamal;Rachid Jellab"
+    ],
+    "note": "Season selection combining archival lineup, independent goalkeeper identification and season statistics; unverified field positions left unconfirmed."
+  },
+  {
+    "key": "Wydad AC Casablanca 1977/78",
+    "mode": "selection",
+    "sources": [
+      "https://www.national-football-teams.com/club/1670/1977_1/Wydad_Ac_Casablanca.html",
+      "https://albayane.press.ma/badou-zaki-un-grand-gardien-de-but-des-lions-et-du-wac.html",
+      "https://www.wydad-history.com/legends",
+      "https://lematin.ma/journal/2014/portrait_un-entraineur-pour-une-autre-epopee-africaine/201526.html"
+    ],
+    "groups": [
+      "Badou Ezzaki",
+      "Mohamed Rabih;Larbi Aherdane;Jawad Abbad El-Andaloussi",
+      "Abdelaziz Bouderbala;Mustapha Choukri;Larbi Mouissi;Mustapha Zaghrari",
+      "Abdelmajid Sehaita;Ahmed Abdouali;Abdelkhalek Saber"
+    ],
+    "note": "Al Bayane explicitly credits Zaki with the 1978 championship and WAC History dates his arrival to 1977. Other biographies date the move to 1978; exact transfer date and reference match XI not established."
+  }
+];
+ for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10]){
   const known=Array.isArray(db[t.key])?db[t.key]:[];
   const next=t.mode==="augment"?new Map(known.filter(p=>!p.reconstructed).map(p=>[p.id,{...p,starter:false}])):new Map();
   for(let i=0;i<t.groups.length;i++)for(const raw of t.groups[i].split(";").filter(Boolean)){
@@ -1066,7 +1105,7 @@
   if(players.length<11||new Set(players.map(p=>p.id)).size!==players.length||!players.some(p=>p.pos==="TW")||(t.mode==="match"&&(xi.length!==11||!xi.some(p=>p.pos==="TW"))))throw new Error("Invalid historical roster "+t.key);
   db[t.key]=players;
   if(t.coach)coaches[t.key]=t.coach;
-  meta[t.key]={...(meta[t.key]||{}),source:t.sources[0],additionalSources:t.sources.slice(1),rosterScope:t.mode==="match"?"DOCUMENTED_MATCH_SELECTION":"HISTORICAL_SEASON_PLAYER_SELECTION",matchDate:t.date||undefined,rosterCompleteness:"NOT_EXHAUSTIVE",lineupPolicy:t.mode==="match"?"DOCUMENTED_XI":"SIMULATION_SELECTED_XI",strengthPolicy:"SIMULATION_ESTIMATE"};
+  meta[t.key]={...(meta[t.key]||{}),source:t.sources[0],additionalSources:t.sources.slice(1),rosterScope:t.mode==="match"?"DOCUMENTED_MATCH_SELECTION":"HISTORICAL_SEASON_PLAYER_SELECTION",matchDate:t.date||undefined,rosterCompleteness:"NOT_EXHAUSTIVE",lineupPolicy:t.mode==="match"?"DOCUMENTED_XI":"SIMULATION_SELECTED_XI",strengthPolicy:"SIMULATION_ESTIMATE",...(t.note?{sourceQualification:t.note}:{})};
  }
  // Never fabricate historical names or silently fill missing squad places.
  window.TC_COMPLETE_ROSTERS=function(){return 0;};
