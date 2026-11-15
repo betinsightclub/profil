@@ -139,6 +139,62 @@
   coaches[key]=coach;
   meta[key]={...(meta[key]||{}),source,referenceLineup:finalSource,strengthPolicy:"SIMULATION_ESTIMATE"};
  }
+ // 2026-11-15: verified Russian tournament squad and same-season club aliases.
+ const tournamentRosters=[
+  {
+    "key": "Russland 2008 · EM-Halbfinale",
+    "coach": "Guus Hiddink",
+    "source": "https://www.uefa.com/uefaeuro/history/news/0254-0d7bf3424654-c9237bb02847-1000--clinical-spain-set-up-euro-2008-final-date-with-russia-win/",
+    "additionalSource": "https://www.uefa.com/european-qualifiers/news/0253-0d7bf3614755-6a05da5059d2-1000--villa-stars-as-spain-signal-their-intent/",
+    "groups": [
+      "*Igor Akinfeev;Vladimir Gabulov;Vyacheslav Malafeev",
+      "*Aleksandr Anyukov;*Vasili Berezutski;*Sergei Ignashevich;*Yuri Zhirkov;Aleksei Berezutski;Renat Yanbaev;Denis Kolodin",
+      "*Ivan Saenko;*Sergei Semak;*Igor Semshov;*Konstantin Zyryanov;Diniyar Bilyaletdinov;Oleg Ivanov;Roman Shirokov;Vladimir Bystrov;Dmitri Torbinski",
+      "*Andrei Arshavin;*Roman Pavlyuchenko;Dmitri Sychev;Roman Adamov"
+    ]
+  },
+  {
+    "key": "Russland 2018 · WM-Viertelfinale",
+    "coach": "Stanislav Cherchesov",
+    "source": "https://www.bbc.co.uk/sport/football/44346455",
+    "additionalSource": "https://img.fifa.com/image/upload/evdvpfdkueqrdlbbrrus.pdf",
+    "groups": [
+      "*Igor Akinfeev;Vladimir Gabulov;Andrey Lunev",
+      "*Mario Fernandes;*Ilya Kutepov;*Sergei Ignashevich;*Fedor Kudryashov;Vladimir Granat;Andrey Semenov;Igor Smolnikov",
+      "*Denis Cheryshev;*Daler Kuzyaev;*Roman Zobnin;*Aleksandr Golovin;*Aleksandr Samedov;Yuri Gazinskiy;Alan Dzagoev;Aleksandr Erokhin;Yuri Zhirkov;Anton Miranchuk",
+      "*Artem Dzyuba;Aleksey Miranchuk;Fedor Smolov"
+    ]
+  }
+];
+ for(const team of tournamentRosters){
+  const players=team.groups.flatMap((group,i)=>group.split(";").map(raw=>{
+    const starter=raw.startsWith("*"),name=raw.replace(/^\*/,"");
+    return {id:id(name),name,pos:roles[i],starter,impact:starter?4:3,provenance:"HISTORICAL_TOURNAMENT_ROSTER"};
+  })).map((p,i)=>({...p,squadIndex:i}));
+  if(players.length!==23||players.filter(p=>p.starter).length!==11||new Set(players.map(p=>p.id)).size!==23||!players.some(p=>p.starter&&p.pos==="TW"))throw new Error("Invalid squad: "+team.key);
+  if(!Array.isArray(db[team.key])||db[team.key].length<players.length)db[team.key]=players;
+  coaches[team.key]=team.coach;
+  meta[team.key]={...(meta[team.key]||{}),source:team.source,additionalSource:team.additionalSource,strengthPolicy:"SIMULATION_ESTIMATE"};
+ }
+ // These aliases refer to the same club and title season, not the competition's exact final XI.
+ const sameSeasonAliases={
+  "Real Madrid 2024": "Real Madrid 2023/24",
+  "Bayern München 2020": "FC Bayern München 2019/20",
+  "FC Barcelona 2015": "FC Barcelona 2014/15",
+  "Ajax 1995": "Ajax Amsterdam 1994/95",
+  "Inter Mailand 2010": "Inter Milan 2009/10",
+  "Manchester United 2008": "Manchester United 2007/08",
+  "FC Porto 2004": "FC Porto 2003/04",
+  "Manchester City 2023": "Manchester City 2022/23"
+};
+ for(const [key,original] of Object.entries(sameSeasonAliases)){
+  const players=db[original];
+  if((db[key]||[]).length<11&&Array.isArray(players)&&players.length>=11){
+   db[key]=players.map(p=>({...p}));
+   if(coaches[original])coaches[key]=coaches[original];
+   meta[key]={...(meta[original]||{}),rosterScope:"SAME_CLUB_TITLE_SEASON",rosterKey:original};
+  }
+ }
  // Never fabricate historical names or silently fill missing squad places.
  window.TC_COMPLETE_ROSTERS=function(){return 0;};
  window.TC_RECONSTRUCTION_STATUS={reconstructionPolicy:"DISABLED",generatedOn:"2026-11-14"};
