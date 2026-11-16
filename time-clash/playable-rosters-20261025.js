@@ -1202,7 +1202,7 @@
       "Calvin Petersen;Mike Mangena",
       "Dennis Wicks;David Magwaza;Dan Ramarutsi;Brummie de Leur;Dave Kershaw"
     ],
-    "note": "Durban Bush Bucks, not Umtata. Eight players directly tied to 1985 by title-match report, dated cup scorer, explicit title-side recollection or 1985 signing. Watterson is named as González's teammate and goalkeeper in a March 1986 Chilean newspaper interview and tentatively identified in a circa-1985 team photo caption; exact league appearance not established. De Leur and Kershaw are identified in Ngubane's account of the 1984 recruitment forming the title-winning side; 1985 continuity is indirect. Legodi excluded because season records place him at Witbank Aces in 1985. Unknown outfield roles left unset. Not a documented match XI or exhaustive squad."
+    "note": "Durban Bush Bucks, not Umtata. Nine players directly tied to 1985 by title-match report, dated cup scorer, explicit title-side recollection or 1985 signing. Watterson is named as González's teammate and goalkeeper in a March 1986 Chilean newspaper interview and tentatively identified in a circa-1985 team photo caption; exact league appearance not established. De Leur and Kershaw are identified in Ngubane's account of the 1984 recruitment forming the title-winning side; 1985 continuity is indirect. Legodi excluded because season records place him at Witbank Aces in 1985. Unknown outfield roles left unset. Not a documented match XI or exhaustive squad."
   }
 ];
  for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10,...batch11,...batch12,...batch13,...batch14]){
