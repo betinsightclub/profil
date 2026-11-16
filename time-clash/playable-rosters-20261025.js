@@ -1348,7 +1348,8 @@
     "mode": "augment",
     "sources": [
       "https://en-academic.com/dic.nsf/enwiki/11670845",
-      "https://iol.co.za/capeargus/sport/2003-01-25-no-drastic-changes-at-hellenic-tovey/"
+      "https://iol.co.za/capeargus/sport/2003-01-25-no-drastic-changes-at-hellenic-tovey/",
+      "https://www.academia.edu/21726795/Gone_and_Almost_Forgotten_The_Dynamics_of_Professional_White_Football_in_South_Africa_1959_1990"
     ],
     "groups": [
       "Alan Watt",
@@ -1356,14 +1357,15 @@
       "",
       ""
     ],
-    "note": "Existing master roster retained without re-verifying every individual or position. An older archived encyclopedia lists Alan Watt as Durban City goalkeeper in 1979 and 1981–1983; the independent 2003 Cape Argus retrospective names Alan Watts in the 1982/83 championship-era team, corroborating club and era but not position or individual match appearances. Spelling variant and secondary-source status retained; no original match XI or exhaustive squad claimed."
+    "note": "Existing master roster retained without re-verifying every individual or position. An older archived encyclopedia lists Alan Watt as Durban City goalkeeper in 1979 and 1981–1983; the independent 2003 Cape Argus retrospective names Alan Watts in the 1982/83 championship-era team, corroborating club and era but not position or individual match appearances. Independent sports-history research quotes former teammate Neill Roberts identifying Alan Watt as goalkeeper in an earlier Durban City match, corroborating identity and position but not the specific 1982/83 dates. Spelling variant and secondary-source status retained; no original match XI or exhaustive squad claimed."
   },
   {
     "key": "Durban City 1983",
     "mode": "augment",
     "sources": [
       "https://en-academic.com/dic.nsf/enwiki/11670845",
-      "https://iol.co.za/capeargus/sport/2003-01-25-no-drastic-changes-at-hellenic-tovey/"
+      "https://iol.co.za/capeargus/sport/2003-01-25-no-drastic-changes-at-hellenic-tovey/",
+      "https://www.academia.edu/21726795/Gone_and_Almost_Forgotten_The_Dynamics_of_Professional_White_Football_in_South_Africa_1959_1990"
     ],
     "groups": [
       "Alan Watt",
@@ -1371,10 +1373,89 @@
       "",
       ""
     ],
-    "note": "Existing master roster retained without re-verifying every individual or position. An older archived encyclopedia lists Alan Watt as Durban City goalkeeper in 1979 and 1981–1983; the independent 2003 Cape Argus retrospective names Alan Watts in the 1982/83 championship-era team, corroborating club and era but not position or individual match appearances. Spelling variant and secondary-source status retained; no original match XI or exhaustive squad claimed."
+    "note": "Existing master roster retained without re-verifying every individual or position. An older archived encyclopedia lists Alan Watt as Durban City goalkeeper in 1979 and 1981–1983; the independent 2003 Cape Argus retrospective names Alan Watts in the 1982/83 championship-era team, corroborating club and era but not position or individual match appearances. Independent sports-history research quotes former teammate Neill Roberts identifying Alan Watt as goalkeeper in an earlier Durban City match, corroborating identity and position but not the specific 1982/83 dates. Spelling variant and secondary-source status retained; no original match XI or exhaustive squad claimed."
   }
 ];
- for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10,...batch11,...batch12,...batch13,...batch14,...batch15,...batch16,...batch17,...batch18,...batch19,...batch20]){
+ // Batch 21: dated Orlando Pirates match reports and firsthand testimony.
+ const batch21=[
+  {
+    "key": "Orlando Pirates 1971",
+    "mode": "augment",
+    "sources": [
+      "https://www.psl.co.za/news/article/5360794-the-10-best-soweto-derby-clashes-of-a",
+      "https://supersport.com/football/news/5fd770d2-99ed-4fad-90cd-9575cb7d562e/custodians-of-the-derby",
+      "https://www.kaizerchiefs.com/news/kaizer-chiefs-vs-orlando-pirates-head-head-south-african-cup"
+    ],
+    "groups": [
+      "Simon Mathebela",
+      "",
+      "",
+      "",
+      "Johnny Kekana;Hubert Leroke;Alfred Jacobs"
+    ],
+    "note": "Four additional players: Mathebela is explicitly identified as Pirates goalkeeper in the 1971 derby; Kekana, Leroke and Jacobs scored for Pirates on 24 April 1971. Existing eight master names and roles retained, not individually re-audited. Scorer positions left unknown. No historical XI or exhaustive roster claimed."
+  },
+  {
+    "key": "Orlando Pirates 1973",
+    "mode": "augment",
+    "sources": [
+      "https://www.learnandteach.org.za/post/sha-a-a-kes",
+      "https://www.orlandopiratesfc.com/football-news/orlando-pirates-in-the-nedbank-cup/",
+      "https://www.news24.com/sport/soccer/psl/an-interview-with-the-man-i-killed-20170722",
+      "https://www.timeslive.co.za/sport/soccer/2010-05-01-where-are-they-now-webster-city-late-lichaba/",
+      "https://www.psl.co.za/news/article/5360794-the-10-best-soweto-derby-clashes-of-a",
+      "https://campaigns.supersport.com/football/mtn8/news/55c353b0-20f4-48fb-a5e2-2ce8bba34e24/orlando-pirates-cup-final-history"
+    ],
+    "groups": [
+      "Patson Banda",
+      "Ephraim Mashaba",
+      "Webster Lichaba",
+      "McDonald Skosana",
+      "Ronnie Shongwe;Solomon Padi;Simon Mothoa"
+    ],
+    "note": "Mashaba's 1987 first-person interview explicitly names the 1973 team including Shongwe, Padi, Skosana, Banda and Lichaba; club history corroborates Banda and the 1973 cup title; Mothoa scored twice in the 1973 cup final. Roles for Mashaba, Banda, Lichaba and Skosana supported by interviews and match reports (Skosana also spelled Skhosana). Existing six names retained; unverified roles left unknown. Not a documented match XI."
+  },
+  {
+    "key": "Orlando Pirates 1975",
+    "mode": "augment",
+    "sources": [
+      "https://www.psl.co.za/news/article/5360794-the-10-best-soweto-derby-clashes-of-a",
+      "https://supersport.com/football/news/e8186e46-6094-437e-8261-bb5d23262899/the-10-best-soweto-derby-clashes-of-all-time",
+      "https://www.kaizerchiefs.com/news/kaizer-chiefs-vs-orlando-pirates-head-head-south-african-cup",
+      "https://www.timeslive.co.za/sport/soccer/2010-05-01-where-are-they-now-webster-city-late-lichaba/"
+    ],
+    "groups": [
+      "Patson Banda",
+      "Ephraim Mashaba",
+      "Webster Lichaba",
+      "",
+      "Elias Banda;Ntsoseng;Jacob Motaung"
+    ],
+    "note": "All six added names occur in 1975 match reports: goalkeeper Banda, Elias Banda, Ntsoseng, Jacob Motaung and Mashaba on 1 April; Webster Lichaba and Jacob Motaung on 18 October (official Chiefs archive). Mashaba's general defender role from 1974 match report; Lichaba midfield from firsthand career interview; Ntsoseng remains archival short name. Existing five names retained, not individually re-audited. No exhaustive roster or exact match XI."
+  },
+  {
+    "key": "Orlando Pirates 1976",
+    "mode": "augment",
+    "sources": [
+      "https://www.fourfourtwo.com/features/soweto-1976-greatest-games",
+      "https://historyofsouthafricanfootball.com/biography-of-shakes-mashaba-the-disciplinarian-of-south-african-football/",
+      "https://nasljerseys.com/~nasljers/Players/L/Lichaba.Webster.htm",
+      "https://sahistory.org.za/article/football-south-africa-timeline-1862-2012",
+      "https://weeklysamirror.news/farewell-mr-jones/",
+      "https://www.sowetan.co.za/sport/2012-07-05-legends-corner-crossing-the-great-divide-with-johannes-kholoane/",
+      "https://mg.co.za/sport/2014-03-27-how-do-we-bridge-sport-s-great-divide/"
+    ],
+    "groups": [
+      "Patson Banda",
+      "Ephraim Mashaba",
+      "Webster Lichaba",
+      "Johannes \"Big Boy\" Kholoane",
+      "Keith Broad;Phil Setshedi"
+    ],
+    "note": "1976 match historical account identifies Banda as Pirates keeper; Mashaba biography lists 1976 title; Lichaba career archive covers the season, with corroborating 1976 selection account; Broad and Setshedi explicitly joined in 1976; Kholoane recalls his scoring Pirates debut in 1976 in an interview. Kholoane retains existing master identity and general forward role from prior club entry. Unknown positions not invented. Five baseline names retained, not individually re-audited. No exact historical XI."
+  }
+];
+ for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10,...batch11,...batch12,...batch13,...batch14,...batch15,...batch16,...batch17,...batch18,...batch19,...batch20,...batch21]){
   const known=Array.isArray(db[t.key])?db[t.key]:[];
   const next=t.mode==="augment"?new Map(known.filter(p=>!p.reconstructed).map(p=>[p.id,{...p,starter:false}])):new Map();
   for(let i=0;i<t.groups.length;i++)for(const raw of t.groups[i].split(";").filter(Boolean)){
