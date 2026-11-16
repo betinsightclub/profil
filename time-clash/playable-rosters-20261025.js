@@ -1205,7 +1205,32 @@
     "note": "Durban Bush Bucks, not Umtata. Nine players directly tied to 1985 by title-match report, dated cup scorer, explicit title-side recollection or 1985 signing. Watterson is named as González's teammate and goalkeeper in a March 1986 Chilean newspaper interview and tentatively identified in a circa-1985 team photo caption; exact league appearance not established. De Leur and Kershaw are identified in Ngubane's account of the 1984 recruitment forming the title-winning side; 1985 continuity is indirect. Legodi excluded because season records place him at Witbank Aces in 1985. Unknown outfield roles left unset. Not a documented match XI or exhaustive squad."
   }
 ];
- for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10,...batch11,...batch12,...batch13,...batch14]){
+ // Batch 15: direct season records and a qualified championship-generation roll.
+ const batch15=[
+  {
+    "key": "MAS Fès 1978/79",
+    "mode": "selection",
+    "coach": "Jean-Pierre Knayer",
+    "sources": [
+      "https://www.national-football-teams.com/app.php/de/old/club/1666/1978_1/Maghreb_As_Fes.html",
+      "https://m.elbotola.com/article/2011-05-02-15-33-313.html",
+      "https://www.moroccosports.net/1229/142449-%D8%A7%D9%84%D9%85%D8%BA%D8%B1%D8%A8-%D8%A7%D9%84%D9%81%D8%A7%D8%B3%D9%8A-%D8%AA%D8%A7%D8%B1%D9%8A%D8%AE-%D8%B9%D8%B1%D9%8A%D9%82-%D9%88%D8%AD%D9%8F%D9%84%D9%85-%D9%84%D9%85-%D9%8A%D8%AA%D8%AD%D9%82%D9%82-%D8%A8%D8%B9%D8%AF-%D8%A8%D8%A7%D9%84%D8%B5%D8%B9%D9%88%D8%AF-%D9%84%D8%AF%D9%88%D8%B1%D9%8A-%D8%A7%D9%84%D9%82%D8%B3%D9%85",
+      "https://www.snrt.ma/index.php/ar/node/15526",
+      "https://www.almountakhab.com/node/179169",
+      "https://www.transfermarkt.fr/mas-fes/startseite/verein/3282/saison_id/1978",
+      "https://snrtnews.com/fr/article/la-frmf-rend-hommage-aux-anciens-joueurs-du-mas-et-du-codm-a-fes-127033"
+    ],
+    "groups": [
+      "Hamid Hazzaz",
+      "Abdelwahab Atik;Ahmed Limane",
+      "Hamid Khourag;Driss Mouttaqui;Abdelaziz Souleimani;Abdallah Tazi;Abdelâali Zahraoui;Abdessalam Bounou",
+      "Redouane El-Guezzar",
+      "Abderrahmane Slimani;Ahmed Rahmani;Abdellah Bennay;Noureddine El Youkouri;Abdessalam Bouhmaid"
+    ],
+    "note": "Nine names and their general positions are directly listed in the 1978/79 database. Bounou is explicitly named in a 1978/79 championship retrospective, and SNRT identifies him as a midfielder. The other five names are listed together among the players associated with the 1979 league championship and 1980 cup win in El Botola's 2011 historical testimony; individual 1978/79 match sheets have not been located. Latin spellings of Arabic-only names are transliterations; unknown roles remain unset. Hamid Khourag / Hamid El Kharak is one entry, not two. No historical match XI or complete season squad claimed."
+  }
+];
+ for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10,...batch11,...batch12,...batch13,...batch14,...batch15]){
   const known=Array.isArray(db[t.key])?db[t.key]:[];
   const next=t.mode==="augment"?new Map(known.filter(p=>!p.reconstructed).map(p=>[p.id,{...p,starter:false}])):new Map();
   for(let i=0;i<t.groups.length;i++)for(const raw of t.groups[i].split(";").filter(Boolean)){
