@@ -1303,7 +1303,45 @@
     "note": "Seven names and roles are from the direct 1974/75 season list. Al Mountakhab explicitly identifies Saïd as goalkeeper and names Hadidi among the championship squad. Jouit is named among the 1974/75 title players in Merzaq's biographical account and is spelled Jouit in a firsthand 2022 retrospective; the Al Mountakhab list uses a differing spelling. Jbara and El Idrissi are named in the 2022 retrospective of the 1975 championship team. No invented first names or field positions. Arabic names transliterated; omitted potentially overlapping incomplete names. No exact match XI or exhaustive season squad claimed."
   }
 ];
- for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10,...batch11,...batch12,...batch13,...batch14,...batch15,...batch16,...batch17,...batch18]){
+ // Batch 19: fill outfield shortages exposed by strict one-keeper validation.
+ const batch19=[
+  {
+    "key": "Kaizer Chiefs 1989",
+    "mode": "selection",
+    "sources": [
+      "https://www.national-football-teams.com/club/2261/1989_2/Kaizer_Chiefs_Soweto.html",
+      "https://www.kaizerchiefs.com/news/memoirs-with-gary-bailey-1988-89/",
+      "https://www.kaizerchiefs.com/news/special-amakhosi-reunion-class-89/"
+    ],
+    "groups": [
+      "Gary Bailey;Wade du Plessis;William Shongwe",
+      "Lucas Radebe;Matthews Phiri;Rudolph Seale;Mark Tovey",
+      "Doctor Khumalo",
+      "Phil Masinga;Albert Bwalya;Marks Maponyane;Shane McGregor;Absalom Thindwa",
+      "Trevor Mthimkhulu;Chippa Molatedi;Donald Khuse;Howard Freeze;Mike Mangena"
+    ],
+    "note": "Existing season list retained, six additional members named in goalkeeper Gary Bailey's 1989 team recollection or official 1989 team reunion. Donald 'Ace' Khuse, not Patrick 'Ace' Ntsoelengoe. Unverified outfield roles remain unset; not a complete season squad."
+  },
+  {
+    "key": "Moghreb Tétouan 2013/14",
+    "mode": "match",
+    "date": "2014-05-25",
+    "sources": [
+      "https://ofsayt.com/futbol/mac/moghreb-tetouan-berkane-20140525/a7b900f3-1f9f-4b46-8a8d-de4bb16c471e/detay",
+      "https://national-football-teams.com/club/4627/2013_1/Moghreb_Tetouan.html",
+      "https://www.transfermarkt.com/moghreb-tetouan/tabelle/verein/9100/saison_id/2013"
+    ],
+    "groups": [
+      "*Mohamed El Yousfi;Aziz El Kinani",
+      "*Anass Lamrabat;*Mohamed Abarhoun;Zakaria Melhaoui;El Mehdi El Bassil",
+      "*Ahmed Jahouh;*Zaïd Karouch;Mehdi Namli",
+      "*Abdeladim Khadrouf;*Zouheir Naim",
+      "*Bilal Zeryouh;*Mehdi Khallati;*Noussair El Mimouni;*Abdelmoula El Hardoumi"
+    ],
+    "note": "Documented starting XI of the 2–1 title-clinching final-round match against RS Berkane, 25 May 2014; alternate spellings Aberhoun/Krouch/Naim normalized to existing season-list names. Four additional starters have roles left unspecified here. Other season-listed players retained as reserves; no exhaustive squad claimed."
+  }
+];
+ for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10,...batch11,...batch12,...batch13,...batch14,...batch15,...batch16,...batch17,...batch18,...batch19]){
   const known=Array.isArray(db[t.key])?db[t.key]:[];
   const next=t.mode==="augment"?new Map(known.filter(p=>!p.reconstructed).map(p=>[p.id,{...p,starter:false}])):new Map();
   for(let i=0;i<t.groups.length;i++)for(const raw of t.groups[i].split(";").filter(Boolean)){
