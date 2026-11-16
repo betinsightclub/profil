@@ -1255,7 +1255,32 @@
     "note": "Career intervals cover 1975/76 for Ouaraghli, Rabih, Aherdane, El-Andaloussi, Sehaita, Abdouali and Saber. Zaghrari is in both adjacent season lists. Moujahid's published honours include the 1976 title and a federation obituary confirms his Wydad career. Hamouni, Baâni and Mohamed Baba are named as departures before 1976/77 in a retrospective citing the old club archive; their precise match appearances and field positions are unverified, and the archived original is not presently accessible. Choukri and Mouissa excluded due to conflicting arrival dates. Not an original match XI or exhaustive squad."
   }
 ];
- for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10,...batch11,...batch12,...batch13,...batch14,...batch15,...batch16]){
+ // Batch 17: dated historical match XI with independently identified goalkeeper.
+ const batch17=[
+  {
+    "key": "Renaissance Settat 1970/71",
+    "mode": "match",
+    "date": "1970-09-04",
+    "coach": "Larbi Ben Barek",
+    "sources": [
+      "https://sebbar.kazeo.com/mca-1970-1971-a120165772",
+      "https://lematin.ma/journal/2016/les-indiscretions-de-ali-hassouni/240735.html",
+      "https://ahdathsa3a24.com/2020/10/11/%D9%86%D8%A8%D8%B4-%D9%81%D9%8A-%D8%A7%D9%84%D8%B0%D8%A7%D9%83%D8%B1%D8%A9-%D8%A7%D9%84%D8%B3%D8%B7%D8%A7%D8%AA%D9%8A%D8%A9-%D8%AD%D9%83%D8%A7%D9%8A%D8%A9-%D8%A3%D8%B3%D8%A7%D8%B7%D9%8A%D8%B1-%D8%A7/",
+      "https://national-football-teams.com/club/7899/1970_1/Renaissance_Settat.html",
+      "https://www.rsssf.org/tablesm/marocup71.html",
+      "https://www.transfermarkt.com/renaissance-de-settat/startseite/verein/30547/saison_id/1970"
+    ],
+    "groups": [
+      "*Abderrahmane Kabrite (Gabarit)",
+      "Kacem Slimani",
+      "",
+      "*Maati Khazzar;*Ahmed Alaoui",
+      "*Kandil;*Benali;*Fariri;*Amor;*Ahmed;*Bedda;*Driss;*Beloul"
+    ],
+    "note": "Documented eleven from the 4 September 1970 match against MC Alger at the Tournoi de la Presse in Tunis, 2–2 (4–3 on penalties). Source spells the goalkeeper Gabarit; Le Matin identifies him as Abderrahmane Kabrite, and the local Settat retrospective identifies him as goalkeeper. Ahmed is a separate entry from Alaoui in the source; no unverified expansion of that name. Maati and Alaoui expanded using the season database. Slimani is an additional season-listed defender, not a starter in this reference match. Other names retain match-source spelling and unverified field roles remain unset. No exact historical formation or exhaustive season squad claimed."
+  }
+];
+ for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10,...batch11,...batch12,...batch13,...batch14,...batch15,...batch16,...batch17]){
   const known=Array.isArray(db[t.key])?db[t.key]:[];
   const next=t.mode==="augment"?new Map(known.filter(p=>!p.reconstructed).map(p=>[p.id,{...p,starter:false}])):new Map();
   for(let i=0;i<t.groups.length;i++)for(const raw of t.groups[i].split(";").filter(Boolean)){
