@@ -1178,7 +1178,34 @@
     "note": "Five players directly listed in the 1988 season database; Troughton is recorded as 1988–1990 and situationally described as midfield or forward. Anderson, Ntombela, Molefe, Johannes 'Bricks' Mudau and Rabie Moripe are identified in contemporary-generation captain interviews and the 1986/87 recruitment retrospective. Those five are supported by period continuity, not individually verified 1988 match appearances. Johannes 'Bricks' Mudau is distinct from later striker Daniel 'Mambush' Mudau. The selection is not a match XI or complete squad."
   }
 ];
- for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10,...batch11,...batch12,...batch13]){
+ // Batch 14: match scorers, dated championship recollections and qualified continuity.
+ const batch14=[
+  {
+    "key": "Bush Bucks 1985",
+    "mode": "selection",
+    "coach": "Clive Barker",
+    "sources": [
+      "https://www.sportsclub.co.za/features/barkers-brilliance/",
+      "https://www.rsssf.org/tablesz/zaf85.html",
+      "https://www.timeslive.co.za/sport/soccer/2010-06-26-gonzalez-can-rely-on-his-african-roots-to-help-chile/",
+      "https://mg.co.za/2022-02-08-the-genius-of-clive-barker/",
+      "https://www.kaizerchiefs.com/club/gold-memories-with-mike-sporo-mangena",
+      "https://arpa.udp.cl/uploads/r/cenfoto-udp/a/4/8/a48bb3b03039539c102596f1e5e8ff2c48e600f459e083463ef781bb5d8749c5/LN_1986_03_05_flat.pdf",
+      "https://neal-collins.blogspot.com/2013/06/",
+      "https://www.national-football-teams.com/player/13358/Harold_Legodi.html",
+      "https://historyofsouthafricanfootball.com/durban-bush-bucks-the-other-bucks-of-south-african-football/"
+    ],
+    "groups": [
+      "David Watterson",
+      "Mark Tovey;Raúl González;Stuart Turnbull",
+      "Mlungisi Ngubane",
+      "Calvin Petersen;Mike Mangena",
+      "Dennis Wicks;David Magwaza;Dan Ramarutsi;Brummie de Leur;Dave Kershaw"
+    ],
+    "note": "Durban Bush Bucks, not Umtata. Nine players directly tied to 1985 by title-match report, dated cup scorer, explicit title-side recollection or 1985 signing. Watterson is named as González's teammate and goalkeeper in a March 1986 Chilean newspaper interview and tentatively identified in a circa-1985 team photo caption; exact league appearance not established. De Leur and Kershaw are identified in Ngubane's account of the 1984 recruitment forming the title-winning side; 1985 continuity is indirect. Legodi excluded because season records place him at Witbank Aces in 1985. Unknown outfield roles left unset. Not a documented match XI or exhaustive squad."
+  }
+];
+ for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10,...batch11,...batch12,...batch13,...batch14]){
   const known=Array.isArray(db[t.key])?db[t.key]:[];
   const next=t.mode==="augment"?new Map(known.filter(p=>!p.reconstructed).map(p=>[p.id,{...p,starter:false}])):new Map();
   for(let i=0;i<t.groups.length;i++)for(const raw of t.groups[i].split(";").filter(Boolean)){
