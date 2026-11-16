@@ -1280,7 +1280,30 @@
     "note": "Documented eleven from the 4 September 1970 match against MC Alger at the Tournoi de la Presse in Tunis, 2–2 (4–3 on penalties). Source spells the goalkeeper Gabarit; Le Matin identifies him as Abderrahmane Kabrite, and the local Settat retrospective identifies him as goalkeeper. Ahmed is a separate entry from Alaoui in the source; no unverified expansion of that name. Maati and Alaoui expanded using the season database. Slimani is an additional season-listed defender, not a starter in this reference match. Other names retain match-source spelling and unverified field roles remain unset. No exact historical formation or exhaustive season squad claimed."
   }
 ];
- for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10,...batch11,...batch12,...batch13,...batch14,...batch15,...batch16,...batch17]){
+ // Batch 18: direct season list and independently corroborated championship names.
+ const batch18=[
+  {
+    "key": "MC Oujda 1974/75",
+    "mode": "selection",
+    "coach": "Mohamed El Amari",
+    "sources": [
+      "https://www.national-football-teams.com/club/1667/1974_1/Mc_Oujda.html",
+      "https://www.almountakhab.com/node/317890",
+      "https://oujdaregion.com/archives/19582",
+      "https://anfaspress.com/news/voir/104190-2022-09-19-04-38-53",
+      "https://www.rsssf.org/tablesm/maro75.html"
+    ],
+    "groups": [
+      "Saïd",
+      "Mbarek El Filali;Mustapha Tahiri",
+      "Mohamed El Filali;Mohamed Maghfour;Mohamed Merzaq;Kamal Smiri",
+      "Hmida Belhiouane",
+      "Hadidi;Jouit;Jbara;El Idrissi"
+    ],
+    "note": "Seven names and roles are from the direct 1974/75 season list. Al Mountakhab explicitly identifies Saïd as goalkeeper and names Hadidi among the championship squad. Jouit is named among the 1974/75 title players in Merzaq's biographical account and is spelled Jouit in a firsthand 2022 retrospective; the Al Mountakhab list uses a differing spelling. Jbara and El Idrissi are named in the 2022 retrospective of the 1975 championship team. No invented first names or field positions. Arabic names transliterated; omitted potentially overlapping incomplete names. No exact match XI or exhaustive season squad claimed."
+  }
+];
+ for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10,...batch11,...batch12,...batch13,...batch14,...batch15,...batch16,...batch17,...batch18]){
   const known=Array.isArray(db[t.key])?db[t.key]:[];
   const next=t.mode==="augment"?new Map(known.filter(p=>!p.reconstructed).map(p=>[p.id,{...p,starter:false}])):new Map();
   for(let i=0;i<t.groups.length;i++)for(const raw of t.groups[i].split(";").filter(Boolean)){
