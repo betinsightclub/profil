@@ -1470,6 +1470,242 @@
   if(t.coach)coaches[t.key]=t.coach;
   meta[t.key]={...(meta[t.key]||{}),source:t.sources[0],additionalSources:t.sources.slice(1),rosterScope:t.mode==="match"?"DOCUMENTED_MATCH_SELECTION":"HISTORICAL_SEASON_PLAYER_SELECTION",matchDate:t.date||undefined,rosterCompleteness:"NOT_EXHAUSTIVE",lineupPolicy:t.mode==="match"?"DOCUMENTED_XI":"SIMULATION_SELECTED_XI",strengthPolicy:"SIMULATION_ESTIMATE",...(t.note?{sourceQualification:t.note}:{})};
  }
+ // Phase 23: source-backed partial progress; not a complete XI.
+ const partial23=[
+  {
+    "key": "Kénitra AC 1972/73",
+    "rows": [
+      [
+        "Miloud Touihina",
+        "",
+        [
+          "https://akhbaralfajr.ma/%D8%A3%D8%B1%D9%82%D8%A7%D9%85-%D9%88%D8%A5%D8%AD%D8%B5%D8%A7%D8%A1%D9%8A%D8%A7%D8%AA-%D8%A8%D8%B9%D8%AF-%D8%A7%D9%84%D9%85%D8%BA%D8%A7%D8%AF%D8%B1%D8%A9-%D8%B1%D8%B3%D9%85%D9%8A%D8%A7-%D8%A5/",
+          "https://alyaoum24.com/577953.html"
+        ]
+      ],
+      [
+        "Ali Barka (Licha)",
+        "",
+        [
+          "https://akhbaralfajr.ma/%D8%A3%D8%B1%D9%82%D8%A7%D9%85-%D9%88%D8%A5%D8%AD%D8%B5%D8%A7%D8%A1%D9%8A%D8%A7%D8%AA-%D8%A8%D8%B9%D8%AF-%D8%A7%D9%84%D9%85%D8%BA%D8%A7%D8%AF%D8%B1%D8%A9-%D8%B1%D8%B3%D9%85%D9%8A%D8%A7-%D8%A5/",
+          "https://mawsoati.com/plus/%D8%A7/%D9%84/%D9%86/%D8%A7%D9%84%D9%86%D8%A7%D8%AF%D9%8A_%D8%A7%D9%84%D9%82%D9%86%D9%8A%D8%B7%D8%B1%D9%8A.html"
+        ]
+      ],
+      [
+        "Mohamed Zouita (Kala)",
+        "",
+        [
+          "https://akhbaralfajr.ma/%D8%A3%D8%B1%D9%82%D8%A7%D9%85-%D9%88%D8%A5%D8%AD%D8%B5%D8%A7%D8%A1%D9%8A%D8%A7%D8%AA-%D8%A8%D8%B9%D8%AF-%D8%A7%D9%84%D9%85%D8%BA%D8%A7%D8%AF%D8%B1%D8%A9-%D8%B1%D8%B3%D9%85%D9%8A%D8%A7-%D8%A5/",
+          "https://mawsoati.com/plus/%D8%A7/%D9%84/%D9%86/%D8%A7%D9%84%D9%86%D8%A7%D8%AF%D9%8A_%D8%A7%D9%84%D9%82%D9%86%D9%8A%D8%B7%D8%B1%D9%8A.html"
+        ]
+      ],
+      [
+        "Boukhari",
+        "",
+        [
+          "https://akhbaralfajr.ma/%D8%A3%D8%B1%D9%82%D8%A7%D9%85-%D9%88%D8%A5%D8%AD%D8%B5%D8%A7%D8%A1%D9%8A%D8%A7%D8%AA-%D8%A8%D8%B9%D8%AF-%D8%A7%D9%84%D9%85%D8%BA%D8%A7%D8%AF%D8%B1%D8%A9-%D8%B1%D8%B3%D9%85%D9%8A%D8%A7-%D8%A5/"
+        ]
+      ],
+      [
+        "Abdelkader",
+        "",
+        [
+          "https://akhbaralfajr.ma/%D8%A3%D8%B1%D9%82%D8%A7%D9%85-%D9%88%D8%A5%D8%AD%D8%B5%D8%A7%D8%A1%D9%8A%D8%A7%D8%AA-%D8%A8%D8%B9%D8%AF-%D8%A7%D9%84%D9%85%D8%BA%D8%A7%D8%AF%D8%B1%D8%A9-%D8%B1%D8%B3%D9%85%D9%8A%D8%A7-%D8%A5/"
+        ]
+      ],
+      [
+        "Pam Pam",
+        "",
+        [
+          "https://akhbaralfajr.ma/%D8%A3%D8%B1%D9%82%D8%A7%D9%85-%D9%88%D8%A5%D8%AD%D8%B5%D8%A7%D8%A1%D9%8A%D8%A7%D8%AA-%D8%A8%D8%B9%D8%AF-%D8%A7%D9%84%D9%85%D8%BA%D8%A7%D8%AF%D8%B1%D8%A9-%D8%B1%D8%B3%D9%85%D9%8A%D8%A7-%D8%A5/"
+        ]
+      ],
+      [
+        "Cherkaoui",
+        "",
+        [
+          "https://akhbaralfajr.ma/%D8%A3%D8%B1%D9%82%D8%A7%D9%85-%D9%88%D8%A5%D8%AD%D8%B5%D8%A7%D8%A1%D9%8A%D8%A7%D8%AA-%D8%A8%D8%B9%D8%AF-%D8%A7%D9%84%D9%85%D8%BA%D8%A7%D8%AF%D8%B1%D8%A9-%D8%B1%D8%B3%D9%85%D9%8A%D8%A7-%D8%A5/"
+        ]
+      ],
+      [
+        "Benaissa",
+        "",
+        [
+          "https://akhbaralfajr.ma/%D8%A3%D8%B1%D9%82%D8%A7%D9%85-%D9%88%D8%A5%D8%AD%D8%B5%D8%A7%D8%A1%D9%8A%D8%A7%D8%AA-%D8%A8%D8%B9%D8%AF-%D8%A7%D9%84%D9%85%D8%BA%D8%A7%D8%AF%D8%B1%D8%A9-%D8%B1%D8%B3%D9%85%D9%8A%D8%A7-%D8%A5/"
+        ]
+      ],
+      [
+        "Messaoud",
+        "",
+        [
+          "https://akhbaralfajr.ma/%D8%A3%D8%B1%D9%82%D8%A7%D9%85-%D9%88%D8%A5%D8%AD%D8%B5%D8%A7%D8%A1%D9%8A%D8%A7%D8%AA-%D8%A8%D8%B9%D8%AF-%D8%A7%D9%84%D9%85%D8%BA%D8%A7%D8%AF%D8%B1%D8%A9-%D8%B1%D8%B3%D9%85%D9%8A%D8%A7-%D8%A5/"
+        ]
+      ]
+    ],
+    "note": "Season retrospective lists nine additional names; short names are archival transliterations. Exact roles unknown, including potential keeper. Aziz and Noureddine withheld; original baseline retained."
+  },
+  {
+    "key": "Wydad AC Casablanca 1976/77",
+    "rows": [
+      [
+        "Ahmed Moujahid",
+        "MIT",
+        [
+          "https://kiwix.frbxdan.fr/content/wikipedia_fr_all_maxi_2025-06/Saison_1976-1977_du_Wydad_Athletic_Club",
+          "https://fr.wikipedia.org/wiki/Ahmed_Moujahid"
+        ]
+      ],
+      [
+        "Keita",
+        "",
+        [
+          "https://kiwix.frbxdan.fr/content/wikipedia_fr_all_maxi_2025-06/Saison_1976-1977_du_Wydad_Athletic_Club",
+          "https://albayane.press.ma/le-derby-casablancais-et-le-clasico-espagnol-dhier-a-aujourdhui.html"
+        ]
+      ],
+      [
+        "Safari",
+        "",
+        [
+          "https://kiwix.frbxdan.fr/content/wikipedia_fr_all_maxi_2025-06/Saison_1976-1977_du_Wydad_Athletic_Club",
+          "https://albayane.press.ma/le-derby-casablancais-et-le-clasico-espagnol-dhier-a-aujourdhui.html"
+        ]
+      ],
+      [
+        "Breija",
+        "",
+        [
+          "https://kiwix.frbxdan.fr/content/wikipedia_fr_all_maxi_2025-06/Saison_1976-1977_du_Wydad_Athletic_Club",
+          "https://albayane.press.ma/le-derby-casablancais-et-le-clasico-espagnol-dhier-a-aujourdhui.html"
+        ]
+      ],
+      [
+        "Lachheb",
+        "",
+        [
+          "https://kiwix.frbxdan.fr/content/wikipedia_fr_all_maxi_2025-06/Saison_1976-1977_du_Wydad_Athletic_Club",
+          "https://albayane.press.ma/le-derby-casablancais-et-le-clasico-espagnol-dhier-a-aujourdhui.html"
+        ]
+      ]
+    ],
+    "note": "Season list names these five; derby retrospective supports club association. Chicha withheld because first name differs across sources. No verified keeper; unknown roles not assumed."
+  },
+  {
+    "key": "Jomo Cosmos 1987",
+    "rows": [
+      [
+        "Alfred \"Shakes\" Gwabeni",
+        "MIT",
+        [
+          "https://www.timeslive.co.za/sport/2012-01-22-lean-and-mean-in-his-prime-gwabeni-is-still-fit-as-a-fiddle/",
+          "https://www.timeslive.co.za/sport/soccer/2009-09-10-obituary-ernest-botsotso-makhanya-pirates-midfield-maestro/"
+        ]
+      ],
+      [
+        "Pitso Mosimane",
+        "MIT",
+        [
+          "https://www.timeslive.co.za/sport/2012-01-22-lean-and-mean-in-his-prime-gwabeni-is-still-fit-as-a-fiddle/",
+          "https://www.sowetan.co.za/sport/2014-05-06-pitsos-party-starts-early/",
+          "https://www--worldfootball--net.c.hs-data.com/person/pe251576/pitso-mosimane/"
+        ]
+      ],
+      [
+        "Webster Lichaba",
+        "MIT",
+        [
+          "https://www.timeslive.co.za/sport/2012-01-22-lean-and-mean-in-his-prime-gwabeni-is-still-fit-as-a-fiddle/",
+          "https://www.timeslive.co.za/sport/soccer/2010-05-01-where-are-they-now-webster-city-late-lichaba/"
+        ]
+      ],
+      [
+        "Thomas Madigage",
+        "MIT",
+        [
+          "https://www.timeslive.co.za/sport/2012-01-22-lean-and-mean-in-his-prime-gwabeni-is-still-fit-as-a-fiddle/",
+          "https://kaya959.co.za/sports/pitso-mosimane-remembers-thomas-madigage-10-years-after-his-passing",
+          "https://en.wikipedia.org/wiki/Thomas_Madigage"
+        ]
+      ],
+      [
+        "Johnny \"Black Sunday\" Masegela",
+        "ST",
+        [
+          "https://www.timeslive.co.za/sport/2012-01-22-lean-and-mean-in-his-prime-gwabeni-is-still-fit-as-a-fiddle/",
+          "https://iol.co.za/business-report/opinion/2010-04-11-statistics-and-soccer-make-a-great-match/"
+        ]
+      ],
+      [
+        "Gesond Vilakazi",
+        "ABW",
+        [
+          "https://www.timeslive.co.za/sport/2012-01-22-lean-and-mean-in-his-prime-gwabeni-is-still-fit-as-a-fiddle/",
+          "https://blog.hollywoodbets.net/soccer/jerry-sikhosana-interview-with-eggs/"
+        ]
+      ],
+      [
+        "Basil Gwangwa",
+        "",
+        [
+          "https://www.timeslive.co.za/sport/2012-01-22-lean-and-mean-in-his-prime-gwabeni-is-still-fit-as-a-fiddle/"
+        ]
+      ]
+    ],
+    "note": "Gwabeni's firsthand championship recollection identifies seven additions; Lichaba, Mosimane and Madigage independently confirm season. Unknown role of Gwangwa not assigned. Farouk Abrahams was club keeper but specific 1987 date not established."
+  },
+  {
+    "key": "Olympique Casablanca 1993/94",
+    "rows": [
+      [
+        "Valeriu Tița",
+        "MIT",
+        [
+          "https://www.prosport.ro/sport-life/o-mie-si-una-de-povesti-din-golf-valeriu-tita-a-facut-cariera-in-tarile-din-golf-iar-razboiul-care-a-inceput-in-siria-l-a-facut-sa-ia-o-scurta-pauza-10271060",
+          "https://www.thenationalnews.com/sport/sharjah-plug-their-coach-gap-with-romanian-1.456000/",
+          "https://gulfnews.com/sport/football/valeriu-tita-unveiled-as-new-sharjah-coach-1.868823"
+        ]
+      ]
+    ],
+    "note": "Own interview and independent press confirm 1993/94 champion. Rossi omitted due to conflicting dates; Ouzougate listed at Al-Ittihad that season."
+  },
+  {
+    "key": "AmaZulu 1972",
+    "rows": [
+      [
+        "Fred Mfeka",
+        "TW",
+        [
+          "https://amazulufc.com/hall-of-fame/"
+        ],
+        "mfeka"
+      ],
+      [
+        "Cedric \"Sugar Ray\" Xulu",
+        "MIT",
+        [
+          "https://amazulufc.com/hall-of-fame/"
+        ],
+        "cedric-sugar-ray-xulu"
+      ],
+      [
+        "Eric \"Nduna KaNdaba\" Ngidi",
+        "ABW",
+        [
+          "https://amazulufc.com/hall-of-fame/"
+        ],
+        "eric-nduna-kandaba-ngidi"
+      ]
+    ],
+    "note": "Official club Hall of Fame confirms full keeper name and corrects Xulu to midfield and captain Ngidi to defence. Stable existing IDs retained."
+  }
+];
+ for(const t of partial23){
+ const known=db[t.key];if(!Array.isArray(known))throw new Error("Missing partial roster "+t.key);
+ const next=new Map(known.map(p=>[p.id,p]));
+ for(const [name,pos,sources,stableId] of t.rows){const key=stableId||id(name),old=next.get(key)||{};next.set(key,{...old,id:key,name,pos,prole:pos?undefined:"Feldspieler",role:undefined,starter:old.starter??false,impact:old.impact||3,provenance:"DOCUMENTED_ROSTER",sourceRefs:sources,positionPolicy:pos?"DOCUMENTED_OR_GENERAL_ROLE":"UNCONFIRMED"});}
+ db[t.key]=[...next.values()].map((p,i)=>({...p,squadIndex:i}));
+ meta[t.key]={...(meta[t.key]||{}),rosterScope:"PARTIAL_HISTORICAL_SEASON_SELECTION",rosterCompleteness:"INCOMPLETE",lineupPolicy:"NOT_READY",sourceQualification:t.note};
+ }
  // Never fabricate historical names or silently fill missing squad places.
  window.TC_COMPLETE_ROSTERS=function(){return 0;};
  window.TC_RECONSTRUCTION_STATUS={reconstructionPolicy:"DISABLED",generatedOn:"2026-11-14"};
