@@ -1230,7 +1230,32 @@
     "note": "Nine names and their general positions are directly listed in the 1978/79 database. Bounou is explicitly named in a 1978/79 championship retrospective, and SNRT identifies him as a midfielder. The other five names are listed together among the players associated with the 1979 league championship and 1980 cup win in El Botola's 2011 historical testimony; individual 1978/79 match sheets have not been located. Latin spellings of Arabic-only names are transliterations; unknown roles remain unset. Hamid Khourag / Hamid El Kharak is one entry, not two. No historical match XI or complete season squad claimed."
   }
 ];
- for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10,...batch11,...batch12,...batch13,...batch14,...batch15]){
+ // Batch 16: career intervals and prior-season departures; archival names retained.
+ const batch16=[
+  {
+    "key": "Wydad AC Casablanca 1975/76",
+    "mode": "selection",
+    "sources": [
+      "https://dimasbaa.com/en/club/wydad-athletic-club",
+      "https://national-football-teams.com/de/club/1670/1974_1/Wydad_Ac_Casablanca.html",
+      "https://www.national-football-teams.com/app.php/club/1670/1976_1/Wydad_Ac_Casablanca.html",
+      "https://fr.wikipedia.org/wiki/Saison_1976-1977_du_Wydad_Athletic_Club",
+      "https://lematin.ma/journal/2006/Football_Le-WAC-forme-des-gardiens-de-but/4229/amp",
+      "https://fr.wikipedia.org/wiki/Ahmed_Moujahid",
+      "https://snrtnews.com//fr/article/ahmed-moujahid-champion-dafrique-1976-nest-plus-144112",
+      "https://www.rsssf.org/tablesm/maro76.html"
+    ],
+    "groups": [
+      "Abdelkader Ouaraghli",
+      "Mohamed Rabih;Larbi Aherdane;Jawad Abbad El-Andaloussi",
+      "Mustapha Zaghrari;Ahmed Moujahid",
+      "Abdelmajid Sehaita;Ahmed Abdouali;Abdelkhalek Saber",
+      "Hamouni;Baâni;Mohamed Baba"
+    ],
+    "note": "Career intervals cover 1975/76 for Ouaraghli, Rabih, Aherdane, El-Andaloussi, Sehaita, Abdouali and Saber. Zaghrari is in both adjacent season lists. Moujahid's published honours include the 1976 title and a federation obituary confirms his Wydad career. Hamouni, Baâni and Mohamed Baba are named as departures before 1976/77 in a retrospective citing the old club archive; their precise match appearances and field positions are unverified, and the archived original is not presently accessible. Choukri and Mouissa excluded due to conflicting arrival dates. Not an original match XI or exhaustive squad."
+  }
+];
+ for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10,...batch11,...batch12,...batch13,...batch14,...batch15,...batch16]){
   const known=Array.isArray(db[t.key])?db[t.key]:[];
   const next=t.mode==="augment"?new Map(known.filter(p=>!p.reconstructed).map(p=>[p.id,{...p,starter:false}])):new Map();
   for(let i=0;i<t.groups.length;i++)for(const raw of t.groups[i].split(";").filter(Boolean)){
