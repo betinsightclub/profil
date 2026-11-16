@@ -1155,7 +1155,30 @@
     "note": "Seven players are directly listed for 1991/92 by zerozero; adjacent season records, career intervals and Bahja's interview-based retrospective corroborate other names. Ahmidouch's membership is inferred from the 1990/91 cup final scorer Hamiddouch and his 1992/93 squad record; no exact league match in 1991/92 has been located. Positions are general roles, not a historical XI."
   }
 ];
- for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10,...batch11,...batch12]){
+ // Batch 13: contemporaneous season records plus qualified captain testimony.
+ const batch13=[
+  {
+    "key": "Mamelodi Sundowns 1988",
+    "mode": "selection",
+    "sources": [
+      "https://national-football-teams.com/club/2263/1988_2/Mamelodi_Sundowns.html",
+      "https://www.timeslive.co.za/sunday-times-daily/sport/2024-08-08-the-story-of-bra-stans-shoeshine-and-piano-by-those-who-perfected-the-system-at-sundowns/",
+      "https://www.news24.com/sport/downs-have-edge-ntombela-20080909",
+      "https://www.timeslive.co.za/sport/soccer/2025-03-13-arena-sports-show-mike-ntombela-explains-sundowns-shoeshine-and-piano/",
+      "https://www.psl.co.za/news/article/5080454-match-facts-sundowns-vs-chiefs",
+      "https://ssfaonline.com/players/sammy-troughton/",
+      "https://sundownsfc.co.za/honours/"
+    ],
+    "groups": [
+      "Mark Anderson",
+      "Sam Kambule;Mike Ntombela;Lucky Molefe;Johannes Mudau",
+      "Donald Khuse;Harold Legodi;Rabie Moripe",
+      "Lovemore Chafunya;Bennett Masinga;Sammy Troughton"
+    ],
+    "note": "Five players directly listed in the 1988 season database; Troughton is recorded as 1988–1990 and situationally described as midfield or forward. Anderson, Ntombela, Molefe, Johannes 'Bricks' Mudau and Rabie Moripe are identified in contemporary-generation captain interviews and the 1986/87 recruitment retrospective. Those five are supported by period continuity, not individually verified 1988 match appearances. Johannes 'Bricks' Mudau is distinct from later striker Daniel 'Mambush' Mudau. The selection is not a match XI or complete squad."
+  }
+];
+ for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10,...batch11,...batch12,...batch13]){
   const known=Array.isArray(db[t.key])?db[t.key]:[];
   const next=t.mode==="augment"?new Map(known.filter(p=>!p.reconstructed).map(p=>[p.id,{...p,starter:false}])):new Map();
   for(let i=0;i<t.groups.length;i++)for(const raw of t.groups[i].split(";").filter(Boolean)){
