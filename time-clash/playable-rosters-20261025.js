@@ -1341,7 +1341,40 @@
     "note": "Documented starting XI of the 2–1 title-clinching final-round match against RS Berkane, 25 May 2014; alternate spellings Aberhoun/Krouch/Naim normalized to existing season-list names. Four additional starters have roles left unspecified here. Other season-listed players retained as reserves; no exhaustive squad claimed."
   }
 ];
- for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10,...batch11,...batch12,...batch13,...batch14,...batch15,...batch16,...batch17,...batch18,...batch19]){
+ // Batch 20: indirectly corroborated championship-era goalkeeper; preserve baseline squad.
+ const batch20=[
+  {
+    "key": "Durban City 1982",
+    "mode": "augment",
+    "sources": [
+      "https://en-academic.com/dic.nsf/enwiki/11670845",
+      "https://iol.co.za/capeargus/sport/2003-01-25-no-drastic-changes-at-hellenic-tovey/"
+    ],
+    "groups": [
+      "Alan Watt",
+      "",
+      "",
+      ""
+    ],
+    "note": "Existing master roster retained without re-verifying every individual or position. An older archived encyclopedia lists Alan Watt as Durban City goalkeeper in 1979 and 1981–1983; the independent 2003 Cape Argus retrospective names Alan Watts in the 1982/83 championship-era team, corroborating club and era but not position or individual match appearances. Spelling variant and secondary-source status retained; no original match XI or exhaustive squad claimed."
+  },
+  {
+    "key": "Durban City 1983",
+    "mode": "augment",
+    "sources": [
+      "https://en-academic.com/dic.nsf/enwiki/11670845",
+      "https://iol.co.za/capeargus/sport/2003-01-25-no-drastic-changes-at-hellenic-tovey/"
+    ],
+    "groups": [
+      "Alan Watt",
+      "",
+      "",
+      ""
+    ],
+    "note": "Existing master roster retained without re-verifying every individual or position. An older archived encyclopedia lists Alan Watt as Durban City goalkeeper in 1979 and 1981–1983; the independent 2003 Cape Argus retrospective names Alan Watts in the 1982/83 championship-era team, corroborating club and era but not position or individual match appearances. Spelling variant and secondary-source status retained; no original match XI or exhaustive squad claimed."
+  }
+];
+ for(const t of [...batch5,...batch6,...batch7,...batch8,...batch9,...batch10,...batch11,...batch12,...batch13,...batch14,...batch15,...batch16,...batch17,...batch18,...batch19,...batch20]){
   const known=Array.isArray(db[t.key])?db[t.key]:[];
   const next=t.mode==="augment"?new Map(known.filter(p=>!p.reconstructed).map(p=>[p.id,{...p,starter:false}])):new Map();
   for(let i=0;i<t.groups.length;i++)for(const raw of t.groups[i].split(";").filter(Boolean)){
