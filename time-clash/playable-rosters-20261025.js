@@ -1479,7 +1479,7 @@
         "Miloud Touihina",
         "",
         [
-          "https://akhbaralfajr.ma/%D8%A3%D8%B1%D9%82%D8%A7%D9%85-%D9%88%D8%A5%D8%AD%D8%B5%D8%A7%D8%A1%D9%8A%D8%A7%D8%AA-%D8%A8%D8%B9%D8%AF-%D8%A7%D9%84%D9%85%D8%BA%D8%A7%D8%AF%D8%B1%D8%A9-%D8%B1%D8%B3%D9%85%D9%8A%D8%A7-%D8%A5/",
+          "https://sport.akhbaralfajr.ma/?p=4118",
           "https://alyaoum24.com/577953.html"
         ]
       ],
@@ -1487,7 +1487,7 @@
         "Ali Barka (Licha)",
         "",
         [
-          "https://akhbaralfajr.ma/%D8%A3%D8%B1%D9%82%D8%A7%D9%85-%D9%88%D8%A5%D8%AD%D8%B5%D8%A7%D8%A1%D9%8A%D8%A7%D8%AA-%D8%A8%D8%B9%D8%AF-%D8%A7%D9%84%D9%85%D8%BA%D8%A7%D8%AF%D8%B1%D8%A9-%D8%B1%D8%B3%D9%85%D9%8A%D8%A7-%D8%A5/",
+          "https://sport.akhbaralfajr.ma/?p=4118",
           "https://mawsoati.com/plus/%D8%A7/%D9%84/%D9%86/%D8%A7%D9%84%D9%86%D8%A7%D8%AF%D9%8A_%D8%A7%D9%84%D9%82%D9%86%D9%8A%D8%B7%D8%B1%D9%8A.html"
         ]
       ],
@@ -1495,7 +1495,7 @@
         "Mohamed Zouita (Kala)",
         "",
         [
-          "https://akhbaralfajr.ma/%D8%A3%D8%B1%D9%82%D8%A7%D9%85-%D9%88%D8%A5%D8%AD%D8%B5%D8%A7%D8%A1%D9%8A%D8%A7%D8%AA-%D8%A8%D8%B9%D8%AF-%D8%A7%D9%84%D9%85%D8%BA%D8%A7%D8%AF%D8%B1%D8%A9-%D8%B1%D8%B3%D9%85%D9%8A%D8%A7-%D8%A5/",
+          "https://sport.akhbaralfajr.ma/?p=4118",
           "https://mawsoati.com/plus/%D8%A7/%D9%84/%D9%86/%D8%A7%D9%84%D9%86%D8%A7%D8%AF%D9%8A_%D8%A7%D9%84%D9%82%D9%86%D9%8A%D8%B7%D8%B1%D9%8A.html"
         ]
       ],
@@ -1503,42 +1503,42 @@
         "Boukhari",
         "",
         [
-          "https://akhbaralfajr.ma/%D8%A3%D8%B1%D9%82%D8%A7%D9%85-%D9%88%D8%A5%D8%AD%D8%B5%D8%A7%D8%A1%D9%8A%D8%A7%D8%AA-%D8%A8%D8%B9%D8%AF-%D8%A7%D9%84%D9%85%D8%BA%D8%A7%D8%AF%D8%B1%D8%A9-%D8%B1%D8%B3%D9%85%D9%8A%D8%A7-%D8%A5/"
+          "https://sport.akhbaralfajr.ma/?p=4118"
         ]
       ],
       [
         "Abdelkader",
         "",
         [
-          "https://akhbaralfajr.ma/%D8%A3%D8%B1%D9%82%D8%A7%D9%85-%D9%88%D8%A5%D8%AD%D8%B5%D8%A7%D8%A1%D9%8A%D8%A7%D8%AA-%D8%A8%D8%B9%D8%AF-%D8%A7%D9%84%D9%85%D8%BA%D8%A7%D8%AF%D8%B1%D8%A9-%D8%B1%D8%B3%D9%85%D9%8A%D8%A7-%D8%A5/"
+          "https://sport.akhbaralfajr.ma/?p=4118"
         ]
       ],
       [
         "Pam Pam",
         "",
         [
-          "https://akhbaralfajr.ma/%D8%A3%D8%B1%D9%82%D8%A7%D9%85-%D9%88%D8%A5%D8%AD%D8%B5%D8%A7%D8%A1%D9%8A%D8%A7%D8%AA-%D8%A8%D8%B9%D8%AF-%D8%A7%D9%84%D9%85%D8%BA%D8%A7%D8%AF%D8%B1%D8%A9-%D8%B1%D8%B3%D9%85%D9%8A%D8%A7-%D8%A5/"
+          "https://sport.akhbaralfajr.ma/?p=4118"
         ]
       ],
       [
         "Cherkaoui",
         "",
         [
-          "https://akhbaralfajr.ma/%D8%A3%D8%B1%D9%82%D8%A7%D9%85-%D9%88%D8%A5%D8%AD%D8%B5%D8%A7%D8%A1%D9%8A%D8%A7%D8%AA-%D8%A8%D8%B9%D8%AF-%D8%A7%D9%84%D9%85%D8%BA%D8%A7%D8%AF%D8%B1%D8%A9-%D8%B1%D8%B3%D9%85%D9%8A%D8%A7-%D8%A5/"
+          "https://sport.akhbaralfajr.ma/?p=4118"
         ]
       ],
       [
         "Benaissa",
         "",
         [
-          "https://akhbaralfajr.ma/%D8%A3%D8%B1%D9%82%D8%A7%D9%85-%D9%88%D8%A5%D8%AD%D8%B5%D8%A7%D8%A1%D9%8A%D8%A7%D8%AA-%D8%A8%D8%B9%D8%AF-%D8%A7%D9%84%D9%85%D8%BA%D8%A7%D8%AF%D8%B1%D8%A9-%D8%B1%D8%B3%D9%85%D9%8A%D8%A7-%D8%A5/"
+          "https://sport.akhbaralfajr.ma/?p=4118"
         ]
       ],
       [
         "Messaoud",
         "",
         [
-          "https://akhbaralfajr.ma/%D8%A3%D8%B1%D9%82%D8%A7%D9%85-%D9%88%D8%A5%D8%AD%D8%B5%D8%A7%D8%A1%D9%8A%D8%A7%D8%AA-%D8%A8%D8%B9%D8%AF-%D8%A7%D9%84%D9%85%D8%BA%D8%A7%D8%AF%D8%B1%D8%A9-%D8%B1%D8%B3%D9%85%D9%8A%D8%A7-%D8%A5/"
+          "https://sport.akhbaralfajr.ma/?p=4118"
         ]
       ]
     ],
@@ -1705,6 +1705,156 @@
  for(const [name,pos,sources,stableId] of t.rows){const key=stableId||id(name),old=next.get(key)||{};next.set(key,{...old,id:key,name,pos,prole:pos?undefined:"Feldspieler",role:undefined,starter:old.starter??false,impact:old.impact||3,provenance:"DOCUMENTED_ROSTER",sourceRefs:sources,positionPolicy:pos?"DOCUMENTED_OR_GENERAL_ROLE":"UNCONFIRMED"});}
  db[t.key]=[...next.values()].map((p,i)=>({...p,squadIndex:i}));
  meta[t.key]={...(meta[t.key]||{}),rosterScope:"PARTIAL_HISTORICAL_SEASON_SELECTION",rosterCompleteness:"INCOMPLETE",lineupPolicy:"NOT_READY",sourceQualification:t.note};
+ }
+ // Phase 24: documented partial additions; exact-season goalkeeper gaps remain.
+ const partial24=[
+  {
+    "key": "MAS Fès 1982/83",
+    "rows": [
+      [
+        "Abdessalam Bounou",
+        "MIT",
+        [
+          "https://lematin.ma/journal/2003/MAS--Bono-nouvel-entraineur/34943.html",
+          "https://lesmassawisdumonde.org/jubile-abdeslam-bono/",
+          "https://snrtnews.com/article/687"
+        ]
+      ],
+      [
+        "Driss Mouttaqui",
+        "MIT",
+        [
+          "https://dimasbaa.com/fr/club/maghreb-of-fez",
+          "https://www.national-football-teams.com/app.php/club/1666/1979/Maghreb_As_Fes.html",
+          "https://www.olympedia.org/athletes/26473"
+        ]
+      ],
+      [
+        "Hamid Khourag",
+        "MIT",
+        [
+          "https://dimasbaa.com/fr/club/maghreb-of-fez",
+          "https://www.national-football-teams.com/app.php/club/1666/1979/Maghreb_As_Fes.html",
+          "https://sports.lematin.ma/ar/web/2023/41548.html"
+        ]
+      ],
+      [
+        "Abdelfettah Rhiati",
+        "ST",
+        [
+          "https://www.national-football-teams.com/player/49246/Abdelfettah_Rhiati.html",
+          "https://snrtnews.com/article/687"
+        ]
+      ]
+    ],
+    "note": "Bounou and Rhiati expressly documented for both championship seasons. Mouttaqui's career interval covers both and Olympedia confirms 1984 affiliation. Khourag/Khourrag is one individual (overlapping variant records); one ID retained, season coverage inferred from 1978–85 entry. Boubker Rhandor not added for 1982/83 because his supporters' biography says he started as a junior in 1983 despite crediting both titles. No complete XI."
+  },
+  {
+    "key": "MAS Fès 1984/85",
+    "rows": [
+      [
+        "Mohamed Tagnaouti",
+        "TW",
+        [
+          "https://lesmassawisdumonde.org/%D8%B3%D8%AA%D9%88%D8%AF%D9%8A%D9%88-%D9%85-%D8%AF-%D9%85-%D9%85%D8%B9-%D9%85%D8%AD%D9%85%D8%AF-%D8%AA%D8%A7%D9%83%D9%86%D8%A7%D9%88%D8%AA%D9%8A%D8%8C-%D8%A7%D9%84%D9%85%D8%B4%D8%B1%D9%81-%D8%A7%D9%84/"
+        ]
+      ],
+      [
+        "Abdessalam Bounou",
+        "MIT",
+        [
+          "https://lematin.ma/journal/2003/MAS--Bono-nouvel-entraineur/34943.html",
+          "https://lesmassawisdumonde.org/jubile-abdeslam-bono/",
+          "https://snrtnews.com/article/687"
+        ]
+      ],
+      [
+        "Driss Mouttaqui",
+        "MIT",
+        [
+          "https://dimasbaa.com/fr/club/maghreb-of-fez",
+          "https://www.national-football-teams.com/app.php/club/1666/1979/Maghreb_As_Fes.html",
+          "https://www.olympedia.org/athletes/26473"
+        ]
+      ],
+      [
+        "Hamid Khourag",
+        "MIT",
+        [
+          "https://dimasbaa.com/fr/club/maghreb-of-fez",
+          "https://www.national-football-teams.com/app.php/club/1666/1979/Maghreb_As_Fes.html",
+          "https://sports.lematin.ma/ar/web/2023/41548.html"
+        ]
+      ],
+      [
+        "Abdelfettah Rhiati",
+        "ST",
+        [
+          "https://www.national-football-teams.com/player/49246/Abdelfettah_Rhiati.html",
+          "https://snrtnews.com/article/687"
+        ]
+      ],
+      [
+        "Boubker Rhandor",
+        "",
+        [
+          "https://lesmassawisdumonde.org/jubile-boubker-rhandor/"
+        ]
+      ],
+      [
+        "Samir Belhouji",
+        "ABW",
+        [
+          "https://national-football-teams.com/de/club/1666/1989/Maghreb_As_Fes.html",
+          "https://www.transfermarkt.com/mas-fes/alletransfers/verein/3282"
+        ]
+      ]
+    ],
+    "note": "Tagnaouti explicitly identified as goalkeeper and 1985 champion by MAS supporters' interview. Rhandor explicitly credited with 1985 title; his general field role not established. Belhouji 1984/85 arrival from reserves and later defender role; Rhiati's direct season entries outweigh inconsistent Transfermarkt arrival date. Other roles and intervals as above; no complete XI."
+  },
+  {
+    "key": "Highlands Park 1980",
+    "rows": [
+      [
+        "Jimmy Joubert",
+        "ABW",
+        [
+          "https://www.kaizerchiefs.com/features/chiefs-must-go-enjoy-joubert",
+          "https://www.kaizerchiefs.com/club/chiefs-celebrate-50-years-fans-8-january-fnb"
+        ]
+      ],
+      [
+        "Martin Cohen",
+        "MIT",
+        [
+          "https://en.wikipedia.org/wiki/Martin_Cohen_%28soccer%29",
+          "https://www.kaizerchiefs.com/features/chiefs-meet-old-foes-highlands-park-celebrate-50th-anniversary"
+        ]
+      ]
+    ],
+    "note": "Official Chiefs interview explicitly confirms Jimmy Joubert's 1980 title and his switch from striker to defender while at Highlands; exact date of positional switch unknown. Hennie and Jimmy are explicitly distinct in Chiefs archive. Cohen career dates 1980–82 supported indirectly, and club affiliation/role independently confirmed by official Chiefs history for 1978. Kleynhans keeper in 1978 but not yet documented for 1980; not added."
+  },
+  {
+    "key": "Kénitra AC 1972/73",
+    "rows": [
+      [
+        "Houcine Anafal",
+        "MIT",
+        [
+          "https://sport.akhbaralfajr.ma/?p=4118",
+          "https://national-football-teams.com/de/club/4707/1976_1/Kenitra_Ac.html"
+        ]
+      ]
+    ],
+    "note": "Verified accessible reprint of 1972/73 title roster replaces broken archived URL for nine added players. Anafal's general midfield role confirmed; no verified keeper. Other partial identities and caveats from Phase 23 retained."
+  }
+];
+ for(const t of partial24){
+ const known=db[t.key];if(!Array.isArray(known))throw new Error("Missing partial roster "+t.key);
+ const next=new Map(known.map(p=>[p.id,p]));
+ for(const [name,pos,sources,stableId] of t.rows){const key=stableId||id(name),old=next.get(key)||{};next.set(key,{...old,id:key,name,pos,prole:pos?undefined:"Feldspieler",role:undefined,starter:old.starter??false,impact:old.impact||3,provenance:"DOCUMENTED_ROSTER",sourceRefs:sources,positionPolicy:pos?"DOCUMENTED_OR_GENERAL_ROLE":"UNCONFIRMED"});}
+ db[t.key]=[...next.values()].map((p,i)=>({...p,squadIndex:i}));
+ meta[t.key]={...(meta[t.key]||{}),rosterScope:"PARTIAL_HISTORICAL_SEASON_SELECTION",rosterCompleteness:"INCOMPLETE",lineupPolicy:"NOT_READY",sourceQualification:[meta[t.key]?.sourceQualification,t.note].filter(Boolean).join(" ")};
  }
  // Never fabricate historical names or silently fill missing squad places.
  window.TC_COMPLETE_ROSTERS=function(){return 0;};
