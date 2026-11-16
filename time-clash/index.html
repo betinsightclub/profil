@@ -264,7 +264,7 @@
 <script src="/time-clash/club-rosters-france-1970-1975.js?v=20261004-2"></script>
 <script src="/time-clash/club-rosters-england-2007-2024.js?v=20261004-2"></script>
 <script src="/time-clash/club-rosters-germany-1963-1970.js?v=20261004-1"></script><script src="/time-clash/national-rosters-core.js?v=20260930-1"></script>
-<script src="/time-clash/playable-rosters-20261025.js?v=20261116-8"></script>
+<script src="/time-clash/playable-rosters-20261025.js?v=20261116-9"></script>
 <script src="/time-clash/avatar-assets-v3.js?v=20260925f"></script>
 <script src="/time-clash/avatar-face-assets-v6-1.js?v=20260926d"></script>
 <script src="/time-clash/avatar-face-assets-v6-2.js?v=20260926d"></script>
@@ -1158,7 +1158,22 @@ function squad(side){
  return own.filter(p=>(internal||tcRealHistoricalPlayer(p))&&(!otherIds.has(p.id)||conflictChoices[p.id]===side))
 }
 function startingLineup(side){
- let all=squad(side),explicit=all.filter(p=>p.starter).slice(0,11);
+ let all=squad(side);
+ const historical=!["myclub","community"].includes(side==="A"?kindAActive:kindBActive);
+ if(historical){
+   // Keep exactly one goalkeeper eligible for the XI; all others remain in squad/benchRoster.
+   // Prefer a recorded goalkeeper role, then the archived starting choice.
+   const team=side==="A"?TA:TB,raw=rosterDB[team.name]||[];
+   const recorded=p=>raw.some(q=>q.id===p.id&&(/^(TW|GK)$/i.test(String(q.pos||""))||/^(Torwart|Goalkeeper)$/i.test(String(q.prole||q.role||""))));
+   const keepers=all.filter(p=>p.prole==="Torwart").sort((a,b)=>Number(recorded(b))-Number(recorded(a))||Number(b.starter)-Number(a.starter)||b.strength-a.strength);
+   const keeper=keepers[0],seen=new Set();
+   all=all.filter(p=>{
+     if(p.prole==="Torwart"&&p!==keeper)return false;
+     if(seen.has(p.id))return false;
+     seen.add(p.id);return true;
+   });
+ }
+ let explicit=all.filter(p=>p.starter).slice(0,11);
  if(explicit.length>=8){
    let ids=new Set(explicit.map(p=>p.id)),starters=explicit.slice();
    if(starters.length<11){for(const p of all.filter(p=>!p.starter)){if(starters.length>=11)break;if(!ids.has(p.id)){starters.push({...p,promoted:true});ids.add(p.id)}}}
@@ -1263,7 +1278,7 @@ function scheduleCautionSub(side,player,minute,plans,dismissals){
  let incoming=weightedPick(pool,p=>Math.max(1,p.strength)),sub={m:Math.min(88,minute+4+rnd(8)),out:player,in:incoming,reason:"yellow"};
  plans[side].push(sub);plans[side].sort((a,b)=>a.m-b.m);return sub
 }
-function rosterReady(side){const xi=startingLineup(side),internal=["myclub","community"].includes(side==="A"?kindAActive:kindBActive);return xi.length===11&&(internal||xi.every(tcRealHistoricalPlayer)&&new Set(xi.map(p=>String(p.id||p.name))).size===11&&xi.some(p=>p.prole==="Torwart"))}
+function rosterReady(side){const xi=startingLineup(side),internal=["myclub","community"].includes(side==="A"?kindAActive:kindBActive);return xi.length===11&&(internal||xi.every(tcRealHistoricalPlayer)&&new Set(xi.map(p=>String(p.id||p.name))).size===11&&xi.filter(p=>p.prole==="Torwart").length===1)}
 function rosterLabel(side){let t=side==="A"?TA:TB;return t.name+": "+startingLineup(side).length+" Startspieler verfügbar"}
 function lineupMetrics(lineup){
  let attackW={Torwart:.02,Abwehr:.22,Mittelfeld:.72,Sturm:1,Feldspieler:.62},defW={Torwart:.35,Abwehr:1,Mittelfeld:.62,Sturm:.18,Feldspieler:.62},midW={Torwart:.05,Abwehr:.45,Mittelfeld:1,Sturm:.48,Feldspieler:.65};
