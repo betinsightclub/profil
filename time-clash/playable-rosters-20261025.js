@@ -1856,6 +1856,21 @@
  db[t.key]=[...next.values()].map((p,i)=>({...p,squadIndex:i}));
  meta[t.key]={...(meta[t.key]||{}),rosterScope:"PARTIAL_HISTORICAL_SEASON_SELECTION",rosterCompleteness:"INCOMPLETE",lineupPolicy:"NOT_READY",sourceQualification:[meta[t.key]?.sourceQualification,t.note].filter(Boolean).join(" ")};
  }
+
+ // Phase 25: exact-season records for both MAS championship seasons; no claimed historical XI.
+ const partial25=[["Abdelwahab Atik","ABW",["https://www.national-football-teams.com/player/93795/Abdelwahab_Atik.html","https://dimasbaa.com/en/club/maghreb-of-fez"]],["Abdelaziz Souleimani","MIT",["https://www.national-football-teams.com/player/49245/Abdelaziz_Souleimani.html","https://dimasbaa.com/en/club/maghreb-of-fez"]]];
+ for(const key of ["MAS Fès 1982/83","MAS Fès 1984/85"]){
+  const known=db[key];if(!Array.isArray(known))throw new Error("Missing partial roster "+key);
+  const next=new Map(known.map(p=>[p.id,p]));
+  for(const [name,pos,sources] of partial25){
+   const pid=id(name);
+   const equivalent=[...next.values()].find(p=>id(p.name)===pid || (pid==="abdelaziz-souleimani" && ["abdelaziz-soulaimani","abdelaziz-soulaimain","aziz-soulaimani","aziz-souleimani"].includes(id(p.name))));
+   const stable=equivalent?.id||pid,old=next.get(stable)||{};
+   next.set(stable,{...old,id:stable,name,pos,prole:undefined,role:undefined,starter:old.starter??false,impact:old.impact||3,provenance:"DOCUMENTED_ROSTER",sourceRefs:[...new Set([...(old.sourceRefs||[]),...sources])],positionPolicy:"DOCUMENTED_OR_GENERAL_ROLE"});
+  }
+  db[key]=[...next.values()].map((p,i)=>({...p,squadIndex:i}));
+  meta[key]={...(meta[key]||{}),sourceQualification:[meta[key]?.sourceQualification,"Phase 25: Atik and Souleimani explicitly listed for both championship seasons by National Football Teams; career intervals corroborated by DimaSbaa. Historical XI not established."].filter(Boolean).join(" ")};
+ }
  // Never fabricate historical names or silently fill missing squad places.
  window.TC_COMPLETE_ROSTERS=function(){return 0;};
  window.TC_RECONSTRUCTION_STATUS={reconstructionPolicy:"DISABLED",generatedOn:"2026-11-14"};
