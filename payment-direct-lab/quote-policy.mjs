@@ -1,3 +1,4 @@
+import {quoteExpires} from './poll-policy.mjs';
 // DEVELOPMENT ONLY: server-side rates and integer quote arithmetic. No production API key, token registry, settlement, or wallet address.
 export const COIN_IDS=Object.freeze({
   "BTC": "bitcoin",
@@ -37,7 +38,7 @@ export function makeQuote({pkg, network, asset, registry, market, now}){
  const amountRaw=units*10n**BigInt(entry.decimals-entry.payDecimals);
  const usdCents=ceilDiv(cents*usd.n*eur.d,usd.d*eur.n);
  if(amountRaw<=0n||amountRaw>=2n**256n)throw Error("AMOUNT_OUT_OF_RANGE");
- return Object.freeze({packageCode:pkg.code,network,asset,assetIdentity:entry.assetIdentity,eurCents:pkg.eurCents,usdCents:usdCents.toString(),amountRaw:amountRaw.toString(),decimals:entry.decimals,payDecimals:entry.payDecimals,rateEur:String(market.eur),rateUsd:String(market.usd),source:market.source,rateUpdatedMs:market.updatedMs,createdMs:now,expiresMs:now+900000});
+ return Object.freeze({packageCode:pkg.code,network,asset,assetIdentity:entry.assetIdentity,eurCents:pkg.eurCents,usdCents:usdCents.toString(),amountRaw:amountRaw.toString(),decimals:entry.decimals,payDecimals:entry.payDecimals,rateEur:String(market.eur),rateUsd:String(market.usd),source:market.source,rateUpdatedMs:market.updatedMs,createdMs:now,expiresMs:quoteExpires(network,now)});
 }
 export function formatRaw(raw,decimals){if(typeof raw!=="string"||!/^\d+$/.test(raw)||!Number.isInteger(decimals)||decimals<0||decimals>18)throw Error("INVALID_AMOUNT");const s=raw.padStart(decimals+1,"0");return decimals?s.slice(0,-decimals)+"."+s.slice(-decimals):s;}
 export async function fetchMarketRates({apiKey,fetchImpl=fetch, now=Date.now}={}){
