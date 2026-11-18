@@ -35,3 +35,17 @@ export function fixtureTests(){
  for(const c of sqlCases){const x=calculateFinance({...b,grossEurMicro:c[0],creditedUnits:c[1]}).finance;rows.push(["SQL parity "+c[0],JSON.stringify([x.operatingEurMicro,x.affiliateEurMicro,x.distributableEurMicro,x.immediateEurMicro,x.usageEurMicro,x.admin1EurMicro,x.admin2GrossEurMicro,x.admin3GrossEurMicro,x.specialEurMicro])===JSON.stringify(c.slice(2))]);}
  return rows.map(([name,pass])=>({name,pass:!!pass}));
 }
+
+// Apply trusted current partner cutoff AFTER the base allocation formula. Preserve existing DB triggers in the canonical writer.
+// Never double apply to an already adjusted row; this function expects the unadjusted base finance snapshot.
+export function partnerGuard(finance,policy){
+ if(!finance||policy?.verified!==true||typeof policy.adm003Blocked!=="boolean"||typeof policy.effectiveReference!=="string"||!policy.effectiveReference)return {ok:false,reason:"PARTNER_CUTOFF_SNAPSHOT_REQUIRED"};
+ const fields=["admin3GrossEurMicro","admin3NetEurMicro","admin3TaxReserveEurMicro","specialEurMicro"];
+ if(fields.some(k=>typeof finance[k]!=="string"||!/^(0|[1-9]\d*)$/.test(finance[k])))return {ok:false,reason:"BAD_FINANCE_SNAPSHOT"};
+ if(BigInt(finance.admin3GrossEurMicro)!==BigInt(finance.admin3NetEurMicro)+BigInt(finance.admin3TaxReserveEurMicro))return {ok:false,reason:"ADMIN_ALLOCATION_IMBALANCE"};
+ return {ok:true,finance:{...finance,...(policy.adm003Blocked?{specialEurMicro:(BigInt(finance.specialEurMicro)+BigInt(finance.admin3GrossEurMicro)).toString(),admin3GrossEurMicro:"0",admin3NetEurMicro:"0",admin3TaxReserveEurMicro:"0"}:{}),partnerCutoffReference:policy.effectiveReference,adm003Blocked:policy.adm003Blocked}};
+}
+export function guardFixtures(){
+ const f={admin3GrossEurMicro:"1680000",admin3NetEurMicro:"1260000",admin3TaxReserveEurMicro:"420000",specialEurMicro:"3360000"},p={verified:true,adm003Blocked:true,effectiveReference:"synthetic-cutoff"},r=partnerGuard(f,p);
+ return [["cutoff moves gross share",r.finance.specialEurMicro==="5040000"],["gross zero",r.finance.admin3GrossEurMicro==="0"],["net zero",r.finance.admin3NetEurMicro==="0"],["tax zero",r.finance.admin3TaxReserveEurMicro==="0"],["no mutation",f.specialEurMicro==="3360000"],["no cutoff unchanged",partnerGuard(f,{...p,adm003Blocked:false}).finance.specialEurMicro==="3360000"],["missing snapshot rejected",!partnerGuard(f,null).ok],["unverified rejected",!partnerGuard(f,{...p,verified:false}).ok],["inconsistent allocation rejected",!partnerGuard({...f,admin3NetEurMicro:"0"},p).ok]].map(([name,pass])=>({name,pass}));
+}
