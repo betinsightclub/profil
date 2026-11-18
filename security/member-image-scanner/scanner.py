@@ -45,7 +45,7 @@ def decode_image(data: bytes, mime: str):
     except Exception as exc:
         raise Rejected("DECODE_FAILED") from exc
 
-def scan_clamd(data: bytes, socket_path: str, timeout=20):
+def scan_clamd(data: bytes, socket_path: str | tuple[str, int], timeout=20):
     # No path supplied by an uploader is ever passed to clamd.
     deadline = time.monotonic() + timeout
     def remain():
@@ -54,7 +54,7 @@ def scan_clamd(data: bytes, socket_path: str, timeout=20):
             raise TimeoutError()
         return t
     try:
-        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sock:
+        with socket.socket(socket.AF_INET if isinstance(socket_path, tuple) else socket.AF_UNIX, socket.SOCK_STREAM) as sock:
             sock.settimeout(remain())
             sock.connect(socket_path)
             sock.sendall(b"zINSTREAM\0")
@@ -80,7 +80,7 @@ def scan_clamd(data: bytes, socket_path: str, timeout=20):
     except OSError as exc:
         raise Rejected("SCAN_UNAVAILABLE") from exc
 
-def inspect(data: bytes, mime: str, socket_path: str):
+def inspect(data: bytes, mime: str, socket_path: str | tuple[str, int]):
     decoded = decode_image(data, mime)
     scan_clamd(data, socket_path)
     return {"ok": True, "sha256": hashlib.sha256(data).hexdigest(),
@@ -90,9 +90,11 @@ def main():
     p = argparse.ArgumentParser(description="Scan exactly one member image from stdin")
     p.add_argument("--mime", required=True, choices=TYPES)
     p.add_argument("--clamd-socket", default="/run/clamav/clamd.ctl")
+    p.add_argument("--clamd-docker", action="store_true", help="Use the fixed private Docker network endpoint")
     args = p.parse_args()
+    endpoint = ("betinsight-clamav", 3310) if args.clamd_docker else args.clamd_socket
     try:
-        print(json.dumps(inspect(sys.stdin.buffer.read(MAX_BYTES+1), args.mime, args.clamd_socket)))
+        print(json.dumps(inspect(sys.stdin.buffer.read(MAX_BYTES+1), args.mime, endpoint)))
         return 0
     except Rejected as exc:
         print(json.dumps({"ok": False, "error": str(exc)}))
