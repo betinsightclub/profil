@@ -41,3 +41,14 @@ test('all inline scripts compile and every actual image picker has the allowlist
  assert.equal((p.match(/allowedMemberPhoto\(/g)||[]).length,4);
  assert.ok(p.includes('Profil- und Hintergrundbilder: nur JPG'));
 });
+
+
+test('signed upload URL allows only the exact storage route on the API origin',()=>{
+ const html=fs.readFileSync('trainer/index.html','utf8');
+ const line=html.match(/if\(target\.origin!==new URL\(COMMUNITY_API\)\.origin\|\|\s*([^\n]+)\)\s*\n\s*throw new Error\("Ungültiges Upload-Ziel\."\);/);
+ assert.ok(line,'URL guard exists');
+ const check=new vm.Script('(target,COMMUNITY_API,URL)=>!(target.origin!==new URL(COMMUNITY_API).origin||'+line[1]+')').runInNewContext();
+ const base='https://example.test';
+ for(const bucket of ['community-media','community-media-pending'])assert.equal(check(new URL(base+'/storage/v1/object/upload/sign/'+bucket+'/owner/post/test.jpg'),base,URL),true);
+ for(const bad of ['https://elsewhere.test/storage/v1/object/upload/sign/community-media-pending/a','https://example.test/foo/storage/v1/object/upload/sign/community-media/a','https://example.test/storage/v1/object/upload/sign/community-media-other/a'])assert.equal(check(new URL(bad),base,URL),false);
+});

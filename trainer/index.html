@@ -3033,7 +3033,7 @@
           throw new Error("Bild-Upload konnte nicht autorisiert werden.");
         var target=new URL(ticket.upload.signed_url);
         if(target.origin!==new URL(COMMUNITY_API).origin||
-          !target.pathname.includes("/storage/v1/object/upload/sign/community-media/"))
+          !/^\/storage\/v1\/object\/upload\/sign\/community-media(?:-pending)?\//.test(target.pathname))
           throw new Error("Ungültiges Upload-Ziel.");
         var form=new FormData();
         form.append("cacheControl","3600");
