@@ -1,0 +1,25 @@
+name: Member image upload security checks
+on:
+  push:
+    paths:
+      - 'security/image-upload-guard*'
+      - 'trainer/index.html'
+      - 'stadionwelt/index.html'
+      - '.github/workflows/member-image-guard.yml'
+  pull_request:
+    paths:
+      - 'security/image-upload-guard*'
+      - 'trainer/index.html'
+      - 'stadionwelt/index.html'
+permissions:
+  contents: read
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test security/image-upload-guard.test.mjs
