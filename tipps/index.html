@@ -225,7 +225,7 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
 .special-field-label{color:#9abed1;font-size:10px;line-height:1.3}
 .special-field-value{color:#ecfaff;font-weight:750;font-size:11px;line-height:1.4;overflow-wrap:anywhere}
 .special-slot .small-button{width:100%;min-height:39px;margin-top:auto}
-.special-slot .small-button[disabled]{opacity:.56;cursor:not-allowed;background:#245063;border-color:#315e70}
+.special-slot .small-button[disabled],.season-tip .small-button[disabled]{opacity:.56;cursor:not-allowed;background:#245063;border-color:#315e70}
 .weekly-guarantee-btn{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;min-height:65px!important;padding:10px 12px!important;line-height:1.3;white-space:normal;background:linear-gradient(125deg,#095f56,#0c4861)!important;border-color:#42cba1!important;color:#f4ffff!important}
 .weekly-guarantee-btn .weekly-cta-main{font-weight:850;font-size:13px}
 .weekly-guarantee-btn .weekly-cta-sub{font-weight:750;font-size:11px;color:#b5ffde}
@@ -347,7 +347,7 @@ var str=function(v){return String(v==null?"":v).trim()};
 function status(v){var k=str(v).toUpperCase();if(["GEWONNEN","WIN","WON"].indexOf(k)!==-1)return"won";if(["VERLOREN","LOSS","LOST"].indexOf(k)!==-1)return"lost";if(["VOID","PUSH","STORNIERT","REFUND"].indexOf(k)!==-1)return"void";if(["ABGEBROCHEN","ABGESAGT","CANCELLED"].indexOf(k)!==-1)return"void";return""}
 function owner(row){return str(row.tippgeber||row.ersteller||row.admin_name).toLowerCase()}
 function training(row){var s=[row.tipp_quelle,row.quelle].map(function(x){return str(x).toUpperCase()}).join(" ");return row.schulungstipp===true||s.indexOf("SCHULUNG")>=0}
-function specialSeasonBet(row){return str(row.tipp_id).toUpperCase().startsWith("BI-SP-2627-TOP4-")||[row.tipp_quelle,row.quelle].some(function(x){return str(x).toUpperCase().includes("BETINSIGHT_SPEZIAL_SAISONWETTEN")})}
+function specialSeasonBet(row){return (/^BI-SP-2627-(?:0[1-4]$|TOP4-)/.test(str(row.tipp_id).toUpperCase()))||[row.tipp_quelle,row.quelle].some(function(x){return str(x).toUpperCase().includes("BETINSIGHT_SPEZIAL_SAISONWETTEN")})}
 function testphase(row){var source=[row.tipp_quelle,row.quelle].map(function(x){return str(x).toUpperCase()}).join(" ");return specialSeasonBet(row)||["USER_TESTPHASE","TESTPHASE","COMMUNITY_TESTPHASE"].some(function(v){return source.split(/\s+/).includes(v)})}
 function weeklySpecial(row){return /^BI-WS-/.test(str(row.tipp_id).toUpperCase())||[row.tipp_quelle,row.quelle].some(function(x){return str(x).toUpperCase()==="BETINSIGHT_WOCHEN_SPEZIAL"})}
 function belongs(row,who){if(who==="Schulung")return training(row);if(who==="Testphase")return specialSeasonBet(row);if(who==="WochenSpezial")return weeklySpecial(row);return !training(row)&&!testphase(row)&&!weeklySpecial(row)&&owner(row)===who.toLowerCase()}
@@ -789,30 +789,36 @@ function weeklyPreviewCard(){
 }
 
 function specialPreviewCard(){
-  // VERTRAULICH: vor einer individuellen Freischaltung keine Teams, Märkte,
-  // konkreten Auswahlen, Prognosepositionen oder Quellenhinweise preisgeben.
-  // Die echten Daten werden erst nach serverseitiger Unit-Freischaltung geladen.
-  var c=ele("article","tip special-preview");c.dataset.specialCategory="BetInsight Spezial – Saisonwetten";
-  var meta=ele("div","meta");
-  meta.appendChild(ele("span","pill",tr("specialBadge","🏆 SPEZIAL · SAISONWETTEN")));
-  meta.appendChild(ele("span","",tr("specialPeriod","Langzeit-Analysen")));
-  c.appendChild(meta);
-  c.appendChild(ele("h3","",tr("specialTitle","Vier exklusive Saisonanalysen")));
-  c.appendChild(ele("p","special-intro",tr("specialIntro","Vier eigenständige Spezialanalysen. Welcher Wettbewerb, welche Auswahl und welche Prognose dahinterstehen, siehst du erst nach deiner persönlichen Freischaltung.")));
-  var slots=ele("div","special-slots");
-  for(var i=1;i<=4;i++){
-    var num=String(i).padStart(2,"0"),id="BI-SP-2627-"+num;
-    var tip=state.tips.find(function(x){return str(x.tipp_id)===id})||null;
-    var unlocked=state.recentUnlocks.has(id)||state.unlocked.some(function(x){return str(x.tipp_id)===id});
-    var slot=ele("div","special-slot");slot.dataset.specialTip=id;
-    slot.appendChild(ele("span","special-slot-no",tr("specialSlotLabel","SPEZIAL")+" "+num));
-    slot.appendChild(ele("strong","",tr("specialConfidential","🔒 Details geschützt")));
-    // Gewohnte Tipp-Vorschau: nur allgemeine Spiel-/Saisondaten offenlegen.
-    // Keine konkreten Mannschaften, Liga, Spiele, Wettmärkte oder Auswahlen verraten.
-    var locked=tr("specialLockedValue","🔒 Nach Freischaltung");
-    var deadline=tip?shortDate(tip.spiel_datum):tr("specialDeadlineFallback","21.05.2027");
-    var deadlineTime=tip?str(tip.anpfiff||"23:59"):"23:59";
-    var rows=[
+  // Standard-Tippkarten, mit bewusst neutraler Saisonvorschau.
+  // Keine Mannschaften, Wettbewerbe, Märkte, Auswahlen oder Prognosequoten offenlegen.
+  const fragment=document.createDocumentFragment();
+  const intro=ele("article","tip special-preview");
+  const header=ele("div","meta");
+  header.appendChild(ele("span","pill",tr("specialBadge","🏆 SPEZIAL · SAISONWETTEN")));
+  header.appendChild(ele("span","",tr("specialPeriod","Langzeit-Analysen")));
+  intro.appendChild(header);
+  intro.appendChild(ele("h3","",tr("specialTitle","Vier exklusive Saisonanalysen")));
+  intro.appendChild(ele("p","special-intro",tr("specialIntro","Vier eigenständige Spezialanalysen. Welcher Wettbewerb, welche Auswahl und welche Prognose dahinterstehen, siehst du erst nach deiner persönlichen Freischaltung.")));
+  intro.appendChild(ele("div","special-note",tr("specialCompensation","Für jeden freigeschalteten Tipp aus dieser Kategorie, der als verloren gewertet wird, erhältst du die dafür bezahlte 1 Unit erstattet.")));
+  const link=ele("a","small-button special-report-link",tr("specialReportLink","Mehr zur Spezialkategorie im NewsRadar"));
+  link.href="https://betinsight.club/de/newsradar/betinsight-spezial-saisonanalysen/";intro.appendChild(link);
+  fragment.appendChild(intro);
+  for(let i=1;i<=4;i++){
+    // Block-lokale Bindungen: jeder Listener behält seine eigene Tipp-ID und DOM-Elemente.
+    const num=String(i).padStart(2,"0"),id="BI-SP-2627-"+num;
+    const tip=state.tips.find(function(x){return str(x.tipp_id)===id})||null;
+    const unlocked=state.recentUnlocks.has(id)||state.unlocked.some(function(x){return str(x.tipp_id)===id});
+    const card=ele("article","tip season-tip");card.dataset.specialTip=id;
+    const deadline=tip?shortDate(tip.spiel_datum):tr("specialDeadlineFallback","21.05.2027");
+    const deadlineTime=tip?str(tip.anpfiff||"23:59"):"23:59";
+    const meta=ele("div","meta");
+    meta.appendChild(ele("span","pill",unlocked?tr("unlockedTag","🔓 FREIGESCHALTET"):tr("specialConfidential","🔒 Details geschützt")));
+    meta.appendChild(ele("span","pill bet-type single",tr("specialBetKind","Einzelwette · Saisonwette")));
+    meta.appendChild(ele("span","",deadline+" · "+deadlineTime));
+    card.appendChild(meta);
+    card.appendChild(ele("h3","",tr("specialSlotLabel","SPEZIAL")+" "+num+" · "+tr("specialTipster","BetInsight Spezial")));
+    const locked=tr("specialLockedValue","🔒 Nach Freischaltung");
+    const rows=[
       [tr("sport","⚽ Sport"),tr("football","Fußball")],
       [tr("betType","🎟️ Wettart"),tr("specialBetKind","Einzelwette · Saisonwette")],
       [tr("league","🏟️ Liga"),locked],
@@ -822,19 +828,20 @@ function specialPreviewCard(){
       [tr("specialSettlementLabel","📋 Auswertung"),tr("specialSettlementValue","Nach offiziellem Saisonende")],
       [tr("oddsRange","📊 Quotenbereich"),tr("specialOddsUnverified","Keine bestätigte Quote")],
       [tr("market","🎯 Markt"),locked],
-      [tr("fixture","⚔️ Begegnung"),locked],
+      [tr("fixture","⚔️ Begegnung"),"████████ – ████████"],
       [tr("selection","✅ Auswahl"),locked]
     ];
-    var details=ele("div","special-fields");
+    const list=ele("div","demo-list");
     rows.forEach(function(kv){
-      var line=ele("div","special-field");
-      line.appendChild(ele("span","special-field-label",kv[0]));
-      line.appendChild(ele("span","special-field-value",kv[1]));
-      details.appendChild(line);
+      const line=ele("div","demo-row");
+      line.appendChild(ele("span","",kv[0]));
+      line.appendChild(ele("strong","",kv[1]));
+      list.appendChild(line);
     });
-    slot.appendChild(details);
-    slot.appendChild(ele("small","special-slot-price",tr("specialPrice","Preis: 1 Unit je Analyse")));
-    var button=ele("button","small-button"),feedback=ele("p","demo-feedback","");
+    card.appendChild(list);
+    const bottom=ele("div","card-bottom");
+    bottom.appendChild(ele("span","pill",tr("specialPrice","Preis: 1 Unit je Analyse")));
+    const button=ele("button","small-button"),feedback=ele("p","demo-feedback","");
     feedback.setAttribute("aria-live","polite");button.type="button";
     if(unlocked){
       button.textContent=tr("specialAlready","✓ Freigeschaltet · ansehen");
@@ -850,13 +857,9 @@ function specialPreviewCard(){
       button.textContent=tr("specialUnavailable","Vorübergehend nicht verfügbar");
       button.disabled=true;
     }
-    slot.appendChild(button);slot.appendChild(feedback);slots.appendChild(slot);
+    bottom.appendChild(button);card.appendChild(bottom);card.appendChild(feedback);fragment.appendChild(card);
   }
-  c.appendChild(slots);
-  c.appendChild(ele("div","special-note",tr("specialCompensation","Für jeden freigeschalteten Tipp aus dieser Kategorie, der als verloren gewertet wird, erhältst du die dafür bezahlte 1 Unit erstattet.")));
-  var link=ele("a","small-button special-report-link",tr("specialReportLink","Mehr zur Spezialkategorie im NewsRadar"));
-  link.href="https://betinsight.club/de/newsradar/betinsight-spezial-saisonanalysen/";c.appendChild(link);
-  return c;
+  return fragment;
 }
 
 function drawNew(){var who=state.provider;var head=who==="Schulung"?tr("newTraining","Neue Schulungstipps"):who==="Testphase"?tr("testing","BetInsight Spezial"):who==="WochenSpezial"?"BetInsight Wochen-Spezial":tr("newFrom","Neue Tipps von {{who}}",{who:who});$("feedTitle").textContent=head;
