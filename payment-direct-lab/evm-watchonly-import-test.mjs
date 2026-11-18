@@ -1,0 +1,25 @@
+import assert from "node:assert/strict";
+import {pbkdf2Sync} from "node:crypto";
+import {HDKey} from "@scure/bip32";
+import {prepareEvmReceivePool as prepare} from "./evm-watchonly-import.mjs";
+// Public Hardhat development account fixture only. Never use these addresses to receive funds.
+const seed=pbkdf2Sync("test ".repeat(11)+"junk","mnemonic",2048,64,"sha512");
+const root=HDKey.fromMasterSeed(seed),acct=root.derive("m/44'/60'/0'");
+const k=acct.publicExtendedKey;
+const a0="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",a1="0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
+const base={extendedPublicKey:k,accountPath:"m/44'/60'/0'",anchor:{index:0,address:a0},start:0,count:2};
+let pass=0;
+const p=prepare(base);assert.equal(p.ok,true,JSON.stringify(p));assert.deepEqual(p.entries.map(e=>e.displayAddress),[a0,a1]);assert.deepEqual(p.networks,["ETHEREUM","BSC","POLYGON"]);assert.equal(p.authorizesAllocation,false);pass++;
+const check=(input,code)=>{assert.equal(prepare(input).code,code);pass++};
+check({...base,extendedPublicKey:acct.privateExtendedKey},"PUBLIC_ACCOUNT_KEY_REQUIRED");
+check({...base,extendedPublicKey:root.publicExtendedKey},"ACCOUNT_KEY_MISMATCH");
+check({...base,accountPath:"m/44'/195'/0'"},"EVM_ACCOUNT_PATH_REQUIRED");
+check({...base,accountPath:"m/44'/60'/1'"},"ACCOUNT_KEY_MISMATCH");
+check({...base,anchor:{index:0,address:a1}},"DEVICE_ADDRESS_MISMATCH");
+check({...base,anchor:{index:0,address:a0.replace("Fd","fd")}},"INVALID_ADDRESS_CHECKSUM");
+check({...base,count:21},"BOUNDED_RANGE_REQUIRED");
+check({...base,start:0x80000000-1,count:2},"BOUNDED_RANGE_REQUIRED");
+check({...base,privateKey:"fixture"},"INVALID_SCHEMA");
+check({...base,anchor:null},"DEVICE_CONFIRMED_ADDRESS_REQUIRED");
+assert.equal(prepare({...base,anchor:{index:0,address:a0.toLowerCase()}}).ok,true);pass++;
+console.log("EVM WATCH-ONLY "+pass+"/12 passed; public development fixtures only. No funds, no allocation.");
