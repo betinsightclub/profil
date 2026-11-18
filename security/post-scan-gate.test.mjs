@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {postScanDecision} from './post-scan-gate.mjs';
+const now=Date.parse('2026-11-18T22:00:00Z');
+const expected={kind:'post',owner_ref:'BI123',club_id:'club',storage_path:'BI123/post/a.png',sha256:'a'.repeat(64),mime_type:'image/png',expected_bytes:140,width:64,height:48};
+const clean={...expected,status:'clean',finished_at:new Date(now).toISOString(),result:{sha256:expected.sha256,bytes:140,mime:'image/png',width:64,height:48,clamav:'clean',database_version:28187}};
+test('only exact clean result is accepted',()=>assert.equal(postScanDecision(clean,expected,now),'clean'));
+test('queued and leased not published',()=>{for(const status of ['queued','leased'])assert.equal(postScanDecision({...clean,status},expected,now),'pending')});
+test('rejected and failed not published',()=>{for(const status of ['rejected','failed'])assert.equal(postScanDecision({...clean,status},expected,now),'rejected')});
+test('wrong owner, club, path, bytes, hash, format, dimensions and kind fail closed',()=>{for(const key of Object.keys(expected))assert.equal(postScanDecision({...clean,[key]:'changed'},expected,now),'mismatch',key)});
+test('wrong result fields fail closed',()=>{for(const key of Object.keys(clean.result))assert.equal(postScanDecision({...clean,result:{...clean.result,[key]:'bad'}},expected,now),'mismatch',key)});
+test('expired or missing approvals fail closed',()=>{assert.equal(postScanDecision(clean,expected,now+31*60000),'expired');assert.equal(postScanDecision(null,expected,now),'mismatch')});
