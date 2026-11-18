@@ -30,13 +30,36 @@ async function evm(network,url){
 }
 async function sol(){
  const call=rpc("https://api.mainnet-beta.solana.com"),slot=await call("getSlot",[{commitment:"finalized"}]);
- const b=await call("getBlock",[slot,{commitment:"finalized",transactionDetails:"full",encoding:"jsonParsed",rewards:false,maxSupportedTransactionVersion:0}]);
- const entries=b?.transactions??[];
- const pick=entries.flatMap(t=>t.meta?.err===null?(t.transaction.message.instructions??[]).filter(i=>i.program==="system"&&i.parsed?.type==="transfer"&&i.parsed.info?.lamports>0).map(i=>({sig:t.transaction.signatures[0],address:i.parsed.info.destination})):[])[0];
- if(!pick)return {status:"LIMITED",reason:"NO_NATIVE_SAMPLE"};
- const r=await discoverIndexed({...base,network:"SOLANA",asset:"SOL",address:pick.address},{from:slot,to:slot},{rpc:call});
- assert(r.status==="INDEX_CANDIDATES"&&r.txids.includes(pick.sig),"INDEX_"+(r.reason??"NOT_FOUND"));
- return {status:"PASS",scope:"SOL address history only",slot};
+ const b=await call("getBlock",[slot,{commitment:"finalized",transactionDetails:"full",encoding:"jsonParsed",rewards:false,maxSupportedTransactionVersion:1}]);
+ const entries=(b?.transactions??[]).filter(t=>t.meta?.err===null);
+ const pick=entries.flatMap(t=>(t.transaction.message.instructions??[]).filter(i=>i.program==="system"&&i.parsed?.type==="transfer"&&i.parsed.info?.lamports>0).map(i=>({sig:t.transaction.signatures[0],address:i.parsed.info.destination})))[0];
+ const samples=[];
+ if(pick)samples.push({asset:"SOL",...pick});
+ for(const a of reg.assets.filter(x=>x.network==="SOLANA"&&x.contract)){
+  let found;
+  for(const t of entries){
+   const post=t.meta.postTokenBalances??[],pre=t.meta.preTokenBalances??[];
+   for(const p of post){
+    if(p.mint!==a.contract||p.programId!=="TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"||!p.owner||p.uiTokenAmount?.decimals!==a.decimals)continue;
+    const prev=pre.find(x=>x.accountIndex===p.accountIndex);
+    if(prev&&prev.mint!==p.mint)continue;
+    const account=t.transaction.message.accountKeys?.[p.accountIndex]?.pubkey;
+    if(!account||BigInt(p.uiTokenAmount.amount)<=BigInt(prev?.uiTokenAmount?.amount??"0"))continue;
+    found={asset:a.asset,sig:t.transaction.signatures[0],address:p.owner,tokenAccount:account,tokenAccountVerified:true};break;
+   }
+   if(found)break;
+  }
+  if(found)samples.push(found);
+ }
+ const result={SOL:"NO_SAMPLE",USDT:"NO_SAMPLE",USDC:"NO_SAMPLE"};
+ for(const s of samples){
+  const r=await discoverIndexed({...base,network:"SOLANA",...s},{from:slot,to:slot},{rpc:call});
+  assert(r.status==="INDEX_CANDIDATES"&&r.txids.includes(s.sig),s.asset+"_INDEX_"+(r.reason??"NOT_FOUND"));
+  const tx=await call("getTransaction",[s.sig,{commitment:"finalized",encoding:"jsonParsed",maxSupportedTransactionVersion:1}]);
+  assert(tx?.slot===slot&&tx.meta?.err===null&&tx.transaction?.signatures?.[0]===s.sig,s.asset+"_RECEIPT_MISMATCH");
+  result[s.asset]="FOUND";
+ }
+ return {status:Object.values(result).every(x=>x==="FOUND")?"PASS":"LIMITED",scope:"public address/ token-account history and sample receipt only",slot,assets:result};
 }
 async function xrp(){
  const call=async(m,p)=>{const x=await http("https://xrplcluster.com/",{method:m,params:p});assert(x.result?.status==="success",m+":"+(x.result?.error??"INVALID"));return x.result};
@@ -94,6 +117,6 @@ async function bch(){
 }
 const cases=[["Ethereum",()=>evm("ETHEREUM","https://ethereum-rpc.publicnode.com")],["BNB Chain",()=>evm("BSC","https://bsc-rpc.publicnode.com")],["Polygon",()=>evm("POLYGON","https://polygon-bor-rpc.publicnode.com")],["Solana",sol],["XRP",xrp],["Bitcoin",()=>utxo("BITCOIN","btc")],["Litecoin",()=>utxo("LITECOIN","ltc")],["TRON",tron],["Bitcoin Cash",bch]];
 const counts={PASS:0,LIMITED:0,FAIL:0};
-for(const [name,run] of cases){try{const r=await run();counts[r.status]++;console.log(name,JSON.stringify(r));}catch(e){counts.FAIL++;console.log(name,JSON.stringify({status:"FAIL",reason:String(e.message).slice(0,180)}))}}
+for(const [name,run] of cases){if(process.argv.includes('--sol-only')&&name!=='Solana')continue;try{const r=await run();counts[r.status]++;console.log(name,JSON.stringify(r));}catch(e){counts.FAIL++;console.log(name,JSON.stringify({status:"FAIL",reason:String(e.message).slice(0,180)}))}}
 console.log("DISCOVERY DIAGNOSTIC",JSON.stringify(counts),"Read only. No production authorization; public samples are not our wallets.");
 process.exitCode=counts.FAIL?1:0;
