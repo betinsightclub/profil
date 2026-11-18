@@ -1,6 +1,6 @@
 \set ON_ERROR_STOP on
 DO $$
-DECLARE a uuid; b uuid; c uuid; n timestamptz:=now(); r text; passed integer:=0; rev bigint;
+DECLARE a uuid; b uuid; c uuid; n timestamptz:=now(); r text; passed integer:=0; rev bigint; retry_balance numeric;
 BEGIN
  IF current_database()<>'betinsight_pay_lab' THEN RAISE EXCEPTION 'LAB_DATABASE_REQUIRED'; END IF;
  INSERT INTO pay_posting_lab.members VALUES ('lab-buyer','buyer@example.invalid','LAB-OWNER','LAB-S1','LAB-S2','LAB-S3');
@@ -55,7 +55,17 @@ BEGIN
  OR (SELECT count(*) FROM public.betinsight_payment_intents)<>2
  THEN RAISE EXCEPTION 'rollback failure'; END IF; passed:=passed+1;
  ALTER TABLE betinsight_pay_private.orders DROP CONSTRAINT lab_forced_failure;
- IF pay_posting_lab.settle(c)<>'SETTLED' OR (SELECT purchased FROM pay_posting_lab.accounts WHERE owner_ref='LAB-OWNER')<>156 THEN RAISE EXCEPTION 'retry failure'; END IF; passed:=passed+1;
+ -- Execute the writing function first, then read the changed account in a separate statement.
+ r:=pay_posting_lab.settle(c);
+ SELECT purchased INTO retry_balance FROM pay_posting_lab.accounts WHERE owner_ref='LAB-OWNER';
+ IF r IS DISTINCT FROM 'SETTLED' OR retry_balance IS DISTINCT FROM 156::numeric THEN
+  RAISE EXCEPTION 'retry failure: status=%, purchased=%, expected SETTLED/156',r,retry_balance;
+ END IF;
+ IF (SELECT count(*) FROM pay_posting_lab.ledger WHERE order_id=c)<>1
+ OR (SELECT count(*) FROM pay_posting_lab.consumed_events WHERE order_id=c)<>1
+ OR (SELECT count(*) FROM public.betinsight_payment_intents)<>3
+ OR (SELECT status FROM betinsight_pay_private.orders WHERE id=c) IS DISTINCT FROM 'SETTLED'
+ THEN RAISE EXCEPTION 'retry posting consistency failure'; END IF; passed:=passed+1;
  IF has_schema_privilege('anon','pay_posting_lab','USAGE') OR has_function_privilege('authenticated','pay_posting_lab.settle(uuid,text)','EXECUTE') OR has_function_privilege('service_role','pay_posting_lab.settle(uuid,text)','EXECUTE') THEN RAISE EXCEPTION 'privilege leak'; END IF; passed:=passed+1;
  RAISE NOTICE 'PAY-LAB POSTING: % checks passed (isolated model; no production finance)',passed;
 END $$;
