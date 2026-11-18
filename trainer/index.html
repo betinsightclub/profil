@@ -681,8 +681,8 @@
     <section class="profile-head">
       <div class="cover">
         <img id="coverImage" class="hidden" alt="Profil-Hintergrund">
-        <button class="cover-edit owner-only" id="coverEditBtn">📷 Hintergrund ändern</button>
-        <input id="coverInput" class="hidden" type="file" accept="image/jpeg,image/png,image/webp">
+        <button class="cover-edit owner-only" id="coverEditBtn" title="JPG, PNG oder WebP · max. 8 MB">📷 Hintergrund ändern</button>
+        <input id="coverInput" class="hidden" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
       </div>
 
       <div class="profile-main">
@@ -691,12 +691,12 @@
             <div class="avatar-fallback" id="avatarFallback"><span class="avatar-ball">⚽</span><span class="avatar-team-initials" id="avatarTeamInitials">BI</span></div>
             <img id="avatarImage" class="hidden" alt="Trainerbild">
           </div>
-          <button class="avatar-edit owner-only" id="avatarEditBtn" aria-label="Trainerbild ändern">📷</button>
-          <input id="avatarInput" class="hidden" type="file" accept="image/jpeg,image/png,image/webp">
+          <button class="avatar-edit owner-only" id="avatarEditBtn" aria-label="Trainerbild ändern (JPG, PNG oder WebP, max. 8 MB)" title="JPG, PNG oder WebP · max. 8 MB">📷</button>
+          <input id="avatarInput" class="hidden" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
         </div>
 
         <div class="identity">
-          <div class="identity-top">
+          <div class="owner-only" style="font-size:12px;opacity:.85;margin-bottom:5px">Profil- und Hintergrundbilder: nur JPG, PNG oder WebP · max. 8 MB</div><div class="identity-top">
             <h1 id="trainerName">Trainerprofil</h1>
             <span class="verified" title="BetInsight Trainerprofil">✓</span>
           </div>
@@ -852,11 +852,11 @@
           </div>
           <div class="composer-actions">
             <div class="composer-tools">
-              <button class="tool-btn" id="photoBtn">🖼️ Bild</button>
+              <button class="tool-btn" id="photoBtn" title="JPG, PNG oder WebP · max. 8 MB">🖼️ Bild</button><small style="font-size:11px;align-self:center">JPG · PNG · WebP (max. 8 MB)</small>
               <button class="tool-btn" id="emojiBtn">😊 Emoji</button>
               <button class="tool-btn" id="emotionBtn">🏷️ BetInsight Sticker</button>
               <button class="tool-btn" id="reportBtn">📰 Spielbericht</button>
-              <input id="postImageInput" class="hidden" type="file" accept="image/jpeg,image/png,image/webp">
+              <input id="postImageInput" class="hidden" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
             </div>
             <button class="post-submit" id="publishPostBtn" disabled>Posten</button>
           </div>
@@ -2604,7 +2604,7 @@
       function replaceOwnPostImage(post,article){
         if(!post||!post.server||!isOwner||!serverMode)return;
         var picker=document.createElement("input");
-        picker.type="file";picker.accept="image/jpeg,image/png,image/webp";picker.hidden=true;
+        picker.type="file";picker.accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp";picker.hidden=true;
         document.body.appendChild(picker);
         picker.addEventListener("change",async function(){
           var file=picker.files&&picker.files[0];
@@ -3018,9 +3018,10 @@
           selectedImagePreviewUrl="";
         }
       }
+      function allowedMemberPhoto(file){return Boolean(file&&/\.(jpe?g|png|webp)$/i.test(file.name||"")&&["image/jpeg","image/png","image/webp"].includes(file.type));}
       async function uploadOriginalPostImage(file,dimensions){
         // Store the exact original file; no canvas, JPEG re-encoding or base64.
-        if(!file||!["image/jpeg","image/png","image/webp"].includes(file.type))
+        if(!allowedMemberPhoto(file))
           throw new Error("Bitte JPG, PNG oder WebP auswählen.");
         if(file.size<=0||file.size>8_000_000)
           throw new Error("Das Bild darf maximal 8 MB groß sein.");
@@ -3155,11 +3156,11 @@
       function readOriginalProfileImage(file){
         return new Promise(async function(resolve,reject){
           try{
-            if(!file || !/^image\/(?:jpeg|png|webp)$/i.test(file.type||"")){
+            if(!allowedMemberPhoto(file)){
               throw new Error("Bitte JPG, PNG oder WebP auswählen.");
             }
             var maxBytes=8*1000*1000;
-            if(file.size>maxBytes) throw new Error("Das Bild ist größer als 8 MB. Bitte eine kleinere Datei auswählen.");
+            if(!file.size||file.size>maxBytes) throw new Error("Das Bild ist größer als 8 MB. Bitte eine kleinere Datei auswählen.");
             var image=await loadImageFile(file);
             var reader=new FileReader();
             reader.onload=function(){
@@ -3539,7 +3540,7 @@
         box.classList.add("show");
         showToast("Originalbild wird geprüft – keine Umwandlung …");
         try{
-          if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>8_000_000||!file.size)
+          if(!allowedMemberPhoto(file)||file.size>8_000_000||!file.size)
             throw new Error("Nur JPG, PNG und WebP bis maximal 8 MB sind zulässig.");
           var original=await loadImageFile(file);
           if(request!==postImageSelectionCounter)return;
