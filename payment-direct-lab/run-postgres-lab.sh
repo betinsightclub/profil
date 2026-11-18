@@ -18,8 +18,8 @@ for i in $(seq 1 45); do
  sleep 1
 done
 [[ "$ready" == 1 ]] || { echo "Database did not start"; exit 1; }
-for f in lab-bootstrap.sql database-bridge-review.sql lab-checks.sql lab-posting.sql lab-posting-checks.sql lab-scan-schedule.sql lab-allocation.sql lab-master-stepup.sql lab-passkey-persistence.sql; do
+for f in lab-bootstrap.sql database-bridge-review.sql lab-checks.sql lab-posting.sql lab-posting-checks.sql lab-scan-schedule.sql lab-allocation.sql lab-master-stepup.sql lab-passkey-persistence.sql lab-wallet-rotation.sql; do
  echo "== $f =="
  docker exec -i "$name" psql -X -h 127.0.0.1 -v ON_ERROR_STOP=1 -U postgres -d betinsight_pay_lab < "$f"
 done
-echo "Bridge, posting, scan schedule, allocation, master step-up and passkey persistence lab completed. No production records were posted."
+echo "Bridge, posting, scan schedule, allocation, master step-up and passkey persistence and wallet rotation lab completed. No production records were posted."
