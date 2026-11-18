@@ -3715,7 +3715,14 @@
                 data_url:selectedImageData,width:selectedImageDimensions.width||null,
                 height:selectedImageDimensions.height||null
               });
-              mediaId=uploadedLegacy.media && uploadedLegacy.media.id ? uploadedLegacy.media.id : null;
+              if(uploadedLegacy.scan_pending===true&&uploadedLegacy.path){
+                uploadedLegacy=await waitForPostImageScan({
+                  credential:memberCredential,club_id:clubId,path:uploadedLegacy.path
+                });
+              }
+              if(!uploadedLegacy.media||!uploadedLegacy.media.id)
+                throw new Error("Bild konnte nicht bestätigt werden.");
+              mediaId=uploadedLegacy.media.id;
             }
 
             var saved=await communityCall("create_post",{
