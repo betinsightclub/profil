@@ -52,3 +52,31 @@ test('signed upload URL allows only the exact storage route on the API origin',(
  for(const bucket of ['community-media','community-media-pending'])assert.equal(check(new URL(base+'/storage/v1/object/upload/sign/'+bucket+'/owner/post/test.jpg'),base,URL),true);
  for(const bad of ['https://elsewhere.test/storage/v1/object/upload/sign/community-media-pending/a','https://example.test/foo/storage/v1/object/upload/sign/community-media/a','https://example.test/storage/v1/object/upload/sign/community-media-other/a'])assert.equal(check(new URL(bad),base,URL),false);
 });
+
+
+function postScanWaitHarness(responses){
+ const html=fs.readFileSync('trainer/index.html','utf8');
+ const source=html.match(/async function waitForPostImageScan\(payload\)\{[\s\S]*?\n      \}\n      async function uploadOriginalPostImage/)[0].replace(/\n      async function uploadOriginalPostImage$/,"");
+ let calls=0,notices=0;
+ const fn=new vm.Script(source+'\nwaitForPostImageScan').runInNewContext({
+  communityCall:async(action,payload)=>{assert.equal(action,"finish_post_upload");assert.equal(payload.path,"owner/post/test.png");const next=responses[Math.min(calls++,responses.length-1)];if(next instanceof Error)throw next;return next},
+  showToast:()=>{notices++},setTimeout:(resolve)=>resolve()
+ });
+ return {run:()=>fn({path:"owner/post/test.png"}),calls:()=>calls,notices:()=>notices};
+}
+test('existing immediate image response remains compatible',async()=>{
+ const h=postScanWaitHarness([{ok:true,media:{id:"old"}}]);
+ assert.equal((await h.run()).media.id,"old");assert.equal(h.calls(),1);assert.equal(h.notices(),0);
+});
+test('delayed image publication waits for successful scan',async()=>{
+ const h=postScanWaitHarness([{ok:true,scan_pending:true},{ok:true,scan_pending:true},{ok:true,media:{id:"new"}}]);
+ assert.equal((await h.run()).media.id,"new");assert.equal(h.calls(),3);assert.equal(h.notices(),1);
+});
+test('image scan rejection stops upload',async()=>{
+ const h=postScanWaitHarness([{ok:true,scan_pending:true},new Error("IMAGE_SCAN_REJECTED")]);
+ await assert.rejects(h.run(),/IMAGE_SCAN_REJECTED/);assert.equal(h.calls(),2);
+});
+test('pending scan times out without successful publication',async()=>{
+ const h=postScanWaitHarness([{ok:true,scan_pending:true}]);
+ await assert.rejects(h.run(),/nicht veröffentlicht/);assert.equal(h.calls(),51);
+});
