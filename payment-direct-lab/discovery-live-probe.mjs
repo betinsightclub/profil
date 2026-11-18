@@ -61,6 +61,38 @@ async function sol(){
  }
  return {status:Object.values(result).every(x=>x==="FOUND")?"PASS":"LIMITED",scope:"public address/ token-account history and sample receipt only",slot,assets:result};
 }
+// Targeted diagnostic: SOL and USDC already found; no need to query them again.
+async function solUsdtOnly(){
+ const call=rpc("https://api.mainnet-beta.solana.com");
+ const a=reg.assets.find(x=>x.network==="SOLANA"&&x.asset==="USDT");
+ assert(a?.contract==="Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB","USDT_REGISTRY_MISMATCH");
+ const latest=await call("getSlot",[{commitment:"finalized"}]);
+ const slots=await call("getBlocks",[Math.max(0,latest-32),latest,{commitment:"finalized"}]);
+ assert(Array.isArray(slots)&&slots.every(s=>Number.isSafeInteger(s)&&s<=latest&&s>=latest-32),"INVALID_SLOTS");
+ let inspected=0;
+ for(const slot of [...new Set(slots)].sort((a,b)=>b-a).slice(0,12)){
+  const b=await call("getBlock",[slot,{commitment:"finalized",transactionDetails:"full",encoding:"jsonParsed",rewards:false,maxSupportedTransactionVersion:1}]);
+  if(!b||!Array.isArray(b.transactions))continue;
+  inspected++;
+  for(const t of b.transactions){
+   if(t.meta?.err!==null)continue;
+   const pre=t.meta.preTokenBalances??[];
+   for(const p of t.meta.postTokenBalances??[]){
+    if(p.mint!==a.contract||p.programId!=="TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"||!p.owner||p.uiTokenAmount?.decimals!==a.decimals)continue;
+    const prev=pre.find(x=>x.accountIndex===p.accountIndex);
+    if(prev&&(prev.mint!==p.mint||prev.owner!==p.owner))continue;
+    const account=t.transaction.message.accountKeys?.[p.accountIndex]?.pubkey,sig=t.transaction.signatures?.[0];
+    if(!account||!sig||!/^\d+$/.test(p.uiTokenAmount.amount??"")||BigInt(p.uiTokenAmount.amount)<=BigInt(prev?.uiTokenAmount?.amount??"0"))continue;
+    const d=await discoverIndexed({...base,network:"SOLANA",asset:"USDT",address:p.owner,tokenAccount:account,tokenAccountVerified:true},{from:slot,to:slot},{rpc:call});
+    assert(d.status==="INDEX_CANDIDATES"&&d.txids.includes(sig),"USDT_INDEX_"+(d.reason??"NOT_FOUND"));
+    const tx=await call("getTransaction",[sig,{commitment:"finalized",encoding:"jsonParsed",maxSupportedTransactionVersion:1}]);
+    assert(tx?.slot===slot&&tx.meta?.err===null&&tx.transaction?.signatures?.[0]===sig,"RECEIPT_MISMATCH");
+    return {status:"PASS",asset:"USDT",discovery:"FOUND",slot,inspected,scope:"public token-account history and sample receipt only"};
+   }
+  }
+ }
+ return {status:"LIMITED",asset:"USDT",reason:"NO_SAMPLE_IN_BOUNDED_SEARCH",inspected};
+}
 async function xrp(){
  const call=async(m,p)=>{const x=await http("https://xrplcluster.com/",{method:m,params:p});assert(x.result?.status==="success",m+":"+(x.result?.error??"INVALID"));return x.result};
  const s=await call("server_info",[{}]);const ni=s.info?.network_id;
@@ -115,7 +147,7 @@ async function bch(){
  assert(r.status==="PARTIAL_INDEX"&&r.txids.includes(t.txid.toLowerCase()),"INDEX_"+(r.reason??"NOT_FOUND"));
  return {status:"LIMITED",scope:"sample found; complete BCH scan not proven",block:n};
 }
-const cases=[["Ethereum",()=>evm("ETHEREUM","https://ethereum-rpc.publicnode.com")],["BNB Chain",()=>evm("BSC","https://bsc-rpc.publicnode.com")],["Polygon",()=>evm("POLYGON","https://polygon-bor-rpc.publicnode.com")],["Solana",sol],["XRP",xrp],["Bitcoin",()=>utxo("BITCOIN","btc")],["Litecoin",()=>utxo("LITECOIN","ltc")],["TRON",tron],["Bitcoin Cash",bch]];
+const cases=process.argv.includes("--sol-usdt-only")?[["Solana USDT",solUsdtOnly]]:[["Ethereum",()=>evm("ETHEREUM","https://ethereum-rpc.publicnode.com")],["BNB Chain",()=>evm("BSC","https://bsc-rpc.publicnode.com")],["Polygon",()=>evm("POLYGON","https://polygon-bor-rpc.publicnode.com")],["Solana",sol],["XRP",xrp],["Bitcoin",()=>utxo("BITCOIN","btc")],["Litecoin",()=>utxo("LITECOIN","ltc")],["TRON",tron],["Bitcoin Cash",bch]];
 const counts={PASS:0,LIMITED:0,FAIL:0};
 for(const [name,run] of cases){if(process.argv.includes('--sol-only')&&name!=='Solana')continue;try{const r=await run();counts[r.status]++;console.log(name,JSON.stringify(r));}catch(e){counts.FAIL++;console.log(name,JSON.stringify({status:"FAIL",reason:String(e.message).slice(0,180)}))}}
 console.log("DISCOVERY DIAGNOSTIC",JSON.stringify(counts),"Read only. No production authorization; public samples are not our wallets.");
