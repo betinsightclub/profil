@@ -11,7 +11,7 @@ import warnings
 from PIL import Image, ImageFile
 
 MAX_BYTES = 8_000_000
-MAX_PIXELS = 24_000_000  # pilot only; production limit remains unchanged
+MAX_PIXELS = 60_000_000  # matches existing community structural guard
 MAX_SIDE = 12_000
 TYPES = {"image/jpeg": "JPEG", "image/png": "PNG", "image/webp": "WEBP"}
 Image.MAX_IMAGE_PIXELS = MAX_PIXELS
