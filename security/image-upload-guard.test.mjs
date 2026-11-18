@@ -80,3 +80,5 @@ test('pending scan times out without successful publication',async()=>{
  const h=postScanWaitHarness([{ok:true,scan_pending:true}]);
  await assert.rejects(h.run(),/nicht veröffentlicht/);assert.equal(h.calls(),51);
 });
+
+import './post-scan-gate.test.mjs';
