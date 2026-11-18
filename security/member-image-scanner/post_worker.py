@@ -8,7 +8,7 @@ import json
 import sys
 from pathlib import Path
 import queue_worker as core
-from scanner import inspect, Rejected
+from scanner import inspect, Rejected, MAX_PIXELS
 
 core.API = "https://" + core.HOST + "/functions/v1/member-image-worker-post"
 MIME_EXT={"image/jpeg":"jpg","image/png":"png","image/webp":"webp"}
@@ -69,7 +69,9 @@ def main():
     if not re.fullmatch(b"[a-f0-9]{64}\n",key):
         raise RuntimeError("INVALID_WORKER_KEY_FILE")
     key=key[:-1].decode("ascii")
-    print("BETINSIGHT POST WORKER STARTED | idle polling 30s",flush=True)
+    if MAX_PIXELS != 60_000_000:
+        raise RuntimeError("WRONG_SCANNER_PIXEL_LIMIT")
+    print("BETINSIGHT POST WORKER STARTED | 60 MP | idle polling 30s",flush=True)
     failures=0
     while True:
         try:
