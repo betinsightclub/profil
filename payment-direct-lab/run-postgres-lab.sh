@@ -14,12 +14,12 @@ docker run -d --name "$name" --network none --memory 512m --cpus 1 --pids-limit 
 created=1
 ready=0
 for i in $(seq 1 45); do
- if docker exec "$name" pg_isready -U postgres -d betinsight_pay_lab >/dev/null 2>&1; then ready=1; break; fi
+ if docker exec "$name" pg_isready -h 127.0.0.1 -U postgres -d betinsight_pay_lab >/dev/null 2>&1; then ready=1; break; fi
  sleep 1
 done
 [[ "$ready" == 1 ]] || { echo "Database did not start"; exit 1; }
 for f in lab-bootstrap.sql database-bridge-review.sql lab-checks.sql; do
  echo "== $f =="
- docker exec -i "$name" psql -X -v ON_ERROR_STOP=1 -U postgres -d betinsight_pay_lab < "$f"
+ docker exec -i "$name" psql -X -h 127.0.0.1 -v ON_ERROR_STOP=1 -U postgres -d betinsight_pay_lab < "$f"
 done
 echo "Bridge database suite completed. No real member or finance records were posted."
