@@ -10,3 +10,18 @@ export function postScanDecision(job, expected, nowMs=Date.now()){
  if(!Number.isFinite(t)||t>nowMs+60000||nowMs-t>30*60000)return "expired";
  return "clean";
 }
+
+const TABLE="member_image_post_scan_jobs";
+// No mutable approval or overwrite. Unique path serializes duplicate finalize requests.
+export async function ensurePostScan(admin, expected, nowMs=Date.now()){
+ const read=()=>admin.from(TABLE).select("*").eq("storage_path",expected.storage_path).maybeSingle();
+ let existing=await read();
+ if(existing.error)throw new Error("SCAN_QUEUE_READ_FAILED");
+ if(!existing.data){
+   const inserted=await admin.from(TABLE).upsert(expected,{onConflict:"storage_path",ignoreDuplicates:true});
+   if(inserted.error)throw new Error("SCAN_QUEUE_WRITE_FAILED");
+   existing=await read();
+   if(existing.error||!existing.data)throw new Error("SCAN_QUEUE_READ_FAILED");
+ }
+ return postScanDecision(existing.data,expected,nowMs);
+}
