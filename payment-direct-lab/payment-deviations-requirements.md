@@ -1,0 +1,11 @@
+# BetInsight Pay – Zahlungsabweichungen (verbindliche Produktanforderung)
+Status: Nutzerfreigabe für manuelle Zuteilung; Umsetzung und Integration offen.
+- Masterbackoffice: Zahlungseingang, erwarteter Betrag, erhaltene Beträge (Coin und EUR-Bewertung mit dokumentiertem Kurs), bestellte Units und Abweichung nebeneinander anzeigen.
+- Masteradministrator kann nach verifizierter Zahlung die volle Paketmenge akzeptieren, eine abweichende Zahl Kauf-Units ausdrücklich festlegen oder auf Nachzahlung warten. Keine automatische anteilige Zuteilung. Keine automatische Rücküberweisung.
+- Beispiel des Nutzers: Soll 49 EUR / 50 Units, Ist 48 EUR, manuell freigegeben 49 Kauf-Units. Beispiel, kein allgemeiner Umrechnungsschlüssel.
+- In Kontobewegungen tatsächlichen Eingang, ursprüngliches Paket, tatsächlich gutgeschriebene Kauf-Units und Kennzeichnung "Zahlungsabweichung – manuell freigegeben" ausweisen; keine internen Admin-Identitäten oder sensiblen Daten anzeigen.
+- Tatsächliche Einnahmen nicht durch Paketpreis ersetzen. Bestehende Finanz- und Referral-Regeln beibehalten; Berechnungsbasis und tatsächliche Units konsistent in Finanz-, Kauf-Lot-, FIFO-, Ledger- und Referral-Daten übernehmen. Exakte Behandlung der Referral-Erwartungswerte anhand der vorhandenen Regeln vor Freigabe prüfen.
+- Freigabe nur serverseitig, mit Masterberechtigung, frischer zusätzlicher Authentifizierung, begründetem Audit-Eintrag, atomarer Buchung und unveränderlichem Transaktionsnachweis. Keine doppelte Verwendung von Blockchain-Ereignissen, keine nachträgliche Änderung abgeschlossener Buchungen.
+- Kleine Unterzahlung kann nach bestätigter Toleranzregel (0,5 %, maximal 0,50 EUR) automatisch akzeptiert werden; größere Abweichungen und Überzahlungen zur Bearbeitung. Mehrere Teilzahlungen nur nach unzweifelhafter Zuordnung, Deduplizierung und Finalität zusammenführen.
+- Testfälle: Vollmenge akzeptiert trotz Unterzahlung; individuell 49 statt 50; Überzahlung; Teilzahlung offen; Doppelclick und gleiche TX erneut abgelehnt; korrekte Anzeige im Konto; korrekte tatsächliche Einnahmen; keine Veränderung der historischen Plisio-Buchungen.
+- Kein Produktivbetrieb, keine echten Adressen, keine Datenbankänderung in diesem Dokument.
