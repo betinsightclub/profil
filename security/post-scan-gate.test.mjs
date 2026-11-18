@@ -10,3 +10,28 @@ test('rejected and failed not published',()=>{for(const status of ['rejected','f
 test('wrong owner, club, path, bytes, hash, format, dimensions and kind fail closed',()=>{for(const key of Object.keys(expected))assert.equal(postScanDecision({...clean,[key]:'changed'},expected,now),'mismatch',key)});
 test('wrong result fields fail closed',()=>{for(const key of Object.keys(clean.result))assert.equal(postScanDecision({...clean,result:{...clean.result,[key]:'bad'}},expected,now),'mismatch',key)});
 test('expired or missing approvals fail closed',()=>{assert.equal(postScanDecision(clean,expected,now+31*60000),'expired');assert.equal(postScanDecision(null,expected,now),'mismatch')});
+
+import {ensurePostScan} from './post-scan-gate.mjs';
+function dbMock(initial){
+ let row=initial,insertions=0;
+ const db={from(table){
+  assert.equal(table,'member_image_post_scan_jobs');
+  return {select(){return {eq(key,value){assert.equal(key,'storage_path');assert.equal(value,expected.storage_path);return {maybeSingle:async()=>({data:row,error:null})}}}},upsert:async(v,opts)=>{assert.equal(opts.ignoreDuplicates,true);assert.equal(opts.onConflict,'storage_path');insertions++;if(!row)row={...v,status:'queued'};return {error:null}}};
+ }};
+ return {db,insertions:()=>insertions};
+}
+test('missing approval queues exactly once and stays pending',async()=>{
+ const m=dbMock(null);
+ assert.equal(await ensurePostScan(m.db,expected,now),'pending');
+ assert.equal(await ensurePostScan(m.db,expected,now),'pending');
+ assert.equal(m.insertions(),1);
+});
+test('changed hash cannot replace previously clean approval',async()=>{
+ const m=dbMock(clean);
+ assert.equal(await ensurePostScan(m.db,{...expected,sha256:'b'.repeat(64)},now),'mismatch');
+ assert.equal(m.insertions(),0);
+});
+test('queue read errors stop publication',async()=>{
+ const db={from(){return {select(){return {eq(){return {maybeSingle:async()=>({error:new Error('offline')})}}}}}}};
+ await assert.rejects(ensurePostScan(db,expected,now),/SCAN_QUEUE_READ_FAILED/);
+});
