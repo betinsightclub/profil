@@ -3019,6 +3019,17 @@
         }
       }
       function allowedMemberPhoto(file){return Boolean(file&&/\.(jpe?g|png|webp)$/i.test(file.name||"")&&["image/jpeg","image/png","image/webp"].includes(file.type));}
+      async function waitForPostImageScan(payload){
+        var done=await communityCall("finish_post_upload",payload);
+        if(done.scan_pending!==true)return done;
+        showToast("Bild wird auf Sicherheit geprüft. Bitte das Fenster geöffnet lassen.");
+        for(var attempt=0;attempt<50;attempt++){
+          await new Promise(function(resolve){setTimeout(resolve,3000);});
+          done=await communityCall("finish_post_upload",payload);
+          if(done.scan_pending!==true)return done;
+        }
+        throw new Error("Die Sicherheitsprüfung ist noch nicht abgeschlossen. Das Bild wurde nicht veröffentlicht. Bitte erneut versuchen.");
+      }
       async function uploadOriginalPostImage(file,dimensions){
         // Store the exact original file; no canvas, JPEG re-encoding or base64.
         if(!allowedMemberPhoto(file))
@@ -3043,12 +3054,13 @@
           credentials:"omit",redirect:"error"
         });
         if(!uploaded.ok)throw new Error("Originalbild konnte nicht gespeichert werden (HTTP "+uploaded.status+").");
-        var done=await communityCall("finish_post_upload",{
+        var finishPayload={
           credential:memberCredential,club_id:clubId,
           path:ticket.upload.path,
           width:dimensions&&dimensions.width||null,
           height:dimensions&&dimensions.height||null
-        });
+        };
+        var done=await waitForPostImageScan(finishPayload);
         if(!done.ok||!done.media||!done.media.id)
           throw new Error("Bild konnte nicht bestätigt werden.");
         return done;
