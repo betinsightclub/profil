@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "status": "review_only",
   "productionNote": "Never activate from this file. Existing exchange data is a starting point, not a trust anchor. Verify network, token identity, decimals, provider terms and end-to-end payments independently.",
   "reviewNotes": [
@@ -66,7 +66,8 @@
       "launchCandidate": true,
       "enabled": false,
       "verified": false,
-      "stage": "requires_live_asset_and_payment_verification"
+      "stage": "requires_live_asset_and_payment_verification",
+      "displayLabel": "Binance-Peg USDT"
     },
     {
       "network": "BSC",
@@ -78,7 +79,8 @@
       "launchCandidate": true,
       "enabled": false,
       "verified": false,
-      "stage": "requires_live_asset_and_payment_verification"
+      "stage": "requires_live_asset_and_payment_verification",
+      "displayLabel": "Binance-Peg USDC"
     },
     {
       "network": "POLYGON",
@@ -102,7 +104,8 @@
       "launchCandidate": true,
       "enabled": false,
       "verified": false,
-      "stage": "requires_live_asset_and_payment_verification"
+      "stage": "requires_live_asset_and_payment_verification",
+      "displayLabel": "USDT0"
     },
     {
       "network": "POLYGON",
@@ -234,7 +237,38 @@
       "launchCandidate": false,
       "enabled": false,
       "verified": false,
-      "stage": "deferred_rpc_rate_limit"
+      "stage": "deferred_rpc_rate_limit",
+      "displayStatus": "Folgt in Kürze"
+    }
+  ],
+  "bankMethods": [
+    {
+      "id": "SEPA_EUR",
+      "currency": "EUR",
+      "label": "SEPA-Überweisung",
+      "rail": "SEPA",
+      "enabled": false,
+      "stage": "coming_soon",
+      "requires": [
+        "approved_business_account",
+        "beneficiary_details",
+        "unique_reference",
+        "statement_reconciliation"
+      ]
+    },
+    {
+      "id": "BANK_USD",
+      "currency": "USD",
+      "label": "Banküberweisung",
+      "rail": "pending_provider_selection",
+      "enabled": false,
+      "stage": "coming_soon",
+      "requires": [
+        "approved_business_account",
+        "beneficiary_details",
+        "unique_reference",
+        "statement_reconciliation"
+      ]
     }
   ]
 }
