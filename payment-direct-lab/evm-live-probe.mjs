@@ -23,7 +23,7 @@ export async function rpcProbe(rpc,expectedChain,nowMs){
  assert(Array.isArray(logs)&&logs.every(l=>l.blockHash?.toLowerCase()===fin.hash.toLowerCase()&&l.removed===false),"LOG_QUERY_MISMATCH");
  return {status:"PASS",finalized:BigInt(fin.number).toString(),head:BigInt(latest.number).toString(),finalityAgeSeconds:Math.round(age/1000),receipt:"OK",transferLogs:logs.length};
 }
-const providers=[["Ethereum","0x1","https://ethereum-rpc.publicnode.com"],["BNB Chain","0x38","https://bsc-dataseed.bnbchain.org"],["Polygon","0x89","https://polygon-bor-rpc.publicnode.com"]];
+const providers=[["Ethereum","0x1","https://ethereum-rpc.publicnode.com"],["BNB Chain","0x38","https://bsc-rpc.publicnode.com"],["Polygon","0x89","https://polygon-bor-rpc.publicnode.com"]];
 const allowed=new Set(["eth_chainId","eth_getBlockByNumber","eth_getTransactionByHash","eth_getTransactionReceipt","eth_getLogs"]);
 function createRpc(url){
  let id=0;
@@ -33,12 +33,13 @@ function createRpc(url){
  const res=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jsonrpc:"2.0",id:reqId,method,params}),redirect:"error",signal:AbortSignal.timeout(16000)});
  if(!res.ok)throw Error("HTTP_"+res.status);
  const body=await res.text();if(body.length>8000000)throw Error("RESPONSE_TOO_LARGE");
- const obj=JSON.parse(body);if(obj.jsonrpc!=="2.0"||obj.id!==reqId||obj.error||!("result" in obj))throw Error("RPC_"+(obj.error?.code??"INVALID"));
+ const obj=JSON.parse(body);if(obj.jsonrpc!=="2.0"||obj.id!==reqId||obj.error||!("result" in obj))throw Error(method+": RPC_"+(obj.error?.code??"INVALID"));
  return obj.result;
  };
 }
 let failures=0;
 for(const [name,chain,url] of providers){
+ if(process.argv.includes("--bsc-only")&&chain!=="0x38")continue;
  try{const r=await rpcProbe(createRpc(url),chain,Date.now());console.log(name,JSON.stringify(r));if(r.status!=="PASS")failures++;}
  catch(e){console.log(name,JSON.stringify({status:"FAIL",reason:String(e.message).slice(0,180)}));failures++;}
 }
