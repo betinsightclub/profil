@@ -1,0 +1,25 @@
+import assert from "node:assert/strict";
+import {randomUUID,pbkdf2Sync} from "node:crypto";
+import {HDKey} from "@scure/bip32";
+import {Wallet} from "ethers";
+import {createEvmImportProof,verifyEvmImportProof} from "./evm-import-proof.mjs";
+// Synthetic public development fixtures, not real wallet setup.
+const seed=pbkdf2Sync("test ".repeat(11)+"junk","mnemonic",2048,64,"sha512"),acct=HDKey.fromMasterSeed(seed).derive("m/44'/60'/0'");
+const w=new Wallet("0x"+Buffer.from(acct.deriveChild(0).deriveChild(0).privateKey).toString("hex"));
+const input={extendedPublicKey:acct.publicExtendedKey,accountPath:"m/44'/60'/0'",anchor:{index:0,address:w.address},start:0,count:2};
+const ctx={requestId:randomUUID(),sessionId:randomUUID(),version:1,adminId:"fixture-master"},now=Date.now();
+const c=createEvmImportProof(input,ctx,now),sig=await w.signMessage(c.message);
+let n=0;
+const check=(label,v,want)=>{assert.equal(v.ok,want,label+" "+JSON.stringify(v));console.log("PASS",label);n++};
+const ok=verifyEvmImportProof(input,ctx,c,sig,now);check("valid proof",ok,true);assert.equal(ok.authorizesAllocation,false);
+check("OneKey hex without prefix",verifyEvmImportProof(input,ctx,c,sig.slice(2),now),true);
+check("different signer",verifyEvmImportProof(input,ctx,c,await Wallet.createRandom().signMessage(c.message),now),false);
+check("different import range",verifyEvmImportProof({...input,count:3},ctx,c,sig,now),false);
+check("different wallet version",verifyEvmImportProof(input,{...ctx,version:2},c,sig,now),false);
+check("different session",verifyEvmImportProof(input,{...ctx,sessionId:randomUUID()},c,sig,now),false);
+check("different request",verifyEvmImportProof(input,{...ctx,requestId:randomUUID()},c,sig,now),false);
+check("expired",verifyEvmImportProof(input,ctx,c,sig,now+300000),false);
+check("used challenge",verifyEvmImportProof(input,ctx,{...c,used:true},sig,now),false);
+check("modified message",verifyEvmImportProof(input,ctx,{...c,message:c.message+" changed"},sig,now),false);
+check("different nonce",verifyEvmImportProof(input,ctx,createEvmImportProof(input,ctx,now),sig,now),false);
+console.log("EVM OWNERSHIP "+n+"/11 passed; synthetic signatures only; no activation.");
