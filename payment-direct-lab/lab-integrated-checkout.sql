@@ -31,7 +31,7 @@ END $$;
 REVOKE ALL ON FUNCTION betinsight_pay_private.lab_apply_verified_scan(uuid,uuid,bigint,jsonb) FROM PUBLIC,anon,authenticated,service_role;
 COMMIT;
 DO $$
-DECLARE a record; o uuid; row_o betinsight_pay_private.orders%ROWTYPE; token uuid; batch jsonb; evt jsonb; tx text; v int; seq int:=0; passed int:=0; t timestamptz; status text; bad uuid; btoken uuid; brev bigint; under jsonb; admin uuid:=gen_random_uuid(); grantid uuid; ref text; bound jsonb; rev bigint; gross numeric;
+DECLARE a record; o uuid; row_o betinsight_pay_private.orders%ROWTYPE; token uuid; batch jsonb; evt jsonb; tx text; v int; seq int:=0; passed int:=0; t timestamptz; v_result_status text; bad uuid; btoken uuid; brev bigint; under jsonb; admin uuid:=gen_random_uuid(); grantid uuid; ref text; bound jsonb; rev bigint; gross numeric;
 BEGIN
  -- Disable due flags from preceding test fixtures only; never used on a live database.
  UPDATE betinsight_pay_private.orders SET next_check_at=NULL;
@@ -65,13 +65,13 @@ BEGIN
    'raw',row_o.quote_raw,'payment_at',row_o.created_at,'evidence',jsonb_build_object('fixture',true),'eur_micro',49000000,'valuation_reference','synthetic-fixed-eur',
    'finality_verified',true,'assignment_verified',true,'valuation_verified',true);
   batch:=jsonb_build_array(evt);
-  status:=betinsight_pay_private.lab_apply_verified_scan(o,token,row_o.revision,batch);
-  IF status<>'SETTLED' OR NOT EXISTS(SELECT 1 FROM pay_posting_lab.purchases WHERE order_id=o AND units=50 AND actual_eur=49)
+  v_result_status:=betinsight_pay_private.lab_apply_verified_scan(o,token,row_o.revision,batch);
+  IF v_result_status<>'SETTLED' OR NOT EXISTS(SELECT 1 FROM pay_posting_lab.purchases WHERE order_id=o AND units=50 AND actual_eur=49)
    OR NOT EXISTS(SELECT 1 FROM pay_posting_lab.lots WHERE order_id=o AND units_remaining=50)
    OR NOT EXISTS(SELECT 1 FROM pay_posting_lab.ledger WHERE order_id=o AND units_delta=50)
    OR (SELECT count(*) FROM pay_posting_lab.consumed_events WHERE order_id=o)<>1
    OR (SELECT count(*) FROM pay_posting_lab.referrals WHERE order_id=o)<>3
-   OR NOT EXISTS(SELECT 1 FROM betinsight_pay_private.orders WHERE id=o AND status='SETTLED' AND scan_lease_token IS NULL AND canonical_intent_id IS NOT NULL)
+   OR NOT EXISTS(SELECT 1 FROM betinsight_pay_private.orders WHERE id=o AND betinsight_pay_private.orders.status='SETTLED' AND scan_lease_token IS NULL AND canonical_intent_id IS NOT NULL)
   THEN RAISE EXCEPTION 'integrated settlement failed % %',a.network,a.asset; END IF;
   passed:=passed+1;
   RAISE NOTICE 'INTEGRATED % % -> 50 purchase units / EUR49 -> finance + ledger',a.network,a.asset;
@@ -82,16 +82,16 @@ BEGIN
  t:=clock_timestamp();
  SELECT version INTO v FROM betinsight_pay_private.lab_wallet_versions WHERE network='BSC' AND active;
  INSERT INTO betinsight_pay_private.lab_allocations(network,wallet_version,recipient,ownership_reference,enabled) VALUES('BSC',v,'integration-underpay','synthetic-proof',true);
- bad:=betinsight_pay_private.lab_reserve_order('integrated-fixture','integrated@example.invalid','starter','{}',50,49,'BSC','USDT','fixture:BSC:USDT',49000000,6,1,1,t,t+interval '15 minutes','integration-underpay');
+ bad:=betinsight_pay_private.lab_reserve_order('integrated-fixture','integrated@example.invalid','starter','{}',50,49,'BSC','USDT','fixture:BSC:USDT',49000000000000000000,18,1,1,t,t+interval '15 minutes','integration-underpay');
  SELECT lease_token,order_revision INTO btoken,brev FROM betinsight_pay_private.claim_due_scans(1) WHERE order_id=bad;
  SELECT * INTO row_o FROM betinsight_pay_private.orders WHERE id=bad;
- under:=jsonb_build_object('network','BSC','txid','0x'||repeat('e',64),'event_index','0','asset_identity',row_o.asset_identity,'recipient',row_o.canonical_recipient,'tag',NULL,'raw',48000000,'payment_at',row_o.created_at,'evidence','{"fixture":true}'::jsonb,'eur_micro',48000000,'valuation_reference','synthetic','finality_verified',true,'assignment_verified',true,'valuation_verified',true);
+ under:=jsonb_build_object('network','BSC','txid','0x'||repeat('e',64),'event_index','0','asset_identity',row_o.asset_identity,'recipient',row_o.canonical_recipient,'tag',NULL,'raw',48000000000000000000,'payment_at',row_o.created_at,'evidence','{"fixture":true}'::jsonb,'eur_micro',48000000,'valuation_reference','synthetic','finality_verified',true,'assignment_verified',true,'valuation_verified',true);
  BEGIN PERFORM betinsight_pay_private.lab_apply_verified_scan(bad,gen_random_uuid(),brev,jsonb_build_array(under)); RAISE EXCEPTION 'unexpected success'; EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'STALE_OR_INVALID_LEASE' THEN RAISE; END IF; END; passed:=passed+1;
  BEGIN PERFORM betinsight_pay_private.lab_apply_verified_scan(bad,btoken,brev,jsonb_build_array(under||'{"finality_verified":false}'::jsonb)); RAISE EXCEPTION 'unexpected success'; EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'UNVERIFIED_RECEIPT' THEN RAISE; END IF; END; passed:=passed+1;
  BEGIN PERFORM betinsight_pay_private.lab_apply_verified_scan(bad,btoken,brev,jsonb_build_array(under,under||'{"recipient":"wrong"}'::jsonb)); RAISE EXCEPTION 'unexpected success'; EXCEPTION WHEN OTHERS THEN IF SQLERRM<>'EVENT_ORDER_MISMATCH' THEN RAISE; END IF; END;
  IF EXISTS(SELECT 1 FROM betinsight_pay_private.verified_events WHERE order_id=bad) THEN RAISE EXCEPTION 'batch rollback failed'; END IF; passed:=passed+1;
- status:=betinsight_pay_private.lab_apply_verified_scan(bad,btoken,brev,jsonb_build_array(under));
- IF status<>'MANUAL_REVIEW' OR EXISTS(SELECT 1 FROM pay_posting_lab.purchases WHERE order_id=bad) THEN RAISE EXCEPTION 'underpayment credited'; END IF; passed:=passed+1;
+ v_result_status:=betinsight_pay_private.lab_apply_verified_scan(bad,btoken,brev,jsonb_build_array(under));
+ IF v_result_status<>'MANUAL_REVIEW' OR EXISTS(SELECT 1 FROM pay_posting_lab.purchases WHERE order_id=bad) THEN RAISE EXCEPTION 'underpayment credited'; END IF; passed:=passed+1;
  -- The existing master grant and manual approval are consumed in the same transaction.
  SELECT revision INTO rev FROM betinsight_pay_private.orders WHERE id=bad;
  bound:=jsonb_build_object('order',bad,'revision',rev,'units',49,'events',pay_posting_lab.snapshot(bad));
@@ -100,8 +100,8 @@ BEGIN
  INSERT INTO betinsight_pay_private.lab_stepup_grants(challenge_id,session_id,admin_id,purpose,binding,verified_at,expires_at) VALUES(gen_random_uuid(),admin,'integrated-master','MANUAL_SETTLEMENT',bound,t,t+interval '5 minutes') RETURNING grant_id INTO grantid;
  PERFORM betinsight_pay_private.lab_consume_stepup(admin,grantid,'MANUAL_SETTLEMENT',bound);
  INSERT INTO pay_posting_lab.approvals(ref,order_id,revision,event_snapshot,units,reason,expires_at) VALUES(ref,bad,rev,pay_posting_lab.snapshot(bad),49,'fixture authorized reduced units',t+interval '5 minutes');
- status:=pay_posting_lab.settle(bad,ref);
- IF status<>'SETTLED' OR NOT EXISTS(SELECT 1 FROM pay_posting_lab.purchases WHERE order_id=bad AND units=49 AND actual_eur=48)
+ v_result_status:=pay_posting_lab.settle(bad,ref);
+ IF v_result_status<>'SETTLED' OR NOT EXISTS(SELECT 1 FROM pay_posting_lab.purchases WHERE order_id=bad AND units=49 AND actual_eur=48)
  OR (SELECT purchased FROM pay_posting_lab.accounts WHERE owner_ref='INTEGRATED-OWNER')<>949 THEN RAISE EXCEPTION 'manual integrated settlement'; END IF; passed:=passed+1;
  IF has_function_privilege('anon','betinsight_pay_private.lab_apply_verified_scan(uuid,uuid,bigint,jsonb)','EXECUTE') OR has_function_privilege('service_role','betinsight_pay_private.lab_apply_verified_scan(uuid,uuid,bigint,jsonb)','EXECUTE') THEN RAISE EXCEPTION 'privilege leak'; END IF; passed:=passed+1;
  RAISE NOTICE 'PAY-LAB INTEGRATED: % checks passed; 18 routes, test receipts, synthetic accounting only',passed;
