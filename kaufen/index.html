@@ -143,7 +143,9 @@
   Promise.resolve().then(()=>window.BetInsightI18n?.init()).then(updatePreview).catch(()=>{});
 })();
 </script>
-<script src="./betinsight-pay-selector.js?v=20261119-5" defer></script>
+<link rel="stylesheet" href="./betinsight-pay-dialog.css?v=20261119-6">
+<script src="./vendor/qrcode-generator.js?v=df13f829" defer></script>
+<script src="./betinsight-pay-selector.js?v=20261119-6" defer></script>
 <script>
 // Private payment test offer. The server binds this order to the authenticated dashboard UUID.
 (() => {
