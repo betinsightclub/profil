@@ -113,7 +113,8 @@
     const row=document.createElement('div');row.className='price-line';
     const label=document.createElement('span');label.textContent='EURO / USD';
     const price=document.createElement('strong');const eur=Number(data.price.replace(/[^0-9]/g,''));
-    const usd=fxReference?new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}).format(eur*fxReference.rate)+' 
+    const usd=fxReference?new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}).format(eur*fxReference.rate)+' '+String.fromCharCode(36):'—';
+    price.textContent=new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(eur)+' / '+usd;
     row.append(label,price);
     const note=document.createElement('p');note.className='rate-note';note.textContent=fxReference?'USD-Richtwert · '+fxReference.source+' · Kursdatum '+fxReference.date+' · 1 EUR = '+fxReference.rate.toLocaleString('de-DE',{maximumFractionDigits:6})+' USD':t('buyPage.rateUnavailable',{},'USD-Kurs derzeit nicht verfügbar. Europreis bleibt gültig.');
     out.append(units,row,note);
@@ -126,28 +127,13 @@
     }catch(e){}
   }
 
-  restoreSelectedPackage();updatePreview();loadFxReference();
-  $('packageSelect').addEventListener('change',updatePreview);window.addEventListener('bi:languagechange',updatePreview);window.BetInsightI18n?.init().then(()=>{updatePreview();loadEmail()});
-})();
-</script>
-<script src="./betinsight-pay-selector.js?v=20261119-1" defer></script>
-</body></html>
-:'—';
-    price.textContent=new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(eur)+' / '+usd;
-    row.append(label,price);
-    const note=document.createElement('p');note.className='rate-note';note.textContent=t('buyPage.rateUnavailable',{},'USD: Kurs noch nicht verfügbar. Kursquelle und Aktualisierungszeit werden bei aktivem Zahlungsdienst angezeigt.');
-    out.append(units,row,note);
-  }
-  function restoreSelectedPackage(){
-    try{
-      const key='bi_pay_selected_package_v1',code=sessionStorage.getItem(key);
-      sessionStorage.removeItem(key);
-      if(code&&Object.prototype.hasOwnProperty.call(packageData,code))$('packageSelect').value=code;
-    }catch(e){}
-  }
-
-  restoreSelectedPackage();updatePreview();
-  $('packageSelect').addEventListener('change',updatePreview);window.addEventListener('bi:languagechange',updatePreview);window.BetInsightI18n?.init().then(()=>{updatePreview();loadEmail()});
+  restoreSelectedPackage();
+  $('packageSelect').addEventListener('change',updatePreview);window.addEventListener('bi:languagechange',updatePreview);
+  // Member profile must load independently of optional price reference and translation initialization.
+  loadEmail().catch(()=>setEmailStatus('E-Mail konnte nicht geladen werden. Bitte Seite neu laden.'));
+  updatePreview();
+  loadFxReference().catch(()=>{});
+  Promise.resolve().then(()=>window.BetInsightI18n?.init()).then(updatePreview).catch(()=>{});
 })();
 </script>
 <script src="./betinsight-pay-selector.js?v=20261119-1" defer></script>
