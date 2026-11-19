@@ -43,11 +43,12 @@
       <option value="elite_bonus" data-bi-i18n="buyPage.eliteBonus">Elite Bonus – 385 Units – 314 €</option>
     </select>
     <section id="biPayPrivateTest" hidden style="border:1px solid #53ccf5;border-radius:12px;padding:16px;margin:14px 0;text-align:left">
-      <strong style="color:#69f0c2">Privates Testpaket · 50 Kauf-Units</strong>
-      <p style="margin:8px 0">1 TRX · TRON</p>
-      <p class="fine">Testangebot für dein angemeldetes Mitgliedskonto. Zahlung noch nicht freigegeben.</p>
-      <button class="pay" type="button" disabled>Testzahlung vorbereiten</button>
-    </section>
+ <strong style="color:#69f0c2">Privates Testpaket · 50 Kauf-Units</strong>
+ <p style="margin:8px 0">1 TRX · TRON</p>
+ <p class="fine" data-test-status aria-live="polite">Testangebot wird geprüft.</p>
+ <button class="pay" type="button" disabled>Testzahlung starten</button>
+ <div data-test-details></div>
+ </section>
     <div id="preview" class="preview" aria-live="polite">Noch kein Paket gewählt</div>
     <section id="biPaySelector" aria-label="BetInsight Pay Zahlungsmethoden" class="bi-pay-selector">
       <h2>BetInsight Pay</h2>
@@ -144,22 +145,43 @@
 </script>
 <script src="./betinsight-pay-selector.js?v=20261119-2" defer></script>
 <script>
-// Private payment test offer: server authenticates the existing dashboard UUID.
+// Private payment test offer. The server binds this order to the authenticated dashboard UUID.
 (() => {
 "use strict";
 const panel=document.getElementById("biPayPrivateTest");if(!panel)return;
 const session=window.BetInsightSession;
 const token=session?.getDashboardUuid?.();
 if(typeof token!=="string"||!session?.isUuid?.(token))return;
-(async()=>{
+const button=panel.querySelector("button"),status=panel.querySelector("[data-test-status]"),details=panel.querySelector("[data-test-details]");
+const api=async action=>{
+ const r=await fetch("https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-pay-test-offer",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token,action}),cache:"no-store",credentials:"omit",referrerPolicy:"no-referrer",signal:AbortSignal.timeout(15000)});
+ if(!r.ok)throw Error("TEST_UNAVAILABLE");
+ const d=await r.json();if(session.getDashboardUuid()!==token)throw Error("SESSION_CHANGED");return d;
+};
+const show=(label,value)=>{const p=document.createElement("p");p.style.cssText="overflow-wrap:anywhere;margin:6px 0";p.textContent=label+value;details.append(p)};
+button.addEventListener("click",async()=>{
+ button.disabled=true;details.replaceChildren();status.textContent="Testauftrag wird geladen ...";
  try{
-  const response=await fetch("https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-pay-test-offer",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token}),cache:"no-store",credentials:"omit",referrerPolicy:"no-referrer",signal:AbortSignal.timeout(10000)});
-  if(!response.ok)return;
-  const data=await response.json(),o=data?.offer;
-  if(data?.ok!==true||o?.code!=="pay_test_trx_1"||o?.asset!=="TRX"||o?.network!=="TRON"||o?.amount_raw!=="1000000"||o?.units!==50||session.getDashboardUuid()!==token)return;
-  panel.hidden=false;
- }catch{}
-})();
+  const d=await api("start");
+  if(d?.ok!==true||Number(d.amount_raw)!==1000000||d.units!==50||typeof d.reference!=="string")throw Error("TEST_UNAVAILABLE");
+  show("Bestellung: ",d.reference);show("Betrag: ","1 TRX (TRON)");
+  if(["WAITING","CHECKING"].includes(d.status)&&typeof d.recipient==="string"){
+   show("Empfangsadresse: ",d.recipient);
+   const copy=document.createElement("button");copy.type="button";copy.className="pay";copy.textContent="Adresse kopieren";copy.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(d.recipient);copy.textContent="Kopiert"}catch{copy.textContent="Bitte Adresse manuell kopieren"}});
+   details.append(copy);show("Gültig bis: ",new Date(d.expires_at).toLocaleString());
+   status.textContent="Testauftrag aktiv. Überweise einmalig 1 TRX über TRON. Die Zahlung wird automatisch geprüft; die Testgutschrift wird separat nach Bestätigung abgerechnet. Keine Provisionen.";
+  }else if(d.status==="PROOF_READY"){status.textContent="Blockchain-Zahlung bestätigt. Testgutschrift wird separat geprüft."}
+  else if(d.status==="TEST_CREDITED"){status.textContent="Testgutschrift gebucht."}
+  else status.textContent="Teststatus: "+d.status+". Bitte nicht erneut überweisen.";
+ }catch{status.textContent="Testauftrag nicht verfügbar. Bitte nicht überweisen."}
+ finally{button.disabled=false;button.textContent="Testauftrag / Status anzeigen";}
+});
+(async()=>{try{
+ const d=await api("offer"),o=d?.offer;
+ if(d?.ok!==true||o?.code!=="pay_test_trx_1"||o?.asset!=="TRX"||o?.network!=="TRON"||o?.amount_raw!=="1000000"||o?.units!==50)return;
+ panel.hidden=false;button.disabled=!o.enabled;
+ status.textContent=o.enabled?"Privater Zahlungstest. Keine Provisionen. Testgutschrift nach separater Bestätigung.":"Testangebot derzeit gesperrt.";
+}catch{}})();
 })();
 </script>
 </body></html>
