@@ -74,8 +74,8 @@ BEGIN
  ELSE
   IF p_increment_raw IS NULL OR p_increment_raw<=0 OR p_increment_raw<>trunc(p_increment_raw)
   OR p_max_offset IS NULL OR p_max_offset NOT BETWEEN 0 AND 999 THEN RAISE EXCEPTION 'INVALID_AMOUNT_RANGE'; END IF;
-  -- Bound total surcharge to EUR 0.05 even if adapter requests a larger increment.
-  IF p_increment_raw*p_max_offset*p_eur/power(10::numeric,p_decimals)>0.05 THEN RAISE EXCEPTION 'AMOUNT_RANGE_TOO_EXPENSIVE'; END IF;
+  -- Clamp the search to an extra EUR 0.05 even if adapter requests a larger range.
+  p_max_offset:=least(p_max_offset,floor(0.05*power(10::numeric,p_decimals)/(p_increment_raw*p_eur))::numeric)::integer;
   SELECT p_base_raw+s.i*p_increment_raw INTO raw FROM generate_series(0,p_max_offset) AS s(i)
   WHERE NOT EXISTS(SELECT 1 FROM betinsight_pay_private.orders prev WHERE prev.network=p_network AND prev.canonical_recipient=w.recipient AND prev.asset_identity=p_identity AND prev.quote_raw=p_base_raw+s.i*p_increment_raw)
   ORDER BY s.i LIMIT 1;
