@@ -95,6 +95,22 @@
     for(const candidate of candidates){try{const data=await fetchProfileCandidate(candidate);if(!data||data.found===false||!data.email)continue;const email=clean(data.email).toLowerCase();emailInput.value=email;try{localStorage.setItem('betinsight_email',email)}catch(e){}const confirmed=clean(data.token);if(confirmed&&!window.BetInsightSession?.isUuid?.(confirmed))window.BetInsightSession?.rememberProfileToken?.(confirmed);setEmailStatus(t('buyPage.emailRecognized',{},'✓ E-Mail automatisch erkannt. Bitte vor dem Kauf prüfen.'),'#00ff99');setDebug('Debug: access confirmed');return}catch(error){lastError=error;console.warn('Profile lookup failed',error)}}
     emailInput.value="";setEmailStatus(t('buyPage.emailLoadFailed',{},'E-Mail konnte nicht automatisch geladen werden. Bitte trage sie manuell ein.'));setDebug(t(lastError?'buyPage.debugNoMatch':'buyPage.debugNoProfile',{},lastError?'Debug: Kein passender Zugang gefunden.':'Debug: Zugang vorhanden, aber kein Profil gefunden.'))
   }
+  let fxReference=null;
+  function validateReferenceRate(d,now){
+ if(!d||d.base!=="EUR"||d.quote!=="USD"||typeof d.rate!=="number"||!Number.isFinite(d.rate)||d.rate<=0||d.rate>10||typeof d.date!=="string"||!/^\d{4}-\d{2}-\d{2}$/.test(d.date))return null;
+ const ms=Date.parse(d.date+"T00:00:00Z");
+ if(!Number.isFinite(ms)||new Date(ms).toISOString().slice(0,10)!==d.date||ms>now||now-ms>7*86400000)return null;
+ return {rate:d.rate,date:d.date,source:"EZB / Frankfurter"};
+}
+  async function loadFxReference(){
+    // Public fiat reference for display only; no account, email, order, or package sent.
+    try{
+      const response=await fetch("https://api.frankfurter.dev/v2/providers/ecb/rate/eur/usd",{headers:{accept:"application/json"},credentials:"omit",referrerPolicy:"no-referrer",redirect:"error",signal:AbortSignal.timeout(5000)});
+      if(!response.ok)throw Error("RATE_UNAVAILABLE");
+      fxReference=validateReferenceRate(await response.json(),Date.now());
+    }catch{fxReference=null;}
+    updatePreview();
+  }
   function updatePreview(){
     const data=packageData[$('packageSelect').value],out=$('preview');
     out.replaceChildren();
@@ -102,7 +118,28 @@
     const units=document.createElement('div');units.className='unit-total';units.textContent=data.units;
     const row=document.createElement('div');row.className='price-line';
     const label=document.createElement('span');label.textContent='EURO / USD';
-    const price=document.createElement('strong');price.textContent=new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(Number(data.price.replace(/[^0-9]/g,'')))+' / —';
+    const price=document.createElement('strong');const eur=Number(data.price.replace(/[^0-9]/g,''));
+    const usd=fxReference?new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}).format(eur*fxReference.rate)+' 
+    row.append(label,price);
+    const note=document.createElement('p');note.className='rate-note';note.textContent=fxReference?'USD-Richtwert · '+fxReference.source+' · Kursdatum '+fxReference.date+' · 1 EUR = '+fxReference.rate.toLocaleString('de-DE',{maximumFractionDigits:6})+' USD':t('buyPage.rateUnavailable',{},'USD-Kurs derzeit nicht verfügbar. Europreis bleibt gültig.');
+    out.append(units,row,note);
+  }
+  function restoreSelectedPackage(){
+    try{
+      const key='bi_pay_selected_package_v1',code=sessionStorage.getItem(key);
+      sessionStorage.removeItem(key);
+      if(code&&Object.prototype.hasOwnProperty.call(packageData,code))$('packageSelect').value=code;
+    }catch(e){}
+  }
+
+  restoreSelectedPackage();updatePreview();loadFxReference();
+  $('packageSelect').addEventListener('change',updatePreview);window.addEventListener('bi:languagechange',updatePreview);window.BetInsightI18n?.init().then(()=>{updatePreview();loadEmail()});
+})();
+</script>
+<script src="./betinsight-pay-selector.js?v=20261119-1" defer></script>
+</body></html>
+:'—';
+    price.textContent=new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(eur)+' / '+usd;
     row.append(label,price);
     const note=document.createElement('p');note.className='rate-note';note.textContent=t('buyPage.rateUnavailable',{},'USD: Kurs noch nicht verfügbar. Kursquelle und Aktualisierungszeit werden bei aktivem Zahlungsdienst angezeigt.');
     out.append(units,row,note);
