@@ -83,7 +83,7 @@ BEGIN
  IF p_network IS DISTINCT FROM o.network OR p_asset_identity IS DISTINCT FROM o.asset_identity
  OR p_recipient IS DISTINCT FROM o.canonical_recipient OR p_tag IS DISTINCT FROM o.destination_tag
  OR p_raw IS NULL OR p_raw<=0 OR p_raw<>trunc(p_raw)
- OR p_payment_at IS NULL OR p_payment_at<o.created_at OR p_payment_at>now()
+ OR p_payment_at IS NULL OR p_payment_at<o.created_at OR p_payment_at>clock_timestamp()
  OR p_txid IS NULL OR length(p_txid)=0 OR p_event_index IS NULL OR length(p_event_index)=0
  OR p_eur_micro IS NULL OR p_eur_micro<=0 OR p_eur_micro<>trunc(p_eur_micro)
  OR p_valuation_reference IS NULL OR length(p_valuation_reference)=0
