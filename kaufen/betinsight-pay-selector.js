@@ -60,7 +60,18 @@ pay.addEventListener("click",async()=>{
  const choice={packageCode:packageSelect.value,network,asset:coin};
  if(!request){request={...choice,idempotencyKey:crypto.randomUUID()};sessionStorage.setItem(storageKey,JSON.stringify({request}));}
  if(request.packageCode!==choice.packageCode||request.network!==choice.network||request.asset!==choice.asset)throw Error("PENDING_REQUEST");
- const v=await api("create",request);order=v.order;sessionStorage.setItem(storageKey,JSON.stringify({orderId:order.orderId}));showOrder(order);
+ let v;
+ const deadline=Date.now()+150000,initialToken=token();
+ for(;;){
+   try{v=await api("create",request);break;}
+   catch(e){
+     if(e.message!=="PAYMENT_PREPARING"||Date.now()>=deadline||token()!==initialToken)throw e;
+     status.textContent="Zahlungsdienst wird für deinen Auftrag gestartet. Kurs und Blockchain werden geprüft ...";
+     await new Promise(resolve=>setTimeout(resolve,10000));
+     if(token()!==initialToken)throw Error("SESSION_CHANGED");
+   }
+ }
+ order=v.order;sessionStorage.setItem(storageKey,JSON.stringify({orderId:order.orderId}));showOrder(order);
  }catch(e){status.textContent="Auftrag nicht bestätigt ("+String(e.message).slice(0,90)+"). Bitte nicht überweisen. Bei erneutem Klick wird derselbe Auftrag abgefragt.";}
  finally{busy=false;syncButton();}
 });
