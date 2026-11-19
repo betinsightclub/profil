@@ -53,9 +53,16 @@
       const addon=card.querySelector('.addon-badge'); if(addon) addon.alt=t('packagesPage.addonAlt',{},addon.alt);
     });
   }
-  function openPurchase(){
+  function openPurchase(event){
     const session=window.BetInsightSession;
-    if(session?.hasDashboardAccess()){session.navigateLocal('kaufen');return;}
+    if(session?.hasDashboardAccess()){
+      const button=event.currentTarget,card=button.closest('.package-card');
+      const base=card?.querySelector('[data-package-aria]')?.dataset.packageAria;
+      const selected=base+(button.classList.contains('addon-button')?'_bonus':'');
+      // UI preference only; no personal data, price or authorization. Backend must validate again.
+      try{if(/^(starter|basic|pro|elite)(_bonus)?$/.test(selected))sessionStorage.setItem('bi_pay_selected_package_v1',selected);else sessionStorage.removeItem('bi_pay_selected_package_v1')}catch(e){}
+      session.navigateLocal('kaufen');return;
+    }
     document.getElementById('message').textContent=t('packagesPage.missingAccess',{},'Der persönliche Dashboard-Zugang fehlt. Bitte öffne zuerst dein Dashboard und rufe die Pakete erneut auf.');
   }
   document.querySelectorAll('[data-purchase]').forEach(button=>button.addEventListener('click',openPurchase));
