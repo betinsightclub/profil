@@ -21,7 +21,7 @@
   <script src="../assets/app-navigation-v2.js?v=20260830-9" defer></script>
   <style>
     *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 82% 3%,rgba(0,140,255,.13),transparent 28rem),linear-gradient(180deg,#00151e,#001b24 45%,#00131b);color:#fff;font-family:Inter,Arial,sans-serif}.page{max-width:760px;margin:0 auto;padding:45px 20px 70px;text-align:center}.logo{width:180px;max-width:70%;height:auto;margin-bottom:34px}.card{max-width:510px;margin:0 auto;padding:30px;border:1px solid rgba(76,184,255,.22);border-radius:20px;background:linear-gradient(150deg,rgba(7,50,72,.97),rgba(3,30,44,.98));box-shadow:0 24px 60px rgba(0,0,0,.28)}h1{margin:0 0 10px;font-size:clamp(1.8rem,5vw,2.5rem)}.intro{margin:0 0 18px;color:#b9d0dc;line-height:1.55}.field{width:100%;min-height:52px;margin:9px 0;padding:13px 14px;border:2px solid #168ff4;border-radius:10px;background:#fff;color:#13232d;font:inherit}.status{min-height:20px;margin:4px 0 10px;color:#ffcc00;font-size:13px;line-height:1.45}.preview{min-height:27px;margin:15px 0;color:#69f0c2;font-size:17px;font-weight:900}.pay{width:100%;min-height:52px;margin-top:4px;border:0;border-radius:11px;background:linear-gradient(105deg,#168dff,#08bdec);color:#fff;font-size:17px;font-weight:900;cursor:pointer}.pay:hover{filter:brightness(1.06)}.pay:disabled{background:#355260;color:#dae5e9;opacity:.8;cursor:not-allowed;filter:none}.service-alert{margin:14px 0 18px;padding:17px 15px;border:2px solid #ff5668;border-radius:13px;background:linear-gradient(145deg,rgba(125,14,34,.64),rgba(65,9,20,.92));box-shadow:0 8px 25px rgba(0,0,0,.14);text-align:center;line-height:1.5}.service-alert strong{display:block;margin-bottom:6px;color:#fff;font-size:17px}.service-alert p{margin:7px 0 12px;color:#ffe4e6;font-size:14px}.service-alert a{display:inline-block;max-width:100%;padding:11px 16px;border-radius:10px;background:#fff;color:#8c1024;text-decoration:none;font-weight:900;line-height:1.35}.service-alert a:hover,.service-alert a:focus{background:#ffe3e6;outline-offset:3px}.warning{margin:18px 0 0;color:#ffcf5a;font-size:13px;line-height:1.5}.fine{margin:10px 0 0;color:#a9beca;font-size:12px;line-height:1.5}.fine a{color:#69c2ff;font-weight:800}.debug{display:none;margin-top:16px;color:rgba(255,255,255,.35);font-size:11px}.footer{margin-top:48px;color:rgba(255,255,255,.43);font-size:13px}@media(max-width:600px){.page{padding:78px 14px 45px}.card{padding:23px 17px}}
-  .preview{color:#f5fbff}.preview .unit-total{font-size:clamp(2rem,6vw,2.6rem);font-weight:900;color:#69f0c2;line-height:1.2;padding:4px 0 14px}.preview .price-line{display:flex;justify-content:space-between;gap:8px;border-top:1px solid rgba(111,191,221,.22);padding-top:12px;text-align:left;font-size:15px;font-weight:600}.preview .price-line strong{text-align:right;font-size:16px;font-variant-numeric:tabular-nums}.preview .rate-note{font-size:12px;font-weight:400;color:#a9beca;text-align:left;line-height:1.5;margin:10px 0 0}</style>
+  .preview{color:#f5fbff}.preview .unit-total{font-size:clamp(2rem,6vw,2.6rem);font-weight:900;color:#69f0c2;line-height:1.2;padding:4px 0 14px}.preview .price-line{display:flex;justify-content:space-between;gap:8px;border-top:1px solid rgba(111,191,221,.22);padding-top:12px;text-align:left;font-size:15px;font-weight:600}.preview .price-line strong{text-align:right;font-size:16px;font-variant-numeric:tabular-nums}.preview .rate-note{font-size:12px;font-weight:400;color:#a9beca;text-align:left;line-height:1.5;margin:10px 0 0}.card{max-width:680px}.bi-pay-selector{text-align:left;border-top:1px solid rgba(111,191,221,.22);margin-top:22px;padding-top:16px}.bi-pay-selector h2{font-size:1.2rem;margin:0}.bi-pay-selector label{display:block;font-size:14px;font-weight:700;margin:15px 0 6px}.bi-pay-note{font-size:13px;color:#b9d0dc;line-height:1.5}.bi-pay-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.bi-pay-grid button,.bi-pay-networks button{font:inherit;color:#fff;background:#082536;border:1px solid #356078;border-radius:10px;padding:10px 5px;cursor:pointer;min-width:0}.bi-pay-coin{display:flex;flex-direction:column;align-items:center;gap:5px}.bi-pay-icon{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:22px;font-weight:800}.bi-pay-grid b{font-size:14px}.bi-pay-grid small{font-size:11px;color:#b9d0dc}.bi-pay-grid button[aria-pressed=true],.bi-pay-networks button[aria-pressed=true]{outline:2px solid #53ccf5;outline-offset:-2px;background:#124460}.bi-pay-networks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.bi-pay-networks button{font-size:13px}.bi-pay-selector button:disabled{opacity:.65;cursor:not-allowed;border-style:dashed}@media(max-width:400px){.bi-pay-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}</style>
 </head>
 <body>
 <main class="page">
@@ -43,6 +43,18 @@
       <option value="elite_bonus" data-bi-i18n="buyPage.eliteBonus">Elite Bonus – 385 Units – 314 €</option>
     </select>
     <div id="preview" class="preview" aria-live="polite">Noch kein Paket gewählt</div>
+    <section id="biPaySelector" aria-label="BetInsight Pay Zahlungsmethoden" class="bi-pay-selector">
+      <h2>BetInsight Pay</h2>
+      <p class="bi-pay-note">Entwicklungsansicht · Zahlungen noch gesperrt</p>
+      <label for="biPaySearch">Kryptowährung auswählen</label>
+      <input id="biPaySearch" class="field" type="search" placeholder="BTC, USDT, Solana …" autocomplete="off">
+      <div id="biPayCoins" class="bi-pay-grid" role="group" aria-label="Kryptowährungen"></div>
+      <label>Netzwerk auswählen</label>
+      <div id="biPayNetworks" class="bi-pay-networks" role="group" aria-label="Netzwerke"></div>
+      <p id="biPayHint" class="bi-pay-note" aria-live="polite"></p>
+      <label>Banküberweisung</label>
+      <div class="bi-pay-networks"><button type="button" disabled>EUR · SEPA<br>Folgt in Kürze</button><button type="button" disabled>USD<br>Folgt in Kürze</button></div>
+    </section>
     <!-- Temporäre Zahlungssperre nach Plisio-Sicherheitsvorfall 2026-11-13 -->
     <div class="service-alert" role="alert" aria-live="polite">
       <strong>⚠️ Wichtige Störungsmeldung</strong>
@@ -61,7 +73,6 @@
 (() => {
   "use strict";
   const PROFILE_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-member-gateway?route=profile-read";
-  const PAYMENT_WEBHOOK_URL="https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-payment-entry?source=buy";
   const $=id=>document.getElementById(id);
   const clean=v=>String(v||"").trim();
   const t=(key,vars={},fallback="")=>window.BetInsightI18n?.t(key,vars,fallback)||fallback;
@@ -103,9 +114,10 @@
       if(code&&Object.prototype.hasOwnProperty.call(packageData,code))$('packageSelect').value=code;
     }catch(e){}
   }
-  function goPay(){if($('payButton').disabled)return;const email=$('buyerEmail').value.trim().toLowerCase(),code=$('packageSelect').value;if(!email){alert(t('buyPage.missingEmail',{},'Bitte registrierte E-Mail eingeben oder prüfen.'));return}if(!code){alert(t('buyPage.missingPackage',{},'Bitte Paket auswählen.'));return}try{localStorage.setItem('betinsight_email',email)}catch(e){}const paymentUrl=PAYMENT_WEBHOOK_URL+"&paket="+encodeURIComponent(code)+"&email="+encodeURIComponent(email);window.open(paymentUrl,'_blank','noopener')}
+
   restoreSelectedPackage();updatePreview();
-  $('packageSelect').addEventListener('change',updatePreview);$('payButton').addEventListener('click',goPay);window.addEventListener('bi:languagechange',updatePreview);window.BetInsightI18n?.init().then(()=>{updatePreview();loadEmail()});
+  $('packageSelect').addEventListener('change',updatePreview);window.addEventListener('bi:languagechange',updatePreview);window.BetInsightI18n?.init().then(()=>{updatePreview();loadEmail()});
 })();
 </script>
+<script src="./betinsight-pay-selector.js?v=20261119-1" defer></script>
 </body></html>
