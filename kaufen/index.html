@@ -52,7 +52,7 @@
     <div id="preview" class="preview" aria-live="polite">Noch kein Paket gewählt</div>
     <section id="biPaySelector" aria-label="BetInsight Pay Zahlungsmethoden" class="bi-pay-selector">
       <h2>BetInsight Pay</h2>
-      <p class="bi-pay-note">Vorschau der Zahlungsmethoden. Zahlungen sind derzeit noch nicht möglich. <a href="https://app.betinsight.club/wechselboerse/angebote/" style="color:#69c2ff">Units-Angebote auf der Wechselbörse ansehen</a>.</p>
+      <p class="bi-pay-note">Nur freigegebene Zahlungsmethoden können für einen Zahlungsauftrag verwendet werden. <a href="https://app.betinsight.club/wechselboerse/angebote/" style="color:#69c2ff">Units-Angebote auf der Wechselbörse ansehen</a>.</p>
       <label for="biPaySearch">Kryptowährung auswählen</label>
       <input id="biPaySearch" class="field" type="search" placeholder="BTC, USDT, Solana …" autocomplete="off">
       <div id="biPayCoins" class="bi-pay-grid" role="group" aria-label="Kryptowährungen"></div>
@@ -143,7 +143,7 @@
   Promise.resolve().then(()=>window.BetInsightI18n?.init()).then(updatePreview).catch(()=>{});
 })();
 </script>
-<script src="./betinsight-pay-selector.js?v=20261119-2" defer></script>
+<script src="./betinsight-pay-selector.js?v=20261119-3" defer></script>
 <script>
 // Private payment test offer. The server binds this order to the authenticated dashboard UUID.
 (() => {
