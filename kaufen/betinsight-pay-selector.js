@@ -24,7 +24,7 @@ function syncButton(){
  const available=!!packageSelect.value&&routeAvailable()&&!busy&&!order;
  pay.disabled=!available;pay.setAttribute("aria-disabled",String(!available));
  pay.title=available?"Sicheren Zahlungsauftrag erstellen":"Zahlungsweg derzeit nicht verfügbar";
- pay.textContent=order?"Zahlungsauftrag erstellt":available?"Zahlung starten":"Zahlung noch nicht verfügbar";
+ pay.textContent=order?"Zahlungsauftrag erstellt":busy?"Zahlungsauftrag wird vorbereitet …":available?"Zahlung starten":!packageSelect.value?"Bitte Paket auswählen":"Zahlung noch nicht verfügbar";
 }
 async function api(action,extra={}){
  const t=token();if(!window.BetInsightSession?.isUuid?.(t))throw Error("MEMBER_AUTH_REQUIRED");
@@ -32,15 +32,16 @@ async function api(action,extra={}){
  const v=await res.json();if(token()!==t)throw Error("SESSION_CHANGED");
  if(!res.ok||!v.ok)throw Error(v.reason||"CHECKOUT_UNAVAILABLE");return v;
 }
-function line(label,value,copy=false){
+function line(label,value,copy=false,copyValue=value){
  const p=document.createElement("p");p.textContent=label+value;details.append(p);
- if(copy){const b=document.createElement("button");b.type="button";b.className="field";b.style.minHeight="34px";b.textContent=label.replace(/: $/,"")+" kopieren";b.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(String(value));b.textContent="Kopiert"}catch{b.textContent="Bitte manuell kopieren"}});details.append(b);}
+ if(copy){const b=document.createElement("button");b.type="button";b.className="field";b.style.minHeight="34px";b.textContent=label.replace(/: $/,"")+" kopieren";b.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(String(copyValue));b.textContent="Kopiert"}catch{b.textContent="Bitte manuell kopieren"}});details.append(b);}
 }
 function showOrder(o){
  order=o;details.replaceChildren();
  line("Auftrag: ",o.orderId);line("Paket: ",o.units+" Units");line("Status: ",o.status);
  if(o.recipient&&["UNPAID","PAYMENT_SEEN"].includes(o.status)){
- line("Betrag: ",o.amount+" "+o.asset,true);
+ line("Netzwerk: ",networkLabel({network:o.network,asset:o.asset}));
+ line("Betrag: ",o.amount+" "+o.asset,true,o.amount);
  line("Empfangsadresse: ",o.recipient,true);
  if(o.destinationTag!==null){line("Destination Tag (PFLICHT): ",String(o.destinationTag),true);line("Wichtig: ","Adresse UND Destination Tag im Wallet angeben.");}
  line("Gültig bis: ",new Date(o.expiresAt).toLocaleString());
@@ -81,6 +82,8 @@ async function startCheckout(){
  try{
  const v=await api("routes");released=new Set((v.routes||[]).map(r=>routeKey(r.network,r.asset)));
  const previous=JSON.parse(sessionStorage.getItem(storageKey)||"null");
+ if(v.activeOrder){const o=v.activeOrder;packageSelect.value=o.packageCode;coin=o.asset;network=o.network;sessionStorage.setItem(storageKey,JSON.stringify({orderId:o.orderId}));showOrder(o);render();return;}
+ const first=routes.find(r=>released.has(routeKey(r.network,r.asset))&&r.asset===coin)||routes.find(r=>released.has(routeKey(r.network,r.asset)));if(first&&!routeAvailable()){coin=first.asset;network=first.network;}
  if(previous?.orderId){const v=await api("status",{orderId:previous.orderId});showOrder(v.order);}
  else if(previous?.request){request=previous.request;packageSelect.value=request.packageCode;coin=request.asset;network=request.network;}
  }catch{status.textContent="Zahlungsdienst momentan nicht verfügbar.";}
@@ -101,7 +104,7 @@ function render(){
   const text=document.createElement("small");text.textContent=name;
   b.append(icon,title,text);
   if(symbol==="DOGE"){b.disabled=true;const soon=document.createElement("small");soon.textContent="Folgt in Kürze";b.append(soon);}
-  else b.addEventListener("click",()=>{coin=symbol;network=allowed()[0].network;render();});
+  else b.addEventListener("click",()=>{coin=symbol;network=(allowed().find(r=>released.has(routeKey(r.network,r.asset)))||allowed()[0]).network;render();});
   grid.append(b);
  }
  if(!grid.children.length){const msg=document.createElement("p");msg.textContent="Keine passende Kryptowährung.";grid.append(msg);}
