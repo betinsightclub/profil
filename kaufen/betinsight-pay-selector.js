@@ -18,13 +18,28 @@ let released=new Set(),busy=false,order=null,request=null,poll=null;
 const routeKey=(n,a)=>n+":"+a;
 const routeAvailable=()=>released.has(routeKey(network,coin));
 const storageKey="bi_direct_checkout_current_v1";
-const status=document.createElement("p");status.className="bi-pay-note";status.setAttribute("aria-live","polite");pay.after(status);
-const details=document.createElement("section");details.style.cssText="margin-top:12px;text-align:left;overflow-wrap:anywhere";status.after(details);
+const status=document.createElement("p");status.setAttribute("aria-live","polite");
+const pageStatus=status;
+const dialog=document.createElement("dialog");dialog.className="bi-checkout-dialog";dialog.setAttribute("aria-labelledby","biCheckoutHeading");
+const header=document.createElement("header");header.className="bi-checkout-header";
+const brand=document.createElement("div");const brandWord=document.createElement("strong");brandWord.id="biCheckoutHeading";brandWord.textContent="BetInsight Pay";const subtitle=document.createElement("small");subtitle.textContent="SICHERE DIREKTZAHLUNG";brand.append(brandWord,subtitle);
+const close=document.createElement("button");close.type="button";close.className="bi-checkout-close";close.setAttribute("aria-label","Zahlungsfenster schließen");close.textContent="×";close.onclick=()=>dialog.close();header.append(brand,close);
+const body=document.createElement("div");body.className="bi-checkout-content";
+const details=document.createElement("section");body.append(details);body.append(pageStatus);pageStatus.className="bi-checkout-state";dialog.append(header,body);document.body.append(dialog);
+let countdown=null,seenRendered=false,renderedKey="",animatedOrder="";
+function openPayment(){if(!dialog.open){if(typeof dialog.showModal==="function")dialog.showModal();else dialog.setAttribute("open","");}}
+function node(tag,cls,txt,parent=details){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;parent.append(n);return n;}
+function copyRow(label,value,shown=value){node("span","bi-checkout-label",label);const row=node("div","bi-checkout-copyrow");node("code","",String(shown),row);const b=node("button","bi-checkout-copy","Kopieren",row);b.type="button";b.onclick=async()=>{try{await navigator.clipboard.writeText(String(value));b.textContent="Kopiert ✓";}catch{b.textContent="Manuell kopieren";}};}
+function qrAddress(address){const wrap=node("div","bi-checkout-qr");try{if(typeof window.qrcode!=="function")throw Error("QR unavailable");const q=window.qrcode(0,"M");q.addData(address);q.make();const n=q.getModuleCount(),scale=8,margin=4;const canvas=node("canvas","",undefined,wrap);canvas.width=canvas.height=(n+2*margin)*scale;canvas.setAttribute("role","img");canvas.setAttribute("aria-label","QR-Code der Empfangsadresse");const ctx=canvas.getContext("2d");if(!ctx)throw Error("canvas unavailable");ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle="#000";for(let y=0;y<n;y++)for(let x=0;x<n;x++)if(q.isDark(y,x))ctx.fillRect((x+margin)*scale,(y+margin)*scale,scale,scale);}
+catch{wrap.remove();node("p","bi-checkout-caption","QR-Code nicht verfügbar. Bitte die Adresse unten kopieren.");}}
+function updateClock(o,clock){clearInterval(countdown);const tick=()=>{const ms=Math.max(0,Date.parse(o.expiresAt)-Date.now());const sec=Math.ceil(ms/1000);clock.textContent=ms>0?"Noch "+String(Math.floor(sec/60)).padStart(2,"0")+":"+String(sec%60).padStart(2,"0")+" Minuten":"Zahlungsfrist abgelaufen";if(ms<=0){clearInterval(countdown);if(order?.orderId===o.orderId&&order?.status==="UNPAID"){renderedKey="";showOrder({...o,recipient:null,status:"EXPIRED"});}}};tick();if(Date.parse(o.expiresAt)>Date.now())countdown=setInterval(tick,1000);}
+function celebrate(o){if(animatedOrder===o.orderId)return;animatedOrder=o.orderId;try{const k="bi_pay_gold_"+o.orderId;if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");}catch{}if(window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;const rain=node("div","bi-checkout-coins",undefined,dialog);rain.setAttribute("aria-hidden","true");for(let i=0;i<52;i++){const c=node("i","","✦",rain);c.style.setProperty("--x",Math.random()*100+"%");c.style.setProperty("--d",(2.2+Math.random()*2)+"s");c.style.setProperty("--delay",Math.random()*1.7+"s");c.style.setProperty("--drift",(Math.random()*150-75)+"px");}setTimeout(()=>rain.remove(),6500);}
+
 function syncButton(){
  const available=!!packageSelect.value&&routeAvailable()&&!busy&&!order;
- pay.disabled=!available;pay.setAttribute("aria-disabled",String(!available));
+ pay.disabled=!available&&!order;pay.setAttribute("aria-disabled",String(pay.disabled));
  pay.title=available?"Sicheren Zahlungsauftrag erstellen":"Zahlungsweg derzeit nicht verfügbar";
- pay.textContent=order?"Zahlungsauftrag erstellt":busy?"Zahlungsauftrag wird vorbereitet …":available?"Zahlung starten":!packageSelect.value?"Bitte Paket auswählen":"Zahlung noch nicht verfügbar";
+ pay.textContent=order?"Zahlungsfenster öffnen":busy?"Zahlungsauftrag wird vorbereitet …":available?"Zahlung starten":!packageSelect.value?"Bitte Paket auswählen":"Zahlung noch nicht verfügbar";
 }
 async function api(action,extra={}){
  const t=token();if(!window.BetInsightSession?.isUuid?.(t))throw Error("MEMBER_AUTH_REQUIRED");
@@ -32,31 +47,42 @@ async function api(action,extra={}){
  const v=await res.json();if(token()!==t)throw Error("SESSION_CHANGED");
  if(!res.ok||!v.ok)throw Error(v.reason||"CHECKOUT_UNAVAILABLE");return v;
 }
-function line(label,value,copy=false,copyValue=value){
- const p=document.createElement("p");p.textContent=label+value;details.append(p);
- if(copy){const b=document.createElement("button");b.type="button";b.className="field";b.style.minHeight="34px";b.textContent=label.replace(/: $/,"")+" kopieren";b.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(String(copyValue));b.textContent="Kopiert"}catch{b.textContent="Bitte manuell kopieren"}});details.append(b);}
-}
 function showOrder(o){
- order=o;details.replaceChildren();
- line("Auftrag: ",o.orderId);line("Paket: ",o.units+" Units");line("Status: ",o.status);
- if(o.recipient&&["UNPAID","PAYMENT_SEEN"].includes(o.status)){
- line("Netzwerk: ",networkLabel({network:o.network,asset:o.asset}));
- line("Betrag: ",o.amount+" "+o.asset,true,o.amount);
- line("Empfangsadresse: ",o.recipient,true);
- if(o.destinationTag!==null){line("Destination Tag (PFLICHT): ",String(o.destinationTag),true);line("Wichtig: ","Adresse UND Destination Tag im Wallet angeben.");}
- line("Gültig bis: ",new Date(o.expiresAt).toLocaleString());
- status.textContent=o.status==="UNPAID"?"Einmalig den exakten Betrag senden. Gebühren trägt der Sender. Status wird automatisch aktualisiert.":"Zahlung erkannt. Bitte nicht erneut senden.";
- }else if(o.status==="SETTLED"){status.textContent="Zahlung bestätigt. Units gutgeschrieben.";}
- else{status.textContent="Auftrag wird geprüft oder ist abgelaufen. Bitte nicht erneut überweisen.";}
+ const prior=order?.status;order=o;const key=[o.orderId,o.status,o.amount,o.recipient,o.destinationTag,o.expiresAt].join("|");
+ if(key!==renderedKey){
+  renderedKey=key;clearInterval(countdown);details.replaceChildren();
+  const summary=node("div","bi-checkout-summary");node("strong","",o.units+" Units",summary);node("span","",Number(o.priceEur).toLocaleString("de-DE",{style:"currency",currency:"EUR"}),summary);
+  if(o.recipient&&["UNPAID","PAYMENT_SEEN"].includes(o.status)&&Date.parse(o.expiresAt)>Date.now()){
+   node("div","bi-checkout-network",networkLabel({network:o.network,asset:o.asset}));
+   node("div","bi-checkout-amount",o.amount+" "+o.asset);
+   qrAddress(o.recipient);
+   node("p","bi-checkout-caption","QR-Code enthält nur die Empfangsadresse. Betrag und Netzwerk bitte exakt übernehmen.");
+   copyRow("Exakter Betrag ("+o.asset+")",o.amount);
+   copyRow("Empfangsadresse",o.recipient);
+   if(o.destinationTag!==null&&o.destinationTag!==undefined){copyRow("Destination Tag – unbedingt angeben!",String(o.destinationTag));}
+   if(o.status==="UNPAID"){const clock=node("div","bi-checkout-clock","");updateClock(o,clock);}
+   status.textContent=o.status==="UNPAID"?"Bitte einmalig exakt diesen Betrag senden. Netzwerkgebühren zusätzlich tragen. Wir prüfen die Blockchain automatisch.":"Zahlung erkannt. Bitte nicht erneut senden.";
+  }else if(o.status==="SETTLED"){
+   const success=node("div","bi-checkout-success");node("div","bi-checkout-success-mark","✓",success);node("h2","","Zahlung erfolgreich!",success);node("p","",o.units+" Kauf-Units wurden gutgeschrieben.",success);
+   status.textContent="Dein Kauf ist abgeschlossen.";
+   const b=node("button","bi-checkout-next","Weiteren Kauf starten");b.type="button";b.onclick=()=>{dialog.close();order=null;request=null;renderedKey="";sessionStorage.removeItem(storageKey);details.replaceChildren();status.textContent="";syncButton();};
+   openPayment();celebrate(o);
+  }else{
+   node("div","bi-checkout-network",o.status==="EXPIRED"?"Zahlungsfrist abgelaufen":o.status==="MANUAL_REVIEW"?"Zahlung wird geprüft":"Auftrag wird geprüft");
+   status.textContent="Bitte nicht erneut überweisen. Der Vorgang wird weiter zur Zuordnung geprüft.";
+  }
+  node("p","bi-checkout-ref","Auftrag: "+o.orderId);
+ }
+ if(!seenRendered||prior!==o.status&&o.status==="SETTLED"){openPayment();seenRendered=true;}
  clearTimeout(poll);
- if(!["SETTLED","MANUAL_REVIEW","STOPPED","EXPIRED"].includes(o.status)){poll=setTimeout(refresh,15000);}
- else if(o.status==="SETTLED"){const b=document.createElement("button");b.type="button";b.className="field";b.textContent="Weiteren Kauf starten";b.onclick=()=>{order=null;request=null;sessionStorage.removeItem(storageKey);details.replaceChildren();status.textContent="";syncButton();};details.append(b);}
+ if(!["SETTLED","MANUAL_REVIEW","STOPPED"].includes(o.status)){poll=setTimeout(refresh,o.status==="EXPIRED"?60000:15000);}
  syncButton();
 }
 async function refresh(){if(!order)return;try{const v=await api("status",{orderId:order.orderId});showOrder(v.order);}catch{status.textContent="Status derzeit nicht erreichbar. Bitte nicht erneut bezahlen.";poll=setTimeout(refresh,30000);}}
 pay.addEventListener("click",async()=>{
- if(busy||order||!routeAvailable()||!packageSelect.value)return;
- busy=true;syncButton();status.textContent="Auftrag wird erstellt ...";
+ if(order){openPayment();return;}
+ if(busy||!routeAvailable()||!packageSelect.value)return;
+ busy=true;seenRendered=false;renderedKey="";details.replaceChildren();openPayment();syncButton();status.textContent="Auftrag wird erstellt ...";
  try{
  const choice={packageCode:packageSelect.value,network,asset:coin};
  if(!request){request={...choice,idempotencyKey:crypto.randomUUID()};sessionStorage.setItem(storageKey,JSON.stringify({request}));}
@@ -77,7 +103,7 @@ pay.addEventListener("click",async()=>{
  finally{busy=false;syncButton();}
 });
 packageSelect.addEventListener("change",syncButton);
-window.addEventListener("pagehide",()=>clearTimeout(poll));
+window.addEventListener("pagehide",()=>{clearTimeout(poll);clearInterval(countdown);});
 async function startCheckout(){
  try{
  const v=await api("routes");released=new Set((v.routes||[]).map(r=>routeKey(r.network,r.asset)));
