@@ -159,7 +159,12 @@ const api=async action=>{
  const d=await r.json();if(session.getDashboardUuid()!==token)throw Error("SESSION_CHANGED");return d;
 };
 const show=(label,value)=>{const p=document.createElement("p");p.style.cssText="overflow-wrap:anywhere;margin:6px 0";p.textContent=label+value;details.append(p)};
-button.addEventListener("click",async()=>{
+let timer=null,busy=false;
+const stop=()=>{if(timer!==null){clearTimeout(timer);timer=null;}};
+async function refreshTest(){
+ if(busy)return;
+ if(session.getDashboardUuid()!==token){stop();panel.hidden=true;return;}
+ busy=true;stop();
  button.disabled=true;details.replaceChildren();status.textContent="Testauftrag wird geladen ...";
  try{
   const d=await api("start");
@@ -169,13 +174,16 @@ button.addEventListener("click",async()=>{
    show("Empfangsadresse: ",d.recipient);
    const copy=document.createElement("button");copy.type="button";copy.className="pay";copy.textContent="Adresse kopieren";copy.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(d.recipient);copy.textContent="Kopiert"}catch{copy.textContent="Bitte Adresse manuell kopieren"}});
    details.append(copy);show("Gültig bis: ",new Date(d.expires_at).toLocaleString());
-   status.textContent="Testauftrag aktiv. Überweise einmalig 1 TRX über TRON. Die Zahlung wird automatisch geprüft; die Testgutschrift wird separat nach Bestätigung abgerechnet. Keine Provisionen.";
+   status.textContent=d.status==="CHECKING"?"Zahlung erkannt – Blockchain-Bestätigung wird geprüft. Bitte nicht erneut bezahlen.":"Testauftrag aktiv – nach einmaliger Überweisung bitte nicht erneut bezahlen. Status aktualisiert sich automatisch.";
+   timer=setTimeout(refreshTest,15000);
   }else if(d.status==="PROOF_READY"){status.textContent="Blockchain-Zahlung bestätigt. Testgutschrift wird separat geprüft."}
   else if(d.status==="TEST_CREDITED"){status.textContent="Testgutschrift gebucht."}
   else status.textContent="Teststatus: "+d.status+". Bitte nicht erneut überweisen.";
  }catch{status.textContent="Testauftrag nicht verfügbar. Bitte nicht überweisen."}
- finally{button.disabled=false;button.textContent="Testauftrag / Status anzeigen";}
-});
+ finally{busy=false;button.disabled=false;button.textContent="Testauftrag / Status anzeigen";}
+}
+button.addEventListener("click",refreshTest);
+window.addEventListener("pagehide",stop);
 (async()=>{try{
  const d=await api("offer"),o=d?.offer;
  if(d?.ok!==true||o?.code!=="pay_test_trx_1"||o?.asset!=="TRX"||o?.network!=="TRON"||o?.amount_raw!=="1000000"||o?.units!==50)return;
