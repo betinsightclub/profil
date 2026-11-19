@@ -45,7 +45,7 @@
     <div id="preview" class="preview" aria-live="polite">Noch kein Paket gewählt</div>
     <section id="biPaySelector" aria-label="BetInsight Pay Zahlungsmethoden" class="bi-pay-selector">
       <h2>BetInsight Pay</h2>
-      <p class="bi-pay-note">Entwicklungsansicht · Zahlungen noch gesperrt</p>
+      <p class="bi-pay-note">BetInsight Pay wird vorbereitet. Zahlungen sind noch nicht möglich.</p>
       <label for="biPaySearch">Kryptowährung auswählen</label>
       <input id="biPaySearch" class="field" type="search" placeholder="BTC, USDT, Solana …" autocomplete="off">
       <div id="biPayCoins" class="bi-pay-grid" role="group" aria-label="Kryptowährungen"></div>
@@ -55,13 +55,7 @@
       <label>Banküberweisung</label>
       <div class="bi-pay-networks"><button type="button" disabled>EUR · SEPA<br>Folgt in Kürze</button><button type="button" disabled>USD<br>Folgt in Kürze</button></div>
     </section>
-    <!-- Temporäre Zahlungssperre nach Plisio-Sicherheitsvorfall 2026-11-13 -->
-    <div class="service-alert" role="alert" aria-live="polite">
-      <strong>⚠️ Wichtige Störungsmeldung</strong>
-      <p>Zurzeit können über unseren Zahlungsanbieter keine Units gekauft werden. Bitte nutze vorübergehend unsere Wechselbörse und prüfe die dort verfügbaren Angebote anderer Mitglieder.</p>
-      <a href="https://app.betinsight.club/wechselboerse/angebote/">Zur Wechselbörse – Units-Angebote ansehen</a>
-    </div>
-    <button id="payButton" class="pay" type="button" disabled aria-disabled="true" title="Zahlungsanbieter vorübergehend nicht verfügbar">Zahlung vorübergehend nicht möglich</button>
+    <button id="payButton" class="pay" type="button" disabled aria-disabled="true" title="BetInsight Pay ist noch nicht freigegeben">Zahlung noch nicht verfügbar</button>
     <p class="warning" data-bi-i18n="buyPage.emailWarning">Bitte prüfe die E-Mail vor dem Kauf. Die Units werden genau dieser E-Mail gutgeschrieben.</p>
     <p class="fine" data-bi-i18n="buyPage.multiAccount">Wenn du mehrere Accounts betreust, kontrolliere bitte besonders sorgfältig, dass hier die richtige registrierte E-Mail steht.</p>
     <p class="fine"><span data-bi-i18n="buyPage.emailQuestion">Nicht sicher, welche E-Mail du bei der Registrierung verwendet hast?</span><br><a href="https://betinsight.systeme.io/profile/user-settings" target="_blank" rel="noopener noreferrer" data-bi-i18n="buyPage.openSettings">Hier Profil öffnen und E-Mail prüfen</a></p>
