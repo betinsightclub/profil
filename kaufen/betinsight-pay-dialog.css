@@ -1,0 +1,29 @@
+/* Isolated BetInsight Pay checkout window; no global style overrides. */
+.bi-checkout-dialog{box-sizing:border-box;width:min(490px,calc(100% - 24px));max-height:calc(100dvh - 24px);padding:0;border:1px solid #d6e3e7;border-radius:22px;background:#f7fafc;color:#172e42;box-shadow:0 20px 100px #071c47aa;overflow:auto;font:inherit;text-align:left}
+.bi-checkout-dialog::backdrop{background:rgba(9,24,43,.77);backdrop-filter:blur(4px)}
+.bi-checkout-dialog *{box-sizing:border-box}
+.bi-checkout-header{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;background:#123450;color:#fff;position:sticky;top:0;z-index:1}
+.bi-checkout-header strong{font-size:18px;color:#e4f3f9}.bi-checkout-header small{display:block;color:#b6d4e1;font-size:11px;letter-spacing:.08em}
+.bi-checkout-close{appearance:none;border:1px solid #ffffff40;border-radius:50%;width:34px;height:34px;background:transparent;color:#fff;font-size:21px;cursor:pointer}
+.bi-checkout-content{padding:18px 22px 22px}.bi-checkout-state{padding:12px;background:#eaf2f5;border-radius:12px;text-align:center;font-size:13px;line-height:1.5;margin:12px 0 0;color:#31546c}
+.bi-checkout-summary{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:#486173;gap:10px;padding-bottom:12px;border-bottom:1px solid #dce6eb}
+.bi-checkout-amount{text-align:center;font-weight:800;font-size:clamp(26px,7vw,38px);letter-spacing:-.04em;margin:10px 0 4px;color:#14354d;overflow-wrap:anywhere}
+.bi-checkout-network{text-align:center;font-size:13px;color:#30636d;font-weight:700;margin:8px 0}
+.bi-checkout-qr{display:flex;justify-content:center;align-items:center;background:white;padding:8px;border:1px solid #d6e3e7;border-radius:14px;margin:12px auto 6px;width:max-content;max-width:100%}
+.bi-checkout-qr canvas{display:block;width:196px;height:auto;max-width:100%;image-rendering:pixelated}
+.bi-checkout-caption{text-align:center;font-size:12px;color:#52687a;margin:6px 0 10px;line-height:1.4}
+.bi-checkout-label{font-size:12px;color:#52687a;font-weight:600;margin:10px 0 4px;display:block}
+.bi-checkout-copyrow{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #d6e3e7;border-radius:11px;padding:9px;min-width:0}
+.bi-checkout-copyrow code{flex:1;min-width:0;overflow-wrap:anywhere;color:#173d52;font-size:12px;user-select:all}
+.bi-checkout-copy,.bi-checkout-next{border:0;border-radius:8px;background:#123d59;color:white;padding:10px 12px;cursor:pointer;font:inherit;font-size:12px;font-weight:700;flex-shrink:0}
+.bi-checkout-next{display:block;width:100%;font-size:14px;margin-top:16px;padding:13px;background:#16804e}
+.bi-checkout-copy:focus-visible,.bi-checkout-close:focus-visible,.bi-checkout-next:focus-visible{outline:3px solid #72d7ec;outline-offset:2px}
+.bi-checkout-clock{text-align:center;color:#315d76;font-size:14px;font-variant-numeric:tabular-nums;font-weight:700;margin-top:14px}
+.bi-checkout-ref{font-size:10px;color:#617789;overflow-wrap:anywhere;margin:12px 0 0}
+.bi-checkout-success{text-align:center;padding:20px 0 10px;color:#18794a}.bi-checkout-success-mark{font-size:36px;border-radius:50%;width:68px;height:68px;display:grid;place-items:center;margin:auto;background:#daf5e2;color:#16804e;font-weight:800}
+.bi-checkout-success h2{color:#18794a!important;font-size:24px!important;margin:15px 0 6px!important}.bi-checkout-success p{margin:4px 0;color:#31546c}
+.bi-checkout-coins{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:10}
+.bi-checkout-coins i{position:absolute;top:-35px;left:var(--x);display:grid;place-items:center;width:25px;height:25px;border-radius:50%;background:linear-gradient(135deg,#fff5a8,#e5ac1e 48%,#947000);border:2px solid #eabf45;color:#835500;font:bold 16px sans-serif;box-shadow:0 1px 5px #8c6f3544;animation:bi-checkout-goldfall var(--d) var(--delay) ease-in both}
+@keyframes bi-checkout-goldfall{0%{transform:translateY(-40px) rotateY(0) rotateZ(0);opacity:0}8%{opacity:1}85%{opacity:1}100%{transform:translateY(110vh) translateX(var(--drift)) rotateY(900deg) rotateZ(240deg);opacity:0}}
+@media(max-width:420px){.bi-checkout-content{padding:14px}.bi-checkout-header{padding:12px 14px}.bi-checkout-qr canvas{width:170px}}
+@media(prefers-reduced-motion:reduce){.bi-checkout-coins{display:none}}
