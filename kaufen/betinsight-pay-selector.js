@@ -12,6 +12,70 @@ function networkLabel(route){
  return names[route.network]+(standard?" ("+standard+")":"");
 }
 const el=id=>document.getElementById(id);
+const token=()=>window.BetInsightSession?.getDashboardUuid?.();
+const packageSelect=el("packageSelect"),pay=el("payButton");
+let released=new Set(),busy=false,order=null,request=null,poll=null;
+const routeKey=(n,a)=>n+":"+a;
+const routeAvailable=()=>released.has(routeKey(network,coin));
+const storageKey="bi_direct_checkout_current_v1";
+const status=document.createElement("p");status.className="bi-pay-note";status.setAttribute("aria-live","polite");pay.after(status);
+const details=document.createElement("section");details.style.cssText="margin-top:12px;text-align:left;overflow-wrap:anywhere";status.after(details);
+function syncButton(){
+ const available=!!packageSelect.value&&routeAvailable()&&!busy&&!order;
+ pay.disabled=!available;pay.setAttribute("aria-disabled",String(!available));
+ pay.title=available?"Sicheren Zahlungsauftrag erstellen":"Zahlungsweg derzeit nicht verfügbar";
+ pay.textContent=order?"Zahlungsauftrag erstellt":available?"Zahlung starten":"Zahlung noch nicht verfügbar";
+}
+async function api(action,extra={}){
+ const t=token();if(!window.BetInsightSession?.isUuid?.(t))throw Error("MEMBER_AUTH_REQUIRED");
+ const res=await fetch("https://lszlaglwlixejzytrurg.supabase.co/functions/v1/betinsight-pay-checkout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:t,action,...extra}),cache:"no-store",credentials:"omit",referrerPolicy:"no-referrer",signal:AbortSignal.timeout(15000)});
+ const v=await res.json();if(token()!==t)throw Error("SESSION_CHANGED");
+ if(!res.ok||!v.ok)throw Error(v.reason||"CHECKOUT_UNAVAILABLE");return v;
+}
+function line(label,value,copy=false){
+ const p=document.createElement("p");p.textContent=label+value;details.append(p);
+ if(copy){const b=document.createElement("button");b.type="button";b.className="field";b.style.minHeight="34px";b.textContent=label.replace(/: $/,"")+" kopieren";b.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(String(value));b.textContent="Kopiert"}catch{b.textContent="Bitte manuell kopieren"}});details.append(b);}
+}
+function showOrder(o){
+ order=o;details.replaceChildren();
+ line("Auftrag: ",o.orderId);line("Paket: ",o.units+" Units");line("Status: ",o.status);
+ if(o.recipient&&["UNPAID","PAYMENT_SEEN"].includes(o.status)){
+ line("Betrag: ",o.amount+" "+o.asset,true);
+ line("Empfangsadresse: ",o.recipient,true);
+ if(o.destinationTag!==null){line("Destination Tag (PFLICHT): ",String(o.destinationTag),true);line("Wichtig: ","Adresse UND Destination Tag im Wallet angeben.");}
+ line("Gültig bis: ",new Date(o.expiresAt).toLocaleString());
+ status.textContent=o.status==="UNPAID"?"Einmalig den exakten Betrag senden. Gebühren trägt der Sender. Status wird automatisch aktualisiert.":"Zahlung erkannt. Bitte nicht erneut senden.";
+ }else if(o.status==="SETTLED"){status.textContent="Zahlung bestätigt. Units gutgeschrieben.";}
+ else{status.textContent="Auftrag wird geprüft oder ist abgelaufen. Bitte nicht erneut überweisen.";}
+ clearTimeout(poll);
+ if(!["SETTLED","MANUAL_REVIEW","STOPPED","EXPIRED"].includes(o.status)){poll=setTimeout(refresh,15000);}
+ else if(o.status==="SETTLED"){const b=document.createElement("button");b.type="button";b.className="field";b.textContent="Weiteren Kauf starten";b.onclick=()=>{order=null;request=null;sessionStorage.removeItem(storageKey);details.replaceChildren();status.textContent="";syncButton();};details.append(b);}
+ syncButton();
+}
+async function refresh(){if(!order)return;try{const v=await api("status",{orderId:order.orderId});showOrder(v.order);}catch{status.textContent="Status derzeit nicht erreichbar. Bitte nicht erneut bezahlen.";poll=setTimeout(refresh,30000);}}
+pay.addEventListener("click",async()=>{
+ if(busy||order||!routeAvailable()||!packageSelect.value)return;
+ busy=true;syncButton();status.textContent="Auftrag wird erstellt ...";
+ try{
+ const choice={packageCode:packageSelect.value,network,asset:coin};
+ if(!request){request={...choice,idempotencyKey:crypto.randomUUID()};sessionStorage.setItem(storageKey,JSON.stringify({request}));}
+ if(request.packageCode!==choice.packageCode||request.network!==choice.network||request.asset!==choice.asset)throw Error("PENDING_REQUEST");
+ const v=await api("create",request);order=v.order;sessionStorage.setItem(storageKey,JSON.stringify({orderId:order.orderId}));showOrder(order);
+ }catch(e){status.textContent="Auftrag nicht bestätigt ("+String(e.message).slice(0,90)+"). Bitte nicht überweisen. Bei erneutem Klick wird derselbe Auftrag abgefragt.";}
+ finally{busy=false;syncButton();}
+});
+packageSelect.addEventListener("change",syncButton);
+window.addEventListener("pagehide",()=>clearTimeout(poll));
+async function startCheckout(){
+ try{
+ const v=await api("routes");released=new Set((v.routes||[]).map(r=>routeKey(r.network,r.asset)));
+ const previous=JSON.parse(sessionStorage.getItem(storageKey)||"null");
+ if(previous?.orderId){const v=await api("status",{orderId:previous.orderId});showOrder(v.order);}
+ else if(previous?.request){request=previous.request;packageSelect.value=request.packageCode;coin=request.asset;network=request.network;}
+ }catch{status.textContent="Zahlungsdienst momentan nicht verfügbar.";}
+ render();
+}
+
 let coin="USDT",network="BSC";
 const allowed=()=>routes.filter(r=>r.asset===coin);
 function render(){
@@ -33,12 +97,12 @@ function render(){
  const list=el("biPayNetworks");list.replaceChildren();
  for(const route of allowed()){
   const b=document.createElement("button");b.type="button";b.textContent=networkLabel(route);
-  b.setAttribute("aria-pressed",String(network===route.network));
+  b.setAttribute("aria-pressed",String(network===route.network)); if(!released.has(routeKey(route.network,route.asset)))b.textContent+=" · noch nicht verfügbar";
   b.addEventListener("click",()=>{network=route.network;render();});list.append(b);
  }
  const selected=allowed().find(r=>r.network===network);
  el("biPayHint").textContent=selected?selected.label+" · "+networkLabel(selected)+(network==="XRPL"?" · Destination Tag erforderlich":""):"";
- // No network call, no address display, no stored credentials and no payment initiation.
+ syncButton();
 }
-el("biPaySearch").addEventListener("input",render);render();
+el("biPaySearch").addEventListener("input",render);render();startCheckout();
 })();
