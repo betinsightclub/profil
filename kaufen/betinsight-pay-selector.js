@@ -52,7 +52,7 @@ function showOrder(o){
  if(key!==renderedKey){
   renderedKey=key;clearInterval(countdown);details.replaceChildren();
   const summary=node("div","bi-checkout-summary");node("strong","",o.units+" Units",summary);node("span","",Number(o.priceEur).toLocaleString("de-DE",{style:"currency",currency:"EUR"}),summary);
-  if(o.recipient&&["UNPAID","PAYMENT_SEEN"].includes(o.status)&&Date.parse(o.expiresAt)>Date.now()){
+  if(o.recipient&&o.status==="UNPAID"&&Date.parse(o.expiresAt)>Date.now()){
    node("div","bi-checkout-network",networkLabel({network:o.network,asset:o.asset}));
    node("div","bi-checkout-amount",o.amount+" "+o.asset);
    qrAddress(o.recipient);
@@ -68,17 +68,21 @@ function showOrder(o){
    const b=node("button","bi-checkout-next","Weiteren Kauf starten");b.type="button";b.onclick=()=>{dialog.close();order=null;request=null;renderedKey="";sessionStorage.removeItem(storageKey);details.replaceChildren();status.textContent="";syncButton();};
    openPayment();celebrate(o);
   }else{
-   node("div","bi-checkout-network",o.status==="EXPIRED"?"Zahlungsfrist abgelaufen":o.status==="MANUAL_REVIEW"?"Zahlung wird geprüft":"Auftrag wird geprüft");
-   status.textContent="Bitte nicht erneut überweisen. Der Vorgang wird weiter zur Zuordnung geprüft.";
+   node("div","bi-checkout-network",o.status==="EXPIRED"?"Zahlungsfrist abgelaufen":o.status==="STOPPED"?"Zahlungsfrist beendet":o.status==="PAYMENT_SEEN"?"Zahlung erkannt":o.status==="MANUAL_REVIEW"?"Zahlung wird geprüft":"Auftrag wird geprüft");
+   status.textContent="Bitte nicht erneut überweisen. Wenn du bereits bezahlt hast, behalte diesen Auftrag als Referenz.";
+   if(["EXPIRED","STOPPED"].includes(o.status)){
+    const check=node("button","bi-checkout-copy","Zahlungsstatus erneut prüfen");check.type="button";check.onclick=()=>refresh();
+    const b=node("button","bi-checkout-next","Ich habe nicht bezahlt – neuen Auftrag starten");b.type="button";b.onclick=()=>{clearTimeout(poll);clearInterval(countdown);dialog.close();order=null;request=null;renderedKey="";seenRendered=false;sessionStorage.removeItem(storageKey);details.replaceChildren();status.textContent="";syncButton();};
+   }
   }
   node("p","bi-checkout-ref","Auftrag: "+o.orderId);
  }
  if(!seenRendered||prior!==o.status&&o.status==="SETTLED"){openPayment();seenRendered=true;}
  clearTimeout(poll);
- if(!["SETTLED","MANUAL_REVIEW","STOPPED"].includes(o.status)){poll=setTimeout(refresh,o.status==="EXPIRED"?60000:15000);}
+ if(!["SETTLED","MANUAL_REVIEW","STOPPED","EXPIRED"].includes(o.status)){poll=setTimeout(refresh,15000);}
  syncButton();
 }
-async function refresh(){if(!order)return;try{const v=await api("status",{orderId:order.orderId});showOrder(v.order);}catch{status.textContent="Status derzeit nicht erreichbar. Bitte nicht erneut bezahlen.";poll=setTimeout(refresh,30000);}}
+async function refresh(){if(!order)return;const id=order.orderId;try{const v=await api("status",{orderId:id});if(order?.orderId===id)showOrder(v.order);}catch{if(order?.orderId!==id)return;status.textContent="Status derzeit nicht erreichbar. Bitte nicht erneut bezahlen.";if(!["EXPIRED","STOPPED","MANUAL_REVIEW","SETTLED"].includes(order.status))poll=setTimeout(refresh,30000);}}
 pay.addEventListener("click",async()=>{
  if(order){openPayment();return;}
  if(busy||!routeAvailable()||!packageSelect.value)return;
