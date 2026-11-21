@@ -133,7 +133,7 @@
     block.innerHTML = `
       <div class="uup-head">
         <div>
-          <h3>Nachweis verbrauchter Kauf-Units · systemweit</h3>
+          <h3>Abgewickelte Kauf-Unit-Verbräuche</h3>
           <div class="uup-sub" id="uupIntro"></div>
         </div>
         <div class="uup-actions"><button type="button" class="uup-btn secondary" id="uupReload">Neu laden</button></div>
@@ -169,7 +169,7 @@
       head.innerHTML = `<th>Datum</th><th>User</th><th>Tipp / Spiel</th><th>Kaufcharge</th><th>Kauf-Units verbraucht</th><th>Netto zugeordnet</th><th>Unit-Pool freigegeben</th><th>Luciano</th><th>Martin</th><th>Frank</th><th>Tippgeber extra</th><th>Status</th>`;
     } else {
       const label = own ? own.label : "Eigene Provision";
-      intro.innerHTML = `Jede tatsächlich verbrauchte Kaufcharge wird dokumentiert. Du siehst den Verbrauch und ausschließlich deine eigenen Provisionswerte. Beträge anderer Admins sowie Gesamt-Netto und Gesamt-Pool werden serverseitig nicht an dein Backoffice ausgeliefert. <span class="uup-privacy">Private Einzelansicht</span>`;
+      intro.innerHTML = `Hier erscheinen ausschließlich Freischaltungen deiner eigenen Tipps. BetInsight-KI, Specials und Tipps anderer Personen werden nicht in deiner Abrechnung geführt. <span class="uup-privacy">Private Einzelansicht</span>`;
       head.innerHTML = `<th>Datum</th><th>User</th><th>Tipp / Spiel</th><th>Kaufcharge</th><th>Kauf-Units verbraucht</th><th>${esc(label)}</th><th>Tippgeber extra · nur wenn eigen</th><th>Status</th>`;
     }
   }
@@ -282,13 +282,13 @@
     renderRows();
     try {
       const resultRows = await fetchPage(nextCursor);
-      const visible = resultRows.slice(0, PAGE_SIZE);
+      const visible = resultRows.slice(0, PAGE_SIZE).filter((row) => isSuperAdmin() || String(row.tippgeber_id || "") === viewerAdminId);
       const known = new Set(loadedRows.map((row) => String(row.nutzungs_id || `${row.audit_seq}`)));
       visible.forEach((row) => {
         const key = String(row.nutzungs_id || `${row.audit_seq}`);
         if (!known.has(key)) { loadedRows.push(row); known.add(key); }
       });
-      hasMore = resultRows.length > PAGE_SIZE;
+      hasMore = resultRows.length >= PAGE_SIZE;
       if (visible.length) nextCursor = num(visible[visible.length - 1].audit_seq);
       block.querySelector("#uupStatus").textContent = loadedRows.length
         ? `${loadedRows.length} Kauf-Unit-Verbrauchsblöcke geladen. Jeder Block entspricht einer tatsächlich belasteten Kaufcharge.`
