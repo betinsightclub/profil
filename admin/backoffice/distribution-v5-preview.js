@@ -60,10 +60,10 @@ function css(){
 function make(){
  const panel=document.getElementById("tab-provisions"); if(!panel||document.getElementById(ID))return;
  const x=document.createElement("article");x.id=ID;
- x.innerHTML='<div class="h"><div><h3>Abrechnung · V5-Liveansicht</h3><p>Altbestand 1:1 übernommen. Neue Paketkäufe und neue Kauf-Unit-Verbräuche werden automatisch ergänzt. Martin und Frank sehen diese neue Ansicht noch nicht.</p></div><span class="badge">LIVE-ERFASSUNG · MASTER</span></div>'+
+ x.innerHTML='<div class="h"><div><h3>Abrechnung · V5-Liveansicht</h3><p>Masterübersicht mit geschützter Tippgeber-Vorschau. Martin und Frank sehen nur die Freischaltungen ihrer jeweils eigenen Tipps.</p></div><span class="badge">LIVE-ERFASSUNG · MASTER</span></div>'+
  '<div class="tabs"><button class="on" data-v="ADM-001">Meine Ansicht · Luciano</button><button data-v="ADM-002">Vorschau · Martin</button><button data-v="ADM-003">Vorschau · Frank</button></div>'+
  '<div class="sec"><h4>Abgewickelte Paketkäufe</h4><div class="note">Musterdaten entfernt. Altbestand bleibt unverändert; neue V5-Käufe erscheinen automatisch.</div><div class="wrap"><table><thead id="v5ph"></thead><tbody id="v5pb"></tbody></table></div></div>'+
- '<div class="sec"><h4>Abgewickelte Kauf-Unit-Verbräuche</h4><div class="note">Musterdaten entfernt. Bestehende Verbrauchsdaten bleiben unverändert; neue V5-Vorgänge erscheinen automatisch.</div><div class="wrap"><table><thead id="v5uh"></thead><tbody id="v5ub"></tbody></table></div></div>'+
+ '<div class="sec"><h4>Abgewickelte Kauf-Unit-Verbräuche</h4><div class="note">Buchungsnachweise bleiben für Luciano vollständig erhalten. Die Vorschau anderer Tippgeber enthält ausschließlich deren eigene vergütete Tipps; fremde Nullzeilen werden ausgeblendet.</div><div class="wrap"><table><thead id="v5uh"></thead><tbody id="v5ub"></tbody></table></div></div>'+
  '<div class="rule" id="v5rule"></div>';
  const h=panel.querySelector(".panel-heading"); if(h)h.insertAdjacentElement("afterend",x);else panel.prepend(x);
  x.querySelectorAll("button[data-v]").forEach(b=>b.onclick=()=>{view=b.dataset.v;x.querySelectorAll("button[data-v]").forEach(y=>y.classList.toggle("on",y===b));render()});
@@ -89,7 +89,13 @@ function purchasePartner(r,who,legacy){const net=cv(r,who+"_immediate_net_crypto
 function usagePartner(r,who,legacy){const net=cv(r,who+"_freigegeben_crypto",who+"_freigegeben_eur");if(legacy)return '<strong>'+net+'</strong>';const gross=cv(r,who+"_brutto_crypto",who+"_brutto_eur");const tax=cv(r,who+"_irrf_crypto",who+"_irrf_eur");return '<strong class="v5net">'+net+' netto</strong><small>'+gross+' brutto · '+tax+' IRRF-Reserve</small>'}
 function renderPurchase(){
  const H=document.getElementById("v5ph"),B=document.getElementById("v5pb");
- const rows=livePurchases.slice().sort((a,b)=>Number(b.settlement_id||0)-Number(a.settlement_id||0));
+ // Master darf alle Paketkäufe nachvollziehen; die persönliche Vorschau enthält
+ // nur bisher tatsächlich vergütete Pakete, keine fremden Nullbuchungen.
+ const rows=livePurchases
+   .filter(r=>view==="ADM-001" ||
+     Number(r?.[view==="ADM-002"?"martin_immediate_net_eur":"frank_immediate_net_eur"]||0)>0 ||
+     Number(r?.[view==="ADM-002"?"martin_usage_released_eur":"frank_usage_released_eur"]||0)>0)
+   .sort((a,b)=>Number(b.settlement_id||0)-Number(a.settlement_id||0));
  if(view==="ADM-001"){
   H.innerHTML="<tr><th>Datum</th><th>Paket</th><th>Währung</th><th>Eingang nach Plisio</th><th>Betriebskosten</th><th>Affiliate</th><th>Verteilbarer Netto</th><th>Sofortpool</th><th>Unit-Pool</th><th>Luciano</th><th>Martin</th><th>Frank</th><th>Sondertopf</th><th>Freigegebener Unit-Anteil</th><th>Status</th></tr>";
   B.innerHTML=rows.length?rows.map(r=>{
@@ -139,7 +145,19 @@ function renderPurchase(){
 }
 function renderUsage(){
  const H=document.getElementById("v5uh"),B=document.getElementById("v5ub");
- const rows=liveUsages.slice().sort((a,b)=>Number(b.audit_seq||0)-Number(a.audit_seq||0));
+ // Gerade diese V5-Mastervorschau war die Ursache der fremden 0-Provisionszeilen.
+ // Aus der Originalhistorie wird NICHTS gelöscht; allein die private Ansicht
+ // ist auf den registrierten Tippgeber UND positive eigene Vergütung beschränkt.
+ const rows=liveUsages
+   .filter(r=>{
+     if(view==="ADM-001")return true;
+     if(String(r.tippgeber_id||"").trim()!==view)return false;
+     const name=String(r.tippgeber_name||"").trim().toLowerCase();
+     if(name!==(view==="ADM-002"?"martin":"frank"))return false;
+     return Number(r?.[view==="ADM-002"?"martin_freigegeben_eur":"frank_freigegeben_eur"]||0)>0 ||
+            Number(r?.[view==="ADM-002"?"martin_freigegeben_crypto":"frank_freigegeben_crypto"]||0)>0;
+   })
+   .sort((a,b)=>Number(b.audit_seq||0)-Number(a.audit_seq||0));
  if(view==="ADM-001"){
   H.innerHTML="<tr><th>Datum</th><th>User</th><th>Sport / Tipp / Spiel</th><th>Kaufcharge</th><th>Kauf-Units</th><th>Unit-Pool</th><th>Luciano</th><th>Martin</th><th>Frank</th><th>Sondertopf</th><th>Status</th></tr>";
   B.innerHTML=rows.length?rows.map(r=>{
@@ -180,8 +198,8 @@ function render(){
  renderPurchase();renderUsage();
  const r=role[view];
  document.getElementById("v5rule").textContent=view==="ADM-001"
- ? "V5: Sofortpool 40 % → Luciano 40 % · Martin 30 % brutto · Frank 10 % brutto · Sondertopf 20 %. Normaler Unit-Verbrauch 40/30/10/20; Tennis 50/30/0/20. Altbuchungen bleiben unverändert."
- : r.name+": Angezeigt wird dein Nettoanteil. Gesetzlich erforderliche Einbehalte werden von LucMedia direkt abgeführt. Altbuchungen bleiben unverändert.";
+ ? "Neue Regel bis 31.12.2026: Luciano erhält weiterhin seinen 40-%-Anteil; ein aktiver Tippgeber erhält bis zu 30 % ausschließlich für seine eigenen, mit gekauften Units freigeschalteten Tipps. Nicht zugeordnete Anteile bleiben bei BetInsight. Historische Buchungen bleiben erhalten."
+ : r.name+": In dieser Vorschau erscheinen nur eigene vergütete Tipps. Fremde Tipps (auch 0-Provision) werden nicht aufgeführt. Gesetzlich erforderliche Einbehalte bleiben unberührt.";
 }
 
 async function init(){
