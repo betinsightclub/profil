@@ -240,6 +240,22 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
 .special-slot .demo-feedback{font-size:11px;min-height:0;color:#ffe09c}
 .special-slot{min-height:245px}
 .special-report-link{width:max-content;max-width:100%;margin-top:2px}
+/* Wochen-Spezial: vertrauliche Details, aber sichtbare Standard-Felder im kompakten BetInsight-Stil */
+.special-slot.weekly-compact{min-height:0;padding:12px 11px;gap:8px;background:linear-gradient(135deg,#0e3848,#062431);border:1px solid #28627b;border-radius:15px}
+.weekly-compact .meta{gap:5px;justify-content:space-between}
+.weekly-compact .meta .pill{font-size:9px;padding:4px 7px}
+.weekly-compact h3{font-size:14px;line-height:1.25;margin:0}
+.weekly-compact .demo-list{width:100%;margin:0;padding:3px 8px;border-color:#365567}
+.weekly-compact .demo-row{flex-wrap:nowrap;align-items:flex-start;gap:5px;padding:6px 0;font-size:10.5px;line-height:1.35}
+.weekly-compact .demo-row span{flex:0 1 48%;min-width:0}
+.weekly-compact .demo-row strong{flex:0 1 52%;min-width:0;max-width:60%;font-size:10.5px;line-height:1.35;text-align:right;overflow-wrap:anywhere}
+.weekly-compact .demo-row strong.weekly-locked{color:#b0d1df}
+.weekly-compact .card-bottom{display:flex;flex-direction:column;align-items:stretch;gap:7px;margin-top:auto}
+.weekly-compact .card-bottom .pill{align-self:flex-start}
+.weekly-compact .small-button{width:100%;min-height:54px!important}
+.weekly-compact .weekly-guarantee-note{font-size:10px;line-height:1.35}
+.weekly-compact .demo-feedback:empty{display:none}
+@media(max-width:750px){.weekly-compact .demo-row{font-size:11px}.weekly-compact .demo-row strong{font-size:11px}}
 </style>
 </head>
 <body>
@@ -723,8 +739,8 @@ function weeklyButtonLabel(button){
   );
 }
 function weeklyPreviewCard(){
-  // Keine Strategie- oder Tippdaten im Frontend hinterlegen.
-  // Freischaltungen erfolgen ausschließlich über die vorhandene gesicherte Server-/Ledger-Prüfung.
+  // Öffentliche Zeilen ausschließlich aus freigegebenen Metadaten.
+  // Begegnung, Markt, Auswahl und interne Filter dürfen vor Freischaltung nie erscheinen.
   var c=ele("article","tip special-preview");c.dataset.specialCategory="BetInsight Wochen-Spezial";
   var meta=ele("div","meta");
   meta.appendChild(ele("span","pill","🗓️ WOCHEN-SPEZIAL"));
@@ -732,7 +748,6 @@ function weeklyPreviewCard(){
   c.appendChild(meta);
   c.appendChild(ele("h3","","Kurzfristige BetInsight Analysen"));
   c.appendChild(ele("p","special-intro","Jede Analyse kostet 1 Unit. Datum, Anpfiff und exakte Referenzquote sind vorab sichtbar. Begegnung, Wettmarkt und Prognose folgen nach persönlicher Freischaltung. Unsere interne Auswahlmethode bleibt vertraulich."));
-  // Allgemeine Angebotsregeln sind öffentlich; keine Team-/Spiel-/Marktfilter verraten.
   var calendar=ele("section","weekly-season-schedule");
   calendar.appendChild(ele("strong","","📅 Wann gibt es Wochen-Spezial-Tipps?"));
   calendar.appendChild(ele("p","","🇩🇪 1. Bundesliga: Die regelmäßige Spezialserie nutzt diese Saisonabschnitte:"));
@@ -756,19 +771,43 @@ function weeklyPreviewCard(){
   var list=ele("div","special-slots");
   var tips=state.tips.filter(function(t){return weeklySpecial(t)&&!expired(t)}).sort(function(a,b){return time(a.spiel_datum)-time(b.spiel_datum)});
   tips.forEach(function(t,i){
-    var id=str(t.tipp_id),slot=ele("div","special-slot");
+    var id=str(t.tipp_id),slot=ele("article","tip special-slot weekly-compact");
     slot.dataset.specialTip=id;
-    slot.appendChild(ele("span","special-slot-no","WOCHEN-SPEZIAL "+String(i+1).padStart(2,"0")));
-    slot.appendChild(ele("strong","","🔒 Details geschützt"));
-    var region=/(?:eredivisie|niederlande)/i.test(str(t.liga))?"🇳🇱 Eredivisie":/(?:primeira|portugal)/i.test(str(t.liga))?"🇵🇹 Portugal":"🇩🇪 Bundesliga";
-    slot.appendChild(ele("small","",region));
-    slot.appendChild(ele("small","weekly-game-time","📅 "+shortDate(t.spiel_datum)+" · 🕒 "+str(t.anpfiff||"–")+" Uhr (Deutschland)"));
-    slot.appendChild(ele("small","","Begegnung und konkrete Prognose nach Freischaltung sichtbar"));
-    var exactQuote=numeric(t.quote_exakt!=null?t.quote_exakt:t.quote);
-    slot.appendChild(ele("small","special-slot-odds",Number.isFinite(exactQuote)&&exactQuote>1?"📈 Quote: "+exactQuote.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" · vorläufig":"📈 Konkrete Quote wird vor Veröffentlichung angegeben"));
-    slot.appendChild(ele("small","special-slot-price","Preis: 1 Unit"));
     var already=state.recentUnlocks.has(id)||state.unlocked.some(function(x){return str(x.tipp_id)===id});
-    var b=ele("button","small-button"), feedback=ele("p","demo-feedback","");
+    var head=ele("div","meta");
+    head.appendChild(ele("span","pill",already?"🔓 FREIGESCHALTET":"🔒 Details geschützt"));
+    head.appendChild(ele("span","pill bet-type single","Einzelanalyse"));
+    slot.appendChild(head);
+    slot.appendChild(ele("h3","","WOCHEN-SPEZIAL "+String(i+1).padStart(2,"0")));
+    var league=/(?:eredivisie|niederlande)/i.test(str(t.liga))?"🇳🇱 Eredivisie":/(?:primeira|portugal)/i.test(str(t.liga))?"🇵🇹 Primeira Liga":/(?:bundesliga)/i.test(str(t.liga))?"🇩🇪 Bundesliga":"Fußball-Liga";
+    var exactQuote=numeric(t.quote_exakt!=null?t.quote_exakt:t.quote);
+    var price=numeric(t.preis_units);
+    var priceText=Number.isFinite(price)&&price>=0?price.toLocaleString("de-DE",{maximumFractionDigits:2})+" "+(price===1?"Unit":"Units"):"1 Unit";
+    var quoteText=Number.isFinite(exactQuote)&&exactQuote>1?exactQuote.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" · vorläufig":"Noch nicht bestätigt";
+    var rows=[
+      ["⚽ Sport","Fußball"],
+      ["🏟️ Liga",league],
+      ["📅 Datum",shortDate(t.spiel_datum)],
+      ["🕒 Anpfiff",str(t.anpfiff||"–")+" Uhr (DE)"],
+      ["👤 Tippgeber","BetInsight Wochen-Spezial"],
+      ["📈 Referenzquote",quoteText],
+      ["💳 Preis",priceText],
+      ["🎯 Markt","🔒 Nach Freischaltung"],
+      ["⚔️ Begegnung","🔒 Nach Freischaltung"],
+      ["✅ Prognose","🔒 Nach Freischaltung"]
+    ];
+    var details=ele("div","demo-list");
+    rows.forEach(function(kv){
+      var line=ele("div","demo-row");
+      line.appendChild(ele("span","",kv[0]));
+      var value=ele("strong","",kv[1]);
+      if(kv[1]==="🔒 Nach Freischaltung")value.classList.add("weekly-locked");
+      line.appendChild(value);
+      details.appendChild(line);
+    });
+    slot.appendChild(details);
+    var bottom=ele("div","card-bottom");
+    var b=ele("button","small-button"),feedback=ele("p","demo-feedback","");
     feedback.setAttribute("aria-live","polite");
     b.type="button";
     if(already){
@@ -782,8 +821,9 @@ function weeklyPreviewCard(){
       }
       b.addEventListener("click",function(){unlockTip(t,b,feedback)});
     }
-    slot.appendChild(b);
-    slot.appendChild(ele("small","weekly-guarantee-note","Bei bestätigtem Verlust: verbrauchte Kauf-Units werden automatisch als Kauf-Units erstattet; nicht für Geschenk-/Referral-Units. Kein Ersatz für Wettverluste."));
+    bottom.appendChild(b);
+    bottom.appendChild(ele("small","weekly-guarantee-note","🛡 Kauf-Units-Zurück-Garantie bei bestätigtem Fehltipp; kein Ersatz für Wettverluste."));
+    slot.appendChild(bottom);
     slot.appendChild(feedback);
     list.appendChild(slot);
   });
