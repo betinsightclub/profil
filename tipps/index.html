@@ -263,7 +263,7 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
       <button type="button" class="provider" data-provider="Frank" aria-pressed="false"><span class="pro-top"><span class="pro-icon">📈</span><span class="pill" data-bi-i18n="tipsCenter.tagTipster">TIPPGEBER</span></span><span class="pro-name">Frank</span><span class="pro-sub" data-bi-i18n="tipsCenter.frankSub">Analysen und aktuelle Sporttipps</span><span class="pro-stat" id="frankMini">Gesamtperformance wird geladen …</span></button>
       <button type="button" class="provider" data-provider="Schulung" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🎓</span><span class="pill" data-bi-i18n="tipsCenter.tagLearn">LERNBEREICH</span></span><span class="pro-name" data-bi-i18n="tipsCenter.training">Schulungstipps</span><span class="pro-sub" data-bi-i18n="tipsCenter.trainingSub">Schulungsbeispiele und Demonstrationen</span><span class="pro-stat" id="trainingMini">Schulungs-Performance wird geladen …</span></button>
       <button type="button" class="provider" data-provider="Testphase" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🏆</span><span class="pill" data-bi-i18n="tipsCenter.tagPrep">SAISONWETTEN · 1 UNIT</span></span><span class="pro-name" data-bi-i18n="tipsCenter.testing">BetInsight Spezial – Saisonwetten</span><span class="pro-sub" data-bi-i18n="tipsCenter.testingSub">Vier exklusive Saisonanalysen · je 1 Unit · Details erst nach Freischaltung</span><span class="pro-stat" id="testMini">Vier Saisonwetten · je 1 Unit</span></button>
-      <button type="button" class="provider" data-provider="WochenSpezial" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🗓️</span><span class="pill">WOCHEN-SPEZIAL · 1 UNIT</span></span><span class="pro-name">BetInsight Wochen-Spezial</span><span class="pro-sub">Kurzfristige Analysen · Auswahl nach Freischaltung sichtbar</span><span class="pro-stat" id="weeklyMini">1 Unit je Tipp · Ersatz-Geschenk-Unit manuell</span></button>
+      <button type="button" class="provider" data-provider="WochenSpezial" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🗓️</span><span class="pill">WOCHEN-SPEZIAL · 1 UNIT</span></span><span class="pro-name">BetInsight Wochen-Spezial</span><span class="pro-sub">Kurzfristige Analysen · Auswahl nach Freischaltung sichtbar</span><span class="pro-stat" id="weeklyMini">1 Unit je Tipp · Kauf-Units-Zurück-Garantie</span></button>
     </div>
     <details id="perfDisclosure" class="perf-disclosure">
       <summary class="perf-summary" id="perfDisclosureTrigger"><span>📊 <span data-bi-i18n="tipsCenter.performanceView">Tippgeber-Performance ansehen</span> <span class="perf-summary-name" id="perfDisclosureName">· Martin</span></span><span class="perf-chevron" aria-hidden="true">⌄</span></summary>
@@ -545,7 +545,7 @@ if(personal){
   if(gameTime.length)c.appendChild(ele("p","weekly-unlock-meta",gameTime.join("  ·  ")));
   var odd=numeric(r.quote);
   if(Number.isFinite(odd)&&odd>1)c.appendChild(ele("p","weekly-unlock-quote","📈 Quote: "+odd.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})));
-  c.appendChild(ele("div","weekly-unlock-terms","🛡 Unit-zurück-Garantie: Bei einem bestätigten Fehltipp wird nach manueller Prüfung einmalig 1 Geschenk-Unit gutgeschrieben. Keine Erstattung des Wetteinsatzes."));
+  c.appendChild(ele("div","weekly-unlock-terms","🛡 Units-zurück-Garantie: Bei bestätigtem Fehltipp werden für diese Freischaltung verbrauchte Kauf-Units automatisch als Kauf-Units erstattet. Nicht für Geschenk- oder Referral-Units; keine Erstattung von Buchmacher-Wetteinsätzen."));
  }
  c.appendChild(ele("p","",tr("marketPrefix","Markt: ")+str(r.markt||"–")));
  c.appendChild(ele("p","",tr("selectionPrefix","Auswahl: ")+str(r.tipp||"–")));
@@ -724,21 +724,22 @@ function weeklyButtonLabel(button){
 }
 function weeklyPreviewCard(){
   // Keine Strategie- oder Tippdaten im Frontend hinterlegen.
-  // Alle Freischaltungen bleiben bis zur separaten Garantie-/Ledger-Abnahme gesperrt.
+  // Freischaltungen erfolgen ausschließlich über die vorhandene gesicherte Server-/Ledger-Prüfung.
   var c=ele("article","tip special-preview");c.dataset.specialCategory="BetInsight Wochen-Spezial";
   var meta=ele("div","meta");
   meta.appendChild(ele("span","pill","🗓️ WOCHEN-SPEZIAL"));
   meta.appendChild(ele("span","","Eigenständige Tippkategorie · begrenzter Testbetrieb"));
   c.appendChild(meta);
   c.appendChild(ele("h3","","Kurzfristige BetInsight Analysen"));
-  c.appendChild(ele("p","special-intro","Jede Analyse kostet 1 Unit. Datum, Anpfiff und exakte Referenzquote sind vorab sichtbar. Begegnung, Wettmarkt und Prognose folgen nach persönlicher Freischaltung. Die interne Auswahlmethode bleibt vertraulich."));
-  // Sichtbar nur nach Klick auf die eigenständige Wochen-Spezial-Kachel.
+  c.appendChild(ele("p","special-intro","Jede Analyse kostet 1 Unit. Datum, Anpfiff und exakte Referenzquote sind vorab sichtbar. Begegnung, Wettmarkt und Prognose folgen nach persönlicher Freischaltung. Unsere interne Auswahlmethode bleibt vertraulich."));
+  // Allgemeine Angebotsregeln sind öffentlich; keine Team-/Spiel-/Marktfilter verraten.
   var calendar=ele("section","weekly-season-schedule");
   calendar.appendChild(ele("strong","","📅 Wann gibt es Wochen-Spezial-Tipps?"));
+  calendar.appendChild(ele("p","","🇩🇪 1. Bundesliga: Die regelmäßige Spezialserie nutzt diese Saisonabschnitte:"));
   var phases=ele("div","weekly-season-phases");
   [
     ["1.–11. Spieltag","Analysen möglich"],
-    ["12.–23. Spieltag","Keine neuen Wochen-Spezial-Tipps"],
+    ["12.–23. Spieltag","Bundesliga-Spezial pausiert"],
     ["24.–34. Spieltag","Analysen wieder möglich"]
   ].forEach(function(info){
     var phase=ele("div","weekly-season-phase");
@@ -747,7 +748,10 @@ function weeklyPreviewCard(){
     phases.appendChild(phase);
   });
   calendar.appendChild(phases);
-  calendar.appendChild(ele("p","","Nächster geplanter Bundesliga-Spieltag: 10. Spieltag · 20.–22. November 2026. Am 13.–15. November ist Länderspielpause."));
+  calendar.appendChild(ele("p","","🇳🇱 Niederlande & 🇵🇹 Portugal: Zusätzlich können einzelne Wochen-Spezial-Analysen angeboten werden. Die deutsche Bundesliga-Pause gilt nicht automatisch für andere Ligen. Nicht jeder Spieltag und nicht jede Begegnung erhält eine Analyse."));
+  calendar.appendChild(ele("p","","🔒 Vor der Freischaltung: Datum, deutsche Anstoßzeit, Referenzquote und Preis sind sichtbar. Die konkrete Begegnung, der Markt und unsere Prognose bleiben bis zur persönlichen Freischaltung geschützt."));
+  calendar.appendChild(ele("p","","📈 Referenzquoten sind unverbindliche Momentaufnahmen. Buchmacher-Angebote und länderspezifische Verfügbarkeit können abweichen; es gibt keine Gewinnzusage."));
+  calendar.appendChild(ele("p","","🛡 Units-zurück-Garantie: Bei einem bestätigten verlorenen Tipp werden die für die Freischaltung verbrauchten Kauf-Units automatisch als Kauf-Units erstattet. Geschenk- und Referral-Units sind nicht umfasst. Wettverluste beim Buchmacher werden nicht ersetzt."));
   c.appendChild(calendar);
   var list=ele("div","special-slots");
   var tips=state.tips.filter(function(t){return weeklySpecial(t)&&!expired(t)}).sort(function(a,b){return time(a.spiel_datum)-time(b.spiel_datum)});
@@ -756,6 +760,8 @@ function weeklyPreviewCard(){
     slot.dataset.specialTip=id;
     slot.appendChild(ele("span","special-slot-no","WOCHEN-SPEZIAL "+String(i+1).padStart(2,"0")));
     slot.appendChild(ele("strong","","🔒 Details geschützt"));
+    var region=/(?:eredivisie|niederlande)/i.test(str(t.liga))?"🇳🇱 Eredivisie":/(?:primeira|portugal)/i.test(str(t.liga))?"🇵🇹 Portugal":"🇩🇪 Bundesliga";
+    slot.appendChild(ele("small","",region));
     slot.appendChild(ele("small","weekly-game-time","📅 "+shortDate(t.spiel_datum)+" · 🕒 "+str(t.anpfiff||"–")+" Uhr (Deutschland)"));
     slot.appendChild(ele("small","","Begegnung und konkrete Prognose nach Freischaltung sichtbar"));
     var exactQuote=numeric(t.quote_exakt!=null?t.quote_exakt:t.quote);
@@ -777,13 +783,13 @@ function weeklyPreviewCard(){
       b.addEventListener("click",function(){unlockTip(t,b,feedback)});
     }
     slot.appendChild(b);
-    slot.appendChild(ele("small","weekly-guarantee-note","Bei bestätigtem Fehltipp: einmalig 1 Ersatz-Geschenk-Unit nach manueller Prüfung. Kein Ausgleich für Wettverluste."));
+    slot.appendChild(ele("small","weekly-guarantee-note","Bei bestätigtem Verlust: verbrauchte Kauf-Units werden automatisch als Kauf-Units erstattet; nicht für Geschenk-/Referral-Units. Kein Ersatz für Wettverluste."));
     slot.appendChild(feedback);
     list.appendChild(slot);
   });
   if(tips.length)c.appendChild(list);
   else c.appendChild(ele("div","alert",state.tipsLoaded?"Aktuell keine neuen Wochen-Spezial-Analysen verfügbar.":"Analyse-Angebote werden geladen …"));
-  c.appendChild(ele("div","special-note","Unit-Schutz: Wird ein freigeschalteter Wochen-Spezial-Tipp nach dem Endergebnis als verloren bestätigt, schreibt BetInsight dem berechtigten Nutzer nach manueller Prüfung einmalig 1 Geschenk-Unit gut. Die Gutschrift ist nicht automatisch."));
+  c.appendChild(ele("div","special-note","Unit-Schutz: Bei bestätigtem Verlust einer freigeschalteten Analyse werden die tatsächlich eingesetzten Kauf-Units automatisch als Kauf-Units zurückgebucht. Wurden keine Kauf-Units verbraucht, entsteht daraus kein Kauf-Units-Erstattungsanspruch."));
   c.appendChild(ele("p","special-disclaimer","Kein Ersatz für Wettverluste beim Buchmacher. Vergangene Ergebnisse sind keine Gewinngarantie."));
   return c;
 }
