@@ -15,6 +15,7 @@
     if (!intro) return false;
 
     const text = (intro.textContent || '').replace(/\s+/g, ' ').trim();
+    if (text.includes('Hier erscheinen ausschließlich Freischaltungen deiner eigenen Tipps.')) return false;
     if (!text.includes('Beträge anderer Admins') && !text.includes('Private Einzelansicht')) return false;
 
     intro.textContent = 'Jede tatsächlich verbrauchte Kaufcharge wird dokumentiert. Du siehst den Verbrauch und ausschließlich deine eigenen Provisionswerte.';
