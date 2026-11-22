@@ -6,7 +6,7 @@
   catch (_) { session = null; }
   if (!session || String(session.adminId || "") !== "ADM-003") return;
 
-  const TARGET_PATTERN = /(?:preis[\\w-]*units?|units?[\\w-]*preis|price[\\w-]*units?|units?[\\w-]*price|freischalt[\\w-]*preis|unlock[\\w-]*units?)/i;
+  const TARGET_PATTERN = /(?:preis[a-z0-9_-]*units?|units?[a-z0-9_-]*preis|price[a-z0-9_-]*units?|units?[a-z0-9_-]*price|freischalt[a-z0-9_-]*preis|unlock[a-z0-9_-]*units?)/i;
   const NOTICE_ID = "biFrankFixedUnitNotice";
   const SELECTOR = "input,select";
   let queued = false;
