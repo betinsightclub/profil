@@ -10,16 +10,15 @@
 (async()=>{
   let access=null;
   try{access=JSON.parse(sessionStorage.getItem('betinsight_admin_session_v1')||'null')}catch(e){}
-  if(!access || !access.adminId || Number(access.expiresMs||0)<=Date.now() || access.adminId==='ADM-003'){
+  if(!access || !access.adminId || Number(access.expiresMs||0)<=Date.now()){
     const p=document.querySelector('.load');
-    p.innerHTML='<h2>'+(access?.adminId==='ADM-003'?'Tipp-Eingabe seit 01.11.2026 gesperrt':'Bitte zuerst anmelden')+'</h2><p>Dein Backoffice erreichst du weiterhin über das Admin Center.</p><p><a href="/admin/" style="color:#40baff">Zurück zum Admin Center</a></p>';
+    p.innerHTML='<h2>'+'Bitte zuerst anmelden'+'</h2><p>Dein Backoffice erreichst du weiterhin über das Admin Center.</p><p><a href="/admin/" style="color:#40baff">Zurück zum Admin Center</a></p>';
     return;
   }
-  // 01.11.2026: Tipp-Eingabe nur für berechtigte Admins; Frank darf sein Backoffice weiterhin nutzen.
   let __biSession=null;
   try{__biSession=JSON.parse(sessionStorage.getItem('betinsight_admin_session_v1')||'null')}catch(_){}
-  if(!__biSession || !__biSession.adminId || Number(__biSession.expiresMs||0)<=Date.now() || __biSession.adminId==='ADM-003'){
-    const blocked=__biSession?.adminId==='ADM-003';
+  if(!__biSession || !__biSession.adminId || Number(__biSession.expiresMs||0)<=Date.now()){
+    const blocked=false;
     document.querySelector('.load').innerHTML='<div style="max-width:560px;padding:25px;border:1px solid rgba(255,209,110,.35);border-radius:18px;background:#09283a;line-height:1.6"><h1 style="font-size:25px">'+(blocked?'Tipp-Eingabe gesperrt':'Anmeldung erforderlich')+'</h1><p>'+(blocked?'Seit dem 01.11.2026 kannst du keine neuen Tipps mehr eingeben. Dein persönliches Backoffice bleibt weiterhin zugänglich.':'Bitte melde dich zuerst im Admin Center an.')+'</p><a href="/admin/" style="display:inline-block;margin-top:18px;padding:12px 18px;border-radius:10px;color:#fff;background:#177cb1;text-decoration:none;font-weight:700">Zurück zum Admin Center</a></div>';
     return;
   }
@@ -472,7 +471,8 @@
     // Canonical competition rows with national flags – display values only.
     const leagueEnhancement='<script src="/assets/league-guide-v1.js?v=20261009-1"><\/script><script>if(window.BetInsightLeagueGuide)window.BetInsightLeagueGuide.activateDropdowns();<\/script>';
     const schulungsEnhancement='<script src="/admin-tipps/schulung-v1.js?v=20261021-2"><\/script>';
-    html=html.replace('</body>',oddsGatewayEnhancement+enhancement+liveAlarmOneEnhancement+manualGameEnhancement+nationalTeamEnhancement+tennisEnhancement+tickerEnhancement+leagueEnhancement+schulungsEnhancement+'</body>');
+    const frankUnitEnhancement='<script src="/admin-tipps/frank-one-unit-v1.js?v=20261122-1"><\/script>';
+    html=html.replace('</body>',oddsGatewayEnhancement+enhancement+liveAlarmOneEnhancement+manualGameEnhancement+nationalTeamEnhancement+tennisEnhancement+tickerEnhancement+leagueEnhancement+schulungsEnhancement+frankUnitEnhancement+'</body>');
     html=html.replace('<body>','<body>'+ '<a id="persistentBack" href="/admin/" style="position:fixed;top:12px;left:12px;z-index:99999;display:inline-flex;align-items:center;justify-content:center;padding:10px 15px;border-radius:999px;background:#0d3347;border:1px solid rgba(0,218,255,.45);color:#fff;text-decoration:none;font-weight:700;font-size:14px;box-shadow:0 6px 18px rgba(0,0,0,.28)">← Zurück zum Admin Center</a>');
     document.open();document.write(html);document.close();
   }catch(e){
