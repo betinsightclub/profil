@@ -27,6 +27,7 @@
     "daily": "daily",
     "fan-challenge": "fan-challenge",
     "tipps": "tips",
+    "stadion-quiz": "stadium-quiz",
     "kaufen": "buy",
     "pakete": "packages",
     "wallet": "wallet",
@@ -92,7 +93,7 @@
     if (!uiEnhancementsPromise) {
       uiEnhancementsPromise = (async () => {
         await loadUiScript("theme-manager.js?v=20260908-4", "BetInsightTheme");
-        await loadUiScript("i18n/member-completion.js?v=20260913-1", "BetInsightMemberCompletion");
+        await loadUiScript("i18n/member-completion.js?v=20261123-quiz-i18n-1", "BetInsightMemberCompletion");
         await loadUiScript("navigation-enhancements.js?v=20261109-academy-theme-1", "BetInsightNavigationEnhancements");
         return true;
       })().catch(error => {
