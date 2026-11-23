@@ -219,6 +219,27 @@
     "specialSettlementLabel": "📋 Settlement",
     "specialSettlementValue": "After the official season ends",
     "specialOddsUnverified": "No verified odds",
-    "specialDeadlineFallback": "21 May 2027"
+    "specialDeadlineFallback": "21 May 2027",
+    "roiEqualStakeFoot": "Equal stake per tip · excluding tip costs",
+    "trendTitle": "Betting balance over time",
+    "trendSubtitle": "Calculated · 1 stake unit per tip",
+    "trendAria": "Betting balance after each settled tip",
+    "modelStakeTitle": "Hypothetical stake per tip",
+    "modelStakeSubtitle": "Equal stake for every settled tip",
+    "modelStakeAria": "Stake per tip in euros, from 1 to 100",
+    "modelStakeLow": "€1 per tip",
+    "modelStakeHigh": "€100 per tip",
+    "modelDefaultHint": "Simulation with equal stakes per tip, excluding unlock costs and fees. Past results do not guarantee profits.",
+    "modelDetailIntro": "Every settled tip with odds and result. Unlock Units are shown for information only; every stake in this model is equal.",
+    "modelUnlockUnits": "Unlock Units",
+    "modelDetailFoot": "In the Total view, at most ten tips per page. Tips with 0 unlock Units still use the same hypothetical stake.",
+    "trendMissing": "Odds missing – chart cannot be calculated",
+    "trendEmpty": "No settled tips yet",
+    "trendCount": "{{count}} settled tips · Start 0 U",
+    "trendBalance": "Balance: {{amount}} U",
+    "modelNoSettled": "No settled tips in this category. No results are fabricated.",
+    "modelGroup": "Selected group: {{count}} settled tips × {{stake}} hypothetical stake per tip.",
+    "modelNoOdds": "At least one tip has no valid odds; the model balance cannot be calculated in full.",
+    "modelDisclaimer": "Simulation using the same stake per tip, before unlock costs, fees and taxes. These are not real customer bets or a profit guarantee."
   }
 }
