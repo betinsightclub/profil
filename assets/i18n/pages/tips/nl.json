@@ -219,6 +219,27 @@
     "specialSettlementLabel": "📋 Afrekening",
     "specialSettlementValue": "Na het officiële seizoenseinde",
     "specialOddsUnverified": "Geen bevestigde odds",
-    "specialDeadlineFallback": "21-05-2027"
+    "specialDeadlineFallback": "21-05-2027",
+    "roiEqualStakeFoot": "Gelijke inzet per tip · zonder ontgrendelkosten",
+    "trendTitle": "Ontwikkeling van het weddenschapsresultaat",
+    "trendSubtitle": "Theoretisch · 1 inzeteenheid per tip",
+    "trendAria": "Resultaat na elke afgerekende tip",
+    "modelStakeTitle": "Hypothetische inzet per tip",
+    "modelStakeSubtitle": "Dezelfde inzet voor elke afgerekende tip",
+    "modelStakeAria": "Inzet per tip in euro, van 1 tot 100",
+    "modelStakeLow": "€ 1 per tip",
+    "modelStakeHigh": "€ 100 per tip",
+    "modelDefaultHint": "Simulatie met een gelijke inzet per tip, exclusief ontgrendelkosten en kosten. Resultaten uit het verleden bieden geen winstgarantie.",
+    "modelDetailIntro": "Elke afgerekende tip met notering en resultaat. Ontgrendel-Units zijn alleen informatief; elke inzet in dit model is gelijk.",
+    "modelUnlockUnits": "Ontgrendel-Units",
+    "modelDetailFoot": "Bij Totaal maximaal tien tips per pagina. Ook tips met 0 Units krijgen dezelfde hypothetische inzet.",
+    "trendMissing": "Notering ontbreekt – ontwikkeling kan niet worden berekend",
+    "trendEmpty": "Nog geen afgerekende tips",
+    "trendCount": "{{count}} afgerekende tips · Start 0 U",
+    "trendBalance": "Saldo: {{amount}} U",
+    "modelNoSettled": "Nog geen afgerekende tips in deze categorie. Er worden geen resultaten verzonnen.",
+    "modelGroup": "Geselecteerde groep: {{count}} afgerekende tips × {{stake}} hypothetische inzet per tip.",
+    "modelNoOdds": "Minstens één tip heeft geen geldige notering; het modelsaldo kan niet volledig worden berekend.",
+    "modelDisclaimer": "Simulatie met dezelfde inzet per tip, vóór ontgrendelkosten, vergoedingen en belastingen. Geen echte weddenschappen van klanten of winstgarantie."
   }
 }
