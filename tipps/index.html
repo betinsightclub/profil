@@ -466,7 +466,7 @@ function renderPerformanceDetails(){
   var tip=str(full.tipp);if(tip&&tip.length<90)label+=" · "+tip;
   detailCell(rowNode,(start+i+1)+". "+label);
   detailCell(rowNode,q>1?new Intl.NumberFormat(currentLocale(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(q):"–");
-  detailCell(rowNode,r.preis_units!=null&&str(r.preis_units)!===""&&Number.isFinite(units)?new Intl.NumberFormat(currentLocale(),{maximumFractionDigits:2}).format(units):"–");
+  detailCell(rowNode,r.preis_units!=null&&str(r.preis_units)!==""&&Number.isFinite(units)?new Intl.NumberFormat(currentLocale(),{maximumFractionDigits:2}).format(units):"–");
   detailCell(rowNode,won?tr("won","Gewonnen"):tr("lost","Verloren"),won?"green":"red");
   detailCell(rowNode,valid?euro(stake):"–");
   detailCell(rowNode,valid?(gain>0?"+":"")+euro(gain):"–",valid?(gain>=0?"green":"red"):"");
