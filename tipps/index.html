@@ -309,7 +309,7 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
       <div class="perf-top"><div class="author"><div class="avatar" id="avatar">M</div><div><small data-bi-i18n="tipsCenter.perfLabel">TIPPGEBER-PERFORMANCE · MODELLRECHNUNG</small><strong id="perfName">Martin</strong></div></div><div class="windows" id="perfWindows" role="group" data-bi-i18n-aria-label="tipsCenter.windowsAria" aria-label="Tippgruppen, neueste zuerst"></div></div>
       <div class="kpis">
         <div class="kpi"><span class="kpi-label" data-bi-i18n="tipsCenter.hit">Trefferquote</span><span class="kpi-value neutral" id="hit">–</span><span class="kpi-foot" id="hitSub" data-bi-i18n="tipsCenter.hitFoot">Gewonnene / entschiedene Tipps</span></div>
-        <div class="kpi"><span class="kpi-label" data-bi-i18n="tipsCenter.roi">Wett-ROI</span><span class="kpi-value" id="roi">–</span><span class="kpi-foot" data-bi-i18n="tipsCenter.roiFoot">Nach Unit-Anzahl gewichtet · ohne Tippkosten</span></div>
+        <div class="kpi"><span class="kpi-label" data-bi-i18n="tipsCenter.roi">Wett-ROI</span><span class="kpi-value" id="roi">–</span><span class="kpi-foot" >Gleicher Recheneinsatz je Tipp · ohne Tippkosten</span></div>
         <div class="kpi"><span class="kpi-label" data-bi-i18n="tipsCenter.won">Gewonnen</span><span class="kpi-value green" id="wins">–</span><span class="kpi-foot" data-bi-i18n="tipsCenter.wonFoot">Bestätigte Gewinne</span></div>
         <div class="kpi"><span class="kpi-label" data-bi-i18n="tipsCenter.lost">Verloren</span><span class="kpi-value red" id="losses">–</span><span class="kpi-foot" data-bi-i18n="tipsCenter.lostFoot">Bestätigte Verluste</span></div>
       </div>
@@ -320,28 +320,28 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
       </div>
       <div class="perf-model">
         <div class="perf-stake-head">
-          <div><strong data-bi-i18n="tipsCenter.stakeLabel">Hypothetischer Wetteinsatz je Unit</strong><small data-bi-i18n="tipsCenter.stakeDesc">Gruppensumme aus den tatsächlich je Tipp geforderten Units × gewähltem Euro-Wert</small></div>
+          <div><strong >Hypothetischer Wetteinsatz je Tipp</strong><small >Einheitlicher Einsatz für jeden abgerechneten Tipp</small></div>
           <output id="perfStakeValue" class="perf-stake-value" for="perfStake">10,00 €</output>
         </div>
-        <input type="range" class="perf-range" id="perfStake" min="1" max="100" step="1" value="10" data-bi-i18n-aria-label="tipsCenter.stakeAria" aria-label="Wetteinsatz je Unit in Euro, 1 bis 100">
-        <div class="perf-range-labels"><span data-bi-i18n="tipsCenter.rangeLow">1 € je Unit</span><span data-bi-i18n="tipsCenter.rangeHigh">100 € je Unit</span></div><p class="perf-model-hint" id="perfUnitBasis" data-bi-i18n="tipsCenter.unitWeightLoading">Unit-Gesamtgewicht wird geladen …</p>
+        <input type="range" class="perf-range" id="perfStake" min="1" max="100" step="1" value="10" aria-label="Wetteinsatz je Tipp in Euro, 1 bis 100">
+        <div class="perf-range-labels"><span >1 € je Tipp</span><span >100 € je Tipp</span></div><p class="perf-model-hint" id="perfUnitBasis" data-bi-i18n="tipsCenter.unitWeightLoading">Unit-Gesamtgewicht wird geladen …</p>
         <div class="perf-model-figures" aria-live="polite">
           <div class="perf-figure"><small data-bi-i18n="tipsCenter.totalStake">Gesamteinsätze</small><strong id="perfTotalStake">–</strong></div>
           <div class="perf-figure"><small data-bi-i18n="tipsCenter.totalReturn">Gesamtauszahlungen</small><strong id="perfTotalReturn">–</strong></div>
           <div class="perf-figure"><small data-bi-i18n="tipsCenter.net">Rechnerischer Gewinn / Verlust</small><strong id="perfNet">–</strong></div>
         </div>
-        <p id="perfModelHint" class="perf-model-hint" data-bi-i18n="tipsCenter.modelIntro">Rechnerisches Gesamtergebnis der gewählten Tippgruppe, ohne Abzug der Freischaltkosten. Vergangene Ergebnisse sind keine Garantie für zukünftige Gewinne.</p>
+        <p id="perfModelHint" class="perf-model-hint" >Modellrechnung mit gleichem Einsatz je Tipp, ohne Freischaltkosten und Gebühren. Vergangene Ergebnisse sind keine Gewinngarantie.</p>
       </div>
       <details id="perfDetails" class="perf-details">
         <summary class="perf-detail-summary" id="perfDetailsTrigger"><span id="perfDetailsTitle" data-bi-i18n="tipsCenter.detailsOpen">☷ Berechnung im Detail ansehen</span><span class="perf-chevron" aria-hidden="true">⌄</span></summary>
         <div class="perf-detail-content">
-          <p class="perf-detail-text" data-bi-i18n="tipsCenter.detailIntro">Jeder Tipp der ausgewählten Gruppe mit Originalquote, geforderten Units und simuliertem Einsatz und Nettogewinn. Alle Beträge verwenden den obigen Euro-Regler und werden nur beim Öffnen berechnet.</p>
+          <p class="perf-detail-text" >Jeder abgerechnete Tipp mit Quote und Ergebnis. Die angezeigten Freischalt-Units dienen nur zur Information; alle Wetteinsätze sind im Modell gleich hoch.</p>
           <div class="perf-detail-scroll"><table class="perf-detail-table" data-bi-i18n-aria-label="tipsCenter.detailTableAria" aria-label="Tippberechnung je Spiel">
-            <thead><tr><th scope="col" data-bi-i18n="tipsCenter.tableGame">Spiel / Tipp</th><th scope="col" data-bi-i18n="tipsCenter.tableOdds">Quote</th><th scope="col" data-bi-i18n="tipsCenter.tableUnits">Units</th><th scope="col" data-bi-i18n="tipsCenter.tableResult">Bewertung</th><th scope="col" data-bi-i18n="tipsCenter.tableStake">Einsatz</th><th scope="col" data-bi-i18n="tipsCenter.tableNet">Netto</th></tr></thead>
+            <thead><tr><th scope="col" data-bi-i18n="tipsCenter.tableGame">Spiel / Tipp</th><th scope="col" data-bi-i18n="tipsCenter.tableOdds">Quote</th><th scope="col" >Freischalt-Units</th><th scope="col" data-bi-i18n="tipsCenter.tableResult">Bewertung</th><th scope="col" data-bi-i18n="tipsCenter.tableStake">Einsatz</th><th scope="col" data-bi-i18n="tipsCenter.tableNet">Netto</th></tr></thead>
             <tbody id="perfDetailRows"></tbody>
           </table></div>
           <div id="perfDetailPagination" class="perf-detail-pagination"></div>
-          <p class="perf-detail-text" data-bi-i18n="tipsCenter.detailFoot">Bei „Gesamt“ maximal zehn Tipps pro Seite. Das Gesamtergebnis oben umfasst weiterhin alle ausgewählten Tipps. Historische 0-Unit-Tipps gehen mit 0 € in die Modellrechnung ein.</p>
+          <p class="perf-detail-text" >Bei „Gesamt“ maximal zehn Tipps pro Seite. Auch Tipps mit 0 Freischalt-Units werden im Modell mit gleich hohem Wetteinsatz berücksichtigt.</p>
         </div>
       </details>
     </section>
@@ -367,10 +367,10 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
 <dialog id="roiExplain" class="roi-dialog" aria-labelledby="roiDialogTitle">
   <button type="button" class="roi-dialog-close" id="roiHelpClose" data-bi-i18n-aria-label="tipsCenter.closeExplain" aria-label="Erklärung schließen">×</button>
   <h2 id="roiDialogTitle" data-bi-i18n="tipsCenter.roiHelp">Wie wird der ROI berechnet?</h2>
-  <p data-bi-i18n="tipsCenter.roiIntro">Jeder tatsächlich veröffentlichte Tipp wird mit seiner ursprünglich hinterlegten, für die Freischaltung geforderten Anzahl an BetInsight-Units gewichtet. Der hypothetische Wetteinsatz dieses Tipps ergibt sich aus geforderten Units × eingestelltem Euro-Wert je Unit (1 bis 100 €). Für jeden Tipp werden Gewinn oder Verlust anhand seiner ursprünglichen Quote berechnet.</p>
-  <p data-bi-i18n="tipsCenter.roiMethod">Die Anzeige fasst alle Tipps der gewählten Gruppe (1–10, 11–20 usw. oder Gesamt) zusammen: Gesamteinsätze, Gesamtauszahlungen sowie gesamten Nettogewinn/-verlust. Wett-ROI = gesamter rechnerischer Nettogewinn/-verlust ÷ gesamte rechnerische Wetteinsätze × 100. Die Units dienen nur als Einsatzgewichtung; sie werden nicht zusätzlich als Freischaltkosten abgezogen.</p>
-  <p data-bi-i18n="tipsCenter.roiExample">Beispiel: Ein Tipp mit 5 geforderten Units, 10 € je Unit und Quote 2,30 bedeutet 50 € rechnerischen Einsatz. Gewonnen: 115 € Auszahlung, 65 € Nettogewinn. Verloren: 50 € Verlust. Weil die Unit-Gewichtung und die Quote je Tipp unterschiedlich sind, ist der gewichtete Wett-ROI anders als bei gleichen Einsätzen je Tipp. Der Euro-Regler verändert die Euro-Gesamtsummen, bei gleichbleibender Gewichtung aber nicht den ROI-Prozentsatz. Ältere Tipps mit 0 geforderten Units tragen 0 € zum Modell-Einsatz bei und zählen weiterhin zur Trefferquote.</p><p data-bi-i18n="tipsCenter.roiDisclaimer">Die Werte zeigen vergangene Ergebnisse und stellen weder eine Wetteinsatzempfehlung noch eine Gewinngarantie dar.</p>
-  <p class="roi-extra-note" id="roiExtraNote" data-bi-i18n="tipsCenter.roiExtra" hidden>Für einen Tipp fehlen gültige Quoten oder Unit-Angaben, oder die ausgewählte Gruppe hat keinen positiven Modell-Einsatz. Der ROI kann daher nicht korrekt angezeigt werden.</p>
+  <p >Jeder abgerechnete Tipp erhält denselben hypothetischen Einsatz, unabhängig vom Freischaltpreis in BetInsight-Units. Bei Quote Q entspricht ein Nettogewinn (Q − 1) × Einsatz. Ein Verlust entspricht dem vollen Einsatz.</p>
+  <p >Wett-ROI = (gesamter rechnerischer Nettogewinn oder -verlust ÷ Summe der Modell-Einsätze) × 100. Die gespeicherten Referenzquoten können von tatsächlichen Buchmacherquoten abweichen. Freischaltkosten, Gebühren und Steuern sind nicht enthalten.</p>
+  <p >Beispiel: 10 Tipps zu je 10 € Einsatz. Ein Gewinn bei Quote 11,00 und neun Verluste ergeben 110 € Gesamtauszahlung bei 100 € Gesamteinsatz – also +10 € und +10 % ROI. Der Einsatzregler ändert die Eurobeträge, aber nicht den ROI.</p><p data-bi-i18n="tipsCenter.roiDisclaimer">Die Werte zeigen vergangene Ergebnisse und stellen weder eine Wetteinsatzempfehlung noch eine Gewinngarantie dar.</p>
+  <p class="roi-extra-note" id="roiExtraNote" hidden>Mindestens einem abgerechneten Tipp fehlt eine gültige Quote. Die Modellbilanz kann nicht vollständig berechnet werden.</p>
 </dialog>
 <script>
 (function(){
