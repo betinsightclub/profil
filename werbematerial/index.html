@@ -42,11 +42,11 @@
   </nav>
 
   <section class="section" id="praesentation">
-    <div class="section-head"><div><h2>Geschäftspräsentation</h2><p>Die offizielle BetInsight-Geschäftspräsentation zum direkten Ansehen oder Herunterladen.</p></div><span class="status">PDF verfügbar</span></div>
+    <div class="section-head"><div><h2>Geschäftspräsentation</h2><p>Die offizielle BetInsight-Geschäftspräsentation zum direkten Ansehen oder Herunterladen.</p></div><span class="status" id="materialPresentationStatus">PDF verfügbar</span></div>
     <article class="presentation">
       <div class="file-icon">PDF</div>
-      <div class="copy"><h3>BetInsight Geschäftspräsentation</h3><p>Offizielle Präsentation zum Ansehen oder Herunterladen.</p></div>
-      <div class="actions"><a class="btn secondary" href="../marketing-center/downloads/praesentationen/betinsight-geschaeftspraesentation.pdf" target="_blank" rel="noopener">PDF ansehen</a><a class="btn primary" href="../marketing-center/downloads/praesentationen/betinsight-geschaeftspraesentation.pdf" download>PDF herunterladen</a></div>
+      <div class="copy"><h3>BetInsight Geschäftspräsentation</h3><p id="materialPresentationDescription">Offizielle Präsentation zum Ansehen oder Herunterladen.</p></div>
+      <div class="actions"><a class="btn secondary" id="materialPresentationView" href="../marketing-center/downloads/praesentationen/betinsight-geschaeftspraesentation.pdf" target="_blank" rel="noopener">PDF ansehen</a><a class="btn primary" id="materialPresentationDownload" href="../marketing-center/downloads/praesentationen/betinsight-geschaeftspraesentation.pdf" download>PDF herunterladen</a></div>
     </article>
   </section>
 
@@ -305,6 +305,35 @@ BetInsight – Analyse. Struktur. Disziplin.</div>
     setTimeout(()=>{if(feedback)feedback.textContent="";button.textContent=originalLabel},1800);
   }
   document.querySelectorAll(".copy-button").forEach(button=>button.addEventListener("click",()=>copyText(button.dataset.copyTarget,button.dataset.feedback,button)));
+})();
+(() => { "use strict";
+  const presentationFiles = { de:"betinsight-geschaeftspraesentation.pdf", en:"betinsight-geschaeftspraesentation-en.pdf", es:"betinsight-geschaeftspraesentation-es.pdf" };
+  function updatePresentationLanguage() {
+    const language = String(window.BetInsightI18n?.getLanguage?.() || document.documentElement.lang || "de").toLowerCase().split("-")[0];
+    const file = presentationFiles[language];
+    const view = document.getElementById("materialPresentationView");
+    const download = document.getElementById("materialPresentationDownload");
+    const status = document.getElementById("materialPresentationStatus");
+    const description = document.getElementById("materialPresentationDescription");
+    if (!view || !download) return;
+    if (!file) {
+      view.hidden = true;
+      download.hidden = true;
+      if (status) status.textContent = "PDF in dieser Sprache folgt";
+      if (description) description.textContent = "Die Präsentation ist in dieser Sprache noch in Vorbereitung.";
+      return;
+    }
+    const url = "../marketing-center/downloads/praesentationen/" + file;
+    view.href = url;
+    download.href = url;
+    download.setAttribute("download", file);
+    view.hidden = false;
+    download.hidden = false;
+    if (status) status.textContent = "PDF verfügbar";
+    if (description) description.textContent = "Offizielle Präsentation zum Ansehen oder Herunterladen.";
+  }
+  window.addEventListener("bi:languagechange", updatePresentationLanguage);
+  updatePresentationLanguage();
 })();
 </script>
 </body>
