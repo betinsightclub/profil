@@ -26,6 +26,7 @@
     daily:"daily",
     "fan-challenge":"fan-challenge",
     tipps:"tips",
+    "stadion-quiz":"stadium-quiz",
     pakete:"packages",
     wallet:"wallet",
     ressourcen:"resources",
