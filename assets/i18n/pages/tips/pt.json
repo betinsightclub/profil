@@ -219,6 +219,27 @@
     "specialSettlementLabel": "📋 Apuração",
     "specialSettlementValue": "Após o fim oficial da temporada",
     "specialOddsUnverified": "Sem odds confirmadas",
-    "specialDeadlineFallback": "21/05/2027"
+    "specialDeadlineFallback": "21/05/2027",
+    "roiEqualStakeFoot": "Mesmo valor por palpite · sem custos de desbloqueio",
+    "trendTitle": "Evolução do saldo das apostas",
+    "trendSubtitle": "Cálculo teórico · 1 unidade de aposta por palpite",
+    "trendAria": "Saldo após cada palpite encerrado",
+    "modelStakeTitle": "Valor hipotético por palpite",
+    "modelStakeSubtitle": "Mesmo valor para cada palpite encerrado",
+    "modelStakeAria": "Valor por palpite em euros, de 1 a 100",
+    "modelStakeLow": "1 € por palpite",
+    "modelStakeHigh": "100 € por palpite",
+    "modelDefaultHint": "Simulação com o mesmo valor por palpite, sem custos de desbloqueio e taxas. Resultados passados não garantem lucros.",
+    "modelDetailIntro": "Cada palpite encerrado com cotação e resultado. As Units de desbloqueio são apenas informativas; todos os valores apostados são iguais nesta simulação.",
+    "modelUnlockUnits": "Units de desbloqueio",
+    "modelDetailFoot": "Na visão Total, no máximo dez palpites por página. Palpites com 0 Units também usam o mesmo valor hipotético.",
+    "trendMissing": "Cotação ausente – não é possível calcular a evolução",
+    "trendEmpty": "Ainda não há palpites encerrados",
+    "trendCount": "{{count}} palpites encerrados · Início 0 U",
+    "trendBalance": "Saldo: {{amount}} U",
+    "modelNoSettled": "Ainda não há palpites encerrados nesta categoria. Nenhum resultado é inventado.",
+    "modelGroup": "Grupo selecionado: {{count}} palpites encerrados × {{stake}} de valor hipotético por palpite.",
+    "modelNoOdds": "Ao menos um palpite não tem uma cotação válida; não é possível calcular todo o saldo simulado.",
+    "modelDisclaimer": "Simulação com o mesmo valor por palpite, antes de custos de desbloqueio, taxas e impostos. Não representa apostas reais de clientes nem garantia de lucro."
   }
 }
