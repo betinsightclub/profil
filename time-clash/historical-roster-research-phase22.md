@@ -78,3 +78,18 @@ An interview about the 1995 dissolution confirms the broader club youth/keeper c
 - https://www.alakhbar.press.ma/%D8%AA%D9%84%D9%82%D9%8A%D8%AA-%D8%AE%D8%A8%D8%B1-%D8%A7%D9%86%D8%AF%D9%85%D8%A7%D8%AC-%D8%A7%D9%84%D8%A3%D9%88%D9%84%D9%85%D8%A8%D9%8A%D9%83-%D9%85%D8%B9-%D8%A7%D9%84%D8%B1%D8%AC%D8%A7%D8%A1-%D9%88-231721.html
 
 Next verifiable step: seek dated 1993/94 match sheets (including March 1994 Arab Cup Winners' Cup matches), contemporary press, or club-year transfers for al-Qadmiri, al-Shouh, Belagha and Maybin. Add only individual names with an attributable season source and position, then perform rosterReady/away-home regression tests; do not merge or change main on research evidence alone.
+
+
+## Phase 28 — 1994 Arab Cup chronology corrected, player evidence gate
+
+2026-11-23. **Tournament chronology correction:** The Olympique Casablanca victory over Al-Qadisiya in Doha (1–0) is the **1993 Arab Cup Winners' Cup edition played in 1994**, not the 1994 edition held in Cairo. The **1994 edition was played in Cairo in March 1995**, won by Al Ahly. This matters when searching period match footage: a video labeled 'Cairo 1994' may refer to the *edition* year rather than the actual date, and is not automatically evidence for the 1993/94 league-winning roster.
+
+Source chronology and results:
+- https://www.rsssf.org/tablesa/arabcwc.html
+- https://rsssf.org/tablesa/arabcwc94.html
+- https://www.spa.gov.sa/en/0df5fd2ec5v
+- https://www.rsssf.org/tablesm/maro94.html
+
+The 1993/94 season-specific Olympique Casablanca listing from National Football Teams remains the strongest roster cross-check (eight named national-team players already in the master, plus separate Tița confirmation). No new season-and-position-qualified outfield player found in this pass. Candidate first names or identities from retrospective SNRT coverage remain unverified. In particular, avoid mixing 1994/95 players, or using unlabeled historic videos, to fill the 1993/94 XI.
+
+Next research target: contemporaneous Doha final match programme or match-sheet (Olympique Casablanca 1–0 Al-Qadisiya), dated 1994; extract *both* player identity and field role before updating the 1993/94 champion roster. Second path: Moroccan 1993/94 league match reports for Olympique Casablanca, not 1995 Cairo coverage.
