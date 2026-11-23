@@ -59,3 +59,22 @@ Search as Association des Douanes Marocaines (ADM). Candidate captain Abdelhak M
 
 ### Other South African clubs
 Highlands Park 1980: also search Dion; distinguish 1978 cup team from 1980 champion season. Lusitano 1978: search Portuguese-language Johannesburg club history, avoid confusion with Portuguese clubs. Rangers Johannesburg 1986: check league identity and contemporary cup programmes. No new season-qualified XI for these three.
+
+
+## Phase 27 — Olympique Casablanca 1993/94: sources and strict exclusion audit
+
+2026-11-23. Audited against source `time-clash/rosters-all.js` (master) and the phase-23 partial addition in `time-clash/playable-rosters-20261025.js`. The master has eight distinct players: Mustapha Chadili (TW), Said Dghay (TW), Abdellatif Jrindou (ABW), Jamel Sellami (ABW), Mohamed Timoumi (MIT), Hassan Bourouaine (MIT), Said Rizki (MIT), and Abdelkrim Nazir (ST). All eight are included by National Football Teams' **1993/94 season-specific club roster**:
+- https://www.national-football-teams.com/de/club/6766/1993_1/Olympique_Casablanca.html
+
+Phase 23 additionally introduced Valeriu Tița (MIT), supported by his interview on the 1993/94 championship. Thus **nine unique named players exist, but only eight usable XI places** because two are goalkeepers. Under the exact-one-goalkeeper constraint, **three additional season-qualified outfield players are required**, not two. No new lineup is marked ready by this audit.
+
+The newer SNRT history article identifies more players associated with the club's successful early-1990s period: al-Qadmiri (القدميري), al-Shouh (الشوح), Ouzougate (أوزوكات), Belagha (بلاغة), and the Zambian Maybin (مايبين). These are **club-era candidates only**, not verified season-specific 1993/94 participants. Hassan Bourouaine, Sellami, Jrindou and Dghay in the same article are already in the master. Do not assume identities/transliterations, positions or a championship match appearance merely from this retrospective:
+- https://www.snrtnews.com/ar/article/158375
+
+**Explicit exclusion:** Aziz Ouzougate is listed for **Al-Ittihad Jidda in 1993/94** and Olympique Casablanca in **1992/93** by the player-level season record. Although the SNRT historical article mentions him at Olympique, this does not qualify him for the title-season XI without a dated primary match/source resolving the transfer timing. Do not auto-add:
+- https://www.national-football-teams.com/player/84563/Aziz_Ouzougate.html
+
+An interview about the 1995 dissolution confirms the broader club youth/keeper context, but does not by itself authenticate additional 1993/94 first-team players:
+- https://www.alakhbar.press.ma/%D8%AA%D9%84%D9%82%D9%8A%D8%AA-%D8%AE%D8%A8%D8%B1-%D8%A7%D9%86%D8%AF%D9%85%D8%A7%D8%AC-%D8%A7%D9%84%D8%A3%D9%88%D9%84%D9%85%D8%A8%D9%8A%D9%83-%D9%85%D8%B9-%D8%A7%D9%84%D8%B1%D8%AC%D8%A7%D8%A1-%D9%88-231721.html
+
+Next verifiable step: seek dated 1993/94 match sheets (including March 1994 Arab Cup Winners' Cup matches), contemporary press, or club-year transfers for al-Qadmiri, al-Shouh, Belagha and Maybin. Add only individual names with an attributable season source and position, then perform rosterReady/away-home regression tests; do not merge or change main on research evidence alone.
