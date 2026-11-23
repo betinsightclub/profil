@@ -316,7 +316,7 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
       <div class="perf-top"><div class="author"><div class="avatar" id="avatar">M</div><div><small data-bi-i18n="tipsCenter.perfLabel">TIPPGEBER-PERFORMANCE · MODELLRECHNUNG</small><strong id="perfName">Martin</strong></div></div><div class="windows" id="perfWindows" role="group" data-bi-i18n-aria-label="tipsCenter.windowsAria" aria-label="Tippgruppen, neueste zuerst"></div></div>
       <div class="kpis">
         <div class="kpi"><span class="kpi-label" data-bi-i18n="tipsCenter.hit">Trefferquote</span><span class="kpi-value neutral" id="hit">–</span><span class="kpi-foot" id="hitSub" data-bi-i18n="tipsCenter.hitFoot">Gewonnene / entschiedene Tipps</span></div>
-        <div class="kpi"><span class="kpi-label" data-bi-i18n="tipsCenter.roi">Wett-ROI</span><span class="kpi-value" id="roi">–</span><span class="kpi-foot" >Gleicher Recheneinsatz je Tipp · ohne Tippkosten</span></div>
+        <div class="kpi"><span class="kpi-label" data-bi-i18n="tipsCenter.roi">Wett-ROI</span><span class="kpi-value" id="roi">–</span><span class="kpi-foot" data-bi-i18n="tipsCenter.roiEqualStakeFoot">Gleicher Recheneinsatz je Tipp · ohne Tippkosten</span></div>
         <div class="kpi"><span class="kpi-label" data-bi-i18n="tipsCenter.won">Gewonnen</span><span class="kpi-value green" id="wins">–</span><span class="kpi-foot" data-bi-i18n="tipsCenter.wonFoot">Bestätigte Gewinne</span></div>
         <div class="kpi"><span class="kpi-label" data-bi-i18n="tipsCenter.lost">Verloren</span><span class="kpi-value red" id="losses">–</span><span class="kpi-foot" data-bi-i18n="tipsCenter.lostFoot">Bestätigte Verluste</span></div>
       </div>
@@ -327,34 +327,34 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
       </div>
 
       <div class="perf-trend">
-        <div class="perf-trend-head"><strong>Entwicklung der Wettbilanz</strong><small>Rechnerisch · 1 Einsatz-Einheit je Tipp</small></div>
-        <svg id="perfTrendSvg" viewBox="0 0 800 190" role="img" aria-label="Wettbilanz nach jedem abgerechneten Tipp"></svg>
+        <div class="perf-trend-head"><strong data-bi-i18n="tipsCenter.trendTitle">Entwicklung der Wettbilanz</strong><small data-bi-i18n="tipsCenter.trendSubtitle">Rechnerisch · 1 Einsatz-Einheit je Tipp</small></div>
+        <svg id="perfTrendSvg" viewBox="0 0 800 190" role="img" data-bi-i18n-aria-label="tipsCenter.trendAria" aria-label="Wettbilanz nach jedem abgerechneten Tipp"></svg>
         <div class="perf-trend-foot"><span id="perfTrendCount">–</span><span id="perfTrendNet">–</span></div>
       </div>
       <div class="perf-model">
         <div class="perf-stake-head">
-          <div><strong >Hypothetischer Wetteinsatz je Tipp</strong><small >Einheitlicher Einsatz für jeden abgerechneten Tipp</small></div>
+          <div><strong data-bi-i18n="tipsCenter.modelStakeTitle">Hypothetischer Wetteinsatz je Tipp</strong><small data-bi-i18n="tipsCenter.modelStakeSubtitle">Einheitlicher Einsatz für jeden abgerechneten Tipp</small></div>
           <output id="perfStakeValue" class="perf-stake-value" for="perfStake">10,00 €</output>
         </div>
-        <input type="range" class="perf-range" id="perfStake" min="1" max="100" step="1" value="10" aria-label="Wetteinsatz je Tipp in Euro, 1 bis 100">
-        <div class="perf-range-labels"><span >1 € je Tipp</span><span >100 € je Tipp</span></div><p class="perf-model-hint" id="perfUnitBasis" data-bi-i18n="tipsCenter.unitWeightLoading">Unit-Gesamtgewicht wird geladen …</p>
+        <input type="range" class="perf-range" id="perfStake" min="1" max="100" step="1" value="10" data-bi-i18n-aria-label="tipsCenter.modelStakeAria" aria-label="Wetteinsatz je Tipp in Euro, 1 bis 100">
+        <div class="perf-range-labels"><span data-bi-i18n="tipsCenter.modelStakeLow">1 € je Tipp</span><span data-bi-i18n="tipsCenter.modelStakeHigh">100 € je Tipp</span></div><p class="perf-model-hint" id="perfUnitBasis" data-bi-i18n="tipsCenter.unitWeightLoading">Unit-Gesamtgewicht wird geladen …</p>
         <div class="perf-model-figures" aria-live="polite">
           <div class="perf-figure"><small data-bi-i18n="tipsCenter.totalStake">Gesamteinsätze</small><strong id="perfTotalStake">–</strong></div>
           <div class="perf-figure"><small data-bi-i18n="tipsCenter.totalReturn">Gesamtauszahlungen</small><strong id="perfTotalReturn">–</strong></div>
           <div class="perf-figure"><small data-bi-i18n="tipsCenter.net">Rechnerischer Gewinn / Verlust</small><strong id="perfNet">–</strong></div>
         </div>
-        <p id="perfModelHint" class="perf-model-hint" >Modellrechnung mit gleichem Einsatz je Tipp, ohne Freischaltkosten und Gebühren. Vergangene Ergebnisse sind keine Gewinngarantie.</p>
+        <p id="perfModelHint" class="perf-model-hint" data-bi-i18n="tipsCenter.modelDefaultHint">Modellrechnung mit gleichem Einsatz je Tipp, ohne Freischaltkosten und Gebühren. Vergangene Ergebnisse sind keine Gewinngarantie.</p>
       </div>
       <details id="perfDetails" class="perf-details">
         <summary class="perf-detail-summary" id="perfDetailsTrigger"><span id="perfDetailsTitle" data-bi-i18n="tipsCenter.detailsOpen">☷ Berechnung im Detail ansehen</span><span class="perf-chevron" aria-hidden="true">⌄</span></summary>
         <div class="perf-detail-content">
-          <p class="perf-detail-text" >Jeder abgerechnete Tipp mit Quote und Ergebnis. Die angezeigten Freischalt-Units dienen nur zur Information; alle Wetteinsätze sind im Modell gleich hoch.</p>
+          <p class="perf-detail-text" data-bi-i18n="tipsCenter.modelDetailIntro">Jeder abgerechnete Tipp mit Quote und Ergebnis. Die angezeigten Freischalt-Units dienen nur zur Information; alle Wetteinsätze sind im Modell gleich hoch.</p>
           <div class="perf-detail-scroll"><table class="perf-detail-table" data-bi-i18n-aria-label="tipsCenter.detailTableAria" aria-label="Tippberechnung je Spiel">
-            <thead><tr><th scope="col" data-bi-i18n="tipsCenter.tableGame">Spiel / Tipp</th><th scope="col" data-bi-i18n="tipsCenter.tableOdds">Quote</th><th scope="col" >Freischalt-Units</th><th scope="col" data-bi-i18n="tipsCenter.tableResult">Bewertung</th><th scope="col" data-bi-i18n="tipsCenter.tableStake">Einsatz</th><th scope="col" data-bi-i18n="tipsCenter.tableNet">Netto</th></tr></thead>
+            <thead><tr><th scope="col" data-bi-i18n="tipsCenter.tableGame">Spiel / Tipp</th><th scope="col" data-bi-i18n="tipsCenter.tableOdds">Quote</th><th scope="col" data-bi-i18n="tipsCenter.modelUnlockUnits">Freischalt-Units</th><th scope="col" data-bi-i18n="tipsCenter.tableResult">Bewertung</th><th scope="col" data-bi-i18n="tipsCenter.tableStake">Einsatz</th><th scope="col" data-bi-i18n="tipsCenter.tableNet">Netto</th></tr></thead>
             <tbody id="perfDetailRows"></tbody>
           </table></div>
           <div id="perfDetailPagination" class="perf-detail-pagination"></div>
-          <p class="perf-detail-text" >Bei „Gesamt“ maximal zehn Tipps pro Seite. Auch Tipps mit 0 Freischalt-Units werden im Modell mit gleich hohem Wetteinsatz berücksichtigt.</p>
+          <p class="perf-detail-text" data-bi-i18n="tipsCenter.modelDetailFoot">Bei „Gesamt“ maximal zehn Tipps pro Seite. Auch Tipps mit 0 Freischalt-Units werden im Modell mit gleich hohem Wetteinsatz berücksichtigt.</p>
         </div>
       </details>
     </section>
@@ -511,7 +511,7 @@ function renderTrend(s){
  var svg=$("perfTrendSvg");if(!svg)return;svg.replaceChildren();
  var count=$("perfTrendCount"),net=$("perfTrendNet");
  if(!s||!s.rows.length||s.missing){
-  count.textContent=s&&s.missing?"Quote fehlt – Verlauf nicht berechenbar":"Noch keine abgerechneten Tipps";
+  count.textContent=s&&s.missing?tr("trendMissing","Quote fehlt – Verlauf nicht berechenbar"):tr("trendEmpty","Noch keine abgerechneten Tipps");
   net.textContent="–";svg.setAttribute("aria-label",count.textContent);return;
  }
  var items=s.rows.slice().reverse(),cumulative=0,values=[0];
@@ -530,8 +530,8 @@ function renderTrend(s){
  make("path",{d:area,fill:cumulative>=0?"#70eaa7":"#ff748d","fill-opacity":".13"});
  make("path",{d:line,fill:"none",stroke:color,"stroke-width":2.5,"stroke-linejoin":"round","stroke-linecap":"round"});
  make("circle",{cx:x(values.length-1),cy:y(cumulative),r:4.3,fill:color,stroke:"#061e2b","stroke-width":1.7});
- count.textContent=items.length+" abgerechnete Tipps · Start 0 U";
- net.textContent="Bilanz: "+(cumulative>0?"+":"")+new Intl.NumberFormat(currentLocale(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(cumulative)+" U";
+ count.textContent=tr("trendCount","{{count}} abgerechnete Tipps · Start 0 U",{count:items.length});
+ net.textContent=tr("trendBalance","Bilanz: {{amount}} U",{amount:(cumulative>0?"+":"")+new Intl.NumberFormat(currentLocale(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(cumulative)});
  svg.setAttribute("aria-label",count.textContent+"; "+net.textContent);
 }
 function drawModel(){
@@ -543,7 +543,7 @@ function drawModel(){
  if(!v||!v.rows.length){
   sum.textContent="–";ret.textContent="–";net.textContent="–";net.className="";
   $("perfUnitBasis").textContent=tr("noGroupRated","Noch keine gewerteten Tipps in dieser Gruppe.");
-  hint.textContent=loaded?"Für diese Kategorie liegen noch keine abgerechneten Tipps vor. Es werden keine Ergebnisse erfunden.":tr("liveLoading","Bestätigte Ergebnisse werden geladen …");
+  hint.textContent=loaded?tr("modelNoSettled","Für diese Kategorie liegen noch keine abgerechneten Tipps vor. Es werden keine Ergebnisse erfunden."):tr("liveLoading","Bestätigte Ergebnisse werden geladen …");
   renderPerformanceDetails();return;
  }
  var risk=v.rows.length*n,profit=v.profit*n,complete=!v.missing;
@@ -551,8 +551,8 @@ function drawModel(){
  ret.textContent=complete?euro(risk+profit):"–";
  net.textContent=complete?(profit>0?"+":"")+euro(profit):"–";
  net.className=!complete?"neutral":profit>=0?"green":"red";
- $("perfUnitBasis").textContent="Ausgewählte Gruppe: "+v.rows.length+" abgerechnete Tipps × "+euro(n)+" hypothetischer Einsatz je Tipp.";
- hint.textContent=v.missing?"Mindestens einem Tipp fehlt eine gültige Quote; die Modellbilanz kann nicht vollständig berechnet werden.":"Modellrechnung mit gleichem Einsatz je Tipp, ohne Freischaltkosten, Gebühren und Steuern. Keine realen Kundenwetteinsätze oder Gewinngarantie.";
+ $("perfUnitBasis").textContent=tr("modelGroup","Ausgewählte Gruppe: {{count}} abgerechnete Tipps × {{stake}} hypothetischer Einsatz je Tipp.",{count:v.rows.length,stake:euro(n)});
+ hint.textContent=v.missing?tr("modelNoOdds","Mindestens einem Tipp fehlt eine gültige Quote; die Modellbilanz kann nicht vollständig berechnet werden."):tr("modelDisclaimer","Modellrechnung mit gleichem Einsatz je Tipp, ohne Freischaltkosten, Gebühren und Steuern. Keine realen Kundenwetteinsätze oder Gewinngarantie.");
  renderPerformanceDetails();
 }
 function performance(){
