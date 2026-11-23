@@ -219,6 +219,27 @@
     "specialSettlementLabel": "📋 Liquidación",
     "specialSettlementValue": "Tras el fin oficial de temporada",
     "specialOddsUnverified": "Cuota no confirmada",
-    "specialDeadlineFallback": "21/05/2027"
+    "specialDeadlineFallback": "21/05/2027",
+    "roiEqualStakeFoot": "Mismo importe por pronóstico · sin costes de desbloqueo",
+    "trendTitle": "Evolución del balance de apuestas",
+    "trendSubtitle": "Cálculo teórico · 1 unidad de apuesta por pronóstico",
+    "trendAria": "Balance después de cada pronóstico liquidado",
+    "modelStakeTitle": "Importe hipotético por pronóstico",
+    "modelStakeSubtitle": "Mismo importe para cada pronóstico liquidado",
+    "modelStakeAria": "Importe por pronóstico en euros, de 1 a 100",
+    "modelStakeLow": "1 € por pronóstico",
+    "modelStakeHigh": "100 € por pronóstico",
+    "modelDefaultHint": "Simulación con el mismo importe por pronóstico, sin costes de desbloqueo ni comisiones. Los resultados anteriores no garantizan beneficios.",
+    "modelDetailIntro": "Cada pronóstico liquidado con cuota y resultado. Las Units de desbloqueo son informativas; todos los importes apostados son iguales en el modelo.",
+    "modelUnlockUnits": "Units de desbloqueo",
+    "modelDetailFoot": "En «Total», se muestran como máximo diez pronósticos por página. Los pronósticos con 0 Units también cuentan con el mismo importe hipotético.",
+    "trendMissing": "Falta una cuota; no se puede calcular la evolución",
+    "trendEmpty": "Todavía no hay pronósticos liquidados",
+    "trendCount": "{{count}} pronósticos liquidados · Inicio 0 U",
+    "trendBalance": "Balance: {{amount}} U",
+    "modelNoSettled": "Todavía no hay pronósticos liquidados en esta categoría. No se inventan resultados.",
+    "modelGroup": "Grupo seleccionado: {{count}} pronósticos liquidados × {{stake}} de importe hipotético por pronóstico.",
+    "modelNoOdds": "Al menos un pronóstico no tiene una cuota válida; no puede calcularse todo el balance teórico.",
+    "modelDisclaimer": "Simulación con el mismo importe por pronóstico, antes de costes de desbloqueo, comisiones e impuestos. No son apuestas reales de clientes ni una garantía de beneficios."
   }
 }
