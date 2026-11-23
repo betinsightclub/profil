@@ -416,23 +416,16 @@ function stats(who,period){
  var all=decided(who),offset=period==="all"?0:(Number(period)||0)*10;
  var use=period==="all"?all:all.slice(offset,offset+10);
  var w=use.filter(function(r){return status(r.ergebnis_status)==="won"}).length,l=use.length-w;
- var missing=use.some(function(r){return !(numeric(r.quote)>1)||r.preis_units==null||
-  str(r.preis_units)===""||!Number.isFinite(numeric(r.preis_units))||numeric(r.preis_units)<0});
- var unitSum=use.reduce(function(acc,r){
-  var u=numeric(r.preis_units);
-  return acc+(r.preis_units!=null&&str(r.preis_units)!==""&&Number.isFinite(u)&&u>=0?u:0);
- },0);
- var zeroUnits=use.filter(function(r){
-  return r.preis_units!=null&&str(r.preis_units)!==""&&numeric(r.preis_units)===0;
- }).length;
+ var missing=use.some(function(r){return !(numeric(r.quote)>1)});
+ // Equal hypothetical stake per settled tip. BetInsight unlock-Units are not wagers.
  var profit=use.reduce(function(acc,r){
-  var q=numeric(r.quote),u=numeric(r.preis_units);
-  if(r.preis_units==null||str(r.preis_units)===""||!Number.isFinite(u)||u<0||!(q>1))return acc;
-  return acc+u*(status(r.ergebnis_status)==="won"?(q-1):-1);
+  var q=numeric(r.quote);
+  if(!(q>1))return acc;
+  return acc+(status(r.ergebnis_status)==="won"?(q-1):-1);
  },0);
  return {rows:use,w:w,l:l,total:all.length,hit:use.length?w/use.length*100:null,
-  roi:use.length&&!missing&&unitSum>0?profit/unitSum*100:null,
-  profit:profit,unitSum:unitSum,zeroUnits:zeroUnits,missing:missing,noStake:unitSum<=0};
+  roi:use.length&&!missing?profit/use.length*100:null,
+  profit:profit,unitSum:use.length,zeroUnits:0,missing:missing,noStake:use.length===0};
 }
 var perfDetailPage=0;
 function resetDetails(){
@@ -452,19 +445,19 @@ function renderPerformanceDetails(){
  var detailMap=new Map(state.results.map(function(r){return [str(r.tipp_id),r]}));
  subset.forEach(function(r,i){
   var full=detailMap.get(str(r.tipp_id))||r;
-  var tr=ele("tr"),q=numeric(r.quote),units=numeric(r.preis_units);
-  var valid=r.preis_units!=null&&str(r.preis_units)!==""&&Number.isFinite(units)&&units>=0&&q>1;
-  var won=status(r.ergebnis_status)==="won",stake=valid?units*value:null;
+  var rowNode=ele("tr"),q=numeric(r.quote),units=numeric(r.preis_units);
+  var valid=q>1;
+  var won=status(r.ergebnis_status)==="won",stake=valid?value:null;
   var gain=valid?stake*(won?q-1:-1):null;
   var label=str(full.spiel)||str(r.spiel)||"Tipp "+str(r.tipp_id);
   var tip=str(full.tipp);if(tip&&tip.length<90)label+=" · "+tip;
-  detailCell(tr,(start+i+1)+". "+label);
-  detailCell(tr,q>1?new Intl.NumberFormat(currentLocale(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(q):"–");
-  detailCell(tr,valid?new Intl.NumberFormat(currentLocale(),{maximumFractionDigits:2}).format(units):"–");
-  detailCell(tr,won?tr("won","Gewonnen"):tr("lost","Verloren"),won?"green":"red");
-  detailCell(tr,valid?euro(stake):"–");
-  detailCell(tr,valid?(gain>0?"+":"")+euro(gain):"–",valid?(gain>=0?"green":"red"):"");
-  rowsNode.appendChild(tr);
+  detailCell(rowNode,(start+i+1)+". "+label);
+  detailCell(rowNode,q>1?new Intl.NumberFormat(currentLocale(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(q):"–");
+  detailCell(rowNode,r.preis_units!=null&&str(r.preis_units)!===""&&Number.isFinite(units)?new Intl.NumberFormat(currentLocale(),{maximumFractionDigits:2}).format(units):"–");
+  detailCell(rowNode,won?tr("won","Gewonnen"):tr("lost","Verloren"),won?"green":"red");
+  detailCell(rowNode,valid?euro(stake):"–");
+  detailCell(rowNode,valid?(gain>0?"+":"")+euro(gain):"–",valid?(gain>=0?"green":"red"):"");
+  rowsNode.appendChild(rowNode);
  });
  var label=ele("span","",tr("detailCount","Tipps {{start}}–{{end}} von {{total}}{{overall}}",{start:start+1,end:start+subset.length,total:records.length,overall:state.period==="all"?tr("overallAbove"," · Gesamtauswertung oben"):""}));
  pagesNode.appendChild(label);
@@ -507,14 +500,19 @@ function drawModel(){
  var who=state.provider,loaded=(who==="Martin"||who==="Frank")?(state.performanceLoaded&&state.resultsLoaded):state.resultsLoaded;
  var v=loaded?stats(who,state.period):null;
  var sum=$("perfTotalStake"),ret=$("perfTotalReturn"),net=$("perfNet"),hint=$("perfModelHint");
- if(!v||!v.rows.length){sum.textContent="–";ret.textContent="–";net.textContent="–";net.className="";$("perfUnitBasis").textContent=tr("noGroupRated","Noch keine gewerteten Tipps in dieser Gruppe.");hint.textContent=loaded?tr("noRatedExample","Für diese Kategorie liegen noch keine gewerteten Tipps vor. Es werden keine Beispielergebnisse erfunden."):tr("liveLoading","Bestätigte Ergebnisse werden geladen …");renderPerformanceDetails();return}
- var risk=v.unitSum*n,profit=v.profit*n,complete=!v.missing&&!v.noStake;
+ if(!v||!v.rows.length){
+  sum.textContent="–";ret.textContent="–";net.textContent="–";net.className="";
+  $("perfUnitBasis").textContent=tr("noGroupRated","Noch keine gewerteten Tipps in dieser Gruppe.");
+  hint.textContent=loaded?"Für diese Kategorie liegen noch keine abgerechneten Tipps vor. Es werden keine Ergebnisse erfunden.":tr("liveLoading","Bestätigte Ergebnisse werden geladen …");
+  renderPerformanceDetails();return;
+ }
+ var risk=v.rows.length*n,profit=v.profit*n,complete=!v.missing;
  sum.textContent=complete?euro(risk):"–";
  ret.textContent=complete?euro(risk+profit):"–";
  net.textContent=complete?(profit>0?"+":"")+euro(profit):"–";
  net.className=!complete?"neutral":profit>=0?"green":"red";
- $("perfUnitBasis").textContent=tr("unitBasis","Ausgewählte Gruppe: {{count}} gewertete Tipps · {{units}} ursprünglich geforderte Units insgesamt{{zero}}.",{count:v.rows.length,units:new Intl.NumberFormat(currentLocale(),{maximumFractionDigits:2}).format(v.unitSum),zero:v.zeroUnits?tr("zeroUnits"," · {{count}} Tipp(s) mit 0 Units",{count:v.zeroUnits}):""});
- hint.textContent=v.missing?tr("missingModel","Mindestens einem Tipp fehlen gültige Quote oder Unit-Angabe; die Gruppensumme kann nicht vollständig berechnet werden."):v.noStake?tr("zeroModel","Historischer Bestand: Für diese Tippgruppe sind ausschließlich Tipps mit 0 geforderten Units gespeichert. Ohne ursprüngliches Einsatzgewicht lässt sich keine Wett-Rendite berechnen."):tr("modelHint","Gesamtergebnis der gewählten Tippgruppe: pro Tipp geforderte Units × Euro je Unit, dann nach Originalquote abgerechnet und summiert. Ohne Freischaltkosten, Gebühren und Steuern. Kein realer Kundenkontostand; keine Gewinngarantie.");
+ $("perfUnitBasis").textContent="Ausgewählte Gruppe: "+v.rows.length+" abgerechnete Tipps × "+euro(n)+" hypothetischer Einsatz je Tipp.";
+ hint.textContent=v.missing?"Mindestens einem Tipp fehlt eine gültige Quote; die Modellbilanz kann nicht vollständig berechnet werden.":"Modellrechnung mit gleichem Einsatz je Tipp, ohne Freischaltkosten, Gebühren und Steuern. Keine realen Kundenwetteinsätze oder Gewinngarantie.";
  renderPerformanceDetails();
 }
 function performance(){
@@ -561,13 +559,7 @@ function performance(){
  $("winLine").textContent=tr("winLabel","Gewonnen: ")+s.w;$("lossLine").textContent=tr("lossLabel","Verloren: ")+s.l;
  $("trackTitle").textContent=state.period==="all"?tr("lastResults","Die letzten 10 von {{count}} Bewertungen",{count:len}):tr("groupResults","Die {{count}} Ergebnisse dieser Tippgruppe",{count:len});
  $("roiExtraNote").hidden=!s.missing;
- var historyNote=$("perfHistoryNotice");
- if(s.noStake){
-  historyNote.textContent=tr("historyZero","Diese historischen Tipps haben zusammen 0 hinterlegte Freischalt-Units. Ohne positives Einsatzgewicht ist kein Wett-ROI berechenbar. Die Trefferquote bleibt davon unabhängig.");
- }else if(s.zeroUnits){
-  historyNote.textContent=tr("historyZeroSome","{{zero}} von {{total}} Tipps in dieser Gruppe haben 0 hinterlegte Freischalt-Units und gehen deshalb mit 0 € in die ROI-Modellrechnung ein. Der Wett-ROI beruht nur auf den übrigen {{positive}} Tipps mit positivem Einsatzgewicht; die Trefferquote enthält alle {{total}} Ergebnisse.",{zero:s.zeroUnits,total:len,positive:len-s.zeroUnits});
- }else historyNote.textContent="";
- historyNote.hidden=!s.noStake&&!s.zeroUnits;
+ var historyNote=$("perfHistoryNotice");historyNote.textContent="";historyNote.hidden=true;
  var t=$("streak");t.replaceChildren();s.rows.slice(0,10).forEach(function(r){
   var cls=status(r.ergebnis_status),n=ele("span",cls,cls==="won"?tr("winShort","G"):tr("lossShort","V"));
   n.title=shortDate(r.bestaetigt_am||r.spiel_datum)+" · "+str(r.spiel||r.tipp_id);t.appendChild(n)
