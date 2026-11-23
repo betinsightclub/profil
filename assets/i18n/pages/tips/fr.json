@@ -219,6 +219,27 @@
     "specialSettlementLabel": "📋 Résultat",
     "specialSettlementValue": "Après la fin officielle de la saison",
     "specialOddsUnverified": "Aucune cote confirmée",
-    "specialDeadlineFallback": "21/05/2027"
+    "specialDeadlineFallback": "21/05/2027",
+    "roiEqualStakeFoot": "Même mise par pronostic · hors frais de déblocage",
+    "trendTitle": "Évolution du bilan des paris",
+    "trendSubtitle": "Calcul théorique · 1 unité de mise par pronostic",
+    "trendAria": "Bilan après chaque pronostic réglé",
+    "modelStakeTitle": "Mise hypothétique par pronostic",
+    "modelStakeSubtitle": "Mise identique pour chaque pronostic réglé",
+    "modelStakeAria": "Mise par pronostic en euros, de 1 à 100",
+    "modelStakeLow": "1 € par pronostic",
+    "modelStakeHigh": "100 € par pronostic",
+    "modelDefaultHint": "Simulation à mise identique par pronostic, sans frais de déblocage ni commissions. Les résultats passés ne garantissent aucun gain.",
+    "modelDetailIntro": "Chaque pronostic réglé avec cote et résultat. Les Units de déblocage sont uniquement informatives ; les mises du modèle sont identiques.",
+    "modelUnlockUnits": "Units de déblocage",
+    "modelDetailFoot": "Dans la vue Total, dix pronostics maximum par page. Les pronostics à 0 Unit sont également pris en compte avec la même mise.",
+    "trendMissing": "Cote manquante – évolution impossible à calculer",
+    "trendEmpty": "Aucun pronostic réglé pour le moment",
+    "trendCount": "{{count}} pronostics réglés · Départ 0 U",
+    "trendBalance": "Bilan : {{amount}} U",
+    "modelNoSettled": "Aucun pronostic réglé dans cette catégorie. Aucun résultat n'est inventé.",
+    "modelGroup": "Groupe sélectionné : {{count}} pronostics réglés × {{stake}} de mise hypothétique par pronostic.",
+    "modelNoOdds": "Au moins un pronostic n'a pas de cote valide ; le bilan du modèle ne peut être calculé entièrement.",
+    "modelDisclaimer": "Simulation avec la même mise par pronostic, avant frais de déblocage, commissions et impôts. Il ne s'agit pas de paris réels des clients ni d'une garantie de gain."
   }
 }
