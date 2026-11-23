@@ -274,7 +274,7 @@
       if (isRootDashboard()) {
         await loadScript("dashboard-layout.js?v=20261010-network-i18n-complete-v3");
         await loadScript("account-history.js?v=20261029-stadium-quiz-history-1");
-        if (!window.BetInsightMemberCompletion) await loadScript("i18n/dashboard-completion.js");
+        await loadScript("i18n/dashboard-completion.js?v=20261123-dashboard-lang-fix");
         await loadScript("partner-invite-links.js?v=20260905-1");
       }
     } catch (error) {
