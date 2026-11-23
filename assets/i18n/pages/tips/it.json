@@ -219,6 +219,27 @@
     "specialSettlementLabel": "📋 Valutazione",
     "specialSettlementValue": "Dopo la fine ufficiale della stagione",
     "specialOddsUnverified": "Quota non confermata",
-    "specialDeadlineFallback": "21/05/2027"
+    "specialDeadlineFallback": "21/05/2027",
+    "roiEqualStakeFoot": "Stessa puntata per pronostico · esclusi i costi di sblocco",
+    "trendTitle": "Andamento del bilancio delle scommesse",
+    "trendSubtitle": "Calcolo teorico · 1 unità di puntata per pronostico",
+    "trendAria": "Bilancio dopo ogni pronostico concluso",
+    "modelStakeTitle": "Puntata ipotetica per pronostico",
+    "modelStakeSubtitle": "Stessa puntata per ogni pronostico concluso",
+    "modelStakeAria": "Puntata per pronostico in euro, da 1 a 100",
+    "modelStakeLow": "1 € per pronostico",
+    "modelStakeHigh": "100 € per pronostico",
+    "modelDefaultHint": "Simulazione con la stessa puntata per pronostico, senza costi di sblocco e commissioni. I risultati passati non garantiscono guadagni.",
+    "modelDetailIntro": "Ogni pronostico concluso con quota e risultato. Le Units di sblocco sono solo informative; tutte le puntate del modello sono uguali.",
+    "modelUnlockUnits": "Units di sblocco",
+    "modelDetailFoot": "Nella vista Totale, massimo dieci pronostici per pagina. Anche quelli con 0 Units utilizzano la stessa puntata ipotetica.",
+    "trendMissing": "Quota mancante – impossibile calcolare l'andamento",
+    "trendEmpty": "Nessun pronostico concluso",
+    "trendCount": "{{count}} pronostici conclusi · Inizio 0 U",
+    "trendBalance": "Bilancio: {{amount}} U",
+    "modelNoSettled": "Nessun pronostico concluso in questa categoria. Non vengono inventati risultati.",
+    "modelGroup": "Gruppo selezionato: {{count}} pronostici conclusi × {{stake}} di puntata ipotetica per pronostico.",
+    "modelNoOdds": "Almeno un pronostico non ha una quota valida; il bilancio simulato non può essere calcolato completamente.",
+    "modelDisclaimer": "Simulazione con la stessa puntata per pronostico, al netto di costi di sblocco, commissioni e imposte. Non sono scommesse reali dei clienti né garanzie di guadagno."
   }
 }
