@@ -219,6 +219,27 @@
     "specialSettlementLabel": "📋 結算",
     "specialSettlementValue": "官方賽季結束後",
     "specialOddsUnverified": "尚無確認賠率",
-    "specialDeadlineFallback": "2027/05/21"
+    "specialDeadlineFallback": "2027/05/21",
+    "roiEqualStakeFoot": "每則預測使用相同投注額 · 不含解鎖費用",
+    "trendTitle": "投注損益走勢",
+    "trendSubtitle": "理論計算 · 每則預測 1 單位投注額",
+    "trendAria": "每則已結算預測後的投注損益",
+    "modelStakeTitle": "每則預測的假設投注額",
+    "modelStakeSubtitle": "每則已結算預測使用相同投注額",
+    "modelStakeAria": "每則預測投注金額（歐元），1 至 100",
+    "modelStakeLow": "每則預測 1 歐元",
+    "modelStakeHigh": "每則預測 100 歐元",
+    "modelDefaultHint": "以每則預測相同投注額模擬，不含解鎖成本及手續費。過去結果不保證未來獲利。",
+    "modelDetailIntro": "列出每則已結算預測及其賠率、結果。解鎖 Units 僅供參考；模型中的投注額均相同。",
+    "modelUnlockUnits": "解鎖 Units",
+    "modelDetailFoot": "「全部」檢視每頁最多十則預測。解鎖 Units 為 0 的預測也依同一假設投注額計算。",
+    "trendMissing": "缺少賠率，無法計算走勢",
+    "trendEmpty": "目前沒有已結算預測",
+    "trendCount": "已結算 {{count}} 則預測 · 起始 0 U",
+    "trendBalance": "損益：{{amount}} U",
+    "modelNoSettled": "此類別尚無已結算預測，不會虛構結果。",
+    "modelGroup": "所選群組：{{count}} 則已結算預測 × 每則 {{stake}} 假設投注額。",
+    "modelNoOdds": "至少一則預測缺少有效賠率，無法完整計算模擬損益。",
+    "modelDisclaimer": "每則預測使用相同投注額的模擬，未扣除解鎖成本、手續費及稅金。並非真實客戶投注，也不保證獲利。"
   }
 }
