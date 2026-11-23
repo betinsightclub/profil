@@ -198,6 +198,23 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
 @media(max-width:900px){.provider-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.perf-bottom{grid-template-columns:1fr}}
 @media(max-width:600px){.perf-model-figures{grid-template-columns:1fr 1fr}.perf-figure:last-child{grid-column:1/-1}.windows{gap:4px}.winbtn{padding:9px 10px}.perf-stake-value{font-size:23px}main{padding:20px 13px 55px}.hero{padding:27px 19px}.nav-tabs{gap:7px}.navtab{padding:12px 9px;display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-height:102px;font-size:12px}.navtab .tab-icon{font-size:20px}.navtab .tab-desc{font-size:10px;margin-top:3px}.provider-grid{gap:9px}.provider{min-height:162px;padding:13px 12px}.pro-name{font-size:16px}.performance{padding:16px}.perf-top{align-items:stretch}.windows{width:100%}.winbtn{flex:1}.tips-stack{grid-template-columns:1fr}.kpi{padding:13px}.kpi-value{font-size:24px}.mini-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.mini-stat-value{font-size:19px}}
 
+
+/* Unified compact performance cards and three clearly inactive future slots */
+.provider-grid .provider{min-height:230px}
+.provider-grid .provider .pro-stat{display:block;margin-top:auto}
+.provider-grid .mini-stats,.provider-grid .mini-stats.total-only{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:3px}
+.provider-grid .mini-stats .mini-stat,.provider-grid .mini-stats.total-only .mini-stat{min-height:57px;min-width:0;padding:8px 7px;border:1px solid #275c72;border-radius:9px;background:#0b3647;display:flex;flex-direction:column;justify-content:center}
+.provider-grid .mini-stats .mini-stat-label{white-space:normal;font-size:10px;line-height:1.25;color:#a9d1df}
+.provider-grid .mini-stats .mini-stat-value,.provider-grid .mini-stats.total-only .mini-stat-value{font-size:clamp(15px,1.3vw,19px);line-height:1.12;margin-top:5px;overflow-wrap:anywhere;white-space:normal;color:#eef9ff}
+.provider-grid .mini-stats .mini-stat.value-positive .mini-stat-value{color:#91f6aa}
+.provider-grid .mini-stats .mini-stat.value-negative .mini-stat-value{color:#ff999e}
+.provider-grid .provider-placeholder{border:1px dashed #366479;background:linear-gradient(145deg,#092938,#08232f);color:#c4dae6;opacity:.74;cursor:default;box-shadow:none}
+.provider-grid .provider-placeholder .pro-icon{font-size:24px;color:#b1cbd8;background:#123746}
+.provider-grid .provider-placeholder .pro-sub{font-size:12px;line-height:1.6;color:#a9c5d4}
+.provider-grid .provider-placeholder .placeholder-status{margin-top:auto;font-size:11px;color:#96b9c9;border-top:1px solid #284654;padding-top:9px}
+.provider-grid .provider-placeholder:hover{transform:none;border-color:#366479}
+.mini-disclaimer{font-size:11px;line-height:1.55;color:#94bbcc;margin:-10px 0 18px}
+@media(max-width:600px){.provider-grid .provider{min-height:219px}.provider-grid .mini-stats .mini-stat,.provider-grid .mini-stats.total-only .mini-stat{padding:7px 6px;min-height:54px}.provider-grid .mini-stats .mini-stat-label{font-size:9px}.provider-grid .mini-stats .mini-stat-value,.provider-grid .mini-stats.total-only .mini-stat-value{font-size:15px}.provider-grid .provider-placeholder .pro-name{font-size:15px}}
 /* Spezial-Vorschau: ausschließlich Darstellung; keine Freischalt-/Wallet-Logik */
 .special-preview{grid-column:1/-1;background:linear-gradient(135deg,#0d3d50,#062530);border-color:#279aaf;gap:13px}
 .special-preview h3{font-size:clamp(19px,2.5vw,24px);margin:0}
@@ -280,7 +297,12 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
       <button type="button" class="provider" data-provider="Schulung" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🎓</span><span class="pill" data-bi-i18n="tipsCenter.tagLearn">LERNBEREICH</span></span><span class="pro-name" data-bi-i18n="tipsCenter.training">Schulungstipps</span><span class="pro-sub" data-bi-i18n="tipsCenter.trainingSub">Schulungsbeispiele und Demonstrationen</span><span class="pro-stat" id="trainingMini">Schulungs-Performance wird geladen …</span></button>
       <button type="button" class="provider" data-provider="Testphase" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🏆</span><span class="pill" data-bi-i18n="tipsCenter.tagPrep">SAISONWETTEN · 1 UNIT</span></span><span class="pro-name" data-bi-i18n="tipsCenter.testing">BetInsight Spezial – Saisonwetten</span><span class="pro-sub" data-bi-i18n="tipsCenter.testingSub">Vier exklusive Saisonanalysen · je 1 Unit · Details erst nach Freischaltung</span><span class="pro-stat" id="testMini">Vier Saisonwetten · je 1 Unit</span></button>
       <button type="button" class="provider" data-provider="WochenSpezial" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🗓️</span><span class="pill">WOCHEN-SPEZIAL · 1 UNIT</span></span><span class="pro-name">BetInsight Wochen-Spezial</span><span class="pro-sub">Kurzfristige Analysen · Auswahl nach Freischaltung sichtbar</span><span class="pro-stat" id="weeklyMini">1 Unit je Tipp · Kauf-Units-Zurück-Garantie</span></button>
+
+      <div class="provider provider-placeholder" aria-label="Freier Platz für weitere Tippgeber"><span class="pro-top"><span class="pro-icon">＋</span><span class="pill">FREIER PLATZ</span></span><span class="pro-name">Weitere Tippgeber</span><span class="pro-sub">Platz für weitere unabhängige Tippgeber und ihre Statistiken.</span><span class="placeholder-status">Noch nicht belegt · keine Tipps</span></div>
+      <div class="provider provider-placeholder" aria-label="Freier Platz für weitere KI-Analysen"><span class="pro-top"><span class="pro-icon">＋</span><span class="pill">FREIER PLATZ</span></span><span class="pro-name">Weitere KI-Analysen</span><span class="pro-sub">Hier kann später eine zusätzliche Analyse-Kategorie erscheinen.</span><span class="placeholder-status">Noch nicht belegt · keine Tipps</span></div>
+      <div class="provider provider-placeholder" aria-label="Freier Platz für weitere Strategien"><span class="pro-top"><span class="pro-icon">＋</span><span class="pill">FREIER PLATZ</span></span><span class="pro-name">Weitere Strategien</span><span class="pro-sub">Reservierter Platz für zusätzliche geprüfte Methoden.</span><span class="placeholder-status">Noch nicht belegt · keine Tipps</span></div>
     </div>
+    <p class="mini-disclaimer">Wett-ROI und Bilanz sind Modellrechnungen anhand der gespeicherten Referenzquoten, vor Freischaltkosten, Gebühren und Steuern. „U“ bezeichnet eine rechnerische Einsatz-Einheit, keine BetInsight-Guthaben-Unit.</p>
     <details id="perfDisclosure" class="perf-disclosure">
       <summary class="perf-summary" id="perfDisclosureTrigger"><span>📊 <span data-bi-i18n="tipsCenter.performanceView">Tippgeber-Performance ansehen</span> <span class="perf-summary-name" id="perfDisclosureName">· Martin</span></span><span class="perf-chevron" aria-hidden="true">⌄</span></summary>
     <section class="performance" id="performance">
@@ -460,17 +482,23 @@ function mini(){
  [["Martin","martinMini"],["Frank","frankMini"],["Schulung","trainingMini"],["Testphase","testMini"],["WochenSpezial","weeklyMini"]].forEach(function(item){
   var el=$(item[1]);if(!el)return;el.replaceChildren();
   var loaded=(item[0]==="Martin"||item[0]==="Frank")?(state.performanceLoaded&&state.resultsLoaded):state.resultsLoaded;
-  if(!loaded){el.textContent=tr("perfLoading","Performance wird geladen …");return}
-  var overallOnly=item[0]==="Martin"||item[0]==="Frank";
-  var a=overallOnly?null:stats(item[0],"0"),b=stats(item[0],"all");
-  if(!b.total){el.textContent=item[0]==="Testphase"?tr("specialMini","Vier exklusive Analysen · jeweils 1 Unit"):item[0]==="WochenSpezial"?"Derzeit keine bestätigten Wochen-Spezial-Ergebnisse":tr("noRated","Noch keine gewerteten Tipps");return}
-  var container=ele("span","mini-stats"+(overallOnly?" total-only":""));
-  (overallOnly?[[tr("overall","GESAMT"),b.hit]]:[["LETZTE 10",a.hit],[tr("overall","GESAMT"),b.hit]]).forEach(function(p){
-   var band=p[1]==null?"":p[1]>=60?" score-good":p[1]>=40?" score-mid":p[1]>=20?" score-low":" score-bad";
-   var one=ele("span","mini-stat"+(overallOnly?band:""));one.appendChild(ele("span","mini-stat-label",p[0]));
-   one.appendChild(ele("span","mini-stat-value",p[1]===null?"–":percent(p[1])));container.appendChild(one);
+  var s=loaded?stats(item[0],"all"):null;
+  var shown=[
+    {label:tr("hit","Trefferquote"),value:s&&s.hit!=null?percent(s.hit):"–",kind:"hit"},
+    {label:tr("roi","Wett-ROI"),value:s&&s.roi!=null?(s.roi>0?"+":"")+percent(s.roi):"–",kind:"roi"},
+    {label:"Bilanz (U)",value:s&&!s.missing&&!s.noStake&&s.rows.length?(s.profit>0?"+":"")+new Intl.NumberFormat(currentLocale(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(s.profit)+" U":"–",kind:"profit"},
+    {label:"Abgerechnet",value:s?String(s.rows.length):"–",kind:"count"}
+  ];
+  var container=ele("span","mini-stats");
+  shown.forEach(function(p){
+    var cls="";
+    if(s&&p.kind==="roi"&&s.roi!=null)cls=s.roi>0?" value-positive":s.roi<0?" value-negative":"";
+    if(s&&p.kind==="profit"&&!s.missing&&!s.noStake)cls=s.profit>0?" value-positive":s.profit<0?" value-negative":"";
+    var n=ele("span","mini-stat"+cls);
+    n.appendChild(ele("span","mini-stat-label",p.label));
+    n.appendChild(ele("span","mini-stat-value",p.value));container.appendChild(n);
   });el.appendChild(container);
- })
+ });
 }
 function euro(n){return new Intl.NumberFormat(currentLocale(),{style:"currency",currency:"EUR"}).format(n)}
 function drawModel(){
@@ -931,10 +959,11 @@ var data=latest(state.results.filter(function(r){return !!status(r.ergebnis_stat
 function rerender(){mini();performance();drawNew();drawMine();drawArchive()}
 function selectArea(area){state.area=area;document.querySelectorAll(".navtab").forEach(function(b){var yes=b.dataset.tab===area;b.classList.toggle("selected",yes);b.setAttribute("aria-current",yes?"page":"false")});document.querySelectorAll(".area").forEach(function(el){el.classList.toggle("active",el.id==="area-"+area)})}
 document.querySelectorAll(".navtab").forEach(function(b){b.addEventListener("click",function(){selectArea(b.dataset.tab)})});
-document.querySelectorAll(".provider:not([disabled])").forEach(function(b){b.addEventListener("click",function(){
- state.provider=b.dataset.provider;state.period="0";$("perfDisclosure").open=false;resetDetails();
+document.querySelectorAll("button.provider:not([disabled])").forEach(function(b){b.addEventListener("click",function(){
+ state.provider=b.dataset.provider;state.period="all";$("perfDisclosure").open=true;resetDetails();
  document.querySelectorAll(".provider").forEach(function(p){var yes=p===b;p.classList.toggle("selected",yes);p.setAttribute("aria-pressed",yes?"true":"false")});
- performance();drawNew()
+ performance();drawNew();
+ $("perfDisclosure").scrollIntoView({behavior:"smooth",block:"start"});
 })});
 $("perfDisclosure").addEventListener("toggle",function(){
  if(this.open)performance();
