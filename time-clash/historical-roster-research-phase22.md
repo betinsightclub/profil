@@ -93,3 +93,29 @@ Source chronology and results:
 The 1993/94 season-specific Olympique Casablanca listing from National Football Teams remains the strongest roster cross-check (eight named national-team players already in the master, plus separate Tița confirmation). No new season-and-position-qualified outfield player found in this pass. Candidate first names or identities from retrospective SNRT coverage remain unverified. In particular, avoid mixing 1994/95 players, or using unlabeled historic videos, to fill the 1993/94 XI.
 
 Next research target: contemporaneous Doha final match programme or match-sheet (Olympique Casablanca 1–0 Al-Qadisiya), dated 1994; extract *both* player identity and field role before updating the 1993/94 champion roster. Second path: Moroccan 1993/94 league match reports for Olympique Casablanca, not 1995 Cairo coverage.
+
+
+## Phase 29 — Olympique Casablanca: contemporary 1995 lineup located
+
+Research performed 2026-11-24. A **contemporaneous Lebanese newspaper report from 1995-03-18** lists the full 11 players who represented Olympique Casablanca against Al Ahly in the 1995 Arab Cup Winners' Cup semifinal (the tournament edition named 1994). This is **direct evidence for March 1995, not automatically for the 1993/94 Moroccan league title season**.
+
+Source: As-Safir (issue 7036, 1995-03-18), https://archive.assafir.com/ssr/761613.html
+
+Names given in Arabic in the 1995 starting XI, transliteration provisional:
+1. Said Dghay (سعيد ادغاي)
+2. Mohamed Bekkari (محمد بكاري)
+3. Mohamed al-Qadmiri / Kadmiri (محمد القدميري)
+4. Jamel Sellami (جمال السلامي)
+5. Hassan al-Kouti / El Ghouti? (حسن الكوطي) — identity spelling UNRESOLVED
+6. Valeriu Tița (تيتا)
+7. Hassan Bourouaine / Abu al-Rawain (حسن ابو الرواين)
+8. Abdelkrim Nazir (عبد الكريم نزير)
+9. Tawfiq Belagha (توفيق بلاغة)
+10. Ibrahim Saber (ابراهيم صابر)
+11. Maybin Mokayu / Mokaio (ميبين موكايو) — spelling and nationality need corroboration.
+
+Cross-checked already known master/phase23 aliases: Dghay, Sellami, Bourouaine, Nazir, Tița. Unresolved **possible new players**: Bekkari, Kadmiri, El Kouti, Belagha, Ibrahim Saber, Maybin Mokayu. The 2026 SNRT retrospective also lists al-Qadmiri, Belagha and Zambian Maybin among prominent Olympique players, but does not assign them unambiguously to 1993/94. https://www.snrtnews.com/ar/article/158375
+
+**Important:** do not create a new 1993/94 roster entry from the March 1995 lineup alone. Also do not conflate the newspaper's "Hassan al-Kouti" with the 1994/95 National Football Teams defender "Hassan El Ghouti" until a source resolves the transcription. This is a six-name primary-source candidate pool for researching the 1993/94 season; check dated 1994 matches/registrations or verified 1993/94 club affiliation and position for each.
+
+No playability count change, no roster/engine modifications, no merge.
