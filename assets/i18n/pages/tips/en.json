@@ -240,6 +240,23 @@
     "modelNoSettled": "No settled tips in this category. No results are fabricated.",
     "modelGroup": "Selected group: {{count}} settled tips × {{stake}} hypothetical stake per tip.",
     "modelNoOdds": "At least one tip has no valid odds; the model balance cannot be calculated in full.",
-    "modelDisclaimer": "Simulation using the same stake per tip, before unlock costs, fees and taxes. These are not real customer bets or a profit guarantee."
+    "modelDisclaimer": "Simulation using the same stake per tip, before unlock costs, fees and taxes. These are not real customer bets or a profit guarantee.",
+    "weeklyBadge": "WEEKLY SPECIAL · 1 UNIT",
+    "weeklyName": "BetInsight Weekly Special",
+    "weeklyDesc": "Short-term analysis · selection visible after unlocking",
+    "emptyAriatipsters": "Open slot for more tipsters",
+    "emptyTitletipsters": "More tipsters",
+    "emptyDesctipsters": "Space for additional independent tipsters and their statistics.",
+    "emptyAriaai": "Open slot for AI analysis",
+    "emptyTitleai": "More AI analysis",
+    "emptyDescai": "An additional analysis category may appear here later.",
+    "emptyAriastrategies": "Open slot for more strategies",
+    "emptyTitlestrategies": "More strategies",
+    "emptyDescstrategies": "Reserved for additional tested methods.",
+    "emptyBadge": "OPEN SLOT",
+    "emptyStatus": "Not yet assigned · no tips",
+    "miniDisclaimer": "Betting ROI and balance are hypothetical calculations based on recorded reference odds, before unlocking costs, fees and taxes. “U” is a simulated stake unit, not a BetInsight account Unit.",
+    "miniBalance": "Balance (U)",
+    "miniSettled": "Settled"
   }
 }
