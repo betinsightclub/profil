@@ -236,6 +236,19 @@
     "emptyStatus": "Noch nicht belegt · keine Tipps",
     "miniDisclaimer": "Wett-ROI und Bilanz sind Modellrechnungen anhand der gespeicherten Referenzquoten, vor Freischaltkosten, Gebühren und Steuern. „U“ bezeichnet eine rechnerische Einsatz-Einheit, keine BetInsight-Guthaben-Unit.",
     "miniBalance": "Bilanz (U)",
-    "miniSettled": "Abgerechnet"
+    "miniSettled": "Abgerechnet",
+    "roiEqualStakeFoot": "Gleicher Recheneinsatz je Tipp · ohne Tippkosten",
+    "trendTitle": "Entwicklung der Wettbilanz",
+    "trendSubtitle": "Rechnerisch · 1 Einsatz-Einheit je Tipp",
+    "trendAria": "Wettbilanz nach jedem abgerechneten Tipp",
+    "modelStakeTitle": "Hypothetischer Wetteinsatz je Tipp",
+    "modelStakeSubtitle": "Einheitlicher Einsatz für jeden abgerechneten Tipp",
+    "modelStakeAria": "Wetteinsatz je Tipp in Euro, 1 bis 100",
+    "modelStakeLow": "1 € je Tipp",
+    "modelStakeHigh": "100 € je Tipp",
+    "modelDefaultHint": "Modellrechnung mit gleichem Einsatz je Tipp, ohne Freischaltkosten und Gebühren. Vergangene Ergebnisse sind keine Gewinngarantie.",
+    "modelDetailIntro": "Jeder abgerechnete Tipp mit Quote und Ergebnis. Die angezeigten Freischalt-Units dienen nur zur Information; alle Wetteinsätze sind im Modell gleich hoch.",
+    "modelUnlockUnits": "Freischalt-Units",
+    "modelDetailFoot": "Bei „Gesamt“ maximal zehn Tipps pro Seite. Auch Tipps mit 0 Freischalt-Units werden im Modell mit gleich hohem Wetteinsatz berücksichtigt."
   }
 }
