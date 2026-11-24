@@ -177,11 +177,11 @@
     "detailIntro": "Jeder Tipp der ausgewählten Gruppe mit Originalquote, geforderten Units und simuliertem Einsatz und Nettogewinn. Alle Beträge verwenden den obigen Euro-Regler und werden nur beim Öffnen berechnet.",
     "detailFoot": "Bei „Gesamt“ maximal zehn Tipps pro Seite. Das Gesamtergebnis oben umfasst weiterhin alle ausgewählten Tipps. Historische 0-Unit-Tipps gehen mit 0 € in die Modellrechnung ein.",
     "modelIntro": "Rechnerisches Gesamtergebnis der gewählten Tippgruppe, ohne Abzug der Freischaltkosten. Vergangene Ergebnisse sind keine Garantie für zukünftige Gewinne.",
-    "roiIntro": "Jeder tatsächlich veröffentlichte Tipp wird mit seiner ursprünglich hinterlegten, für die Freischaltung geforderten Anzahl an BetInsight-Units gewichtet. Der hypothetische Wetteinsatz dieses Tipps ergibt sich aus geforderten Units × eingestelltem Euro-Wert je Unit (1 bis 100 €). Für jeden Tipp werden Gewinn oder Verlust anhand seiner ursprünglichen Quote berechnet.",
-    "roiMethod": "Die Anzeige fasst alle Tipps der gewählten Gruppe (1–10, 11–20 usw. oder Gesamt) zusammen: Gesamteinsätze, Gesamtauszahlungen sowie gesamten Nettogewinn/-verlust. Wett-ROI = gesamter rechnerischer Nettogewinn/-verlust ÷ gesamte rechnerische Wetteinsätze × 100. Die Units dienen nur als Einsatzgewichtung; sie werden nicht zusätzlich als Freischaltkosten abgezogen.",
-    "roiExample": "Beispiel: Ein Tipp mit 5 geforderten Units, 10 € je Unit und Quote 2,30 bedeutet 50 € rechnerischen Einsatz. Gewonnen: 115 € Auszahlung, 65 € Nettogewinn. Verloren: 50 € Verlust. Weil die Unit-Gewichtung und die Quote je Tipp unterschiedlich sind, ist der gewichtete Wett-ROI anders als bei gleichen Einsätzen je Tipp. Der Euro-Regler verändert die Euro-Gesamtsummen, bei gleichbleibender Gewichtung aber nicht den ROI-Prozentsatz. Ältere Tipps mit 0 geforderten Units tragen 0 € zum Modell-Einsatz bei und zählen weiterhin zur Trefferquote.",
+    "roiIntro": "Jeder abgerechnete Tipp erhält denselben hypothetischen Wetteinsatz – unabhängig davon, wie viele BetInsight-Units seine Freischaltung kostet. Ein Gewinn bei Dezimalquote Q bringt (Q − 1) × Einsatz als Nettogewinn; ein Verlust kostet den gesamten Einsatz.",
+    "roiMethod": "Wett-ROI = rechnerischer Nettogewinn oder -verlust aller ausgewählten Tipps ÷ gesamte hypothetische Einsätze × 100. Die verwendeten Quoten sind gespeicherte Referenzwerte. Freischaltkosten, Gebühren und Steuern sind nicht berücksichtigt.",
+    "roiExample": "Beispiel: Zehn Tipps zu je 10 € Einsatz. Ein Gewinn bei Quote 11,00 und neun Verluste ergeben 110 € Auszahlung bei 100 € Gesamteinsatz: +10 € beziehungsweise +10 % Wett-ROI. Der Einsatzregler ändert die Eurobeträge, nicht den ROI-Prozentsatz.",
     "roiDisclaimer": "Die Werte zeigen vergangene Ergebnisse und stellen weder eine Wetteinsatzempfehlung noch eine Gewinngarantie dar.",
-    "roiExtra": "Für einen Tipp fehlen gültige Quoten oder Unit-Angaben, oder die ausgewählte Gruppe hat keinen positiven Modell-Einsatz. Der ROI kann daher nicht korrekt angezeigt werden.",
+    "roiExtra": "Mindestens einem abgerechneten Tipp fehlt eine gültige Quote. Die vollständige Modellbilanz kann daher nicht berechnet werden.",
     "closeExplain": "Erklärung schließen",
     "stakeAria": "Wetteinsatz je Unit in Euro, 1 bis 100",
     "tabAria": "Tipp-Center Bereiche",
@@ -249,6 +249,9 @@
     "modelDefaultHint": "Modellrechnung mit gleichem Einsatz je Tipp, ohne Freischaltkosten und Gebühren. Vergangene Ergebnisse sind keine Gewinngarantie.",
     "modelDetailIntro": "Jeder abgerechnete Tipp mit Quote und Ergebnis. Die angezeigten Freischalt-Units dienen nur zur Information; alle Wetteinsätze sind im Modell gleich hoch.",
     "modelUnlockUnits": "Freischalt-Units",
-    "modelDetailFoot": "Bei „Gesamt“ maximal zehn Tipps pro Seite. Auch Tipps mit 0 Freischalt-Units werden im Modell mit gleich hohem Wetteinsatz berücksichtigt."
+    "modelDetailFoot": "Bei „Gesamt“ maximal zehn Tipps pro Seite. Auch Tipps mit 0 Freischalt-Units werden im Modell mit gleich hohem Wetteinsatz berücksichtigt.",
+    "quickTips": "Tipps ansehen",
+    "quickPerformance": "Performance",
+    "modelLoading": "Rechnerischer Einsatz wird geladen …"
   }
 }
