@@ -949,56 +949,56 @@ const STADIUM_MAGAZINE_ARTICLES={
           "173.850 Zuschauer und ein Ergebnis, das Brasilien erschütterte",
           "Zwei Weltmeisterschaften, ein legendäres Stadion: die Geschichte des Maracanã im Zahlenvergleich.",
           "Artikel lesen",
-          "173850-zuschauer-und-ein-ergebnis-das"
+          "/2026/11/173850-zuschauer-und-ein-ergebnis-das.html"
         ],
         "en": [
           "From BetInsight Magazine",
           "173,850 spectators and a result that shook Brazil",
           "Two World Cups, one legendary stadium: the story of the Maracanã in numbers.",
           "Read article",
-          "173850-spectators-and-result-that-shook"
+          "/2026/11/173850-spectators-and-result-that-shook.html"
         ],
         "es": [
           "Del BetInsight Magazine",
           "173.850 espectadores y un resultado que conmocionó a Brasil",
           "Dos Mundiales, un estadio legendario: la historia del Maracanã en cifras.",
           "Leer artículo",
-          "173850-espectadores-y-un-resultado-que"
+          "/2026/11/173850-espectadores-y-un-resultado-que.html"
         ],
         "pt": [
           "Do BetInsight Magazine",
           "173.850 espectadores e um resultado que abalou o Brasil",
           "Duas Copas do Mundo, um estádio lendário: a história do Maracanã em números.",
           "Ler artigo",
-          "173850-espectadores-e-um-resultado-que"
+          "/2026/11/173850-espectadores-e-um-resultado-que.html"
         ],
         "it": [
           "Dal BetInsight Magazine",
           "173.850 spettatori e un risultato che ha scosso il Brasile",
           "Due Mondiali, uno stadio leggendario: la storia del Maracanã in cifre.",
           "Leggi l’articolo",
-          "173850-spettatori-e-un-risultato-che-ha"
+          "/2026/11/173850-spettatori-e-un-risultato-che-ha.html"
         ],
         "fr": [
           "Dans BetInsight Magazine",
           "173 850 spectateurs et un résultat qui a bouleversé le Brésil",
           "Deux Coupes du monde, un stade légendaire : l’histoire du Maracanã en chiffres.",
           "Lire l’article",
-          "173850-spectateurs-et-un-resultat-qui"
+          "/2026/11/173850-spectateurs-et-un-resultat-qui.html"
         ],
         "nl": [
           "Uit BetInsight Magazine",
           "173.850 toeschouwers en een resultaat dat Brazilië schokte",
           "Twee WK's, één legendarisch stadion: de geschiedenis van het Maracanã in cijfers.",
           "Lees artikel",
-          "173850-toeschouwers-en-een-resultaat"
+          "/2026/11/173850-toeschouwers-en-een-resultaat.html"
         ],
         "zh": [
           "BetInsight Magazine 相關報導",
           "173,850 名觀眾與震撼巴西的比賽結果",
           "兩屆世界盃，一座傳奇球場：透過數據回顧馬拉卡納體育場的歷史。",
           "閱讀英文版文章",
-          "173850-spectators-and-result-that-shook"
+          "/2026/11/173850-spectators-and-result-that-shook.html"
         ]
       }
     }
@@ -1010,8 +1010,8 @@ function renderStadiumMagazine(stadiumId,locale,registry,escapeHTML){
  const normalized={"pt-br":"pt","zh-tw":"zh"}[String(locale).toLowerCase()]||String(locale).toLowerCase();
  const cards=rows.flatMap(row=>{
   const c=row.locales[normalized]||row.locales.en;
-  if(!c||!Array.isArray(c)||c.length!==5||!/^[a-z0-9-]+$/.test(c[4]))return [];
-  const url="https://betinsightclub.blogspot.com/2026/11/"+c[4]+".html";
+  if(!c||!Array.isArray(c)||c.length!==5||!/^\/\d{4}\/(?:0[1-9]|1[0-2])\/[a-z0-9-]+\.html$/.test(c[4]))return [];
+  const url="https://betinsightclub.blogspot.com"+c[4];
   return ["<div class='infoitem stadium-magazine-card'><strong>"+escapeHTML(c[1])+"</strong><p class='mini' style='margin:6px 0 9px'>"+escapeHTML(c[2])+"</p><a class='btn w100' target='_blank' rel='noopener noreferrer' href='"+escapeHTML(url)+"'>"+escapeHTML(c[3])+" ↗</a></div>"];
  });
  const first=rows[0].locales[normalized]||rows[0].locales.en;
