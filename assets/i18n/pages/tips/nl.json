@@ -177,11 +177,11 @@
     "detailIntro": "Elke tip toont oorspronkelijke odds, benodigde Units, gesimuleerde inzet en nettoresultaat. Bedragen gebruiken de euroschuif en worden bij openen berekend.",
     "detailFoot": "Bij 'Totaal' maximaal tien tips per pagina. Het totaal hierboven omvat alle geselecteerde tips. Historische 0-Unit-tips tellen als €0.",
     "modelIntro": "Berekend totaalresultaat zonder ontgrendelkosten. Resultaten uit het verleden garanderen geen toekomstige winst.",
-    "roiIntro": "Elke gepubliceerde tip wordt gewogen naar de Units die oorspronkelijk nodig waren om deze te ontgrendelen. Hypothetische inzet = Units × euro per Unit (€1–€100). Winst of verlies volgt de oorspronkelijke odds.",
-    "roiMethod": "De gekozen groep (1–10, 11–20 of Totaal) omvat inzetten, uitbetalingen en nettoresultaat. ROI = gesimuleerde netto winst/verlies ÷ gesimuleerde inzetten × 100. Units dienen alleen als inzetweging; ontgrendelkosten worden niet dubbel afgetrokken.",
-    "roiExample": "Voorbeeld: 5 Units à €10 en odds 2,30 = €50 gesimuleerde inzet. Winst: €115 uitbetaling en €65 netto; verlies: €50. Omdat Units en odds verschillen, verschilt gewogen ROI van gelijke inzetten. De euroschuif verandert bedragen, niet het ROI-percentage. Tips met 0 Units tellen mee voor het trefferspercentage, niet voor de inzet.",
+    "roiIntro": "Elke afgerekende tip krijgt dezelfde hypothetische inzet, ongeacht hoeveel BetInsight-Units nodig zijn om deze te ontgrendelen. Een winst bij decimale odds Q levert (Q − 1) × inzet netto op; bij verlies gaat de hele inzet verloren.",
+    "roiMethod": "Weddenschap-ROI = totaal gesimuleerd nettoresultaat van de gekozen tips ÷ totale hypothetische inzetten × 100. Odds zijn opgeslagen referentiewaarden. Ontgrendelkosten, kosten en belastingen zijn niet meegerekend.",
+    "roiExample": "Voorbeeld: tien tips met €10 inzet elk. Eén winst bij odds 11,00 en negen verliezen leveren €110 uitbetaling op bij €100 totale inzet: +€10, oftewel +10% ROI. De schuif verandert de eurobedragen, niet het percentage.",
     "roiDisclaimer": "Deze cijfers tonen eerdere resultaten, geen inzetadvies of winstgarantie.",
-    "roiExtra": "Een tip mist geldige odds of Units, of de groep heeft geen positieve inzet. ROI kan niet juist worden weergegeven.",
+    "roiExtra": "Voor ten minste één afgerekende tip ontbreken geldige odds. Het volledige modelresultaat is niet te berekenen.",
     "closeExplain": "Uitleg sluiten",
     "stakeAria": "Inzet per Unit in euro, 1 tot 100",
     "tabAria": "Onderdelen van het tipcentrum",
@@ -257,6 +257,9 @@
     "emptyStatus": "Nog niet ingevuld · geen tips",
     "miniDisclaimer": "Weddenschaps-ROI en saldo zijn theoretische berekeningen op basis van opgeslagen referentienoteringen, vóór ontgrendelkosten, vergoedingen en belastingen. 'U' staat voor een theoretische inzeteenheid, niet voor een BetInsight-tegoed-Unit.",
     "miniBalance": "Saldo (U)",
-    "miniSettled": "Afgerekend"
+    "miniSettled": "Afgerekend",
+    "quickTips": "Bekijk tips",
+    "quickPerformance": "Prestaties",
+    "modelLoading": "Gesimuleerde inzet laden …"
   }
 }
