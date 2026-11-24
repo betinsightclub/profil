@@ -938,7 +938,86 @@ function selectStadium(id,keepPassport=false,forceFocus=false){
  }
 }
 function renderRight(force){if(force)tab=force;if(tab==="review")tab="details";document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.dataset.tab===tab));let el=$("rightBody"),scroller=document.querySelector(".right"),scroll=scroller?.scrollTop||0;if(tab==="details")el.innerHTML=detailHTML();else if(tab==="suggest")el.innerHTML=formHTML();else if(tab==="review")el.innerHTML=queueHTML()+proofQueueHTML();else el.innerHTML=passHTML();attachRight();if(tab==="passport"){window.BetInsightVisitTypes?.wire(el,lang);window.BetInsightStadiumJourney?.bind();}if(tab==="details")drawPhotos();wirePhotoFallbacks(el);if(scroller&&tab==="passport")scroller.scrollTop=scroll;window.BetInsightStadiumJourney?.refresh()}
-function detailHTML(){if(!selected)return "<div class='kicker'>BETINSIGHT FOOTBALL WORLD</div><h3>"+esc(t("details"))+"</h3><div class='empty'>🌍 "+esc(t("globeHint"))+"</div><p class='muted'>"+esc(t("previewNotice"))+"</p>";const s=selected,teams=clubMap(s.id).concat((s.details?.submitted_clubs||[]).filter(x=>!clubMap(s.id).includes(x))),up=fixtures.filter(x=>Number(x.stadium_id)===Number(s.id)).slice(0,5),ids=tipLinks.filter(x=>Number(x.stadium_id)===Number(s.id)).map(x=>x.tipp_id),rows=tips.filter(x=>ids.includes(x.tipp_id)),wins=rows.filter(x=>x.ergebnis_status==="GEWONNEN").length,losses=rows.filter(x=>x.ergebnis_status==="VERLOREN").length;return "<div class='kicker'>"+(s.is_verified?"✓ "+t("verified"):"◌ "+t("notVerified"))+"</div><h3>"+esc(s.name)+"</h3>"+(hasVisited(s.id)?"<div class='infoitem visit-flag-label'>🚩 "+esc(t("alreadyVisited"))+"</div>":"")+"<p class='muted'>📍 "+esc([s.city,s.country].filter(Boolean).join(", "))+"</p>"+photoCoverHTML(s)+"<button id='mapSelected' class='btn w100' type='button' style='margin:8px 0 0'>🗺️ "+esc(t("showOnMap"))+"</button><div class='infogrid'><div class='infobox'><small>"+t("capacity")+"</small><strong>"+fmt(s.capacity)+"</strong></div><div class='infobox'><small>"+t("country")+"</small><strong>"+esc(s.country)+"</strong></div></div><div class='sectionhead'>⚽ "+t("club")+"</div>"+(teams.length?teams.map(x=>"<div class='infoitem'>"+esc(x)+"</div>").join(""):"<div class='empty'>"+t("noClub")+"</div>")+"<div class='sectionhead'>📅 "+t("upcoming")+"</div>"+(up.length?up.map(x=>"<div class='infoitem'><strong>"+esc(x.home_team)+" – "+esc(x.away_team)+"</strong><br><span class='mini'>"+esc(x.league||"")+" · "+esc(new Date(x.kickoff_at).toLocaleString(lang))+"</span></div>").join(""):"<div class='empty'>"+t("noUpcoming")+"</div>")+"<div class='sectionhead'>📊 "+t("tips")+"</div>"+(rows.length?"<div class='infogrid'><div class='infobox'><small>"+t("win")+"</small><strong style='color:var(--lime)'>"+wins+"</strong></div><div class='infobox'><small>"+t("loss")+"</small><strong style='color:var(--danger)'>"+losses+"</strong></div></div>"+rows.map(x=>"<div class='infoitem'>"+esc(x.spiel)+" · "+esc(x.spiel_datum)+"<br><strong>"+esc(x.ergebnis_status)+"</strong></div>").join(""):"<div class='empty'>"+t("noTips")+"</div>")+"<div style='margin-top:14px'><button class='btn primary w100' id='visit'>✓ "+t("visit")+"</button></div>"+stadiumShareHTML(s)+"<div class='sectionhead'>📷 "+t("gallery")+"</div><div id='stadiumPhotos'></div><p class='mini'>"+t("notPublic")+"</p>"}
+// Curated magazine crosslinks keyed by stable stadium ID; only published articles.
+const STADIUM_MAGAZINE_ARTICLES={
+  "1194": [
+    {
+      "id": "maracana-world-cups-1950-2014",
+      "locales": {
+        "de": [
+          "Aus dem BetInsight Magazine",
+          "173.850 Zuschauer und ein Ergebnis, das Brasilien erschütterte",
+          "Zwei Weltmeisterschaften, ein legendäres Stadion: die Geschichte des Maracanã im Zahlenvergleich.",
+          "Artikel lesen",
+          "/2026/11/173850-zuschauer-und-ein-ergebnis-das.html"
+        ],
+        "en": [
+          "From BetInsight Magazine",
+          "173,850 spectators and a result that shook Brazil",
+          "Two World Cups, one legendary stadium: the story of the Maracanã in numbers.",
+          "Read article",
+          "/2026/11/173850-spectators-and-result-that-shook.html"
+        ],
+        "es": [
+          "Del BetInsight Magazine",
+          "173.850 espectadores y un resultado que conmocionó a Brasil",
+          "Dos Mundiales, un estadio legendario: la historia del Maracanã en cifras.",
+          "Leer artículo",
+          "/2026/11/173850-espectadores-y-un-resultado-que.html"
+        ],
+        "pt": [
+          "Do BetInsight Magazine",
+          "173.850 espectadores e um resultado que abalou o Brasil",
+          "Duas Copas do Mundo, um estádio lendário: a história do Maracanã em números.",
+          "Ler artigo",
+          "/2026/11/173850-espectadores-e-um-resultado-que.html"
+        ],
+        "it": [
+          "Dal BetInsight Magazine",
+          "173.850 spettatori e un risultato che ha scosso il Brasile",
+          "Due Mondiali, uno stadio leggendario: la storia del Maracanã in cifre.",
+          "Leggi l’articolo",
+          "/2026/11/173850-spettatori-e-un-risultato-che-ha.html"
+        ],
+        "fr": [
+          "Dans BetInsight Magazine",
+          "173 850 spectateurs et un résultat qui a bouleversé le Brésil",
+          "Deux Coupes du monde, un stade légendaire : l’histoire du Maracanã en chiffres.",
+          "Lire l’article",
+          "/2026/11/173850-spectateurs-et-un-resultat-qui.html"
+        ],
+        "nl": [
+          "Uit BetInsight Magazine",
+          "173.850 toeschouwers en een resultaat dat Brazilië schokte",
+          "Twee WK's, één legendarisch stadion: de geschiedenis van het Maracanã in cijfers.",
+          "Lees artikel",
+          "/2026/11/173850-toeschouwers-en-een-resultaat.html"
+        ],
+        "zh": [
+          "BetInsight Magazine 相關報導",
+          "173,850 名觀眾與震撼巴西的比賽結果",
+          "兩屆世界盃，一座傳奇球場：透過數據回顧馬拉卡納體育場的歷史。",
+          "閱讀英文版文章",
+          "/2026/11/173850-spectators-and-result-that-shook.html"
+        ]
+      }
+    }
+  ]
+};
+function renderStadiumMagazine(stadiumId,locale,registry,escapeHTML){
+ const rows=registry[String(stadiumId)];
+ if(!Array.isArray(rows)||!rows.length)return "";
+ const normalized={"pt-br":"pt","zh-tw":"zh"}[String(locale).toLowerCase()]||String(locale).toLowerCase();
+ const cards=rows.flatMap(row=>{
+  const c=row.locales[normalized]||row.locales.en;
+  if(!c||!Array.isArray(c)||c.length!==5||!/^\/\d{4}\/(?:0[1-9]|1[0-2])\/[a-z0-9-]+\.html$/.test(c[4]))return [];
+  const url="https://betinsightclub.blogspot.com"+c[4];
+  return ["<div class='infoitem stadium-magazine-card'><strong>"+escapeHTML(c[1])+"</strong><p class='mini' style='margin:6px 0 9px'>"+escapeHTML(c[2])+"</p><a class='btn w100' target='_blank' rel='noopener noreferrer' href='"+escapeHTML(url)+"'>"+escapeHTML(c[3])+" ↗</a></div>"];
+ });
+ const first=rows[0].locales[normalized]||rows[0].locales.en;
+ return cards.length&&first?"<div class='sectionhead'>📰 "+escapeHTML(first[0])+"</div>"+cards.join(""):"";
+}
+function detailHTML(){if(!selected)return "<div class='kicker'>BETINSIGHT FOOTBALL WORLD</div><h3>"+esc(t("details"))+"</h3><div class='empty'>🌍 "+esc(t("globeHint"))+"</div><p class='muted'>"+esc(t("previewNotice"))+"</p>";const s=selected,teams=clubMap(s.id).concat((s.details?.submitted_clubs||[]).filter(x=>!clubMap(s.id).includes(x))),up=fixtures.filter(x=>Number(x.stadium_id)===Number(s.id)).slice(0,5),ids=tipLinks.filter(x=>Number(x.stadium_id)===Number(s.id)).map(x=>x.tipp_id),rows=tips.filter(x=>ids.includes(x.tipp_id)),wins=rows.filter(x=>x.ergebnis_status==="GEWONNEN").length,losses=rows.filter(x=>x.ergebnis_status==="VERLOREN").length;return "<div class='kicker'>"+(s.is_verified?"✓ "+t("verified"):"◌ "+t("notVerified"))+"</div><h3>"+esc(s.name)+"</h3>"+(hasVisited(s.id)?"<div class='infoitem visit-flag-label'>🚩 "+esc(t("alreadyVisited"))+"</div>":"")+"<p class='muted'>📍 "+esc([s.city,s.country].filter(Boolean).join(", "))+"</p>"+photoCoverHTML(s)+"<button id='mapSelected' class='btn w100' type='button' style='margin:8px 0 0'>🗺️ "+esc(t("showOnMap"))+"</button><div class='infogrid'><div class='infobox'><small>"+t("capacity")+"</small><strong>"+fmt(s.capacity)+"</strong></div><div class='infobox'><small>"+t("country")+"</small><strong>"+esc(s.country)+"</strong></div></div><div class='sectionhead'>⚽ "+t("club")+"</div>"+(teams.length?teams.map(x=>"<div class='infoitem'>"+esc(x)+"</div>").join(""):"<div class='empty'>"+t("noClub")+"</div>")+"<div class='sectionhead'>📅 "+t("upcoming")+"</div>"+(up.length?up.map(x=>"<div class='infoitem'><strong>"+esc(x.home_team)+" – "+esc(x.away_team)+"</strong><br><span class='mini'>"+esc(x.league||"")+" · "+esc(new Date(x.kickoff_at).toLocaleString(lang))+"</span></div>").join(""):"<div class='empty'>"+t("noUpcoming")+"</div>")+"<div class='sectionhead'>📊 "+t("tips")+"</div>"+(rows.length?"<div class='infogrid'><div class='infobox'><small>"+t("win")+"</small><strong style='color:var(--lime)'>"+wins+"</strong></div><div class='infobox'><small>"+t("loss")+"</small><strong style='color:var(--danger)'>"+losses+"</strong></div></div>"+rows.map(x=>"<div class='infoitem'>"+esc(x.spiel)+" · "+esc(x.spiel_datum)+"<br><strong>"+esc(x.ergebnis_status)+"</strong></div>").join(""):"<div class='empty'>"+t("noTips")+"</div>")+"<div style='margin-top:14px'><button class='btn primary w100' id='visit'>✓ "+t("visit")+"</button></div>"+stadiumShareHTML(s)+"<div class='sectionhead'>📷 "+t("gallery")+"</div><div id='stadiumPhotos'></div>"+renderStadiumMagazine(s.id,lang,STADIUM_MAGAZINE_ARTICLES,esc)+"<p class='mini'>"+t("notPublic")+"</p>"}
 function formHTML(){if(!memberToken)return "<div class='kicker'>BETINSIGHT · COMMUNITY</div><h3>"+esc(t("newStadium"))+"</h3>"+memberLoginHTML();return "<div class='kicker'>BETINSIGHT · COMMUNITY</div><h3>"+t("newStadium")+"</h3><p class='muted'>"+t("notPublic")+"</p><form id='suggestForm'><div class='field'><label>"+t("name")+" *</label><input name='name' required maxlength='200'></div><div class='formgrid'><div class='field'><label>"+t("city")+" *</label><input name='city' required maxlength='150'></div><div class='field'><label>"+t("country")+" *</label><input name='country' required maxlength='150'></div><div class='field full'><label>"+t("address")+"</label><input name='address' maxlength='300'></div><div class='field'><label>"+t("capacity")+"</label><input name='capacity' type='number' min='1' max='250000'></div><div class='field'><label>"+t("teams")+"</label><input name='club_names' maxlength='600'></div></div><div class='sectionhead'>"+t("position")+" *</div><button class='btn w100' type='button' id='pick'>📍 "+t("pick")+"</button><div class='formgrid' style='margin-top:10px'><div class='field'><label>"+t("lat")+"</label><input id='latitude' name='latitude' type='number' step='any' required min='-90' max='90'></div><div class='field'><label>"+t("lng")+"</label><input id='longitude' name='longitude' type='number' step='any' required min='-180' max='180'></div></div><div class='field'><label>"+t("notes")+"</label><textarea name='description' maxlength='2000'></textarea></div><div class='field'><label>"+t("source")+"</label><input name='source_url' type='url' placeholder='https://'></div><div class='field'><label>"+t("photo")+"</label><input id='uploadFiles' type='file' multiple accept='.jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp'></div><p class='mini'>"+t("photoInfo")+"</p><button class='btn primary w100' id='send' type='submit'>"+t("submit")+"</button></form>"}
 function queueHTML(){return "<div class='kicker'>BETINSIGHT · INTERNAL</div><h3>"+t("review")+"</h3><button id='reloadQueue' class='btn small'>↻ "+t("refresh")+"</button>"+(!reviewQueue.length?"<p class='empty'>"+t("queueEmpty")+"</p>":reviewQueue.map(s=>"<div class='queue-card'><div class='mini'>"+esc(s.status.toUpperCase())+" · "+esc(new Date(s.created_at).toLocaleString(lang))+"</div><h4>"+esc(s.name)+"</h4><p>"+esc(s.city)+" · "+esc(s.country)+" · "+fmt(s.capacity)+" "+t("capacity")+"</p><p class='mini'>"+esc(s.address||"")+" / "+esc((s.club_names||[]).join(", "))+"</p><p class='mini'>"+esc(s.description||"")+"</p><div class='queue-imgs'>"+reviewMedia.filter(x=>x.submission_id===s.id).map(x=>"<a href='"+esc(x.url)+"' target='_blank' rel='noopener noreferrer'><img src='"+esc(x.url)+"' alt='Photo'></a>").join("")+"</div>"+(s.status==="pending"?"<div class='adminbtns'><button class='btn small primary' data-approve='"+s.id+"'>✓ "+t("approve")+"</button><button class='btn small danger' data-reject='"+s.id+"'>✕ "+t("reject")+"</button></div>":"")+"</div>").join(""))}
 function proofQueueHTML(){return "<div class='sectionhead'>📷 "+t("photo")+"</div>"+(reviewProofs.length?reviewProofs.map(p=>{const s=all.find(x=>Number(x.id)===Number(p.stadium_id));return "<div class='queue-card'><h4>"+esc(s?.name||"Stadium")+"</h4><p class='mini'>"+esc(p.visited_on||"")+"</p><div class='queue-imgs'><a href='"+esc(p.url)+"' target='_blank' rel='noopener noreferrer'><img src='"+esc(p.url)+"' alt='Proof photo'></a></div><div class='adminbtns'><button class='btn small primary' data-proof-accept='"+p.id+"'>✓ "+t("approve")+"</button><button class='btn small danger' data-proof-reject='"+p.id+"'>✕ "+t("reject")+"</button></div></div>"}).join(""):"<div class='empty'>"+t("queueEmpty")+"</div>")}
