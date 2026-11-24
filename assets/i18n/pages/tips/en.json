@@ -177,11 +177,11 @@
     "detailIntro": "Each selected tip is shown with original odds, required Units, simulated stake and net result. Amounts use the euro slider above and are calculated only when opened.",
     "detailFoot": "When viewing “Overall”, up to ten tips appear per page. The overall totals above still include every selected tip. Historical 0-Unit tips count as €0 in the model.",
     "modelIntro": "Calculated overall result for the selected group, excluding unlock costs. Past performance does not guarantee future profits.",
-    "roiIntro": "Each published tip is weighted by the BetInsight Units originally required to unlock it. Hypothetical stake = required Units × selected euros per Unit (€1–€100). Profit or loss uses the original odds for that tip.",
-    "roiMethod": "The selected group (1–10, 11–20 or Overall) combines total stakes, payouts and net profit/loss. Betting ROI = total simulated net profit/loss ÷ total simulated stakes × 100. Units act only as stake weights and are not deducted again as unlock costs.",
-    "roiExample": "Example: 5 required Units at €10 each and odds of 2.30 mean a €50 simulated stake. Win: €115 payout and €65 net profit; loss: €50 lost. Since Units and odds differ per tip, weighted ROI differs from equal stakes. The euro slider changes totals but not the ROI percentage. Historical 0-Unit tips count as €0 stake, but still affect hit rate.",
+    "roiIntro": "Each settled tip receives the same hypothetical stake, regardless of how many BetInsight Units are required to unlock it. A win at decimal odds Q yields (Q − 1) × stake in net profit; a loss loses the entire stake.",
+    "roiMethod": "Betting ROI = total simulated net profit or loss across the selected tips ÷ total hypothetical stakes × 100. Odds are stored reference values. Unlock costs, fees and taxes are excluded.",
+    "roiExample": "Example: Ten tips at €10 per tip. One win at odds 11.00 and nine losses yield a €110 payout on €100 staked: +€10, or +10% betting ROI. The stake slider changes euro amounts, not ROI percentage.",
     "roiDisclaimer": "These figures describe past results. They are neither a staking recommendation nor a profit guarantee.",
-    "roiExtra": "A tip is missing valid odds or Units, or the group has no positive modeled stake. ROI cannot be shown accurately.",
+    "roiExtra": "At least one settled tip lacks valid odds, so the complete modeled result cannot be calculated.",
     "closeExplain": "Close explanation",
     "stakeAria": "Stake per Unit in euros, 1 to 100",
     "tabAria": "Tip centre sections",
@@ -257,6 +257,9 @@
     "emptyStatus": "Not yet assigned · no tips",
     "miniDisclaimer": "Betting ROI and balance are hypothetical calculations based on recorded reference odds, before unlocking costs, fees and taxes. “U” is a simulated stake unit, not a BetInsight account Unit.",
     "miniBalance": "Balance (U)",
-    "miniSettled": "Settled"
+    "miniSettled": "Settled",
+    "quickTips": "View tips",
+    "quickPerformance": "Performance",
+    "modelLoading": "Loading simulated stake …"
   }
 }
