@@ -1,0 +1,26 @@
+name: BetInsight translation guard
+on:
+  push:
+    paths:
+      - 'tipps/index.html'
+      - 'assets/i18n/pages/tips/**'
+      - 'scripts/check-tipcenter-i18n.mjs'
+      - '.github/workflows/tipcenter-i18n.yml'
+  pull_request:
+    paths:
+      - 'tipps/index.html'
+      - 'assets/i18n/pages/tips/**'
+      - 'scripts/check-tipcenter-i18n.mjs'
+      - '.github/workflows/tipcenter-i18n.yml'
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify all eight languages and visible tipster card labels
+        run: node scripts/check-tipcenter-i18n.mjs
