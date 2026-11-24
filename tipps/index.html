@@ -222,6 +222,20 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
 .perf-trend-head small{font-size:11px;color:#a2c9d8}
 .perf-trend svg{display:block;width:100%;height:auto;max-height:220px;background:#061e2b;border:1px solid #20536a;border-radius:12px}
 .perf-trend-foot{display:flex;justify-content:space-between;gap:12px;color:#abd0e0;font-size:11px;margin-top:8px}
+
+/* Direct-to-tips primary action + optional performance per active category. */
+.provider-grid .provider[data-provider]{cursor:default;min-height:280px}
+.provider-grid .provider[data-provider]:focus-within{border-color:#50c4f2;box-shadow:0 0 0 2px rgba(65,192,241,.14)}
+.provider-grid .provider-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:100%;margin-top:6px}
+.provider-grid .provider-action{display:flex;justify-content:center;align-items:center;text-align:center;min-width:0;min-height:41px;padding:8px 5px;border-radius:10px;font-size:11px;line-height:1.25;font-weight:900;white-space:normal;overflow-wrap:anywhere;transition:background .12s,border-color .12s}
+.provider-grid .provider-action:focus-visible{outline:3px solid #dcf9ff;outline-offset:2px}
+.provider-grid .provider-action-primary{background:#147ca6;color:#fff;border:1px solid #56c5f2}
+.provider-grid .provider-action-primary:hover{background:#2097c4}
+.provider-grid .provider-action-secondary{background:#0a3446;color:#bdeaf8;border:1px solid #38768e}
+.provider-grid .provider-action-secondary:hover{background:#164b61;border-color:#68bde1}
+.provider-grid .provider-action-secondary[aria-expanded="true"]{border-color:#7cdbf2;background:#125572;color:#fff}
+#feedTitle,#perfDisclosureTrigger{scroll-margin-top:28px}
+@media(max-width:600px){.provider-grid .provider[data-provider]{min-height:322px}.provider-grid .provider-actions{grid-template-columns:1fr;gap:5px}.provider-grid .provider-action{min-height:36px;font-size:11px;padding:7px 5px}}
 /* Spezial-Vorschau: ausschließlich Darstellung; keine Freischalt-/Wallet-Logik */
 .special-preview{grid-column:1/-1;background:linear-gradient(135deg,#0d3d50,#062530);border-color:#279aaf;gap:13px}
 .special-preview h3{font-size:clamp(19px,2.5vw,24px);margin:0}
@@ -299,11 +313,11 @@ footer{text-align:center;color:#7da6b7;font-size:11px;line-height:1.6;margin-top
   <section class="area active" id="area-neu">
     <div class="section-top"><div><h2 data-bi-i18n="tipsCenter.pick">Wähle deinen Tippgeber</h2><p class="lead" data-bi-i18n="tipsCenter.pickDesc">Jede Kategorie zeigt ausschließlich die zugehörigen neuen Tipps.</p></div></div>
     <div class="provider-grid">
-      <button type="button" class="provider selected" data-provider="Martin" aria-pressed="true"><span class="pro-top"><span class="pro-icon">⚽</span><span class="pill" data-bi-i18n="tipsCenter.tagTipster">TIPPGEBER</span></span><span class="pro-name">Martin</span><span class="pro-sub" data-bi-i18n="tipsCenter.martinSub">Fußballanalysen und individuelle Tipps</span><span class="pro-stat" id="martinMini">Gesamtperformance wird geladen …</span></button>
-      <button type="button" class="provider" data-provider="Frank" aria-pressed="false"><span class="pro-top"><span class="pro-icon">📈</span><span class="pill" data-bi-i18n="tipsCenter.tagTipster">TIPPGEBER</span></span><span class="pro-name">Frank</span><span class="pro-sub" data-bi-i18n="tipsCenter.frankSub">Analysen und aktuelle Sporttipps</span><span class="pro-stat" id="frankMini">Gesamtperformance wird geladen …</span></button>
-      <button type="button" class="provider" data-provider="Schulung" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🎓</span><span class="pill" data-bi-i18n="tipsCenter.tagLearn">LERNBEREICH</span></span><span class="pro-name" data-bi-i18n="tipsCenter.training">Schulungstipps</span><span class="pro-sub" data-bi-i18n="tipsCenter.trainingSub">Schulungsbeispiele und Demonstrationen</span><span class="pro-stat" id="trainingMini">Schulungs-Performance wird geladen …</span></button>
-      <button type="button" class="provider" data-provider="Testphase" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🏆</span><span class="pill" data-bi-i18n="tipsCenter.tagPrep">SAISONWETTEN · 1 UNIT</span></span><span class="pro-name" data-bi-i18n="tipsCenter.testing">BetInsight Spezial – Saisonwetten</span><span class="pro-sub" data-bi-i18n="tipsCenter.testingSub">Vier exklusive Saisonanalysen · je 1 Unit · Details erst nach Freischaltung</span><span class="pro-stat" id="testMini">Vier Saisonwetten · je 1 Unit</span></button>
-      <button type="button" class="provider" data-provider="WochenSpezial" aria-pressed="false"><span class="pro-top"><span class="pro-icon">🗓️</span><span class="pill" data-bi-i18n="tipsCenter.weeklyBadge">WOCHEN-SPEZIAL · 1 UNIT</span></span><span class="pro-name" data-bi-i18n="tipsCenter.weeklyName">BetInsight Wochen-Spezial</span><span class="pro-sub" data-bi-i18n="tipsCenter.weeklyDesc">Kurzfristige Analysen · Auswahl nach Freischaltung sichtbar</span><span class="pro-stat" id="weeklyMini">1 Unit je Tipp · Kauf-Units-Zurück-Garantie</span></button>
+      <div class="provider selected" data-provider="Martin" role="group"><span class="pro-top"><span class="pro-icon">⚽</span><span class="pill" data-bi-i18n="tipsCenter.tagTipster">TIPPGEBER</span></span><span class="pro-name" id="providerNameMartin">Martin</span><span class="pro-sub" data-bi-i18n="tipsCenter.martinSub">Fußballanalysen und individuelle Tipps</span><span class="pro-stat" id="martinMini">Gesamtperformance wird geladen …</span><div class="provider-actions"><button type="button" class="provider-action provider-action-primary" data-provider="Martin" data-provider-action="tips" aria-describedby="providerNameMartin"><span data-bi-i18n="tipsCenter.quickTips">Tipps ansehen</span></button><button type="button" class="provider-action provider-action-secondary" data-provider="Martin" data-provider-action="performance" aria-controls="perfDisclosure" aria-expanded="false" aria-describedby="providerNameMartin"><span data-bi-i18n="tipsCenter.quickPerformance">Performance</span></button></div></div>
+      <div class="provider" data-provider="Frank" role="group"><span class="pro-top"><span class="pro-icon">📈</span><span class="pill" data-bi-i18n="tipsCenter.tagTipster">TIPPGEBER</span></span><span class="pro-name" id="providerNameFrank">Frank</span><span class="pro-sub" data-bi-i18n="tipsCenter.frankSub">Analysen und aktuelle Sporttipps</span><span class="pro-stat" id="frankMini">Gesamtperformance wird geladen …</span><div class="provider-actions"><button type="button" class="provider-action provider-action-primary" data-provider="Frank" data-provider-action="tips" aria-describedby="providerNameFrank"><span data-bi-i18n="tipsCenter.quickTips">Tipps ansehen</span></button><button type="button" class="provider-action provider-action-secondary" data-provider="Frank" data-provider-action="performance" aria-controls="perfDisclosure" aria-expanded="false" aria-describedby="providerNameFrank"><span data-bi-i18n="tipsCenter.quickPerformance">Performance</span></button></div></div>
+      <div class="provider" data-provider="Schulung" role="group"><span class="pro-top"><span class="pro-icon">🎓</span><span class="pill" data-bi-i18n="tipsCenter.tagLearn">LERNBEREICH</span></span><span class="pro-name" id="providerNameSchulung" data-bi-i18n="tipsCenter.training">Schulungstipps</span><span class="pro-sub" data-bi-i18n="tipsCenter.trainingSub">Schulungsbeispiele und Demonstrationen</span><span class="pro-stat" id="trainingMini">Schulungs-Performance wird geladen …</span><div class="provider-actions"><button type="button" class="provider-action provider-action-primary" data-provider="Schulung" data-provider-action="tips" aria-describedby="providerNameSchulung"><span data-bi-i18n="tipsCenter.quickTips">Tipps ansehen</span></button><button type="button" class="provider-action provider-action-secondary" data-provider="Schulung" data-provider-action="performance" aria-controls="perfDisclosure" aria-expanded="false" aria-describedby="providerNameSchulung"><span data-bi-i18n="tipsCenter.quickPerformance">Performance</span></button></div></div>
+      <div class="provider" data-provider="Testphase" role="group"><span class="pro-top"><span class="pro-icon">🏆</span><span class="pill" data-bi-i18n="tipsCenter.tagPrep">SAISONWETTEN · 1 UNIT</span></span><span class="pro-name" id="providerNameTestphase" data-bi-i18n="tipsCenter.testing">BetInsight Spezial – Saisonwetten</span><span class="pro-sub" data-bi-i18n="tipsCenter.testingSub">Vier exklusive Saisonanalysen · je 1 Unit · Details erst nach Freischaltung</span><span class="pro-stat" id="testMini">Vier Saisonwetten · je 1 Unit</span><div class="provider-actions"><button type="button" class="provider-action provider-action-primary" data-provider="Testphase" data-provider-action="tips" aria-describedby="providerNameTestphase"><span data-bi-i18n="tipsCenter.quickTips">Tipps ansehen</span></button><button type="button" class="provider-action provider-action-secondary" data-provider="Testphase" data-provider-action="performance" aria-controls="perfDisclosure" aria-expanded="false" aria-describedby="providerNameTestphase"><span data-bi-i18n="tipsCenter.quickPerformance">Performance</span></button></div></div>
+      <div class="provider" data-provider="WochenSpezial" role="group"><span class="pro-top"><span class="pro-icon">🗓️</span><span class="pill" data-bi-i18n="tipsCenter.weeklyBadge">WOCHEN-SPEZIAL · 1 UNIT</span></span><span class="pro-name" id="providerNameWochenSpezial" data-bi-i18n="tipsCenter.weeklyName">BetInsight Wochen-Spezial</span><span class="pro-sub" data-bi-i18n="tipsCenter.weeklyDesc">Kurzfristige Analysen · Auswahl nach Freischaltung sichtbar</span><span class="pro-stat" id="weeklyMini">1 Unit je Tipp · Kauf-Units-Zurück-Garantie</span><div class="provider-actions"><button type="button" class="provider-action provider-action-primary" data-provider="WochenSpezial" data-provider-action="tips" aria-describedby="providerNameWochenSpezial"><span data-bi-i18n="tipsCenter.quickTips">Tipps ansehen</span></button><button type="button" class="provider-action provider-action-secondary" data-provider="WochenSpezial" data-provider-action="performance" aria-controls="perfDisclosure" aria-expanded="false" aria-describedby="providerNameWochenSpezial"><span data-bi-i18n="tipsCenter.quickPerformance">Performance</span></button></div></div>
 
       <div class="provider provider-placeholder" data-bi-i18n-aria-label="tipsCenter.emptyAriatipsters" aria-label="Freier Platz für weitere Tippgeber"><span class="pro-top"><span class="pro-icon">＋</span><span class="pill" data-bi-i18n="tipsCenter.emptyBadge">FREIER PLATZ</span></span><span class="pro-name" data-bi-i18n="tipsCenter.emptyTitletipsters">Weitere Tippgeber</span><span class="pro-sub" data-bi-i18n="tipsCenter.emptyDesctipsters">Platz für weitere unabhängige Tippgeber und ihre Statistiken.</span><span class="placeholder-status" data-bi-i18n="tipsCenter.emptyStatus">Noch nicht belegt · keine Tipps</span></div>
       <div class="provider provider-placeholder" data-bi-i18n-aria-label="tipsCenter.emptyAriaai" aria-label="Freier Platz für weitere KI-Analysen"><span class="pro-top"><span class="pro-icon">＋</span><span class="pill" data-bi-i18n="tipsCenter.emptyBadge">FREIER PLATZ</span></span><span class="pro-name" data-bi-i18n="tipsCenter.emptyTitleai">Weitere KI-Analysen</span><span class="pro-sub" data-bi-i18n="tipsCenter.emptyDescai">Hier kann später eine zusätzliche Analyse-Kategorie erscheinen.</span><span class="placeholder-status" data-bi-i18n="tipsCenter.emptyStatus">Noch nicht belegt · keine Tipps</span></div>
@@ -991,15 +1005,29 @@ var data=latest(state.results.filter(function(r){return !!status(r.ergebnis_stat
 function rerender(){mini();performance();drawNew();drawMine();drawArchive()}
 function selectArea(area){state.area=area;document.querySelectorAll(".navtab").forEach(function(b){var yes=b.dataset.tab===area;b.classList.toggle("selected",yes);b.setAttribute("aria-current",yes?"page":"false")});document.querySelectorAll(".area").forEach(function(el){el.classList.toggle("active",el.id==="area-"+area)})}
 document.querySelectorAll(".navtab").forEach(function(b){b.addEventListener("click",function(){selectArea(b.dataset.tab)})});
-document.querySelectorAll("button.provider:not([disabled])").forEach(function(b){b.addEventListener("click",function(){
- state.provider=b.dataset.provider;state.period="all";$("perfDisclosure").open=true;resetDetails();
- document.querySelectorAll(".provider").forEach(function(p){var yes=p===b;p.classList.toggle("selected",yes);p.setAttribute("aria-pressed",yes?"true":"false")});
- performance();drawNew();
- $("perfDisclosure").scrollIntoView({behavior:"smooth",block:"start"});
-})});
+function activateProvider(who,action){
+ state.provider=who;state.period="all";
+ $("perfDisclosure").open=action==="performance";resetDetails();
+ document.querySelectorAll(".provider[data-provider]").forEach(function(p){p.classList.toggle("selected",p.dataset.provider===who)});
+ document.querySelectorAll('.provider-action[data-provider-action="performance"]').forEach(function(p){
+  p.setAttribute("aria-expanded",String(action==="performance"&&p.dataset.provider===who));
+ });
+ selectArea("neu");performance();drawNew();
+ var target=action==="performance"?$("perfDisclosureTrigger"):$("feedTitle");
+ if(target)requestAnimationFrame(function(){
+  var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  target.scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
+ });
+}
+document.querySelectorAll(".provider-action").forEach(function(b){
+ b.addEventListener("click",function(){activateProvider(b.dataset.provider,b.dataset.providerAction)});
+});
 $("perfDisclosure").addEventListener("toggle",function(){
- if(this.open)performance();
- else resetDetails();
+ if(this.open)performance();else resetDetails();
+ var isOpen=this.open;
+ document.querySelectorAll('.provider-action[data-provider-action="performance"]').forEach(function(p){
+  p.setAttribute("aria-expanded",String(isOpen&&p.dataset.provider===state.provider));
+ });
 });
 $("perfDetails").addEventListener("toggle",function(){
  if(this.open){perfDetailPage=0;$("perfDetailsTitle").textContent=tr("detailsClose","☷ Einzelberechnung schließen");renderPerformanceDetails()}
